@@ -44,9 +44,9 @@ Building from source is very easy and the whole process (from cloning to being a
 
 There are two types of samples/apps in the .NET for Apache Spark repo:
 
-* ![](https://raw.githubusercontent.com/dotnet/spark/master/docs/img/app-type-getting-started.png) Getting Started - .NET for Apache Spark code focused on simple and minimalistic scenarios.
+* ![Icon](docs/img/app-type-getting-started.png) Getting Started - .NET for Apache Spark code focused on simple and minimalistic scenarios.
 
-* ![](https://github.com/dotnet/spark/raw/master/docs/img/app-type-e2e.png)  End-End apps/scenarios - Real world examples of industry standard benchmarks, usecases and business applications implemented using .NET for Apache Spark. 
+* ![Icon](docs/img/app-type-e2e.png)  End-End apps/scenarios - Real world examples of industry standard benchmarks, usecases and business applications implemented using .NET for Apache Spark. 
 
 We welcome contributions to both categories!
 
