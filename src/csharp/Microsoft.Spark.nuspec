@@ -3,8 +3,7 @@
   <metadata>
     <id>Microsoft.Spark</id>
     <version>0.1.0</version>
-    <authors>Microsoft Corporation</authors>
-    <owners>Microsoft Corporation</owners>
+    <authors>Microsoft</authors>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/dotnet/spark</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
