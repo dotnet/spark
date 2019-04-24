@@ -42,6 +42,14 @@ Building from source is very easy and the whole process (from cloning to being a
 <a name="samples"></a>
 ## Samples
 
+There are two types of samples/apps in the .NET for Apache Spark repo:
+
+* ![](https://raw.githubusercontent.com/dotnet/spark/master/docs/img/app-type-getting-started.png) Getting Started - .NET for Apache Spark code focused on simple and minimalistic scenarios.
+
+* ![](https://github.com/dotnet/spark/raw/master/docs/img/app-type-e2e.png)  End-End apps/scenarios - Real world examples of industry standard benchmarks, usecases and business applications implemented using .NET for Apache Spark. 
+
+We welcome contributions to both categories!
+
 <table>
  <tr>
    <td width="25%">
@@ -63,7 +71,7 @@ Building from source is very easy and the whole process (from cloning to being a
   </td>
     <td>
       <h5>Basic &nbsp;&nbsp;&nbsp;
-      <a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Basic.cs">C#</a> &nbsp; &nbsp; <a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Basic.fs">F#</a>&nbsp;&nbsp;&nbsp;<img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></h5>
+      <a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Basic.cs">C#</a> &nbsp; &nbsp; <a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Basic.fs">F#</a>&nbsp;&nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></a></h5>
   </td>
  </tr>
  <tr>
@@ -75,9 +83,9 @@ Building from source is very easy and the whole process (from cloning to being a
   </td>
   <td>
       <h5>Word Count &nbsp;&nbsp;&nbsp;
-      <a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.cs">C#</a> &nbsp;&nbsp;&nbsp;<a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.fs">F#</a> &nbsp;&nbsp;&nbsp;<img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></h5>
-      <h5>Windowed Word Count &nbsp;&nbsp;&nbsp;<a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCountWindowed.cs">C#</a> &nbsp; &nbsp;<a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredNetworkWordCountWindowed.fs">F#</a> &nbsp;&nbsp;&nbsp;<img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></h5>      
-      <h5>Word Count on data from <a href="https://kafka.apache.org/">Kafka</a> &nbsp;&nbsp;&nbsp;<a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.cs">C#</a> &nbsp;&nbsp;&nbsp;<a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.fs">F#</a> &nbsp; &nbsp;&nbsp;<img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></h5>
+      <a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.cs">C#</a> &nbsp;&nbsp;&nbsp;<a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.fs">F#</a> &nbsp;&nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></a></h5>
+      <h5>Windowed Word Count &nbsp;&nbsp;&nbsp;<a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCountWindowed.cs">C#</a> &nbsp; &nbsp;<a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredNetworkWordCountWindowed.fs">F#</a> &nbsp;&nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></a></h5>      
+      <h5>Word Count on data from <a href="https://kafka.apache.org/">Kafka</a> &nbsp;&nbsp;&nbsp;<a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.cs">C#</a> &nbsp;&nbsp;&nbsp;<a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.fs">F#</a> &nbsp; &nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></a></h5>
   </td>
  </tr>
  <tr>
@@ -89,9 +97,9 @@ Building from source is very easy and the whole process (from cloning to being a
   </td>
   <td>
       <h5>TPC-H Functional &nbsp;&nbsp;&nbsp;
-      <a href="benchmark/csharp/Tpch/TpchFunctionalQueries.cs">C#</a> &nbsp;&nbsp;&nbsp;<img src="docs/img/app-type-e2e.png" alt="End-to-end app icon"></h5>
+      <a href="benchmark/csharp/Tpch/TpchFunctionalQueries.cs">C#</a> &nbsp;&nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-e2e.png" alt="End-to-end app icon"></a></h5>
       <h5>TPC-H SparkSQL &nbsp;&nbsp;&nbsp;
-      <a href="benchmark/csharp/Tpch/TpchSqlQueries.cs">C#</a>  &nbsp;&nbsp;&nbsp;<img src="docs/img/app-type-e2e.png" alt="End-to-end app icon"></h5>
+      <a href="benchmark/csharp/Tpch/TpchSqlQueries.cs">C#</a>  &nbsp;&nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-e2e.png" alt="End-to-end app icon"></a></h5>
   </td>
 </tr>
  </tr> 
