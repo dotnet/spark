@@ -8,6 +8,8 @@
 
 .NET for Apache Spark runs on Windows, Linux, and macOS using .NET Core, or Windows using .NET Framework. It also runs on all major cloud providers including [Azure HDInsight Spark](deployment/README.md#azure-hdinsight-spark), [Amazon EMR Spark](deployment/README.md#amazon-emr-spark), [AWS](deployment/README.md#databricks) & [Azure](deployment/README.md#databricks) Databricks.
 
+**Note**: We currently have a Spark Project Improvement Proposal JIRA at [SPIP: .NET bindings for Apache Spark](https://issues.apache.org/jira/browse/SPARK-27006) to work with the community towards getting .NET support by default into Apache Spark. We highly encourage you to participate in the discussion. 
+
 ## Table of Contents
 
 - [Get Started](#get-started)
@@ -22,6 +24,8 @@
 - [License](#license)
 
 ## Get Started
+
+> **Note**: The first version of the Nuget package and the GitHub release for worker binaries will be made available within the next 48 hours
 
 In this section, we will show how to run a .NET for Apache Spark app using .NET Core on Windows.
 
