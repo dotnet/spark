@@ -1,15 +1,10 @@
-Developer Guide
-===============
+# Developer Guide
 
-Building the repository
-=======================
+## How to debug
 
-How to debug
-============
-
-Debugging .NET application
+### Debugging .NET application
 --------------------------
-In one command prompt window, run the following:
+Open a new command prompt window, run the following:
 ```
 spark-submit \
   --class org.apache.spark.deploy.DotnetRunner \
@@ -22,11 +17,13 @@ and you will see the followng output:
 * .NET Backend running debug mode. Press enter to exit *
 ***********************************************************************
 ```
-Leave this command prompt window open.
+In this debug mode, `DotnetRunner` does not launch the .NET application, but waits for it to connect. Leave this command prompt window open.
 
-Debugging Spark Driver
-----------------------
-If you need to debug the main class (`DotnetRunner`) started by the `spark-submit`, you can use the following command and attach a debugger to the running process using [Intellij](https://www.jetbrains.com/help/idea/attaching-to-local-process.html):
+Now you can run your .NET application with any debugger to debug your application.
+
+### Debugging Scala code
+
+If you need to debug the Scala side code (`DotnetRunner`, `DotnetBackendHandler`, etc.), you can use the following command, and attach a debugger to the running process using [Intellij](https://www.jetbrains.com/help/idea/attaching-to-local-process.html):
 
 ```
 spark-submit \
