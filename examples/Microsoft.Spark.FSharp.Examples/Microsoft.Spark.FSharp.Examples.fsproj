@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.1</TargetFrameworks>
+    <RootNamespace>Microsoft.Spark.Examples</RootNamespace>
+    <AssemblyName>Microsoft.Spark.FSharp.Examples</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="IExample.fs" />
+    <Compile Include="Sql\Streaming\StructuredNetworkWordCountWindowed.fs" />
+    <Compile Include="Sql\Streaming\StructuredNetworkWordCount.fs" />
+    <Compile Include="Sql\Streaming\StructuredKafkaWordCount.fs" />
+    <Compile Include="Sql\Basic.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\csharp\Microsoft.Spark.Worker\Microsoft.Spark.Worker.csproj" />
+    <ProjectReference Include="..\..\src\csharp\Microsoft.Spark\Microsoft.Spark.csproj" />
+  </ItemGroup>
+
+</Project>

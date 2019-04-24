@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.Spark</id>
+    <version>0.1.0</version>
+    <authors>Microsoft Corporation</authors>
+    <owners>Microsoft Corporation</owners>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/dotnet/spark</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>.NET for Apache Spark</description>
+    <releaseNotes>Initial release</releaseNotes>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>spark dotnet csharp</tags>
+    <dependencies>
+      <dependency id="Newtonsoft.Json" version="11.0.2" />
+      <dependency id="Razorvine.Pyrolite" version="4.24.0" />
+      <dependency id="Razorvine.Serpent" version="1.25.0" />
+      <dependency id="System.Configuration.ConfigurationManager" version="4.5.0" />
+      <dependency id="System.Runtime.CompilerServices.Unsafe" version="4.5.2" />
+      <dependency id="Apache.Arrow" version="0.13.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Microsoft.Spark\bin\Release\netstandard2.0\Microsoft.Spark.dll" target="lib\netstandard2.0" />
+    <file src="Microsoft.Spark\bin\Release\netstandard2.0\Microsoft.Spark.pdb" target="lib\netstandard2.0" />
+    <file src="..\scala\microsoft-spark-2.3.x\target\microsoft-spark-2.3.x-0.1.0.jar" target="jars" />
+    <file src="..\scala\microsoft-spark-2.4.x\target\microsoft-spark-2.4.x-0.1.0.jar" target="jars" />
+    <file src="build\**" target="build" />
+  </files>
+</package>

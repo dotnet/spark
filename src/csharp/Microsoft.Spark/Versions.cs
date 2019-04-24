@@ -1,0 +1,15 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+namespace Microsoft.Spark
+{
+    internal static class Versions
+    {
+        internal const string V2_3_0 = "2.3.0";
+        internal const string V2_3_1 = "2.3.1";
+        internal const string V2_3_2 = "2.3.2";
+        internal const string V2_3_3 = "2.3.3";
+        internal const string V2_4_0 = "2.4.0";
+    }
+}

@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.microsoft.scala</groupId>
+  <artifactId>microsoft-spark</artifactId>
+  <packaging>pom</packaging>
+  <version>0.1.0</version>
+  <properties>
+    <encoding>UTF-8</encoding>
+  </properties>
+
+  <modules>
+    <module>microsoft-spark-2.3.x</module>
+    <module>microsoft-spark-2.4.x</module>
+  </modules>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>scala</id>
+      <name>Scala Tools</name>
+      <url>http://scala-tools.org/repo-releases/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+</project>

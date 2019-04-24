@@ -1,0 +1,137 @@
+# Spark .NET build
+
+trigger:
+- master
+
+pool:
+  vmImage: 'VS2017-Win2016'
+
+variables:
+  solution: '**/*.sln'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@0
+  inputs:
+    versionSpec: '4.9.2'
+
+- task: DotNetCoreCLI@2
+  displayName: '.NET restore'
+  inputs:
+# Use a custom restore command because the built in restore command uses a temp nuget.config
+# which overwrites the MSBuild restore properties
+    command: 'custom'
+    custom: 'restore'
+    projects: '$(solution)'
+
+- task: DotNetCoreCLI@2
+  displayName: '.NET build'
+  inputs:
+    command: build
+    projects: '$(solution)'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: BatchScript@1
+  displayName: Publish Microsoft.Spark.Worker
+  inputs:
+    filename: script\publish-workers.cmd
+    arguments: $(Build.SourcesDirectory) $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker $(buildConfiguration)
+
+- task: DotNetCoreCLI@2
+  displayName: '.NET unit tests'
+  inputs:
+    command: test
+    projects: '**/*UnitTest/*.csproj'
+    arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+
+- task: Maven@3
+  displayName: 'Maven build src'
+  inputs:
+    mavenPomFile: src/scala/pom.xml
+
+- task: Maven@3
+  displayName: 'Maven build benchmark'
+  inputs:
+    mavenPomFile: benchmark/scala/pom.xml
+
+- task: NuGetCommand@2
+  inputs:
+    command: pack
+    packagesToPack: '$(Build.SourcesDirectory)\src\csharp\Microsoft.Spark.nuspec'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: Microsoft.Spark.Binaries
+
+- task: BatchScript@1
+  displayName: Download Spark Distros & Winutils.exe
+  inputs:
+    filename: script\download-spark-distros.cmd
+    arguments: $(Build.BinariesDirectory)
+
+- task: DotNetCoreCLI@2
+  displayName: 'E2E tests for Spark 2.3.0'
+  inputs:
+    command: test
+    projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+    arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+  env:
+    SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
+    HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
+    DotnetWorkerPath: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
+
+- task: DotNetCoreCLI@2
+  displayName: 'E2E tests for Spark 2.3.1'
+  inputs:
+    command: test
+    projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+    arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+  env:
+    SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
+    HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
+    DotnetWorkerPath: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
+
+- task: DotNetCoreCLI@2
+  displayName: 'E2E tests for Spark 2.3.2'
+  inputs:
+    command: test
+    projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+    arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+  env:
+    SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
+    HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
+    DotnetWorkerPath: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
+
+- task: DotNetCoreCLI@2
+  displayName: 'E2E tests for Spark 2.3.3'
+  inputs:
+    command: test
+    projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+    arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+  env:
+    SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
+    HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
+    DotnetWorkerPath: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
+
+- task: DotNetCoreCLI@2
+  displayName: 'E2E tests for Spark 2.4.0'
+  inputs:
+    command: test
+    projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+    arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+  env:
+    SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
+    HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
+    DotnetWorkerPath: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
+
+- task: DotNetCoreCLI@2
+  displayName: 'E2E tests for Spark 2.4.1'
+  inputs:
+    command: test
+    projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+    arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+  env:
+    SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
+    HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
+    DotnetWorkerPath: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
