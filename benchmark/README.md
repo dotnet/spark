@@ -4,7 +4,7 @@ Benchmarking
 # Generate Data
 > *TODO* instructions to be provided
 # Cluster Run
-TPCH timing results is written to stdout in the following form: `TPCH_Result,<language>,<test type>,<query number>,<iteration>,<total time taken for iteration>,<time taken to run query>`
+TPCH timing results is written to stdout in the following form: `TPCH_Result,<language>,<test type>,<query number>,<iteration>,<total time taken for iteration in milliseconds>,<time taken to run query in milliseconds>`
 
 - Cold Run
    - Each <query + iteration> uses a new spark-submit
@@ -13,8 +13,8 @@ TPCH timing results is written to stdout in the following form: `TPCH_Result,<la
    - Each iteration reuses the Spark Session after creating the Dataframe (therefore, skips the load phase that does file enumeration)
 
 ## CSharp
-1. Ensure that the Microsoft.Spark.Worker is properly [installed](../deployment#cloud-deployment) in your cluster.
-2. Build `microsoft-spark-<spark_majorversion.spark_minorversi on.x>-<spark_dotnet_version>.jar` and the [CSharp Tpch benchmark](csharp/Tpch) application by following the [build instructions](../README.md#building-from-source).
+1. Ensure that the Microsoft.Spark.Worker is properly [installed](../deployment/README.md#cloud-deployment) in your cluster.
+2. Build `microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar` and the [CSharp Tpch benchmark](csharp/Tpch) application by following the [build instructions](../README.md#building-from-source).
 3. Upload [run_csharp_benchmark.sh](run_csharp_benchmark.sh), the Tpch benchmark application, and `microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar` to the cluster.
 4. Run the benchmark by invoking:
     ```shell
