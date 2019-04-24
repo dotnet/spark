@@ -28,7 +28,7 @@
 In this section, we will show how to run a .NET for Apache Spark app using .NET Core on Windows.
 
 1. **Pre-requisites**: 
-    - Download and install the following: **[.NET Core 2.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.0)** | **[Visual Studio 2019](https://www.visualstudio.com/downloads/)** | **[Java 1.8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)** | **[Apache Spark 2.4.x](https://spark.apache.org/downloads.html)**
+    - Download and install the following: **[.NET Core 2.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.1)** | **[Visual Studio 2019](https://www.visualstudio.com/downloads/)** | **[Java 1.8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)** | **[Apache Spark 2.4.x](https://spark.apache.org/downloads.html)**
     - Download and install **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release:
       - Select a **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release from .NET for Apache Spark GitHub Releases page and download into your local machine (e.g., `c:\bin\Microsoft.Spark.Worker\`).
       - **IMPORTANT** Create a [new environment variable](https://www.java.com/en/download/help/path.xml) `DotnetWorkerPath` and set it to the directory where you downloaded and extracted the Microsoft.Spark.Worker (e.g., `c:\bin\Microsoft.Spark.Worker`).
