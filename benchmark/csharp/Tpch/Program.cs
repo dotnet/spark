@@ -25,18 +25,21 @@ namespace Tpch
             var numIteration = int.Parse(args[2]);
             var isSQL = bool.Parse(args[3]);
 
+            SparkSession spark = SparkSession
+                .Builder()
+                .AppName("TPC-H Benchmark for DotNet")
+                .GetOrCreate();
+
             for (var i = 0; i < numIteration; ++i)
             {
-                SparkSession spark = SparkSession
-                    .Builder()
-                    .AppName("TPC-H Benchmark for DotNet")
-                    .GetOrCreate();
-
                 Stopwatch sw = Stopwatch.StartNew();
+                Stopwatch swFunc = new Stopwatch();
                 if (!isSQL)
                 {
                     var tpchFunctional = new TpchFunctionalQueries(tpchRoot, spark);
+                    swFunc.Start();
                     tpchFunctional.Run(queryNumber.ToString());
+                    swFunc.Stop();
                 }
                 else
                 {
@@ -46,10 +49,10 @@ namespace Tpch
                 sw.Stop();
 
                 var typeStr = isSQL ? "SQL" : "Functional";
-                Console.WriteLine($"TPCH_Result,DotNet,{typeStr},{queryNumber},{i},{sw.ElapsedMilliseconds}");
-
-                spark.Stop();
+                Console.WriteLine($"TPCH_Result,DotNet,{typeStr},{queryNumber},{i},{sw.ElapsedMilliseconds},{swFunc.ElapsedMilliseconds}");
             }
+
+            spark.Stop();
         }
     }
 }
