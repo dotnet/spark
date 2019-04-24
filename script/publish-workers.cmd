@@ -8,8 +8,7 @@ set Build.Configuration=%3
 
 CALL :PublishWorker net461, win-x64
 CALL :PublishWorker netcoreapp2.1, win-x64 
-CALL :PublishWorker netcoreapp2.1, ubuntu.16.04-x64
-CALL :PublishWorker netcoreapp2.1, ubuntu.18.04-x64
+CALL :PublishWorker netcoreapp2.1, linux-x64
 EXIT /B %ERRORLEVEL%
 
 :PublishWorker
