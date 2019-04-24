@@ -13,6 +13,6 @@
     </RestoreSources>
     <Version>0.1.0</Version>
     <Product>.NET for Apache Spark</Product>
-    <Copyright>© Microsoft Corporation. All rights reserved. </Copyright>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
   </PropertyGroup>
 </Project>
