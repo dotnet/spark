@@ -1,7 +1,10 @@
 # Spark .NET build
 
 trigger:
-- master
+  batch: true
+  branches:
+    include:
+    - master
 
 variables:
   solution: '**/*.sln'
