@@ -23,30 +23,35 @@ object App {
     val numIteration = args(2).toInt
     val isSql = Try(args(3).toBoolean).getOrElse(false)
 
-    for (i <- 0 until numIteration) {
-      val spark = SparkSession
-        .builder()
-        .appName("TPC-H Benchmark for Scala")
-        .getOrCreate()
+    val spark = SparkSession
+      .builder()
+      .appName("TPC-H Benchmark for Scala")
+      .getOrCreate()
 
+    for (i <- 0 until numIteration) {
       val startTs = System.currentTimeMillis
+      var startFunc = System.currentTimeMillis
+      var endFunc = System.currentTimeMillis
 
       if (!isSql) {
         val tpchFunctional = new TpchFunctionalQueries(spark, tpchRoot)
+        startFunc = System.currentTimeMillis
         tpchFunctional.run(queryNumber.toString)
+        endFunc = System.currentTimeMillis
       }
       else {
       }
 
       val endTs = System.currentTimeMillis
       val totalTime = endTs - startTs
+      val totalTimeFunc = endFunc - startFunc
 
       val typeStr = if (isSql) "SQL"
       else "Functional"
 
-      println(s"TPCH_Result,Scala,$typeStr,$queryNumber,$i,$totalTime")
-
-      spark.stop()
+      println(s"TPCH_Result,Scala,$typeStr,$queryNumber,$i,$totalTime,$totalTimeFunc")
     }
+
+    spark.stop()
   }
 }
