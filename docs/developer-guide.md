@@ -3,7 +3,7 @@
 ## How to debug
 
 ### Debugging .NET application
---------------------------
+
 Open a new command prompt window, run the following:
 ```
 spark-submit \
