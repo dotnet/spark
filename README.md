@@ -6,6 +6,8 @@
 
 .NET for Apache Spark is compliant with .NET Standard - a formal specification of .NET APIs that are common across .NET implementations. This means you can use .NET for Apache Spark anywhere you write .NET code allowing you to reuse all the knowledge, skills, code, and libraries you already have as a .NET developer. 
 
+.NET for Apache Spark runs on Windows, Linux, and macOS using .NET Core, or Windows using .NET Framework. It also runs on all major cloud providers including [Azure HDInsight Spark](deployment/README.md#azure-hdinsight-spark), [Amazon EMR Spark](deployment/README.md#amazon-emr-spark), [AWS](deployment/README.md#databricks) & [Azure](deployment/README.md#databricks) Databricks.
+
 ## Table of Contents
 
 - [Get Started](#get-started)
@@ -21,14 +23,52 @@
 
 ## Get Started
 
+In this section, we will show how to run a .NET for Apache Spark app using .NET Core on Windows.
 
+1. **Pre-requisites**: 
+    - Download and install the following: **[.NET Core 3.0 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.0)** | **[Visual Studio 2019](https://www.visualstudio.com/downloads/)** | **[Java 1.8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)** | **[Apache Spark 2.4.x](https://spark.apache.org/downloads.html)**
+    - Download and install **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release:
+      - Select a **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release from .NET for Apache Spark GitHub Releases page and download into your local machine (e.g., `c:\bin\Microsoft.Spark.Worker\`).
+      - **IMPORTANT** Create a [new environment variable](https://www.java.com/en/download/help/path.xml) `DotnetWorkerPath` and set it to the directory where you downloaded and extracted the Microsoft.Spark.Worker (e.g., `c:\bin\Microsoft.Spark.Worker`).
+  
+    For detailed instructions, you can see [Building .NET for Apache Spark from Source on Windows](docs/building/windows-instructions.md).
+2. **Authoring a .NET for Apache Spark App**:
+    - Open Visual Studio -> Create New Project -> Console App (.NET Core) -> Name: `HelloSpark`
+    - Install `Microsoft.Spark` Nuget package into the solution from the [spark nuget.org feed](https://www.nuget.org/profiles/spark) - see [Ways to install Nuget Package](https://docs.microsoft.com/en-us/nuget/consume-packages/ways-to-install-a-package)
+    - Write the following code into `Program.cs`:
+      ```csharp
+        var spark = SparkSession.Builder().GetOrCreate();
+        var df = spark.Read().Json("people.json");
+        df.Show();
+      ```
+    - Build the solution
+3. **Running your .NET for Apache Spark App**:
+    - Open your terminal and navigate into your app folder:
+      ```
+           cd <your-app-output-directory>
+      ```
+    - Create `people.json` with the following content:
+      ```json
+          {"name":"Michael"}
+          {"name":"Andy", "age":30}
+          {"name":"Justin", "age":19}
+      ```
+    - Run your app
+      ```
+           spark-submit `
+           --class org.apache.spark.deploy.DotnetRunner `
+           --master local `
+           microsoft-spark-2.4.x-<version>.jar `
+           HelloSpark
+       ```
+       Note that this command assumes you have downloaded Apache Spark and added it to your PATH environment variable. For detailed instructions, you can see [Building .NET for Apache Spark from Source on Windows](docs/building/windows-instructions.md).
 
 ## Build Status
 
-| ![Ubuntu icon](docs/img/ubuntu-icon-32.png) | ![Ubuntu icon](docs/img/ubuntu-icon-32.png) | ![Windows icon](docs/img/windows-icon-32.png) |
-| :---:         |     :---:      |          :---: |
-| Ubuntu 16.04 | Ubuntu 18.04 | Windows 10 |
-| | | [![Build Status](https://dnceng.visualstudio.com/public/_apis/build/status/dotnet.spark?branchName=master)](https://dev.azure.com/dnceng/public/_build?definitionId=459?branchName=master)|
+| ![Ubuntu icon](docs/img/ubuntu-icon-32.png) | ![Windows icon](docs/img/windows-icon-32.png) |
+| :---:         |          :---: |
+| Ubuntu | Windows |
+| | [![Build Status](https://dnceng.visualstudio.com/public/_apis/build/status/dotnet.spark?branchName=master)](https://dev.azure.com/dnceng/public/_build?definitionId=459?branchName=master)|
 
 ## Building from Source
 
