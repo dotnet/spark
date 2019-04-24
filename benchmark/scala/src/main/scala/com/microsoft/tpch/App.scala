@@ -14,8 +14,10 @@ object App {
   def main(args: Array[String]) {
     if (args.length != 4) {
       println("Usage:")
-      println("\t<spark-submit> --master local --class com.microsoft.tpch.App microsoft-spark-examples-<version>.jar")
+      println("\t<spark-submit> --master local --class com.microsoft.tpch.App microsoft-spark-benchmark-<version>.jar")
       println("\t\t<tpch_data_root_path> <query_number> <num_iterations> <true for SQL | false for functional>")
+
+      return
     }
 
     val tpchRoot = args(0)
