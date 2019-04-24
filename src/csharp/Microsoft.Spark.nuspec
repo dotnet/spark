@@ -13,8 +13,6 @@
     <tags>spark dotnet csharp</tags>
     <dependencies>
       <dependency id="Newtonsoft.Json" version="11.0.2" />
-      <dependency id="Razorvine.Pyrolite" version="4.24.0" />
-      <dependency id="Razorvine.Serpent" version="1.25.0" />
       <dependency id="System.Configuration.ConfigurationManager" version="4.5.0" />
       <dependency id="System.Runtime.CompilerServices.Unsafe" version="4.5.2" />
       <dependency id="Apache.Arrow" version="0.13.0" />
