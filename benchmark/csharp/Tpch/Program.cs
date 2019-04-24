@@ -18,6 +18,8 @@ namespace Tpch
                 Console.WriteLine("\t<spark-submit> --master local");
                 Console.WriteLine("\t\t--class org.apache.spark.deploy.DotnetRunner <path-to-microsoft-spark-jar>");
                 Console.WriteLine("\t\tTpch.exe <tpch_data_root_path> <query_number> <num_iterations> <true for SQL | false for functional>");
+
+                return;
             }
 
             var tpchRoot = args[0];
