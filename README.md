@@ -28,7 +28,7 @@
 | ![Ubuntu icon](docs/img/ubuntu-icon-32.png) | ![Ubuntu icon](docs/img/ubuntu-icon-32.png) | ![Windows icon](docs/img/windows-icon-32.png) |
 | :---:         |     :---:      |          :---: |
 | Ubuntu 16.04 | Ubuntu 18.04 | Windows 10 |
-| | | [![Build Status](https://dnceng.visualstudio.com/internal/_apis/build/status/spark.net?branchName=master)](https://dnceng.visualstudio.com/internal/_build/latest?definitionId=301?branchName=master)|
+| | | [![Build Status](https://dnceng.visualstudio.com/public/_apis/build/status/dotnet.spark?branchName=master)](https://dev.azure.com/dnceng/public/_build?definitionId=459?branchName=master)|
 
 ## Building from Source
 
