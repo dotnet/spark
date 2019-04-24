@@ -25,8 +25,6 @@
 
 ## Get Started
 
-> **Note**: The first version of the Nuget package and the GitHub release for worker binaries will be made available within the next 48 hours
-
 In this section, we will show how to run a .NET for Apache Spark app using .NET Core on Windows.
 
 1. **Pre-requisites**: 
