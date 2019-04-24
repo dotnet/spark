@@ -19,25 +19,27 @@ def main():
     input_dir = sys.argv[1]
     query_number = sys.argv[2]
     num_iterations = int(sys.argv[3])
-    is_sql = sys.argv[4].lower() in ("true")
+    is_sql = sys.argv[4].lower() == "true"
 
+    spark = SparkSession.builder.appName('TPCH Benchmark for Python').getOrCreate()
     for iter in range(0, num_iterations):
         print("TPCH Starting iteration {0} with query #{1}".format(iter, query_number))
-        spark = SparkSession.builder.appName('TPCH Benchmark for Python').getOrCreate()
 
-        start = time.time()
+        start = startFunc = endFunc = time.time()
         if (is_sql == False):
             queries = TpchFunctionalQueries(spark, input_dir)
+            startFunc = time.time()
             getattr(queries, "q" + query_number)()
+            endFunc = time.time()
         else:
             queries = TpchSqlQueries(spark, input_dir)
             getattr(queries, "q" + query_number)()
         end = time.time()
 
         typeStr = "SQL" if is_sql else "Functional"
-        print("TPCH_Result,Python,%s,%s,%d,%d" % (typeStr, query_number, iter, (end-start) * 1000))
+        print("TPCH_Result,Python,%s,%s,%d,%d,%d" % (typeStr, query_number, iter, (end-start) * 1000, (endFunc-startFunc) * 1000))
 
-        spark.stop()
+    spark.stop()
 
 if __name__ == '__main__':
     main()
