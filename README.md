@@ -25,7 +25,7 @@
 
 ## Get Started
 
-> **Note**: The first version of the Nuget package and the GitHub release for worker binaries will be made available within the next 48 hours
+> **Note**: The first version of the Nuget package and the GitHub release for worker binaries will be made available within the next 48 hours. If you itching to try this out sooner, you can still [build from source](#building-from-source).
 
 In this section, we will show how to run a .NET for Apache Spark app using .NET Core on Windows.
 
