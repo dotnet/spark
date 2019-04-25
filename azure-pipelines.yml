@@ -204,7 +204,7 @@ jobs:
       displayName: 'Sign .NET binaries'
       inputs:
         solution: eng/Sign.proj
-        msbuildArguments:  /t:SignBinaries
+        msbuildArguments: /t:SignBinaries
                           /p:SignSparkBinaries=true
                           /p:SignAssetsDir=$(Build.SourcesDirectory)\src\csharp\Microsoft.Spark\bin\$(buildConfiguration)\
                           /p:SignType=$(_SignType)
@@ -229,11 +229,13 @@ jobs:
                           /p:SignAssetsDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Microsoft.Spark.Worker\
                           /p:SignType=$(_SignType)
         msbuildVersion: 15.0
-
-    - task: NuGetCommand@2
+ 
+    - task: DotNetCoreCLI@2
+      displayName: 'Create NuGet packages'
       inputs:
         command: pack
-        packagesToPack: '$(Build.SourcesDirectory)\src\csharp\Microsoft.Spark.nuspec'
+        projects: '$(solution)'
+        arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 
     - task: MSBuild@1
       displayName: 'Sign nuget packages'

@@ -1,10 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Microsoft.Spark</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName).xml</DocumentationFile>
+
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <Description>.NET for Apache Spark</Description>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageProjectUrl>https://github.com/dotnet/spark</PackageProjectUrl>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <PackageTags>spark;dotnet;csharp</PackageTags>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,4 +27,18 @@
     <PackageReference Include="System.Memory" Version="4.5.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\scala\microsoft-spark-*\target\microsoft-spark-*.jar" Link="jars\%(Filename)%(Extension)">
+      <Pack>true</Pack>
+      <PackagePath>jars\%(Filename)%(Extension)</PackagePath>
+    </Content>
+    <Content Include="..\build\**" Link="build\%(Filename)%(Extension)">
+      <Pack>true</Pack>
+      <PackagePath>build\netstandard2.0</PackagePath>
+    </Content>
+  </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -6,6 +6,7 @@
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.1</TargetFrameworks>
     <RootNamespace>Microsoft.Spark.Examples</RootNamespace>
     <AssemblyName>Microsoft.Spark.FSharp.Examples</AssemblyName>
+      <IsPackable>False</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
