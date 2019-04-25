@@ -7,7 +7,7 @@ Follow the registration instructions and download to local disk with at least 30
 Follow the instructions for registration and download the tool and copy to local disk with free space larger than 300GB.
 
 2. Build the dbgen tool.
-Decompress the zip file, then navigate to “dbgen” folder.
+- Decompress the zip file, then navigate to “dbgen” folder.
 - The TPC-H README contains instructions on how to build the tool in Linux.
 For Windows users, you can generate the dbgen.exe using Visual Studio: 
 (a)	In the “dbgen” folder, you will see “tpch.sln”, open it using Visual Studio (VS2015 or VS2017 should work).
