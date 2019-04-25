@@ -6,18 +6,18 @@ Benchmarking
 Follow the instructions for registration and download the tool and copy to local disk with free space larger than 300GB.
 
 2. Build the dbgen tool.
-    - Decompress the zip file, then navigate to “dbgen” folder.
+    - Decompress the zip file, then navigate to `dbgen` folder.
     - The TPC-H README contains instructions on how to build the tool in Linux.
     - For Windows users, you can generate the dbgen.exe using Visual Studio: 
         - i. In the `dbgen` folder, you will see `tpch.sln`, open it using Visual Studio (VS2015 or VS2017 should work).
         - ii. Click on tab “Build”, then “Build Solution”. 
-        - iii. Once the build is successful, it should generate "dbgen.exe" and "qgen.exe " in the “Debug” folder.
+        - iii. Once the build is successful, it should generate `dbgen.exe` and `qgen.exe` in the `Debug` folder.
 
 3. Generate the data.
     - The TPC-H README contains instructions on how to generate a database population in Linux OS.
     - For Windows users:
         - i. Copy `dbgen.exe` to the `dbgen` folder
-        - ii. Open cmd terminal, navigate to “dbgen” folder, and type command: dbgen -vf -s 300, which is generating 300GB TPCH dataset. It could take up to 40 hours to complete. Note that you can use command: dbgen -h, to check all the options. 
+        - ii. Open cmd terminal, navigate to `dbgen` folder, and type command: `dbgen -vf -s 300`, which is generating 300GB TPCH dataset. It could take up to 40 hours to complete. Note that you can use command: `dbgen -h`, to check all the options. 
     - After database population generation is completed, you will see 8 tables (customer, lineitem, nation, orders, part, partsupp, region, supplier) in tbl format:
 
 
