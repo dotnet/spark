@@ -15,7 +15,7 @@ Follow the instructions for registration and download the tool and copy to local
 (c)	Once the build is successful, it should generate "dbgen.exe" and "qgen.exe " in the “Debug” folder.
 
 3. Generate the data.
-In the README, it has the instructions on how to generate a database population in Linux OS.
+- The TPC-H README contains instructions on how to generate a database population in Linux OS.
 For Windows users, you can:
 (a)	Copy “dbgen.exe” from “Debug” folder to the “dbgen” folder. 
 (b)	Open cmd terminal, navigate to “dbgen” folder, and type command: dbgen -vf -s 300, which is generating 300GB TPCH dataset. It could take up to 40 hours to complete. Note that you can use command: dbgen -h, to check all the options. 
