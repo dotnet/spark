@@ -58,8 +58,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameReader object</returns>
         public DataFrameReader Option(string key, string value)
         {
-            OptionInternal(key, value);
-            return this;
+            return OptionInternal(key, value);
         }
 
         /// <summary>
@@ -70,8 +69,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameReader object</returns>
         public DataFrameReader Option(string key, bool value)
         {
-            OptionInternal(key, value);
-            return this;
+            return OptionInternal(key, value);
         }
 
         /// <summary>
@@ -82,8 +80,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameReader object</returns>
         public DataFrameReader Option(string key, long value)
         {
-            OptionInternal(key, value);
-            return this;
+            return OptionInternal(key, value);
         }
 
         /// <summary>
@@ -94,8 +91,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameReader object</returns>
         public DataFrameReader Option(string key, double value)
         {
-            OptionInternal(key, value);
-            return this;
+            return OptionInternal(key, value);
         }
 
         /// <summary>
