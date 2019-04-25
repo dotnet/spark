@@ -29,7 +29,7 @@ Follow the instructions for registration and download the tool and copy to local
         - supplier.tbl
 
 4. Convert to parquet format using a simple Spark application code. 
-You can copy paste the application [code](http://www.tpc.org/tpc_documents_current_versions/current_specifications.asp) in your IDE, and run the job to convert the TPCH dataset to parquet format. 
+You can copy paste the application [code](https://github.com/laserljy/spark-1/commit/c01ba709f7797e55ed96ff4fcd23f090f26b5bcf) in your IDE, and run the job to convert the TPCH dataset to parquet format. 
 
 # Cluster Run
 TPCH timing results is written to stdout in the following form: `TPCH_Result,<language>,<test type>,<query number>,<iteration>,<total time taken for iteration in milliseconds>,<time taken to run query in milliseconds>`
