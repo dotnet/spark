@@ -2,7 +2,7 @@ Benchmarking
 ===
 
 # Generate Data
-1. Download the available dbgen tool from TPC org: http://www.tpc.org/tpc_documents_current_versions/current_specifications.asp
+1. [Download](http://www.tpc.org/tpc_documents_current_versions/current_specifications.asp) the TPC-H benchmark tool.
 There are many different Benchmarks, you just need to download the corresponding tool for TPC-H. Click on Download TPC-H_Tools_[version].zip
 Follow the instructions for registration and download the tool and copy to local disk with free space larger than 300GB.
 
