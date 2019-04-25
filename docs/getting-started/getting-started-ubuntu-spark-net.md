@@ -13,7 +13,7 @@ These instructions help get you started with Spark on Ubuntu 18.04
 
 Navigate to the following [link](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and download `jdk-8u211-linux-x64.tar.gz`.
 
-Then, extract the contents of the `tar.gz` folder:
+Then, extract the contents of the `tar.gz` folder with the following command:
 
 ```bash
 tar -xvzf jdk-8u211-linux-x64.tar.gz
@@ -67,11 +67,13 @@ sudo apt-get install dotnet-sdk-2.1
 
 ### Download Microsoft.Spark.Worker
 
+Download the `Microsoft.Spark.Worker` files by entering the following command into the terminal:
+
 ```bash
 wget https://github.com/dotnet/spark/releases/download/v0.1.0/Microsoft.Spark.Worker.netcoreapp2.1.linux-x64-0.1.0.tar.gz
 ```
 
-Extract the contents of the compressed directory
+Then, extract the contents of the compressed folder by entering the following command into the terminal:
 
 ```bash
 tar -xvzf Microsoft.Spark.Worker.netcoreapp2.1.linux-x64-0.1.0.tar.gz
@@ -79,7 +81,7 @@ tar -xvzf Microsoft.Spark.Worker.netcoreapp2.1.linux-x64-0.1.0.tar.gz
 
 ## Set Environment Variables
 
-Set up environment variables with the following commands:
+Set up environment variables by entering the following commands into the terminal:
 
 ```bash
 echo "export JAVA_HOME=~/jdk1.8.0_211" >> ~/.bashrc
@@ -93,11 +95,15 @@ source ~/.bashrc
 
 ## Create Console Application
 
+Use the `dotnet` CLI in the terminal to create a console application
+
 ```bash
 dotnet new console -o HelloSpark && cd HelloSpark
 ```
 
-## Install Nuget Package
+## Install Microsoft.Spark NuGet Package
+
+Then, use the `dotnet` CLI in the terminal to add the `Microsoft.Spark` [NuGet package](https://www.nuget.org/packages/Microsoft.Spark/)
 
 ```bash
 dotnet add package Microsoft.Spark
@@ -138,7 +144,7 @@ Add the following content to your `HelloSpark.csproj` file:
 
 ## Create Data
 
-Inside of the `HelloSpark` directory, enter the following command
+Inside of the `HelloSpark` directory, enter the following command into the terminal:
 
 ```bash
 cat << EOF > people.json
@@ -158,7 +164,7 @@ dotnet publish -f netcoreapp2.1 -r linux-x64 ./HelloSpark.csproj
 
 ## Run The Application
 
-From the `HelloSpark` directory, enter the following command to run the application:
+From the `HelloSpark` directory, enter the following command into the terminal to run the application:
 
 ```bash
 spark-submit \
