@@ -10,7 +10,7 @@ Follow the instructions for registration and download the tool and copy to local
 - Decompress the zip file, then navigate to “dbgen” folder.
 - The TPC-H README contains instructions on how to build the tool in Linux.
 - For Windows users, you can generate the dbgen.exe using Visual Studio: 
-(a)	In the “dbgen” folder, you will see “tpch.sln”, open it using Visual Studio (VS2015 or VS2017 should work).
+   1. In the `dbgen` folder, you will see `tpch.sln`, open it using Visual Studio (VS2015 or VS2017 should work).
 (b)	Click on tab “Build”, then “Build Solution”. 
 (c)	Once the build is successful, it should generate "dbgen.exe" and "qgen.exe " in the “Debug” folder.
 
