@@ -4,7 +4,7 @@ These instructions help get you started with Spark on Ubuntu 18.04.
 
 ## Download and Install Prerequisites
 
-For instructions on how to download and install the pre-requisites, refer to the [Get Started](https://github.com/dotnet/spark#get-started) documentation.
+For instructions on how to download and install the pre-requisites, refer to the [Ubuntu build instructions](../building/ubuntu-instructions.md#pre-requisites) documentation.
 
 ## Create Console Application
 
