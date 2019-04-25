@@ -18,15 +18,8 @@ Follow the instructions for registration and download the tool and copy to local
     - For Windows users:
         - i. Copy `dbgen.exe` to the `dbgen` folder
         - ii. Open cmd terminal, navigate to “dbgen” folder, and type command: dbgen -vf -s 300, which is generating 300GB TPCH dataset. It could take up to 40 hours to complete. Note that you can use command: dbgen -h, to check all the options. 
-    - After database population generation is completed, you will see 8 tables with .tbl format:
-        - customer.tbl
-        - lineitem.tbl
-        - nation.tbl
-        - orders.tbl
-        - part.tbl
-        - partsupp.tbl
-        - region.tbl
-        - supplier.tbl
+    - After database population generation is completed, you will see 8 tables (customer, lineitem, nation, orders, part, partsupp, region, supplier) in tbl format:
+
 
 4. Convert to parquet format using a simple Spark application code. 
 You can copy paste the application [code](https://github.com/laserljy/spark-1/commit/c01ba709f7797e55ed96ff4fcd23f090f26b5bcf) in your IDE, and run the job to convert the TPCH dataset to parquet format. 
