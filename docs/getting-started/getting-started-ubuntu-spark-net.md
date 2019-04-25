@@ -35,7 +35,7 @@ sudo update-alternatives
 
 ### Download Spark
 
-Download the latest version of Spark:
+Download the latest version of Spark (Support up to 2.4.1):
 
 ```bash
 wget https://archive.apache.org/dist/spark/spark-2.4.1/spark-2.4.1-bin-hadoop2.7.tgz
