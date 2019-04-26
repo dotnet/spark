@@ -236,8 +236,7 @@ namespace Microsoft.Spark.Sql
         /// Saves the content of the DataFrame in CSV format at the specified path.
         /// </summary>
         /// <param name="path">Path to save the content</param>
-        public void Csv(string path) => _jvmObject.Invoke("csvs", path);
-
+        public void Csv(string path) => _jvmObject.Invoke("csv", path);
 
         /// <summary>
         /// Helper function to add given key/value pair as a new option.

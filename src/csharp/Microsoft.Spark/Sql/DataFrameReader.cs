@@ -114,8 +114,7 @@ namespace Microsoft.Spark.Sql
         /// </remarks>
         /// <param name="paths">Input paths</param>
         /// <returns>DataFrame object</returns>
-        public DataFrame Load(params string[] paths) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("load", paths));
+        public DataFrame Load(params string[] paths) => LoadSource("load", paths);
 
         /// <summary>
         /// Loads a JSON file (one object per line) and returns the result as a DataFrame.
@@ -178,7 +177,7 @@ namespace Microsoft.Spark.Sql
                 throw new ArgumentException($"paths cannot be empty for source: {source}");
             }
 
-            return new DataFrame((JvmObjectReference)_jvmObject.Invoke(source, paths));
+            return new DataFrame((JvmObjectReference)_jvmObject.Invoke(source, (object)paths));
         }
     }
 }
