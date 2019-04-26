@@ -15,7 +15,6 @@ import org.apache.spark.sql.{SaveMode, SparkSession}
 object ConvertTpchCsvToParquetApp {
   def main(args: Array[String]): Unit = {
     val spark = SparkSession.builder()
-      // .master(s"local[*]") // UnComment this line to run locally.
       .appName(this.getClass.getName)
       .getOrCreate()
 
