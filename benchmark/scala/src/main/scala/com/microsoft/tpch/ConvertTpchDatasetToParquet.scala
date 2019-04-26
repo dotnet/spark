@@ -18,8 +18,10 @@ object ConvertTpchCsvToParquetApp {
       .appName(this.getClass.getName)
       .getOrCreate()
 
-    val tpchCsvRootFolderPath = args(1)
-    val tpchParquetRootFolderPath = args(2)
+    // The 1st arg should be the folder containing TPCH tables.
+    val tpchSourceFolderPath = args(1)
+    // The 2nd arg should be the destination folder to save TPCH parquet files.   
+    val tpchDestinationFolderPath = args(2)
 
     // Convert CSV files to Parquet files.
     for (i <- TpchSchema.tpchTables.indices) {
@@ -28,12 +30,12 @@ object ConvertTpchCsvToParquetApp {
         .format("csv")
         .option("delimiter", "|")
         .schema(TpchSchema.tpchTables(i)._2)
-        .load(tpchCsvRootFolderPath + "/" + TpchSchema.tpchTables(i)._1 + ".tbl")
+        .load(tpchSourceFolderPath + "/" + TpchSchema.tpchTables(i)._1 + ".tbl")
 
       df.write
         .mode(SaveMode.Overwrite)
         .format("parquet")
-        .save(tpchParquetRootFolderPath + "/" + TpchSchema.tpchTables(i)._1)
+        .save(tpchDestinationFolderPath + "/" + TpchSchema.tpchTables(i)._1)
     }
   }
 }
