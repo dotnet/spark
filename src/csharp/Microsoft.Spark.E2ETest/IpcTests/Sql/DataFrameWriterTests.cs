@@ -53,13 +53,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                         }));
 
 
-                dfw.PartitionBy("age");
-                dfw.PartitionBy("age", "name");
+                Assert.IsType<DataFrameWriter>(dfw.PartitionBy("age"));
+                Assert.IsType<DataFrameWriter>(dfw.PartitionBy("age", "name"));
 
-                dfw.BucketBy(3, "age");
-                dfw.BucketBy(3, "age", "name");
+                Assert.IsType<DataFrameWriter>(dfw.BucketBy(3, "age"));
+                Assert.IsType<DataFrameWriter>(dfw.BucketBy(3, "age", "name"));
 
-                dfw.SortBy("name");
+                Assert.IsType<DataFrameWriter>(dfw.SortBy("name"));
             }
 
             using (var tempDir = new TemporaryDirectory(TestEnvironment.ResourceDirectory))
