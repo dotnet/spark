@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
  */
 
+// TODO(laserljy): fix the comment below. 
 // The code is modified based on Wentao's code. Wentao's homepage: https://www.microsoft.com/en-us/research/people/wentwu/
 
 package mypackage
@@ -12,29 +13,28 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.{SaveMode, SparkSession}
 
 object ConvertTpchCsvToParquetApp {
-
   def main(args: Array[String]): Unit = {
     val spark = SparkSession.builder()
       // .master(s"local[*]") // UnComment this line to run locally.
       .appName(this.getClass.getName)
       .getOrCreate()
 
-    val tpchCsvRoot = "tpchCVSTableFolderPath"
-    val tpchParquetRoot = "tpchParquetTableFolderPath"
+    val tpchCsvRootFolderPath = args(1)
+    val tpchParquetRootFolderPath = args(2)
 
     // Convert CSV files to Parquet files.
-    for (i <- 0 to TpchSchema.tpchTables.length - 1) {
+    for (i <- TpchSchema.tpchTables.indices) {
       val df = spark
         .read
         .format("csv")
         .option("delimiter", "|")
         .schema(TpchSchema.tpchTables(i)._2)
-        .load(tpchCsvRoot + "/" + TpchSchema.tpchTables(i)._1 + ".tbl")
+        .load(tpchCsvRootFolderPath + "/" + TpchSchema.tpchTables(i)._1 + ".tbl")
 
       df.write
         .mode(SaveMode.Overwrite)
         .format("parquet")
-        .save(tpchParquetRoot + "/" + TpchSchema.tpchTables(i)._1)
+        .save(tpchParquetRootFolderPath + "/" + TpchSchema.tpchTables(i)._1)
     }
   }
 }
@@ -127,13 +127,13 @@ object TpchSchema {
 
   // (name, table, bucketing column)
   val tpchTables = Array(
-    ("customer", customer, customer(0).name),
-    ("lineitem", lineitem, lineitem(0).name),
-    ("nation", nation, nation(0).name),
-    ("orders", orders, orders(0).name),
-    ("part", part, part(0).name),
-    ("partsupp", partsupp, partsupp(0).name),
-    ("region", region, region(0).name),
-    ("supplier", supplier, supplier(0).name)
+    ("customer", customer, customer.head.name),
+    ("lineitem", lineitem, lineitem.head.name),
+    ("nation", nation, nation.head.name),
+    ("orders", orders, orders.head.name),
+    ("part", part, part.head.name),
+    ("partsupp", partsupp, partsupp.head.name),
+    ("region", region, region.head.name),
+    ("supplier", supplier, supplier.head.name)
   )
 }
