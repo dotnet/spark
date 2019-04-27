@@ -130,7 +130,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriter object</returns>
         public DataFrameWriter PartitionBy(params string[] colNames)
         {
-            _jvmObject.Invoke("partitionBy", colNames);
+            _jvmObject.Invoke("partitionBy", (object)colNames);
             return this;
         }
 
