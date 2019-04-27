@@ -25,6 +25,7 @@ namespace Microsoft.Spark.E2ETest.Utils
             Path = System.IO.Path.Combine(rootDirectory, Guid.NewGuid().ToString());
             Cleanup();
             Directory.CreateDirectory(Path);
+            Path += System.IO.Path.DirectorySeparatorChar;
         }
 
         public void Dispose()

@@ -2,8 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
-using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Xunit;
@@ -62,7 +62,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 Assert.IsType<DataFrameWriter>(dfw.SortBy("name"));
             }
 
-            using (var tempDir = new TemporaryDirectory(TestEnvironment.ResourceDirectory))
+            using (var tempDir = new TemporaryDirectory(AppDomain.CurrentDomain.BaseDirectory))
             {
                 DataFrameWriter dfw = _spark
                     .Read()
@@ -71,23 +71,22 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                 // TODO: Test dfw.Jdbc without running a local db.
 
-                string testTableName = System.Guid.NewGuid().ToString("N");
-                dfw.SaveAsTable(testTableName);
+                dfw.Option("path", tempDir.Path).SaveAsTable("TestTable");
 
-                dfw.InsertInto(testTableName);
+                dfw.InsertInto("TestTable");
 
-                dfw.Option("path", Path.Combine(tempDir.Path, "TestSavePath1")).Save();
-                dfw.Save(Path.Combine(tempDir.Path, "TestSavePath2"));
+                dfw.Option("path", tempDir.Path + "TestSavePath1").Save();
+                dfw.Save(tempDir.Path + "TestSavePath2");
 
-                dfw.Json(Path.Combine(tempDir.Path, "TestJsonPath"));
+                dfw.Json(tempDir.Path + "TestJsonPath");
 
-                dfw.Parquet(Path.Combine(tempDir.Path, "TestParquetPath"));
+                dfw.Parquet(tempDir.Path + "TestParquetPath");
 
-                dfw.Orc(Path.Combine(tempDir.Path, "TestOrcPath"));
+                dfw.Orc(tempDir.Path + "TestOrcPath");
 
-                dfw.Text(Path.Combine(tempDir.Path, "TestTextPath"));
+                dfw.Text(tempDir.Path + "TestTextPath");
 
-                dfw.Csv(Path.Combine(tempDir.Path, "TestCsvPath"));
+                dfw.Csv(tempDir.Path + "TestCsvPath");
             }
         }
     }
