@@ -71,9 +71,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                 // TODO: Test dfw.Jdbc without running a local db.
 
-                dfw.SaveAsTable("TestTable");
+                string testTableName = System.Guid.NewGuid().ToString("N");
+                dfw.SaveAsTable(testTableName);
 
-                dfw.InsertInto("TestTable");
+                dfw.InsertInto(testTableName);
 
                 dfw.Option("path", Path.Combine(tempDir.Path, "TestSavePath1")).Save();
                 dfw.Save(Path.Combine(tempDir.Path, "TestSavePath2"));

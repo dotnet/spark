@@ -61,7 +61,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                     TestEnvironment.ResourceDirectory + "people.csv",
                     TestEnvironment.ResourceDirectory + "people.csv"));
 
-            Assert.IsType<DataFrame>(dfr.Parquet(TestEnvironment.ResourceDirectory + "users.parquet"));
+            Assert.IsType<DataFrame>(
+                dfr.Parquet(TestEnvironment.ResourceDirectory + "users.parquet"));
             Assert.IsType<DataFrame>(
                 dfr.Parquet(
                     TestEnvironment.ResourceDirectory + "users.parquet",
@@ -73,6 +74,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                     TestEnvironment.ResourceDirectory + "users.orc",
                     TestEnvironment.ResourceDirectory + "users.orc"));
 
+            dfr = _spark.Read();
             Assert.IsType<DataFrame>(dfr.Text(TestEnvironment.ResourceDirectory + "people.txt"));
             Assert.IsType<DataFrame>(
                 dfr.Text(
