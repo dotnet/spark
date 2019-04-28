@@ -11,46 +11,17 @@ using Microsoft.Spark.Sql;
 namespace Microsoft.Spark.Examples.Sql
 {
     /// <summary>
-    ///     A simple example demonstrating Spark SQL data sources
-    ///     A copy of spark/examples/src/main/python/sql/datasource.py
-    ///
-    ///     To run the jdbc example you need a valid jdb reference and driver, as an example to connect to postgres:
-    ///         - download the progress jdbc driver (https://jdbc.postgresql.org/download.html) 
-    ///         - add the jar to the jars you pass to spark-submit
-    ///         - as well as the path to the SPARK_HOME resources, also include the database:
-    ///             - jdbc url
-    ///             - username
-    ///             - password
-    ///             - the name of a table to read from
-    ///             - the name of a table to write data back to
-    ///
-    ///     spark-submit --class org.apache.spark.deploy.DotnetRunner `
-    ///                  --jars postgresql-42.2.5.jar `
-    ///                  --driver-class-path postgresql-42.2.5.jar `
-    ///                  --master local c:\git\spark\src\scala\microsoft-spark-2.4.x\target\microsoft-spark-2.4.x-0.1.0.jar `
-    ///                  Microsoft.Spark.CSharp.Examples.exe Sql.Datasource `
-    ///                  %SPARK_HOME%\examples\src\main\resources\ `
-    ///                  jdbc:postgresql:postgres `
-    ///                  postgres `
-    ///                  fred `
-    ///                  spark.table `
-    ///                  spark.write_table
-    /// 
+    /// The example is taken/modified from spark/examples/src/main/python/sql/datasource.py
     /// </summary>
     internal sealed class Datasource : IExample
     {
-
         public void Run(string[] args)
         {
-            if (args.Length != 1 && args.Length != 6)
+            if (args.Length != 1)
             {
                 Console.Error.WriteLine(
-                    "Usage: Datasource <path to SPARK_HOME/examples/src/main/resources/> [jdbc url] [username] [password] [read table] [write table]");
-                Console.Error.WriteLine(
-                    "To execute the jdbc example, include a jdbc url and a table to read data from and a table to append the data to, if the write table doesn't exist then spark will create the table");
-                Console.Error.WriteLine("Example: `spark-submit --class org.apache.spark.deploy.DotnetRunner --jars postgresql-42.2.5.jar --driver-class-path postgresql-42.2.5.jar --master local c:\\github\\dornet-spark\\src\\scala\\microsoft-spark-2.4.x\\target\\microsoft-spark-2.4.x-0.1.0.jar Microsoft.Spark.CSharp.Examples.exe Sql.Datasource  %SPARK_HOME%\\examples\\src\\main\\resources\\ jdbc:postgresql:postgres username password table write_table`");
-                Console.Error.WriteLine("The example uses a table definition that looks like: `create table test(id int, name varchar(20));`");
-
+                    "Usage: Datasource <path to SPARK_HOME/examples/src/main/resources/>");
+                
                 Environment.Exit(1);
             }
 
@@ -69,42 +40,39 @@ namespace Microsoft.Spark.Examples.Sql
 
             RunParquetExample(spark, json);
 
-            if (args.Length == 6)
-            {
-                RunDatasourceExample(spark, args[1], args[2], args[3], args[4], args[5]);
-            }           
+            RunDatasourceExample(spark);
 
             spark.Stop();
         }
 
-        private void RunDatasourceExample(SparkSession spark, string url, string user, string password, string readTable, string writeTable)
+        private void RunDatasourceExample(SparkSession spark)
         {
             DataFrame jdbcDf = spark.Read()
-                                    .Format("jdbc")
-                                    .Options(
-                                        new Dictionary<string, string>
-                                        {
-                                            {"url", url},
-                                            {"dbtable", readTable},
-                                            {"user", user},
-                                            {"password", password}
-                                        })
-                                    .Load();
+                .Format("jdbc")
+                .Options(
+                    new Dictionary<string, string>
+                    {
+                        {"url", "jdbc:postgresql:postgres"},
+                        {"dbtable", "table_name"},
+                        {"user", "user_name"},
+                        {"password", "password"}
+                    })
+                .Load();
 
             jdbcDf.Show();
 
             DataFrame jdbcDf2 = spark.Read()
-                                    .Format("jdbc")
-                                    .Options(
-                                        new Dictionary<string, string>
-                                        {
-                                            {"url", url},
-                                            {"dbtable", readTable},
-                                            {"user", user},
-                                            {"password", password},
-                                            {"customSchema", "another_id int, another_name STRING" }
-                                        })
-                                    .Load();
+                .Format("jdbc")
+                .Options(
+                    new Dictionary<string, string>
+                    {
+                        {"url", "jdbc:postgresql:postgres"},
+                        {"dbtable", "table_name"},
+                        {"user", "user_name"},
+                        {"password", "password"},
+                        {"customSchema", "another_id int, another_name STRING" }
+                    })
+                .Load();
 
             jdbcDf2.Show();
 
@@ -113,10 +81,10 @@ namespace Microsoft.Spark.Examples.Sql
                 .Options(
                     new Dictionary<string, string>
                     {
-                        {"url", url},
-                        {"dbtable", writeTable},
-                        {"user", user},
-                        {"password", password}
+                        {"url", "jdbc:postgresql:postgres"},
+                        {"dbtable", "table_name"},
+                        {"user", "user_name"},
+                        {"password", "password"}
                     })
                 .Mode(SaveMode.Append)
                 .Save();
