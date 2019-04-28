@@ -16,7 +16,7 @@
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
 
     <EngDir>$(MSBuildThisFileDirectory)..\..\eng\</EngDir>
-    <IsTestProject Condition="$(MSBuildProjectName.EndsWith('Test'))">true</IsTestProject>
+    <IsTestProject Condition="$(MSBuildProjectName.EndsWith('Test')) OR $(MSBuildProjectName.EndsWith('Benchmarks'))">true</IsTestProject>
     
     <AssemblyOriginatorKeyFile Condition="'$(AssemblyOriginatorKeyFile)' == '' AND '$(IsTestProject)' != 'true'">$(EngDir)Open.snk</AssemblyOriginatorKeyFile>
     <AssemblyOriginatorKeyFile Condition="'$(AssemblyOriginatorKeyFile)' == '' AND '$(IsTestProject)' == 'true'">$(EngDir)Test.snk</AssemblyOriginatorKeyFile>
