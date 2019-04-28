@@ -34,7 +34,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestTextFile()
         {
-            RDD<string> rdd = _sc.TextFile(TestEnvironment.ResourceDirectory + "people.txt");
+            RDD<string> rdd = _sc.TextFile($"{TestEnvironment.ResourceDirectory}people.txt");
             var strs = new[] { "Michael, 29", "Andy, 30", "Justin, 19" };
             Assert.Equal(strs, rdd.Collect());
 
