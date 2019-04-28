@@ -452,7 +452,7 @@ internal class Unpickler : IDisposable {
 	}
 
 	private void load_binfloat() {
-        PickleUtils.readbytes_into(input, byteBuffer, 0, sizeof(long));
+        input.Read(byteBuffer, 0, sizeof(long));
         double val = BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64BigEndian(byteBuffer));
 		stack.add(val);
 	}
