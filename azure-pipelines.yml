@@ -229,7 +229,7 @@ jobs:
                           /p:SignAssetsDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Microsoft.Spark.Worker\
                           /p:SignType=$(_SignType)
         msbuildVersion: 15.0
- 
+
     - task: DotNetCoreCLI@2
       displayName: 'Create NuGet packages'
       inputs:
@@ -253,13 +253,25 @@ jobs:
         sourceFolder: $(Build.ArtifactStagingDirectory)
         contents: 'Microsoft.Spark*.nupkg'
         targetFolder: $(Build.ArtifactStagingDirectory)/Packages
-    
+
+    - task: CopyFiles@2
+      displayName: Copy snupkg to publish
+      inputs:
+        sourceFolder: $(Build.ArtifactStagingDirectory)
+        contents: 'Microsoft.Spark*.snupkg'
+        targetFolder: $(Build.ArtifactStagingDirectory)/SymbolPackages
+
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: '$(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries'
         artifactName:  Microsoft.Spark.Binaries
-    
+
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: '$(Build.ArtifactStagingDirectory)/Packages'
+        artifactName:  Microsoft.Spark.Binaries
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: '$(Build.ArtifactStagingDirectory)/SymbolPackages'
         artifactName:  Microsoft.Spark.Binaries
