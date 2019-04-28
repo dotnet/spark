@@ -29,7 +29,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _df = _spark
                 .Read()
                 .Schema("age INT, name STRING")
-                .Json(TestEnvironment.ResourceDirectory + "people.json");
+                .Json($"{TestEnvironment.ResourceDirectory}people.json");
         }
 
         [Fact]
@@ -135,14 +135,17 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             _df.IsStreaming();
 
-            // The following is required for *CheckPoint().
-            _spark.SparkContext.SetCheckpointDir(TestEnvironment.ResourceDirectory);
+            using (var tempDir = new TemporaryDirectory())
+            {
+                // The following is required for *CheckPoint().
+                _spark.SparkContext.SetCheckpointDir(tempDir.Path);
 
-            _df.Checkpoint();
-            _df.Checkpoint(false);
+                _df.Checkpoint();
+                _df.Checkpoint(false);
 
-            _df.LocalCheckpoint();
-            _df.LocalCheckpoint(false);
+                _df.LocalCheckpoint();
+                _df.LocalCheckpoint(false);
+            }
 
             _df.WithWatermark("time", "10 minutes");
 
