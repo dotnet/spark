@@ -9,7 +9,7 @@ namespace Microsoft.Spark.MicroBenchmarks
     {
         private MemoryStream _inputStream;
         private MaxLengthReadStream _maxLengthStream;
-        private int _bytesCount;
+        private byte[] _bytes;
 
         [GlobalSetup]
         public void SetupDeserializeRealInput()
@@ -18,15 +18,13 @@ namespace Microsoft.Spark.MicroBenchmarks
             var buildOutputDirectory = Path.GetDirectoryName(typeof(UnpicklerBenchmarks).Assembly.Location);
             var inputFilePath = Path.Combine(buildOutputDirectory, "Resources", "serializedSampleInput.txt");
 
-            var bytes = Convert.FromBase64String(File.ReadAllText(inputFilePath));
-            _bytesCount = bytes.Length;
-
-            _inputStream = new MemoryStream(bytes);
+            _bytes = Convert.FromBase64String(File.ReadAllText(inputFilePath));
+            _inputStream = new MemoryStream(_bytes);
             _maxLengthStream = new MaxLengthReadStream();
         }
 
         [Benchmark(Baseline = true)]
-        public object GetUnpickledObjectsFromMemoryStream()
+        public object[] GetUnpickledObjectsFromMemoryStream()
         {
             _inputStream.Position = 0;
 
@@ -34,12 +32,15 @@ namespace Microsoft.Spark.MicroBenchmarks
         }
 
         [Benchmark]
-        public object GetUnpickledObjectsFromMaxLengthReadStream()
+        public object[] GetUnpickledObjectsFromMaxLengthReadStream()
         {
             _inputStream.Position = 0;
-            _maxLengthStream.Reset(_inputStream, int.MaxValue);
+            _maxLengthStream.Reset(_inputStream, _bytes.Length);
 
             return Utils.PythonSerDe.GetUnpickledObjects(_maxLengthStream);
         }
+
+        [Benchmark]
+        public object[] GetUnpickledObjectsFromBuffer() => Utils.PythonSerDe.GetUnpickledObjects(_bytes);
     }
 }

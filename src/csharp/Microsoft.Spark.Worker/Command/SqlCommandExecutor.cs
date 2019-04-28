@@ -83,8 +83,6 @@ namespace Microsoft.Spark.Worker.Command
         [ThreadStatic]
         private static MemoryStream s_writeOutputStream;
         [ThreadStatic]
-        private static MaxLengthReadStream s_slicedReadStream;
-        [ThreadStatic]
         private static Pickler s_pickler;
 
         protected override CommandExecutorStat ExecuteCore(
@@ -118,20 +116,31 @@ namespace Microsoft.Spark.Worker.Command
                             $"Invalid message length: {messageLength}");
                     }
 
-                    MaxLengthReadStream readStream = s_slicedReadStream ??
-                            (s_slicedReadStream = new MaxLengthReadStream());
-                    readStream.Reset(inputStream, messageLength);
+                    byte[] buffer = ArrayPool<byte>.Shared.Rent(messageLength);
+                    object[] inputRows = null;
 
-                    // Each row in inputRows is of type object[]. If a null is present in a row
-                    // then the corresponding index column of the row object[] will be set to null.
-                    // For example, (inputRows.Length == 2) and (inputRows[0][0] == null)
-                    //   +----+
-                    //   | age|
-                    //   +----+
-                    //   |null|
-                    //   |  11|
-                    //   +----+
-                    object[] inputRows = PythonSerDe.GetUnpickledObjects(readStream);
+                    try
+                    {
+                        if (inputStream.Read(buffer, 0, messageLength) != messageLength)
+                        {
+                            throw new IOException("premature end of input stream");
+                        }
+
+                        // Each row in inputRows is of type object[]. If a null is present in a row
+                        // then the corresponding index column of the row object[] will be set to null.
+                        // For example, (inputRows.Length == 2) and (inputRows[0][0] == null)
+                        //   +----+
+                        //   | age|
+                        //   +----+
+                        //   |null|
+                        //   |  11|
+                        //   +----+
+                        inputRows = PythonSerDe.GetUnpickledObjects(new ReadOnlySpan<byte>(buffer, 0, messageLength));
+                    }
+                    finally
+                    {
+                        ArrayPool<byte>.Shared.Return(buffer);
+                    }
 
                     for (int i = 0; i < inputRows.Length; ++i)
                     {
