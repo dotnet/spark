@@ -43,43 +43,29 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                         { "option2", "value2" }
                     }));
 
-            Assert.IsType<DataFrame>(dfr.Load(TestEnvironment.ResourceDirectory + "people.json"));
-            Assert.IsType<DataFrame>(
-                dfr.Load(
-                    TestEnvironment.ResourceDirectory + "people.csv",
-                    TestEnvironment.ResourceDirectory + "people.csv"));
+            string jsonFile = $"{TestEnvironment.ResourceDirectory}people.json";
+            Assert.IsType<DataFrame>(dfr.Load(jsonFile));
+            Assert.IsType<DataFrame>(dfr.Load(jsonFile, jsonFile));
 
-            Assert.IsType<DataFrame>(dfr.Json(TestEnvironment.ResourceDirectory + "people.json"));
-            Assert.IsType<DataFrame>(
-                dfr.Json(
-                    TestEnvironment.ResourceDirectory + "people.json",
-                    TestEnvironment.ResourceDirectory + "people.json"));
+            Assert.IsType<DataFrame>(dfr.Json(jsonFile));
+            Assert.IsType<DataFrame>(dfr.Json(jsonFile, jsonFile));
 
-            Assert.IsType<DataFrame>(dfr.Csv(TestEnvironment.ResourceDirectory + "people.csv"));
-            Assert.IsType<DataFrame>(
-                dfr.Csv(
-                    TestEnvironment.ResourceDirectory + "people.csv",
-                    TestEnvironment.ResourceDirectory + "people.csv"));
+            string csvFile = $"{TestEnvironment.ResourceDirectory}people.csv";
+            Assert.IsType<DataFrame>(dfr.Csv(csvFile));
+            Assert.IsType<DataFrame>(dfr.Csv(csvFile, csvFile));
 
-            Assert.IsType<DataFrame>(
-                dfr.Parquet(TestEnvironment.ResourceDirectory + "users.parquet"));
-            Assert.IsType<DataFrame>(
-                dfr.Parquet(
-                    TestEnvironment.ResourceDirectory + "users.parquet",
-                    TestEnvironment.ResourceDirectory + "users.parquet"));
+            string parquetFile = $"{TestEnvironment.ResourceDirectory}users.parquet";
+            Assert.IsType<DataFrame>(dfr.Parquet(parquetFile));
+            Assert.IsType<DataFrame>(dfr.Parquet(parquetFile, parquetFile));
 
-            Assert.IsType<DataFrame>(dfr.Orc(TestEnvironment.ResourceDirectory + "users.orc"));
-            Assert.IsType<DataFrame>(
-                dfr.Orc(
-                    TestEnvironment.ResourceDirectory + "users.orc",
-                    TestEnvironment.ResourceDirectory + "users.orc"));
+            string orcFile = $"{TestEnvironment.ResourceDirectory}users.orc";
+            Assert.IsType<DataFrame>(dfr.Orc(orcFile));
+            Assert.IsType<DataFrame>(dfr.Orc(orcFile, orcFile));
 
             dfr = _spark.Read();
-            Assert.IsType<DataFrame>(dfr.Text(TestEnvironment.ResourceDirectory + "people.txt"));
-            Assert.IsType<DataFrame>(
-                dfr.Text(
-                    TestEnvironment.ResourceDirectory + "people.txt",
-                    TestEnvironment.ResourceDirectory + "people.txt"));
+            string textFile = $"{TestEnvironment.ResourceDirectory}people.txt";
+            Assert.IsType<DataFrame>(dfr.Text(textFile));
+            Assert.IsType<DataFrame>(dfr.Text(textFile, textFile));
         }
     }
 }

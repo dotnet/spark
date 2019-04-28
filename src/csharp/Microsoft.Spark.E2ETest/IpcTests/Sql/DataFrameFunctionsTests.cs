@@ -19,7 +19,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _spark = fixture.Spark;
             _df = _spark
                 .Read()
-                .Json(TestEnvironment.ResourceDirectory + "people.json");
+                .Json($"{TestEnvironment.ResourceDirectory}people.json");
         }
 
         [Fact]

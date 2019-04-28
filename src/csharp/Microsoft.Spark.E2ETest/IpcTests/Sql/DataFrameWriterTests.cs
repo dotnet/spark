@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
@@ -30,7 +29,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 DataFrameWriter dfw = _spark
                     .Read()
                     .Schema("age INT, name STRING")
-                    .Json(TestEnvironment.ResourceDirectory + "people.json")
+                    .Json($"{TestEnvironment.ResourceDirectory}people.json")
                     .Write();
 
                 Assert.IsType<DataFrameWriter>(dfw.Mode(SaveMode.Ignore));
@@ -52,7 +51,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                             { "option2", "value2" }
                         }));
 
-
                 Assert.IsType<DataFrameWriter>(dfw.PartitionBy("age"));
                 Assert.IsType<DataFrameWriter>(dfw.PartitionBy("age", "name"));
 
@@ -62,11 +60,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 Assert.IsType<DataFrameWriter>(dfw.SortBy("name"));
             }
 
-            using (var tempDir = new TemporaryDirectory(AppDomain.CurrentDomain.BaseDirectory))
+            using (var tempDir = new TemporaryDirectory())
             {
                 DataFrameWriter dfw = _spark
                     .Read()
-                    .Csv(TestEnvironment.ResourceDirectory + "people.csv")
+                    .Csv($"{TestEnvironment.ResourceDirectory}people.csv")
                     .Write();
 
                 // TODO: Test dfw.Jdbc without running a local db.
@@ -75,18 +73,18 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                 dfw.InsertInto("TestTable");
 
-                dfw.Option("path", tempDir.Path + "TestSavePath1").Save();
-                dfw.Save(tempDir.Path + "TestSavePath2");
+                dfw.Option("path", $"{tempDir.Path}TestSavePath1").Save();
+                dfw.Save($"{tempDir.Path}TestSavePath2");
 
-                dfw.Json(tempDir.Path + "TestJsonPath");
+                dfw.Json($"{tempDir.Path}TestJsonPath");
 
-                dfw.Parquet(tempDir.Path + "TestParquetPath");
+                dfw.Parquet($"{tempDir.Path}TestParquetPath");
 
-                dfw.Orc(tempDir.Path + "TestOrcPath");
+                dfw.Orc($"{tempDir.Path}TestOrcPath");
 
-                dfw.Text(tempDir.Path + "TestTextPath");
+                dfw.Text($"{tempDir.Path}TestTextPath");
 
-                dfw.Csv(tempDir.Path + "TestCsvPath");
+                dfw.Csv($"{tempDir.Path}TestCsvPath");
             }
         }
     }

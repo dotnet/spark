@@ -114,7 +114,8 @@ namespace Microsoft.Spark.Sql
         /// </remarks>
         /// <param name="paths">Input paths</param>
         /// <returns>DataFrame object</returns>
-        public DataFrame Load(params string[] paths) => LoadSource("load", paths);
+        public DataFrame Load(params string[] paths) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("load", (object)paths));
 
         /// <summary>
         /// Loads a JSON file (one object per line) and returns the result as a DataFrame.

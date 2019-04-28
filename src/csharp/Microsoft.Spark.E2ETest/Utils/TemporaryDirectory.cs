@@ -8,8 +8,7 @@ using System.IO;
 namespace Microsoft.Spark.E2ETest.Utils
 {
     /// <summary>
-    /// Creates a temporary folder at a specified root path that is automatically
-    /// cleaned up when disposed.
+    /// Creates a temporary folder that is automatically cleaned up when disposed.
     /// </summary>
     internal sealed class TemporaryDirectory : IDisposable
     {
@@ -20,19 +19,17 @@ namespace Microsoft.Spark.E2ETest.Utils
         /// </summary>
         public string Path { get; }
 
-        public TemporaryDirectory(string rootDirectory)
+        public TemporaryDirectory()
         {
-            Path = System.IO.Path.Combine(rootDirectory, Guid.NewGuid().ToString());
+            Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid().ToString());
             Cleanup();
             Directory.CreateDirectory(Path);
-            Path += System.IO.Path.DirectorySeparatorChar;
+            Path = $"{Path}{System.IO.Path.DirectorySeparatorChar}";
         }
 
         public void Dispose()
         {
-            // Dispose of unmanaged resources.
             Dispose(true);
-            // Suppress finalization.
             GC.SuppressFinalize(this);
         }
 
@@ -51,7 +48,9 @@ namespace Microsoft.Spark.E2ETest.Utils
         private void Dispose(bool disposing)
         {
             if (disposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
