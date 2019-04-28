@@ -16,7 +16,7 @@ namespace Razorvine.Pickle
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal class UnpickleStack {
 	public readonly object MARKER;
-    private const int DefaultCapacity = 4;
+    private const int DefaultCapacity = 128;
 	private object[] _stack;
     private int _count;
 
