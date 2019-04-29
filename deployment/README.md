@@ -18,13 +18,10 @@ Deploying your App on the Cloud
      - [App deployment using spark-submit](#using-spark-submit-2)
 
 # Pre-requisites:
-1. Clone and successfully build [Spark .NET](https://github.com/dotnet) by following the [Quick Start instructions](https://github.com/dotnet/spark#quick-start-tldr).
-2. Download and install [.NET Core](https://dotnet.microsoft.com/download) <span style="color: red">2.1+</span> for your operating system.
-3. Tool for creating a `tgz` file: `tar` on Linux, [7-ZIP](https://www.7-zip.org/) on Windows, etc.
-4. Tool to copy files to a distributed file system.
+1. Tool to copy files to a distributed file system.
    - ADLS, WASB &rarr; [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/)
    - S3 &rarr; [AWS CLI](https://aws.amazon.com/cli/)
-5. Download [install-worker.sh](install-worker.sh) to your local machine. This is a helper script that we will use later in the installation section to copy Spark .NET dependent files into your Spark cluster's worker nodes. install-worker.sh takes in three parameters:
+2. Download [install-worker.sh](install-worker.sh) to your local machine. This is a helper script that we will use later in the installation section to copy Spark .NET dependent files into your Spark cluster's worker nodes. install-worker.sh takes in three parameters:
    1. The Cloud Provider: `azure` or `aws`
    2. URI where `worker.tgz` is uploaded.
    3. Path on the executor node where the worker package will be installed (the path should be the directory that `yarn` user has access to).
@@ -38,34 +35,15 @@ Deploying your App on the Cloud
 Microsoft.Spark.Worker is a backend component that lives on the individual worker nodes of your Spark cluster. When you want to execute a C# UDF (user-defined function), Spark needs to understand how to launch the .NET CLR to execute this UDF. Microsoft.Spark.Worker provides a collection of classes to Spark that enable this functionality.
 
 ## Microsoft.Spark.Worker
-1. Publish Microsoft.Spark.Worker as self-contained.
-```shell
-# For example, you can run the following on Linux.
-foo@bar:~/dotnet/spark/src/csharp/Microsoft.Spark.Worker$ dotnet publish -c Release -f netcoreapp2.1 -r ubuntu.16.04-x64
-```
-> **Note**: Ensure that the correct [dotnet Runtime Identifier](https://github.com/dotnet/corefx/blob/master/pkg/Microsoft.NETCore.Platforms/runtime.json) is used for your cluster.
+1. Select a [Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases) Linux netcoreapp release to be deployed on your cluster.
 
-2. Produce `worker.tgz` for the published files.
-```shell
-# For example, you can run the following on Linux using `tar`.
-foo@bar:~/dotnet/spark/src/csharp/Microsoft.Spark.Worker$ tar czvf worker.tgz -C bin/Release/netcoreapp2.1/ubuntu.16.04-x64/publish/ .
-```
-
-3. Upload `worker.tgz` and [install-worker.sh](install-worker.sh) to a distributed file system (e.g., HDFS, WASB, ADLS, S3) that your cluster has access to.
+2. Upload `Microsoft.Spark.Worker.netcoreapp<dotnet_version>.linux-x64-<spark_dotnet_version>.tar.gz` and [install-worker.sh](install-worker.sh) to a distributed file system (e.g., HDFS, WASB, ADLS, S3) that your cluster has access to.
 
 ## Your Spark .NET `app`
-1. Publish your Spark .NET `app` as self-contained.
-```shell
-# For example, you can run the following on Linux.
-foo@bar:~/path/to/app$ dotnet publish -c Release -f netcoreapp2.1 -r ubuntu.16.04-x64
-```
-2. Produce `<your app>.zip` for the published files.
-```shell
-# For example, you can run the following on Linux using `zip`.
-foo@bar:~/path/to/app/bin/Release/netcoreapp2.1/ubuntu.16.04-x64/publish$ zip -r <your app>.zip .
-```
-3. Upload the following to a distributed file system (e.g., HDFS, WASB, ADLS, S3) that your cluster has access to:
-   * `microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar` (created in the [Build](../README.md#build) step)
+1. Follow the [Get Started](https://github.com/dotnet/spark/#get-started) guide to build and publish your app.
+
+2. Upload the following to a distributed file system (e.g., HDFS, WASB, ADLS, S3) that your cluster has access to:
+   * `microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar` (Included as part of the [Microsoft.Spark](https://www.nuget.org/packages/Microsoft.Spark/) nuget)
    * `<your app>.zip`
    * Files (e.g., dependency files, common data accessible to every worker) or Assemblies (e.g., DLLs that contain your user-defined functions, libraries that your `app` depends on) to be placed in the working directory of each executor.
 
