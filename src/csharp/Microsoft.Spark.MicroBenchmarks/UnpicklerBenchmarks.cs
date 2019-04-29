@@ -24,14 +24,6 @@ namespace Microsoft.Spark.MicroBenchmarks
         }
 
         [Benchmark(Baseline = true)]
-        public object[] GetUnpickledObjectsFromMemoryStream()
-        {
-            _inputStream.Position = 0;
-
-            return Utils.PythonSerDe.GetUnpickledObjects(_inputStream);
-        }
-
-        [Benchmark]
         public object[] GetUnpickledObjectsFromMaxLengthReadStream()
         {
             _inputStream.Position = 0;
