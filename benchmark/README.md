@@ -7,14 +7,14 @@ Follow the instructions for registration and download the tool to local disk wit
 
 2. Build the dbgen tool.
     - Decompress the zip file, then navigate to `dbgen` folder.
-    - The TPC-H README contains instructions on how to build the tool in Linux.
-    - For Windows users, you can generate the dbgen.exe using Visual Studio: 
+    - For Linux, the TPC-H README contains instructions on how to build the tool.
+    - For Windows, generate the dbgen.exe using Visual Studio:
         - (1). In the `dbgen` folder, you will see `tpch.sln`, open it using Visual Studio.
         - (2). Build `dbgen` project, no need to build `qgen`, it should generate `dbgen.exe` in the `Debug` folder.
 
 3. Generate the data.
-    - The TPC-H README contains instructions on how to generate the database tables in Linux.
-    - For Windows users:
+    - For Linux, the TPC-H README contains instructions on how to generate the database tables.
+    - For Windows,
         - (1). Copy `dbgen.exe` to the `dbgen` folder
         - (2). The following will generate a 300GB TPC-H dataaset:
         ```shell
