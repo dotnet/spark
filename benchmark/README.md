@@ -3,25 +3,30 @@ Benchmarking
 
 # Generate Data
 1. [Download](http://www.tpc.org/tpc_documents_current_versions/current_specifications.asp) the TPC-H benchmark tool.
-Follow the instructions for registration and download the tool and copy to local disk with free space larger than 300GB.
+Follow the instructions for registration and download the tool to local disk with at least 300GB free space.
 
 2. Build the dbgen tool.
     - Decompress the zip file, then navigate to `dbgen` folder.
     - The TPC-H README contains instructions on how to build the tool in Linux.
     - For Windows users, you can generate the dbgen.exe using Visual Studio: 
-        - i. In the `dbgen` folder, you will see `tpch.sln`, open it using Visual Studio (VS2015 or VS2017 should work).
-        - ii. Click on tab “Build”, then “Build Solution”. 
-        - iii. Once the build is successful, it should generate `dbgen.exe` and `qgen.exe` in the `Debug` folder.
+        - (1). In the `dbgen` folder, you will see `tpch.sln`, open it using Visual Studio.
+        - (2). Build `dbgen` project, no need to build `qgen`, it should generate `dbgen.exe` in the `Debug` folder.
 
 3. Generate the data.
-    - The TPC-H README contains instructions on how to generate a database population in Linux OS.
+    - The TPC-H README contains instructions on how to generate the database tables in Linux.
     - For Windows users:
-        - i. Copy `dbgen.exe` to the `dbgen` folder
-        - ii. Open cmd terminal, navigate to `dbgen` folder, and type command: `dbgen -vf -s 300`, which is generating 300GB TPCH dataset. It could take up to 40 hours to complete. Note that you can use command: `dbgen -h`, to check all the options. 
-    - After database population generation is completed, you will see 8 tables (customer, lineitem, nation, orders, part, partsupp, region, supplier) in tbl format.
+        - (1). Copy `dbgen.exe` to the `dbgen` folder
+        - (2). The following will generate a 300GB TPC-H dataaset:
+        ```shell
+        cd /d \path\to\dbgen
+        dbgen.exe -vf -s 300
+        ```
+        *Note*: Since there is no parallelization option for TPC-H dbgen, generating a 300GB dataset could take up to 40 hours to complete.
+        
+    - After database population generation is completed, there should be 8 tables (customer, lineitem, nation, orders, part, partsupp, region, supplier) created with the .tbl extension.
 
-4. Convert TPCH dataset to parquet format. 
-    - You can use a simple Spark [application](https://github.com/dotnet/spark/blob/master/benchmark/scala/src/main/scala/com/microsoft/tpch/ConvertTpchCsvToParquetApp.scala) to convert the TPCH dataset to parquet format. You can run the following spark-submit command to submit the application, you can also adjust it according to format of [submitting application](https://spark.apache.org/docs/latest/submitting-applications.html).
+4. Convert TPC-H dataset to parquet format. 
+    - You can use a simple Spark [application](https://github.com/dotnet/spark/blob/master/benchmark/scala/src/main/scala/com/microsoft/tpch/ConvertTpchCsvToParquetApp.scala) to convert the TPC-H dataset to parquet format. You can run the following spark-submit command to submit the application, you can also adjust it according to format of [submitting application](https://spark.apache.org/docs/latest/submitting-applications.html).
 ```
         <spark-submit> --master local[*] --class com.microsoft.tpch.ConvertTpchCsvToParquetApp microsoft-spark-benchmark-<version>.jar <path-to-source-directory-with-TPCH-tables> <path-to-destination-directory-to-save-parquet-file>
 ```
