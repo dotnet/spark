@@ -21,13 +21,9 @@ Follow the instructions for registration and download the tool and copy to local
     - After database population generation is completed, you will see 8 tables (customer, lineitem, nation, orders, part, partsupp, region, supplier) in tbl format.
 
 4. Convert TPCH dataset to parquet format. 
-    - You can use a simple Spark application, TODO(laserljy): add the link after #62 checkedin, to convert the TPCH dataset to parquet format. You can run the following spark-submit command to submit the application, you can also adjust it according to format of [submitting application](https://spark.apache.org/docs/latest/submitting-applications.html).
+    - You can use a simple Spark [application](https://github.com/dotnet/spark/blob/master/benchmark/scala/src/main/scala/com/microsoft/tpch/ConvertTpchCsvToParquetApp.scala) to convert the TPCH dataset to parquet format. You can run the following spark-submit command to submit the application, you can also adjust it according to format of [submitting application](https://spark.apache.org/docs/latest/submitting-applications.html).
 ```
-    ./bin/spark-submit \
-      --class com.microsoft.tpch.ConvertTpchCsvToParquetApp \
-      --master local[*] \
-      microsoft-spark-benchmark-<version>.jar \
-      path-to-source-directory-with-TPCH-tables path-to-destination-directory-to-save-parquet-file
+        <spark-submit> --master local[*] --class com.microsoft.tpch.ConvertTpchCsvToParquetApp microsoft-spark-benchmark-<version>.jar <path-to-source-directory-with-TPCH-tables> <path-to-destination-directory-to-save-parquet-file>
 ```
 
 # Cluster Run
