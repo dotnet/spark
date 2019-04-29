@@ -62,8 +62,6 @@ namespace Razorvine.Pickle
                 slice = slice.Slice(1 + bytesConsumed);
             }
 
-            // TODO adsitnik: remember the size
-
             object value = stack.pop();
             stack.clear();
             return value; 
