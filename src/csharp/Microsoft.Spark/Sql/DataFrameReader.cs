@@ -58,8 +58,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameReader object</returns>
         public DataFrameReader Option(string key, string value)
         {
-            OptionInternal(key, value);
-            return this;
+            return OptionInternal(key, value);
         }
 
         /// <summary>
@@ -70,8 +69,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameReader object</returns>
         public DataFrameReader Option(string key, bool value)
         {
-            OptionInternal(key, value);
-            return this;
+            return OptionInternal(key, value);
         }
 
         /// <summary>
@@ -82,8 +80,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameReader object</returns>
         public DataFrameReader Option(string key, long value)
         {
-            OptionInternal(key, value);
-            return this;
+            return OptionInternal(key, value);
         }
 
         /// <summary>
@@ -94,8 +91,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameReader object</returns>
         public DataFrameReader Option(string key, double value)
         {
-            OptionInternal(key, value);
-            return this;
+            return OptionInternal(key, value);
         }
 
         /// <summary>
@@ -119,7 +115,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="paths">Input paths</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Load(params string[] paths) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("load", paths));
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("load", (object)paths));
 
         /// <summary>
         /// Loads a JSON file (one object per line) and returns the result as a DataFrame.
@@ -182,7 +178,7 @@ namespace Microsoft.Spark.Sql
                 throw new ArgumentException($"paths cannot be empty for source: {source}");
             }
 
-            return new DataFrame((JvmObjectReference)_jvmObject.Invoke(source, paths));
+            return new DataFrame((JvmObjectReference)_jvmObject.Invoke(source, (object)paths));
         }
     }
 }
