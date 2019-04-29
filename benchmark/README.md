@@ -18,11 +18,17 @@ Follow the instructions for registration and download the tool and copy to local
     - For Windows users:
         - i. Copy `dbgen.exe` to the `dbgen` folder
         - ii. Open cmd terminal, navigate to `dbgen` folder, and type command: `dbgen -vf -s 300`, which is generating 300GB TPCH dataset. It could take up to 40 hours to complete. Note that you can use command: `dbgen -h`, to check all the options. 
-    - After database population generation is completed, you will see 8 tables (customer, lineitem, nation, orders, part, partsupp, region, supplier) in tbl format:
-
+    - After database population generation is completed, you will see 8 tables (customer, lineitem, nation, orders, part, partsupp, region, supplier) in tbl format.
 
 4. Convert TPCH dataset to parquet format. 
-You can write your own code or copy paste a simple Spark application [code](https://github.com/laserljy/spark-1/commit/c01ba709f7797e55ed96ff4fcd23f090f26b5bcf), and run the job to convert the TPCH dataset to parquet format. 
+    - You can use a simple Spark application, TODO(laserljy): add the link after #62 checkedin, to convert the TPCH dataset to parquet format. You can run the following spark-sumbit command to submit the application, you can also adjust it according to format of [submitting application](https://spark.apache.org/docs/latest/submitting-applications.html).
+```
+    ./bin/spark-submit \
+      --class com.microsoft.tpch.ConvertTpchCsvToParquetApp \
+      --master local[*] \
+      microsoft-spark-benchmark-<version>.jar \
+      path-to-source-directory-with-TPCH-tables path-to-destination-directory-to-save-parquet-file
+```
 
 # Cluster Run
 TPCH timing results is written to stdout in the following form: `TPCH_Result,<language>,<test type>,<query number>,<iteration>,<total time taken for iteration in milliseconds>,<time taken to run query in milliseconds>`
