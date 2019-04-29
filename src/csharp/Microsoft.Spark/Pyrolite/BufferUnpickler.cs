@@ -331,7 +331,7 @@ namespace Razorvine.Pickle
 
         private int load_binint1(in ReadOnlySpan<byte> memory)
         {
-            stack.add(memory[0]);
+            stack.add((int)memory[0]);
             return sizeof(byte);
         }
 

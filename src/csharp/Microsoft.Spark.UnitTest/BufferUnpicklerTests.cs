@@ -12,14 +12,9 @@ namespace Microsoft.Spark.UnitTest
                 Enumerable.Range(0, 100).Select(x => (object)(x * 0.5)).ToArray());
 
         [Fact]
-        public void CanDeserializeArrayOfBytes()
-            => AssertDeserializationResultIsTheSameAsSerializedInput(
-                Enumerable.Range(0, 100).Select(x => (object)(byte)(x)).ToArray());
-
-        [Fact]
         public void CanDeserializeArrayOfIntegers()
             => AssertDeserializationResultIsTheSameAsSerializedInput(
-                Enumerable.Range(short.MaxValue, 100).Select(x => (object)(x)).ToArray());
+                Enumerable.Range(0, 100).Select(x => (object)(int)(x)).ToArray());
 
         [Fact]
         public void CanDeserializeArrayOfStrings()
