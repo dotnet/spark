@@ -179,10 +179,6 @@ jobs:
         contents: '**/*.jar'
         targetFolder: $(Build.SourcesDirectory)/src/scala
 
-    - task: NuGetToolInstaller@0
-      inputs:
-        versionSpec: '4.9.2'
-
     - task: MicroBuildSigningPlugin@2
       displayName: Install MicroBuild plugin
       inputs:
@@ -204,7 +200,7 @@ jobs:
       displayName: 'Sign .NET binaries'
       inputs:
         solution: eng/Sign.proj
-        msbuildArguments:  /t:SignBinaries
+        msbuildArguments: /t:SignBinaries
                           /p:SignSparkBinaries=true
                           /p:SignAssetsDir=$(Build.SourcesDirectory)\src\csharp\Microsoft.Spark\bin\$(buildConfiguration)\
                           /p:SignType=$(_SignType)
@@ -230,10 +226,12 @@ jobs:
                           /p:SignType=$(_SignType)
         msbuildVersion: 15.0
 
-    - task: NuGetCommand@2
+    - task: DotNetCoreCLI@2
+      displayName: 'Create NuGet packages'
       inputs:
         command: pack
-        packagesToPack: '$(Build.SourcesDirectory)\src\csharp\Microsoft.Spark.nuspec'
+        projects: '$(solution)'
+        arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 
     - task: MSBuild@1
       displayName: 'Sign nuget packages'
@@ -251,13 +249,25 @@ jobs:
         sourceFolder: $(Build.ArtifactStagingDirectory)
         contents: 'Microsoft.Spark*.nupkg'
         targetFolder: $(Build.ArtifactStagingDirectory)/Packages
-    
+
+    - task: CopyFiles@2
+      displayName: Copy snupkg to publish
+      inputs:
+        sourceFolder: $(Build.ArtifactStagingDirectory)
+        contents: 'Microsoft.Spark*.snupkg'
+        targetFolder: $(Build.ArtifactStagingDirectory)/SymbolPackages
+
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: '$(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries'
         artifactName:  Microsoft.Spark.Binaries
-    
+
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: '$(Build.ArtifactStagingDirectory)/Packages'
+        artifactName:  Microsoft.Spark.Binaries
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: '$(Build.ArtifactStagingDirectory)/SymbolPackages'
         artifactName:  Microsoft.Spark.Binaries
