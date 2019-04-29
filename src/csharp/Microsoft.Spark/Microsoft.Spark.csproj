@@ -1,10 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Microsoft.Spark</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName).xml</DocumentationFile>
+
+    <Description>.NET for Apache Spark</Description>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageTags>spark;dotnet;csharp</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +17,18 @@
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
     <PackageReference Include="System.Memory" Version="4.5.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\scala\microsoft-spark-*\target\microsoft-spark-*.jar"
+             Link="jars\%(Filename)%(Extension)"
+             Pack="true"
+             PackagePath="jars\%(Filename)%(Extension)" />
+    <Content Include="build\**" Pack="true" PackagePath="build" />
   </ItemGroup>
 
 </Project>
