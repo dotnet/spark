@@ -12,17 +12,10 @@ import org.apache.spark.sql.{SaveMode, SparkSession}
 object ConvertTpchCsvToParquetApp {
   def main(args: Array[String]): Unit = {
     if (args.length != 2) {
-      println(
-        "Error: incorrect command to submit the application, please follow the instruction and specify the path to the source and destination directory as arguments."
-      )
-      println("The correct command usage should be:")
-      println("\t./bin/spark-submit \\")
-      println("\t\t--class com.microsoft.tpch.ConvertTpchCsvToParquetApp \\")
-      println("\t\t--master local[*] \\")
-      println("\t\tmicrosoft-spark-benchmark-<version>.jar \\")
-      println(
-        "\t\tpath-to-source-directory-with-TPCH-tables path-to-destination-directory-to-save-parquet-file"
-      )
+      println("Usage:")
+      println("\t<spark-submit> --master local[*] --class com.microsoft.tpch.ConvertTpchCsvToParquetApp microsoft-" +
+        "spark-benchmark-<version>.jar")
+      println("\t\t<path-to-source-directory-with-TPCH-tables> <path-to-destination-directory-to-save-parquet-file>")
       return
     }
       
