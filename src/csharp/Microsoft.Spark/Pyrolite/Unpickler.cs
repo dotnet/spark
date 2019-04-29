@@ -129,9 +129,6 @@ internal class Unpickler : IDisposable {
 	 */
 	protected object dispatch(short key) {
 		switch (key) {
-		case Opcodes.BINFLOAT:
-			load_binfloat();
-			break;
 		case Opcodes.MARK:
 			load_mark();
 			break;
@@ -252,6 +249,9 @@ internal class Unpickler : IDisposable {
 			break;
 		case Opcodes.SETITEMS:
 			load_setitems();
+			break;
+		case Opcodes.BINFLOAT:
+			load_binfloat();
 			break;
 
 		// protocol 2
