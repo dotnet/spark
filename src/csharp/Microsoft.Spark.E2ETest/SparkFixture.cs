@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Spark.Sql;
 using Xunit;
@@ -128,7 +129,8 @@ namespace Microsoft.Spark.E2ETest
             string jarPrefix = GetJarPrefix(sparkHome);
             string scalaDir = $"{curDir}{sep}..{sep}..{sep}..{sep}..{sep}..{sep}scala";
             string jarDir = $"{scalaDir}{sep}{jarPrefix}{sep}target";
-            string jar = $"{jarDir}{sep}{jarPrefix}-0.1.0.jar";
+            string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+            string jar = $"{jarDir}{sep}{jarPrefix}-{assemblyVersion}.jar";
 
             if (!File.Exists(jar))
             {
