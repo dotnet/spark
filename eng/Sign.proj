@@ -36,7 +36,7 @@
     </ItemGroup>
 
     <ItemGroup Condition="'$(SignNugetPackages)' == 'true'">
-      <FilesToSign Include="$(OutDir)*.nupkg" Exclude="$(OutDir)*.symbols.nupkg">
+      <FilesToSign Include="$(OutDir)*.nupkg">
         <Authenticode>NuGet</Authenticode>
       </FilesToSign>
     </ItemGroup>
