@@ -15,6 +15,14 @@
     <Product>.NET for Apache Spark</Product>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
 
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
+    <PackageProjectUrl>https://github.com/dotnet/spark</PackageProjectUrl>
+    
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
     <EngDir>$(MSBuildThisFileDirectory)..\..\eng\</EngDir>
     <IsTestProject Condition="$(MSBuildProjectName.EndsWith('Test'))">true</IsTestProject>
     
@@ -24,4 +32,8 @@
     <DelaySign>false</DelaySign>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)..\..\THIRD-PARTY-NOTICES.TXT" Pack="true" PackagePath="\" />
+  </ItemGroup>
 </Project>
