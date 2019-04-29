@@ -66,18 +66,10 @@ namespace Microsoft.Spark.RDD
         /// </summary>
         private sealed class BinaryDeserializer : IDeserializer
         {
-            [ThreadStatic]
-            private static MaxLengthReadStream s_slicedReadStream;
-
             private readonly BinaryFormatter _formater = new BinaryFormatter();
 
             public object Deserialize(Stream stream, int length)
             {
-                MaxLengthReadStream readStream = s_slicedReadStream ??
-                    (s_slicedReadStream = new MaxLengthReadStream());
-
-                readStream.Reset(stream, length);
-
                 return _formater.Deserialize(stream);
             }
         }
