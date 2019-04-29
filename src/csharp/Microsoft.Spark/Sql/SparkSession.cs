@@ -4,7 +4,6 @@
 
 using System;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Services;
 using Microsoft.Spark.Sql.Streaming;
 
 namespace Microsoft.Spark.Sql
