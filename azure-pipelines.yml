@@ -179,10 +179,6 @@ jobs:
         contents: '**/*.jar'
         targetFolder: $(Build.SourcesDirectory)/src/scala
 
-    - task: NuGetToolInstaller@0
-      inputs:
-        versionSpec: '4.9.2'
-
     - task: MicroBuildSigningPlugin@2
       displayName: Install MicroBuild plugin
       inputs:
