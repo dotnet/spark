@@ -21,6 +21,7 @@ zip -r Microsoft.Spark.Worker.netcoreapp2.1.win-x64-$VERSION.zip $WORKER_DIR
 rm -rf $WORKER_DIR
 mkdir $WORKER_DIR
 cp ./Microsoft.Spark.Binaries/Microsoft.Spark.Worker/netcoreapp2.1/linux-x64/* $WORKER_DIR
+chmod 755 $WORKER_DIR/Microsoft.Spark.Worker
 tar czf Microsoft.Spark.Worker.netcoreapp2.1.linux-x64-$VERSION.tar.gz $WORKER_DIR
 
 rm -rf $WORKER_DIR
