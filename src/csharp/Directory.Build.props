@@ -15,7 +15,7 @@
     <Product>.NET for Apache Spark</Product>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
 
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/dotnet/spark</PackageProjectUrl>
     
@@ -34,6 +34,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)..\..\LICENSE"
+             Pack="true"
+             PackagePath="\"
+             Visible="false" />
     <Content Include="$(MSBuildThisFileDirectory)..\..\THIRD-PARTY-NOTICES.TXT"
              Pack="true"
              PackagePath="\"
