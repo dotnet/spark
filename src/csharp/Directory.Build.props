@@ -31,6 +31,8 @@
     <SignAssembly>true</SignAssembly>
     <DelaySign>false</DelaySign>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
