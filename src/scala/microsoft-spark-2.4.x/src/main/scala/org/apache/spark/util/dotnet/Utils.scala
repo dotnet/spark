@@ -175,7 +175,19 @@ object Utils extends Logging {
    * @return Normalized Spark version.
    */
   def normalizeSparkVersion(version: String): String = {
-    version.split('.').take(3).mkString(".")
+    version
+      .split('.')
+      .take(3)
+      .zipWithIndex
+      .map({
+        case (element, index) => {
+          index match {
+            case 2 => element.split("\\D+").lift(0).getOrElse("")
+            case _ => element
+          }
+        }
+      })
+      .mkString(".")
   }
 
   private[spark] def listZipFileEntries(file: File): Array[String] = {
