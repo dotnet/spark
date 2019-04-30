@@ -170,7 +170,6 @@ object Utils extends Logging {
    * x.y.z => x.y.z
    * x.y.z.xxx.yyy => x.y.z
    * x.y => x.y
-   * x.y.z<non-digit sequence> => x.y.z
    *
    * @param version the Spark version to normalize
    * @return Normalized Spark version.
@@ -183,7 +182,7 @@ object Utils extends Logging {
       .map({
         case (element, index) => {
           index match {
-            case 2 => element.split("\\D+").lift(0)
+            case 2 => element.split("\\D+").lift(0).getOrElse("")
             case _ => element
           }
         }

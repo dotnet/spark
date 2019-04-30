@@ -183,7 +183,7 @@ object Utils extends Logging {
       .map({
         case (element, index) => {
           index match {
-            case 2 => element.split("\\D+").lift(0)
+            case 2 => element.split("\\D+").lift(0).getOrElse("")
             case _ => element
           }
         }
