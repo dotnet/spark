@@ -23,8 +23,6 @@ import scala.collection.Set
  * Utility methods.
  */
 object Utils extends Logging {
-  val supportPosix: Boolean =
-    FileSystems.getDefault.supportedFileAttributeViews().contains("posix")
   private val posixFilePermissions = Array(
     OWNER_READ,
     OWNER_WRITE,
@@ -35,6 +33,9 @@ object Utils extends Logging {
     OTHERS_READ,
     OTHERS_WRITE,
     OTHERS_EXECUTE)
+
+  val supportPosix: Boolean =
+    FileSystems.getDefault.supportedFileAttributeViews().contains("posix")
 
   /**
    * Compress all files under given directory into one zip file and drop it to the target directory
@@ -76,12 +77,6 @@ object Utils extends Logging {
     } finally {
       IOUtils.closeQuietly(zos)
       IOUtils.closeQuietly(fos)
-    }
-  }
-
-  private[this] def permissionsToMode(permissions: Set[PosixFilePermission]): Int = {
-    posixFilePermissions.foldLeft(0) { (mode, perm) =>
-      (mode << 1) | (if (permissions.contains(perm)) 1 else 0)
     }
   }
 
@@ -131,22 +126,6 @@ object Utils extends Logging {
     }
   }
 
-  private[this] def modeToPermissions(mode: Int): Set[PosixFilePermission] = {
-    posixFilePermissions.zipWithIndex
-      .filter { case (_, i) => (mode & (0x100 >>> i)) != 0 }
-      .map(_._1)
-      .toSet
-  }
-
-  /**
-   * Exits the JVM, trying to do it nicely, wait 1 second
-   *
-   * @param status  the exit status, zero for OK, non-zero for error
-   */
-  def exit(status: Int): Unit = {
-    exit(status, 1000)
-  }
-
   /**
    * Exits the JVM, trying to do it nicely, otherwise doing it nastily.
    *
@@ -174,6 +153,15 @@ object Utils extends Logging {
       // should never get here
       Runtime.getRuntime.halt(status)
     }
+  }
+
+  /**
+   * Exits the JVM, trying to do it nicely, wait 1 second
+   *
+   * @param status  the exit status, zero for OK, non-zero for error
+   */
+  def exit(status: Int): Unit = {
+    exit(status, 1000)
   }
 
   /**
@@ -211,5 +199,18 @@ object Utils extends Logging {
     } finally {
       ZipFile.closeQuietly(zipFile)
     }
+  }
+
+  private[this] def permissionsToMode(permissions: Set[PosixFilePermission]): Int = {
+    posixFilePermissions.foldLeft(0) { (mode, perm) =>
+      (mode << 1) | (if (permissions.contains(perm)) 1 else 0)
+    }
+  }
+
+  private[this] def modeToPermissions(mode: Int): Set[PosixFilePermission] = {
+    posixFilePermissions.zipWithIndex
+      .filter { case (_, i) => (mode & (0x100 >>> i)) != 0 }
+      .map(_._1)
+      .toSet
   }
 }
