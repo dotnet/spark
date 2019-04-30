@@ -77,14 +77,20 @@ dotnet publish -f netcoreapp2.1 -r linux-x64 ./HelloSpark.csproj
 
 ## Run The Application
 
-From the `HelloSpark` directory, enter the following command into the terminal to run the application:
+Navigate to the `publish` directory.
+
+```bash
+cd bin/Debug/netcoreapp2.1/linux-x64/publish/
+```
+
+Then, run the application with the following commands:
 
 ```bash
 spark-submit \
 --class org.apache.spark.deploy.DotnetRunner \
 --master local \
-./bin/Debug/netcoreapp2.1/linux-x64/publish/microsoft-spark-2.4.x-0.1.0.jar \
-./bin/Debug/netcoreapp2.1/linux-x64/publish/HelloSpark
+microsoft-spark-2.4.x-0.1.0.jar \
+HelloSpark
 ```
 
 The output of the application should look similar to the output below:
