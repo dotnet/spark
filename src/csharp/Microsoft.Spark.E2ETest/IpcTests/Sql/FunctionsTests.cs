@@ -207,7 +207,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             DataFrame df = _spark
                .Read()
-               .Json(TestEnvironment.ResourceDirectory + "people.json");
+               .Json($"{TestEnvironment.ResourceDirectory}people.json");
             df = Broadcast(df);
 
             col = Coalesce();

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using Microsoft.Spark.E2ETest.Utils;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
@@ -30,11 +31,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             sc.ClearJobGroup();
 
-            string filePath = TestEnvironment.ResourceDirectory + "people.txt";
+            string filePath = $"{TestEnvironment.ResourceDirectory}people.txt";
             sc.AddFile(filePath);
             sc.AddFile(filePath, true);
 
-            sc.SetCheckpointDir(TestEnvironment.ResourceDirectory);
+            using (var tempDir = new TemporaryDirectory())
+            {
+                sc.SetCheckpointDir(TestEnvironment.ResourceDirectory);
+            }
         }
     }
 }

@@ -71,8 +71,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriter object</returns>
         public DataFrameWriter Option(string key, string value)
         {
-            _jvmObject.Invoke("option", value);
-            return this;
+            return OptionInternal(key, value);
         }
 
         /// <summary>
@@ -83,8 +82,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriter object</returns>
         public DataFrameWriter Option(string key, bool value)
         {
-            _jvmObject.Invoke("option", value);
-            return this;
+            return OptionInternal(key, value);
         }
 
         /// <summary>
@@ -95,8 +93,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriter object</returns>
         public DataFrameWriter Option(string key, long value)
         {
-            _jvmObject.Invoke("option", value);
-            return this;
+            return OptionInternal(key, value);
         }
 
         /// <summary>
@@ -107,8 +104,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriter object</returns>
         public DataFrameWriter Option(string key, double value)
         {
-            _jvmObject.Invoke("option", value);
-            return this;
+            return OptionInternal(key, value);
         }
 
         /// <summary>
@@ -130,7 +126,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriter object</returns>
         public DataFrameWriter PartitionBy(params string[] colNames)
         {
-            _jvmObject.Invoke("partitionBy", colNames);
+            _jvmObject.Invoke("partitionBy", (object)colNames);
             return this;
         }
 
@@ -240,6 +236,18 @@ namespace Microsoft.Spark.Sql
         /// Saves the content of the DataFrame in CSV format at the specified path.
         /// </summary>
         /// <param name="path">Path to save the content</param>
-        public void Csv(string path) => _jvmObject.Invoke("csvs", path);
+        public void Csv(string path) => _jvmObject.Invoke("csv", path);
+
+        /// <summary>
+        /// Helper function to add given key/value pair as a new option.
+        /// </summary>
+        /// <param name="key">Name of the option</param>
+        /// <param name="value">Value of the option</param>
+        /// <returns>This DataFrameWriter object</returns>
+        private DataFrameWriter OptionInternal(string key, object value)
+        {
+            _jvmObject.Invoke("option", key, value);
+            return this;
+        }
     }
 }
