@@ -83,7 +83,7 @@ Navigate to the `publish` directory.
 cd bin/Debug/netcoreapp2.1/linux-x64/publish/
 ```
 
-Then, run the application with the following commands:
+Then, run the application with the following command:
 
 ```bash
 spark-submit \
