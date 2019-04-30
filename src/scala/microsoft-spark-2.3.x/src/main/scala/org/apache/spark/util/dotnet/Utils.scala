@@ -170,12 +170,25 @@ object Utils extends Logging {
    * x.y.z => x.y.z
    * x.y.z.xxx.yyy => x.y.z
    * x.y => x.y
+   * x.y.z<non-digit sequence> => x.y.z
    *
    * @param version the Spark version to normalize
    * @return Normalized Spark version.
    */
   def normalizeSparkVersion(version: String): String = {
-    version.split('.').take(3).mkString(".")
+    version
+      .split('.')
+      .take(3)
+      .zipWithIndex
+      .map({
+        case (element, index) => {
+          index match {
+            case 2 => element.split("\\D+").lift(0).getOrElse("")
+            case _ => element
+          }
+        }
+      })
+      .mkString(".")
   }
 
   private[spark] def listZipFileEntries(file: File): Array[String] = {
