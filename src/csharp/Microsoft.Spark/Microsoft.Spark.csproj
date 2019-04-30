@@ -5,6 +5,7 @@
     <RootNamespace>Microsoft.Spark</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName).xml</DocumentationFile>
+    <IsPackable>true</IsPackable>
 
     <Description>.NET for Apache Spark</Description>
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>

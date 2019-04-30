@@ -15,7 +15,7 @@
     <Product>.NET for Apache Spark</Product>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
 
-    <PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/dotnet/spark</PackageProjectUrl>
     
@@ -31,10 +31,12 @@
     <SignAssembly>true</SignAssembly>
     <DelaySign>false</DelaySign>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)..\..\LICENSE.TXT"
+    <Content Include="$(MSBuildThisFileDirectory)..\..\LICENSE"
              Pack="true"
              PackagePath="\"
              Visible="false" />

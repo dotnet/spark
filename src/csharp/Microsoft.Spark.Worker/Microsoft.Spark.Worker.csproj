@@ -6,7 +6,6 @@
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.1</TargetFrameworks>
     <RootNamespace>Microsoft.Spark.Worker</RootNamespace>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName).xml</DocumentationFile>
-    <IsPackable>False</IsPackable>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp2.1' ">
