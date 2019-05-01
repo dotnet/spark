@@ -35,6 +35,9 @@ TEMP_WORKER_FILENAME=/tmp/temp_worker.tgz
 IFS='-' read -ra BASE_FILENAME <<< "$(basename $WORKER_PATH_OR_URI .tar.gz)"
 VERSION=${BASE_FILENAME[2]}
 
+IFS='.' read -ra VERSION_CHECK <<< "$VERSION"
+[[ ${#VERSION[@]} != 3 ]] || { echo >&2 "Version check does not satisfy. Raise an issue here: https://github.com/dotnet/spark"; exit 1; }
+
 # Path of the final worker binaries (the one we just downloaded and extracted)
 CURRENT_WORKER_PATH=$SPARKDOTNET_ROOT/Microsoft.Spark.Worker-$VERSION
 CURRENT_WORKER_BINARY=$CURRENT_WORKER_PATH/Microsoft.Spark.Worker
