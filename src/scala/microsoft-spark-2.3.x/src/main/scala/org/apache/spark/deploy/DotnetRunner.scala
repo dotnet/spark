@@ -71,11 +71,6 @@ object DotnetRunner extends Logging {
         // Reuse windows-specific formatting in PythonRunner.
         dotnetExecutable = PythonRunner.formatPath(resolveDotnetExecutable(driverDir, args(1)))
         otherArgs = args.slice(2, args.length)
-      } else if (new File(args(0)).isDirectory) {
-        // Local mode where .NET application is located in the given directory.
-        // Reuse windows-specific formatting in PythonRunner.
-        dotnetExecutable = PythonRunner.formatPath(args(1))
-        otherArgs = args.slice(2, args.length)
       } else {
         // Reuse windows-specific formatting in PythonRunner.
         dotnetExecutable = PythonRunner.formatPath(args(0))
@@ -86,7 +81,7 @@ object DotnetRunner extends Logging {
     }
 
     val processParameters = new java.util.ArrayList[String]
-    processParameters.add(formatPath(dotnetExecutable))
+    processParameters.add(dotnetExecutable)
     otherArgs.foreach(arg => processParameters.add(arg))
 
     logInfo(s"Starting DotnetBackend with $dotnetExecutable.")
@@ -198,17 +193,6 @@ object DotnetRunner extends Logging {
     }
 
     resolvedExecutable
-  }
-
-  // When executing in YARN cluster mode, the name of the
-  // executable is single-part (just the exe name). This method will add "." to it
-  private def formatPath(dotnetExecutable: String): String = {
-    var formattedDotnetExecutable = dotnetExecutable
-    val path = Paths.get(dotnetExecutable)
-    if (!path.isAbsolute && path.getNameCount == 1) {
-      formattedDotnetExecutable = Paths.get(".", path.toString).toString
-    }
-    formattedDotnetExecutable
   }
 
   /**
