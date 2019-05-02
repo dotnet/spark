@@ -9,7 +9,7 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
     - Select a **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release from .NET for Apache Spark GitHub Releases page and download into your local machine (e.g., `c:\bin\Microsoft.Spark.Worker\`).
     - **IMPORTANT** Create a [new environment variable](https://www.java.com/en/download/help/path.xml) `DotnetWorkerPath` and set it to the directory where you downloaded and extracted the Microsoft.Spark.Worker (e.g., `c:\bin\Microsoft.Spark.Worker`).
 
-For detailed instructions, you can see [Building .NET for Apache Spark from Source on Windows](docs/building/windows-instructions.md).
+For detailed instructions, you can see [Building .NET for Apache Spark from Source on Windows](../building/windows-instructions.md).
 
 ## Authoring a .NET for Apache Spark App
 - Open Visual Studio -> Create New Project -> Console App (.NET Core) -> Name: `HelloSpark`
@@ -52,7 +52,7 @@ For detailed instructions, you can see [Building .NET for Apache Spark from Sour
         microsoft-spark-2.4.x-<version>.jar `
         dotnet HelloSpark
     ```
-    **Note**: This command assumes you have downloaded Apache Spark and added it to your PATH environment variable to be able to use `spark-submit`, otherwise, you would have to use the full path (e.g., `c:\bin\apache-spark\bin\spark-submit`). For detailed instructions, you can see [Building .NET for Apache Spark from Source on Windows](docs/building/windows-instructions.md).
+    **Note**: This command assumes you have downloaded Apache Spark and added it to your PATH environment variable to be able to use `spark-submit`, otherwise, you would have to use the full path (e.g., `c:\bin\apache-spark\bin\spark-submit`). For detailed instructions, you can see [Building .NET for Apache Spark from Source on Windows](../building/windows-instructions.md).
 - The output of the application should look similar to the output below:
     ```text
     +----+-------+
