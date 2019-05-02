@@ -40,9 +40,9 @@ For detailed instructions, you can see [Building .NET for Apache Spark from Sour
     ```
 - Create `people.json` with the following content:
     ```json
-        {"name":"Michael"}
-        {"name":"Andy", "age":30}
-        {"name":"Justin", "age":19}
+    {"name":"Michael"}
+    {"name":"Andy", "age":30}
+    {"name":"Justin", "age":19}
     ```
 - Run your app
     ```
