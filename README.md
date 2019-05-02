@@ -25,7 +25,7 @@
 
 ## Get Started
 These instructions will show you how to run a .NET for Apache Spark app using .NET Core.
-- [Windows Instructions]((docs/getting-started/windows-instructions.md))
+- [Windows Instructions](docs/getting-started/windows-instructions.md)
 - [Ubuntu Instructions](docs/getting-started/ubuntu-instructions.md)
 
 ## Build Status
