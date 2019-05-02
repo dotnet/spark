@@ -61,7 +61,7 @@ In this section, we will show how to run a .NET for Apache Spark app using .NET 
            --class org.apache.spark.deploy.DotnetRunner `
            --master local `
            microsoft-spark-2.4.x-<version>.jar `
-           <full-path-to-dotnet.exe> .\HelloSpark.dll
+           <full-path-to-dotnet.exe> HelloSpark.dll
        ```
        **Note**: This command assumes you have downloaded Apache Spark and added it to your PATH environment variable to be able to use `spark-submit`, otherwise, you would have to use the full path (e.g., `c:\bin\apache-spark\bin\spark-submit`). For detailed instructions, you can see [Building .NET for Apache Spark from Source on Windows](docs/building/windows-instructions.md).
 
