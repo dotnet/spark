@@ -179,8 +179,9 @@ Using Databrick's [init script](https://docs.databricks.com/user-guide/clusters/
 
 ### Run your app on the cloud!
 #### Using [spark-submit](https://spark.apache.org/docs/latest/submitting-applications.html)
-1. [Create a Job](https://docs.databricks.com/user-guide/jobs.html) and select *Configure spark-submit*.
+1. [Create a Job](https://docs.databricks.com/user-guide/jobs.html#create-a-job) and select *Configure spark-submit*.
 2. Configure `spark-submit` with the following parameters:
    ```shell
    ["--files","/dbfs/<your mount>/<path-to>/<app assembly/file to deploy to worker>","--class"," org.apache.spark.deploy.DotnetRunner","/dbfs/<your mount>/<path to>/microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar","/dbfs/<your mount>/<path to>/<app name>.zip","<app bin name>","app arg1","app arg2"]
    ```
+> **Note**: You can run `spark-submit` jobs only on new clusters.
