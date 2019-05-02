@@ -7,8 +7,10 @@ Below are some of the highlights from this release.
 * Added XML documentation file to Nuget package and the comments on public APIs are now visible.
 * Bug fixes:
     * `DataFrameWriter.Option()` APIs were not setting keys correctly. ([#59](https://github.com/dotnet/spark/pull/59))
-    * `DataFrameWriter.PartitionBy()` is fixed ([#56](https://github.com/dotnet/spark/pull/56)) 
-    
+    * `DataFrameWriter.PartitionBy()` is fixed. ([#56](https://github.com/dotnet/spark/pull/56)) 
+* Relaxed the Spark version check. ([#74](https://github.com/dotnet/spark/pull/74))
+* Executables in PATH do not require full path when they are provided in `spark-submit`. ([#81](https://github.com/dotnet/spark/pull/81))
+
 ### Supported Spark Versions
 
 The following table outlines the supported Spark versions along with the microsoft-spark JAR to use with:
