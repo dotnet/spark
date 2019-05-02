@@ -8,7 +8,7 @@
     <IsPackable>true</IsPackable>
 
     <Description>.NET for Apache Spark</Description>
-    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/dotnet/spark/tree/master/docs/release-notes</PackageReleaseNotes>
     <PackageTags>spark;dotnet;csharp</PackageTags>
   </PropertyGroup>
 
