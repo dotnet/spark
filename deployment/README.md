@@ -171,7 +171,7 @@ Using Databrick's [init script](https://docs.databricks.com/user-guide/clusters/
       ```shell
       databricks fs cp install-worker.sh dbfs:/<some-dir>/install-worker.sh
 
-      # Alternatively using the dbfs (databricks fs alias)
+      # Alternatively using dbfs (databricks fs alias)
       dbfs cp install-worker.sh dbfs:/<some-dir>/install-worker.sh
       ```
    - *Option 2*: Configure your [Data Source](https://docs.databricks.com/spark/latest/data-sources/index.html) and mount it using [Databricks File System](https://docs.databricks.com/user-guide/dbfs-databricks-file-system.html#dbfs).
