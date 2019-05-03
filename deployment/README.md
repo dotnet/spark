@@ -166,7 +166,7 @@ foo@bar:~$ aws emr add-steps \
 #### Cluster Node Initialization Scripts
 Using Databrick's [init script](https://docs.databricks.com/user-guide/clusters/init-scripts.html) mechanism, we will run a shell script during startup for each cluster node before the Spark driver or worker JVM starts.
 
-1. Upload `install-worker.sh` files to DBFS.
+1. Upload `install-worker.sh` to DBFS.
    - *Option 1*: Use [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html).
       ```shell
       databricks fs cp install-worker.sh dbfs:/<some-dir>/install-worker.sh
