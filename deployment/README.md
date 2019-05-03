@@ -21,6 +21,7 @@ Deploying your App on the Cloud
 1. Tool to copy files to a distributed file system.
    - ADLS, WASB &rarr; [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/)
    - S3 &rarr; [AWS CLI](https://aws.amazon.com/cli/)
+   - DBFS &rarr; [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html)
 2. Download [install-worker.sh](install-worker.sh) to your local machine. This is a helper script that we will use later in the installation section to copy Spark .NET dependent files into your Spark cluster's worker nodes. install-worker.sh takes in three parameters:
    1. The Cloud Provider: `azure` or `aws`
    2. URI where `Microsoft.Spark.Worker.<release>.tar.gz` is uploaded (see the [Microsoft.Spark.Worker section](#microsoftsparkworker) for instructions on where to download this)
@@ -37,7 +38,7 @@ Microsoft.Spark.Worker is a backend component that lives on the individual worke
 ## Microsoft.Spark.Worker
 1. Select a [Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases) Linux netcoreapp release to be deployed on your cluster.
    * For example, if you want `.NET for Apache Spark v0.1.0` using `netcoreapp2.1`, you'd download [Microsoft.Spark.Worker.netcoreapp2.1.linux-x64-0.1.0.tar.gz](https://github.com/dotnet/spark/releases/download/v0.1.0/Microsoft.Spark.Worker.netcoreapp2.1.linux-x64-0.1.0.tar.gz).
-2. Upload `Microsoft.Spark.Worker.<release>.tar.gz` and [install-worker.sh](install-worker.sh) to a distributed file system (e.g., HDFS, WASB, ADLS, S3) that your cluster has access to.
+2. Upload `Microsoft.Spark.Worker.<release>.tar.gz` and [install-worker.sh](install-worker.sh) to a distributed file system (e.g., HDFS, WASB, ADLS, S3, DBFS) that your cluster has access to.
 
 ## Your Spark .NET `app`
 1. Follow the [Get Started](https://github.com/dotnet/spark/#get-started) guide to build your app.
@@ -51,7 +52,7 @@ Microsoft.Spark.Worker is a backend component that lives on the individual worke
    # For example, you can run the following on Linux using `zip`.
    foo@bar:~/path/to/app/bin/Release/netcoreapp2.1/ubuntu.16.04-x64/publish$ zip -r <your app>.zip .
    ```
-4. Upload the following to a distributed file system (e.g., HDFS, WASB, ADLS, S3) that your cluster has access to:
+4. Upload the following to a distributed file system (e.g., HDFS, WASB, ADLS, S3, DBFS) that your cluster has access to:
    * `microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar` (Included as part of the [Microsoft.Spark](https://www.nuget.org/packages/Microsoft.Spark/) nuget and is colocated in your app's build output directory)
    * `<your app>.zip`
    * Files (e.g., dependency files, common data accessible to every worker) or Assemblies (e.g., DLLs that contain your user-defined functions, libraries that your `app` depends on) to be placed in the working directory of each executor.
@@ -165,14 +166,22 @@ foo@bar:~$ aws emr add-steps \
 #### Cluster Node Initialization Scripts
 Using Databrick's [init script](https://docs.databricks.com/user-guide/clusters/init-scripts.html) mechanism, we will run a shell script during startup for each cluster node before the Spark driver or worker JVM starts.
 
-1. Configure your [Data Source](https://docs.databricks.com/spark/latest/data-sources/index.html) and mount it using [Databricks File System](https://docs.databricks.com/user-guide/dbfs-databricks-file-system.html#dbfs).
+1. Upload `install-worker.sh` files to DBFS.
+   - *Option 1*: Use [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html).
+      ```shell
+      databricks fs cp install-worker.sh dbfs:/<some-dir>/install-worker.sh
+
+      # Alternatively using the dbfs (databricks fs alias)
+      dbfs cp install-worker.sh dbfs:/<some-dir>/install-worker.sh
+      ```
+   - *Option 2*: Configure your [Data Source](https://docs.databricks.com/spark/latest/data-sources/index.html) and mount it using [Databricks File System](https://docs.databricks.com/user-guide/dbfs-databricks-file-system.html#dbfs).
 2. Use the following [init script](https://docs.databricks.com/user-guide/clusters/init-scripts.html) to install `Microsoft.Spark.Worker` on the cluster nodes.
    ```scala
    dbutils.fs.put("dbfs:/databricks/<cluster-scoped or global path>/install-worker-wrapper.sh" ,"""
    #!/bin/bash
    set +e
 
-   /bin/bash /dbfs/<your mount>/<path to>/install-worker.sh local /dbfs/<your mount>/<path to>/Microsoft.Spark.Worker.<release>.tar.gz /usr/local/bin
+   /bin/bash /dbfs/<path-to>/install-worker.sh local /dbfs/<path-to>/Microsoft.Spark.Worker.<release>.tar.gz /usr/local/bin
    """, true)
    ```
 3. Restart the cluster.
@@ -182,6 +191,6 @@ Using Databrick's [init script](https://docs.databricks.com/user-guide/clusters/
 1. [Create a Job](https://docs.databricks.com/user-guide/jobs.html#create-a-job) and select *Configure spark-submit*.
 2. Configure `spark-submit` with the following parameters:
    ```shell
-   ["--files","/dbfs/<your mount>/<path-to>/<app assembly/file to deploy to worker>","--class"," org.apache.spark.deploy.DotnetRunner","/dbfs/<your mount>/<path to>/microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar","/dbfs/<your mount>/<path to>/<app name>.zip","<app bin name>","app arg1","app arg2"]
+   ["--files","/dbfs/<your mount>/<path-to>/<app assembly/file to deploy to worker>","--class"," org.apache.spark.deploy.DotnetRunner","/dbfs/<path-to>/microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar","/dbfs/<your mount>/<path-to>/<app name>.zip","<app bin name>","app arg1","app arg2"]
    ```
 > **Note**: You can run `spark-submit` jobs only on new clusters.
