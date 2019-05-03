@@ -191,6 +191,6 @@ Using Databrick's [init script](https://docs.databricks.com/user-guide/clusters/
 1. [Create a Job](https://docs.databricks.com/user-guide/jobs.html#create-a-job) and select *Configure spark-submit*.
 2. Configure `spark-submit` with the following parameters:
    ```shell
-   ["--files","/dbfs/<your mount>/<path-to>/<app assembly/file to deploy to worker>","--class"," org.apache.spark.deploy.DotnetRunner","/dbfs/<path-to>/microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar","/dbfs/<your mount>/<path-to>/<app name>.zip","<app bin name>","app arg1","app arg2"]
+   ["--files","/dbfs/<path-to>/<app assembly/file to deploy to worker>","--class"," org.apache.spark.deploy.DotnetRunner","/dbfs/<path-to>/microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar","/dbfs/<path-to>/<app name>.zip","<app bin name>","app arg1","app arg2"]
    ```
 > **Note**: You can run `spark-submit` jobs only on new clusters.
