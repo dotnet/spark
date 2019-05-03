@@ -36,7 +36,7 @@ For detailed instructions, you can see [Building .NET for Apache Spark from Sour
 ## Running your .NET for Apache Spark App
 - Open your terminal and navigate into your app folder:
     ```
-        cd <your-app-output-directory>
+    cd <your-app-output-directory>
     ```
 - Create `people.json` with the following content:
     ```json
@@ -46,11 +46,11 @@ For detailed instructions, you can see [Building .NET for Apache Spark from Sour
     ```
 - Run your app
     ```
-        spark-submit `
-        --class org.apache.spark.deploy.DotnetRunner `
-        --master local `
-        microsoft-spark-2.4.x-<version>.jar `
-        dotnet HelloSpark
+    spark-submit `
+    --class org.apache.spark.deploy.DotnetRunner `
+    --master local `
+    microsoft-spark-2.4.x-<version>.jar `
+    dotnet HelloSpark.dll
     ```
     **Note**: This command assumes you have downloaded Apache Spark and added it to your PATH environment variable to be able to use `spark-submit`, otherwise, you would have to use the full path (e.g., `c:\bin\apache-spark\bin\spark-submit`). For detailed instructions, you can see [Building .NET for Apache Spark from Source on Windows](../building/windows-instructions.md).
 - The output of the application should look similar to the output below:

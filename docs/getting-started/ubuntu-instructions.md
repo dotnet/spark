@@ -39,38 +39,30 @@ For detailed instructions, you can see [Building .NET for Apache Spark from Sour
         }
     }
     ```
+- Use the `dotnet` CLI to build the application:
+    ```shell
+    dotnet build
+    ```
+
+
+## Running your .NET for Apache Spark App
+- Open your terminal and navigate into your app folder.
+    ```shell
+    cd <your-app-output-directory>
+    ```
 - Create `people.json` with the following content:
     ```json
     {"name":"Michael"}
     {"name":"Andy", "age":30}
     {"name":"Justin", "age":19}
     ```
-- Modify `HelloSpark.csproj` and add the following inside the `Project` tags:
-    ```xml
-    <ItemGroup>
-        <Content Include="people.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-    ```
-- Use the `dotnet` CLI to build and publish the application:
-    ```shell
-    dotnet publish -f netcoreapp2.1 -r linux-x64 ./HelloSpark.csproj
-    ```
-
-
-## Running your .NET for Apache Spark App
-- Navigate to the `publish` directory.
-    ```shell
-    cd bin/Debug/netcoreapp2.1/linux-x64/publish/
-    ```
 - Run your app.
     ```shell
     spark-submit \
     --class org.apache.spark.deploy.DotnetRunner \
     --master local \
-    ./microsoft-spark-2.4.x-<version>.jar \
-    ./HelloSpark
+    microsoft-spark-2.4.x-<version>.jar \
+    dotnet HelloSpark.dll
     ```
     **Note**: This command assumes you have downloaded Apache Spark and added it to your PATH environment variable to be able to use `spark-submit`, otherwise, you would have to use the full path (e.g., `~/spark/bin/spark-submit`). For detailed instructions, you can see [Building .NET for Apache Spark from Source on Ubuntu](../building/ubuntu-instructions.md).
 - The output of the application should look similar to the output below:
