@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
@@ -22,7 +23,7 @@ namespace Microsoft.Spark.Services
         public const string WorkerReadBufferSizeEnvName = "spark.dotnet.worker.readBufferSize";
         public const string WorkerWriteBufferSizeEnvName = "spark.dotnet.worker.writeBufferSize";
 
-        private const string SparkMasterEnvName = "spark.master";
+        private readonly string[] SparkMasterEnvName = new string[] { "spark.master", "MASTER" };
         private const string DotnetBackendPortNumberSettingKey = "DotnetBackendPortNumber";
         private const string DotnetBackendPortEnvName = "DOTNETBACKEND_PORT";
         private const int DotnetBackendDebugPort = 5567;
@@ -51,7 +52,20 @@ namespace Microsoft.Spark.Services
                 entryAssembly.Location);
 
             // SPARK_MASTER is set by when the driver runs on the Scala side.
-            string sparkMaster = Environment.GetEnvironmentVariable(SparkMasterEnvName);
+            // Depending on the job submission, there are different environment 
+            // variables that are set to indicate Spark Master URI:
+            // - spark.master for job submissions through spark-submit
+            // - MASTER for job submissions through Databricks (Create Job -> Set JAR)
+            string sparkMaster = null;
+            foreach(string sparkMasterEnv in SparkMasterEnvName)
+            {
+                sparkMaster = Environment.GetEnvironmentVariable(sparkMasterEnv);
+                if (sparkMaster != null)
+                {
+                    break;
+                }
+            }
+
             if (sparkMaster == null)
             {
                 _configuration = new DebugConfiguration(appConfig);
