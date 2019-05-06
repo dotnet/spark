@@ -74,4 +74,4 @@ This app would not have been possible without work from the following:
   - [The GHTorrent project](http://ghtorrent.org)
   - [Azure Databricks](https://azure.microsoft.com/en-us/services/databricks/) 
   - [Azure Data Lake Storage Gen2 (ABFS)](https://azure.microsoft.com/en-us/services/storage/data-lake-storage/) 
-  - Awesome people who helped put this together: Terry Kim, Steve Suh, Ankit Asthana, Michael Rys, Scott Hunter, Scott Hanselman
+  - People who helped put this together: Rahul Potharaju, Terry Kim, Steve Suh, Ankit Asthana, Michael Rys, Scott Hunter, Scott Hanselman
