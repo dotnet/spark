@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.1</TargetFrameworks>
+    <RootNamespace>Microsoft.Spark.Examples</RootNamespace>
+    <AssemblyName>GitHubLovesSparkDotNet</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\csharp\Microsoft.Spark.Worker\Microsoft.Spark.Worker.csproj" />
+    <ProjectReference Include="..\..\src\csharp\Microsoft.Spark\Microsoft.Spark.csproj" />
+  </ItemGroup>
+
+</Project>
