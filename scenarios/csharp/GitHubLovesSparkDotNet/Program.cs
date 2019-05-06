@@ -9,31 +9,6 @@ using System.Text.RegularExpressions;
 
 namespace Microsoft.Spark.Scenarios
 {
-    // Application presented at Microsoft //Build 2019:
-    // 1. By Scott Hanselman & Scott Hunter in the following session:
-    //    BRK3015 - .NET Platform Overview and Roadmap
-    //    https://mybuild.techcommunity.microsoft.com/sessions/77031?source=sessions
-    // 2. By Rahul Potharaju in the following session:
-    //    BRK3055 - Building data pipelines for Modern Data Warehouse with Spark and .NET in Azure
-    //    https://mybuild.techcommunity.microsoft.com/sessions/76996?source=sessions
-    //
-    // This app is purely for demonstration purposes. And more 
-    // importantly, this was not written by a seasoned Data Scientist 
-    // so please avoid deriving *any* conclusions from the results :) 
-    //
-    // Of course, please feel free to open PRs to improve and make 
-    // this app more interesting.
-    //
-    // Acknowledgements:
-    // - The GHTorrent project
-    //   http://ghtorrent.org
-    // - Azure Databricks 
-    //   https://azure.microsoft.com/en-us/services/databricks/
-    // - Azure Data Lake Storage Gen2 (ABFS) 
-    //   https://azure.microsoft.com/en-us/services/storage/data-lake-storage/
-    // - Awesome people who helped put this together
-    //   Terry Kim, Steve Suh, Ankit Asthana, Michael Rys, Scott Hunter, Scott Hanselman
-
     public class Program
     {
         public const string StorageConfigKey = "fs.azure.account.key.<your-storage-account-name>.dfs.core.windows.net";
