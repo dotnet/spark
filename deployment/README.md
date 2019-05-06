@@ -205,7 +205,7 @@ Publishing your App & Running:
   2. Use [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html) to upload your application to Databricks cluster. For instance, 
      ```
      cd <path-to-your-app-publish-directory>
-     databricks fs cp <your-app-name>.zip dbfs:/apps/
+     databricks fs cp <your-app-name>.zip dbfs:/apps/<your-app-name>.zip
      ```
   3. Now, go to your Databricks cluster -> Jobs -> <Job-name> -> Run Now to run your job!
 
