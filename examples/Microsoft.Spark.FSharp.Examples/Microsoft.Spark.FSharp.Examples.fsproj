@@ -6,6 +6,7 @@
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.1</TargetFrameworks>
     <RootNamespace>Microsoft.Spark.Examples</RootNamespace>
     <AssemblyName>Microsoft.Spark.FSharp.Examples</AssemblyName>
+    <PublicSign>false</PublicSign>
   </PropertyGroup>
 
   <ItemGroup>
