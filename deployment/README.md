@@ -179,7 +179,7 @@ Databricks allows you to submit Spark .NET apps to an existing active cluster or
   6. Go to to your Databricks cluster homepage -> Clusters (on the left-side menu) -> Create Cluster
   7. After configuring the cluster appropriately, set the init script (see the image below) and create the cluster.
      
-     <img src="../docs/img/deployment-databricks-init-script.PNG" alt="ScriptActionImage" width="500"/>
+     <img src="../docs/img/deployment-databricks-init-script.PNG" alt="ScriptActionImage" width="600"/>
      
   > Note: If everything went well, your cluster creation should have been successful. You can check this by clicking on the cluster -> Event Logs.
 
