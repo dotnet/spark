@@ -24,4 +24,4 @@ DOTNET_SPARK_WORKER_INSTALLATION_PATH=/usr/local/bin
 ###############################################################################
 
 set +e
-/bin/bash $DBFS_INSTALLATION_ROOT/install-worker.sh $DOTNET_SPARK_RELEASE github $DOTNET_SPARK_RELEASE $DOTNET_SPARK_WORKER_INSTALLATION_PATH
+/bin/bash $DBFS_INSTALLATION_ROOT/install-worker.sh github $DOTNET_SPARK_RELEASE $DOTNET_SPARK_WORKER_INSTALLATION_PATH
