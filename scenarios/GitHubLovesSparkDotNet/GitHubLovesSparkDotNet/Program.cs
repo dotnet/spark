@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.Functions;
 using System.Text.RegularExpressions;
@@ -36,8 +40,7 @@ namespace GitHubLovesSparkDotNet
 
         static void Main(string[] args)
         {
-            var spark =
-                SparkSession
+            SparkSession spark = SparkSession
                     .Builder()
                     .Config(StorageConfigKey, SecureStorageKey)
                     .AppName(@"Github 💖 .NET for Apache Spark")
@@ -87,14 +90,14 @@ namespace GitHubLovesSparkDotNet
             // Let's figure out the top projects (w.r.t., stars)
             // and how developer commit pattern looks like over a week - 
             // do people work more over weekdays or weekends? :)
-            var p =
+            DataFrame p =
               projects.As("p")
                 .Select(Col("id").As("p_id"),
                         Col("name").As("p_name"),
                         Col("language"),
                         Col("created_at").As("p_created_at"));
 
-            var patterns =
+            DataFrame patterns =
               commits
                 .Join(p, commits["project_id"] == p["p_id"])
                 .Join(stars.Limit(10), Col("name") == p["p_name"])
