@@ -197,7 +197,7 @@ One-time Setup:
      Main Class: org.apache.spark.deploy.DotnetRunner
      Arguments /dbfs/app/<your-app-name>.zip <your-app-main-class>
      ```
-  4. Configure the Cluster to point to an existing cluster (that already you already set the init script for - see previous section).
+  4. Configure the Cluster to point to an existing cluster (that you already set the init script for - see previous section).
   
 Publishing your App & Running:
   1. You should first [publish your app](#preparing-your-spark-net-app). 
