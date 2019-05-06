@@ -176,7 +176,7 @@ Databricks allows you to submit Spark .NET apps to an existing active cluster or
      databricks fs cp init-db.sh dbfs:/spark-dotnet/
      databricks fs cp install-worker.sh dbfs:/spark-dotnet/
      ```
-  6. Goto to your Databricks cluster homepage -> Clusters (on the left-side menu) -> Create Cluster
+  6. Go to to your Databricks cluster homepage -> Clusters (on the left-side menu) -> Create Cluster
   7. After configuring the cluster appropriately, set the init script (see the image below) and create the cluster.
      
      <img src="../docs/img/deployment-databricks-init-script.PNG" alt="ScriptActionImage" width="500"/>
@@ -187,7 +187,7 @@ Databricks allows you to submit Spark .NET apps to an existing active cluster or
 
 #### Using [Set JAR](https://docs.databricks.com/user-guide/jobs.html#create-a-job)
 
-> **Note:** This approach allows job submission to an existing active cluster
+> **Note:** This approach allows job submission to an existing active cluster.
 
 One-time Setup:
   1. Go to your Databricks cluster -> Jobs (on the left-side menu) -> Set JAR
@@ -195,7 +195,7 @@ One-time Setup:
   3. Set the params appropriately:
      ```
      Main Class: org.apache.spark.deploy.DotnetRunner
-     Arguments /dbfs/app/<your-app>.zip <your-app-main-class>
+     Arguments /dbfs/app/<your-app-name>.zip <your-app-main-class>
      ```
   4. Configure the Cluster to point to an existing cluster (that already you already set the init script for - see previous section).
   
@@ -203,14 +203,14 @@ Publishing your App & Running:
   1. You should first [publish your app](#preparing-your-spark-net-app). 
   2. Use [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html) to upload your application to Databricks cluster. For instance, 
      ```
-     cd <path-to-your-publish-directory>
-     databricks fs cp App.zip dbfs:/apps/
+     cd <path-to-your-app-publish-directory>
+     databricks fs cp <your-app-name>.zip dbfs:/apps/
      ```
   3. Now, go to your Databricks cluster -> Jobs -> <Job-name> -> Run Now to run your job!
 
 #### Using [spark-submit](https://spark.apache.org/docs/latest/submitting-applications.html)
 
-> **Note:** This approach allows submission ONLY to cluster that gets created on-demand
+> **Note:** This approach allows submission ONLY to cluster that gets created on-demand.
 
   1. [Create a Job](https://docs.databricks.com/user-guide/jobs.html) and select *Configure spark-submit*.
   2. Configure `spark-submit` with the following parameters:
