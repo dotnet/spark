@@ -189,7 +189,7 @@ Databricks allows you to submit Spark .NET apps to an existing active cluster or
 
 > **Note:** This approach allows job submission to an existing active cluster
 
-**One-time Setup**
+One-time Setup:
   1. Go to your Databricks cluster -> Jobs (on the left-side menu) -> Set JAR
   2. Upload the appropriate `microsoft-spark-<spark-version>-<spark-dotnet-version>.jar`
   3. Set the params appropriately:
@@ -199,8 +199,7 @@ Databricks allows you to submit Spark .NET apps to an existing active cluster or
      ```
   4. Configure the Cluster to point to an existing cluster (that already you already set the init script for - see previous section).
   
-**Publishing your App & Running**
-
+Publishing your App & Running:
   1. You should first [publish your app](#preparing-your-spark-net-app). 
   2. Use [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html) to upload your application to Databricks cluster. For instance, 
      ```
@@ -211,7 +210,7 @@ Databricks allows you to submit Spark .NET apps to an existing active cluster or
 
 #### Using [spark-submit](https://spark.apache.org/docs/latest/submitting-applications.html)
 
-> **Note:** This approach Allows submission ONLY to cluster that gets created on-demand
+> **Note:** This approach allows submission ONLY to cluster that gets created on-demand
 
   1. [Create a Job](https://docs.databricks.com/user-guide/jobs.html) and select *Configure spark-submit*.
   2. Configure `spark-submit` with the following parameters:
