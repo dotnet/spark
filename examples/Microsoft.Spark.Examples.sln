@@ -17,8 +17,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\.editorconfig = ..\.editorconfig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GitHubLovesSparkDotNet", "GitHubLovesSparkDotNet\GitHubLovesSparkDotNet.csproj", "{6E384B8A-2269-43A1-91D1-5BC257F9252D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,10 +39,6 @@ Global
 		{127370FE-D19D-4489-AB7C-2F1AA7908994}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{127370FE-D19D-4489-AB7C-2F1AA7908994}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{127370FE-D19D-4489-AB7C-2F1AA7908994}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6E384B8A-2269-43A1-91D1-5BC257F9252D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6E384B8A-2269-43A1-91D1-5BC257F9252D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6E384B8A-2269-43A1-91D1-5BC257F9252D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6E384B8A-2269-43A1-91D1-5BC257F9252D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

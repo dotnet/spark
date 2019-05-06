@@ -7,7 +7,7 @@ using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.Functions;
 using System.Text.RegularExpressions;
 
-namespace GitHubLovesSparkDotNet
+namespace Microsoft.Spark.Scenarios
 {
     // Application presented at Microsoft //Build 2019:
     // 1. By Scott Hanselman & Scott Hunter in the following session:
@@ -47,19 +47,19 @@ namespace GitHubLovesSparkDotNet
                     .GetOrCreate();
 
             // Initialize all dataframes (which point to CSV files on the storage system)
-            DataFrame commits = 
-               spark.Read()
+            DataFrame commits = spark
+                    .Read()
                     .Schema("id INT, sha STRING, author_id INT, committer_id INT, " +
                             "project_id INT, created_at TIMESTAMP")
                     .Csv(DataStoragePath + "commits.csv");
 
-            DataFrame watchers = 
-               spark.Read()
+            DataFrame watchers = spark
+                    .Read()
                     .Schema("repo_id INT, user_id INT, created_at TIMESTAMP")
                     .Csv(DataStoragePath + "watchers.csv");
 
-            DataFrame projects = 
-               spark.Read()
+            DataFrame projects = spark
+                    .Read()
                     .Schema("id INT, url STRING, owner_id INT, name STRING, " + 
                             "descriptor STRING, language STRING, created_at STRING, " + 
                             "forked_from INT, deleted STRING, updated_at STRING")
@@ -67,8 +67,7 @@ namespace GitHubLovesSparkDotNet
                     .Filter(Col("language") == "C#");
 
             // Use functional programming to find top C# projects by stars
-            DataFrame stars =
-              projects
+            DataFrame stars = projects
               .Join(watchers, Col("id") == watchers["repo_id"])
               .GroupBy("name")
               .Agg(Count("*").Alias("stars"))
@@ -80,25 +79,25 @@ namespace GitHubLovesSparkDotNet
             projects.CreateOrReplaceTempView("projects");
             watchers.CreateOrReplaceTempView("watchers");
             spark.Sql(@"
-                SELECT name, COUNT(*) AS stars 
-                | FROM projects 
-                | INNER JOIN watchers w 
-                | ON id = w.repo_id 
-                | GROUP BY name 
-                | ORDER BY stars DESC".StripMargin()).Show();
+                    SELECT name, COUNT(*) AS stars 
+                    | FROM projects 
+                    | INNER JOIN watchers w 
+                    | ON id = w.repo_id 
+                    | GROUP BY name 
+                    | ORDER BY stars DESC".StripMargin())
+                 .Show();
 
             // Let's figure out the top projects (w.r.t., stars)
             // and how developer commit pattern looks like over a week - 
             // do people work more over weekdays or weekends? :)
-            DataFrame projects_aliased =
-              projects.As("projects_aliased")
+            DataFrame projects_aliased = projects
+                .As("projects_aliased")
                 .Select(Col("id").As("p_id"),
                         Col("name").As("p_name"),
                         Col("language"),
                         Col("created_at").As("p_created_at"));
 
-            DataFrame patterns =
-              commits
+            DataFrame patterns = commits
                 .Join(projects_aliased, commits["project_id"] == projects_aliased["p_id"])
                 .Join(stars.Limit(10), Col("name") == projects_aliased["p_name"])
                 .Select(DayOfWeek(Col("created_at")).Alias("commit_day"),
