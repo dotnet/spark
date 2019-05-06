@@ -73,7 +73,7 @@ jobs:
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
-      DotnetWorkerPath: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
+      DOTNET_WORKER_DIR: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
 
   - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 2.3.1'
@@ -84,7 +84,7 @@ jobs:
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
-      DotnetWorkerPath: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
+      DOTNET_WORKER_DIR: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
 
   - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 2.3.2'
@@ -95,7 +95,7 @@ jobs:
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
-      DotnetWorkerPath: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
+      DOTNET_WORKER_DIR: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
 
   - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 2.3.3'
@@ -106,7 +106,7 @@ jobs:
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
-      DotnetWorkerPath: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
+      DOTNET_WORKER_DIR: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
 
   - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 2.4.0'
@@ -117,7 +117,7 @@ jobs:
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
-      DotnetWorkerPath: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
+      DOTNET_WORKER_DIR: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
 
   - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 2.4.1'
@@ -128,7 +128,7 @@ jobs:
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
-      DotnetWorkerPath: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
+      DOTNET_WORKER_DIR: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
   
   - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
     - task: CopyFiles@2
