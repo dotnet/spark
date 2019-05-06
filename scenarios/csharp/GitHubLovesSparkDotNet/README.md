@@ -6,6 +6,7 @@ analyzing large datasets using .NET.
 # Table of Contents
 
 - [Introduction](#introduction)
+- [Technology Stacks](#technology-stacks)
 - [Pre-requisites](#pre-requisites)
 - [Running the App](#running-the-app)
 - [Discussion](#discussion)
@@ -24,13 +25,36 @@ importantly, this was not written by a seasoned Data Scientist so please
 avoid deriving *any* conclusions from the results :) Of course, please feel 
 free to open PRs to improve and make this app more interesting.
 
+# Technology Stacks
+
+This app utilizes and consequently familiarizes you with the following technology:
+
+  - [Azure Databricks](https://azure.microsoft.com/en-us/services/databricks/)
+  - [Azure Data Lake Storage Gen2](https://azure.microsoft.com/en-us/services/storage/data-lake-storage/)
+  - [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html)
+  - [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/)
+  - [Visual Studio Community Edition](https://visualstudio.microsoft.com/vs/community/)
+
 # Pre-requisites
 
-Work-in-progress
+## Accounts & Cluster Creation
+
+Make sure you have [created an Azure Databricks cluster and attached an Azure Data Lake Gen2 filesystem](https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-use-databricks-spark) before you proceed.
+
+## Dataset Preparation
+
+  1. Download the latest MySQL CSV dataset from [GHTorrent Downloads page](http://ghtorrent.org/downloads.html)
+  2. On your machine, untar (use [7-zip for Windows](https://www.7-zip.org/)) the dataset
+     ```
+     cd <path-to-mysql-csv-dump>
+     tar xvzf mysql-2019-05-01.tar.gz
+     ```
+  3. Use [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/) to upload the dataset into your storage account
 
 # Running the App
 
-Work-in-progress
+  1. Change the constants in `Program.cs` to reflect your account details
+  2. Follow the [publish & deploy instructions for Azure Databricks](https://github.com/dotnet/spark/tree/master/deployment#databricks)
 
 # Discussion
 
