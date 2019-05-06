@@ -5,8 +5,13 @@ using System.Text.RegularExpressions;
 
 namespace GitHubLovesSparkDotNet
 {
-    // Application presented at Microsoft //Build 2019 during the
-    // keynote presentation by Scott Hanselman & Scott Hunter
+    // Application presented at Microsoft //Build 2019:
+    // 1. By Scott Hanselman & Scott Hunter in the Tech Keynote
+    //    BRK3015 - .NET Platform Overview and Roadmap
+    //    https://mybuild.techcommunity.microsoft.com/sessions/77031?source=sessions
+    // 2. By Rahul Potharaju in Michael Rys's Breakout session
+    //    BRK3055 - Building data pipelines for Modern Data Warehouse with Spark and .NET in Azure
+    //    https://mybuild.techcommunity.microsoft.com/sessions/76996?source=sessions
     //
     // This app is purely for demonstration purposes. And more 
     // importantly, this was not written by a seasoned Data Scientist 
