@@ -32,11 +32,11 @@ namespace GitHubLovesSparkDotNet
     // - Azure Data Lake Storage Gen2 (ABFS) 
     //   https://azure.microsoft.com/en-us/services/storage/data-lake-storage/
 
-    class Program
+    public class Program
     {
-        public static string StorageConfigKey => "fs.azure.account.key.<your-storage-account-name>.dfs.core.windows.net";
-        public static string SecureStorageKey => "<your-storage-account-key>";
-        public static string DataStoragePath => "abfss://<filesystem>@<storage-account>.dfs.core.windows.net/<path>/";
+        public const string StorageConfigKey = "fs.azure.account.key.<your-storage-account-name>.dfs.core.windows.net";
+        public const string SecureStorageKey = "<your-storage-account-key>";
+        public const string DataStoragePath = "abfss://<filesystem>@<storage-account>.dfs.core.windows.net/<path>/";
 
         static void Main(string[] args)
         {
@@ -90,8 +90,8 @@ namespace GitHubLovesSparkDotNet
             // Let's figure out the top projects (w.r.t., stars)
             // and how developer commit pattern looks like over a week - 
             // do people work more over weekdays or weekends? :)
-            DataFrame p =
-              projects.As("p")
+            DataFrame projects_aliased =
+              projects.As("projects_aliased")
                 .Select(Col("id").As("p_id"),
                         Col("name").As("p_name"),
                         Col("language"),
@@ -99,8 +99,8 @@ namespace GitHubLovesSparkDotNet
 
             DataFrame patterns =
               commits
-                .Join(p, commits["project_id"] == p["p_id"])
-                .Join(stars.Limit(10), Col("name") == p["p_name"])
+                .Join(projects_aliased, commits["project_id"] == projects_aliased["p_id"])
+                .Join(stars.Limit(10), Col("name") == projects_aliased["p_name"])
                 .Select(DayOfWeek(Col("created_at")).Alias("commit_day"),
                         Col("id").As("commit_id"),
                         Col("p_name").Alias("project_name"),
