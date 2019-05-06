@@ -266,6 +266,14 @@ jobs:
         contents: 'Microsoft.Spark*.snupkg'
         targetFolder: $(Build.ArtifactStagingDirectory)/SymbolPackages
 
+    - task: PowerShell@2
+      displayName: Package Microsoft.Spark.Worker
+      inputs:
+        targetType: filePath
+        filePath: script\package-worker.ps1
+        arguments: $(Build.ArtifactStagingDirectory)\Packages $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Microsoft.Spark.Worker $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries
+        workingDirectory: $(Build.ArtifactStagingDirectory)
+
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: '$(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries'

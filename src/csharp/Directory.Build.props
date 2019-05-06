@@ -12,14 +12,16 @@
       https://dotnet.myget.org/F/dotnet-core/api/v3/index.json;
     </RestoreSources>
     <Version>0.2.0</Version>
+    <Authors>Microsoft</Authors>
     <Product>.NET for Apache Spark</Product>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
 
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/dotnet/spark</PackageProjectUrl>
-    
+
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PrivateRepositoryUrl>https://github.com/dotnet/spark</PrivateRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
