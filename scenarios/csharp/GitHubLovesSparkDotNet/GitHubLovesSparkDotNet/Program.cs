@@ -60,8 +60,8 @@ namespace Microsoft.Spark.Scenarios
 
             DataFrame projects = spark
                     .Read()
-                    .Schema("id INT, url STRING, owner_id INT, name STRING, " + 
-                            "descriptor STRING, language STRING, created_at STRING, " + 
+                    .Schema("id INT, url STRING, owner_id INT, name STRING, " +
+                            "descriptor STRING, language STRING, created_at STRING, " +
                             "forked_from INT, deleted STRING, updated_at STRING")
                     .Csv(DataStoragePath + "projects.csv")
                     .Filter(Col("language") == "C#");
