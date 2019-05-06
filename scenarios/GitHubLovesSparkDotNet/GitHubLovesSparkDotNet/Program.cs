@@ -6,10 +6,10 @@ using System.Text.RegularExpressions;
 namespace GitHubLovesSparkDotNet
 {
     // Application presented at Microsoft //Build 2019:
-    // 1. By Scott Hanselman & Scott Hunter in the Tech Keynote
+    // 1. By Scott Hanselman & Scott Hunter in the following tech keynote
     //    BRK3015 - .NET Platform Overview and Roadmap
     //    https://mybuild.techcommunity.microsoft.com/sessions/77031?source=sessions
-    // 2. By Rahul Potharaju in Michael Rys's Breakout session
+    // 2. By Rahul Potharaju in the following session
     //    BRK3055 - Building data pipelines for Modern Data Warehouse with Spark and .NET in Azure
     //    https://mybuild.techcommunity.microsoft.com/sessions/76996?source=sessions
     //
