@@ -1,4 +1,4 @@
-@ What are Spark .NET Scenarios?
+# What are Spark .NET Scenarios?
 
 Scenarios are intended as a one-stop location in the repo for understanding 
 various combinations of technology stacks and putting together a working 
