@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark", "..\..\..\src\csharp\Microsoft.Spark\Microsoft.Spark.csproj", "{F5C246F7-9CDE-44DC-8D4F-DAAC557048EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark", "..\..\src\csharp\Microsoft.Spark\Microsoft.Spark.csproj", "{F5C246F7-9CDE-44DC-8D4F-DAAC557048EF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Worker", "..\..\..\src\csharp\Microsoft.Spark.Worker\Microsoft.Spark.Worker.csproj", "{606FBD5E-D5C6-48F6-8FBF-2F0E25527760}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Worker", "..\..\src\csharp\Microsoft.Spark.Worker\Microsoft.Spark.Worker.csproj", "{606FBD5E-D5C6-48F6-8FBF-2F0E25527760}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Reference", "Reference", "{CE5FBCF2-F92E-4A2F-A76E-149B7118491B}"
 EndProject
@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GitHubLovesSparkDotNet", "G
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{57F0EA1E-A788-4755-8B90-60FB03111477}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\..\.editorconfig = ..\..\..\.editorconfig
+		..\..\.editorconfig = ..\..\.editorconfig
 	EndProjectSection
 EndProject
 Global
