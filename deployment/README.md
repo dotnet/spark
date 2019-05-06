@@ -173,9 +173,9 @@ Databricks allows you to submit Spark .NET apps to an existing active cluster or
   4. [Setup authentication](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html#set-up-authentication) details for the Databricks CLI appropriately
   5. Upload the files you downloaded and modified to your Databricks cluster
      ```
-     cd <path-to-init-db-and-install-worker>
-     databricks fs cp init-db.sh dbfs:/spark-dotnet/
-     databricks fs cp install-worker.sh dbfs:/spark-dotnet/
+     cd <path-to-db-init-and-install-worker>
+     databricks fs cp db-init.sh dbfs:/spark-dotnet/db-init.sh
+     databricks fs cp install-worker.sh dbfs:/spark-dotnet/install-worker.sh
      ```
   6. Go to to your Databricks cluster homepage -> Clusters (on the left-side menu) -> Create Cluster
   7. After configuring the cluster appropriately, set the init script (see the image below) and create the cluster.
