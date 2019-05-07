@@ -202,6 +202,7 @@ One-time Setup:
 
 Publishing your App & Running:
    1. You should first [publish your app](#preparing-your-spark-net-app). 
+      > **Note:** Do not use `SparkSession.Stop()` in your application code when submitting jobs to an existing active cluster.
    2. Use [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html) to upload your application to Databricks cluster. For instance, 
       ```shell
       cd <path-to-your-app-publish-directory>
@@ -220,8 +221,6 @@ Publishing your App & Running:
          ```
       - Restart your cluster.
    4. Now, go to your Databricks cluster -> Jobs -> <Job-name> -> Run Now to run your job!
-
-   > **Note:** Do not use `SparkSession.Stop()` in your application code when submitting jobs to an existing active cluster.
 
 #### Using [spark-submit](https://spark.apache.org/docs/latest/submitting-applications.html)
 
