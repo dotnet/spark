@@ -12,10 +12,10 @@ namespace Microsoft.Spark.Services
         /// <summary>
         /// The port number used for communicating with the .NET backend process.
         /// </summary>
-        int BackendPortNumber { get; }
+        int GetBackendPortNumber();
 
         /// <summary>
-        /// The full path of the .NET worker process executable.
+        /// The full path to the .NET worker executable.
         /// </summary>
         string GetWorkerExePath();
     }

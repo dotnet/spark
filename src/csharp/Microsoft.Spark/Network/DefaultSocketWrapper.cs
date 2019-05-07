@@ -103,7 +103,7 @@ namespace Microsoft.Spark.Network
         /// <returns>The underlying Stream instance that be used to receive data</returns>
         public Stream InputStream =>
             _inputStream ?? (_inputStream = CreateStream(
-                ConfigurationService.WorkerReadBufferSizeEnvName));
+                ConfigurationService.WorkerReadBufferSizeEnvVarName));
 
         /// <summary>
         /// Returns a stream used to send data only.
@@ -111,7 +111,7 @@ namespace Microsoft.Spark.Network
         /// <returns>The underlying Stream instance that be used to send data</returns>
         public Stream OutputStream =>
             _outputStream ?? (_outputStream = CreateStream(
-                ConfigurationService.WorkerWriteBufferSizeEnvName));
+                ConfigurationService.WorkerWriteBufferSizeEnvVarName));
 
         private Stream CreateStream(string bufferSizeEnvVarName)
         {
