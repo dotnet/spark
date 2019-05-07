@@ -201,7 +201,6 @@ One-time Setup:
    4. Configure the Cluster to point to an existing cluster (that you already set the init script for - see previous section).
 
 Publishing your App & Running:
-
    1. You should first [publish your app](#preparing-your-spark-net-app). 
    2. Use [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html) to upload your application to Databricks cluster. For instance, 
       ```shell
