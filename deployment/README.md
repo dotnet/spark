@@ -214,7 +214,7 @@ Publishing your App & Running:
          cd <path-to-your-app-publish-directory>
          databricks fs cp <assembly>.dll dbfs:/apps/dependencies
          ```
-      - Further modify **[db-init.sh](../deployment/db-init.sh)** appropriately to point to your app dependencies and upload to your Databricks cluster
+      - Uncomment and modify the app dependencies section in **[db-init.sh](../deployment/db-init.sh)** to point to your app dependencies path and upload to your Databricks cluster.
          ```shell
          cd <path-to-db-init-and-install-worker>
          databricks fs cp db-init.sh dbfs:/spark-dotnet/db-init.sh
