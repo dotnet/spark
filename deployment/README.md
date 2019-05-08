@@ -220,7 +220,7 @@ Publishing your App & Running:
          databricks fs cp db-init.sh dbfs:/spark-dotnet/db-init.sh
          ```
       - Restart your cluster.
-   4. Now, go to your Databricks cluster -> Jobs -> [Job-name] -> Run Now to run your job!
+   4. Now, go to your `Databricks cluster -> Jobs -> [Job-name] -> Run Now` to run your job!
 
 #### Using [spark-submit](https://spark.apache.org/docs/latest/submitting-applications.html)
 
