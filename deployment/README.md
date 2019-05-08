@@ -174,7 +174,7 @@ Databricks allows you to submit Spark .NET apps to an existing active cluster or
    5. Upload the files you downloaded and modified to your Databricks cluster
       ```shell
       cd <path-to-db-init-and-install-worker>
-      databricks fs cp db-init.sh dbfs:/databricks/init/db-init.sh
+      databricks fs cp db-init.sh dbfs:/spark-dotnet/db-init.sh
       databricks fs cp install-worker.sh dbfs:/spark-dotnet/install-worker.sh
       ```
    6. Go to to your Databricks cluster homepage -> Clusters (on the left-side menu) -> Create Cluster
@@ -208,7 +208,7 @@ Publishing your App & Running:
       cd <path-to-your-app-publish-directory>
       databricks fs cp <your-app-name>.zip dbfs:/apps/<your-app-name>.zip
       ```
-   3. This step is only required if app assemblies (e.g., DLLs that contain your user-defined functions, libraries that your `app` depends on) need to be placed in the working directory of each Microsoft.Spark.Worker.
+   3. This step is only required if app assemblies (e.g., DLLs that contain your user-defined functions, libraries that the UDFs depend on) need to be placed in the working directory of each Microsoft.Spark.Worker.
       - Upload your application assemblies to your Databricks cluster
          ```shell
          cd <path-to-your-app-publish-directory>
@@ -217,7 +217,7 @@ Publishing your App & Running:
       - Further modify **[db-init.sh](../deployment/db-init.sh)** appropriately to point to your app dependencies and upload to your Databricks cluster
          ```shell
          cd <path-to-db-init-and-install-worker>
-         databricks fs cp db-init.sh dbfs:/databricks/init/db-init.sh
+         databricks fs cp db-init.sh dbfs:/spark-dotnet/db-init.sh
          ```
       - Restart your cluster.
    4. Now, go to your Databricks cluster -> Jobs -> <Job-name> -> Run Now to run your job!
