@@ -208,7 +208,7 @@ Publishing your App & Running:
       cd <path-to-your-app-publish-directory>
       databricks fs cp <your-app-name>.zip dbfs:/apps/<your-app-name>.zip
       ```
-   3. This step is only required if app assemblies (e.g., DLLs that contain your user-defined functions, libraries that the UDFs depend on) need to be placed in the working directory of each Microsoft.Spark.Worker.
+   3. This step is only required if app assemblies (e.g., DLLs that contain user-defined functions along with their dependencies) need to be placed in the working directory of each Microsoft.Spark.Worker.
       - Upload your application assemblies to your Databricks cluster
          ```shell
          cd <path-to-your-app-publish-directory>
