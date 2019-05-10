@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Spark.Sql;
@@ -35,6 +36,19 @@ namespace Microsoft.Spark.Utils
             // Not making any assumptions about the implementation and hence not a class member.
             var unpickler = new Unpickler();
             var unpickledItems = unpickler.load(s);
+            Debug.Assert(unpickledItems != null);
+            return (unpickledItems as object[]);
+        }
+
+        /// <summary>
+        /// Unpickles objects from memory buffer
+        /// </summary>
+        /// <param name="buffer">Pickled byte buffer</param>
+        /// <returns>Unpicked objects</returns>
+        internal static object[] GetUnpickledObjects(ReadOnlyMemory<byte> buffer)
+        {
+            var unpickler = new Unpickler();
+            var unpickledItems = unpickler.loads(buffer, stackCapacity: 100);
             Debug.Assert(unpickledItems != null);
             return (unpickledItems as object[]);
         }

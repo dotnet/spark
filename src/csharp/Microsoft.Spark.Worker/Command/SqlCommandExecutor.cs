@@ -81,11 +81,10 @@ namespace Microsoft.Spark.Worker.Command
     internal class PicklingSqlCommandExecutor : SqlCommandExecutor
     {
         [ThreadStatic]
-        private static MemoryStream s_writeOutputStream;
-        [ThreadStatic]
-        private static MaxLengthReadStream s_slicedReadStream;
-        [ThreadStatic]
         private static Pickler s_pickler;
+
+        [ThreadStatic]
+        private static byte[] s_output;
 
         protected override CommandExecutorStat ExecuteCore(
             Stream inputStream,
@@ -118,20 +117,30 @@ namespace Microsoft.Spark.Worker.Command
                             $"Invalid message length: {messageLength}");
                     }
 
-                    MaxLengthReadStream readStream = s_slicedReadStream ??
-                            (s_slicedReadStream = new MaxLengthReadStream());
-                    readStream.Reset(inputStream, messageLength);
+                    byte[] buffer = ArrayPool<byte>.Shared.Rent(messageLength);
+                    object[] inputRows = null;
 
-                    // Each row in inputRows is of type object[]. If a null is present in a row
-                    // then the corresponding index column of the row object[] will be set to null.
-                    // For example, (inputRows.Length == 2) and (inputRows[0][0] == null)
-                    //   +----+
-                    //   | age|
-                    //   +----+
-                    //   |null|
-                    //   |  11|
-                    //   +----+
-                    object[] inputRows = PythonSerDe.GetUnpickledObjects(readStream);
+                    try
+                    {
+                        if (inputStream.Read(buffer, 0, messageLength) != messageLength)
+                        {
+                            throw new IOException("premature end of input stream");
+                        }
+                        // Each row in inputRows is of type object[]. If a null is present in a row
+                        // then the corresponding index column of the row object[] will be set to null.
+                        // For example, (inputRows.Length == 2) and (inputRows[0][0] == null)
+                        //   +----+
+                        //   | age|
+                        //   +----+
+                        //   |null|
+                        //   |  11|
+                        //   +----+
+                        inputRows = PythonSerDe.GetUnpickledObjects(new ReadOnlyMemory<byte>(buffer, 0, messageLength));
+                    }
+                    finally
+                    {
+                        ArrayPool<byte>.Shared.Return(buffer);
+                    }
 
                     for (int i = 0; i < inputRows.Length; ++i)
                     {
@@ -139,7 +148,7 @@ namespace Microsoft.Spark.Worker.Command
                         outputRows.Add(commandRunner.Run(0, inputRows[i]));
                     }
 
-                    WriteOutput(outputStream, outputRows);
+                    WriteOutput(outputStream, outputRows, messageLength);
                     stat.NumEntriesProcessed += inputRows.Length;
                     outputRows.Clear();
                 }
@@ -153,22 +162,22 @@ namespace Microsoft.Spark.Worker.Command
         /// </summary>
         /// <param name="stream">Stream to write to</param>
         /// <param name="rows">Rows to write to</param>
-        private void WriteOutput(Stream stream, IEnumerable<object> rows)
+        /// <param name="estimatedMaxSize">Estimated max size of the serialized output</param>
+        private void WriteOutput(Stream stream, IEnumerable<object> rows, int estimatedMaxSize)
         {
-            MemoryStream writeOutputStream = s_writeOutputStream ??
-                (s_writeOutputStream = new MemoryStream());
-            writeOutputStream.Position = 0;
+            if (s_output == null)
+                s_output = new byte[estimatedMaxSize];
 
             Pickler pickler = s_pickler ?? (s_pickler = new Pickler(false));
-            pickler.dump(rows, writeOutputStream);
+            pickler.dumps(rows, ref s_output, out int bytesWritten);
 
-            if (writeOutputStream.Position == 0)
+            if (bytesWritten == 0)
             {
                 throw new Exception("Message buffer cannot be null.");
             }
 
-            SerDe.Write(stream, (int)writeOutputStream.Position);
-            SerDe.Write(stream, writeOutputStream.GetBuffer(), (int)writeOutputStream.Position);
+            SerDe.Write(stream, bytesWritten);
+            SerDe.Write(stream, s_output, bytesWritten);
         }
 
         /// <summary>
