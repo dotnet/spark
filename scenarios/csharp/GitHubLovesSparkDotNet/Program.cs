@@ -11,9 +11,15 @@ namespace Microsoft.Spark.Scenarios
 {
     public class Program
     {
+        #region Cloud Run
         public const string StorageConfigKey = "fs.azure.account.key.<your-storage-account-name>.dfs.core.windows.net";
         public const string SecureStorageKey = "<your-storage-account-key>";
         public const string DataStoragePath = "abfss://<filesystem>@<storage-account>.dfs.core.windows.net/<path>/";
+        #endregion
+
+        #region Local Run
+        public const string LocalDataStoragePath = @"C:\github\build\spark-2\scenarios\datasets\";
+        #endregion
 
         static void Main(string[] args)
         {
@@ -23,25 +29,30 @@ namespace Microsoft.Spark.Scenarios
                     .AppName(@"Github 💖 .NET for Apache Spark")
                     .GetOrCreate();
 
+            string StoragePath = LocalDataStoragePath;
+
             // Initialize all dataframes (which point to CSV files on the storage system)
-            DataFrame commits = spark
-                    .Read()
-                    .Schema("id INT, sha STRING, author_id INT, committer_id INT, " +
-                            "project_id INT, created_at TIMESTAMP")
-                    .Csv(DataStoragePath + "commits.csv");
-
-            DataFrame watchers = spark
-                    .Read()
-                    .Schema("repo_id INT, user_id INT, created_at TIMESTAMP")
-                    .Csv(DataStoragePath + "watchers.csv");
-
             DataFrame projects = spark
                     .Read()
+                    .Option("header", "true")
                     .Schema("id INT, url STRING, owner_id INT, name STRING, " +
                             "descriptor STRING, language STRING, created_at STRING, " +
                             "forked_from INT, deleted STRING, updated_at STRING")
-                    .Csv(DataStoragePath + "projects.csv")
+                    .Csv(StoragePath + "projects.csv")
                     .Filter(Col("language") == "C#");
+
+            DataFrame watchers = spark
+                    .Read()
+                    .Option("header", "true")
+                    .Schema("repo_id INT, user_id INT, created_at TIMESTAMP")
+                    .Csv(StoragePath + "watchers.csv");
+
+            DataFrame commits = spark
+                    .Read()
+                    .Option("header", "true")
+                    .Schema("id INT, sha STRING, author_id INT, committer_id INT, " +
+                            "project_id INT, created_at TIMESTAMP")
+                    .Csv(StoragePath + "commits.csv");
 
             // Use functional programming to find top C# projects by stars
             DataFrame stars = projects
@@ -92,6 +103,50 @@ namespace Microsoft.Spark.Scenarios
             patterns.Show();
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     internal static class StringExtensions
     {
