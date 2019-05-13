@@ -27,7 +27,7 @@ namespace Microsoft.Spark.Interop
             {
                 if (s_jvmBridge == null)
                 {
-                    s_jvmBridge = new JvmBridge(ConfigurationService.BackendPortNumber);
+                    s_jvmBridge = new JvmBridge(ConfigurationService.GetBackendPortNumber());
                 }
 
                 return s_jvmBridge;

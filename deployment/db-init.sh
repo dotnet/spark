@@ -2,8 +2,8 @@
 
 ##############################################################################
 # Description:
-# This is a wrapper script to install the worker binaries on your Databricks Spark cluster.
-# It exists only because Databricks does not allow parameters for an init-script.
+# This script installs the worker binaries and your app dependencies onto
+# your Databricks Spark cluster.
 #
 # Usage:
 # Change the variables below appropriately. 
@@ -24,4 +24,19 @@ DOTNET_SPARK_WORKER_INSTALLATION_PATH=/usr/local/bin
 ###############################################################################
 
 set +e
-/bin/bash $DBFS_INSTALLATION_ROOT/$DOTNET_SPARK_RELEASE github $DBFS_INSTALLATION_ROOT/$DOTNET_SPARK_RELEASE $DOTNET_SPARK_WORKER_INSTALLATION_PATH
+/bin/bash $DBFS_INSTALLATION_ROOT/install-worker.sh github $DOTNET_SPARK_RELEASE $DOTNET_SPARK_WORKER_INSTALLATION_PATH
+
+
+
+##############################################################################
+# Uncomment below to deploy application dependencies to workers if submitting
+# jobs using the "Set Jar" task (https://docs.databricks.com/user-guide/jobs.html#jar-jobs)
+# Change the variables below appropriately
+##############################################################################
+################################# CHANGE THESE ###############################
+
+#APP_DEPENDENCIES=/dbfs/apps/dependencies
+#WORKER_PATH=`readlink $DOTNET_SPARK_WORKER_INSTALLATION_PATH/Microsoft.Spark.Worker`
+#if [ -f $WORKER_PATH ] && [ -d $APP_DEPENDENCIES ]; then
+#    sudo cp -fR $APP_DEPENDENCIES/. `dirname $WORKER_PATH`
+#fi
