@@ -6,6 +6,8 @@ using System;
 using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.Functions;
 using System.Text.RegularExpressions;
+using System.IO;
+using System.Reflection;
 
 namespace Microsoft.Spark.Scenarios
 {
@@ -14,22 +16,34 @@ namespace Microsoft.Spark.Scenarios
         #region Cloud Run
         public const string StorageConfigKey = "fs.azure.account.key.<your-storage-account-name>.dfs.core.windows.net";
         public const string SecureStorageKey = "<your-storage-account-key>";
-        public const string DataStoragePath = "abfss://<filesystem>@<storage-account>.dfs.core.windows.net/<path>/";
+        public const string CloudStoragePath = "abfss://<filesystem>@<storage-account>.dfs.core.windows.net/<path>/";
         #endregion
 
         #region Local Run
-        public const string LocalDataStoragePath = @"C:\github\build\spark-2\scenarios\datasets\";
+        public static string LocalDataStoragePath =
+            Path.Combine(
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                "Resources" + Path.DirectorySeparatorChar); 
         #endregion
 
         static void Main(string[] args)
         {
-            SparkSession spark = SparkSession
-                    .Builder()
-                    .Config(StorageConfigKey, SecureStorageKey)
+            if ((args.Length == 0))
+            {
+                PrintUsage();
+                return;
+            }
+
+            string StoragePath = args[0] == "local" ? LocalDataStoragePath : CloudStoragePath;
+
+            Builder sparkBuilder = SparkSession.Builder();
+
+            if (args[0] == "cloud")
+                sparkBuilder = sparkBuilder.Config(StorageConfigKey, SecureStorageKey);
+
+            SparkSession spark = sparkBuilder
                     .AppName(@"Github 💖 .NET for Apache Spark")
                     .GetOrCreate();
-
-            string StoragePath = LocalDataStoragePath;
 
             // Initialize all dataframes (which point to CSV files on the storage system)
             DataFrame projects = spark
@@ -68,11 +82,11 @@ namespace Microsoft.Spark.Scenarios
             watchers.CreateOrReplaceTempView("watchers");
             spark.Sql(@"
                     SELECT name, COUNT(*) AS stars 
-                    | FROM projects 
-                    | INNER JOIN watchers w 
-                    | ON id = w.repo_id 
-                    | GROUP BY name 
-                    | ORDER BY stars DESC".StripMargin())
+                    FROM projects 
+                    INNER JOIN watchers w 
+                    ON id = w.repo_id 
+                    GROUP BY name 
+                    ORDER BY stars DESC")
                  .Show();
 
             // Let's figure out the top projects (w.r.t., stars)
@@ -102,57 +116,11 @@ namespace Microsoft.Spark.Scenarios
 
             patterns.Show();
         }
-    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    internal static class StringExtensions
-    {
-        internal static string StripMargin(this string s)
+        private static void PrintUsage()
         {
-            return Regex.Replace(s, @"[ \t]+\|", string.Empty);
+            string assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+            Console.WriteLine($"Usage: {assemblyName} <local|cloud>");
         }
     }
 }
