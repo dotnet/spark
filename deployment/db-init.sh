@@ -40,3 +40,25 @@ set +e
 #if [ -f $WORKER_PATH ] && [ -d $APP_DEPENDENCIES ]; then
 #    sudo cp -fR $APP_DEPENDENCIES/. `dirname $WORKER_PATH`
 #fi
+
+
+
+##############################################################################
+# Uncomment below to install .NET Core in shared mode on the workers
+# Change the variables below appropriately
+##############################################################################
+################################# CHANGE THESE ###############################
+
+#DOTNET_RUNTIME_RELEASE=/dbfs/spark-dotnet/dotnet-runtime-2.2.4-linux-x64.tar.gz
+
+###############################################################################
+
+## Set Env Variable
+#export DOTNET_ROOT=/usr/share/dotnet
+## Untar the file.
+#sudo mkdir -p $DOTNET_ROOT
+#sudo tar xzf $DOTNETRUNTIME_SOURCE_PATH -C $DOTNET_ROOT
+## Make the file executable.
+#sudo chmod 755 $DOTNET_ROOT/dotnet
+## Create a symlink.
+#sudo ln -sf $DOTNET_ROOT/dotnet /usr/local/bin/dotnet
