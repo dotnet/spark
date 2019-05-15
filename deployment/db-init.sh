@@ -57,7 +57,7 @@ set +e
 #export DOTNET_ROOT=/usr/share/dotnet
 ## Untar the file.
 #sudo mkdir -p $DOTNET_ROOT
-#sudo tar xzf $DOTNETRUNTIME_SOURCE_PATH -C $DOTNET_ROOT
+#sudo tar xzf $DOTNET_RUNTIME_RELEASE -C $DOTNET_ROOT
 ## Make the file executable.
 #sudo chmod 755 $DOTNET_ROOT/dotnet
 ## Create a symlink.
