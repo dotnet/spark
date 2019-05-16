@@ -36,7 +36,7 @@ namespace Microsoft.Spark.Scenarios
                 return;
             }
 
-            string StoragePath = args[0] == "local" ? LocalDataStoragePath : CloudStoragePath;
+            string StoragePath = (args[0] == "local") ? LocalDataStoragePath : CloudStoragePath;
 
             Builder sparkBuilder = SparkSession.Builder();
 
