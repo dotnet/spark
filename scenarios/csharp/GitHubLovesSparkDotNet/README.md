@@ -45,7 +45,7 @@ Make sure you have [created an Azure Databricks cluster and attached an Azure Da
 
   1. Download the latest MySQL CSV dataset from [GHTorrent Downloads page](http://ghtorrent.org/downloads.html)
   2. On your machine, untar (use [7-zip for Windows](https://www.7-zip.org/)) the dataset
-     ```
+     ```shell
      cd <path-to-mysql-csv-dump>
      tar xvzf mysql-2019-05-01.tar.gz
      ```
