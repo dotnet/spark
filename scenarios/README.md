@@ -24,7 +24,7 @@ To author a scenario, here's a structure you could use:
   ```
 
 A short description of what might go into each of these sections is given below:
-  - Introduction: A brief introduction to what scenario is achieving.
+  - **Introduction:** A brief introduction to what scenario is achieving.
   - **Technology Stacks:** What are the technology stacks you use in enabling the scenario.
   - Pre-requisites: Are there any pre-requisites for the user to follow?
   - Running the App: How does one run the app (e.g., locally, cloud)?
