@@ -22,7 +22,7 @@ namespace Microsoft.Spark.Scenarios
         #endregion
 
         #region Local Run
-        public static string LocalDataStoragePath =
+        public static string LocalDataStoragePath { get; } =
             Path.Combine(
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 "Resources" + Path.DirectorySeparatorChar); 
