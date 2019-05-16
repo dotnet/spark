@@ -43,6 +43,15 @@ spark-submit \
 ## How to Support New Spark Releases
 
 ### New patch version release
+Apache Spark's new patch release involves only the internal changes such as bug fixes, etc. Thus, it is straightfoward to support a new patch version release.
+
+1. In the corresponding `pom.xml`, update the `spark.version` value to the newly released version.
+   * For example, if a new patch release is 2.4.3, you will update `src/scala/microsoft-spark-2.4.x/pom.xml` to have `<spark.version>2.4.3</spark.version>`.
+2. Update `DotnetRunner.supportedSparkVersions` to include the newly released version.
+   * For example, if a new patch release is 2.4.3, you will update `src/scala/microsoft-spark-2.4.x/src/main/scala/org/apache/spark/deploy/DotnetRunner.scala`.
+3. Update the build pipeline to include E2E testing for the newly released version.
+
+Refer to [] for an example.
 
 ### New minor version release
 *WIP*
