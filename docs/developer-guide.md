@@ -2,7 +2,7 @@
 
 ## Table of Contents
 - [How to Debug](#how-to-debug)
-- [How to Support New Spark Releases](#support-new-releases)
+- [How to Support New Spark Releases](#how-to-support-new-spark-releases)
 
 ## How to debug
 
@@ -39,7 +39,6 @@ spark-submit \
   <path-to-your-app-exe> <argument(s)-to-your-app>
 ```
 
-<a name="support-new-releases"></a>
 ## How to Support New Spark Releases
 
 ### New patch version release
