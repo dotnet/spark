@@ -19,5 +19,6 @@ curl -k -L -o spark-2.3.2.tgz https://archive.apache.org/dist/spark/spark-2.3.2/
 curl -k -L -o spark-2.3.3.tgz https://archive.apache.org/dist/spark/spark-2.3.3/spark-2.3.3-bin-hadoop2.7.tgz && tar xzvf spark-2.3.3.tgz
 curl -k -L -o spark-2.4.0.tgz https://archive.apache.org/dist/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz && tar xzvf spark-2.4.0.tgz
 curl -k -L -o spark-2.4.1.tgz https://archive.apache.org/dist/spark/spark-2.4.1/spark-2.4.1-bin-hadoop2.7.tgz && tar xzvf spark-2.4.1.tgz
+curl -k -L -o spark-2.4.3.tgz https://archive.apache.org/dist/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz && tar xzvf spark-2.4.3.tgz
 
 endlocal
