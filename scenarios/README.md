@@ -27,7 +27,7 @@ A short description of what might go into each of these sections is given below:
   - **Introduction:** A brief introduction to what scenario is achieving.
   - **Technology Stacks:** What are the technology stacks you use in enabling the scenario.
   - **Pre-requisites:** Are there any pre-requisites for the user to follow?
-  - Running the App: How does one run the app (e.g., locally, cloud)?
+  - **Running the App:** How does one run the app (e.g., locally, cloud)?
   - Discussion: Anything particularly interesting about the app you want to discuss?
   - Insights: Any results you would like to share that were derived from the analysis 
     of the full dataset? For instance, what can the user expect once they go through the analysis of this dataset.
