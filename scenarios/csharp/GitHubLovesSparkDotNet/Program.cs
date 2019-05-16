@@ -14,7 +14,8 @@ namespace Microsoft.Spark.Scenarios
     public class Program
     {
         #region Cloud Run
-        public const string StorageConfigKey = "fs.azure.account.key.<your-storage-account-name>.dfs.core.windows.net";
+        public const string StorageConfigKey
+            = "fs.azure.account.key.<your-storage-account-name>.dfs.core.windows.net";
         public const string SecureStorageKey = "<your-storage-account-key>";
         public const string CloudStoragePath = "abfss://<filesystem>@<storage-account>.dfs.core.windows.net/<path>/";
         #endregion
