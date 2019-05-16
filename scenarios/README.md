@@ -7,7 +7,7 @@ end-to-end Spark .NET app.
 # Pre-requisites
 
 Some pre-requisites before you plan on contributing a scenario:
-  1. Datasets you are using the build the scenario are public
+  1. Datasets you are using in the build scenario are public
   2. Sample of the dataset can be committed to the repo under `/scenarios/datasets`
   3. Scenario should work under the constraints of free-tiers of most cloud providers
 
