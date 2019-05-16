@@ -1,5 +1,9 @@
 # Developer Guide
 
+## Table of Contents
+- [How to Debug](#how-to-debug)
+- [How to Support New Spark Releases](#support-new-releases)
+
 ## How to debug
 
 ### Debugging .NET application
@@ -34,3 +38,14 @@ spark-submit \
   <path-to-microsoft-spark-jar> \
   <path-to-your-app-exe> <argument(s)-to-your-app>
 ```
+
+<a name="support-new-releases"></a>
+## How to Support New Spark Releases
+
+### New patch version release
+
+### New minor version release
+*WIP*
+
+### New major version release
+*WIP*
