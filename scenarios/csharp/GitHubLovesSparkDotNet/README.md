@@ -62,7 +62,7 @@ Work-in-progress
 
 # Venues
 
-This app was presented at Microsoft //Build 2019:
+This app was presented at [Microsoft //Build 2019](https://www.microsoft.com/en-us/build):
 
   1. By Scott Hanselman & Scott Hunter in the [BRK3015 - .NET Platform Overview and Roadmap](https://mybuild.techcommunity.microsoft.com/sessions/77031?source=sessions)
   2. By Rahul Potharaju in the [BRK3055 - Building data pipelines for Modern Data Warehouse with Spark and .NET in Azure](https://mybuild.techcommunity.microsoft.com/sessions/76996?source=sessions)
