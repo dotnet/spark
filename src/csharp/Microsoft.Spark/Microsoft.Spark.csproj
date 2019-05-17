@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -16,7 +16,7 @@
     <PackageReference Include="Apache.Arrow" Version="0.13.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="Razorvine.Pyrolite" Version="4.27.0" />
+    <PackageReference Include="Razorvine.Pyrolite" Version="4.26.0" />
     <PackageReference Include="System.Memory" Version="4.5.2" />
   </ItemGroup>
 

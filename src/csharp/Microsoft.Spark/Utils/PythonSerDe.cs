@@ -48,7 +48,7 @@ namespace Microsoft.Spark.Utils
         internal static object[] GetUnpickledObjects(ReadOnlyMemory<byte> buffer)
         {
             var unpickler = new Unpickler();
-            var unpickledItems = unpickler.loads(buffer, stackCapacity: 100);
+            var unpickledItems = unpickler.loads(buffer, stackCapacity: 100); // 100 because spark typically sends batches of 100 rows
             Debug.Assert(unpickledItems != null);
             return (unpickledItems as object[]);
         }

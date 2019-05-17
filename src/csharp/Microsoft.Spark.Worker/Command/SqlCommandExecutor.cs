@@ -122,7 +122,7 @@ namespace Microsoft.Spark.Worker.Command
 
                     try
                     {
-                        if (inputStream.Read(buffer, 0, messageLength) != messageLength)
+                        if (!SerDe.TryReadBytes(inputStream, buffer, messageLength))
                         {
                             throw new IOException("premature end of input stream");
                         }
