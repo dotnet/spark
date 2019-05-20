@@ -11,7 +11,6 @@ using System.Linq;
 using Apache.Arrow;
 using Apache.Arrow.Ipc;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.IO;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
 using Razorvine.Pickle;
@@ -84,7 +83,7 @@ namespace Microsoft.Spark.Worker.Command
         private static Pickler s_pickler;
 
         [ThreadStatic]
-        private static byte[] s_output;
+        private static byte[] s_outputBuffer;
 
         protected override CommandExecutorStat ExecuteCore(
             Stream inputStream,
@@ -117,30 +116,16 @@ namespace Microsoft.Spark.Worker.Command
                             $"Invalid message length: {messageLength}");
                     }
 
-                    byte[] buffer = ArrayPool<byte>.Shared.Rent(messageLength);
-                    object[] inputRows = null;
-
-                    try
-                    {
-                        if (!SerDe.TryReadBytes(inputStream, buffer, messageLength))
-                        {
-                            throw new IOException("premature end of input stream");
-                        }
-                        // Each row in inputRows is of type object[]. If a null is present in a row
-                        // then the corresponding index column of the row object[] will be set to null.
-                        // For example, (inputRows.Length == 2) and (inputRows[0][0] == null)
-                        //   +----+
-                        //   | age|
-                        //   +----+
-                        //   |null|
-                        //   |  11|
-                        //   +----+
-                        inputRows = PythonSerDe.GetUnpickledObjects(new ReadOnlyMemory<byte>(buffer, 0, messageLength));
-                    }
-                    finally
-                    {
-                        ArrayPool<byte>.Shared.Return(buffer);
-                    }
+                    // Each row in inputRows is of type object[]. If a null is present in a row
+                    // then the corresponding index column of the row object[] will be set to null.
+                    // For example, (inputRows.Length == 2) and (inputRows[0][0] == null)
+                    //   +----+
+                    //   | age|
+                    //   +----+
+                    //   |null|
+                    //   |  11|
+                    //   +----+
+                    object[] inputRows = PythonSerDe.GetUnpickledObjects(inputStream, messageLength);
 
                     for (int i = 0; i < inputRows.Length; ++i)
                     {
@@ -148,7 +133,7 @@ namespace Microsoft.Spark.Worker.Command
                         outputRows.Add(commandRunner.Run(0, inputRows[i]));
                     }
 
-                    WriteOutput(outputStream, outputRows, messageLength);
+                    WriteOutput(outputStream, outputRows, estimatedMaxSize: messageLength); // estimatedMaxSize is equal to messageLength because the produced output should be always smaller or of the same size as input
                     stat.NumEntriesProcessed += inputRows.Length;
                     outputRows.Clear();
                 }
@@ -165,19 +150,19 @@ namespace Microsoft.Spark.Worker.Command
         /// <param name="estimatedMaxSize">Estimated max size of the serialized output</param>
         private void WriteOutput(Stream stream, IEnumerable<object> rows, int estimatedMaxSize)
         {
-            if (s_output == null)
-                s_output = new byte[estimatedMaxSize];
+            if (s_outputBuffer == null)
+                s_outputBuffer = new byte[estimatedMaxSize];
 
             Pickler pickler = s_pickler ?? (s_pickler = new Pickler(false));
-            pickler.dumps(rows, ref s_output, out int bytesWritten);
+            pickler.dumps(rows, ref s_outputBuffer, out int bytesWritten);
 
-            if (bytesWritten == 0)
+            if (bytesWritten <= 0)
             {
-                throw new Exception("Message buffer cannot be null.");
+                throw new Exception($"Serialized output size must be positive. Was {bytesWritten}.");
             }
 
             SerDe.Write(stream, bytesWritten);
-            SerDe.Write(stream, s_output, bytesWritten);
+            SerDe.Write(stream, s_outputBuffer, bytesWritten);
         }
 
         /// <summary>
