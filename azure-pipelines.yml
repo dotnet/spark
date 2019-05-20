@@ -9,7 +9,7 @@ trigger:
 variables:
   solution: '**/*.sln'
   buildConfiguration: 'Release'
-  dotnetCoreVersion: '2.2.105'
+  dotnetCoreVersion: '2.2.203'
   _SignType: real
   _TeamName: DotNetSpark
 
