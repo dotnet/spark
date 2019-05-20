@@ -63,33 +63,51 @@ namespace Microsoft.Spark.Utils
         /// Returns the return type of an UDF in JSON format. This value is used to
         /// create a org.apache.spark.sql.types.DataType object from JSON string.
         /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
+        /// <param name="type">Return type of an UDF</param>
+        /// <returns>JSON format of the return type</returns>
         internal static string GetReturnType(Type type)
         {
-            // See spark.sql.datatypes.datatype.scala for reference.
-            var types = new Type[] { type };
-            var returnTypeFormat = "{0}";
-
-            if (type.IsArray)
+            if (s_returnTypes.TryGetValue(type, out string value))
             {
-                types[0] = type.GetElementType();
-                returnTypeFormat = "array<{0}>";
-            }
-            else if (type.IsGenericType &&
-                (type.GetGenericTypeDefinition() == typeof(Dictionary<,>)))
-            {
-                types = type.GenericTypeArguments;
-                returnTypeFormat = "map<{0},{1}>";
+                return $"\"{value}\"";
             }
 
-            if (types.Any(t => !s_returnTypes.ContainsKey(t)))
+            Type[] interfaces = type.GetInterfaces();
+
+            Type dictionaryType = interfaces.FirstOrDefault(
+                i => i.IsGenericType && (i.GetGenericTypeDefinition() == typeof(IDictionary<,>)));
+            if (dictionaryType != null)
             {
-                throw new ArgumentException(
-                    $"{type.Name} not supported. Supported types: {string.Join(",", s_returnTypes.Keys)}");
+                Type[] typeArguments = dictionaryType.GenericTypeArguments;
+                Type keyType = typeArguments[0];
+                Type valueType = typeArguments[1];
+                return @"{""type"":""map"", " +
+                    $@"""keyType"":{GetReturnType(keyType)}, " +
+                    $@"""valueType"":{GetReturnType(valueType)}, " + 
+                    $@"""valueContainsNull"":{CanBeNull(valueType)}}}";
             }
 
-            return string.Format(returnTypeFormat, types.Select(t => s_returnTypes[t]).ToArray());
+            Type enumerableType = interfaces.FirstOrDefault(
+                i => i.IsGenericType && (i.GetGenericTypeDefinition() == typeof(IEnumerable<>)));
+            if (enumerableType != null)
+            {
+                Type elementType = enumerableType.GenericTypeArguments[0];
+                return @"{""type"":""array"", " +
+                    $@"""elementType"":{GetReturnType(elementType)}, " + 
+                    $@"""containsNull"":{CanBeNull(elementType)}}}";
+            }
+
+            throw new ArgumentException($"{type.Name} is not supported.");
+        }
+
+        /// <summary>
+        /// Returns "true" if the given type can be nullable.
+        /// </summary>
+        /// <param name="type">Type to check if it is nullable</param>
+        /// <returns>"true" if the given type is nullable. Otherwise, returns "false"</returns>
+        private static string CanBeNull(Type type)
+        {
+            return (!type.IsValueType || (Nullable.GetUnderlyingType(type) != null)) ? "true" : "false";
         }
 
         /// <summary>

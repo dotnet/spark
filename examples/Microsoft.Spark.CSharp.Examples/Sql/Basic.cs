@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.Functions;
 
@@ -89,6 +90,12 @@ namespace Microsoft.Spark.Examples.Sql
 
             DataFrame joinedDf3 = df.Join(df, df["name"] == df["name"], "outer");
             joinedDf3.Show();
+
+            var udf = Udf<string, string[]>((str) => new string[] { str, str + str });
+            df.Select(Explode(udf(df["name"]))).Show();
+
+            var udfMap = Udf<string, Dictionary<string, string>>((str) => new Dictionary<string, string> { { str, str + str } });
+            df.Select(udfMap(df["name"])).Show();
 
             spark.Stop();
         }
