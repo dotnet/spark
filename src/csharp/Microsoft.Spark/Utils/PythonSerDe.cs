@@ -46,7 +46,7 @@ namespace Microsoft.Spark.Utils
                 var unpickler = new Unpickler();
                 object unpickledItems = unpickler.loads(
                     new ReadOnlyMemory<byte>(buffer, 0, messageLength), 
-                    stackCapacity: 100); // spark always sends batches of 100 rows
+                    stackCapacity: 102); // spark always sends batches of 100 rows, +2 is for markers
                 Debug.Assert(unpickledItems != null);
                 return (unpickledItems as object[]);
             }
