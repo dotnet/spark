@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
@@ -13,6 +13,39 @@ namespace Microsoft.Spark.Utils
 {
     using ArrowDelegate = ArrowWorkerFunction.ExecuteDelegate;
     using PicklingDelegate = PicklingWorkerFunction.ExecuteDelegate;
+
+    /// <summary>
+    /// UdfTypeUtils provides fuctions related to UDF types.
+    /// </summary>
+    internal static class UdfTypeUtils
+    {
+        /// <summary>
+        /// Returns "true" if the given type is nullable.
+        /// </summary>
+        /// <param name="type">Type to check if it is nullable</param>
+        /// <returns>"true" if the given type is nullable. Otherwise, returns "false"</returns>
+        internal static string CanBeNull(this Type type)
+        {
+            return (!type.IsValueType || (Nullable.GetUnderlyingType(type) != null)) ?
+                "true" :
+                "false";
+        }
+
+        /// <summary>
+        /// Returns the generic type definition of a given type if the given type is equal
+        /// to or implements the `compare` type. Returns null if there is no match.
+        /// </summary>
+        /// <param name="type">This type object</param>
+        /// <param name="compare">Generic type definition to compare to</param>
+        /// <returns>Matching generic type object</returns>
+        internal static Type ImplementsGenericTypeOf(this Type type, Type compare)
+        {
+            Debug.Assert(compare.IsGenericType);
+            return (type.IsGenericType && (type.GetGenericTypeDefinition() == compare)) ?
+                type :
+                type.GetInterface(compare.FullName);
+        }
+    }
 
     /// <summary>
     /// UdfUtils provides UDF-related functions and enum.
@@ -49,14 +82,13 @@ namespace Microsoft.Spark.Utils
                 {typeof(string), "string"},
                 {typeof(byte[]), "binary"},
                 {typeof(bool), "boolean"},
-                {typeof(DateTime), "timestamp"},
                 {typeof(decimal), "decimal(28,12)"},
                 {typeof(double), "double"},
                 {typeof(float), "float"},
-                {typeof(byte), "tinyint"},
+                {typeof(byte), "byte"},
                 {typeof(int), "integer"},
-                {typeof(long), "bigint"},
-                {typeof(short), "smallint"}
+                {typeof(long), "long"},
+                {typeof(short), "short"}
             };
 
         /// <summary>
@@ -72,10 +104,7 @@ namespace Microsoft.Spark.Utils
                 return $"\"{value}\"";
             }
 
-            Type[] interfaces = type.GetInterfaces();
-
-            Type dictionaryType = interfaces.FirstOrDefault(
-                i => i.IsGenericType && (i.GetGenericTypeDefinition() == typeof(IDictionary<,>)));
+            Type dictionaryType = type.ImplementsGenericTypeOf(typeof(IDictionary<,>));
             if (dictionaryType != null)
             {
                 Type[] typeArguments = dictionaryType.GenericTypeArguments;
@@ -84,30 +113,19 @@ namespace Microsoft.Spark.Utils
                 return @"{""type"":""map"", " +
                     $@"""keyType"":{GetReturnType(keyType)}, " +
                     $@"""valueType"":{GetReturnType(valueType)}, " + 
-                    $@"""valueContainsNull"":{CanBeNull(valueType)}}}";
+                    $@"""valueContainsNull"":{valueType.CanBeNull()}}}";
             }
 
-            Type enumerableType = interfaces.FirstOrDefault(
-                i => i.IsGenericType && (i.GetGenericTypeDefinition() == typeof(IEnumerable<>)));
+            Type enumerableType = type.ImplementsGenericTypeOf(typeof(IEnumerable<>));
             if (enumerableType != null)
             {
                 Type elementType = enumerableType.GenericTypeArguments[0];
                 return @"{""type"":""array"", " +
                     $@"""elementType"":{GetReturnType(elementType)}, " + 
-                    $@"""containsNull"":{CanBeNull(elementType)}}}";
+                    $@"""containsNull"":{elementType.CanBeNull()}}}";
             }
 
-            throw new ArgumentException($"{type.Name} is not supported.");
-        }
-
-        /// <summary>
-        /// Returns "true" if the given type can be nullable.
-        /// </summary>
-        /// <param name="type">Type to check if it is nullable</param>
-        /// <returns>"true" if the given type is nullable. Otherwise, returns "false"</returns>
-        private static string CanBeNull(Type type)
-        {
-            return (!type.IsValueType || (Nullable.GetUnderlyingType(type) != null)) ? "true" : "false";
+            throw new ArgumentException($"{type.FullName} is not supported.");
         }
 
         /// <summary>

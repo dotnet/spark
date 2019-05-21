@@ -5,6 +5,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Microsoft.Spark.Interop.Ipc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -152,15 +153,23 @@ namespace Microsoft.Spark.Sql.Types
         /// <returns>The new DataType instance from the JSON string</returns>
         private static DataType ParseSimpleType(JToken json)
         {
+            string typeStr = json.ToString();
             Type simpleType = s_simpleTypes.FirstOrDefault(
-                (t) => NormalizeTypeName(t.Name) == json.ToString());
+                (t) => NormalizeTypeName(t.Name) == typeStr);
 
             if (simpleType != default)
             {
                 return (DataType)Activator.CreateInstance(simpleType);
             }
 
-            // TODO: Decimal type is not implemented.
+            Match decimalMatch = DecimalType.s_fixedDecimal.Match(typeStr);
+            if (decimalMatch.Success)
+            {
+                return new DecimalType(
+                    int.Parse(decimalMatch.Groups[1].Value),
+                    int.Parse(decimalMatch.Groups[2].Value));
+            }
+
             throw new ArgumentException($"Could not parse data type: {json}");
         }
 

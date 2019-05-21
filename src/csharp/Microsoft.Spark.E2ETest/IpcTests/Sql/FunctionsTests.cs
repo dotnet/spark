@@ -590,7 +590,17 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             //////////////////////////////
             // Udf Functions
             //////////////////////////////
-            col = Udf(() => 1)();
+            TestUdf();
+
+            col = CallUDF("udf");
+            col = CallUDF("udf", col);
+            col = CallUDF("udf", col, col);
+        }
+
+        private void TestUdf()
+        {
+            // Test Udf with different number of arguments.
+            Column col = Udf(() => 1)();
 
             col = Udf<int, int>((a1) => 1)(col);
 
@@ -620,9 +630,32 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) => 1)(
                     col, col, col, col, col, col, col, col, col, col);
 
-            col = CallUDF("udf");
-            col = CallUDF("udf", col);
-            col = CallUDF("udf", col, col);
+            // Test various retun types of Udf.
+
+            // Test simple types.
+            Udf<string, string>((arg) => arg);
+            Udf<byte[], byte[]>((arg) => arg);
+            Udf<bool, bool>((arg) => arg);
+            Udf<decimal, decimal>((arg) => arg);
+            Udf<double, double>((arg) => arg);
+            Udf<float, float>((arg) => arg);
+            Udf<byte, byte>((arg) => arg);
+            Udf<int, int>((arg) => arg);
+            Udf<long, long>((arg) => arg);
+            Udf<short, short>((arg) => arg);
+            
+            // Test array type.
+            Udf<string, string[]>((arg) => new[] { arg } );
+            Udf<string, IEnumerable<string>>((arg) => new[] { arg });
+            Udf<string, IEnumerable<IEnumerable<string>>>((arg) => new[] { new[] { arg } });
+
+            // Test map type.
+            Udf<string, Dictionary<string, string>>(
+                (arg) => new Dictionary<string, string> { { arg, arg } });
+            Udf<string, IDictionary<string, string>>(
+                (arg) => new Dictionary<string, string> { { arg, arg } });
+            Udf<string, IDictionary<string, string[]>>(
+                (arg) => new Dictionary<string, string[]> { { arg, new[] { arg } } });
         }
 
         /// <summary>
