@@ -31,16 +31,19 @@ namespace Microsoft.Spark.Utils
         /// <summary>
         /// Unpickles objects from Stream.
         /// </summary>
-        /// <param name="s">Pickled byte stream</param>
+        /// <param name="stream">Pickled byte stream</param>
         /// <param name="messageLength">Size (in bytes) of the pickled input</param>
         /// <returns>Unpicked objects</returns>
-        internal static object[] GetUnpickledObjects(Stream s, int messageLength)
+        internal static object[] GetUnpickledObjects(Stream stream, int messageLength)
         {
             byte[] buffer = ArrayPool<byte>.Shared.Rent(messageLength);
 
             try
             {
-                SerDe.ReadBytes(s, buffer, messageLength);
+                if (!SerDe.TryReadBytes(stream, buffer, messageLength))
+                {
+                    throw new ArgumentException("The stream is closed.");
+                }
 
                 // Not making any assumptions about the implementation and hence not a class member.
                 var unpickler = new Unpickler();

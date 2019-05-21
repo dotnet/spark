@@ -133,9 +133,9 @@ namespace Microsoft.Spark.Worker.Command
                         outputRows.Add(commandRunner.Run(0, inputRows[i]));
                     }
 
-                    // most probably input > output. If not, pickler increases the buffer
-                    int sizeHint = messageLength;
-                    WriteOutput(outputStream, outputRows, sizeHint);
+                    // The initial (estimated) buffer size for pickling rows is set to the size of input pickled rows
+                    // because the number of rows are the same for both input and output.
+                    WriteOutput(outputStream, outputRows, messageLength);
                     stat.NumEntriesProcessed += inputRows.Length;
                     outputRows.Clear();
                 }

@@ -182,32 +182,6 @@ namespace Microsoft.Spark.Interop.Ipc
             return buffer;
         }
 
-        internal static void ReadBytes(Stream s, byte[] buffer, int length)
-        {
-            if (length < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(length), length, "length can't be negative.");
-            }
-            if (length == 0)
-            {
-                return;
-            }
-
-            int bytesRead;
-            int totalBytesRead = 0;
-            do
-            {
-                bytesRead = s.Read(buffer, totalBytesRead, length - totalBytesRead);
-                totalBytesRead += bytesRead;
-            }
-            while ((totalBytesRead < length) && (bytesRead > 0));
-
-            if (totalBytesRead < length)
-            {
-                throw new ArgumentException($"Incomplete bytes read: {totalBytesRead}, expected: {length}");
-            }
-        }
-
         public static bool TryReadBytes(Stream s, byte[] buffer, int length)
         {
             if (length > 0)
