@@ -134,11 +134,11 @@ jobs:
     - task: CopyFiles@2
       displayName: Stage .NET artifacts
       inputs:
-        sourceFolder: $(Build.SourcesDirectory)/src/csharp/Microsoft.Spark/bin/$(buildConfiguration)
+        sourceFolder: $(Build.SourcesDirectory)/artifacts/bin/Microsoft.Spark/$(buildConfiguration)
         contents: |
           **/*.dll
           **/*.pdb
-        targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/src/csharp/Microsoft.Spark/bin/$(buildConfiguration)
+        targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/bin/Microsoft.Spark/$(buildConfiguration)
 
     - task: CopyFiles@2
       displayName: Stage scala artifacts
@@ -175,11 +175,11 @@ jobs:
     - task: CopyFiles@2
       displayName: Copy .NET artifacts
       inputs:
-        sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/BuildArtifacts/src/csharp/Microsoft.Spark/bin/$(buildConfiguration)
+        sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/BuildArtifacts/artifacts/bin/Microsoft.Spark/$(buildConfiguration)
         contents: |
           **/*.dll
           **/*.pdb
-        targetFolder: $(Build.SourcesDirectory)/src/csharp/Microsoft.Spark/bin/$(buildConfiguration)
+        targetFolder: $(Build.SourcesDirectory)/artifacts/bin/Microsoft.Spark/$(buildConfiguration)
 
     - task: CopyFiles@2
       displayName: Copy scala artifacts
@@ -211,7 +211,7 @@ jobs:
         solution: eng/Sign.proj
         msbuildArguments: /t:SignBinaries
                           /p:SignSparkBinaries=true
-                          /p:SignAssetsDir=$(Build.SourcesDirectory)\src\csharp\Microsoft.Spark\bin\$(buildConfiguration)\
+                          /p:SignAssetsDir=$(Build.SourcesDirectory)\artifacts\bin\Microsoft.Spark\$(buildConfiguration)\
                           /p:SignType=$(_SignType)
         msbuildVersion: 15.0
 
