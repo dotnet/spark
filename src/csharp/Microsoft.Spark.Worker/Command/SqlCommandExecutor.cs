@@ -133,7 +133,9 @@ namespace Microsoft.Spark.Worker.Command
                         outputRows.Add(commandRunner.Run(0, inputRows[i]));
                     }
 
-                    WriteOutput(outputStream, outputRows, estimatedMaxSize: messageLength); // estimatedMaxSize is equal to messageLength because the produced output should be always smaller or of the same size as input
+                    // most probably input > output. If not, pickler increases the buffer
+                    int sizeHint = messageLength;
+                    WriteOutput(outputStream, outputRows, sizeHint);
                     stat.NumEntriesProcessed += inputRows.Length;
                     outputRows.Clear();
                 }
@@ -147,11 +149,14 @@ namespace Microsoft.Spark.Worker.Command
         /// </summary>
         /// <param name="stream">Stream to write to</param>
         /// <param name="rows">Rows to write to</param>
-        /// <param name="estimatedMaxSize">Estimated max size of the serialized output</param>
-        private void WriteOutput(Stream stream, IEnumerable<object> rows, int estimatedMaxSize)
+        /// <param name="sizeHint">
+        /// Estimated max size of the serialized output.
+        /// If it's not big enough, pickler increases the buffer.
+        /// </param>
+        private void WriteOutput(Stream stream, IEnumerable<object> rows, int sizeHint)
         {
             if (s_outputBuffer == null)
-                s_outputBuffer = new byte[estimatedMaxSize];
+                s_outputBuffer = new byte[sizeHint];
 
             Pickler pickler = s_pickler ?? (s_pickler = new Pickler(false));
             pickler.dumps(rows, ref s_outputBuffer, out int bytesWritten);
