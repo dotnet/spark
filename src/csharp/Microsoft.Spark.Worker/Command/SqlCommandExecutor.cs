@@ -11,7 +11,6 @@ using System.Linq;
 using Apache.Arrow;
 using Apache.Arrow.Ipc;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.IO;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
 using Razorvine.Pickle;
@@ -81,11 +80,10 @@ namespace Microsoft.Spark.Worker.Command
     internal class PicklingSqlCommandExecutor : SqlCommandExecutor
     {
         [ThreadStatic]
-        private static MemoryStream s_writeOutputStream;
-        [ThreadStatic]
-        private static MaxLengthReadStream s_slicedReadStream;
-        [ThreadStatic]
         private static Pickler s_pickler;
+
+        [ThreadStatic]
+        private static byte[] s_outputBuffer;
 
         protected override CommandExecutorStat ExecuteCore(
             Stream inputStream,
@@ -118,10 +116,6 @@ namespace Microsoft.Spark.Worker.Command
                             $"Invalid message length: {messageLength}");
                     }
 
-                    MaxLengthReadStream readStream = s_slicedReadStream ??
-                            (s_slicedReadStream = new MaxLengthReadStream());
-                    readStream.Reset(inputStream, messageLength);
-
                     // Each row in inputRows is of type object[]. If a null is present in a row
                     // then the corresponding index column of the row object[] will be set to null.
                     // For example, (inputRows.Length == 2) and (inputRows[0][0] == null)
@@ -131,7 +125,7 @@ namespace Microsoft.Spark.Worker.Command
                     //   |null|
                     //   |  11|
                     //   +----+
-                    object[] inputRows = PythonSerDe.GetUnpickledObjects(readStream);
+                    object[] inputRows = PythonSerDe.GetUnpickledObjects(inputStream, messageLength);
 
                     for (int i = 0; i < inputRows.Length; ++i)
                     {
@@ -139,7 +133,9 @@ namespace Microsoft.Spark.Worker.Command
                         outputRows.Add(commandRunner.Run(0, inputRows[i]));
                     }
 
-                    WriteOutput(outputStream, outputRows);
+                    // The initial (estimated) buffer size for pickling rows is set to the size of input pickled rows
+                    // because the number of rows are the same for both input and output.
+                    WriteOutput(outputStream, outputRows, messageLength);
                     stat.NumEntriesProcessed += inputRows.Length;
                     outputRows.Clear();
                 }
@@ -153,22 +149,25 @@ namespace Microsoft.Spark.Worker.Command
         /// </summary>
         /// <param name="stream">Stream to write to</param>
         /// <param name="rows">Rows to write to</param>
-        private void WriteOutput(Stream stream, IEnumerable<object> rows)
+        /// <param name="sizeHint">
+        /// Estimated max size of the serialized output.
+        /// If it's not big enough, pickler increases the buffer.
+        /// </param>
+        private void WriteOutput(Stream stream, IEnumerable<object> rows, int sizeHint)
         {
-            MemoryStream writeOutputStream = s_writeOutputStream ??
-                (s_writeOutputStream = new MemoryStream());
-            writeOutputStream.Position = 0;
+            if (s_outputBuffer == null)
+                s_outputBuffer = new byte[sizeHint];
 
             Pickler pickler = s_pickler ?? (s_pickler = new Pickler(false));
-            pickler.dump(rows, writeOutputStream);
+            pickler.dumps(rows, ref s_outputBuffer, out int bytesWritten);
 
-            if (writeOutputStream.Position == 0)
+            if (bytesWritten <= 0)
             {
-                throw new Exception("Message buffer cannot be null.");
+                throw new Exception($"Serialized output size must be positive. Was {bytesWritten}.");
             }
 
-            SerDe.Write(stream, (int)writeOutputStream.Position);
-            SerDe.Write(stream, writeOutputStream.GetBuffer(), (int)writeOutputStream.Position);
+            SerDe.Write(stream, bytesWritten);
+            SerDe.Write(stream, s_outputBuffer, bytesWritten);
         }
 
         /// <summary>
