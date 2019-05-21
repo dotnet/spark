@@ -7,6 +7,7 @@
   <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
   <PropertyGroup>
+    <DotNetUseShippingVersions>true</DotNetUseShippingVersions>
     <StrongNameKeyId>Open</StrongNameKeyId>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <Deterministic>true</Deterministic>
