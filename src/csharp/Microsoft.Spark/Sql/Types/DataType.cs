@@ -153,16 +153,16 @@ namespace Microsoft.Spark.Sql.Types
         /// <returns>The new DataType instance from the JSON string</returns>
         private static DataType ParseSimpleType(JToken json)
         {
-            string typeStr = json.ToString();
+            string typeName = json.ToString();
             Type simpleType = s_simpleTypes.FirstOrDefault(
-                (t) => NormalizeTypeName(t.Name) == typeStr);
+                (t) => NormalizeTypeName(t.Name) == typeName);
 
             if (simpleType != default)
             {
                 return (DataType)Activator.CreateInstance(simpleType);
             }
 
-            Match decimalMatch = DecimalType.s_fixedDecimal.Match(typeStr);
+            Match decimalMatch = DecimalType.s_fixedDecimal.Match(typeName);
             if (decimalMatch.Success)
             {
                 return new DecimalType(
