@@ -12,6 +12,7 @@
 
 ## Table of Contents
 
+- [Supported Apache Spark](#supported-apache-spark)
 - [Get Started](#get-started)
 - [Build Status](#build-status)
 - [Building from Source](#building-from-source)
@@ -23,13 +24,13 @@
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
 
-## Supported Apache Spark Versions
+## Supported Apache Spark
 
 <table>
     <thead>
         <tr>
             <th>Apache Spark</th>
-            <th>.NET for Apache Spark Release</th>
+            <th>.NET for Apache Spark</th>
         </tr>
     </thead>
     <tbody align="center">
