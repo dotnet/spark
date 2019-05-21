@@ -2,11 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.IO;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Utils;
 
@@ -17,9 +15,6 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     internal sealed class RowCollector
     {
-        [ThreadStatic]
-        private static MaxLengthReadStream s_slicedReadStream;
-
         /// <summary>
         /// Collects pickled row objects from the given socket.
         /// </summary>
@@ -30,14 +25,9 @@ namespace Microsoft.Spark.Sql
             Stream inputStream = socket.InputStream;
 
             int? length;
-            while (((length = SerDe.ReadBytesLength(inputStream)) != null) &&
-                (length.GetValueOrDefault() > 0))
+            while (((length = SerDe.ReadBytesLength(inputStream)) != null) && (length.GetValueOrDefault() > 0))
             {
-                MaxLengthReadStream readStream = s_slicedReadStream ??
-                    (s_slicedReadStream = new MaxLengthReadStream());
-
-                readStream.Reset(inputStream, length.GetValueOrDefault());
-                var unpickledObjects = PythonSerDe.GetUnpickledObjects(readStream);
+                object[] unpickledObjects = PythonSerDe.GetUnpickledObjects(inputStream, length.GetValueOrDefault());
 
                 foreach (object unpickled in unpickledObjects)
                 {
