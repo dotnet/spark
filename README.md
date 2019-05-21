@@ -23,6 +23,46 @@
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
 
+## Supported Apache Spark Versions
+
+<table>
+    <thead>
+        <tr>
+            <th>Apache Spark</th>
+            <th>.NET for Apache Spark Release</th>
+        </tr>
+    </thead>
+    <tbody align="center">
+        <tr>
+            <td >2.3.0</td>
+            <td rowspan=6><a href="https://github.com/dotnet/spark/releases/tag/v0.2.0">v0.2.0</a></td>
+        </tr>
+        <tr>
+            <td>2.3.1</td>
+        </tr>
+        <tr>
+            <td>2.3.2</td>
+        </tr>
+        <tr>
+            <td>2.3.3</td>
+        </tr>
+        <tr>
+            <td>2.4.0</td>
+        </tr>
+        <tr>
+            <td>2.4.1</td>
+        </tr>
+        <tr>
+            <td>2.4.2</td>
+            <td><a href="https://github.com/dotnet/spark/issues/60">Not supported</a></td>
+        </tr>
+        <tr>
+            <td>2.4.3</td>
+            <td>master branch</td>
+        </tr>
+    </tbody>
+</table>
+
 ## Get Started
 These instructions will show you how to run a .NET for Apache Spark app using .NET Core.
 - [Windows Instructions](docs/getting-started/windows-instructions.md)
