@@ -186,7 +186,7 @@ jobs:
       inputs:
         solution: eng/Sign.proj
         msbuildArguments: /t:SignBinaries 
-                          /p:SignAssetsDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries
+                          /p:SignAssetsDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\
                           /p:SignNugetPackages=true
                           /p:SignType=$(_SignType)
         msbuildVersion: 15.0
