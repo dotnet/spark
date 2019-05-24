@@ -190,14 +190,14 @@ You should see JARs created for the supported Spark versions:
      </details>
   3. Manually copy Worker binaries into the Samples output location. 
      ```
-     cp ~/dotnet.spark/src/csharp/Microsoft.Spark.Worker/bin/Debug/netcoreapp2.1/ubuntu.18.04-x64/publish/* ~/dotnet.spark/examples/Microsoft.Spark.CSharp.Examples/bin/Debug/netcoreapp2.1/ubuntu.18.04-x64/publish/
+     cp ~/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/netcoreapp2.1/ubuntu.18.04-x64/publish/* ~/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/netcoreapp2.1/ubuntu.18.04-x64/publish/
      ```
 
 # Run Samples
 
 Once you build the samples, you can use `spark-submit` to submit your .NET Core apps. Make sure you have followed the [pre-requisites](#pre-requisites) section and installed Apache Spark.
 
-  1. Open a terminal and go to the directory where your app binary has been generated (e.g., `~/dotnet.spark/examples/Microsoft.Spark.CSharp.Examples/bin/Debug/netcoreapp2.1/ubuntu.18.04-x64/publish`)
+  1. Open a terminal and go to the directory where your app binary has been generated (e.g., `~/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/netcoreapp2.1/ubuntu.18.04-x64/publish`)
   2. Running your app follows the basic structure:
      ```bash
      spark-submit \

@@ -210,14 +210,14 @@ You should see JARs created for the supported Spark versions:
      </details>
   3. Manually copy Worker binaries into the Samples output location. 
      ```
-     cp c:\github\dotnet-spark\src\csharp\Microsoft.Spark.Worker\bin\Debug\netcoreapp2.1\win10-x64\publish\* C:\github\dotnet-spark\examples\Microsoft.Spark.CSharp.Examples\bin\Debug\netcoreapp2.1\win10-x64\publish\
+     cp c:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.Worker\Debug\netcoreapp2.1\win10-x64\publish\* C:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.CSharp.Examples\Debug\netcoreapp2.1\win10-x64\publish\
      ```
 
 # Run Samples
 
 Once you build the samples, running them will be through `spark-submit` regardless of whether you are targeting .NET Framework or .NET Core apps. Make sure you have followed the [pre-requisites](#pre-requisites) section and installed Apache Spark.
 
-  1. Open Powershell and go to the directory where your app binary has been generated (e.g., `c:\github\dotnet\spark\examples\Microsoft.Spark.CSharp.Examples\bin\Debug\net461` for .NET Framework, `c:\github\dotnet-spark\examples\Microsoft.Spark.CSharp.Examples\bin\Debug\netcoreapp2.1\win10-x64\publish` for .NET Core)
+  1. Open Powershell and go to the directory where your app binary has been generated (e.g., `c:\github\dotnet\spark\artifacts\bin\Microsoft.Spark.CSharp.Examples\Debug\net461` for .NET Framework, `c:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.CSharp.Examples\Debug\netcoreapp2.1\win10-x64\publish` for .NET Core)
   2. Running your app follows the basic structure:
      ```powershell
      spark-submit.cmd `

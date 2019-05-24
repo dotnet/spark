@@ -36,20 +36,8 @@
     </ItemGroup>
 
     <ItemGroup Condition="'$(SignNugetPackages)' == 'true'">
-      <FilesToSign Include="$(OutDir)*.nupkg;$(OutDir)*.snupkg">
+      <FilesToSign Include="$(OutDir)**/*.nupkg;$(OutDir)**/*.snupkg">
         <Authenticode>NuGet</Authenticode>
-      </FilesToSign>
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(SignSparkBinaries)' == 'true'">
-      <FilesToSign Include="$(OutDir)**/Microsoft.Spark.dll">
-        <Authenticode>Microsoft</Authenticode>
-      </FilesToSign>
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(SignJarBinaries)' == 'true'">
-      <FilesToSign Include="$(OutDir)**/microsoft-spark-*.jar">
-        <Authenticode>MicrosoftJARSHA2</Authenticode>
       </FilesToSign>
     </ItemGroup>
 
