@@ -127,7 +127,7 @@ namespace Microsoft.Spark.E2ETest
             string classArg = "--class org.apache.spark.deploy.DotnetRunner";
             string curDir = AppDomain.CurrentDomain.BaseDirectory;
             string jarPrefix = GetJarPrefix(sparkHome);
-            string scalaDir = $"{curDir}{sep}..{sep}..{sep}..{sep}..{sep}..{sep}scala";
+            string scalaDir = $"{curDir}{sep}..{sep}..{sep}..{sep}..{sep}..{sep}src{sep}scala";
             string jarDir = $"{scalaDir}{sep}{jarPrefix}{sep}target";
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
             string jar = $"{jarDir}{sep}{jarPrefix}-{assemblyVersion}.jar";
