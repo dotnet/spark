@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <PublishDependsOnTargets>PackageWorker;$(PublishDependsOnTargets)</PublishDependsOnTargets>
+  </PropertyGroup>
+
+  <Target Name="PackageWorker">
+    <MSBuild Projects="$(MSBuildThisFileDirectory)\PackageWorker.proj"
+             Properties="Configuration=$(Configuration);
+                         OfficialBuildId=$(OfficialBuildId);
+                         SparkWorkerPublishDir=$(SparkWorkerPublishDir);
+                         SparkWorkerPackageOutputDir=$(SparkWorkerPackageOutputDir)" />
+  </Target>
+</Project>

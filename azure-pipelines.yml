@@ -169,28 +169,17 @@ jobs:
       condition: and(succeeded(), in(variables['_SignType'], 'real', 'test'), eq(variables['Agent.Os'], 'Windows_NT'))
     
     - task: PowerShell@2
-      displayName: Sign artifacts
+      displayName: Sign artifacts and Package Microsoft.Spark.Worker
       inputs:
         filePath: eng\common\build.ps1
-        arguments: -restore -sign
+        arguments: -restore -sign -publish
                    -c $(buildConfiguration)
                    -ci
                    $(_OfficialBuildIdArgs)
                    /p:DotNetSignType=$(_SignType)
                    /p:SparkPackagesDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\BuildArtifacts\artifacts\packages
                    /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Microsoft.Spark.Worker
-
-    - task: DotNetCoreCLI@2
-      displayName: Package Microsoft.Spark.Worker
-      inputs:
-        command: custom
-        custom: msbuild
-        projects: eng\PackageWorker.proj
-        arguments: -c $(buildConfiguration)
-                   $(_OfficialBuildIdArgs)
-                   /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Microsoft.Spark.Worker
                    /p:SparkWorkerPackageOutputDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries
-        workingDirectory: $(Build.ArtifactStagingDirectory)
 
     - task: PublishBuildArtifacts@1
       inputs:
