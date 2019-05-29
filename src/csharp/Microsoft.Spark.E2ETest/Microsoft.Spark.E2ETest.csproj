@@ -15,4 +15,8 @@
     <ProjectReference Include="..\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Microsoft.Spark.UnitTest\TestUtils\ArrowTestUtils.cs" />
+  </ItemGroup>
+
 </Project>

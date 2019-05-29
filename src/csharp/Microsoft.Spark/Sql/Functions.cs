@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using Apache.Arrow;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Expressions;
@@ -3765,6 +3766,264 @@ namespace Microsoft.Spark.Sql
             return CreateUdf<RT>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply10;
         }
 
+        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
+        /// <typeparam name="A1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <param name="udf">The Vector UDF function implementation.</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
+        /// </returns>
+        internal static Func<Column, Column> VectorUdf<A1, RT>(Func<A1, RT> udf)
+            where A1 : IArrowArray
+            where RT : IArrowArray
+        {
+            return CreateVectorUdf<RT>(
+                udf.Method.ToString(),
+                UdfUtils.CreateVectorUdfWrapper(udf)).Apply1;
+        }
+
+        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
+        /// <typeparam name="A1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="A2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <param name="udf">The Vector UDF function implementation.</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
+        /// </returns>
+        internal static Func<Column, Column, Column> VectorUdf<A1, A2, RT>(Func<A1, A2, RT> udf)
+            where A1 : IArrowArray
+            where A2 : IArrowArray
+            where RT : IArrowArray
+        {
+            return CreateVectorUdf<RT>(
+                udf.Method.ToString(),
+                UdfUtils.CreateVectorUdfWrapper(udf)).Apply2;
+        }
+
+        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
+        /// <typeparam name="A1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="A2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="A3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <param name="udf">The Vector UDF function implementation.</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
+        /// </returns>
+        internal static Func<Column, Column, Column, Column> VectorUdf<A1, A2, A3, RT>(
+            Func<A1, A2, A3, RT> udf)
+            where A1 : IArrowArray
+            where A2 : IArrowArray
+            where A3 : IArrowArray
+            where RT : IArrowArray
+        {
+            return CreateVectorUdf<RT>(
+                udf.Method.ToString(),
+                UdfUtils.CreateVectorUdfWrapper(udf)).Apply3;
+        }
+
+        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
+        /// <typeparam name="A1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="A2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="A3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="A4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <param name="udf">The Vector UDF function implementation.</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
+        /// </returns>
+        internal static Func<Column, Column, Column, Column, Column> VectorUdf<A1, A2, A3, A4, RT>(
+            Func<A1, A2, A3, A4, RT> udf)
+            where A1 : IArrowArray
+            where A2 : IArrowArray
+            where A3 : IArrowArray
+            where A4 : IArrowArray
+            where RT : IArrowArray
+        {
+            return CreateVectorUdf<RT>(
+                udf.Method.ToString(),
+                UdfUtils.CreateVectorUdfWrapper(udf)).Apply4;
+        }
+
+        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
+        /// <typeparam name="A1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="A2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="A3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="A4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="A5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <param name="udf">The Vector UDF function implementation.</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
+        /// </returns>
+        internal static Func<Column, Column, Column, Column, Column, Column> VectorUdf<A1, A2, A3, A4, A5, RT>(
+            Func<A1, A2, A3, A4, A5, RT> udf)
+            where A1 : IArrowArray
+            where A2 : IArrowArray
+            where A3 : IArrowArray
+            where A4 : IArrowArray
+            where A5 : IArrowArray
+            where RT : IArrowArray
+        {
+            return CreateVectorUdf<RT>(
+                udf.Method.ToString(),
+                UdfUtils.CreateVectorUdfWrapper(udf)).Apply5;
+        }
+
+        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
+        /// <typeparam name="A1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="A2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="A3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="A4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="A5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="A6">Specifies the type of the sixth argument to the UDF.</typeparam>
+        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <param name="udf">The Vector UDF function implementation.</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
+        /// </returns>
+        internal static Func<Column, Column, Column, Column, Column, Column, Column> VectorUdf<A1, A2, A3, A4, A5, A6, RT>(
+            Func<A1, A2, A3, A4, A5, A6, RT> udf)
+            where A1 : IArrowArray
+            where A2 : IArrowArray
+            where A3 : IArrowArray
+            where A4 : IArrowArray
+            where A5 : IArrowArray
+            where A6 : IArrowArray
+            where RT : IArrowArray
+        {
+            return CreateVectorUdf<RT>(
+                udf.Method.ToString(),
+                UdfUtils.CreateVectorUdfWrapper(udf)).Apply6;
+        }
+
+        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
+        /// <typeparam name="A1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="A2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="A3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="A4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="A5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="A6">Specifies the type of the sixth argument to the UDF.</typeparam>
+        /// <typeparam name="A7">Specifies the type of the seventh argument to the UDF.</typeparam>
+        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <param name="udf">The Vector UDF function implementation.</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
+        /// </returns>
+        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<A1, A2, A3, A4, A5, A6, A7, RT>(
+            Func<A1, A2, A3, A4, A5, A6, A7, RT> udf)
+            where A1 : IArrowArray
+            where A2 : IArrowArray
+            where A3 : IArrowArray
+            where A4 : IArrowArray
+            where A5 : IArrowArray
+            where A6 : IArrowArray
+            where A7 : IArrowArray
+            where RT : IArrowArray
+        {
+            return CreateVectorUdf<RT>(
+                udf.Method.ToString(),
+                UdfUtils.CreateVectorUdfWrapper(udf)).Apply7;
+        }
+
+        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
+        /// <typeparam name="A1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="A2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="A3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="A4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="A5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="A6">Specifies the type of the sixth argument to the UDF.</typeparam>
+        /// <typeparam name="A7">Specifies the type of the seventh argument to the UDF.</typeparam>
+        /// <typeparam name="A8">Specifies the type of the eighth argument to the UDF.</typeparam>
+        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <param name="udf">The Vector UDF function implementation.</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
+        /// </returns>
+        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<A1, A2, A3, A4, A5, A6, A7, A8, RT>(
+            Func<A1, A2, A3, A4, A5, A6, A7, A8, RT> udf)
+            where A1 : IArrowArray
+            where A2 : IArrowArray
+            where A3 : IArrowArray
+            where A4 : IArrowArray
+            where A5 : IArrowArray
+            where A6 : IArrowArray
+            where A7 : IArrowArray
+            where A8 : IArrowArray
+            where RT : IArrowArray
+        {
+            return CreateVectorUdf<RT>(
+                udf.Method.ToString(),
+                UdfUtils.CreateVectorUdfWrapper(udf)).Apply8;
+        }
+
+        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
+        /// <typeparam name="A1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="A2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="A3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="A4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="A5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="A6">Specifies the type of the sixth argument to the UDF.</typeparam>
+        /// <typeparam name="A7">Specifies the type of the seventh argument to the UDF.</typeparam>
+        /// <typeparam name="A8">Specifies the type of the eighth argument to the UDF.</typeparam>
+        /// <typeparam name="A9">Specifies the type of the ninth argument to the UDF.</typeparam>
+        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <param name="udf">The Vector UDF function implementation.</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
+        /// </returns>
+        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<A1, A2, A3, A4, A5, A6, A7, A8, A9, RT>(
+            Func<A1, A2, A3, A4, A5, A6, A7, A8, A9, RT> udf)
+            where A1 : IArrowArray
+            where A2 : IArrowArray
+            where A3 : IArrowArray
+            where A4 : IArrowArray
+            where A5 : IArrowArray
+            where A6 : IArrowArray
+            where A7 : IArrowArray
+            where A8 : IArrowArray
+            where A9 : IArrowArray
+            where RT : IArrowArray
+        {
+            return CreateVectorUdf<RT>(
+                udf.Method.ToString(),
+                UdfUtils.CreateVectorUdfWrapper(udf)).Apply9;
+        }
+
+        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
+        /// <typeparam name="A1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="A2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="A3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="A4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="A5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="A6">Specifies the type of the sixth argument to the UDF.</typeparam>
+        /// <typeparam name="A7">Specifies the type of the seventh argument to the UDF.</typeparam>
+        /// <typeparam name="A8">Specifies the type of the eighth argument to the UDF.</typeparam>
+        /// <typeparam name="A9">Specifies the type of the ninth argument to the UDF.</typeparam>
+        /// <typeparam name="A10">Specifies the type of the tenth argument to the UDF.</typeparam>
+        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <param name="udf">The Vector UDF function implementation.</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
+        /// </returns>
+        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT>(
+            Func<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, RT> udf)
+            where A1 : IArrowArray
+            where A2 : IArrowArray
+            where A3 : IArrowArray
+            where A4 : IArrowArray
+            where A5 : IArrowArray
+            where A6 : IArrowArray
+            where A7 : IArrowArray
+            where A8 : IArrowArray
+            where A9 : IArrowArray
+            where A10 : IArrowArray
+            where RT : IArrowArray
+        {
+            return CreateVectorUdf<RT>(
+                udf.Method.ToString(),
+                UdfUtils.CreateVectorUdfWrapper(udf)).Apply10;
+        }
+
         /// <summary>
         /// Call an user-defined function registered via SparkSession.Udf().Register().
         /// </summary>
@@ -3778,13 +4037,26 @@ namespace Microsoft.Spark.Sql
 
         private static UserDefinedFunction CreateUdf<RT>(string name, Delegate execute)
         {
+            return CreateUdf<RT>(name, execute, UdfUtils.PythonEvalType.SQL_BATCHED_UDF);
+        }
+
+        private static UserDefinedFunction CreateVectorUdf<RT>(string name, Delegate execute)
+        {
+            return CreateUdf<RT>(name, execute, UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF);
+        }
+
+        private static UserDefinedFunction CreateUdf<RT>(
+            string name,
+            Delegate execute,
+            UdfUtils.PythonEvalType evalType)
+        {
             return UserDefinedFunction.Create(
                 name,
                 CommandSerDe.Serialize(
                     execute,
                     CommandSerDe.SerializedMode.Row,
                     CommandSerDe.SerializedMode.Row),
-                UdfUtils.GetPythonEvalType(),
+                evalType,
                 UdfUtils.GetReturnType(typeof(RT)));
         }
 

@@ -254,7 +254,7 @@ namespace Microsoft.Spark.Sql
                     name,
                     pythonFunction,
                     GetDataType<TResult>(),
-                    (int)UdfUtils.GetPythonEvalType(),
+                    (int)UdfUtils.PythonEvalType.SQL_BATCHED_UDF,
                     true // udfDeterministic
                     ));
 

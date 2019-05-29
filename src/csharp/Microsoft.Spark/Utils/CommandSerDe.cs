@@ -39,7 +39,7 @@ namespace Microsoft.Spark.Utils
         /// <summary>
         /// Captures the information about the UDF wrapper.
         /// Example classes for wrapping UDF are:
-        ///  - SQL: * <see cref="ArrowUdfWrapper{RT}"/>
+        ///  - SQL: * <see cref="ArrowUdfWrapper{T, RT}"/>
         ///         * <see cref="PicklingUdfWrapper{RT}"/>
         ///  - RDD: * <see cref="RDD{T}.MapUdfWrapper{I, O}"/>
         ///         * <see cref="RDD{T}.FlatMapUdfWrapper{I, O}"/>
