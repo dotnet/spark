@@ -183,7 +183,8 @@ jobs:
     - task: DotNetCoreCLI@2
       displayName: Package Microsoft.Spark.Worker
       inputs:
-        command: msbuild
+        command: custom
+        custom: msbuild
         projects: eng\PackageWorker.proj
         arguments: -c $(buildConfiguration)
                    $(_OfficialBuildIdArgs)
