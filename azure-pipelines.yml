@@ -177,23 +177,18 @@ jobs:
                    -ci
                    $(_OfficialBuildIdArgs)
                    /p:DotNetSignType=$(_SignType)
-                   /p:SparkPackagesDir=$(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/BuildArtifacts/artifacts/packages
-                   /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Microsoft.Spark.Worker
+                   /p:SparkPackagesDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\BuildArtifacts\artifacts\packages
+                   /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Microsoft.Spark.Worker
 
     - task: PowerShell@2
       displayName: Package Microsoft.Spark.Worker
       inputs:
         targetType: filePath
         filePath: script\package-worker.ps1
-        arguments: $(Build.ArtifactStagingDirectory)\Packages $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Microsoft.Spark.Worker $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries
+        arguments: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\BuildArtifacts\artifacts\packages $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Microsoft.Spark.Worker $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries
         workingDirectory: $(Build.ArtifactStagingDirectory)
 
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: '$(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries'
-        artifactName:  Microsoft.Spark.Binaries
-
-    - task: PublishBuildArtifacts@1
-      inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)/Packages'
         artifactName:  Microsoft.Spark.Binaries
