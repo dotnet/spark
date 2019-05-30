@@ -7,6 +7,8 @@
     <RootNamespace>Microsoft.Spark.Examples</RootNamespace>
     <AssemblyName>Microsoft.Spark.FSharp.Examples</AssemblyName>
     <PublicSign>false</PublicSign>
+    <!-- workaround https://github.com/dotnet/fsharp/issues/4822 to support VS 2017 -->
+    <NoWarn>2003;$(NoWarn)</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
