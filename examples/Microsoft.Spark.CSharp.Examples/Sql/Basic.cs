@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.Functions;
 
@@ -35,7 +36,7 @@ namespace Microsoft.Spark.Examples.Sql
             Spark.Sql.Types.StructType schema = df.Schema();
             Console.WriteLine(schema.SimpleString);
 
-            System.Collections.Generic.IEnumerable<Row> rows = df.Collect();
+            IEnumerable<Row> rows = df.Collect();
             foreach (Row row in rows)
             {
                 Console.WriteLine(row);
@@ -79,6 +80,17 @@ namespace Microsoft.Spark.Examples.Sql
 
             // Multiple UDF example:
             df.Select(addition(df["age"], df["name"]), addition2(df["name"])).Show();
+
+            // UDF return type as array.
+            Func<Column, Column> udfArray =
+                Udf<string, string[]>((str) => new string[] { str, str + str });
+            df.Select(Explode(udfArray(df["name"]))).Show();
+
+            // UDF return type as map.
+            Func<Column, Column> udfMap =
+                Udf<string, IDictionary<string, string[]>>(
+                    (str) => new Dictionary<string, string[]> { { str, new[] { str, str } } });
+            df.Select(udfMap(df["name"]).As("UdfMap")).Show(truncate: 50);
 
             // Joins.
             DataFrame joinedDf = df.Join(df, "name");
