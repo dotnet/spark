@@ -101,7 +101,7 @@ namespace Microsoft.Spark.Utils
         {
             if (s_returnTypes.TryGetValue(type, out string value))
             {
-                return $"\"{value}\"";
+                return $@"""{value}""";
             }
 
             Type dictionaryType = type.ImplementsGenericTypeOf(typeof(IDictionary<,>));

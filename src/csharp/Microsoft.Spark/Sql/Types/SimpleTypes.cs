@@ -124,7 +124,7 @@ namespace Microsoft.Spark.Sql.Types
     public sealed class DecimalType : FractionalType
     {
         internal static Regex s_fixedDecimal =
-            new Regex(@"decimal\s*\((\d+),\s*(\d+)\)", RegexOptions.Compiled);
+            new Regex(@"decimal\(\s*(\d+)\s*,\s*(\-?\d+)\s*\)", RegexOptions.Compiled);
 
         private readonly int _precision;
         private readonly int _scale;
