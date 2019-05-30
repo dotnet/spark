@@ -1,0 +1,15 @@
+<Project>
+  <ItemGroup>
+    <ItemsToSign Include="$(SparkPackagesDir)/**/*.nupkg" />
+    <ItemsToSign Include="$(SparkPackagesDir)/**/*.snupkg" />
+    
+    <ItemsToSign Include="$(SparkWorkerPublishDir)/**/Microsoft.Spark.dll" />
+    <ItemsToSign Include="$(SparkWorkerPublishDir)/**/Microsoft.Spark.Worker.exe" />
+    <ItemsToSign Include="$(SparkWorkerPublishDir)/**/Microsoft.Spark.Worker.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- extend arcade's FileExtensionSignInfo with snupkg information -->
+    <FileExtensionSignInfo Include=".snupkg" CertificateName="NuGet" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,19 @@
+<Project DefaultTargets="PackageWorker">
+  <Import Project="..\src\csharp\Directory.Build.props" />
+
+  <Target Name="PackageWorker">
+
+    <Error Condition="'$(SparkWorkerPublishDir)' == ''"
+           Text="SparkWorkerPublishDir variable is not set." />
+    <Error Condition="'$(SparkWorkerPackageOutputDir)' == ''"
+           Text="SparkWorkerPackageOutputDir variable is not set." />
+
+    <Exec Command="powershell -NoProfile -NoLogo -ExecutionPolicy ByPass ^
+                   $(RepoRoot)\script\package-worker.ps1 ^
+                   $(Version) ^
+                   $(SparkWorkerPublishDir) ^
+                   $(SparkWorkerPackageOutputDir)" />
+  </Target>
+
+  <Import Project="..\src\csharp\Directory.Build.targets" />
+</Project>
