@@ -139,10 +139,10 @@ jobs:
         artifactName:  Microsoft.Spark.Binaries
 
 - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-  - job: Package
+  - job: SignPublish
     dependsOn:
       - Build
-    displayName: Build packages
+    displayName: Sign and Publish Artifacts
     pool:
       name: NetCoreInternal-Int-Pool
       queue: buildpool.windows.10.amd64.vs2017
