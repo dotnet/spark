@@ -42,8 +42,8 @@ We use the same [coding style](https://github.com/dotnet/corefx/blob/master/Docu
     * Line-break for the assignment
     ```C#
     // Try the following first to fit within the limit.
-    SomeType someVariable
-       = SomeMethod(arg1, arg2, arg3, arg4, arg5);
+    SomeType someVariable =
+        SomeMethod(arg1, arg2, arg3, arg4, arg5);
        
     // Then fall back to this.
     SomeType someVariable = SomeMethod(

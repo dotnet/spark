@@ -45,11 +45,10 @@ namespace Microsoft.Spark.Utils
                     throw new ArgumentException("The stream is closed.");
                 }
 
-                // Not making any assumptions about the implementation and hence not a class member.
                 var unpickler = new Unpickler();
                 object unpickledItems = unpickler.loads(
                     new ReadOnlyMemory<byte>(buffer, 0, messageLength), 
-                    stackCapacity: 102); // spark always sends batches of 100 rows, +2 is for markers
+                    stackCapacity: 102); // Spark sends batches of 100 rows, and +2 is for markers.
                 Debug.Assert(unpickledItems != null);
                 return (unpickledItems as object[]);
             }

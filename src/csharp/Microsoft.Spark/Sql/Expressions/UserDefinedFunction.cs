@@ -30,7 +30,7 @@ namespace Microsoft.Spark.Sql.Expressions
             var dataType = (JvmObjectReference)jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.types.DataType",
                 "fromJson",
-                $"\"{returnType}\"");
+                $"{returnType}");
 
             var pythonFunction = (JvmObjectReference)jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.SQLUtils",
