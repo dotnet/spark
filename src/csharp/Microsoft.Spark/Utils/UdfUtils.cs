@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
@@ -13,6 +13,39 @@ namespace Microsoft.Spark.Utils
 {
     using ArrowDelegate = ArrowWorkerFunction.ExecuteDelegate;
     using PicklingDelegate = PicklingWorkerFunction.ExecuteDelegate;
+
+    /// <summary>
+    /// UdfTypeUtils provides fuctions related to UDF types.
+    /// </summary>
+    internal static class UdfTypeUtils
+    {
+        /// <summary>
+        /// Returns "true" if the given type is nullable.
+        /// </summary>
+        /// <param name="type">Type to check if it is nullable</param>
+        /// <returns>"true" if the given type is nullable. Otherwise, returns "false"</returns>
+        internal static string CanBeNull(this Type type)
+        {
+            return (!type.IsValueType || (Nullable.GetUnderlyingType(type) != null)) ?
+                "true" :
+                "false";
+        }
+
+        /// <summary>
+        /// Returns the generic type definition of a given type if the given type is equal
+        /// to or implements the `compare` type. Returns null if there is no match.
+        /// </summary>
+        /// <param name="type">This type object</param>
+        /// <param name="compare">Generic type definition to compare to</param>
+        /// <returns>Matching generic type object</returns>
+        internal static Type ImplementsGenericTypeOf(this Type type, Type compare)
+        {
+            Debug.Assert(compare.IsGenericType);
+            return (type.IsGenericType && (type.GetGenericTypeDefinition() == compare)) ?
+                type :
+                type.GetInterface(compare.FullName);
+        }
+    }
 
     /// <summary>
     /// UdfUtils provides UDF-related functions and enum.
@@ -49,47 +82,50 @@ namespace Microsoft.Spark.Utils
                 {typeof(string), "string"},
                 {typeof(byte[]), "binary"},
                 {typeof(bool), "boolean"},
-                {typeof(DateTime), "timestamp"},
                 {typeof(decimal), "decimal(28,12)"},
                 {typeof(double), "double"},
                 {typeof(float), "float"},
-                {typeof(byte), "tinyint"},
+                {typeof(byte), "byte"},
                 {typeof(int), "integer"},
-                {typeof(long), "bigint"},
-                {typeof(short), "smallint"}
+                {typeof(long), "long"},
+                {typeof(short), "short"}
             };
 
         /// <summary>
         /// Returns the return type of an UDF in JSON format. This value is used to
         /// create a org.apache.spark.sql.types.DataType object from JSON string.
         /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
+        /// <param name="type">Return type of an UDF</param>
+        /// <returns>JSON format of the return type</returns>
         internal static string GetReturnType(Type type)
         {
-            // See spark.sql.datatypes.datatype.scala for reference.
-            var types = new Type[] { type };
-            var returnTypeFormat = "{0}";
-
-            if (type.IsArray)
+            if (s_returnTypes.TryGetValue(type, out string value))
             {
-                types[0] = type.GetElementType();
-                returnTypeFormat = "array<{0}>";
-            }
-            else if (type.IsGenericType &&
-                (type.GetGenericTypeDefinition() == typeof(Dictionary<,>)))
-            {
-                types = type.GenericTypeArguments;
-                returnTypeFormat = "map<{0},{1}>";
+                return $@"""{value}""";
             }
 
-            if (types.Any(t => !s_returnTypes.ContainsKey(t)))
+            Type dictionaryType = type.ImplementsGenericTypeOf(typeof(IDictionary<,>));
+            if (dictionaryType != null)
             {
-                throw new ArgumentException(
-                    $"{type.Name} not supported. Supported types: {string.Join(",", s_returnTypes.Keys)}");
+                Type[] typeArguments = dictionaryType.GenericTypeArguments;
+                Type keyType = typeArguments[0];
+                Type valueType = typeArguments[1];
+                return @"{""type"":""map"", " +
+                    $@"""keyType"":{GetReturnType(keyType)}, " +
+                    $@"""valueType"":{GetReturnType(valueType)}, " + 
+                    $@"""valueContainsNull"":{valueType.CanBeNull()}}}";
             }
 
-            return string.Format(returnTypeFormat, types.Select(t => s_returnTypes[t]).ToArray());
+            Type enumerableType = type.ImplementsGenericTypeOf(typeof(IEnumerable<>));
+            if (enumerableType != null)
+            {
+                Type elementType = enumerableType.GenericTypeArguments[0];
+                return @"{""type"":""array"", " +
+                    $@"""elementType"":{GetReturnType(elementType)}, " + 
+                    $@"""containsNull"":{elementType.CanBeNull()}}}";
+            }
+
+            throw new ArgumentException($"{type.FullName} is not supported.");
         }
 
         /// <summary>
