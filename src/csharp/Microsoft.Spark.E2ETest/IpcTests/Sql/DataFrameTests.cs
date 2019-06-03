@@ -96,12 +96,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestVectorUdf()
         {
-            // Single UDF.
-            Func<Column, Column, Column> udf1 = VectorUdf<Int32Array, StringArray, StringArray>(
+            Func<Int32Array, StringArray, StringArray> udf1Func =
                 (ages, names) => (StringArray)ToArrowArray(
                     Enumerable.Range(0, names.Length)
                         .Select(i => $"{names.GetString(i)} is {ages.GetValue(i) ?? 0}")
-                        .ToArray()));
+                        .ToArray());
+
+            // Single UDF.
+            Func<Column, Column, Column> udf1 =
+                ExperimentalFunctions.VectorUdf(udf1Func);
             {
                 Row[] rows = _df.Select(udf1(_df["age"], _df["name"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
@@ -111,7 +114,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
 
             // Chained UDFs.
-            Func<Column, Column> udf2 = VectorUdf<StringArray, StringArray>(
+            Func<Column, Column> udf2 = ExperimentalFunctions.VectorUdf<StringArray, StringArray>(
                 (strings) => (StringArray)ToArrowArray(
                     Enumerable.Range(0, strings.Length)
                         .Select(i => $"hello {strings.GetString(i)}!")
@@ -142,6 +145,19 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                 Assert.Equal("Justin is 19", rows[2].GetAs<string>(0));
                 Assert.Equal("hello Justin!", rows[2].GetAs<string>(1));
+            }
+
+            // Register UDF
+            {
+                _df.CreateOrReplaceTempView("people");
+                _spark.Udf().RegisterVector("udf1", udf1Func);
+                Row[] rows = _spark.Sql("SELECT udf1(age, name) FROM people")
+                    .Collect()
+                    .ToArray();
+                Assert.Equal(3, rows.Length);
+                Assert.Equal("Michael is 0", rows[0].GetAs<string>(0));
+                Assert.Equal("Andy is 30", rows[1].GetAs<string>(0));
+                Assert.Equal("Justin is 19", rows[2].GetAs<string>(0));
             }
         }
 
