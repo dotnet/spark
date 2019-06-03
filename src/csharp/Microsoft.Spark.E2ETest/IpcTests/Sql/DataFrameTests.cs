@@ -99,7 +99,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // Single UDF.
             Func<Column, Column, Column> udf1 = VectorUdf<Int32Array, StringArray, StringArray>(
                 (ages, names) => (StringArray)ToArrowArray(
-                        Enumerable.Range(0, names.Length)
+                    Enumerable.Range(0, names.Length)
                         .Select(i => $"{names.GetString(i)} is {ages.GetValue(i) ?? 0}")
                         .ToArray()));
             {

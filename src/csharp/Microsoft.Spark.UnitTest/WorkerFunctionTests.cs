@@ -93,8 +93,8 @@ namespace Microsoft.Spark.UnitTest
                 new ArrowUdfWrapper<StringArray, BooleanArray, BooleanArray>(
                     (strings, flags) => (BooleanArray)ToArrowArray(
                         Enumerable.Range(0, strings.Length)
-                        .Select(i => flags.GetBoolean(i).Value || strings.GetString(i).Contains("true"))
-                        .ToArray())).Execute);
+                            .Select(i => flags.GetBoolean(i).Value || strings.GetString(i).Contains("true"))
+                            .ToArray())).Execute);
 
             IArrowArray[] input = new[]
             {
@@ -116,8 +116,8 @@ namespace Microsoft.Spark.UnitTest
                 new ArrowUdfWrapper<Int32Array, StringArray, StringArray>(
                     (numbers, strings) => (StringArray)ToArrowArray(
                         Enumerable.Range(0, strings.Length)
-                        .Select(i => $"{strings.GetString(i)}:{numbers.Values[i]}")
-                        .ToArray())).Execute);
+                            .Select(i => $"{strings.GetString(i)}:{numbers.Values[i]}")
+                            .ToArray())).Execute);
 
             var func2 = new ArrowWorkerFunction(
                 new ArrowUdfWrapper<StringArray, StringArray>(
@@ -159,8 +159,8 @@ namespace Microsoft.Spark.UnitTest
                 new ArrowUdfWrapper<Int32Array, StringArray, StringArray>(
                     (numbers, strings) => (StringArray)ToArrowArray(
                         Enumerable.Range(0, strings.Length)
-                        .Select(i => $"{strings.GetString(i)}:{numbers.Values[i]}")
-                        .ToArray())).Execute);
+                            .Select(i => $"{strings.GetString(i)}:{numbers.Values[i]}")
+                            .ToArray())).Execute);
 
             var func2 = new ArrowWorkerFunction(
                 new ArrowUdfWrapper<StringArray, StringArray>(

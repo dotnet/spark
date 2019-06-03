@@ -240,8 +240,7 @@ namespace Microsoft.Spark.Utils
             where T1 : IArrowArray
             where TResult : IArrowArray
         {
-            return (ArrowDelegate)
-                new ArrowUdfWrapper<T1, TResult>(udf).Execute;
+            return (ArrowDelegate)new ArrowUdfWrapper<T1, TResult>(udf).Execute;
         }
 
         internal static Delegate CreateVectorUdfWrapper<T1, T2, TResult>(Func<T1, T2, TResult> udf)
@@ -249,8 +248,7 @@ namespace Microsoft.Spark.Utils
             where T2 : IArrowArray
             where TResult : IArrowArray
         {
-            return (ArrowDelegate)
-                new ArrowUdfWrapper<T1, T2, TResult>(udf).Execute;
+            return (ArrowDelegate)new ArrowUdfWrapper<T1, T2, TResult>(udf).Execute;
         }
 
         internal static Delegate CreateVectorUdfWrapper<T1, T2, T3, TResult>(
@@ -260,8 +258,7 @@ namespace Microsoft.Spark.Utils
             where T3 : IArrowArray
             where TResult : IArrowArray
         {
-            return (ArrowDelegate)
-                new ArrowUdfWrapper<T1, T2, T3, TResult>(udf).Execute;
+            return (ArrowDelegate)new ArrowUdfWrapper<T1, T2, T3, TResult>(udf).Execute;
         }
 
         internal static Delegate CreateVectorUdfWrapper<T1, T2, T3, T4, TResult>(

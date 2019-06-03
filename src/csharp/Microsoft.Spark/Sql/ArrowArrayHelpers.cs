@@ -27,63 +27,51 @@ namespace Microsoft.Spark.Sql
             {
                 arrowType = BooleanType.Default;
             }
-
-            if (typeof(T) == typeof(Int8Array))
+            else if (typeof(T) == typeof(Int8Array))
             {
                 arrowType = Int8Type.Default;
             }
-
-            if (typeof(T) == typeof(UInt8Array))
+            else if (typeof(T) == typeof(UInt8Array))
             {
                 arrowType = UInt8Type.Default;
             }
-
-            if (typeof(T) == typeof(Int16Array))
+            else if (typeof(T) == typeof(Int16Array))
             {
                 arrowType = Int16Type.Default;
             }
-
-            if (typeof(T) == typeof(UInt16Array))
+            else if (typeof(T) == typeof(UInt16Array))
             {
                 arrowType = UInt16Type.Default;
             }
-
-            if (typeof(T) == typeof(Int32Array))
+            else if (typeof(T) == typeof(Int32Array))
             {
                 arrowType = Int32Type.Default;
             }
-
-            if (typeof(T) == typeof(UInt32Array))
+            else if (typeof(T) == typeof(UInt32Array))
             {
                 arrowType = UInt32Type.Default;
             }
-
-            if (typeof(T) == typeof(Int64Array))
+            else if (typeof(T) == typeof(Int64Array))
             {
                 arrowType = Int64Type.Default;
             }
-
-            if (typeof(T) == typeof(UInt64Array))
+            else if (typeof(T) == typeof(UInt64Array))
             {
                 arrowType = UInt64Type.Default;
             }
-
-            if (typeof(T) == typeof(FloatArray))
+            else if (typeof(T) == typeof(FloatArray))
             {
                 arrowType = FloatType.Default;
             }
-
-            if (typeof(T) == typeof(DoubleArray))
+            else if (typeof(T) == typeof(DoubleArray))
             {
                 arrowType = DoubleType.Default;
             }
-
-            if (typeof(T) == typeof(Date64Array))
+            else if (typeof(T) == typeof(Date64Array))
             {
                 arrowType = Date64Type.Default;
             }
-
-            if (typeof(T) == typeof(TimestampArray))
+            else if (typeof(T) == typeof(TimestampArray))
             {
                 arrowType = TimestampType.Default;
             }
@@ -99,8 +87,7 @@ namespace Microsoft.Spark.Sql
                 return new ArrayData(StringType.Default, 0, 
                     buffers: new[] { ArrowBuffer.Empty, ArrowBuffer.Empty, ArrowBuffer.Empty });
             }
-
-            if (typeof(T) == typeof(BinaryArray))
+            else if (typeof(T) == typeof(BinaryArray))
             {
                 return new ArrayData(BinaryType.Default, 0,
                     buffers: new[] { ArrowBuffer.Empty, ArrowBuffer.Empty, ArrowBuffer.Empty });

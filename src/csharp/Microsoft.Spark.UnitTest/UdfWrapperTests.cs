@@ -230,11 +230,11 @@ namespace Microsoft.Spark.UnitTest
 
         private static StringArray Concat(params StringArray[] arrays)
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             int length = arrays[0].Length;
-            string[] resultStrings = new string[length];
+            var resultStrings = new string[length];
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < length; ++i)
             {
                 foreach (StringArray array in arrays)
                 {
