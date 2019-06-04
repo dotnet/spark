@@ -26,7 +26,7 @@ namespace Microsoft.Spark.Sql
             where T : IArrowArray
             where TResult : IArrowArray
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Microsoft.Spark.Sql
             where T2 : IArrowArray
             where TResult : IArrowArray
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Microsoft.Spark.Sql
             where T3 : IArrowArray
             where TResult : IArrowArray
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Microsoft.Spark.Sql
             where T4 : IArrowArray
             where TResult : IArrowArray
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace Microsoft.Spark.Sql
             where T5 : IArrowArray
             where TResult : IArrowArray
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace Microsoft.Spark.Sql
             where T6 : IArrowArray
             where TResult : IArrowArray
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace Microsoft.Spark.Sql
             where T7 : IArrowArray
             where TResult : IArrowArray
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -194,7 +194,7 @@ namespace Microsoft.Spark.Sql
             where T8 : IArrowArray
             where TResult : IArrowArray
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace Microsoft.Spark.Sql
             where T9 : IArrowArray
             where TResult : IArrowArray
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -260,7 +260,7 @@ namespace Microsoft.Spark.Sql
             where T10 : IArrowArray
             where TResult : IArrowArray
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
         }
 
         private static void RegisterVector<TResult>(UdfRegistration udf, string name, Delegate func)
