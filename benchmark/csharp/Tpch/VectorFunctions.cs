@@ -21,7 +21,7 @@ namespace Tpch
             ReadOnlySpan<double> prices = price.Values;
             ReadOnlySpan<double> discounts = discount.Values;
             ReadOnlySpan<double> taxes = tax.Values;
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < length; ++i)
             {
                 builder.Append(prices[i] * (1 - discounts[i]) * (1 + taxes[i]));
             }
@@ -45,7 +45,7 @@ namespace Tpch
             var builder = new ArrowBuffer.Builder<double>(length);
             ReadOnlySpan<double> prices = price.Values;
             ReadOnlySpan<double> discounts = discount.Values;
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < length; ++i)
             {
                 builder.Append(prices[i] * (1 - discounts[i]));
             }
