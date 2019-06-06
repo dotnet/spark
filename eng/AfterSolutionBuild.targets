@@ -8,6 +8,7 @@
     <_PublishTarget Include="FullFramework" Framework="net461" RuntimeId="win-x64" />
     <_PublishTarget Include="WindowsCore" Framework="netcoreapp2.1" RuntimeId="win-x64" />
     <_PublishTarget Include="LinuxCore" Framework="netcoreapp2.1" RuntimeId="linux-x64" />
+    <_PublishTarget Include="MacOSCore" Framework="netcoreapp2.1" RuntimeId="osx-x64" />
   </ItemGroup>
 
   <Target Name="PublishSparkWorker"
