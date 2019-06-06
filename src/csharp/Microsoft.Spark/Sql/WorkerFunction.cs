@@ -29,6 +29,8 @@ namespace Microsoft.Spark.Sql
             ReadOnlyMemory<IArrowArray> input,
             int[] argOffsets);
 
+        internal delegate RecordBatch GroupedMapExecuteDelegate(RecordBatch input);
+
         internal ArrowWorkerFunction(ExecuteDelegate func)
         {
             Func = func;

@@ -47,34 +47,18 @@ namespace Microsoft.Spark.Sql
 
         internal DataFrame Apply(string name, StructType returnType, Func<RecordBatch, RecordBatch> func)
         {
-            // TODO: func needs to change to be our *UdfWrapper
-            byte[] command = CommandSerDe.Serialize(
-                func,
-                CommandSerDe.SerializedMode.Row,
-                CommandSerDe.SerializedMode.Row);
+            ArrowWorkerFunction.GroupedMapExecuteDelegate wrapper = new ArrowGroupedMapUdfWrapper(func).Execute;
 
-            JvmObjectReference pythonFunction =
-                UdfUtils.CreatePythonFunction(_jvmObject.Jvm, command);
-
-            var udf = new UserDefinedFunction(
-                _jvmObject.Jvm.CallConstructor(
-                    "org.apache.spark.sql.execution.python.UserDefinedPythonFunction",
-                    name,
-                    pythonFunction,
-                    GetDataType(returnType),
-                    (int)UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF,
-                    true // udfDeterministic
-                    ));
+            var udf = UserDefinedFunction.Create(
+                func.Method.ToString(),
+                CommandSerDe.Serialize(
+                    wrapper,
+                    CommandSerDe.SerializedMode.Row,
+                    CommandSerDe.SerializedMode.Row),
+                UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF,
+                returnType.Json);
 
             return new DataFrame((JvmObjectReference)_jvmObject.Invoke("flatMapGroupsInPandas", udf));
-        }
-
-        private JvmObjectReference GetDataType(StructType type)
-        {
-            return (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.sql.types.DataType",
-                "fromJson",
-                type.Json);
         }
     }
 }

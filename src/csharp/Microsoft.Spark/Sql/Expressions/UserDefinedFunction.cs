@@ -22,26 +22,22 @@ namespace Microsoft.Spark.Sql.Expressions
             UdfUtils.PythonEvalType evalType,
             string returnType)
         {
-            IJvmBridge jvm = SparkEnvironment.JvmBridge;
+            return Create(SparkEnvironment.JvmBridge, name, command, evalType, returnType);
+        }
 
-            JvmObjectReference hashTableReference = jvm.CallConstructor("java.util.Hashtable");
-            JvmObjectReference arrayListReference = jvm.CallConstructor("java.util.ArrayList");
+        internal static UserDefinedFunction Create(
+            IJvmBridge jvm,
+            string name,
+            byte[] command,
+            UdfUtils.PythonEvalType evalType,
+            string returnType)
+        {
+            var pythonFunction = UdfUtils.CreatePythonFunction(jvm, command);
 
             var dataType = (JvmObjectReference)jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.types.DataType",
                 "fromJson",
                 $"{returnType}");
-
-            var pythonFunction = (JvmObjectReference)jvm.CallStaticJavaMethod(
-                "org.apache.spark.sql.api.dotnet.SQLUtils",
-                "createPythonFunction",
-                command,
-                hashTableReference, // Environment variables
-                arrayListReference, // Python includes
-                SparkEnvironment.ConfigurationService.GetWorkerExePath(),
-                "1.0",
-                arrayListReference, // Broadcast variables
-                null); // Accumulator
 
             return new UserDefinedFunction(
                 jvm.CallConstructor(
