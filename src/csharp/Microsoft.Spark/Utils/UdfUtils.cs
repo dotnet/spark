@@ -169,9 +169,9 @@ namespace Microsoft.Spark.Utils
             return (PicklingDelegate)new PicklingUdfWrapper<TResult>(udf).Execute;
         }
 
-        internal static Delegate CreateUdfWrapper<T1, TResult>(Func<T1, TResult> udf)
+        internal static Delegate CreateUdfWrapper<T, TResult>(Func<T, TResult> udf)
         {
-            return (PicklingDelegate)new PicklingUdfWrapper<T1, TResult>(udf).Execute;
+            return (PicklingDelegate)new PicklingUdfWrapper<T, TResult>(udf).Execute;
         }
 
         internal static Delegate CreateUdfWrapper<T1, T2, TResult>(Func<T1, T2, TResult> udf)
@@ -236,11 +236,11 @@ namespace Microsoft.Spark.Utils
                     T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(udf).Execute;
         }
 
-        internal static Delegate CreateVectorUdfWrapper<T1, TResult>(Func<T1, TResult> udf)
-            where T1 : IArrowArray
+        internal static Delegate CreateVectorUdfWrapper<T, TResult>(Func<T, TResult> udf)
+            where T : IArrowArray
             where TResult : IArrowArray
         {
-            return (ArrowDelegate)new ArrowUdfWrapper<T1, TResult>(udf).Execute;
+            return (ArrowDelegate)new ArrowUdfWrapper<T, TResult>(udf).Execute;
         }
 
         internal static Delegate CreateVectorUdfWrapper<T1, T2, TResult>(Func<T1, T2, TResult> udf)

@@ -3585,54 +3585,54 @@ namespace Microsoft.Spark.Sql
         /////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
         /// </returns>
-        public static Func<Column> Udf<RT>(Func<RT> udf)
+        public static Func<Column> Udf<TResult>(Func<TResult> udf)
         {
-            return CreateUdf<RT>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply0;
+            return CreateUdf<TResult>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply0;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
-        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="T">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
         /// </returns>
-        public static Func<Column, Column> Udf<T1, RT>(Func<T1, RT> udf)
+        public static Func<Column, Column> Udf<T, TResult>(Func<T, TResult> udf)
         {
-            return CreateUdf<RT>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply1;
+            return CreateUdf<TResult>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply1;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
         /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
         /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
         /// </returns>
-        public static Func<Column, Column, Column> Udf<T1, T2, RT>(Func<T1, T2, RT> udf)
+        public static Func<Column, Column, Column> Udf<T1, T2, TResult>(Func<T1, T2, TResult> udf)
         {
-            return CreateUdf<RT>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply2;
+            return CreateUdf<TResult>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply2;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
         /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
         /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
         /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
         /// </returns>
-        public static Func<Column, Column, Column, Column> Udf<T1, T2, T3, RT>(
-            Func<T1, T2, T3, RT> udf)
+        public static Func<Column, Column, Column, Column> Udf<T1, T2, T3, TResult>(
+            Func<T1, T2, T3, TResult> udf)
         {
-            return CreateUdf<RT>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply3;
+            return CreateUdf<TResult>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply3;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3640,15 +3640,15 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
         /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
         /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
         /// </returns>
-        public static Func<Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, RT>(
-            Func<T1, T2, T3, T4, RT> udf)
+        public static Func<Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, TResult>(
+            Func<T1, T2, T3, T4, TResult> udf)
         {
-            return CreateUdf<RT>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply4;
+            return CreateUdf<TResult>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply4;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3657,15 +3657,15 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
         /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
         /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
         /// </returns>
-        public static Func<Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, RT>(
-            Func<T1, T2, T3, T4, T5, RT> udf)
+        public static Func<Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, TResult>(
+            Func<T1, T2, T3, T4, T5, TResult> udf)
         {
-            return CreateUdf<RT>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply5;
+            return CreateUdf<TResult>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply5;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3675,15 +3675,15 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
         /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
         /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
         /// </returns>
-        public static Func<Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, RT>(
-            Func<T1, T2, T3, T4, T5, T6, RT> udf)
+        public static Func<Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, TResult>(
+            Func<T1, T2, T3, T4, T5, T6, TResult> udf)
         {
-            return CreateUdf<RT>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply6;
+            return CreateUdf<TResult>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply6;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3694,15 +3694,15 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
         /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
         /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
         /// </returns>
-        public static Func<Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7, RT>(
-            Func<T1, T2, T3, T4, T5, T6, T7, RT> udf)
+        public static Func<Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7, TResult>(
+            Func<T1, T2, T3, T4, T5, T6, T7, TResult> udf)
         {
-            return CreateUdf<RT>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply7;
+            return CreateUdf<TResult>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply7;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3714,15 +3714,15 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
         /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
         /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
         /// </returns>
-        public static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7, T8, RT>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, RT> udf)
+        public static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> udf)
         {
-            return CreateUdf<RT>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply8;
+            return CreateUdf<TResult>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply8;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3735,13 +3735,13 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
         /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
         /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The UDF function implementation.</param>
         /// <returns>A delegate that when invoked will return a <see cref="Column"/> for the result of the UDF.</returns>
-        public static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7, T8, T9, RT>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, RT> udf)
+        public static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> udf)
         {
-            return CreateUdf<RT>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply9;
+            return CreateUdf<TResult>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply9;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3755,29 +3755,29 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
         /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
         /// <typeparam name="T10">Specifies the type of the tenth argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
         /// </returns>
-        public static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, RT>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, RT> udf)
+        public static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> udf)
         {
-            return CreateUdf<RT>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply10;
+            return CreateUdf<TResult>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply10;
         }
 
         /// <summary>Creates a Vector UDF from the specified delegate.</summary>
-        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="T">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The Vector UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
         /// </returns>
-        internal static Func<Column, Column> VectorUdf<T1, RT>(Func<T1, RT> udf)
-            where T1 : IArrowArray
-            where RT : IArrowArray
+        internal static Func<Column, Column> VectorUdf<T, TResult>(Func<T, TResult> udf)
+            where T : IArrowArray
+            where TResult : IArrowArray
         {
-            return CreateVectorUdf<RT>(
+            return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
                 UdfUtils.CreateVectorUdfWrapper(udf)).Apply1;
         }
@@ -3785,17 +3785,17 @@ namespace Microsoft.Spark.Sql
         /// <summary>Creates a Vector UDF from the specified delegate.</summary>
         /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
         /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The Vector UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
         /// </returns>
-        internal static Func<Column, Column, Column> VectorUdf<T1, T2, RT>(Func<T1, T2, RT> udf)
+        internal static Func<Column, Column, Column> VectorUdf<T1, T2, TResult>(Func<T1, T2, TResult> udf)
             where T1 : IArrowArray
             where T2 : IArrowArray
-            where RT : IArrowArray
+            where TResult : IArrowArray
         {
-            return CreateVectorUdf<RT>(
+            return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
                 UdfUtils.CreateVectorUdfWrapper(udf)).Apply2;
         }
@@ -3804,19 +3804,19 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
         /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
         /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The Vector UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
         /// </returns>
-        internal static Func<Column, Column, Column, Column> VectorUdf<T1, T2, T3, RT>(
-            Func<T1, T2, T3, RT> udf)
+        internal static Func<Column, Column, Column, Column> VectorUdf<T1, T2, T3, TResult>(
+            Func<T1, T2, T3, TResult> udf)
             where T1 : IArrowArray
             where T2 : IArrowArray
             where T3 : IArrowArray
-            where RT : IArrowArray
+            where TResult : IArrowArray
         {
-            return CreateVectorUdf<RT>(
+            return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
                 UdfUtils.CreateVectorUdfWrapper(udf)).Apply3;
         }
@@ -3826,20 +3826,20 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
         /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
         /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The Vector UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
         /// </returns>
-        internal static Func<Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, RT>(
-            Func<T1, T2, T3, T4, RT> udf)
+        internal static Func<Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, TResult>(
+            Func<T1, T2, T3, T4, TResult> udf)
             where T1 : IArrowArray
             where T2 : IArrowArray
             where T3 : IArrowArray
             where T4 : IArrowArray
-            where RT : IArrowArray
+            where TResult : IArrowArray
         {
-            return CreateVectorUdf<RT>(
+            return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
                 UdfUtils.CreateVectorUdfWrapper(udf)).Apply4;
         }
@@ -3850,21 +3850,21 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
         /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
         /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The Vector UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
         /// </returns>
-        internal static Func<Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, RT>(
-            Func<T1, T2, T3, T4, T5, RT> udf)
+        internal static Func<Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, TResult>(
+            Func<T1, T2, T3, T4, T5, TResult> udf)
             where T1 : IArrowArray
             where T2 : IArrowArray
             where T3 : IArrowArray
             where T4 : IArrowArray
             where T5 : IArrowArray
-            where RT : IArrowArray
+            where TResult : IArrowArray
         {
-            return CreateVectorUdf<RT>(
+            return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
                 UdfUtils.CreateVectorUdfWrapper(udf)).Apply5;
         }
@@ -3876,22 +3876,22 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
         /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
         /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The Vector UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
         /// </returns>
-        internal static Func<Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, RT>(
-            Func<T1, T2, T3, T4, T5, T6, RT> udf)
+        internal static Func<Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, TResult>(
+            Func<T1, T2, T3, T4, T5, T6, TResult> udf)
             where T1 : IArrowArray
             where T2 : IArrowArray
             where T3 : IArrowArray
             where T4 : IArrowArray
             where T5 : IArrowArray
             where T6 : IArrowArray
-            where RT : IArrowArray
+            where TResult : IArrowArray
         {
-            return CreateVectorUdf<RT>(
+            return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
                 UdfUtils.CreateVectorUdfWrapper(udf)).Apply6;
         }
@@ -3904,13 +3904,13 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
         /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
         /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The Vector UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
         /// </returns>
-        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, RT>(
-            Func<T1, T2, T3, T4, T5, T6, T7, RT> udf)
+        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, TResult>(
+            Func<T1, T2, T3, T4, T5, T6, T7, TResult> udf)
             where T1 : IArrowArray
             where T2 : IArrowArray
             where T3 : IArrowArray
@@ -3918,9 +3918,9 @@ namespace Microsoft.Spark.Sql
             where T5 : IArrowArray
             where T6 : IArrowArray
             where T7 : IArrowArray
-            where RT : IArrowArray
+            where TResult : IArrowArray
         {
-            return CreateVectorUdf<RT>(
+            return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
                 UdfUtils.CreateVectorUdfWrapper(udf)).Apply7;
         }
@@ -3934,13 +3934,13 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
         /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
         /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The Vector UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
         /// </returns>
-        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, T8, RT>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, RT> udf)
+        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> udf)
             where T1 : IArrowArray
             where T2 : IArrowArray
             where T3 : IArrowArray
@@ -3949,9 +3949,9 @@ namespace Microsoft.Spark.Sql
             where T6 : IArrowArray
             where T7 : IArrowArray
             where T8 : IArrowArray
-            where RT : IArrowArray
+            where TResult : IArrowArray
         {
-            return CreateVectorUdf<RT>(
+            return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
                 UdfUtils.CreateVectorUdfWrapper(udf)).Apply8;
         }
@@ -3966,13 +3966,13 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
         /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
         /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The Vector UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
         /// </returns>
-        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, T8, T9, RT>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, RT> udf)
+        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> udf)
             where T1 : IArrowArray
             where T2 : IArrowArray
             where T3 : IArrowArray
@@ -3982,9 +3982,9 @@ namespace Microsoft.Spark.Sql
             where T7 : IArrowArray
             where T8 : IArrowArray
             where T9 : IArrowArray
-            where RT : IArrowArray
+            where TResult : IArrowArray
         {
-            return CreateVectorUdf<RT>(
+            return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
                 UdfUtils.CreateVectorUdfWrapper(udf)).Apply9;
         }
@@ -4000,13 +4000,13 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
         /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
         /// <typeparam name="T10">Specifies the type of the tenth argument to the UDF.</typeparam>
-        /// <typeparam name="RT">Specifies the return type of the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
         /// <param name="udf">The Vector UDF function implementation.</param>
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
         /// </returns>
-        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, RT>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, RT> udf)
+        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> udf)
             where T1 : IArrowArray
             where T2 : IArrowArray
             where T3 : IArrowArray
@@ -4017,9 +4017,9 @@ namespace Microsoft.Spark.Sql
             where T8 : IArrowArray
             where T9 : IArrowArray
             where T10 : IArrowArray
-            where RT : IArrowArray
+            where TResult : IArrowArray
         {
-            return CreateVectorUdf<RT>(
+            return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
                 UdfUtils.CreateVectorUdfWrapper(udf)).Apply10;
         }
@@ -4035,17 +4035,17 @@ namespace Microsoft.Spark.Sql
             return ApplyFunction("callUDF", udfName, columns);
         }
 
-        private static UserDefinedFunction CreateUdf<RT>(string name, Delegate execute)
+        private static UserDefinedFunction CreateUdf<TResult>(string name, Delegate execute)
         {
-            return CreateUdf<RT>(name, execute, UdfUtils.PythonEvalType.SQL_BATCHED_UDF);
+            return CreateUdf<TResult>(name, execute, UdfUtils.PythonEvalType.SQL_BATCHED_UDF);
         }
 
-        private static UserDefinedFunction CreateVectorUdf<RT>(string name, Delegate execute)
+        private static UserDefinedFunction CreateVectorUdf<TResult>(string name, Delegate execute)
         {
-            return CreateUdf<RT>(name, execute, UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF);
+            return CreateUdf<TResult>(name, execute, UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF);
         }
 
-        private static UserDefinedFunction CreateUdf<RT>(
+        private static UserDefinedFunction CreateUdf<TResult>(
             string name,
             Delegate execute,
             UdfUtils.PythonEvalType evalType)
@@ -4057,7 +4057,7 @@ namespace Microsoft.Spark.Sql
                     CommandSerDe.SerializedMode.Row,
                     CommandSerDe.SerializedMode.Row),
                 evalType,
-                UdfUtils.GetReturnType(typeof(RT)));
+                UdfUtils.GetReturnType(typeof(TResult)));
         }
 
         private static Column ApplyFunction(string funcName)
