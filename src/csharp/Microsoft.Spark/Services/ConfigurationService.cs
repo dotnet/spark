@@ -80,17 +80,6 @@ namespace Microsoft.Spark.Services
                 return _workerPath;
             }
 
-            // If the WorkerDirEnvName environment variable is not set, the worker path is
-            // constructed based on the current assembly's directory. This requires the worker
-            // executable is present.
-            workerDir = Path.GetDirectoryName(GetType().Assembly.Location);
-            _workerPath = Path.Combine(workerDir, s_procFileName);
-            if (File.Exists(_workerPath))
-            {
-                _logger.LogDebug($"Using the current assembly path to construct .NET worker path: {_workerPath}.");
-                return _workerPath;
-            }
-
             // Otherwise, the worker exectuable name is returned meaning it should be PATH.
             _workerPath = s_procFileName;
             return _workerPath;
