@@ -5,9 +5,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Apache.Arrow;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
+using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
 
 namespace Microsoft.Spark.UnitTest
 {
@@ -45,7 +47,12 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestCommandSerDeForSqlArrow()
         {
-            var udfWrapper = new ArrowUdfWrapper<string, string>((str) => $"hello {str}");
+            var udfWrapper = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
+                (strings) => (StringArray)ToArrowArray(
+                    Enumerable.Range(0, strings.Length)
+                        .Select(i => $"hello {strings.GetString(i)}")
+                        .ToArray()));
+
             var workerFunction = new ArrowWorkerFunction(udfWrapper.Execute);
 
             var serializedCommand = Utils.CommandSerDe.Serialize(
@@ -66,9 +73,9 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, deserializerMode);
                 Assert.Equal("N", runMode);
 
-                Apache.Arrow.IArrowArray input = ArrowArrayHelpers.ToArrowArray(new[] { "spark" });
+                Apache.Arrow.IArrowArray input = ToArrowArray(new[] { "spark" });
                 Apache.Arrow.IArrowArray result =
-                    deserializedWorkerFunction.Func(0, new[] { input }, new[] { 0 });
+                    deserializedWorkerFunction.Func(new[] { input }, new[] { 0 });
                 ArrowTestUtils.AssertEquals("hello spark", result);
             }
         }

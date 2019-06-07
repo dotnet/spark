@@ -20,14 +20,12 @@ namespace Microsoft.Spark.Sql
     internal sealed class ArrowWorkerFunction : WorkerFunction
     {
         /// <summary>
-        /// Type of the UDF to run. Refer to <see cref="ArrowUdfWrapper{T}"/>.Execute.
+        /// Type of the UDF to run. Refer to <see cref="ArrowUdfWrapper{T, T}"/>.Execute.
         /// </summary>
-        /// <param name="splitId">split id for the current task</param>
         /// <param name="input">unpickled data, representing a row</param>
         /// <param name="argOffsets">offsets to access input</param>
         /// <returns></returns>
         internal delegate IArrowArray ExecuteDelegate(
-            int splitId,
             ReadOnlyMemory<IArrowArray> input,
             int[] argOffsets);
 
@@ -69,7 +67,6 @@ namespace Microsoft.Spark.Sql
             }
 
             internal IArrowArray Execute(
-                int splitId,
                 ReadOnlyMemory<IArrowArray> input,
                 int[] argOffsets)
             {
@@ -78,8 +75,7 @@ namespace Microsoft.Spark.Sql
                 // function will always take 0 as an offset since there is only one value in the
                 // input.
                 return _outerFunc(
-                    0,
-                    new[] { _innerFunc(splitId, input, argOffsets) },
+                    new[] { _innerFunc(input, argOffsets) },
                     s_outerFuncArgOffsets);
             }
         }
