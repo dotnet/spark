@@ -308,8 +308,7 @@ namespace Microsoft.Spark.Worker.Command
             Schema resultSchema = null;
             foreach (ReadOnlyMemory<IArrowArray> input in GetInputIterator(inputStream))
             {
-                // Split id is currently not used, so 0 is passed.
-                IArrowArray[] results = commandRunner.Run(0, input);
+                IArrowArray[] results = commandRunner.Run(input);
 
                 // Assumes all columns have the same length, so uses 0th for num entries.
                 int numEntries = results[0].Length;
@@ -450,10 +449,9 @@ namespace Microsoft.Spark.Worker.Command
             /// <summary>
             /// Runs commands based on the given split id and input.
             /// </summary>
-            /// <param name="splitId">Split id for the commands to run</param>
             /// <param name="input">Input data for the commands to run</param>
             /// <returns>Value returned by running the commands</returns>
-            IArrowArray[] Run(int splitId, ReadOnlyMemory<IArrowArray> input);
+            IArrowArray[] Run(ReadOnlyMemory<IArrowArray> input);
         }
 
         /// <summary>
@@ -478,13 +476,11 @@ namespace Microsoft.Spark.Worker.Command
             /// <summary>
             /// Runs a single command.
             /// </summary>
-            /// <param name="splitId">Split id for the command to run</param>
             /// <param name="input">Input data for the command to run</param>
             /// <returns>Value returned by running the command</returns>
-            public IArrowArray[] Run(int splitId, ReadOnlyMemory<IArrowArray> input)
+            public IArrowArray[] Run(ReadOnlyMemory<IArrowArray> input)
             {
                 return new[] { ((ArrowWorkerFunction)_command.WorkerFunction).Func(
-                    splitId,
                     input,
                     _command.ArgOffsets) };
             }
@@ -512,17 +508,15 @@ namespace Microsoft.Spark.Worker.Command
             /// <summary>
             /// Runs multiple commands.
             /// </summary>
-            /// <param name="splitId">Split id for the commands to run</param>
             /// <param name="input">Input data for the commands to run</param>
             /// <returns>An array of values returned by running the commands</returns>
-            public IArrowArray[] Run(int splitId, ReadOnlyMemory<IArrowArray> input)
+            public IArrowArray[] Run(ReadOnlyMemory<IArrowArray> input)
             {
                 var resultColumns = new IArrowArray[_commands.Length];
                 for (int i = 0; i < resultColumns.Length; ++i)
                 {
                     SqlCommand command = _commands[i];
                     resultColumns[i] = ((ArrowWorkerFunction)command.WorkerFunction).Func(
-                        splitId,
                         input,
                         command.ArgOffsets);
                 }

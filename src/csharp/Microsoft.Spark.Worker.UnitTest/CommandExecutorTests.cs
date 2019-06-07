@@ -18,7 +18,7 @@ using Microsoft.Spark.Utils;
 using Microsoft.Spark.Worker.Command;
 using Razorvine.Pickle;
 using Xunit;
-using static Microsoft.Spark.Sql.ArrowArrayHelpers;
+using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
 
 namespace Microsoft.Spark.Worker.UnitTest
 {
@@ -230,7 +230,12 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public async Task TestArrowSqlCommandExecutorWithSingleCommand()
         {
-            var udfWrapper = new Sql.ArrowUdfWrapper<string, string>((str) => $"udf: {str}");
+            var udfWrapper = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
+                (strings) => (StringArray)ToArrowArray(
+                    Enumerable.Range(0, strings.Length)
+                        .Select(i => $"udf: {strings.GetString(i)}")
+                        .ToArray()));
+
             var command = new SqlCommand()
             {
                 ArgOffsets = new[] { 0 },
@@ -307,8 +312,16 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public async Task TestArrowSqlCommandExecutorWithMultiCommands()
         {
-            var udfWrapper1 = new Sql.ArrowUdfWrapper<string, string>((str) => $"udf: {str}");
-            var udfWrapper2 = new Sql.ArrowUdfWrapper<int, int, int>((arg1, arg2) => arg1 * arg2);
+            var udfWrapper1 = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
+                (strings) => (StringArray)ToArrowArray(
+                    Enumerable.Range(0, strings.Length)
+                        .Select(i => $"udf: {strings.GetString(i)}")
+                        .ToArray()));
+            var udfWrapper2 = new Sql.ArrowUdfWrapper<Int32Array, Int32Array, Int32Array>(
+                (arg1, arg2) => (Int32Array)ToArrowArray(
+                    Enumerable.Range(0, arg1.Length)
+                        .Select(i => arg1.Values[i] * arg2.Values[i])
+                        .ToArray()));
 
             var command1 = new SqlCommand()
             {
@@ -405,7 +418,12 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public void TestArrowSqlCommandExecutorWithEmptyInput()
         {
-            var udfWrapper = new Sql.ArrowUdfWrapper<string, string>((str) => $"udf: {str}");
+            var udfWrapper = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
+                (strings) => (StringArray)ToArrowArray(
+                    Enumerable.Range(0, strings.Length)
+                        .Select(i => $"udf: {strings.GetString(i)}")
+                        .ToArray()));
+
             var command = new SqlCommand()
             {
                 ArgOffsets = new[] { 0 },
