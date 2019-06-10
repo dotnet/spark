@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -21,6 +22,14 @@ namespace Microsoft.Spark.Utils
     /// </summary>
     internal static class CommandSerDe
     {
+        private static readonly ConcurrentDictionary<string, Assembly> s_assemblyCache =
+            new ConcurrentDictionary<string, Assembly>();
+
+        static CommandSerDe()
+        {
+            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(SerDeResolveEventHandler);
+        }
+
         internal enum SerializedMode
         {
             None,
@@ -298,6 +307,34 @@ namespace Microsoft.Spark.Utils
                 typeof(T),
                 udfWrapper,
                 UdfWrapperMethodName);
+        }
+
+        private static Assembly SerDeResolveEventHandler(object sender, ResolveEventArgs args) =>
+            s_assemblyCache.GetOrAdd(args.Name, asm => LoadAssembly(args.Name));
+
+        private static Assembly LoadAssembly(string assemblyName)
+        {
+            var sep = Path.DirectorySeparatorChar;
+            var asmSimpleName = assemblyName.Split(',').FirstOrDefault();
+            Assembly asm;
+            try
+            {
+                asm = Assembly.LoadFrom(
+                    $"{Directory.GetCurrentDirectory()}{sep}{asmSimpleName}.dll");
+            }
+            catch (FileNotFoundException)
+            {
+                asm = Assembly.LoadFrom(
+                    $"{AppDomain.CurrentDomain.BaseDirectory}{sep}{asmSimpleName}.dll");
+            }
+
+            if ((asm != default) && (asm.FullName.Equals(assemblyName)))
+            {
+                return asm;
+            }
+
+            throw new FileNotFoundException($"Could not load file or assembly " +
+                    $"'{assemblyName}'. The system cannot find the file specified.");
         }
     }
 }
