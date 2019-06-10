@@ -125,7 +125,8 @@ You should see JARs created for the supported Spark versions:
       ```
       <details>
       <summary>&#x1F4D9; Click to see sample console output</summary>
-      ```
+
+      ```bash
       user@machine:/home/user/dotnet.spark/src/csharp/Microsoft.Spark.Worker$ dotnet publish -f netcoreapp2.1 -r ubuntu.18.04-x64
       Microsoft (R) Build Engine version 16.0.462+g62fb89029d for .NET Core
       Copyright (C) Microsoft Corporation. All rights reserved.
@@ -136,6 +137,7 @@ You should see JARs created for the supported Spark versions:
         Microsoft.Spark.Worker -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/netcoreapp2.1/ubuntu.18.04-x64/Microsoft.Spark.Worker.dll
         Microsoft.Spark.Worker -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/netcoreapp2.1/ubuntu.18.04-x64/publish/
       ```
+
       </details>
 
   2. Build the Samples
@@ -145,6 +147,7 @@ You should see JARs created for the supported Spark versions:
       ```
       <details>
       <summary>&#x1F4D9; Click to see sample console output</summary>
+
       ```bash
       user@machine:/home/user/dotnet.spark/examples/Microsoft.Spark.CSharp.Examples$ dotnet publish -f netcoreapp2.1 -r ubuntu.18.04-x64
       Microsoft (R) Build Engine version 16.0.462+g62fb89029d for .NET Core
@@ -158,6 +161,7 @@ You should see JARs created for the supported Spark versions:
         Microsoft.Spark.CSharp.Examples -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/netcoreapp2.1/ubuntu.18.04-x64/Microsoft.Spark.CSharp.Examples.dll
         Microsoft.Spark.CSharp.Examples -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/netcoreapp2.1/ubuntu.18.04-x64/publish/
       ```
+
      </details>
 
 # Run Samples
