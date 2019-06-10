@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.1</TargetFrameworks>
+    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <RootNamespace>Microsoft.Spark.Worker</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
