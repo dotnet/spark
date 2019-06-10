@@ -312,6 +312,18 @@ namespace Microsoft.Spark.Utils
         private static Assembly SerDeResolveEventHandler(object sender, ResolveEventArgs args) =>
             s_assemblyCache.GetOrAdd(args.Name, asm => LoadAssembly(args.Name));
 
+        /// <summary>
+        /// Returns the loaded assembly by probing the following locations in order:
+        /// 1) The working directory
+        /// 2) The directory of the application
+        /// If the assembly is not found in the above locations, the exception from
+        /// Assembly.LoadFrom() will be propagated.
+        /// </summary>
+        /// <param name="assemblyName">The FullName of the assembly to load</param>
+        /// <returns>The loaded assembly</returns>
+        /// <exception cref = "System.IO.FileNotFoundException" > Thrown when the FullName of
+        /// the loaded assembly does not match the FullName of the assembly to load.</exception>
+
         private static Assembly LoadAssembly(string assemblyName)
         {
             var sep = Path.DirectorySeparatorChar;
