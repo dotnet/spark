@@ -12,9 +12,7 @@
     <InternalsVisibleTo Include="Microsoft.Spark.Worker.UnitTest" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp2.1' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
+  <ItemGroup>
     <PackageReference Include="System.Memory" Version="4.5.2" />
   </ItemGroup>
 

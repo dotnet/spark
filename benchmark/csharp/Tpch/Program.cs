@@ -23,7 +23,7 @@ namespace Tpch
             }
 
             var tpchRoot = args[0];
-            var queryNumber = int.Parse(args[1]);
+            var queryNumber = args[1];
             var numIteration = int.Parse(args[2]);
             var isSQL = bool.Parse(args[3]);
 
