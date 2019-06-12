@@ -1,9 +1,8 @@
 FROM ubuntu
 WORKDIR /app
 ENV M2_HOME "/app/bin/maven/current"
-ENV PATH "$M2_HOME/bin:$PATH"
 ENV SPARK_HOME "/app/spark-2.4.1-bin-hadoop2.7"
-ENV PATH "$SPARK_HOME/bin:$PATH"
+ENV PATH "$M2_HOME/bin:$SPARK_HOME/bin:$PATH"
 RUN apt-get update -y \
   && apt-get install -y software-properties-common wget \
   && add-apt-repository -y universe \
