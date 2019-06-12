@@ -51,13 +51,17 @@ namespace Microsoft.Spark.Worker.Command
             }
 
             SqlCommandExecutor executor;
-            if (evalType == UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF)
+            if (evalType == UdfUtils.PythonEvalType.SQL_BATCHED_UDF)
+            {
+                executor = new PicklingSqlCommandExecutor();
+            }
+            else if (evalType == UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF)
             {
                 executor = new ArrowSqlCommandExecutor();
             }
-            else if (evalType == UdfUtils.PythonEvalType.SQL_BATCHED_UDF)
+            else if (evalType == UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF)
             {
-                executor = new PicklingSqlCommandExecutor();
+                executor = new ArrowGroupedMapCommandExecutor();
             }
             else
             {
@@ -287,7 +291,7 @@ namespace Microsoft.Spark.Worker.Command
     internal class ArrowSqlCommandExecutor : SqlCommandExecutor
     {
         [ThreadStatic]
-        private static MemoryStream s_writeOutputStream;
+        protected static MemoryStream s_writeOutputStream;
 
         protected override CommandExecutorStat ExecuteCore(
             Stream inputStream,
@@ -523,5 +527,171 @@ namespace Microsoft.Spark.Worker.Command
                 return resultColumns;
             }
         }
+    }
+
+    internal class ArrowGroupedMapCommandExecutor : ArrowSqlCommandExecutor
+    {
+        protected override CommandExecutorStat ExecuteCore(
+            Stream inputStream,
+            Stream outputStream,
+            SqlCommand[] commands)
+        {
+            var stat = new CommandExecutorStat();
+            ICommandRunner commandRunner = CreateCommandRunner(commands);
+
+            SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
+
+            // TODO: Remove this MemoryStream once the arrow writer supports non-seekable streams.
+            // For now, we write to a temporary seekable MemoryStream which we then copy to
+            // the actual destination stream.
+            MemoryStream tmp = s_writeOutputStream ?? (s_writeOutputStream = new MemoryStream());
+
+            ArrowStreamWriter writer = null;
+            foreach (RecordBatch input in GetInputIterator(inputStream))
+            {
+                RecordBatch[] results = commandRunner.Run(input);
+
+                // Assumes all columns have the same length, so uses 0th for num entries.
+                int numEntries = results[0].Length;
+                stat.NumEntriesProcessed += numEntries;
+
+                tmp.SetLength(0);
+
+                if (writer == null)
+                {
+                    Debug.Assert(results.Length > 0);
+                    writer = new ArrowStreamWriter(tmp, results[0].Schema, leaveOpen: true);
+                }
+
+                for (int i = 0; i < results.Length; ++i)
+                {
+                    // TODO: Remove sync-over-async once WriteRecordBatch exists.
+                    writer.WriteRecordBatchAsync(results[i]).GetAwaiter().GetResult();
+                }
+
+                tmp.Position = 0;
+                tmp.CopyTo(outputStream);
+                outputStream.Flush();
+            }
+
+            SerDe.Write(outputStream, 0);
+
+            if (writer != null)
+            {
+                writer.Dispose();
+            }
+
+            return stat;
+        }
+
+        private IEnumerable<RecordBatch> GetInputIterator(Stream inputStream)
+        {
+            using (var reader = new ArrowStreamReader(inputStream, leaveOpen: true))
+            {
+                RecordBatch batch;
+                bool returnedResult = false;
+                while ((batch = reader.ReadNextRecordBatch()) != null)
+                {
+                    yield return batch;
+                    returnedResult = true;
+                }
+
+                if (!returnedResult)
+                {
+                    // When no input batches were received, return empty IArrowArrays
+                    // in order to create and write back the result schema.
+
+                    int columnCount = reader.Schema.Fields.Count;
+                    IArrowArray[] arrays = new IArrowArray[columnCount];
+                    for (int i = 0; i < columnCount; ++i)
+                    {
+                        arrays[i] = ArrowArrayHelpers.CreateEmptyArray(reader.Schema.GetFieldByIndex(i).DataType);
+                    }
+                    yield return new RecordBatch(reader.Schema, arrays, 0);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates an ICommandRunner instance based on the given commands.
+        /// </summary>
+        /// <param name="commands">Commands used for creating a command runner</param>
+        /// <returns>An ICommandRunner instance</returns>
+        private static ICommandRunner CreateCommandRunner(SqlCommand[] commands)
+        {
+            return (commands.Length == 1) ?
+                new SingleCommandRunner(commands[0]) :
+                throw new NotSupportedException();
+                //new MultiCommandRunner(commands);
+        }
+
+        private interface ICommandRunner
+        {
+            RecordBatch[] Run(RecordBatch input);
+        }
+
+        /// <summary>
+        /// SingleCommandRunner handles running a single command.
+        /// </summary>
+        private sealed class SingleCommandRunner : ICommandRunner
+        {
+            /// <summary>
+            /// A command to run.
+            /// </summary>
+            private readonly SqlCommand _command;
+
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            /// <param name="command">A command to run</param>
+            internal SingleCommandRunner(SqlCommand command)
+            {
+                _command = command;
+            }
+
+            public RecordBatch[] Run(RecordBatch input)
+            {
+                return new[] { ((ArrowGroupedMapWorkerFunction)_command.WorkerFunction).Func(
+                    input) };
+            }
+        }
+
+        ///// <summary>
+        ///// MultiCommandRunner handles running multiple commands.
+        ///// </summary>
+        //private sealed class MultiCommandRunner : ICommandRunner
+        //{
+        //    /// <summary>
+        //    /// Commands to run.
+        //    /// </summary>
+        //    private readonly SqlCommand[] _commands;
+
+        //    /// <summary>
+        //    /// Constructor.
+        //    /// </summary>
+        //    /// <param name="commands">Multiple commands top run</param>
+        //    internal MultiCommandRunner(SqlCommand[] commands)
+        //    {
+        //        _commands = commands;
+        //    }
+
+        //    /// <summary>
+        //    /// Runs multiple commands.
+        //    /// </summary>
+        //    /// <param name="input">Input data for the commands to run</param>
+        //    /// <returns>An array of values returned by running the commands</returns>
+        //    public IArrowArray[] Run(ReadOnlyMemory<IArrowArray> input)
+        //    {
+        //        var resultColumns = new IArrowArray[_commands.Length];
+        //        for (int i = 0; i < resultColumns.Length; ++i)
+        //        {
+        //            SqlCommand command = _commands[i];
+        //            resultColumns[i] = ((ArrowWorkerFunction)command.WorkerFunction).Func(
+        //                input,
+        //                command.ArgOffsets);
+        //        }
+        //        return resultColumns;
+        //    }
+        //}
     }
 }

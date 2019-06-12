@@ -29,8 +29,6 @@ namespace Microsoft.Spark.Sql
             ReadOnlyMemory<IArrowArray> input,
             int[] argOffsets);
 
-        internal delegate RecordBatch GroupedMapExecuteDelegate(RecordBatch input);
-
         internal ArrowWorkerFunction(ExecuteDelegate func)
         {
             Func = func;
@@ -79,6 +77,62 @@ namespace Microsoft.Spark.Sql
                 return _outerFunc(
                     new[] { _innerFunc(input, argOffsets) },
                     s_outerFuncArgOffsets);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Function for Grouped Map Vector UDFs using the Apache Arrow format.
+    /// </summary>
+    internal sealed class ArrowGroupedMapWorkerFunction : WorkerFunction
+    {
+        /// <summary>
+        /// A delegate to invoke a Grouped Map Vector UDF.
+        /// </summary>
+        /// <param name="input">The input data frame.</param>
+        /// <returns>The resultant data frame.</returns>
+        internal delegate RecordBatch ExecuteDelegate(RecordBatch input);
+
+        internal ArrowGroupedMapWorkerFunction(ExecuteDelegate func)
+        {
+            Func = func;
+        }
+
+        internal ExecuteDelegate Func { get; }
+
+        /// <summary>
+        /// Used to chain functions.
+        /// </summary>
+        internal static ArrowGroupedMapWorkerFunction Chain(
+            ArrowGroupedMapWorkerFunction innerWorkerFunction,
+            ArrowGroupedMapWorkerFunction outerWorkerFunction)
+        {
+            return new ArrowGroupedMapWorkerFunction(
+                new WorkerFuncChainHelper(
+                    innerWorkerFunction.Func,
+                    outerWorkerFunction.Func).Execute);
+        }
+
+        private class WorkerFuncChainHelper
+        {
+            private readonly ExecuteDelegate _innerFunc;
+            private readonly ExecuteDelegate _outerFunc;
+
+            /// <summary>
+            /// The outer function will always take 0 as an offset since there is only one
+            /// return value from an inner function.
+            /// </summary>
+            private static readonly int[] s_outerFuncArgOffsets = { 0 };
+
+            internal WorkerFuncChainHelper(ExecuteDelegate inner, ExecuteDelegate outer)
+            {
+                _innerFunc = inner;
+                _outerFunc = outer;
+            }
+
+            internal RecordBatch Execute(RecordBatch input)
+            {
+                return _outerFunc(_innerFunc(input));
             }
         }
     }

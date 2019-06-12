@@ -78,6 +78,11 @@ namespace Microsoft.Spark.Sql
             return lhs.NotEqual(rhs);
         }
 
+        internal object Expr()
+        {
+            return _jvmObject.Invoke("expr");
+        }
+
         /// <summary>
         /// Inequality test.
         /// </summary>

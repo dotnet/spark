@@ -15,11 +15,10 @@ namespace Microsoft.Spark.Sql
     {
         public static DataFrame Apply(
             this RelationalGroupedDataset dataset,
-            string name, 
             StructType returnType, 
             Func<RecordBatch, RecordBatch> func)
         {
-            return dataset.Apply(name, returnType, func);
+            return dataset.Apply(returnType, func);
         }
     }
 }
