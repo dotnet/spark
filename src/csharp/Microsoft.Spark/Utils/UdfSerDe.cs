@@ -180,13 +180,14 @@ namespace Microsoft.Spark.Utils
                 BindingFlags.NonPublic))
             {
                 object value = field.GetValue(target);
+
                 var fieldData = new FieldData()
                 {
                     TypeData = SerializeType(field.FieldType),
                     Name = field.Name,
                     ValueData = new ValueData()
                     {
-                        TypeData = SerializeType(value.GetType()),
+                        TypeData = (value != null) ? SerializeType(value.GetType()) : default,
                         Value = value
                     }
                 };
