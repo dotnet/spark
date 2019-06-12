@@ -4,10 +4,13 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Microsoft.Spark.Utils
 {
@@ -68,7 +71,51 @@ namespace Microsoft.Spark.Utils
         {
             public TypeData TypeData { get; set; }
             public string Name { get; set; }
+            public ValueData ValueData { get; set; }
+        }
+
+        [Serializable]
+        internal sealed class ValueData : ISerializable
+        {
+            public ValueData() { }
+
+            public TypeData TypeData { get; set; }
+
             public object Value { get; set; }
+
+            public void GetObjectData(SerializationInfo info, StreamingContext context)
+            {
+                info.AddValue("TypeData", TypeData, typeof(TypeData));
+
+                var bf = new BinaryFormatter();
+                using (var ms = new MemoryStream())
+                {
+                    bf.Serialize(ms, Value);
+                    info.AddValue("ValueSerialized", ms.ToArray(), typeof(byte[]));
+                }
+            }
+
+            public ValueData(SerializationInfo info, StreamingContext context)
+            {
+                TypeData = (TypeData)info.GetValue("TypeData", typeof(TypeData));
+
+                var valueSerialized = (byte[])info.GetValue("ValueSerialized", typeof(byte[]));
+
+                var bf = new BinaryFormatter();
+                using (var ms = new MemoryStream(valueSerialized, false))
+                {
+                    try
+                    {
+                        Value = bf.Deserialize(ms);
+                    }
+                    catch (SerializationException)
+                    {
+                        ms.Seek(0, SeekOrigin.Begin);
+                        DeserializeType(TypeData);
+                        Value = bf.Deserialize(ms);
+                    }
+                }
+            }
         }
 
         internal static UdfData Serialize(Delegate udf)
@@ -125,17 +172,27 @@ namespace Microsoft.Spark.Utils
             Type targetType = target.GetType();
             TypeData targetTypeData = SerializeType(targetType);
 
-            System.Collections.Generic.IEnumerable<FieldData> fields = targetType.GetFields(
+            var fields = new List<FieldData>();
+            foreach (var field in targetType.GetFields(
                 BindingFlags.Instance |
                 BindingFlags.Static |
                 BindingFlags.Public |
-                BindingFlags.NonPublic).
-                    Select((field) => new FieldData()
+                BindingFlags.NonPublic))
+            {
+                object value = field.GetValue(target);
+                var fieldData = new FieldData()
+                {
+                    TypeData = SerializeType(field.FieldType),
+                    Name = field.Name,
+                    ValueData = new ValueData()
                     {
-                        TypeData = SerializeType(field.FieldType),
-                        Name = field.Name,
-                        Value = field.GetValue(target)
-                    });
+                        TypeData = SerializeType(value.GetType()),
+                        Value = value
+                    }
+                };
+
+                fields.Add(fieldData);
+            }
 
             // Even when an UDF does not have any closure, GetFields() returns some fields
             // which include Func<> of the udf specified.
@@ -166,7 +223,7 @@ namespace Microsoft.Spark.Utils
                     field.Name,
                     BindingFlags.Instance |
                     BindingFlags.Public |
-                    BindingFlags.NonPublic).SetValue(target, field.Value);
+                    BindingFlags.NonPublic).SetValue(target, field.ValueData.Value);
             }
 
             return target;

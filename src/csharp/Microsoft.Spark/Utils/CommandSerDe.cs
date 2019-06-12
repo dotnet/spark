@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -22,14 +21,6 @@ namespace Microsoft.Spark.Utils
     /// </summary>
     internal static class CommandSerDe
     {
-        private static readonly ConcurrentDictionary<string, Assembly> s_assemblyCache =
-            new ConcurrentDictionary<string, Assembly>();
-
-        static CommandSerDe()
-        {
-            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(SerDeResolveEventHandler);
-        }
-
         internal enum SerializedMode
         {
             None,
@@ -221,7 +212,7 @@ namespace Microsoft.Spark.Utils
 
             foreach (UdfSerDe.FieldData field in fields)
             {
-                SerializeUdfs((Delegate)field.Value, curNode, udfWrapperNodes, udfs);
+                SerializeUdfs((Delegate)field.ValueData.Value, curNode, udfWrapperNodes, udfs);
             }
         }
 
@@ -307,46 +298,6 @@ namespace Microsoft.Spark.Utils
                 typeof(T),
                 udfWrapper,
                 UdfWrapperMethodName);
-        }
-
-        private static Assembly SerDeResolveEventHandler(object sender, ResolveEventArgs args) =>
-            s_assemblyCache.GetOrAdd(args.Name, asm => LoadAssembly(args.Name));
-
-        /// <summary>
-        /// Returns the loaded assembly by probing the following locations in order:
-        /// 1) The working directory
-        /// 2) The directory of the application
-        /// If the assembly is not found in the above locations, the exception from
-        /// Assembly.LoadFrom() will be propagated.
-        /// </summary>
-        /// <param name="assemblyName">The FullName of the assembly to load</param>
-        /// <returns>The loaded assembly</returns>
-        /// <exception cref = "System.IO.FileNotFoundException" > Thrown when the FullName of
-        /// the loaded assembly does not match the FullName of the assembly to load.</exception>
-
-        private static Assembly LoadAssembly(string assemblyName)
-        {
-            var sep = Path.DirectorySeparatorChar;
-            var asmSimpleName = assemblyName.Split(',').FirstOrDefault();
-            Assembly asm;
-            try
-            {
-                asm = Assembly.LoadFrom(
-                    $"{Directory.GetCurrentDirectory()}{sep}{asmSimpleName}.dll");
-            }
-            catch (FileNotFoundException)
-            {
-                asm = Assembly.LoadFrom(
-                    $"{AppDomain.CurrentDomain.BaseDirectory}{sep}{asmSimpleName}.dll");
-            }
-
-            if ((asm != default) && (asm.FullName.Equals(assemblyName)))
-            {
-                return asm;
-            }
-
-            throw new FileNotFoundException($"Could not load file or assembly " +
-                    $"'{assemblyName}'. The system cannot find the file specified.");
         }
     }
 }
