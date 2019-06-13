@@ -100,7 +100,6 @@ namespace Microsoft.Spark.Utils
                 TypeData = (TypeData)info.GetValue("TypeData", typeof(TypeData));
 
                 var valueSerialized = (byte[])info.GetValue("ValueSerialized", typeof(byte[]));
-
                 var bf = new BinaryFormatter();
                 using (var ms = new MemoryStream(valueSerialized, false))
                 {
