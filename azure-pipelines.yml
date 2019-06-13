@@ -55,14 +55,14 @@ jobs:
     inputs:
       command: test
       projects: '**/*UnitTest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      arguments: '--configuration $(buildConfiguration)'
 
   - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 2.3.0'
     inputs:
       command: test
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
@@ -73,7 +73,7 @@ jobs:
     inputs:
       command: test
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
@@ -84,7 +84,7 @@ jobs:
     inputs:
       command: test
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
@@ -95,7 +95,7 @@ jobs:
     inputs:
       command: test
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
@@ -106,7 +106,7 @@ jobs:
     inputs:
       command: test
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
@@ -117,7 +117,7 @@ jobs:
     inputs:
       command: test
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
@@ -128,7 +128,7 @@ jobs:
     inputs:
       command: test
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
