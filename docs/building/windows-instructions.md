@@ -61,21 +61,17 @@ If you already have all the pre-requisites, skip to the [build](windows-instruct
 
         </details>
 
-  6. If you observe the following:
-     > ERROR Shell:397 - Failed to locate the winutils binary in the hadoop binary path
-     > java.io.IOException: Could not locate executable null\bin\winutils.exe in the Hadoop binaries.
-
-     You can ignore this if you are planning on running Spark in [Standalone mode](https://spark.apache.org/docs/latest/spark-standalone.html). If not, you would have to setup **[WinUtils](https://github.com/steveloughran/winutils)**
-       - Download winutils.exe binary from [WinUtils repository](https://github.com/steveloughran/winutils). You should select the version of Hadoop the Spark distribution was compiled with, e.g. use hadoop-2.7.1 for Spark 2.3.2.
-       - Save winutils.exe binary to a directory of your choice, e.g. c:\hadoop\bin.
-       - Set `HADOOP_HOME` to reflect the directory with winutils.exe (without bin). For instance, using command-line:
-         ```powershell
-         set HADOOP_HOME=c:\hadoop
-         ```
-       - Set PATH environment variable to include `%HADOOP_HOME%\bin`. For instance, using command-line:
-         ```powershell
-         set PATH=%HADOOP_HOME%\bin;%PATH%
-         ```
+  6. Install **[WinUtils](https://github.com/steveloughran/winutils)**
+     - Download `winutils.exe` binary from [WinUtils repository](https://github.com/steveloughran/winutils). You should select the version of Hadoop the Spark distribution was compiled with, e.g. use hadoop-2.7.1 for Spark 2.3.2.
+     - Save `winutils.exe` binary to a directory of your choice e.g., `c:\hadoop\bin`
+     - Set `HADOOP_HOME` to reflect the directory with winutils.exe (without bin). For instance, using command-line:
+       ```powershell
+       set HADOOP_HOME=c:\hadoop
+       ```
+     - Set PATH environment variable to include `%HADOOP_HOME%\bin`. For instance, using command-line:
+       ```powershell
+       set PATH=%HADOOP_HOME%\bin;%PATH%
+       ```
 
 
 Please make sure you are able to run `dotnet`, `java`, `mvn`, `spark-shell` from your command-line before you move to the next section. Feel there is a better way? Please [open an issue](https://github.com/dotnet/spark/issues) and feel free to contribute.
