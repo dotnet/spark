@@ -14,18 +14,6 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     internal static class ArrowArrayHelpers
     {
-        public static IArrowArray CreateEmptyArray<T>()
-        {
-            ArrayData data = BuildEmptyArrayDataFromArrayType<T>();
-            return ArrowArrayFactory.BuildArray(data);
-        }
-
-        public static IArrowArray CreateEmptyArray(IArrowType arrowType)
-        {
-            ArrayData data = BuildEmptyArrayDataFromArrowType(arrowType);
-            return ArrowArrayFactory.BuildArray(data);
-        }
-
         private static readonly HashSet<ArrowTypeId> s_twoBufferArrowTypes = new HashSet<ArrowTypeId>()
         {
             ArrowTypeId.Boolean,
@@ -49,6 +37,18 @@ namespace Microsoft.Spark.Sql
             ArrowTypeId.String,
             ArrowTypeId.Binary,
         };
+
+        public static IArrowArray CreateEmptyArray<T>()
+        {
+            ArrayData data = BuildEmptyArrayDataFromArrayType<T>();
+            return ArrowArrayFactory.BuildArray(data);
+        }
+
+        public static IArrowArray CreateEmptyArray(IArrowType arrowType)
+        {
+            ArrayData data = BuildEmptyArrayDataFromArrowType(arrowType);
+            return ArrowArrayFactory.BuildArray(data);
+        }
 
         private static ArrayData BuildEmptyArrayDataFromArrowType(IArrowType arrowType)
         {

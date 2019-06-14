@@ -78,6 +78,9 @@ namespace Microsoft.Spark.Sql
             return lhs.NotEqual(rhs);
         }
 
+        /// <summary>
+        /// Gets the underlying Expression object of the <see cref="Column"/>.
+        /// </summary>
         internal object Expr()
         {
             return _jvmObject.Invoke("expr");
