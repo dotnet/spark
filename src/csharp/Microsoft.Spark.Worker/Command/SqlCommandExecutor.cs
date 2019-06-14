@@ -620,9 +620,8 @@ namespace Microsoft.Spark.Worker.Command
         private static ICommandRunner CreateCommandRunner(SqlCommand[] commands)
         {
             return (commands.Length == 1) ?
-                new SingleCommandRunner(commands[0]) :
-                throw new NotSupportedException();
-                //new MultiCommandRunner(commands);
+                (ICommandRunner)new SingleCommandRunner(commands[0]) :
+                new MultiCommandRunner(commands);
         }
 
         private interface ICommandRunner
@@ -656,42 +655,41 @@ namespace Microsoft.Spark.Worker.Command
             }
         }
 
-        ///// <summary>
-        ///// MultiCommandRunner handles running multiple commands.
-        ///// </summary>
-        //private sealed class MultiCommandRunner : ICommandRunner
-        //{
-        //    /// <summary>
-        //    /// Commands to run.
-        //    /// </summary>
-        //    private readonly SqlCommand[] _commands;
+        /// <summary>
+        /// MultiCommandRunner handles running multiple commands.
+        /// </summary>
+        private sealed class MultiCommandRunner : ICommandRunner
+        {
+            /// <summary>
+            /// Commands to run.
+            /// </summary>
+            private readonly SqlCommand[] _commands;
 
-        //    /// <summary>
-        //    /// Constructor.
-        //    /// </summary>
-        //    /// <param name="commands">Multiple commands top run</param>
-        //    internal MultiCommandRunner(SqlCommand[] commands)
-        //    {
-        //        _commands = commands;
-        //    }
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            /// <param name="commands">Multiple commands top run</param>
+            internal MultiCommandRunner(SqlCommand[] commands)
+            {
+                _commands = commands;
+            }
 
-        //    /// <summary>
-        //    /// Runs multiple commands.
-        //    /// </summary>
-        //    /// <param name="input">Input data for the commands to run</param>
-        //    /// <returns>An array of values returned by running the commands</returns>
-        //    public IArrowArray[] Run(ReadOnlyMemory<IArrowArray> input)
-        //    {
-        //        var resultColumns = new IArrowArray[_commands.Length];
-        //        for (int i = 0; i < resultColumns.Length; ++i)
-        //        {
-        //            SqlCommand command = _commands[i];
-        //            resultColumns[i] = ((ArrowWorkerFunction)command.WorkerFunction).Func(
-        //                input,
-        //                command.ArgOffsets);
-        //        }
-        //        return resultColumns;
-        //    }
-        //}
+            /// <summary>
+            /// Runs multiple commands.
+            /// </summary>
+            /// <param name="input">Input data for the commands to run</param>
+            /// <returns>An array of values returned by running the commands</returns>
+            public RecordBatch[] Run(RecordBatch input)
+            {
+                var resultBatches = new RecordBatch[_commands.Length];
+                for (int i = 0; i < resultBatches.Length; ++i)
+                {
+                    SqlCommand command = _commands[i];
+                    resultBatches[i] = ((ArrowGroupedMapWorkerFunction)command.WorkerFunction).Func(
+                        input);
+                }
+                return resultBatches;
+            }
+        }
     }
 }
