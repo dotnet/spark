@@ -15,6 +15,9 @@ namespace Microsoft.Spark.Services
     internal sealed class ConfigurationService : IConfigurationService
     {
         public const string WorkerDirEnvVarName = "DOTNET_WORKER_DIR";
+
+        public const string WorkerNameEnvVarName = "DOTNET_WORKER_NAME";
+
         public const string WorkerReadBufferSizeEnvVarName = "spark.dotnet.worker.readBufferSize";
         public const string WorkerWriteBufferSizeEnvVarName =
             "spark.dotnet.worker.writeBufferSize";
@@ -62,19 +65,27 @@ namespace Microsoft.Spark.Services
                 return _workerPath;
             }
 
+            var procName = s_procFileName;
+
+            string workerName = Environment.GetEnvironmentVariable(WorkerNameEnvVarName);
+            if (!string.IsNullOrEmpty(workerName))
+            {
+                procName = workerName;
+            }
+
             string workerDir = Environment.GetEnvironmentVariable(WorkerDirEnvVarName);
 
             // If the WorkerDirEnvName environment variable is set, the worker path is constructed
             // based on it.
             if (!string.IsNullOrEmpty(workerDir))
             {
-                _workerPath = Path.Combine(workerDir, s_procFileName);
+                _workerPath = Path.Combine(workerDir, procName);
                 _logger.LogDebug($"Using the environment variable to construct .NET worker path: {_workerPath}.");
                 return _workerPath;
             }
 
             // Otherwise, the worker exectuable name is returned meaning it should be PATH.
-            _workerPath = s_procFileName;
+            _workerPath = procName;
             return _workerPath;
         }
     }
