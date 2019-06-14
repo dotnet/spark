@@ -4,8 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Apache.Arrow;
+using Apache.Arrow.Types;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using static Microsoft.Spark.Sql.Functions;
@@ -34,7 +34,7 @@ namespace Microsoft.Spark.Examples.Sql
 
             // Need to explicitly specify the schema since pickling vs. arrow formatting
             // will return different types. Pickling will turn longs into ints if the values fit.
-            DataFrame df = spark.Read().Schema("age INT, name DOUBLE").Json(args[0]);
+            DataFrame df = spark.Read().Schema("age INT, name STRING").Json(args[0]);
 
             Spark.Sql.Types.StructType schema = df.Schema();
             Console.WriteLine(schema.SimpleString);
@@ -49,109 +49,120 @@ namespace Microsoft.Spark.Examples.Sql
 
             df.PrintSchema();
 
-            //System.Diagnostics.Debugger.Launch();
+            df.Select("name", "age", "age", "name").Show();
 
-            // Using UDF via data frames.
-            Func<RecordBatch, RecordBatch> sumChars = batch => SubtractMean(batch, "name");
+            df.Select(df["name"], df["age"] + 1).Show();
+
+            df.Filter(df["age"] > 21).Show();
 
             df.GroupBy("age")
-                .Apply(df.Schema(), sumChars)
+                .Agg(Avg(df["age"]), Avg(df["age"]), CountDistinct(df["age"], df["age"]))
                 .Show();
 
-            //df.Select("name", "age", "age", "name").Show();
+            df.CreateOrReplaceTempView("people");
 
-            //df.Select(df["name"], df["age"] + 1).Show();
+            // Registering Udf for SQL expression.
+            DataFrame sqlDf = spark.Sql("SELECT * FROM people");
+            sqlDf.Show();
 
-            //df.Filter(df["age"] > 21).Show();
+            spark.Udf().Register<int?, string, string>(
+                "my_udf",
+                (age, name) => name + " with " + ((age.HasValue) ? age.Value.ToString() : "null"));
 
-            //df.GroupBy("age")
-            //    .Agg(Avg(df["age"]), Avg(df["age"]), CountDistinct(df["age"], df["age"]))
-            //    .Show();
+            sqlDf = spark.Sql("SELECT my_udf(*) FROM people");
+            sqlDf.Show();
 
-            //df.CreateOrReplaceTempView("people");
+            // Using UDF via data frames.
+            Func<Column, Column, Column> addition = Udf<int?, string, string>(
+                (age, name) => name + " is " + (age.HasValue ? age.Value + 10 : 0));
+            df.Select(addition(df["age"], df["name"])).Show();
 
-            //// Registering Udf for SQL expression.
-            //DataFrame sqlDf = spark.Sql("SELECT * FROM people");
-            //sqlDf.Show();
+            // Chaining example:
+            Func<Column, Column> addition2 = Udf<string, string>(str => $"hello {str}!");
+            df.Select(addition2(addition(df["age"], df["name"]))).Show();
 
-            //spark.Udf().Register<int?, string, string>(
-            //    "my_udf",
-            //    (age, name) => name + " with " + ((age.HasValue) ? age.Value.ToString() : "null"));
+            // Multiple UDF example:
+            df.Select(addition(df["age"], df["name"]), addition2(df["name"])).Show();
 
-            //sqlDf = spark.Sql("SELECT my_udf(*) FROM people");
-            //sqlDf.Show();
+            // UDF return type as array.
+            Func<Column, Column> udfArray =
+                Udf<string, string[]>((str) => new string[] { str, str + str });
+            df.Select(Explode(udfArray(df["name"]))).Show();
 
-            //// Using UDF via data frames.
-            //Func<Column, Column, Column> addition = Udf<int?, string, string>(
-            //    (age, name) => name + " is " + (age.HasValue ? age.Value + 10 : 0));
-            //df.Select(addition(df["age"], df["name"])).Show();
+            // UDF return type as map.
+            Func<Column, Column> udfMap =
+                Udf<string, IDictionary<string, string[]>>(
+                    (str) => new Dictionary<string, string[]> { { str, new[] { str, str } } });
+            df.Select(udfMap(df["name"]).As("UdfMap")).Show(truncate: 50);
 
-            //// Chaining example:
-            //Func<Column, Column> addition2 = Udf<string, string>(str => $"hello {str}!");
-            //df.Select(addition2(addition(df["age"], df["name"]))).Show();
+            // Joins.
+            DataFrame joinedDf = df.Join(df, "name");
+            joinedDf.Show();
 
-            //// Multiple UDF example:
-            //df.Select(addition(df["age"], df["name"]), addition2(df["name"])).Show();
+            DataFrame joinedDf2 = df.Join(df, new[] { "name", "age" });
+            joinedDf2.Show();
 
-            //// UDF return type as array.
-            //Func<Column, Column> udfArray =
-            //    Udf<string, string[]>((str) => new string[] { str, str + str });
-            //df.Select(Explode(udfArray(df["name"]))).Show();
+            DataFrame joinedDf3 = df.Join(df, df["name"] == df["name"], "outer");
+            joinedDf3.Show();
 
-            //// UDF return type as map.
-            //Func<Column, Column> udfMap =
-            //    Udf<string, IDictionary<string, string[]>>(
-            //        (str) => new Dictionary<string, string[]> { { str, new[] { str, str } } });
-            //df.Select(udfMap(df["name"]).As("UdfMap")).Show(truncate: 50);
+            // Grouped Map Vector UDF
+            // able to return different shapes and record lengths
+            Func<RecordBatch, RecordBatch> countChars = batch => CountCharacters(batch, "age", "name");
 
-            //// Joins.
-            //DataFrame joinedDf = df.Join(df, "name");
-            //joinedDf.Show();
-
-            //DataFrame joinedDf2 = df.Join(df, new[] { "name", "age" });
-            //joinedDf2.Show();
-
-            //DataFrame joinedDf3 = df.Join(df, df["name"] == df["name"], "outer");
-            //joinedDf3.Show();
+            df.GroupBy("age")
+                .Apply(
+                    new Spark.Sql.Types.StructType(new[]
+                    {
+                        new StructField("age", new IntegerType()),
+                        new StructField("nameCharCount", new IntegerType())
+                    }),
+                    countChars)
+                .Show();
 
             spark.Stop();
         }
 
-        private static RecordBatch SubtractMean(RecordBatch pdf, string fieldName)
+        private static RecordBatch CountCharacters(
+            RecordBatch records,
+            string groupFieldName,
+            string stringFieldName)
         {
-            var fieldIndex = pdf.Schema.GetFieldIndex(fieldName);
-            DoubleArray values = pdf.Column(fieldIndex) as DoubleArray;
+            var stringFieldIndex = records.Schema.GetFieldIndex(stringFieldName);
+            StringArray stringValues = records.Column(stringFieldIndex) as StringArray;
 
-            ArrowBuffer.Builder<double> builder = new ArrowBuffer.Builder<double>(values.Length);
-            double mean = Mean(values.Values);
-            foreach (double value in values.Values)
+            int characterCount = 0;
+
+            for (int i = 0; i < stringValues.Length; ++i)
             {
-                builder.Append(value - mean);
+                string current = stringValues.GetString(i);
+                characterCount += current.Length;
             }
 
-            var newArrays = pdf.Arrays
-                .Select((a, index) => index != fieldIndex ? a : CreateArray(builder));
-            return new RecordBatch(pdf.Schema, newArrays, pdf.Length);
+            var groupFieldIndex = records.Schema.GetFieldIndex(groupFieldName);
+            var groupField = records.Schema.GetFieldByIndex(groupFieldIndex);
+
+            return new RecordBatch(
+                new Schema.Builder()
+                    .Field(f => f.Name(groupField.Name).DataType(groupField.DataType))
+                    .Field(f => f.Name(stringFieldName + "_CharCount").DataType(Int32Type.Default))
+                    .Build(),
+                new IArrowArray[]
+                {
+                    records.Column(groupFieldIndex),
+                    CreateArrowArray(characterCount)
+                },
+                length: 1);
+            ;
         }
 
-        private static IArrowArray CreateArray(ArrowBuffer.Builder<double> builder)
+        private static IArrowArray CreateArrowArray(int value)
         {
-            return new DoubleArray(builder.Build(), ArrowBuffer.Empty, builder.Length, 0, 0);
-        }
-
-        private static double Mean(ReadOnlySpan<double> values)
-        {
-            return Sum(values) / values.Length;
-        }
-
-        private static double Sum(ReadOnlySpan<double> values)
-        {
-            double result = 0;
-            foreach (double value in values)
-            {
-                result += value;
-            }
-            return result;
+            return new DoubleArray(
+                new ArrowBuffer.Builder<int>().Append(value).Build(),
+                ArrowBuffer.Empty,
+                length: 1,
+                nullCount: 0,
+                offset: 0);
         }
     }
 }
