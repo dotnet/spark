@@ -127,7 +127,7 @@ namespace Microsoft.Spark.Examples.Sql
             string groupFieldName,
             string stringFieldName)
         {
-            var stringFieldIndex = records.Schema.GetFieldIndex(stringFieldName);
+            int stringFieldIndex = records.Schema.GetFieldIndex(stringFieldName);
             StringArray stringValues = records.Column(stringFieldIndex) as StringArray;
 
             int characterCount = 0;
@@ -138,8 +138,11 @@ namespace Microsoft.Spark.Examples.Sql
                 characterCount += current.Length;
             }
 
-            var groupFieldIndex = records.Schema.GetFieldIndex(groupFieldName);
-            var groupField = records.Schema.GetFieldByIndex(groupFieldIndex);
+            int groupFieldIndex = records.Schema.GetFieldIndex(groupFieldName);
+            Field groupField = records.Schema.GetFieldByIndex(groupFieldIndex);
+
+            // Return 1 record, if we were given any. 0, otherwise.
+            int returnLength = records.Length > 0 ? 1 : 0;
 
             return new RecordBatch(
                 new Schema.Builder()
@@ -151,8 +154,7 @@ namespace Microsoft.Spark.Examples.Sql
                     records.Column(groupFieldIndex),
                     CreateArrowArray(characterCount)
                 },
-                length: 1);
-            ;
+                returnLength);
         }
 
         private static IArrowArray CreateArrowArray(int value)
