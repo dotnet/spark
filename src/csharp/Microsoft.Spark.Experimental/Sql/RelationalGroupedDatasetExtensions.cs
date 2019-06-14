@@ -13,6 +13,22 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     public static class RelationalGroupedDatasetExtensions
     {
+        /// <summary>
+        /// Maps each group of the current DataFrame using a UDF and returns the result as a DataFrame.
+        /// 
+        /// The user-defined function should take an Apache Arrow RecordBatch and return another
+        /// Apache Arrow RecordBatch. For each group, all columns are passed together as a 
+        /// RecordBatch to the user-function and the returned RecordBatch are combined as a DataFrame.
+        ///
+        /// The returned RecordBatch can be of arbitrary length and its schema must match
+        /// <paramref name="returnType"/>.
+        /// </summary>
+        /// <param name="dataset">The <see cref="RelationalGroupedDataset"/> containing grouped data.</param>
+        /// <param name="returnType">
+        /// The <see cref="StructType"/> that represents the shape of the return data set.
+        /// </param>
+        /// <param name="func">A grouped map user-defined function.</param>
+        /// <returns>New DataFrame object with the UDF applied.</returns>
         public static DataFrame Apply(
             this RelationalGroupedDataset dataset,
             StructType returnType, 

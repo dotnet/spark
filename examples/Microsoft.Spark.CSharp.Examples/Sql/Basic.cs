@@ -107,8 +107,6 @@ namespace Microsoft.Spark.Examples.Sql
 
             // Grouped Map Vector UDF
             // able to return different shapes and record lengths
-            Func<RecordBatch, RecordBatch> countChars = batch => CountCharacters(batch, "age", "name");
-
             df.GroupBy("age")
                 .Apply(
                     new Spark.Sql.Types.StructType(new[]
@@ -116,7 +114,7 @@ namespace Microsoft.Spark.Examples.Sql
                         new StructField("age", new IntegerType()),
                         new StructField("nameCharCount", new IntegerType())
                     }),
-                    countChars)
+                    r => CountCharacters(r, "age", "name"))
                 .Show();
 
             spark.Stop();
