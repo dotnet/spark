@@ -242,7 +242,7 @@ namespace Microsoft.Spark.UnitTest.TestUtils
         {
             var valueOffsets = new ArrowBuffer.Builder<int>();
             var valueBuffer = new ArrowBuffer.Builder<byte>();
-            var offset = 0;
+            int offset = 0;
 
             // TODO: Use array pool and encode directly into the array.
             foreach (string str in array)
@@ -269,7 +269,7 @@ namespace Microsoft.Spark.UnitTest.TestUtils
         {
             var valueOffsets = new ArrowBuffer.Builder<int>();
             var valueBuffer = new ArrowBuffer.Builder<byte>();
-            var offset = 0;
+            int offset = 0;
 
             foreach (byte[] bytes in array)
             {
