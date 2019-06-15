@@ -22,4 +22,4 @@ RUN apt-get update -y \
   && git clone https://github.com/dotnet/spark.git dotnet.spark \
   && cd dotnet.spark/src/scala \
   && mvn clean package
-CMD tail -f /dev/null
+CMD spark-shell
