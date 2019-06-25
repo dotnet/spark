@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net461;netcoreapp2.1;net47</TargetFrameworks>
+    <TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp2.1</TargetFrameworks>
     <RootNamespace>Microsoft.Spark.Worker</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -19,5 +19,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
-  
+
 </Project>
