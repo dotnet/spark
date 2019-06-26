@@ -119,6 +119,17 @@ namespace Microsoft.Spark.Sql.Streaming
         }
 
         /// <summary>
+        /// Adds output options for the underlying data source.
+        /// </summary>
+        /// <param name="trigger">Trigger object</param>
+        /// <returns>This DataStreamReader object</returns>
+        public DataStreamWriter Trigger(Trigger trigger)
+        {
+            _jvmObject.Invoke("trigger", trigger);
+            return this;
+        }
+
+        /// <summary>
         /// Starts the execution of the streaming query.
         /// </summary>
         /// <param name="path">Optional output path</param>
