@@ -26,26 +26,13 @@ namespace Microsoft.Spark.E2ETest
         public SparkFixture()
         {
             string workerDirEnvVarName = Services.ConfigurationService.WorkerDirEnvVarName;
-#if NET461
-            // Set the path for the worker executable to the location of the current
-            // assembly since xunit framework copies the Microsoft.Spark.dll to an
-            // isolated location for testing; the default mechanism of getting the directory
-            // of the worker executable is the location of the Microsoft.Spark.dll.
-            Environment.SetEnvironmentVariable(
-                workerDirEnvVarName,
-                AppDomain.CurrentDomain.BaseDirectory);
-#elif NETCOREAPP2_1
-            // For .NET Core, the user must have published the worker as a standalone
-            // executable and set the worker path to the published directory.
+
+            // The worker directory must be set for the Microsoft.Spark.Worker executable.
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(workerDirEnvVarName)))
             {
-                throw new Exception(
-                    $"Environment variable '{workerDirEnvVarName}' must be set for .NET Core.");
+                throw new Exception($"Environment variable '{workerDirEnvVarName}' must be set.");
             }
-#else
-            // Compile-time error for not supported frameworks.
-            throw new NotSupportedException("Not supported frameworks.");
-#endif
+
             BuildSparkCmd(out var filename, out var args);
 
             // Configure the process using the StartInfo properties.
