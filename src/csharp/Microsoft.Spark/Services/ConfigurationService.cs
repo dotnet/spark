@@ -33,10 +33,6 @@ namespace Microsoft.Spark.Services
 
         private string _workerPath;
 
-        // Note that the following is only for the backward compatibility and
-        // will be removed after the next release.
-        private const string WorkerPathSettingKey = "DotnetWorkerPath";
-
         /// <summary>
         /// Returns the port number for socket communication between JVM and CLR.
         /// </summary>
@@ -66,10 +62,7 @@ namespace Microsoft.Spark.Services
                 return _workerPath;
             }
 
-            // Note that the "WorkerPathSettingKey" is only for the backward compatibility
-            // will be removed after the next release.
-            string workerDir = Environment.GetEnvironmentVariable(WorkerDirEnvVarName) ??
-                Environment.GetEnvironmentVariable(WorkerPathSettingKey);
+            string workerDir = Environment.GetEnvironmentVariable(WorkerDirEnvVarName);
 
             // If the WorkerDirEnvName environment variable is set, the worker path is constructed
             // based on it.
@@ -77,17 +70,6 @@ namespace Microsoft.Spark.Services
             {
                 _workerPath = Path.Combine(workerDir, s_procFileName);
                 _logger.LogDebug($"Using the environment variable to construct .NET worker path: {_workerPath}.");
-                return _workerPath;
-            }
-
-            // If the WorkerDirEnvName environment variable is not set, the worker path is
-            // constructed based on the current assembly's directory. This requires the worker
-            // executable is present.
-            workerDir = Path.GetDirectoryName(GetType().Assembly.Location);
-            _workerPath = Path.Combine(workerDir, s_procFileName);
-            if (File.Exists(_workerPath))
-            {
-                _logger.LogDebug($"Using the current assembly path to construct .NET worker path: {_workerPath}.");
                 return _workerPath;
             }
 

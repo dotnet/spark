@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -13,6 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Microsoft.Spark.Experimental" />
     <InternalsVisibleTo Include="Microsoft.Spark.UnitTest" />
     <InternalsVisibleTo Include="Microsoft.Spark.Worker" />
     <InternalsVisibleTo Include="Microsoft.Spark.Worker.UnitTest" />
