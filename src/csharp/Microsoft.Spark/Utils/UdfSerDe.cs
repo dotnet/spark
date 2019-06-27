@@ -22,6 +22,8 @@ namespace Microsoft.Spark.Utils
         private static readonly ConcurrentDictionary<TypeData, Type> s_typeCache =
             new ConcurrentDictionary<TypeData, Type>();
 
+        internal static Func<string, Assembly> AssemblyLoader { get; set; } = Assembly.LoadFrom;
+
         [Serializable]
         internal sealed class TypeData : IEquatable<TypeData>
         {
@@ -74,6 +76,13 @@ namespace Microsoft.Spark.Utils
             public ValueData ValueData { get; set; }
         }
 
+        /// <summary>
+        /// The type of Value may be contained in an assembly outside the default
+        /// load context. Upon serialization, the TypeData is preserved, and Value
+        /// is serialized as a byte[]. Upon deserialization, if the assembly cannot
+        /// be found within the load context then TypeData will be used to load the
+        /// correct assembly.
+        /// </summary>
         [Serializable]
         internal sealed class ValueData : ISerializable
         {
@@ -87,9 +96,9 @@ namespace Microsoft.Spark.Utils
             {
                 info.AddValue("TypeData", TypeData, typeof(TypeData));
 
-                var bf = new BinaryFormatter();
                 using (var ms = new MemoryStream())
                 {
+                    var bf = new BinaryFormatter();
                     bf.Serialize(ms, Value);
                     info.AddValue("ValueSerialized", ms.ToArray(), typeof(byte[]));
                 }
@@ -100,15 +109,19 @@ namespace Microsoft.Spark.Utils
                 TypeData = (TypeData)info.GetValue("TypeData", typeof(TypeData));
 
                 var valueSerialized = (byte[])info.GetValue("ValueSerialized", typeof(byte[]));
-                var bf = new BinaryFormatter();
                 using (var ms = new MemoryStream(valueSerialized, false))
                 {
+                    var bf = new BinaryFormatter();
                     try
                     {
                         Value = bf.Deserialize(ms);
                     }
                     catch (SerializationException)
                     {
+                        // This catch block is entered if no assemblies within the
+                        // default load context contains the type being deserialized.
+                        // The assembly containing the type is loaded and we attempt to
+                        // deserialize again.
                         ms.Seek(0, SeekOrigin.Begin);
                         DeserializeType(TypeData);
                         Value = bf.Deserialize(ms);
@@ -253,16 +266,15 @@ namespace Microsoft.Spark.Utils
         /// <returns>The loaded assembly</returns>
         private static Assembly LoadAssembly(string manifestModuleName)
         {
-            var sep = Path.DirectorySeparatorChar;
             try
             {
-                return Assembly.LoadFrom(
-                    $"{Directory.GetCurrentDirectory()}{sep}{manifestModuleName}");
+                return AssemblyLoader(
+                    Path.Combine(Directory.GetCurrentDirectory(), manifestModuleName));
             }
             catch (FileNotFoundException)
             {
-                return Assembly.LoadFrom(
-                    $"{AppDomain.CurrentDomain.BaseDirectory}{sep}{manifestModuleName}");
+                return AssemblyLoader(
+                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, manifestModuleName));
             }
         }
     }
