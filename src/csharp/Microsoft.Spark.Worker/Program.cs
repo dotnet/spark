@@ -5,7 +5,7 @@
 using System;
 using System.Diagnostics;
 
-#if !FEATURE_ASSEMBLY_LOADFROM
+#if !NETFRAMEWORK
 using System.Runtime.Loader;
 using Microsoft.Spark.Utils;
 #endif
@@ -32,7 +32,7 @@ namespace Microsoft.Spark.Worker
                 Environment.Exit(-1);
             }
 
-#if !FEATURE_ASSEMBLY_LOADFROM
+#if !NETFRAMEWORK
             UdfSerDe.AssemblyLoader = AssemblyLoadContext.Default.LoadFromAssemblyPath;
 #endif
 
