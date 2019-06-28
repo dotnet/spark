@@ -4,17 +4,14 @@
 
 using System;
 using System.Collections.Generic;
-using Apache.Arrow;
-using Apache.Arrow.Types;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
 using static Microsoft.Spark.Sql.Functions;
 
 namespace Microsoft.Spark.Examples.Sql
 {
     /// <summary>
     /// A simple example demonstrating basic Spark SQL features.
-    /// /// </summary>
+    /// </summary>
     internal sealed class Basic : IExample
     {
         public void Run(string[] args)
@@ -105,64 +102,7 @@ namespace Microsoft.Spark.Examples.Sql
             DataFrame joinedDf3 = df.Join(df, df["name"] == df["name"], "outer");
             joinedDf3.Show();
 
-            // Grouped Map Vector UDF
-            // able to return different shapes and record lengths
-            df.GroupBy("age")
-                .Apply(
-                    new Spark.Sql.Types.StructType(new[]
-                    {
-                        new StructField("age", new IntegerType()),
-                        new StructField("nameCharCount", new IntegerType())
-                    }),
-                    r => CountCharacters(r, "age", "name"))
-                .Show();
-
             spark.Stop();
-        }
-
-        private static RecordBatch CountCharacters(
-            RecordBatch records,
-            string groupFieldName,
-            string stringFieldName)
-        {
-            int stringFieldIndex = records.Schema.GetFieldIndex(stringFieldName);
-            StringArray stringValues = records.Column(stringFieldIndex) as StringArray;
-
-            int characterCount = 0;
-
-            for (int i = 0; i < stringValues.Length; ++i)
-            {
-                string current = stringValues.GetString(i);
-                characterCount += current.Length;
-            }
-
-            int groupFieldIndex = records.Schema.GetFieldIndex(groupFieldName);
-            Field groupField = records.Schema.GetFieldByIndex(groupFieldIndex);
-
-            // Return 1 record, if we were given any. 0, otherwise.
-            int returnLength = records.Length > 0 ? 1 : 0;
-
-            return new RecordBatch(
-                new Schema.Builder()
-                    .Field(f => f.Name(groupField.Name).DataType(groupField.DataType))
-                    .Field(f => f.Name(stringFieldName + "_CharCount").DataType(Int32Type.Default))
-                    .Build(),
-                new IArrowArray[]
-                {
-                    records.Column(groupFieldIndex),
-                    CreateArrowArray(characterCount)
-                },
-                returnLength);
-        }
-
-        private static IArrowArray CreateArrowArray(int value)
-        {
-            return new DoubleArray(
-                new ArrowBuffer.Builder<int>().Append(value).Build(),
-                ArrowBuffer.Empty,
-                length: 1,
-                nullCount: 0,
-                offset: 0);
         }
     }
 }

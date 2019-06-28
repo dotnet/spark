@@ -64,17 +64,17 @@ namespace Microsoft.Spark.Sql
                 returnType.Json);
 
             IReadOnlyList<string> columnNames = _dataFrame.Columns();
-            Column[] columns = new Column[columnNames.Count];
-            for (int i = 0; i< columnNames.Count; ++i)
+            var columns = new Column[columnNames.Count];
+            for (int i = 0; i < columnNames.Count; ++i)
             {
                 columns[i] = _dataFrame[columnNames[i]];
             }
 
-            Column udf_column = udf.Apply(columns);
+            Column udfColumn = udf.Apply(columns);
 
             return new DataFrame((JvmObjectReference)_jvmObject.Invoke(
                 "flatMapGroupsInPandas",
-                udf_column.Expr()));
+                udfColumn.Expr()));
         }
     }
 }

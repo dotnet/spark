@@ -92,8 +92,7 @@ namespace Microsoft.Spark.Worker.Processor
                 (evalType != PythonEvalType.SQL_SCALAR_PANDAS_UDF) &&
                 (evalType != PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF))
             {
-                throw new NotImplementedException(
-                    $"Only SQL_BATCHED_UDF, SQL_SCALAR_PANDAS_UDF, and SQL_GROUPED_MAP_PANDAS_UDF are implemented. [{evalType}] was provided.");
+                throw new NotImplementedException($"{evalType} is not supported.");
             }
 
             if (version.Major == 2)

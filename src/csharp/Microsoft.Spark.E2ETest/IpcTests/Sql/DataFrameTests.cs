@@ -11,6 +11,7 @@ using Microsoft.Spark.Sql.Types;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
 using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
+using Int32Type = Apache.Arrow.Types.Int32Type;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
@@ -230,12 +231,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             return new RecordBatch(
                 new Schema.Builder()
                     .Field(f => f.Name(groupField.Name).DataType(groupField.DataType))
-                    .Field(f => f.Name("name_CharCount").DataType(Apache.Arrow.Types.Int32Type.Default))
+                    .Field(f => f.Name("name_CharCount").DataType(Int32Type.Default))
                     .Build(),
                 new IArrowArray[]
                 {
                     records.Column(groupFieldIndex),
-                    new DoubleArray(
+                    new Int32Array(
                         new ArrowBuffer.Builder<int>().Append(characterCount).Build(),
                         ArrowBuffer.Empty,
                         length: 1,

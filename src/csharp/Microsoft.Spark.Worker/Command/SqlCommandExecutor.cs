@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using Apache.Arrow;
 using Apache.Arrow.Ipc;
+using Apache.Arrow.Types;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
@@ -291,7 +292,7 @@ namespace Microsoft.Spark.Worker.Command
     internal class ArrowSqlCommandExecutor : SqlCommandExecutor
     {
         [ThreadStatic]
-        protected static MemoryStream s_writeOutputStream;
+        private static MemoryStream s_writeOutputStream;
 
         protected override CommandExecutorStat ExecuteCore(
             Stream inputStream,
@@ -529,8 +530,11 @@ namespace Microsoft.Spark.Worker.Command
         }
     }
 
-    internal class ArrowGroupedMapCommandExecutor : ArrowSqlCommandExecutor
+    internal class ArrowGroupedMapCommandExecutor : SqlCommandExecutor
     {
+        [ThreadStatic]
+        private static MemoryStream s_writeOutputStream;
+
         protected override CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
@@ -598,14 +602,15 @@ namespace Microsoft.Spark.Worker.Command
 
                 if (!returnedResult)
                 {
-                    // When no input batches were received, return empty IArrowArrays
+                    // When no input batches were received, return an empty RecordBatch
                     // in order to create and write back the result schema.
 
                     int columnCount = reader.Schema.Fields.Count;
-                    IArrowArray[] arrays = new IArrowArray[columnCount];
+                    var arrays = new IArrowArray[columnCount];
                     for (int i = 0; i < columnCount; ++i)
                     {
-                        arrays[i] = ArrowArrayHelpers.CreateEmptyArray(reader.Schema.GetFieldByIndex(i).DataType);
+                        IArrowType type = reader.Schema.GetFieldByIndex(i).DataType;
+                        arrays[i] = ArrowArrayHelpers.CreateEmptyArray(type);
                     }
                     yield return new RecordBatch(reader.Schema, arrays, 0);
                 }

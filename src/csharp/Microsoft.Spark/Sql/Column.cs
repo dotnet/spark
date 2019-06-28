@@ -79,14 +79,6 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
-        /// Gets the underlying Expression object of the <see cref="Column"/>.
-        /// </summary>
-        internal object Expr()
-        {
-            return _jvmObject.Invoke("expr");
-        }
-
-        /// <summary>
         /// Inequality test.
         /// </summary>
         /// <param name="rhs">
@@ -749,6 +741,14 @@ namespace Microsoft.Spark.Sql
         public Column Over()
         {
             return Apply("over");
+        }
+
+        /// <summary>
+        /// Gets the underlying Expression object of the <see cref="Column"/>.
+        /// </summary>
+        internal JvmObjectReference Expr()
+        {
+            return (JvmObjectReference)_jvmObject.Invoke("expr");
         }
 
         // Equals() and GetHashCode() are required to be defined when operator==/!=
