@@ -49,7 +49,6 @@ namespace Microsoft.Spark.UnitTest
 
         private void VerifyUdfSerDe(Delegate udf, bool hasClosure)
         {
-
             UdfSerDe.UdfData udfData = UdfSerDe.Serialize(udf);
             VerifyUdfData(udf, udfData, hasClosure);
 
@@ -68,9 +67,7 @@ namespace Microsoft.Spark.UnitTest
             }
         }
 
-        private void VerifyUdfData(Delegate udf,
-                                   UdfSerDe.UdfData udfData,
-                                   bool hasClosure)
+        private void VerifyUdfData(Delegate udf, UdfSerDe.UdfData udfData, bool hasClosure)
         {
             VerifyTypeData(udf.Method.DeclaringType, udfData.TypeData);
             Assert.Equal(udf.Method.Name, udfData.MethodName);
@@ -92,13 +89,14 @@ namespace Microsoft.Spark.UnitTest
             Type targetType = target.GetType();
             VerifyTypeData(targetType, targetData.TypeData);
 
-            // Check Fields
+            // Fields are not serialized if there is no closure.
             if (!hasClosure)
             {
                 Assert.Null(targetData.Fields);
                 return;
             }
 
+            // Check Fields
             UdfSerDe.FieldData[] actualFields = targetData.Fields;
             FieldInfo[] expectedFields = targetType.GetFields(
                 BindingFlags.Instance |
@@ -107,11 +105,13 @@ namespace Microsoft.Spark.UnitTest
                 BindingFlags.NonPublic);
             Assert.Equal(expectedFields.Length, actualFields.Length);
 
-            var expectedFieldsDict = expectedFields.ToDictionary(f => f.Name);
-            foreach (UdfSerDe.FieldData actualField in actualFields)
+            var actualFieldsDict = actualFields.ToDictionary(f => f.Name);
+            foreach (FieldInfo expectedField in expectedFields)
             {
                 Assert.True(
-                    expectedFieldsDict.TryGetValue(actualField.Name, out FieldInfo expectedField));
+                    actualFieldsDict.TryGetValue(
+                        expectedField.Name,
+                        out UdfSerDe.FieldData actualField));
 
                 VerifyTypeData(expectedField.FieldType, actualField.TypeData);
                 Assert.Equal(expectedField.Name, actualField.Name);
