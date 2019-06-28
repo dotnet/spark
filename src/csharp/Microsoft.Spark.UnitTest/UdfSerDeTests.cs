@@ -122,8 +122,6 @@ namespace Microsoft.Spark.UnitTest
                 VerifyTypeData(expectedValue.GetType(), valueData.TypeData);
                 Assert.Equal(expectedValue, valueData.Value);
             }
-
-            //target.
         }
     }
 }
