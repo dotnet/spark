@@ -227,7 +227,7 @@ namespace Microsoft.Spark.Utils
         private static object DeserializeTargetData(TargetData targetData)
         {
             Type targetType = DeserializeType(targetData.TypeData);
-            var target = Activator.CreateInstance(targetType);
+            var target = FormatterServices.GetUninitializedObject(targetType);
 
             foreach (FieldData field in targetData.Fields ?? Enumerable.Empty<FieldData>())
             {
