@@ -77,6 +77,12 @@ namespace Microsoft.Spark.UnitTest
 
         private void VerifyUdfSerDe(Delegate udf, bool hasClosure, bool checkTargetEquality)
         {
+            var serializedUdf = SerializeAndVerify(udf, hasClosure);
+            DeserializeAndVerify(udf, serializedUdf, hasClosure, checkTargetEquality);
+        }
+
+        private byte[] SerializeAndVerify(Delegate udf, bool hasClosure)
+        {
             UdfSerDe.UdfData udfData = UdfSerDe.Serialize(udf);
             VerifyUdfData(udf, udfData, hasClosure);
 
@@ -84,11 +90,23 @@ namespace Microsoft.Spark.UnitTest
             {
                 var bf = new BinaryFormatter();
                 bf.Serialize(ms, udfData);
+                return ms.ToArray();
+            }
+        }
 
-                ms.Seek(0, SeekOrigin.Begin);
-                UdfSerDe.UdfData deserializedUdfData = (UdfSerDe.UdfData)bf.Deserialize(ms);
+        private void DeserializeAndVerify(
+            Delegate udf,
+            byte[] serializedUdf,
+            bool hasClosure,
+            bool checkTargetEquality)
+        {
+            using (var ms = new MemoryStream(serializedUdf, false))
+            {
+                var bf = new BinaryFormatter();
+                UdfSerDe.UdfData udfData = (UdfSerDe.UdfData)bf.Deserialize(ms);
+                VerifyUdfData(udf, udfData, hasClosure);
 
-                Delegate deserializedUdf = UdfSerDe.Deserialize(deserializedUdfData);
+                Delegate deserializedUdf = UdfSerDe.Deserialize(udfData);
                 Assert.Equal(udf.GetType(), deserializedUdf.GetType());
                 Assert.Equal(udf.Method, deserializedUdf.Method);
                 Assert.Equal(udf.Target.GetType(), deserializedUdf.Target.GetType());
