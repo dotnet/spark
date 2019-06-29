@@ -17,37 +17,65 @@ namespace Microsoft.Spark.UnitTest
         [Serializable]
         private class TestClass
         {
-            int _i;
+            private readonly int _i;
 
             public TestClass(int i)
             {
                 _i = i;
             }
 
-            public int MultiplyBy(int x)
+            public int MultiplyBy(int i)
             {
-                return x * _i;
+                return _i * i;
+            }
+
+            public override bool Equals(object obj)
+            {
+                var that = obj as TestClass;
+
+                if (that == null)
+                {
+                    return false;
+                }
+
+                return this._i == that._i;
+            }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
             }
         }
 
         [Fact]
         public void TestUdfSerDe()
         {
-            // Without Closure
             {
+                // Without Closure
                 Func<int, int> udf = i => 10 * i;
-                VerifyUdfSerDe(udf, false);
+                VerifyUdfSerDe(udf, false, false);
             }
 
-            // With Closure
             {
+                // With Closure
                 TestClass tc = new TestClass(20);
                 Func<int, int> udf = i => tc.MultiplyBy(i);
-                VerifyUdfSerDe(udf, true);
+                VerifyUdfSerDe(udf, true, false);
+            }
+
+            {
+                // With Closure where the udf target's Equals method is overridden.
+                // The default behavior checks whether the two objects represent the
+                // same object reference. However due to SerDe, the deserialized
+                // object will be a new instance, and therefore we override Equals
+                // to check the field values for equality.
+                TestClass tc = new TestClass(20);
+                Func<int, int> udf = tc.MultiplyBy;
+                VerifyUdfSerDe(udf, true, true);
             }
         }
 
-        private void VerifyUdfSerDe(Delegate udf, bool hasClosure)
+        private void VerifyUdfSerDe(Delegate udf, bool hasClosure, bool checkTargetEquality)
         {
             UdfSerDe.UdfData udfData = UdfSerDe.Serialize(udf);
             VerifyUdfData(udf, udfData, hasClosure);
@@ -64,6 +92,11 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Equal(udf.GetType(), deserializedUdf.GetType());
                 Assert.Equal(udf.Method, deserializedUdf.Method);
                 Assert.Equal(udf.Target.GetType(), deserializedUdf.Target.GetType());
+
+                if (checkTargetEquality)
+                {
+                    Assert.Equal(udf.Target, deserializedUdf.Target);
+                }
             }
         }
 
