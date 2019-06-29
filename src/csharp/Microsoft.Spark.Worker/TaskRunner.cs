@@ -49,7 +49,7 @@ namespace Microsoft.Spark.Worker
         {
             s_logger.LogInfo($"[{TaskId}] Starting with ReuseSocket[{_reuseSocket}].");
 
-            if (EnvironmentUtils.GetEnvironmentVariableAsBool("DEBUG_DOTNET_WORKER"))
+            if (EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_WORKER_DEBUG"))
             {
                 Debugger.Launch();
             }
