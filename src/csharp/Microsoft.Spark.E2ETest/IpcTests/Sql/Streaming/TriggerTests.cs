@@ -2,10 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Streaming;
 using Xunit;
-using static Microsoft.Spark.Sql.Functions;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
@@ -20,31 +20,82 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test StreamingQuery ProcessingTime() mode
         /// </summary>
         [Fact]
-        public void TestStreamingV2_3_X()
+        public void TestStreamingQuery_ProcessingTime()
         {
+            TestStreamingQuery("ProcessingTime");
+        }
+
+        /// <summary>
+        /// Test StreamingQuery Continuous() mode
+        /// </summary>
+        [Fact]
+        public void TestStreamingQuery_Continuous()
+        {
+            TestStreamingQuery("Continuous");
+        }
+
+        /// <summary>
+        /// Test StreamingQuery Once() mode
+        /// </summary>
+        [Fact]
+        public void TestStreamingQuery_Once()
+        {
+            TestStreamingQuery("Once");
+        }
+
+        private void TestStreamingQuery(string @case)
+        {
+            Trigger trigger;
+            if (@case == "Once")
+            {
+                trigger = Trigger.Once();
+            }
+            else if (@case == "Continuous")
+            {
+                trigger = Trigger.Continuous("1 seconds");
+            }
+            else
+            {
+                trigger = Trigger.ProcessingTime(1000);
+            }
+
             DataFrame df = _spark
                 .ReadStream()
-                .Schema("age INT, name STRING")
-                .Json($"{TestEnvironment.ResourceDirectory}people.json");
+                .Format("rate")
+                .Option("rowsPerSecond", 100)
+                .Load();
 
-            DataFrame result = df.Select(
-                df.Col("name"),
-                Concat(df.Col("name"), df.Col("age")).As("text"));
+            df = df.SelectExpr("CAST(value AS STRING)");
 
-            StreamingQuery query = result.WriteStream()
+            StreamingQuery query = df.WriteStream()
                 .Format("memory")
                 .QueryName("dataTable")
-                .Trigger(Trigger.Continuous("1 seconds"))
+                .Trigger(Trigger.Once())
+                .OutputMode(OutputMode.Append)
                 .Start();
 
+            ScheduleStopQuery(query, TimeSpan.FromSeconds(5));
+
             query.AwaitTermination();
+        }
 
+        private static void ScheduleStopQuery(StreamingQuery query, TimeSpan time)
+        {
+            var _timer = new System.Timers.Timer();
+            _timer.Elapsed += (o, s) =>
+            {
+                if (query.IsActive())
+                {
+                    query.Stop();
+                }
 
-            _spark.Sql("SELECT * FROM dataTable").Show();
-
+                _timer.Stop();
+            };
+            _timer.Interval = time.TotalMilliseconds;
+            _timer.Start();
         }
     }
 }
