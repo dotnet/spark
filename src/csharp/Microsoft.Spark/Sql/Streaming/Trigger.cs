@@ -14,7 +14,8 @@ namespace Microsoft.Spark.Sql.Streaming
     public sealed class Trigger : IJvmObjectReferenceProvider
     {
         private static IJvmBridge Jvm { get; } = SparkEnvironment.JvmBridge;
-        private static readonly string s_triggerClassName = "org.apache.spark.sql.streaming.Trigger";
+        private static readonly string s_triggerClassName = 
+            "org.apache.spark.sql.streaming.Trigger";
 
         private readonly JvmObjectReference _jvmObject;
 
@@ -23,7 +24,8 @@ namespace Microsoft.Spark.Sql.Streaming
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
-        /// A trigger policy that runs a query periodically based on an interval in processing time.
+        /// A trigger policy that runs a query periodically based on an interval 
+        /// in processing time.
         /// If `interval` is 0, the query will run as fast as possible.
         /// </summary>
         /// <param name="intervalMs">milliseconds</param>
@@ -34,7 +36,8 @@ namespace Microsoft.Spark.Sql.Streaming
         }
 
         /// <summary>
-        /// A trigger policy that runs a query periodically based on an interval in processing time.
+        /// A trigger policy that runs a query periodically based on an interval 
+        /// in processing time.
         /// If `interval` is effectively 0, the query will run as fast as possible.
         /// </summary>
         /// <param name="interval">string representation for interval. eg. "10 seconds"</param>

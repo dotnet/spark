@@ -130,8 +130,10 @@ namespace Microsoft.Spark.Sql.Streaming
         }
 
         /// <summary>
-        /// Specifies the name of the <see cref="StreamingQuery"/> that can be started with `start()`.
-        /// This name must be unique among all the currently active queries in the associated SQLContext.
+        /// Specifies the name of the <see cref="StreamingQuery"/> 
+        /// that can be started with `start()`.
+        /// This name must be unique among all the currently active queries 
+        /// in the associated SQLContext.
         /// </summary>
         /// <param name="queryName">string</param>
         /// <returns>This DataStreamReader object</returns>
