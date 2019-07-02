@@ -19,6 +19,9 @@ namespace Microsoft.Spark.Utils
     /// </summary>
     internal class UdfSerDe
     {
+        private static readonly ConcurrentDictionary<string, Assembly> s_assemblyCache =
+            new ConcurrentDictionary<string, Assembly>();
+
         private static readonly ConcurrentDictionary<TypeData, Type> s_typeCache =
             new ConcurrentDictionary<TypeData, Type>();
 
@@ -107,25 +110,13 @@ namespace Microsoft.Spark.Utils
             public ValueData(SerializationInfo info, StreamingContext context)
             {
                 TypeData = (TypeData)info.GetValue("TypeData", typeof(TypeData));
+                LoadAssembly(TypeData.AssemblyName, TypeData.ManifestModuleName);
 
                 var valueSerialized = (byte[])info.GetValue("ValueSerialized", typeof(byte[]));
                 using (var ms = new MemoryStream(valueSerialized, false))
                 {
                     var bf = new BinaryFormatter();
-                    try
-                    {
-                        Value = bf.Deserialize(ms);
-                    }
-                    catch (SerializationException)
-                    {
-                        // This catch block is entered if no assemblies within the
-                        // default load context contains the type being deserialized.
-                        // The assembly containing the type is loaded and we attempt to
-                        // deserialize again.
-                        ms.Seek(0, SeekOrigin.Begin);
-                        DeserializeType(TypeData);
-                        Value = bf.Deserialize(ms);
-                    }
+                    Value = bf.Deserialize(ms);
                 }
             }
         }
@@ -253,14 +244,41 @@ namespace Microsoft.Spark.Utils
 
         private static Type DeserializeType(TypeData typeData) =>
             s_typeCache.GetOrAdd(typeData,
-                td => LoadAssembly(typeData.ManifestModuleName).GetType(typeData.Name));
+                td => LoadAssembly(td.AssemblyName, td.ManifestModuleName).GetType(td.Name));
+
+        /// <summary>
+        /// Return the cached assembly, otherwise attempt to load and cache the assembly
+        /// in the following order:
+        /// 1) Search the assemblies loaded in the current app domain.
+        /// 2) Load the assembly from disk using manifestModuleName.
+        /// </summary>
+        /// <param name="assemblyName">The full name of the assembly</param>
+        /// <param name="manifestModuleName"> Name of the module that contains the assembly</param>
+        /// <returns></returns>
+        private static Assembly LoadAssembly(string assemblyName, string manifestModuleName)
+        {
+            return s_assemblyCache.GetOrAdd(
+                assemblyName,
+                _ =>
+                {
+                    foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        if (asm.FullName.Equals(assemblyName))
+                        {
+                            return asm;
+                        }
+                    }
+
+                    return LoadAssembly(manifestModuleName);
+                });
+        }
 
         /// <summary>
         /// Returns the loaded assembly by probing the following locations in order:
         /// 1) The working directory
         /// 2) The directory of the application
         /// If the assembly is not found in the above locations, the exception from
-        /// Assembly.LoadFrom() will be propagated.
+        /// AssemblyLoader() will be propagated.
         /// </summary>
         /// <param name="manifestModuleName">The name of assembly to load</param>
         /// <returns>The loaded assembly</returns>
