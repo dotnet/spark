@@ -266,16 +266,22 @@ namespace Microsoft.Spark.Utils
         /// <returns>The loaded assembly</returns>
         private static Assembly LoadAssembly(string manifestModuleName)
         {
-            try
+            string assemblyPath1 =
+                Path.Combine(Directory.GetCurrentDirectory(), manifestModuleName);
+            if (File.Exists(assemblyPath1))
             {
-                return AssemblyLoader(
-                    Path.Combine(Directory.GetCurrentDirectory(), manifestModuleName));
+                return AssemblyLoader(assemblyPath1);
             }
-            catch (FileNotFoundException)
+
+            string assemblyPath2 =
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, manifestModuleName);
+            if (File.Exists(assemblyPath2))
             {
-                return AssemblyLoader(
-                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, manifestModuleName));
+                return AssemblyLoader(assemblyPath2);
             }
+
+            throw new FileNotFoundException(
+                $"Assembly files not found: '{assemblyPath1}', '{assemblyPath2}'");
         }
     }
 }
