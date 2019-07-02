@@ -253,7 +253,7 @@ namespace Microsoft.Spark.Utils
         /// 2) Load the assembly from disk using manifestModuleName.
         /// </summary>
         /// <param name="assemblyName">The full name of the assembly</param>
-        /// <param name="manifestModuleName"> Name of the module that contains the assembly</param>
+        /// <param name="manifestModuleName">Name of the module that contains the assembly</param>
         /// <returns></returns>
         private static Assembly LoadAssembly(string assemblyName, string manifestModuleName)
         {
