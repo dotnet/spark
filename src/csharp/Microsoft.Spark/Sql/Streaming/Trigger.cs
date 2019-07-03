@@ -28,7 +28,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// in processing time.
         /// If `interval` is 0, the query will run as fast as possible.
         /// </summary>
-        /// <param name="intervalMs">milliseconds</param>
+        /// <param name="intervalMs">Milliseconds</param>
         /// <returns>Trigger Object</returns>
         public static Trigger ProcessingTime(long intervalMs)
         {
@@ -61,7 +61,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// A trigger that continuously processes streaming data,
         /// asynchronously checkpointing at the specified interval.
         /// </summary>
-        /// <param name="intervalMs">milliseconds</param>
+        /// <param name="intervalMs">Milliseconds</param>
         /// <returns>Trigger Object</returns>
         public static Trigger Continuous(long intervalMs)
         {
