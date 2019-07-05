@@ -3,11 +3,13 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
+using Microsoft.Spark.Utils;
 using Microsoft.Spark.Worker.Command;
 using Microsoft.Spark.Worker.Processor;
 using Microsoft.Spark.Worker.Utils;
@@ -46,6 +48,11 @@ namespace Microsoft.Spark.Worker
         public void Run()
         {
             s_logger.LogInfo($"[{TaskId}] Starting with ReuseSocket[{_reuseSocket}].");
+
+            if (EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_WORKER_DEBUG"))
+            {
+                Debugger.Launch();
+            }
 
             _isRunning = true;
             Stream inputStream = _socket.InputStream;
