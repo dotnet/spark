@@ -62,21 +62,107 @@ namespace Microsoft.Spark.Utils
             public TypeData TypeData { get; set; }
             public string MethodName { get; set; }
             public TargetData TargetData { get; set; }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                return (obj is UdfData udfData) &&
+                    Equals(udfData);
+            }
+
+            public bool Equals(UdfData other)
+            {
+                return (other != null) &&
+                    (TypeData.Equals(other.TypeData)) &&
+                    (MethodName == other.MethodName) &&
+                    (TargetData.Equals(other.TargetData));
+            }
         }
 
         [Serializable]
         internal sealed class TargetData
         {
+            public static readonly FieldData[] s_emptyFields = new FieldData[0];
+
             public TypeData TypeData { get; set; }
             public FieldData[] Fields { get; set; }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                return (obj is TargetData targetData) &&
+                    Equals(targetData);
+            }
+
+            public bool Equals(TargetData other)
+            {
+                if ((other == null) ||
+                    !TypeData.Equals(other.TypeData) ||
+                    (Fields.Length != other.Fields.Length))
+                {
+                    return false;
+                }
+
+                Dictionary<string, FieldData> otherFieldDataDict =
+                    other.Fields.ToDictionary(f => f.Name);
+                foreach (FieldData field in Fields)
+                {
+                    if (!otherFieldDataDict.TryGetValue(field.Name, out FieldData otherField) ||
+                        !field.Equals(otherField))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
         }
 
         [Serializable]
         internal sealed class FieldData
         {
-            public TypeData TypeData { get; set; }
-            public string Name { get; set; }
-            public ValueData ValueData { get; set; }
+            public FieldData(object target, FieldInfo field)
+            {
+                object value = field.GetValue(target);
+
+                TypeData = SerializeType(field.FieldType);
+                Name = field.Name;
+                ValueData = (value != null)
+                    ? new ValueData(value)
+                    : null;
+            }
+
+            public TypeData TypeData { get; private set; }
+            public string Name { get; private set; }
+            public ValueData ValueData { get; private set; }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                return (obj is FieldData fieldData) &&
+                    Equals(fieldData);
+            }
+
+            public bool Equals(FieldData other)
+            {
+                return (other != null) &&
+                    TypeData.Equals(other.TypeData) &&
+                    (Name == other.Name) &&
+                    ((ValueData == null && other.ValueData == null) ||
+                    (ValueData != null && ValueData.Equals(other.ValueData)));
+            }
         }
 
         /// <summary>
@@ -89,22 +175,15 @@ namespace Microsoft.Spark.Utils
         [Serializable]
         internal sealed class ValueData : ISerializable
         {
-            public ValueData() { }
-
-            public TypeData TypeData { get; set; }
-
-            public object Value { get; set; }
-
-            public void GetObjectData(SerializationInfo info, StreamingContext context)
+            public ValueData(object value)
             {
-                info.AddValue("TypeData", TypeData, typeof(TypeData));
-
-                using (var ms = new MemoryStream())
+                if (value == null)
                 {
-                    var bf = new BinaryFormatter();
-                    bf.Serialize(ms, Value);
-                    info.AddValue("ValueSerialized", ms.ToArray(), typeof(byte[]));
+                    throw new ArgumentNullException("value cannot be null.");
                 }
+
+                TypeData = SerializeType(value.GetType());
+                Value = value;
             }
 
             public ValueData(SerializationInfo info, StreamingContext context)
@@ -118,6 +197,40 @@ namespace Microsoft.Spark.Utils
                     var bf = new BinaryFormatter();
                     Value = bf.Deserialize(ms);
                 }
+            }
+
+            public TypeData TypeData { get; private set; }
+
+            public object Value { get; private set; }
+
+            public void GetObjectData(SerializationInfo info, StreamingContext context)
+            {
+                info.AddValue("TypeData", TypeData, typeof(TypeData));
+
+                using (var ms = new MemoryStream())
+                {
+                    var bf = new BinaryFormatter();
+                    bf.Serialize(ms, Value);
+                    info.AddValue("ValueSerialized", ms.ToArray(), typeof(byte[]));
+                }
+            }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                return (obj is ValueData valueData) &&
+                    Equals(valueData);
+            }
+
+            public bool Equals(ValueData other)
+            {
+                return (other != null) &&
+                    (TypeData.Equals(other.TypeData)) &&
+                    (Value.Equals(other.Value));
             }
         }
 
@@ -182,19 +295,7 @@ namespace Microsoft.Spark.Utils
                 BindingFlags.Public |
                 BindingFlags.NonPublic))
             {
-                object value = field.GetValue(target);
-                var fieldData = new FieldData()
-                {
-                    TypeData = SerializeType(field.FieldType),
-                    Name = field.Name,
-                    ValueData = new ValueData()
-                    {
-                        TypeData = (value != null) ? SerializeType(value.GetType()) : default,
-                        Value = value
-                    }
-                };
-
-                fields.Add(fieldData);
+                fields.Add(new FieldData(target, field));
             }
 
             // Even when an UDF does not have any closure, GetFields() returns some fields
@@ -209,7 +310,7 @@ namespace Microsoft.Spark.Utils
             var targetData = new TargetData()
             {
                 TypeData = targetTypeData,
-                Fields = doesUdfHaveClosure ? fields.ToArray() : null
+                Fields = doesUdfHaveClosure ? fields.ToArray() : TargetData.s_emptyFields
             };
 
             return targetData;
@@ -226,7 +327,7 @@ namespace Microsoft.Spark.Utils
                     field.Name,
                     BindingFlags.Instance |
                     BindingFlags.Public |
-                    BindingFlags.NonPublic).SetValue(target, field.ValueData.Value);
+                    BindingFlags.NonPublic).SetValue(target, field.ValueData?.Value);
             }
 
             return target;
@@ -254,7 +355,7 @@ namespace Microsoft.Spark.Utils
         /// </summary>
         /// <param name="assemblyName">The full name of the assembly</param>
         /// <param name="manifestModuleName">Name of the module that contains the assembly</param>
-        /// <returns></returns>
+        /// <returns>Cached or Loaded Assembly</returns>
         private static Assembly LoadAssembly(string assemblyName, string manifestModuleName)
         {
             return s_assemblyCache.GetOrAdd(
@@ -284,22 +385,22 @@ namespace Microsoft.Spark.Utils
         /// <returns>The loaded assembly</returns>
         private static Assembly LoadAssembly(string manifestModuleName)
         {
-            string assemblyPath1 =
+            string currDirAsmPath =
                 Path.Combine(Directory.GetCurrentDirectory(), manifestModuleName);
-            if (File.Exists(assemblyPath1))
+            if (File.Exists(currDirAsmPath))
             {
-                return AssemblyLoader(assemblyPath1);
+                return AssemblyLoader(currDirAsmPath);
             }
 
-            string assemblyPath2 =
+            string baseDirAsmPath =
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, manifestModuleName);
-            if (File.Exists(assemblyPath2))
+            if (File.Exists(baseDirAsmPath))
             {
-                return AssemblyLoader(assemblyPath2);
+                return AssemblyLoader(baseDirAsmPath);
             }
 
             throw new FileNotFoundException(
-                $"Assembly files not found: '{assemblyPath1}', '{assemblyPath2}'");
+                $"Assembly files not found: '{currDirAsmPath}', '{baseDirAsmPath}'");
         }
     }
 }

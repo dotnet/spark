@@ -5,11 +5,6 @@
 using System;
 using System.Diagnostics;
 
-#if !NETFRAMEWORK
-using System.Runtime.Loader;
-using Microsoft.Spark.Utils;
-#endif
-
 namespace Microsoft.Spark.Worker
 {
     internal class Program
@@ -31,10 +26,6 @@ namespace Microsoft.Spark.Worker
                 Console.Error.WriteLine($"Invalid number of args: {args.Length}");
                 Environment.Exit(-1);
             }
-
-#if !NETFRAMEWORK
-            UdfSerDe.AssemblyLoader = AssemblyLoadContext.Default.LoadFromAssemblyPath;
-#endif
 
             if ((args[0] == "-m") && (args[1] == "pyspark.worker"))
             {

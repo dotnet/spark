@@ -9,11 +9,22 @@ using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
 using static Microsoft.Spark.Utils.UdfUtils;
 
+#if NETCOREAPP
+using System.Runtime.Loader;
+#endif
+
 namespace Microsoft.Spark.Worker.Processor
 {
     internal sealed class CommandProcessor
     {
         private readonly Version _version;
+
+#if NETCOREAPP
+        static CommandProcessor()
+        {
+            UdfSerDe.AssemblyLoader = AssemblyLoadContext.Default.LoadFromAssemblyPath;
+        }
+#endif
 
         internal CommandProcessor(Version version)
         {

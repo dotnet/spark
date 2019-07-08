@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,10 +19,12 @@ namespace Microsoft.Spark.UnitTest
         private class TestClass
         {
             private readonly int _i;
+            public object _obj;
 
             public TestClass(int i)
             {
                 _i = i;
+                _obj = null;
             }
 
             public int MultiplyBy(int i)
@@ -38,7 +41,9 @@ namespace Microsoft.Spark.UnitTest
                     return false;
                 }
 
-                return this._i == that._i;
+                return (_i == that._i) &&
+                    ((_obj == null && that._obj == null) ||
+                    (_obj != null && _obj.Equals(that._obj)));
             }
 
             public override int GetHashCode()
@@ -53,38 +58,33 @@ namespace Microsoft.Spark.UnitTest
             {
                 // Without Closure
                 Func<int, int> udf = i => 10 * i;
-                VerifyUdfSerDe(udf, false, false);
+                VerifyUdfSerDe(udf, false);
             }
 
             {
-                // With Closure
+                // With Closure where the Delegate target is an anonymous class.
                 TestClass tc = new TestClass(20);
                 Func<int, int> udf = i => tc.MultiplyBy(i);
-                VerifyUdfSerDe(udf, true, false);
+                VerifyUdfSerDe(udf, true);
             }
 
             {
-                // With Closure where the udf target's Equals method is overridden.
-                // The default behavior checks whether the two objects represent the
-                // same object reference. However due to SerDe, the deserialized
-                // object will be a new instance, and therefore we override Equals
-                // to check the field values for equality.
+                // With Closure where the Delegate target is TestClass
                 TestClass tc = new TestClass(20);
                 Func<int, int> udf = tc.MultiplyBy;
-                VerifyUdfSerDe(udf, true, true);
+                VerifyUdfSerDe(udf, true);
             }
         }
 
-        private void VerifyUdfSerDe(Delegate udf, bool hasClosure, bool checkTargetEquality)
+        private void VerifyUdfSerDe(Delegate udf, bool hasClosure)
         {
-            var serializedUdf = SerializeAndVerify(udf, hasClosure);
-            DeserializeAndVerify(udf, serializedUdf, hasClosure, checkTargetEquality);
+            byte[] serializedUdf = SerializeUdf(udf);
+            DeserializeAndVerify(udf, serializedUdf, hasClosure);
         }
 
-        private byte[] SerializeAndVerify(Delegate udf, bool hasClosure)
+        private byte[] SerializeUdf(Delegate udf)
         {
             UdfSerDe.UdfData udfData = UdfSerDe.Serialize(udf);
-            VerifyUdfData(udf, udfData, hasClosure);
 
             using (var ms = new MemoryStream())
             {
@@ -97,13 +97,12 @@ namespace Microsoft.Spark.UnitTest
         private void DeserializeAndVerify(
             Delegate udf,
             byte[] serializedUdf,
-            bool hasClosure,
-            bool checkTargetEquality)
+            bool hasClosure)
         {
             using (var ms = new MemoryStream(serializedUdf, false))
             {
                 var bf = new BinaryFormatter();
-                UdfSerDe.UdfData udfData = (UdfSerDe.UdfData)bf.Deserialize(ms);
+                var udfData = (UdfSerDe.UdfData)bf.Deserialize(ms);
                 VerifyUdfData(udf, udfData, hasClosure);
 
                 Delegate deserializedUdf = UdfSerDe.Deserialize(udfData);
@@ -111,67 +110,36 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Equal(udf.Method, deserializedUdf.Method);
                 Assert.Equal(udf.Target.GetType(), deserializedUdf.Target.GetType());
 
-                if (checkTargetEquality)
+                FieldInfo[] expectedFields = udf.Target.GetType().GetFields();
+                FieldInfo[] actualFields = deserializedUdf.Target.GetType().GetFields();
+                Assert.Equal(expectedFields.Length, actualFields.Length);
+
+                Dictionary<string, FieldInfo> actualFieldsDict =
+                    actualFields.ToDictionary(f => f.Name);
+                foreach (FieldInfo expectedField in expectedFields)
                 {
-                    Assert.Equal(udf.Target, deserializedUdf.Target);
+                    Assert.True(
+                        actualFieldsDict.TryGetValue(
+                            expectedField.Name,
+                            out FieldInfo actualField));
+
+                    Assert.Equal(expectedField, actualField);
                 }
             }
         }
 
-        private void VerifyUdfData(Delegate udf, UdfSerDe.UdfData udfData, bool hasClosure)
-        {
-            VerifyTypeData(udf.Method.DeclaringType, udfData.TypeData);
-            Assert.Equal(udf.Method.Name, udfData.MethodName);
-            VerifyTargetData(udf.Target, udfData.TargetData, hasClosure);
-        }
-
-        private void VerifyTypeData(Type type, UdfSerDe.TypeData typeData)
-        {
-            Assert.Equal(type.FullName, typeData.Name);
-            Assert.Equal(type.Assembly.FullName, typeData.AssemblyName);
-            Assert.Equal(type.Assembly.ManifestModule.Name, typeData.ManifestModuleName);
-        }
-
-        private void VerifyTargetData(
-            object target,
-            UdfSerDe.TargetData targetData,
+        private void VerifyUdfData(
+            Delegate expectedUdf,
+            UdfSerDe.UdfData actualUdfData,
             bool hasClosure)
         {
-            Type targetType = target.GetType();
-            VerifyTypeData(targetType, targetData.TypeData);
+            UdfSerDe.UdfData expectedUdfData = UdfSerDe.Serialize(expectedUdf);
+            Assert.Equal(expectedUdfData, actualUdfData);
 
-            // Fields are not serialized if there is no closure.
             if (!hasClosure)
             {
-                Assert.Null(targetData.Fields);
-                return;
-            }
-
-            // Check Fields
-            UdfSerDe.FieldData[] actualFields = targetData.Fields;
-            FieldInfo[] expectedFields = targetType.GetFields(
-                BindingFlags.Instance |
-                BindingFlags.Static |
-                BindingFlags.Public |
-                BindingFlags.NonPublic);
-            Assert.Equal(expectedFields.Length, actualFields.Length);
-
-            var actualFieldsDict = actualFields.ToDictionary(f => f.Name);
-            foreach (FieldInfo expectedField in expectedFields)
-            {
-                Assert.True(
-                    actualFieldsDict.TryGetValue(
-                        expectedField.Name,
-                        out UdfSerDe.FieldData actualField));
-
-                VerifyTypeData(expectedField.FieldType, actualField.TypeData);
-                Assert.Equal(expectedField.Name, actualField.Name);
-
-                // Check ValueData
-                object expectedValue = expectedField.GetValue(target);
-                UdfSerDe.ValueData valueData = actualField.ValueData;
-                VerifyTypeData(expectedValue.GetType(), valueData.TypeData);
-                Assert.Equal(expectedValue, valueData.Value);
+                Assert.Equal(expectedUdfData.TargetData.Fields, UdfSerDe.TargetData.s_emptyFields);
+                Assert.Equal(actualUdfData.TargetData.Fields, UdfSerDe.TargetData.s_emptyFields);
             }
         }
     }
