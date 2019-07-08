@@ -135,7 +135,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// This name must be unique among all the currently active queries 
         /// in the associated SQLContext.
         /// </summary>
-        /// <param name="queryName">string</param>
+        /// <param name="queryName">Query name</param>
         /// <returns>This DataStreamReader object</returns>
         public DataStreamWriter QueryName(string queryName)
         {

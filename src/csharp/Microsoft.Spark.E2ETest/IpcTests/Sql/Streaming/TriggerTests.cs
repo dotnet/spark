@@ -26,7 +26,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {
             Trigger trigger;
 
-            trigger = Trigger.Once();
+            Assert.IsType<Trigger>(Trigger.Once());
 
             trigger = Trigger.Continuous("1 seconds");
             trigger = Trigger.Continuous(1000);
