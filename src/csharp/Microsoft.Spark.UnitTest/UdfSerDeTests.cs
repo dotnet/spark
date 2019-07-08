@@ -18,18 +18,21 @@ namespace Microsoft.Spark.UnitTest
         [Serializable]
         private class TestClass
         {
-            private readonly int _i;
-            public object _obj;
+            private string _str;
 
-            public TestClass(int i)
+            public TestClass(string s)
             {
-                _i = i;
-                _obj = null;
+                _str = s;
             }
 
-            public int MultiplyBy(int i)
+            public string Concat(string s)
             {
-                return _i * i;
+                if (_str == null)
+                {
+                    return s;
+                }
+
+                return _str + s;
             }
 
             public override bool Equals(object obj)
@@ -41,9 +44,7 @@ namespace Microsoft.Spark.UnitTest
                     return false;
                 }
 
-                return (_i == that._i) &&
-                    ((_obj == null && that._obj == null) ||
-                    (_obj != null && _obj.Equals(that._obj)));
+                return _str == that._str;
             }
 
             public override int GetHashCode()
@@ -63,17 +64,28 @@ namespace Microsoft.Spark.UnitTest
 
             {
                 // With Closure where the Delegate target is an anonymous class.
-                TestClass tc = new TestClass(20);
-                Func<int, int> udf = i => tc.MultiplyBy(i);
+                TestClass tc = new TestClass("TestClass");
+                Func<string, string> udf = s => tc.Concat(s);
                 VerifyUdfSerDe(udf, true);
             }
 
             {
-                // With Closure where the Delegate target is TestClass
-                TestClass tc = new TestClass(20);
-                Func<int, int> udf = tc.MultiplyBy;
+                // With Closure where the Delegate target is TestClass.
+                // Note: In practice, this scenario shouldn't be hit.
+                TestClass tc = new TestClass("TestClass");
+                Func<string, string> udf = tc.Concat;
                 VerifyUdfSerDe(udf, true);
             }
+
+            {
+                // With Closure where the Delegate target is TestClass,
+                // and target's field value is set to null.
+                // Note: In practice, this scenario shouldn't be hit.
+                TestClass tc = new TestClass(null);
+                Func<string, string> udf = tc.Concat;
+                VerifyUdfSerDe(udf, true);
+            }
+
         }
 
         private void VerifyUdfSerDe(Delegate udf, bool hasClosure)
@@ -113,17 +125,9 @@ namespace Microsoft.Spark.UnitTest
                 FieldInfo[] expectedFields = udf.Target.GetType().GetFields();
                 FieldInfo[] actualFields = deserializedUdf.Target.GetType().GetFields();
                 Assert.Equal(expectedFields.Length, actualFields.Length);
-
-                Dictionary<string, FieldInfo> actualFieldsDict =
-                    actualFields.ToDictionary(f => f.Name);
-                foreach (FieldInfo expectedField in expectedFields)
+                for (int i = 0; i < expectedFields.Length; ++i)
                 {
-                    Assert.True(
-                        actualFieldsDict.TryGetValue(
-                            expectedField.Name,
-                            out FieldInfo actualField));
-
-                    Assert.Equal(expectedField, actualField);
+                    Assert.Equal(expectedFields[i], actualFields[i]);
                 }
             }
         }
@@ -138,8 +142,8 @@ namespace Microsoft.Spark.UnitTest
 
             if (!hasClosure)
             {
-                Assert.Equal(expectedUdfData.TargetData.Fields, UdfSerDe.TargetData.s_emptyFields);
-                Assert.Equal(actualUdfData.TargetData.Fields, UdfSerDe.TargetData.s_emptyFields);
+                Assert.Null(expectedUdfData.TargetData.Fields);
+                Assert.Null(actualUdfData.TargetData.Fields);
             }
         }
     }

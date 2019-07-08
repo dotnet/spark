@@ -86,8 +86,6 @@ namespace Microsoft.Spark.Utils
         [Serializable]
         internal sealed class TargetData
         {
-            public static readonly FieldData[] s_emptyFields = new FieldData[0];
-
             public TypeData TypeData { get; set; }
             public FieldData[] Fields { get; set; }
 
@@ -106,17 +104,18 @@ namespace Microsoft.Spark.Utils
             {
                 if ((other == null) ||
                     !TypeData.Equals(other.TypeData) ||
-                    (Fields.Length != other.Fields.Length))
+                    (Fields?.Length != other.Fields?.Length))
                 {
                     return false;
                 }
-
-                Dictionary<string, FieldData> otherFieldDataDict =
-                    other.Fields.ToDictionary(f => f.Name);
-                foreach (FieldData field in Fields)
+                else if (Fields == null && other.Fields == null)
                 {
-                    if (!otherFieldDataDict.TryGetValue(field.Name, out FieldData otherField) ||
-                        !field.Equals(otherField))
+                    return true;
+                }
+
+                for (int i = 0; i < Fields.Length; ++i)
+                {
+                    if (!Fields[i].Equals(other.Fields[i]))
                     {
                         return false;
                     }
@@ -289,7 +288,7 @@ namespace Microsoft.Spark.Utils
             TypeData targetTypeData = SerializeType(targetType);
 
             var fields = new List<FieldData>();
-            foreach (var field in targetType.GetFields(
+            foreach (FieldInfo field in targetType.GetFields(
                 BindingFlags.Instance |
                 BindingFlags.Static |
                 BindingFlags.Public |
@@ -310,7 +309,7 @@ namespace Microsoft.Spark.Utils
             var targetData = new TargetData()
             {
                 TypeData = targetTypeData,
-                Fields = doesUdfHaveClosure ? fields.ToArray() : TargetData.s_emptyFields
+                Fields = doesUdfHaveClosure ? fields.ToArray() : null
             };
 
             return targetData;
