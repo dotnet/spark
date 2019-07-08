@@ -392,15 +392,15 @@ namespace Microsoft.Spark.Utils
                 return AssemblyLoader(currDirAsmPath);
             }
 
-            string baseDirAsmPath =
+            string currDomainBaseDirAsmPath =
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, manifestModuleName);
-            if (File.Exists(baseDirAsmPath))
+            if (File.Exists(currDomainBaseDirAsmPath))
             {
-                return AssemblyLoader(baseDirAsmPath);
+                return AssemblyLoader(currDomainBaseDirAsmPath);
             }
 
             throw new FileNotFoundException(
-                $"Assembly files not found: '{currDirAsmPath}', '{baseDirAsmPath}'");
+                $"Assembly files not found: '{currDirAsmPath}', '{currDomainBaseDirAsmPath}'");
         }
     }
 }
