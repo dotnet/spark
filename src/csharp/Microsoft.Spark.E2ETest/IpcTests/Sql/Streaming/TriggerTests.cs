@@ -24,15 +24,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestSignatures()
         {
-            Trigger trigger;
-
             Assert.IsType<Trigger>(Trigger.Once());
 
-            trigger = Trigger.Continuous("1 seconds");
-            trigger = Trigger.Continuous(1000);
+            Assert.IsType<Trigger>(Trigger.Continuous("1 seconds"));
+            Assert.IsType<Trigger>(Trigger.Continuous(1000));
 
-            trigger = Trigger.ProcessingTime("1 seconds");
-            trigger = Trigger.ProcessingTime(1000);
+            Assert.IsType<Trigger>(Trigger.ProcessingTime("1 seconds"));
+            Assert.IsType<Trigger>(Trigger.ProcessingTime(1000));
         }
     }
 }
