@@ -103,7 +103,9 @@ namespace Microsoft.Spark.UnitTest
                 Delegate actualUdf = SerDe(expectedUdf);
 
                 VerifyUdfSerDe(expectedUdf, actualUdf, true);
-                Assert.Equal("HelloWorldHelloWorld", ((Func<string, string>)actualUdf)("HelloWorld"));
+                Assert.Equal(
+                    "HelloWorldHelloWorld",
+                    ((Func<string, string>)actualUdf)("HelloWorld"));
             }
         }
 
