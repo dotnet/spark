@@ -195,6 +195,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 switch (age)
                 {
                     case 0:
+                        // The results here are incorrect for the {name: "Michael" age: null} 
+                        // record because of https://issues.apache.org/jira/browse/ARROW-5887.
+                        // When an updated Apache.Arrow library is available with the fix,
+                        // this should change to check for age: null, charCount: 7.
                         Assert.Null(charCount);
                         break;
                     case 19:

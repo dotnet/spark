@@ -540,8 +540,11 @@ namespace Microsoft.Spark.Worker.Command
             Stream outputStream,
             SqlCommand[] commands)
         {
+            Debug.Assert(commands.Length == 1,
+                "Grouped Map UDFs do not support combining multiple UDFs.");
+
             var stat = new CommandExecutorStat();
-            ICommandRunner commandRunner = CreateCommandRunner(commands);
+            var worker = (ArrowGroupedMapWorkerFunction)commands[0].WorkerFunction;
 
             SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
 
@@ -553,25 +556,20 @@ namespace Microsoft.Spark.Worker.Command
             ArrowStreamWriter writer = null;
             foreach (RecordBatch input in GetInputIterator(inputStream))
             {
-                RecordBatch[] results = commandRunner.Run(input);
+                RecordBatch result = worker.Func(input);
 
-                // Assumes all columns have the same length, so uses 0th for num entries.
-                int numEntries = results[0].Length;
+                int numEntries = result.Length;
                 stat.NumEntriesProcessed += numEntries;
 
                 tmp.SetLength(0);
 
                 if (writer == null)
                 {
-                    Debug.Assert(results.Length > 0);
-                    writer = new ArrowStreamWriter(tmp, results[0].Schema, leaveOpen: true);
+                    writer = new ArrowStreamWriter(tmp, result.Schema, leaveOpen: true);
                 }
 
-                for (int i = 0; i < results.Length; ++i)
-                {
-                    // TODO: Remove sync-over-async once WriteRecordBatch exists.
-                    writer.WriteRecordBatchAsync(results[i]).GetAwaiter().GetResult();
-                }
+                // TODO: Remove sync-over-async once WriteRecordBatch exists.
+                writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
 
                 tmp.Position = 0;
                 tmp.CopyTo(outputStream);
@@ -614,86 +612,6 @@ namespace Microsoft.Spark.Worker.Command
                     }
                     yield return new RecordBatch(reader.Schema, arrays, 0);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Creates an ICommandRunner instance based on the given commands.
-        /// </summary>
-        /// <param name="commands">Commands used for creating a command runner</param>
-        /// <returns>An ICommandRunner instance</returns>
-        private static ICommandRunner CreateCommandRunner(SqlCommand[] commands)
-        {
-            return (commands.Length == 1) ?
-                (ICommandRunner)new SingleCommandRunner(commands[0]) :
-                new MultiCommandRunner(commands);
-        }
-
-        private interface ICommandRunner
-        {
-            RecordBatch[] Run(RecordBatch input);
-        }
-
-        /// <summary>
-        /// SingleCommandRunner handles running a single command.
-        /// </summary>
-        private sealed class SingleCommandRunner : ICommandRunner
-        {
-            /// <summary>
-            /// A command to run.
-            /// </summary>
-            private readonly SqlCommand _command;
-
-            /// <summary>
-            /// Constructor.
-            /// </summary>
-            /// <param name="command">A command to run</param>
-            internal SingleCommandRunner(SqlCommand command)
-            {
-                _command = command;
-            }
-
-            public RecordBatch[] Run(RecordBatch input)
-            {
-                return new[] { ((ArrowGroupedMapWorkerFunction)_command.WorkerFunction).Func(
-                    input) };
-            }
-        }
-
-        /// <summary>
-        /// MultiCommandRunner handles running multiple commands.
-        /// </summary>
-        private sealed class MultiCommandRunner : ICommandRunner
-        {
-            /// <summary>
-            /// Commands to run.
-            /// </summary>
-            private readonly SqlCommand[] _commands;
-
-            /// <summary>
-            /// Constructor.
-            /// </summary>
-            /// <param name="commands">Multiple commands top run</param>
-            internal MultiCommandRunner(SqlCommand[] commands)
-            {
-                _commands = commands;
-            }
-
-            /// <summary>
-            /// Runs multiple commands.
-            /// </summary>
-            /// <param name="input">Input data for the commands to run</param>
-            /// <returns>An array of values returned by running the commands</returns>
-            public RecordBatch[] Run(RecordBatch input)
-            {
-                var resultBatches = new RecordBatch[_commands.Length];
-                for (int i = 0; i < resultBatches.Length; ++i)
-                {
-                    SqlCommand command = _commands[i];
-                    resultBatches[i] = ((ArrowGroupedMapWorkerFunction)command.WorkerFunction).Func(
-                        input);
-                }
-                return resultBatches;
             }
         }
     }

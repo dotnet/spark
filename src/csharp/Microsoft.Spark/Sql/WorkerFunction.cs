@@ -99,42 +99,6 @@ namespace Microsoft.Spark.Sql
         }
 
         internal ExecuteDelegate Func { get; }
-
-        /// <summary>
-        /// Used to chain functions.
-        /// </summary>
-        internal static ArrowGroupedMapWorkerFunction Chain(
-            ArrowGroupedMapWorkerFunction innerWorkerFunction,
-            ArrowGroupedMapWorkerFunction outerWorkerFunction)
-        {
-            return new ArrowGroupedMapWorkerFunction(
-                new WorkerFuncChainHelper(
-                    innerWorkerFunction.Func,
-                    outerWorkerFunction.Func).Execute);
-        }
-
-        private class WorkerFuncChainHelper
-        {
-            private readonly ExecuteDelegate _innerFunc;
-            private readonly ExecuteDelegate _outerFunc;
-
-            /// <summary>
-            /// The outer function will always take 0 as an offset since there is only one
-            /// return value from an inner function.
-            /// </summary>
-            private static readonly int[] s_outerFuncArgOffsets = { 0 };
-
-            internal WorkerFuncChainHelper(ExecuteDelegate inner, ExecuteDelegate outer)
-            {
-                _innerFunc = inner;
-                _outerFunc = outer;
-            }
-
-            internal RecordBatch Execute(RecordBatch input)
-            {
-                return _outerFunc(_innerFunc(input));
-            }
-        }
     }
 
     /// <summary>
