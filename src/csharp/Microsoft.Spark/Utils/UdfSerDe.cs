@@ -19,8 +19,8 @@ namespace Microsoft.Spark.Utils
     /// </summary>
     internal class UdfSerDe
     {
-        private static readonly ConcurrentDictionary<string, Assembly> s_assemblyCache =
-            new ConcurrentDictionary<string, Assembly>();
+        private static readonly ConcurrentDictionary<string, Lazy<Assembly>> s_assemblyCache =
+            new ConcurrentDictionary<string, Lazy<Assembly>>();
 
         private static readonly ConcurrentDictionary<TypeData, Type> s_typeCache =
             new ConcurrentDictionary<TypeData, Type>();
@@ -77,9 +77,9 @@ namespace Microsoft.Spark.Utils
             public bool Equals(UdfData other)
             {
                 return (other != null) &&
-                    (TypeData.Equals(other.TypeData)) &&
+                    TypeData.Equals(other.TypeData) &&
                     (MethodName == other.MethodName) &&
-                    (TargetData.Equals(other.TargetData));
+                    TargetData.Equals(other.TargetData);
             }
         }
 
@@ -108,20 +108,13 @@ namespace Microsoft.Spark.Utils
                 {
                     return false;
                 }
-                else if (Fields == null && other.Fields == null)
+
+                if ((Fields == null) && (other.Fields == null))
                 {
                     return true;
                 }
 
-                for (int i = 0; i < Fields.Length; ++i)
-                {
-                    if (!Fields[i].Equals(other.Fields[i]))
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
+                return Fields.SequenceEqual(other.Fields);
             }
         }
 
@@ -159,8 +152,8 @@ namespace Microsoft.Spark.Utils
                 return (other != null) &&
                     TypeData.Equals(other.TypeData) &&
                     (Name == other.Name) &&
-                    ((ValueData == null && other.ValueData == null) ||
-                    (ValueData != null && ValueData.Equals(other.ValueData)));
+                    (((ValueData == null) && (other.ValueData == null)) ||
+                    ((ValueData != null) && ValueData.Equals(other.ValueData)));
             }
         }
 
@@ -228,8 +221,8 @@ namespace Microsoft.Spark.Utils
             public bool Equals(ValueData other)
             {
                 return (other != null) &&
-                    (TypeData.Equals(other.TypeData)) &&
-                    (Value.Equals(other.Value));
+                    TypeData.Equals(other.TypeData) &&
+                    Value.Equals(other.Value);
             }
         }
 
@@ -244,7 +237,7 @@ namespace Microsoft.Spark.Utils
                 MethodName = method.Name,
                 TargetData = SerializeTarget(target)
             };
-
+            System.Diagnostics.Debugger.Launch();
             return udfData;
         }
 
@@ -359,18 +352,19 @@ namespace Microsoft.Spark.Utils
         {
             return s_assemblyCache.GetOrAdd(
                 assemblyName,
-                _ =>
-                {
-                    foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
+                _ => new Lazy<Assembly>(
+                    () =>
                     {
-                        if (asm.FullName.Equals(assemblyName))
+                        foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
                         {
-                            return asm;
+                            if (asm.FullName.Equals(assemblyName))
+                            {
+                                return asm;
+                            }
                         }
-                    }
 
-                    return LoadAssembly(manifestModuleName);
-                });
+                        return LoadAssembly(manifestModuleName);
+                    })).Value;
         }
 
         /// <summary>

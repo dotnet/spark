@@ -3,9 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Utils;
@@ -57,35 +55,44 @@ namespace Microsoft.Spark.UnitTest
         public void TestUdfSerDe()
         {
             {
-                // Without Closure
+                // Without Closure.
                 Func<int, int> udf = i => 10 * i;
                 VerifyUdfSerDe(udf, false);
             }
 
             {
                 // With Closure where the Delegate target is an anonymous class.
-                TestClass tc = new TestClass("TestClass");
-                Func<string, string> udf = s => tc.Concat(s);
+                // The target will contain fields ["tc1", "tc2"], where "tc1" is
+                // is non null and "tc2" is null.
+                TestClass tc1 = new TestClass("Test");
+                TestClass tc2 = null;
+                Func<string, string> udf =
+                    (s) =>
+                    {
+                        if (tc2 == null)
+                        {
+                            return tc1.Concat(s);
+                        }
+                        return string.Empty;
+                    };
                 VerifyUdfSerDe(udf, true);
             }
 
             {
-                // With Closure where the Delegate target is TestClass.
-                // Note: In practice, this scenario shouldn't be hit.
-                TestClass tc = new TestClass("TestClass");
+                // With Closure where the Delegate target is TestClass
+                // and target's field "_str" is set to "Test".
+                TestClass tc = new TestClass("Test");
                 Func<string, string> udf = tc.Concat;
                 VerifyUdfSerDe(udf, true);
             }
 
             {
                 // With Closure where the Delegate target is TestClass,
-                // and target's field value is set to null.
-                // Note: In practice, this scenario shouldn't be hit.
+                // and target's field "_str" is set to null.
                 TestClass tc = new TestClass(null);
                 Func<string, string> udf = tc.Concat;
                 VerifyUdfSerDe(udf, true);
             }
-
         }
 
         private void VerifyUdfSerDe(Delegate udf, bool hasClosure)
@@ -115,7 +122,7 @@ namespace Microsoft.Spark.UnitTest
             {
                 var bf = new BinaryFormatter();
                 var udfData = (UdfSerDe.UdfData)bf.Deserialize(ms);
-                VerifyUdfData(udf, udfData, hasClosure);
+                VerifyUdfData(UdfSerDe.Serialize(udf), udfData, hasClosure);
 
                 Delegate deserializedUdf = UdfSerDe.Deserialize(udfData);
                 Assert.Equal(udf.GetType(), deserializedUdf.GetType());
@@ -124,20 +131,15 @@ namespace Microsoft.Spark.UnitTest
 
                 FieldInfo[] expectedFields = udf.Target.GetType().GetFields();
                 FieldInfo[] actualFields = deserializedUdf.Target.GetType().GetFields();
-                Assert.Equal(expectedFields.Length, actualFields.Length);
-                for (int i = 0; i < expectedFields.Length; ++i)
-                {
-                    Assert.Equal(expectedFields[i], actualFields[i]);
-                }
+                Assert.Equal(expectedFields, actualFields);
             }
         }
 
         private void VerifyUdfData(
-            Delegate expectedUdf,
+            UdfSerDe.UdfData expectedUdfData,
             UdfSerDe.UdfData actualUdfData,
             bool hasClosure)
         {
-            UdfSerDe.UdfData expectedUdfData = UdfSerDe.Serialize(expectedUdf);
             Assert.Equal(expectedUdfData, actualUdfData);
 
             if (!hasClosure)
