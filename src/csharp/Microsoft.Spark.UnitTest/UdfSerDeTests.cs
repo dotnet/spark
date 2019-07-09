@@ -57,8 +57,9 @@ namespace Microsoft.Spark.UnitTest
             {
                 // Without closure.
                 Func<int, int> expectedUdf = i => 10 * i;
+                Delegate actualUdf = SerDe(expectedUdf);
 
-                VerifyUdfSerDe(expectedUdf, false, out Delegate actualUdf);
+                VerifyUdfSerDe(expectedUdf, actualUdf, false);
                 Assert.Equal(100, ((Func<int, int>)actualUdf)(10));
             }
 
@@ -77,8 +78,9 @@ namespace Microsoft.Spark.UnitTest
                         }
                         return s;
                     };
+                Delegate actualUdf = SerDe(expectedUdf);
 
-                VerifyUdfSerDe(expectedUdf, true, out Delegate actualUdf);
+                VerifyUdfSerDe(expectedUdf, actualUdf, true);
                 Assert.Equal("TestHelloWorld", ((Func<string, string>)actualUdf)("HelloWorld"));
             }
 
@@ -87,8 +89,9 @@ namespace Microsoft.Spark.UnitTest
                 // and target's field "_str" is set to "Test".
                 TestClass tc = new TestClass("Test");
                 Func<string, string> expectedUdf = tc.Concat;
+                Delegate actualUdf = SerDe(expectedUdf);
 
-                VerifyUdfSerDe(expectedUdf, true, out Delegate actualUdf);
+                VerifyUdfSerDe(expectedUdf, actualUdf, true);
                 Assert.Equal("TestHelloWorld", ((Func<string, string>)actualUdf)("HelloWorld"));
             }
 
@@ -97,20 +100,20 @@ namespace Microsoft.Spark.UnitTest
                 // and target's field "_str" is set to null.
                 TestClass tc = new TestClass(null);
                 Func<string, string> expectedUdf = tc.Concat;
+                Delegate actualUdf = SerDe(expectedUdf);
 
-                VerifyUdfSerDe(expectedUdf, true, out Delegate actualUdf);
+                VerifyUdfSerDe(expectedUdf, actualUdf, true);
                 Assert.Equal("HelloWorldHelloWorld", ((Func<string, string>)actualUdf)("HelloWorld"));
             }
         }
 
-        private void VerifyUdfSerDe(Delegate udf, bool hasClosure, out Delegate deserializedUdf)
+        private void VerifyUdfSerDe(Delegate expectedUdf, Delegate actualUdf, bool hasClosure)
         {
-            byte[] serializedUdf = Serialize(udf, out UdfSerDe.UdfData serializedUdfData);
-            deserializedUdf =
-                Deserialize(serializedUdf, out UdfSerDe.UdfData deseraizliedUdfData);
-
-            VerifyUdfData(serializedUdfData, deseraizliedUdfData, hasClosure);
-            VerifyDeleagte(udf, deserializedUdf);
+            VerifyUdfData(
+                UdfSerDe.Serialize(expectedUdf),
+                UdfSerDe.Serialize(actualUdf),
+                hasClosure);
+            VerifyDelegate(expectedUdf, actualUdf);
         }
 
         private void VerifyUdfData(
@@ -127,7 +130,7 @@ namespace Microsoft.Spark.UnitTest
             }
         }
 
-        private void VerifyDeleagte(Delegate expectedDelegate, Delegate actualDelegate)
+        private void VerifyDelegate(Delegate expectedDelegate, Delegate actualDelegate)
         {
             Assert.Equal(expectedDelegate.GetType(), actualDelegate.GetType());
             Assert.Equal(expectedDelegate.Method, actualDelegate.Method);
@@ -138,9 +141,14 @@ namespace Microsoft.Spark.UnitTest
             Assert.Equal(expectedFields, actualFields);
         }
 
-        private byte[] Serialize(Delegate udf, out UdfSerDe.UdfData udfData)
+        private Delegate SerDe(Delegate udf)
         {
-            udfData = UdfSerDe.Serialize(udf);
+            return Deserialize(Serialize(udf));
+        }
+
+        private byte[] Serialize(Delegate udf)
+        {
+            UdfSerDe.UdfData udfData = UdfSerDe.Serialize(udf);
 
             using (var ms = new MemoryStream())
             {
@@ -150,12 +158,12 @@ namespace Microsoft.Spark.UnitTest
             }
         }
 
-        private Delegate Deserialize(byte[] serializedUdf, out UdfSerDe.UdfData udfData)
+        private Delegate Deserialize(byte[] serializedUdf)
         {
             using (var ms = new MemoryStream(serializedUdf, false))
             {
                 var bf = new BinaryFormatter();
-                udfData = (UdfSerDe.UdfData)bf.Deserialize(ms);
+                UdfSerDe.UdfData udfData = (UdfSerDe.UdfData)bf.Deserialize(ms);
                 return UdfSerDe.Deserialize(udfData);
             }
         }
