@@ -89,10 +89,10 @@ namespace Microsoft.Spark.Worker.Processor
             Version version)
         {
             if ((evalType != PythonEvalType.SQL_BATCHED_UDF) &&
-                (evalType != PythonEvalType.SQL_SCALAR_PANDAS_UDF))
+                (evalType != PythonEvalType.SQL_SCALAR_PANDAS_UDF) &&
+                (evalType != PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF))
             {
-                throw new NotImplementedException(
-                    $"Only SQL_BATCHED_UDF is implemented. [{evalType}] was provided.");
+                throw new NotImplementedException($"{evalType} is not supported.");
             }
 
             if (version.Major == 2)
@@ -155,6 +155,21 @@ namespace Microsoft.Spark.Worker.Processor
                                 ArrowWorkerFunction.Chain(
                                     (ArrowWorkerFunction)command.WorkerFunction,
                                     curWorkerFunction);
+                        }
+                        else if (evalType == PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF)
+                        {
+                            if ((numUdfs != 1) || (command.WorkerFunction != null))
+                            {
+                                throw new InvalidDataException(
+                                    "Grouped map UDFs do not support combining multiple UDFs");
+                            }
+
+                            command.WorkerFunction = new ArrowGroupedMapWorkerFunction(
+                                CommandSerDe.Deserialize<ArrowGroupedMapWorkerFunction.ExecuteDelegate>(
+                                    stream,
+                                    out serializerMode,
+                                    out deserializerMode,
+                                    out string runMode));
                         }
                         else
                         {

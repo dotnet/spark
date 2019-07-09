@@ -257,18 +257,12 @@ namespace Microsoft.Spark.Sql
                 CommandSerDe.SerializedMode.Row,
                 CommandSerDe.SerializedMode.Row);
 
-            JvmObjectReference pythonFunction =
-                UdfUtils.CreatePythonFunction(_jvmObject.Jvm, command);
-
-            var udf = new UserDefinedFunction(
-                _jvmObject.Jvm.CallConstructor(
-                    "org.apache.spark.sql.execution.python.UserDefinedPythonFunction",
-                    name,
-                    pythonFunction,
-                    GetDataType<TResult>(),
-                    (int)evalType,
-                    true // udfDeterministic
-                    ));
+            var udf = UserDefinedFunction.Create(
+                _jvmObject.Jvm,
+                name,
+                command,
+                evalType,
+                UdfUtils.GetReturnType(typeof(TResult)));
 
             _jvmObject.Invoke("registerPython", name, udf);
         }

@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using Apache.Arrow;
 using Apache.Arrow.Types;
 
@@ -13,10 +14,57 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     internal static class ArrowArrayHelpers
     {
+        private static readonly HashSet<ArrowTypeId> s_twoBufferArrowTypes = new HashSet<ArrowTypeId>()
+        {
+            ArrowTypeId.Boolean,
+            ArrowTypeId.Int8,
+            ArrowTypeId.UInt8,
+            ArrowTypeId.Int16,
+            ArrowTypeId.UInt16,
+            ArrowTypeId.Int32,
+            ArrowTypeId.UInt32,
+            ArrowTypeId.Int64,
+            ArrowTypeId.UInt64,
+            ArrowTypeId.Float,
+            ArrowTypeId.Double,
+            ArrowTypeId.Date32,
+            ArrowTypeId.Date64,
+            ArrowTypeId.Timestamp,
+        };
+
+        private static readonly HashSet<ArrowTypeId> s_threeBufferArrowTypes = new HashSet<ArrowTypeId>()
+        {
+            ArrowTypeId.String,
+            ArrowTypeId.Binary,
+        };
+
         public static IArrowArray CreateEmptyArray<T>()
         {
             ArrayData data = BuildEmptyArrayDataFromArrayType<T>();
             return ArrowArrayFactory.BuildArray(data);
+        }
+
+        public static IArrowArray CreateEmptyArray(IArrowType arrowType)
+        {
+            ArrayData data = BuildEmptyArrayDataFromArrowType(arrowType);
+            return ArrowArrayFactory.BuildArray(data);
+        }
+
+        private static ArrayData BuildEmptyArrayDataFromArrowType(IArrowType arrowType)
+        {
+            if (s_twoBufferArrowTypes.Contains(arrowType.TypeId))
+            {
+                return new ArrayData(arrowType, 0,
+                    buffers: new[] { ArrowBuffer.Empty, ArrowBuffer.Empty });
+            }
+
+            if (s_threeBufferArrowTypes.Contains(arrowType.TypeId))
+            {
+                return new ArrayData(arrowType, 0,
+                    buffers: new[] { ArrowBuffer.Empty, ArrowBuffer.Empty, ArrowBuffer.Empty });
+            }
+
+            throw new NotSupportedException($"Unsupported type: {arrowType.TypeId}");
         }
 
         private static ArrayData BuildEmptyArrayDataFromArrayType<T>()
@@ -84,7 +132,7 @@ namespace Microsoft.Spark.Sql
 
             if (typeof(T) == typeof(StringArray))
             {
-                return new ArrayData(StringType.Default, 0, 
+                return new ArrayData(StringType.Default, 0,
                     buffers: new[] { ArrowBuffer.Empty, ArrowBuffer.Empty, ArrowBuffer.Empty });
             }
             else if (typeof(T) == typeof(BinaryArray))
