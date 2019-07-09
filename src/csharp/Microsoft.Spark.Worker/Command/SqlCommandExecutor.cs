@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using Apache.Arrow;
 using Apache.Arrow.Ipc;
+using Apache.Arrow.Types;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
@@ -51,13 +52,17 @@ namespace Microsoft.Spark.Worker.Command
             }
 
             SqlCommandExecutor executor;
-            if (evalType == UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF)
+            if (evalType == UdfUtils.PythonEvalType.SQL_BATCHED_UDF)
+            {
+                executor = new PicklingSqlCommandExecutor();
+            }
+            else if (evalType == UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF)
             {
                 executor = new ArrowSqlCommandExecutor();
             }
-            else if (evalType == UdfUtils.PythonEvalType.SQL_BATCHED_UDF)
+            else if (evalType == UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF)
             {
-                executor = new PicklingSqlCommandExecutor();
+                executor = new ArrowGroupedMapCommandExecutor();
             }
             else
             {
@@ -521,6 +526,92 @@ namespace Microsoft.Spark.Worker.Command
                         command.ArgOffsets);
                 }
                 return resultColumns;
+            }
+        }
+    }
+
+    internal class ArrowGroupedMapCommandExecutor : SqlCommandExecutor
+    {
+        [ThreadStatic]
+        private static MemoryStream s_writeOutputStream;
+
+        protected override CommandExecutorStat ExecuteCore(
+            Stream inputStream,
+            Stream outputStream,
+            SqlCommand[] commands)
+        {
+            Debug.Assert(commands.Length == 1,
+                "Grouped Map UDFs do not support combining multiple UDFs.");
+
+            var stat = new CommandExecutorStat();
+            var worker = (ArrowGroupedMapWorkerFunction)commands[0].WorkerFunction;
+
+            SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
+
+            // TODO: Remove this MemoryStream once the arrow writer supports non-seekable streams.
+            // For now, we write to a temporary seekable MemoryStream which we then copy to
+            // the actual destination stream.
+            MemoryStream tmp = s_writeOutputStream ?? (s_writeOutputStream = new MemoryStream());
+
+            ArrowStreamWriter writer = null;
+            foreach (RecordBatch input in GetInputIterator(inputStream))
+            {
+                RecordBatch result = worker.Func(input);
+
+                int numEntries = result.Length;
+                stat.NumEntriesProcessed += numEntries;
+
+                tmp.SetLength(0);
+
+                if (writer == null)
+                {
+                    writer = new ArrowStreamWriter(tmp, result.Schema, leaveOpen: true);
+                }
+
+                // TODO: Remove sync-over-async once WriteRecordBatch exists.
+                writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
+
+                tmp.Position = 0;
+                tmp.CopyTo(outputStream);
+                outputStream.Flush();
+            }
+
+            SerDe.Write(outputStream, 0);
+
+            if (writer != null)
+            {
+                writer.Dispose();
+            }
+
+            return stat;
+        }
+
+        private IEnumerable<RecordBatch> GetInputIterator(Stream inputStream)
+        {
+            using (var reader = new ArrowStreamReader(inputStream, leaveOpen: true))
+            {
+                RecordBatch batch;
+                bool returnedResult = false;
+                while ((batch = reader.ReadNextRecordBatch()) != null)
+                {
+                    yield return batch;
+                    returnedResult = true;
+                }
+
+                if (!returnedResult)
+                {
+                    // When no input batches were received, return an empty RecordBatch
+                    // in order to create and write back the result schema.
+
+                    int columnCount = reader.Schema.Fields.Count;
+                    var arrays = new IArrowArray[columnCount];
+                    for (int i = 0; i < columnCount; ++i)
+                    {
+                        IArrowType type = reader.Schema.GetFieldByIndex(i).DataType;
+                        arrays[i] = ArrowArrayHelpers.CreateEmptyArray(type);
+                    }
+                    yield return new RecordBatch(reader.Schema, arrays, 0);
+                }
             }
         }
     }

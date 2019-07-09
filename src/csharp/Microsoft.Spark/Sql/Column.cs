@@ -743,6 +743,14 @@ namespace Microsoft.Spark.Sql
             return Apply("over");
         }
 
+        /// <summary>
+        /// Gets the underlying Expression object of the <see cref="Column"/>.
+        /// </summary>
+        internal JvmObjectReference Expr()
+        {
+            return (JvmObjectReference)_jvmObject.Invoke("expr");
+        }
+
         // Equals() and GetHashCode() are required to be defined when operator==/!=
         // are overloaded.
 

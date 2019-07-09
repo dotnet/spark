@@ -11,7 +11,7 @@ namespace Microsoft.Spark.Examples.Sql
 {
     /// <summary>
     /// A simple example demonstrating basic Spark SQL features.
-    /// /// </summary>
+    /// </summary>
     internal sealed class Basic : IExample
     {
         public void Run(string[] args)

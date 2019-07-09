@@ -78,6 +78,8 @@ namespace Microsoft.Spark.E2ETest
 
             Spark = SparkSession
                 .Builder()
+                // Lower the shuffle partitions to speed up groupBy() operations.
+                .Config("spark.sql.shuffle.partitions", "3")
                 .AppName("Microsoft.Spark.E2ETest")
                 .GetOrCreate();
         }
