@@ -57,12 +57,9 @@ namespace Microsoft.Spark.UnitTest
             {
                 // Without closure.
                 Func<int, int> expectedUdf = i => 10 * i;
-                VerifyUdfSerDe(expectedUdf, false, out Delegate actualUdf);
 
-                int input = 10;
-                int expectedResult = 100;
-                Assert.Equal(expectedResult, expectedUdf(input));
-                Assert.Equal(expectedResult, ((Func<int, int>)actualUdf)(input));
+                VerifyUdfSerDe(expectedUdf, false, out Delegate actualUdf);
+                Assert.Equal(100, ((Func<int, int>)actualUdf)(10));
             }
 
             {
@@ -80,12 +77,9 @@ namespace Microsoft.Spark.UnitTest
                         }
                         return s;
                     };
-                VerifyUdfSerDe(expectedUdf, true, out Delegate actualUdf);
 
-                string input = "HelloWorld";
-                string expectedResult = "TestHelloWorld";
-                Assert.Equal(expectedResult, expectedUdf(input));
-                Assert.Equal(expectedResult, ((Func<string, string>)actualUdf)(input));
+                VerifyUdfSerDe(expectedUdf, true, out Delegate actualUdf);
+                Assert.Equal("TestHelloWorld", ((Func<string, string>)actualUdf)("HelloWorld"));
             }
 
             {
@@ -93,12 +87,9 @@ namespace Microsoft.Spark.UnitTest
                 // and target's field "_str" is set to "Test".
                 TestClass tc = new TestClass("Test");
                 Func<string, string> expectedUdf = tc.Concat;
-                VerifyUdfSerDe(expectedUdf, true, out Delegate actualUdf);
 
-                string input = "HelloWorld";
-                string expectedResult = "TestHelloWorld";
-                Assert.Equal(expectedResult, expectedUdf(input));
-                Assert.Equal(expectedResult, ((Func<string, string>)actualUdf)(input));
+                VerifyUdfSerDe(expectedUdf, true, out Delegate actualUdf);
+                Assert.Equal("TestHelloWorld", ((Func<string, string>)actualUdf)("HelloWorld"));
             }
 
             {
@@ -106,12 +97,9 @@ namespace Microsoft.Spark.UnitTest
                 // and target's field "_str" is set to null.
                 TestClass tc = new TestClass(null);
                 Func<string, string> expectedUdf = tc.Concat;
-                VerifyUdfSerDe(expectedUdf, true, out Delegate actualUdf);
 
-                string input = "HelloWorld";
-                string expectedResult = "HelloWorldHelloWorld";
-                Assert.Equal(expectedResult, expectedUdf(input));
-                Assert.Equal(expectedResult, ((Func<string, string>)actualUdf)(input));
+                VerifyUdfSerDe(expectedUdf, true, out Delegate actualUdf);
+                Assert.Equal("HelloWorldHelloWorld", ((Func<string, string>)actualUdf)("HelloWorld"));
             }
         }
 
