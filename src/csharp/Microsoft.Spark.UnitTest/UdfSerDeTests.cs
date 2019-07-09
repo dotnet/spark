@@ -55,15 +55,15 @@ namespace Microsoft.Spark.UnitTest
         public void TestUdfSerDe()
         {
             {
-                // Without Closure.
+                // Without closure.
                 Func<int, int> udf = i => 10 * i;
                 VerifyUdfSerDe(udf, false);
             }
 
             {
-                // With Closure where the Delegate target is an anonymous class.
+                // With closure where the delegate target is an anonymous class.
                 // The target will contain fields ["tc1", "tc2"], where "tc1" is
-                // is non null and "tc2" is null.
+                // non null and "tc2" is null.
                 TestClass tc1 = new TestClass("Test");
                 TestClass tc2 = null;
                 Func<string, string> udf =
@@ -79,7 +79,7 @@ namespace Microsoft.Spark.UnitTest
             }
 
             {
-                // With Closure where the Delegate target is TestClass
+                // With closure where the delegate target is TestClass
                 // and target's field "_str" is set to "Test".
                 TestClass tc = new TestClass("Test");
                 Func<string, string> udf = tc.Concat;
@@ -87,7 +87,7 @@ namespace Microsoft.Spark.UnitTest
             }
 
             {
-                // With Closure where the Delegate target is TestClass,
+                // With closure where the delegate target is TestClass,
                 // and target's field "_str" is set to null.
                 TestClass tc = new TestClass(null);
                 Func<string, string> udf = tc.Concat;
