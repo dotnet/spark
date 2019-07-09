@@ -237,7 +237,7 @@ namespace Microsoft.Spark.Utils
                 MethodName = method.Name,
                 TargetData = SerializeTarget(target)
             };
-            System.Diagnostics.Debugger.Launch();
+
             return udfData;
         }
 
