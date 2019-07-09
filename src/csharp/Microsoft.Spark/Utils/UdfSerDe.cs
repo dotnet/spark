@@ -153,7 +153,7 @@ namespace Microsoft.Spark.Utils
                     TypeData.Equals(other.TypeData) &&
                     (Name == other.Name) &&
                     (((ValueData == null) && (other.ValueData == null)) ||
-                    ((ValueData != null) && ValueData.Equals(other.ValueData)));
+                        ((ValueData != null) && ValueData.Equals(other.ValueData)));
             }
         }
 

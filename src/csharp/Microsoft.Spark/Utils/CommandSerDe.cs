@@ -212,7 +212,7 @@ namespace Microsoft.Spark.Utils
 
             foreach (UdfSerDe.FieldData field in fields)
             {
-                SerializeUdfs((Delegate)field.ValueData?.Value, curNode, udfWrapperNodes, udfs);
+                SerializeUdfs((Delegate)field.ValueData.Value, curNode, udfWrapperNodes, udfs);
             }
         }
 
