@@ -34,7 +34,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             return new Payload()
             {
                 SplitIndex = 10,
-                Version = "1.0",
+                Version = Versions.CurrentVersion,
                 TaskContext = taskContext,
                 SparkFilesDir = "directory",
                 IncludeItems = new[] { "file1", "file2" },

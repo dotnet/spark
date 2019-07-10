@@ -146,8 +146,7 @@ namespace Microsoft.Spark.Worker
                     return null;
                 }
 
-                // Check the version here.
-                payload.Version.
+                ValidateVersion(payload.Version);
 
                 DateTime initTime = DateTime.UtcNow;
 
@@ -187,7 +186,7 @@ namespace Microsoft.Spark.Worker
                     SerDe.Write(outputStream, (int)SpecialLengths.END_OF_DATA_SECTION);
                 }
 
-                LogStat(payload, commandExecutorStat, readComplete);
+                LogStat(commandExecutorStat, readComplete);
 
                 return payload;
             }
@@ -214,7 +213,22 @@ namespace Microsoft.Spark.Worker
             }
         }
 
-        private void LogStat(Payload payloa, CommandExecutorStat stat, bool readComplete)
+        private void ValidateVersion(string versionStr)
+        {
+            // Initial version was shipped with version "1.0", so this needs to be adjusted
+            // to be compatible going forward.
+            if (versionStr == "1.0")
+            {
+                versionStr = "0.1.0";
+            }
+
+            if (new Version(versionStr) < new Version(Versions.CurrentVersion))
+            {
+                throw new Exception($"Upgrade Microsoft.Spark to '{Versions.CurrentVersion}+' from '{versionStr}+'.");
+            }
+        }
+
+        private void LogStat(CommandExecutorStat stat, bool readComplete)
         {
             s_logger.LogInfo($"[{TaskId}] Processed a task: readComplete:{readComplete}, entries:{stat.NumEntriesProcessed}");
         }
