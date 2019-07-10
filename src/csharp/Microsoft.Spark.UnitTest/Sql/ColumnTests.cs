@@ -363,6 +363,28 @@ namespace Microsoft.Spark.UnitTest
             }
         }
 
+        [Fact]
+        public void TestIsIn(){
+            {
+                Column column1 = CreateColumn("col1");
+                var list = new System.Collections.Generic.List<String>(){"abc", "def"};
+                column1.IsIn(list);            
+                VerifyNonStaticCall(column1, "isin", list);
+            }
+            {
+                Column column1 = CreateColumn("col1");
+                var list = new System.Collections.Generic.List<int>(){0, 1, 99};
+                column1.IsIn(list);            
+                VerifyNonStaticCall(column1, "isin", list);
+            }
+                        {
+                Column column1 = CreateColumn("col1");
+                var list = new System.Collections.Generic.List<float>(){0F, 1F, 99F};
+                column1.IsIn(list);            
+                VerifyNonStaticCall(column1, "isin", list);
+            }
+        }
+
         private void VerifyNonStaticCall(
             IJvmObjectReferenceProvider obj,
             string methodName,
