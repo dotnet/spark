@@ -146,6 +146,9 @@ namespace Microsoft.Spark.Worker
                     return null;
                 }
 
+                // Check the version here.
+                payload.Version.
+
                 DateTime initTime = DateTime.UtcNow;
 
                 CommandExecutorStat commandExecutorStat = new CommandExecutor().Execute(
