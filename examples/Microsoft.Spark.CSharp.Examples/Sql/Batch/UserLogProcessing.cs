@@ -74,12 +74,16 @@ namespace Microsoft.Spark.Examples.Sql.Batch
                 "SELECT truespamlogs.value FROM truespamlogs");
 
             // Explore the columns in the data we have been filtering
+            // Let's try getting the number of GET requests
             IEnumerable<Row> rows = trueSpamSql.Collect();
+            int numGetRequests = 0;
             foreach(Row row in rows)
             {
                 string rowstring = row.ToString();
-                ParseLog(rowstring);
+                numGetRequests += ParseLog(rowstring);
             }
+
+            Console.WriteLine("Number of GET requests: " + numGetRequests);
 
             spark.Stop();
         }
@@ -113,7 +117,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             }
         }
 
-        public static void ParseLog(string logLine)
+        public static int ParseLog(string logLine)
         {
             Match match = Regex.Match(
                 logLine, 
@@ -121,6 +125,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             int groupCtr = 0;
             int entryCtr = 0;
+            int numGets = 0;
 
             string[] colNames = 
                 {"ip", 
@@ -143,10 +148,22 @@ namespace Microsoft.Spark.Examples.Sql.Batch
                     continue;
                 }
                 Console.WriteLine("    {0}: '{1}'", colNames[entryCtr], group.Value);
+
+                // Determine if it's a GET request
+                if(colNames[entryCtr] == "method")
+                {
+                    if(group.Value == "GET")
+                    {
+                        ++numGets;
+                    }
+                }
+
                 ++groupCtr;
                 ++entryCtr;
             }
+
+            return numGets;
+            
         }
     }    
 }
-                
