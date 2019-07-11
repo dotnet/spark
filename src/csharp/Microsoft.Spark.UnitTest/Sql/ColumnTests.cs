@@ -365,25 +365,112 @@ namespace Microsoft.Spark.UnitTest
 
         [Fact]
         public void TestIsIn(){
-            {
-                Column column1 = CreateColumn("col1");
-                var list = new System.Collections.Generic.List<String>(){"abc", "def"};
-                column1.IsIn(list);            
-                VerifyNonStaticCall(column1, "isin", list);
-            }
-            {
-                Column column1 = CreateColumn("col1");
-                var list = new System.Collections.Generic.List<int>(){0, 1, 99};
-                column1.IsIn(list);            
-                VerifyNonStaticCall(column1, "isin", list);
-            }
-                        {
-                Column column1 = CreateColumn("col1");
-                var list = new System.Collections.Generic.List<float>(){0F, 1F, 99F};
-                column1.IsIn(list);            
-                VerifyNonStaticCall(column1, "isin", list);
-            }
+        {
+            Column column1 = CreateColumn("col1");
+            var list = new System.Collections.Generic.List<String>(){"abc", "def"};
+            column1.IsIn(list);            
+            VerifyNonStaticCall(column1, "isin", list);
         }
+        {
+            Column column1 = CreateColumn("col1");
+            var list = new System.Collections.Generic.List<int>(){0, 1, 99};
+            column1.IsIn(list);            
+            VerifyNonStaticCall(column1, "isin", list);
+        }
+        {
+            Column column1 = CreateColumn("col1");
+            var list = new System.Collections.Generic.List<long>(){0L, 1L, 99L};
+            column1.IsIn(list);            
+            VerifyNonStaticCall(column1, "isin", list);
+        }
+        {
+            Column column1 = CreateColumn("col1");
+            var list = new System.Collections.Generic.List<bool>(){true, false};
+            column1.IsIn(list);            
+            VerifyNonStaticCall(column1, "isin", list);
+        }
+        {
+            Column column1 = CreateColumn("col1");
+            var list = new System.Collections.Generic.List<short>(){0, 1, 99};
+            column1.IsIn(list);            
+            VerifyNonStaticCall(column1, "isin", list);
+        }            
+        {
+            Column column1 = CreateColumn("col1");
+            var list = new System.Collections.Generic.List<float>(){0F, 1F, 99F};
+            column1.IsIn(list);            
+            VerifyNonStaticCall(column1, "isin", list);
+        }
+        {
+            Column column1 = CreateColumn("col1");
+            var list = new System.Collections.Generic.List<double>(){0.0, 1.0, 99.99};
+            column1.IsIn(list);            
+            VerifyNonStaticCall(column1, "isin", list);
+        }
+        {
+            Column column1 = CreateColumn("col1");
+            var list = new System.Collections.Generic.List<decimal>(){0, 1, 99};
+            column1.IsIn(list);            
+            VerifyNonStaticCall(column1, "isin", list);
+        }
+        {
+            var expected = new System.Collections.Generic.List<string> {"vararg_1", "vararg_2"};
+            Column column1 = CreateColumn("col1");                
+            column1.IsIn("vararg_1", "vararg_2");          
+            
+            VerifyNonStaticCall(column1, "isin", expected);
+        }
+        {
+            Column column1 = CreateColumn("col1");
+            var expected = new System.Collections.Generic.List<int>(){0, 1, 99};
+            column1.IsIn(0, 1, 99);            
+            VerifyNonStaticCall(column1, "isin", expected);
+        }
+        {
+            Column column1 = CreateColumn("col1");
+            var expected = new System.Collections.Generic.List<long>(){0L, 1L, 99L};
+            column1.IsIn(0L, 1L, 99L);            
+            VerifyNonStaticCall(column1, "isin", expected);
+        }
+        {
+            Column column1 = CreateColumn("col1");
+            var expected = new System.Collections.Generic.List<bool>(){true, false};
+            column1.IsIn(true, false);            
+            VerifyNonStaticCall(column1, "isin", expected);
+        }
+        {
+            Column column1 = CreateColumn("col1");
+            short short1 = 1;
+            short short2 = 2;
+            short short3 = 99;
+
+            var expected = new System.Collections.Generic.List<short>(){short1, short2, short3};
+            column1.IsIn(short1, short2, short3);            
+            VerifyNonStaticCall(column1, "isin", expected);
+        }            
+        {
+            Column column1 = CreateColumn("col1");
+            var expected = new System.Collections.Generic.List<float>(){0F, 1F, 99F};
+            column1.IsIn(0F, 1F, 99F);            
+            VerifyNonStaticCall(column1, "isin", expected);
+        }
+        {
+            Column column1 = CreateColumn("col1");
+            var expected = new System.Collections.Generic.List<double>(){0.0, 1.0, 99.99};
+            column1.IsIn(0.0, 1.0, 99.99);            
+            VerifyNonStaticCall(column1, "isin", expected);
+        }
+        {
+            Column column1 = CreateColumn("col1");
+            decimal decimal1 = 1;
+            decimal decimal2 = 2;
+            decimal decimal3 = 3;
+
+            var expected = new System.Collections.Generic.List<decimal>(){decimal1, decimal2, decimal3};
+            column1.IsIn(decimal1, decimal2, decimal3);            
+            VerifyNonStaticCall(column1, "isin", expected);
+        }
+    }
 
         private void VerifyNonStaticCall(
             IJvmObjectReferenceProvider obj,
@@ -393,7 +480,7 @@ namespace Microsoft.Spark.UnitTest
             _mockJvm.Verify(m => m.CallNonStaticJavaMethod(
                 obj.Reference,
                 methodName,
-                arg0));
+                arg0));                
         }
 
         private void VerifyNonStaticCall(
