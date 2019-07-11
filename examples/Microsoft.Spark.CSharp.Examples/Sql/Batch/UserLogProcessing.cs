@@ -36,48 +36,50 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             spark.Udf().Register<string, string, bool>(
                 "GeneralReg", 
                 (log, type) => RegTest(log, type));
-
             df.CreateOrReplaceTempView("Logs");
-
             DataFrame generalDf = spark.Sql(
                 "SELECT logs.value, GeneralReg(logs.value, 'genfilter') FROM Logs");
-
             generalDf.Show();
 
             // Only store log entries that matched the reg ex
             generalDf = generalDf.Filter(generalDf["GeneralReg(value, genfilter)"] == true);
-            
             generalDf.Show();
-
             generalDf.PrintSchema();
 
             // Only choose log entries that start with 10
             spark.Udf().Register<string, string, bool>(
                 "IPReg", 
                 (log, type) => RegTest(log, type));
-
             generalDf.CreateOrReplaceTempView("IPLogs");
-
             DataFrame ipDf = spark.Sql(
                 "SELECT iplogs.value, IPReg(iplogs.value, 'ipfilter') FROM IPLogs");
-
             ipDf.Show();
 
             ipDf = ipDf.Filter(ipDf["IPReg(value, ipfilter)"] == true); 
-
             ipDf.Show();
 
             // After choosing entries starting with 10, find entries that deal with spam
             spark.Udf().Register<string, string, bool>(
                 "SpamRegEx", 
                 (log, type) => RegTest(log, type));
-
             ipDf.CreateOrReplaceTempView("SpamLogs");
-
             DataFrame spamDF = spark.Sql(
                 "SELECT spamlogs.value, SpamRegEx(spamlogs.value, 'spamfilter') FROM SpamLogs");
-
             spamDF.Show();
+
+            // Only keep entries that related to spam
+            DataFrame trueSpam = spamDF.Filter(spamDF["SpamRegEx(value, spamfilter)"] == true);
+            trueSpam.CreateOrReplaceTempView("TrueSpamLogs");
+            DataFrame trueSpamSql = spark.Sql(
+                "SELECT truespamlogs.value FROM truespamlogs");
+
+            // Explore the columns in the data we have been filtering
+            IEnumerable<Row> rows = trueSpamSql.Collect();
+            foreach(Row row in rows)
+            {
+                string rowstring = row.ToString();
+                ParseLog(rowstring);
+            }
 
             spark.Stop();
         }
@@ -111,6 +113,40 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             }
         }
 
+        public static void ParseLog(string logLine)
+        {
+            Match match = Regex.Match(
+                logLine, 
+                "^(\\S+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(\\S+) (\\S+) (\\S+)\" (\\d{3}) (\\d+)");
+
+            int groupCtr = 0;
+            int entryCtr = 0;
+
+            string[] colNames = 
+                {"ip", 
+                "client", 
+                "user", 
+                "date", 
+                "method", 
+                "endpt", 
+                "protocol", 
+                "response", 
+                "size"};
+
+            // Print out the full log line and then divide based on column
+            foreach(Group group in match.Groups)
+            {
+                if(groupCtr == 0)
+                {
+                    Console.WriteLine("Full log entry: '{0}'", group.Value);
+                    ++groupCtr;
+                    continue;
+                }
+                Console.WriteLine("    {0}: '{1}'", colNames[entryCtr], group.Value);
+                ++groupCtr;
+                ++entryCtr;
+            }
+        }
     }    
 }
                 
