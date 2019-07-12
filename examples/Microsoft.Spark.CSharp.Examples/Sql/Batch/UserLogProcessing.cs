@@ -32,48 +32,68 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             var df = spark.Read().Text(args[0]);
             df.Show();
 
-            // Register UDF to perform regex on each row of input file
+            // Step 1: UDF to determine if each line is a valid log entry
+            // Want to remove any invalid entries before further filtering
             spark.Udf().Register<string, string, bool>(
                 "GeneralReg", 
                 (log, type) => RegTest(log, type));
+                
             df.CreateOrReplaceTempView("Logs");
+            
+            // Apply the UDF to get valid log entries
             DataFrame generalDf = spark.Sql(
                 "SELECT logs.value, GeneralReg(logs.value, 'genfilter') FROM Logs");
+                
             generalDf.Show();
 
-            // Only store log entries that matched the reg ex
+            // Only keep log entries that matched the reg ex
             generalDf = generalDf.Filter(generalDf["GeneralReg(value, genfilter)"] == true);
             generalDf.Show();
+            
+            // View the resulting schema
             generalDf.PrintSchema();
 
-            // Only choose log entries that start with 10
+            // Step 2: Choose valid log entries that start with 10
             spark.Udf().Register<string, string, bool>(
                 "IPReg", 
                 (log, type) => RegTest(log, type));
+                
             generalDf.CreateOrReplaceTempView("IPLogs");
+            
+            // Apply UDF to get valid log entries start with 10
             DataFrame ipDf = spark.Sql(
                 "SELECT iplogs.value, IPReg(iplogs.value, 'ipfilter') FROM IPLogs");
+                
             ipDf.Show();
 
+            // Only keep log entries that matched both reg ex
             ipDf = ipDf.Filter(ipDf["IPReg(value, ipfilter)"] == true); 
             ipDf.Show();
 
-            // After choosing entries starting with 10, find entries that deal with spam
+            // Step 3: Choose valid log entries that start 
+            // with 10 and deal with spam
             spark.Udf().Register<string, string, bool>(
                 "SpamRegEx", 
                 (log, type) => RegTest(log, type));
+                
             ipDf.CreateOrReplaceTempView("SpamLogs");
+            
+            // Apply UDF to get valid, start with 10, spam entries
             DataFrame spamDF = spark.Sql(
                 "SELECT spamlogs.value, SpamRegEx(spamlogs.value, 'spamfilter') FROM SpamLogs");
+                
             spamDF.Show();
 
-            // Only keep entries that related to spam
+            // Only keep log entries that matched all 3 reg ex
             DataFrame trueSpam = spamDF.Filter(spamDF["SpamRegEx(value, spamfilter)"] == true);
+            
+            // Formatting cleanup
+            // Use SQL to select just the entries, not boolean about reg ex
             trueSpam.CreateOrReplaceTempView("TrueSpamLogs");
             DataFrame trueSpamSql = spark.Sql(
                 "SELECT truespamlogs.value FROM truespamlogs");
 
-            // Explore the columns in the data we have been filtering
+            // Explore the columns in the data we have filtered
             // Let's try getting the number of GET requests
             IEnumerable<Row> rows = trueSpamSql.Collect();
             int numGetRequests = 0;
@@ -157,13 +177,10 @@ namespace Microsoft.Spark.Examples.Sql.Batch
                         ++numGets;
                     }
                 }
-
                 ++groupCtr;
                 ++entryCtr;
             }
-
             return numGets;
-            
         }
     }    
 }
