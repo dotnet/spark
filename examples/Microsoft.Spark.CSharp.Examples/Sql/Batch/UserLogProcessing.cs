@@ -3,9 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using Microsoft.Spark.Sql;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.Examples.Sql.Batch
 {
