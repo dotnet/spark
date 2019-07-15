@@ -10,7 +10,8 @@ using Microsoft.Spark.Sql;
 namespace Microsoft.Spark.Examples.Sql.Batch
 {
     /// <summary>
-    /// An example demonstrating log processing using user defined functions, regular expressions, and Spark SQL.
+    /// An example demonstrating log processing.
+    /// Includes UDFs, regular expressions, and Spark SQL.
     /// </summary>
     internal sealed class ApacheUserLogProcessing : IExample
     {
