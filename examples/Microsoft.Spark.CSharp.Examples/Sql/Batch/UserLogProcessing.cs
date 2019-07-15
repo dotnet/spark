@@ -178,7 +178,6 @@ namespace Microsoft.Spark.Examples.Sql.Batch
                         ++numGets;
                     }
                 }
-                ++groupCtr;
                 ++entryCtr;
             }
             return numGets;
