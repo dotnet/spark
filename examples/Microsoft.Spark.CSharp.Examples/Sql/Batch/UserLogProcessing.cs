@@ -128,14 +128,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
                 useRx = "\\b(?=spam)\\b";
             }
 
-            if(Regex.IsMatch(logLine, useRx))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return Regex.IsMatch(logLine, useRx);
         }
 
         public static int ParseLog(string logLine)
