@@ -115,20 +115,20 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             // 64.242.88.10 - - [07/Mar/2004:16:47:12 -0800] "GET /robots.txt HTTP/1.1" 200 68
             // 1:IP   2:client   3:user   4:date time   5:method   
             // 6:req   7:proto   8:respcode   9:size
-            Regex useRx = new Regex(
-                    "^(\\S+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(\\S+) (\\S+) (\\S+)\" (\\d{3}) (\\d+)");
+            string useRx = 
+                "^(\\S+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(\\S+) (\\S+) (\\S+)\" (\\d{3}) (\\d+)";
 
             // Which regex to use based on what we're filtering for
             if(regexType == "ipfilter")
             {
-                useRx = new Regex("^(?=10)");
+                useRx = "^(?=10)";
             }
             else if(regexType == "spamfilter")
             {
-                useRx = new Regex("\\b(?=spam)\\b");
+                useRx = "\\b(?=spam)\\b";
             }
 
-            if(useRx.IsMatch(logLine))
+            if(Regex.IsMatch(logLine, useRx))
             {
                 return true;
             }
