@@ -923,6 +923,6 @@ namespace Microsoft.Spark.Sql
         private Column WrapAsColumn(object obj) => new Column((JvmObjectReference)obj);
 
         private RelationalGroupedDataset WrapAsGroupedDataset(object obj) =>
-            new RelationalGroupedDataset((JvmObjectReference)obj);
+            new RelationalGroupedDataset((JvmObjectReference)obj, this);
     }
 }

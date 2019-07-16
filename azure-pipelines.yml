@@ -7,9 +7,7 @@ trigger:
     - master
 
 variables:
-  solution: '**/*.sln'
   buildConfiguration: 'Release'
-  dotnetCoreVersion: '2.2.105'
   _SignType: real
   _TeamName: DotNetSpark
 
@@ -23,31 +21,11 @@ jobs:
   displayName: Build and Test Sources
   pool: Hosted VS2017
 
+  variables:
+    ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+      _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+
   steps:
-  - task: DotNetCoreInstaller@0
-    inputs:
-      version: '$(dotnetCoreVersion)'
-
-  - task: DotNetCoreCLI@2
-    displayName: '.NET build'
-    inputs:
-      command: build
-      projects: '$(solution)'
-      arguments: '--configuration $(buildConfiguration)'
-
-  - task: BatchScript@1
-    displayName: Publish Microsoft.Spark.Worker
-    inputs:
-      filename: script\publish-workers.cmd
-      arguments: $(Build.SourcesDirectory) $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker $(buildConfiguration)
-
-  - task: DotNetCoreCLI@2
-    displayName: '.NET unit tests'
-    inputs:
-      command: test
-      projects: '**/*UnitTest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
-
   - task: Maven@3
     displayName: 'Maven build src'
     inputs:
@@ -64,12 +42,27 @@ jobs:
       filename: script\download-spark-distros.cmd
       arguments: $(Build.BinariesDirectory)
 
+  - script: build.cmd -pack
+              -c $(buildConfiguration)
+              -ci
+              $(_OfficialBuildIdArgs)
+              /p:PublishSparkWorker=true
+              /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
+    displayName: '.NET build'
+
+  - task: DotNetCoreCLI@2
+    displayName: '.NET unit tests'
+    inputs:
+      command: test
+      projects: '**/*UnitTest/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+
   - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 2.3.0'
     inputs:
       command: test
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
@@ -80,7 +73,7 @@ jobs:
     inputs:
       command: test
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
@@ -91,7 +84,7 @@ jobs:
     inputs:
       command: test
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
@@ -102,7 +95,7 @@ jobs:
     inputs:
       command: test
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
@@ -113,7 +106,7 @@ jobs:
     inputs:
       command: test
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
@@ -124,70 +117,58 @@ jobs:
     inputs:
       command: test
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
       DOTNET_WORKER_DIR: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
   
+  - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.4.3'
+    inputs:
+      command: test
+      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
+      HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
+      DOTNET_WORKER_DIR: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
+
   - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
     - task: CopyFiles@2
       displayName: Stage .NET artifacts
       inputs:
-        sourceFolder: $(Build.SourcesDirectory)/src/csharp/Microsoft.Spark/bin/$(buildConfiguration)
+        sourceFolder: $(Build.SourcesDirectory)/artifacts/packages/$(buildConfiguration)/Shipping
         contents: |
-          **/*.dll
-          **/*.pdb
-        targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/src/csharp/Microsoft.Spark/bin/$(buildConfiguration)
+          **/*.nupkg
+          **/*.snupkg
+        targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/packages/$(buildConfiguration)/Shipping
 
-    - task: CopyFiles@2
-      displayName: Stage scala artifacts
-      inputs:
-        sourceFolder: $(Build.SourcesDirectory)/src/scala
-        contents: '**/*.jar'
-        targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/src/scala
-    
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: '$(Build.ArtifactStagingDirectory)'
         artifactName:  Microsoft.Spark.Binaries
 
 - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-  - job: Package
+  - job: SignPublish
     dependsOn:
       - Build
-    displayName: Build packages
+    displayName: Sign and Publish Artifacts
     pool:
       name: NetCoreInternal-Int-Pool
       queue: buildpool.windows.10.amd64.vs2017
 
-    steps:
-    - task: DotNetCoreInstaller@0
-      inputs:
-        version: '$(dotnetCoreVersion)'
+    variables:
+      ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+        _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
 
+    steps:
     - task: DownloadBuildArtifacts@0
       displayName: Download Build Artifacts
       inputs:
         artifactName: Microsoft.Spark.Binaries
         downloadPath: $(Build.ArtifactStagingDirectory)
     
-    - task: CopyFiles@2
-      displayName: Copy .NET artifacts
-      inputs:
-        sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/BuildArtifacts/src/csharp/Microsoft.Spark/bin/$(buildConfiguration)
-        contents: |
-          **/*.dll
-          **/*.pdb
-        targetFolder: $(Build.SourcesDirectory)/src/csharp/Microsoft.Spark/bin/$(buildConfiguration)
-
-    - task: CopyFiles@2
-      displayName: Copy scala artifacts
-      inputs:
-        sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/BuildArtifacts/src/scala
-        contents: '**/*.jar'
-        targetFolder: $(Build.SourcesDirectory)/src/scala
-
     - task: MicroBuildSigningPlugin@2
       displayName: Install MicroBuild plugin
       inputs:
@@ -198,93 +179,20 @@ jobs:
         TeamName: $(_TeamName)
       condition: and(succeeded(), in(variables['_SignType'], 'real', 'test'), eq(variables['Agent.Os'], 'Windows_NT'))
     
-    - task: MSBuild@1
-      displayName: 'Restore Sign Tools'
-      inputs:
-        solution: eng/Tools.proj
-        msbuildArguments: /t:Restore
-        msbuildVersion: 15.0
-  
-    - task: MSBuild@1
-      displayName: 'Sign .NET binaries'
-      inputs:
-        solution: eng/Sign.proj
-        msbuildArguments: /t:SignBinaries
-                          /p:SignSparkBinaries=true
-                          /p:SignAssetsDir=$(Build.SourcesDirectory)\src\csharp\Microsoft.Spark\bin\$(buildConfiguration)\
-                          /p:SignType=$(_SignType)
-        msbuildVersion: 15.0
-
-    - task: MSBuild@1
-      displayName: 'Sign .jar binaries'
-      inputs:
-        solution: eng/Sign.proj
-        msbuildArguments: /t:SignBinaries
-                          /p:SignJarBinaries=true
-                          /p:SignAssetsDir=$(Build.SourcesDirectory)\src\scala\
-                          /p:SignType=$(_SignType)
-        msbuildVersion: 15.0
-    
-    - task: MSBuild@1
-      displayName: 'Sign worker binaries'
-      inputs:
-        solution: eng/Sign.proj
-        msbuildArguments: /t:SignBinaries
-                          /p:SignWorkerBinaries=true
-                          /p:SignAssetsDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Microsoft.Spark.Worker\
-                          /p:SignType=$(_SignType)
-        msbuildVersion: 15.0
-
-    - task: DotNetCoreCLI@2
-      displayName: 'Create NuGet packages'
-      inputs:
-        command: pack
-        projects: '$(solution)'
-        arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-
-    - task: MSBuild@1
-      displayName: 'Sign nuget/snupkg packages'
-      inputs:
-        solution: eng/Sign.proj
-        msbuildArguments: /t:SignBinaries 
-                          /p:SignAssetsDir=$(Build.ArtifactStagingDirectory)\
-                          /p:SignNugetPackages=true
-                          /p:SignType=$(_SignType)
-        msbuildVersion: 15.0
-    
-    - task: CopyFiles@2
-      displayName: Copy nupkg to publish
-      inputs:
-        sourceFolder: $(Build.ArtifactStagingDirectory)
-        contents: 'Microsoft.Spark*.nupkg'
-        targetFolder: $(Build.ArtifactStagingDirectory)/Packages
-
-    - task: CopyFiles@2
-      displayName: Copy snupkg to publish
-      inputs:
-        sourceFolder: $(Build.ArtifactStagingDirectory)
-        contents: 'Microsoft.Spark*.snupkg'
-        targetFolder: $(Build.ArtifactStagingDirectory)/SymbolPackages
-
     - task: PowerShell@2
-      displayName: Package Microsoft.Spark.Worker
+      displayName: Sign artifacts and Package Microsoft.Spark.Worker
       inputs:
-        targetType: filePath
-        filePath: script\package-worker.ps1
-        arguments: $(Build.ArtifactStagingDirectory)\Packages $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Microsoft.Spark.Worker $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries
-        workingDirectory: $(Build.ArtifactStagingDirectory)
+        filePath: eng\common\build.ps1
+        arguments: -restore -sign -publish
+                   -c $(buildConfiguration)
+                   -ci
+                   $(_OfficialBuildIdArgs)
+                   /p:DotNetSignType=$(_SignType)
+                   /p:SparkPackagesDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\BuildArtifacts\artifacts\packages
+                   /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Microsoft.Spark.Worker
+                   /p:SparkWorkerPackageOutputDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries
 
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: '$(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries'
-        artifactName:  Microsoft.Spark.Binaries
-
-    - task: PublishBuildArtifacts@1
-      inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)/Packages'
-        artifactName:  Microsoft.Spark.Binaries
-
-    - task: PublishBuildArtifacts@1
-      inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)/SymbolPackages'
         artifactName:  Microsoft.Spark.Binaries

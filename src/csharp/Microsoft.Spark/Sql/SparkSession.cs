@@ -66,6 +66,22 @@ namespace Microsoft.Spark.Sql
             new SparkSession((JvmObjectReference)_jvmObject.Invoke("newSession"));
 
         /// <summary>
+        /// Returns the specified table/view as a DataFrame.
+        /// </summary>
+        /// <param name="tableName">Name of a table or view</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Table(string tableName)
+            => new DataFrame((JvmObjectReference)_jvmObject.Invoke("table", tableName));
+
+        /// <summary>
+        /// Executes a SQL query using Spark, returning the result as a DataFrame.
+        /// </summary>
+        /// <param name="sqlText">SQL query text</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Sql(string sqlText)
+            => new DataFrame((JvmObjectReference)_jvmObject.Invoke("sql", sqlText));
+
+        /// <summary>
         /// Returns a DataFrameReader that can be used to read non-streaming data in
         /// as a DataFrame.
         /// </summary>
@@ -79,14 +95,6 @@ namespace Microsoft.Spark.Sql
         /// <returns>DataStreamReader object</returns>
         public DataStreamReader ReadStream() =>
             new DataStreamReader((JvmObjectReference)_jvmObject.Invoke("readStream"));
-
-        /// <summary>
-        /// Executes a SQL query using Spark, returning the result as a DataFrame.
-        /// </summary>
-        /// <param name="sqlText">SQL query text</param>
-        /// <returns>DataFrame object</returns>
-        public DataFrame Sql(string sqlText)
-            => new DataFrame((JvmObjectReference)_jvmObject.Invoke("sql", sqlText));
 
         /// <summary>
         /// Returns UDFRegistraion object with which user-defined functions (UDF) can 

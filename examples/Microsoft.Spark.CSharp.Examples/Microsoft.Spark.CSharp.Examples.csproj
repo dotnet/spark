@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\csharp\Microsoft.Spark.Worker\Microsoft.Spark.Worker.csproj" />
+    <ProjectReference Include="..\..\src\csharp\Microsoft.Spark.Experimental\Microsoft.Spark.Experimental.csproj" />
     <ProjectReference Include="..\..\src\csharp\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
 

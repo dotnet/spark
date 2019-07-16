@@ -151,8 +151,7 @@ namespace Microsoft.Spark.Interop.Ipc
         {
             if (length < 0)
             {
-                throw new ArgumentOutOfRangeException(
-                    "length", length, "length can't be negative.");
+                throw new ArgumentOutOfRangeException(nameof(length), length, "length can't be negative.");
             }
 
             var buffer = new byte[length];

@@ -22,10 +22,10 @@ Follow the instructions for registration and download the tool to local disk wit
         dbgen.exe -vf -s 300
         ```
         *Note*: Since there is no parallelization option for TPC-H dbgen, generating a 300GB dataset could take up to 40 hours to complete.
-        
+
     - After database population generation is completed, there should be 8 tables (customer, lineitem, nation, orders, part, partsupp, region, supplier) created with the .tbl extension.
 
-4. Convert TPC-H dataset to parquet format. 
+4. Convert TPC-H dataset to parquet format.
     - You can use a simple Spark [application](https://github.com/dotnet/spark/blob/master/benchmark/scala/src/main/scala/com/microsoft/tpch/ConvertTpchCsvToParquetApp.scala) to convert the TPC-H dataset to parquet format. You can run the following spark-submit command to submit the application, you can also adjust it according to format of [submitting application](https://spark.apache.org/docs/latest/submitting-applications.html).
 ```
         <spark-submit> --master local[*] --class com.microsoft.tpch.ConvertTpchCsvToParquetApp microsoft-spark-benchmark-<version>.jar <path-to-source-directory-with-TPCH-tables> <path-to-destination-directory-to-save-parquet-file>

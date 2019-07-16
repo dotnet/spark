@@ -1,9 +1,7 @@
-$nuget_dir = $args[0]
+$version = $args[0]
 $worker_dir = $args[1]
 $output_dir = $args[2]
 
-$file = Get-ChildItem $nuget_dir -Filter Microsoft.Spark.*.nupkg | Select-Object -First 1
-$version = $file.Basename.Split(".", 3)[2]
 $worker_version_dir = "Microsoft.Spark.Worker-$version"
 
 $frameworks = Get-ChildItem -Directory $worker_dir
