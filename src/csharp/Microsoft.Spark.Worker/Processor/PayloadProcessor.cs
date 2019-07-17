@@ -34,7 +34,7 @@ namespace Microsoft.Spark.Worker.Processor
         {
             var payload = new Payload();
 
-            byte[] splitIndexBytes = null;
+            byte[] splitIndexBytes;
             try
             {
                 splitIndexBytes = SerDe.ReadBytes(stream, sizeof(int));
