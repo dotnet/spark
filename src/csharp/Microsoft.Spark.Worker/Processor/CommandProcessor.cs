@@ -10,6 +10,7 @@ using Microsoft.Spark.Utils;
 using static Microsoft.Spark.Utils.UdfUtils;
 
 #if NETCOREAPP
+using System.Reflection;
 using System.Runtime.Loader;
 #endif
 
@@ -22,8 +23,17 @@ namespace Microsoft.Spark.Worker.Processor
 #if NETCOREAPP
         static CommandProcessor()
         {
-            UdfSerDe.AssemblyLoader = AssemblyLoadContext.Default.LoadFromAssemblyPath;
-        }
+            AssemblyLoader.RemoveHandler();
+            AssemblyLoader.LoadFromFile = AssemblyLoadContext.Default.LoadFromAssemblyPath;
+            AssemblyLoader.LoadFromName = (asmName) =>
+                AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(asmName));
+
+            Func<AssemblyLoadContext, AssemblyName, Assembly> resolveAssembly =
+                (assemblyLoadContext, assemblyName) =>
+                    AssemblyLoader.ResolveAssembly(assemblyName.FullName);
+            AssemblyLoadContext.Default.Resolving +=
+                new Func<AssemblyLoadContext, AssemblyName, Assembly>(resolveAssembly);
+    }
 #endif
 
         internal CommandProcessor(Version version)
