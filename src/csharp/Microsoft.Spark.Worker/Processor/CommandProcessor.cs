@@ -27,12 +27,8 @@ namespace Microsoft.Spark.Worker.Processor
             AssemblyLoader.LoadFromFile = AssemblyLoadContext.Default.LoadFromAssemblyPath;
             AssemblyLoader.LoadFromName = (asmName) =>
                 AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(asmName));
-
-            Func<AssemblyLoadContext, AssemblyName, Assembly> resolveAssembly =
-                (assemblyLoadContext, assemblyName) =>
+            AssemblyLoadContext.Default.Resolving += (assemblyLoadContext, assemblyName) =>
                     AssemblyLoader.ResolveAssembly(assemblyName.FullName);
-            AssemblyLoadContext.Default.Resolving +=
-                new Func<AssemblyLoadContext, AssemblyName, Assembly>(resolveAssembly);
     }
 #endif
 
