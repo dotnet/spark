@@ -38,13 +38,12 @@ namespace Microsoft.Spark.Utils
             if (s_eventHandler != null)
             {
                 AppDomain.CurrentDomain.AssemblyResolve -= s_eventHandler;
+                s_eventHandler = null;
             }
         }
 
-        internal static Assembly ResolveAssembly(object sender, ResolveEventArgs args)
-        {
-            return ResolveAssembly(args.Name);
-        }
+        internal static Assembly ResolveAssembly(object sender, ResolveEventArgs args) =>
+            ResolveAssembly(args.Name);
 
         internal static Assembly ResolveAssembly(string assemblyName)
         {
