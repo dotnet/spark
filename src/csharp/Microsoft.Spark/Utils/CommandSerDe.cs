@@ -100,8 +100,8 @@ namespace Microsoft.Spark.Utils
             internal UdfSerDe.UdfData[] Udfs { get; set; }
 
             /// <summary>
-            /// Mapping between the FullName and FileName of all the referenced
-            /// assemblies for the given Udf.
+            /// Mapping between the FullName and FileName of all the UDF
+            /// referenced assemblies.
             /// </summary>
             internal Dictionary<string, string> UdfRefAssemblies { get; set; }
         }
@@ -245,9 +245,10 @@ namespace Microsoft.Spark.Utils
                     try
                     {
                         Assembly asm = Assembly.Load(assemblyName.FullName);
-
                         udfRefAssemblies.Add(assemblyName.FullName, asm.ManifestModule.Name);
 
+                        // Sometimes the versions in asm.FullName and assemblyName.FullName
+                        // are not the same.
                         if (!udfRefAssemblies.ContainsKey(asm.FullName))
                         {
                             udfRefAssemblies.Add(asm.FullName, asm.ManifestModule.Name);
