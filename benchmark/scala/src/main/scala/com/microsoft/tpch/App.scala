@@ -32,7 +32,7 @@ object App {
       .appName("TPC-H Benchmark for Scala")
       .getOrCreate()
 
-    for (i <- 1 until numIteration) {
+    for (i <- 0 until numIteration) {
       val startTs = System.currentTimeMillis
       var startFunc = System.currentTimeMillis
       var endFunc = System.currentTimeMillis
