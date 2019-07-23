@@ -98,12 +98,6 @@ namespace Microsoft.Spark.Utils
             /// Serialized UDF data.
             /// </summary>
             internal UdfSerDe.UdfData[] Udfs { get; set; }
-
-            /// <summary>
-            /// Mapping between the FullName and FileName of all the UDF
-            /// referenced assemblies.
-            /// </summary>
-            internal Dictionary<string, string> UdfRefAssemblies { get; set; }
         }
 
         internal static byte[] Serialize(
@@ -155,16 +149,14 @@ namespace Microsoft.Spark.Utils
             // Serialize the UDFs.
             var udfWrapperNodes = new List<UdfWrapperNode>();
             var udfs = new List<UdfSerDe.UdfData>();
-            var udfRefAssemblies = new Dictionary<string, string>();
-            SerializeUdfs(func, null, udfWrapperNodes, udfs, udfRefAssemblies);
+            SerializeUdfs(func, null, udfWrapperNodes, udfs);
 
             // Run through UdfSerDe.Serialize once more to get serialization info
             // on the actual UDF.
             var udfWrapperData = new UdfWrapperData()
             {
                 UdfWrapperNodes = udfWrapperNodes.ToArray(),
-                Udfs = udfs.ToArray(),
-                UdfRefAssemblies = udfRefAssemblies
+                Udfs = udfs.ToArray()
             };
 
             var formatter = new BinaryFormatter();
@@ -186,8 +178,7 @@ namespace Microsoft.Spark.Utils
             Delegate func,
             UdfWrapperNode parent,
             List<UdfWrapperNode> udfWrapperNodes,
-            List<UdfSerDe.UdfData> udfs,
-            Dictionary<string, string> udfRefAssemblies)
+            List<UdfSerDe.UdfData> udfs)
         {
             UdfSerDe.UdfData udfData = UdfSerDe.Serialize(func);
             if (udfData.MethodName != UdfWrapperMethodName)
@@ -198,10 +189,6 @@ namespace Microsoft.Spark.Utils
                     parent.HasUdf = true;
                     Debug.Assert(parent.NumChildren == 1);
                 }
-
-                SerializeReferencedAssemblies(
-                    func.Target.GetType().Assembly.GetReferencedAssemblies(),
-                    udfRefAssemblies);
 
                 udfs.Add(udfData);
                 return;
@@ -225,42 +212,7 @@ namespace Microsoft.Spark.Utils
 
             foreach (UdfSerDe.FieldData field in fields)
             {
-                SerializeUdfs(
-                    (Delegate)field.ValueData.Value,
-                    curNode,
-                    udfWrapperNodes,
-                    udfs,
-                    udfRefAssemblies);
-            }
-        }
-
-        private static void SerializeReferencedAssemblies(
-            AssemblyName[] referencedAssemblies,
-            Dictionary<string, string> udfRefAssemblies)
-        {
-            foreach (AssemblyName assemblyName in referencedAssemblies)
-            {
-                if (!udfRefAssemblies.ContainsKey(assemblyName.FullName))
-                {
-                    try
-                    {
-                        Assembly asm = Assembly.Load(assemblyName.FullName);
-                        udfRefAssemblies.Add(assemblyName.FullName, asm.ManifestModule.Name);
-
-                        // Sometimes the versions in asm.FullName and assemblyName.FullName
-                        // are not the same.
-                        if (!udfRefAssemblies.ContainsKey(asm.FullName))
-                        {
-                            udfRefAssemblies.Add(asm.FullName, asm.ManifestModule.Name);
-                        }
-
-                        SerializeReferencedAssemblies(asm.GetReferencedAssemblies(), udfRefAssemblies);
-                    }
-                    catch
-                    {
-                        // Ignore assemblies that are not loaded within the current AppDomain.
-                    }
-                }
+                SerializeUdfs((Delegate)field.Value, curNode, udfWrapperNodes, udfs);
             }
         }
 
@@ -288,11 +240,6 @@ namespace Microsoft.Spark.Utils
             var ms = new MemoryStream(serializedCommand, false);
 
             var udfWrapperData = (UdfWrapperData)bf.Deserialize(ms);
-
-            foreach (KeyValuePair<string, string> kvp in udfWrapperData.UdfRefAssemblies)
-            {
-                AssemblyLoader.s_assemblyNameToFileName.TryAdd(kvp.Key, kvp.Value);
-            }
 
             var nodeIndex = 0;
             var udfIndex = 0;

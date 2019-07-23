@@ -20,17 +20,20 @@ namespace Microsoft.Spark.Worker.Processor
     {
         private readonly Version _version;
 
-#if NETCOREAPP
+
         static CommandProcessor()
         {
+            AssemblyLoader.InstallHandler();
+#if NETCOREAPP
             AssemblyLoader.RemoveHandler();
             AssemblyLoader.LoadFromFile = AssemblyLoadContext.Default.LoadFromAssemblyPath;
             AssemblyLoader.LoadFromName = (asmName) =>
                 AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(asmName));
             AssemblyLoadContext.Default.Resolving += (assemblyLoadContext, assemblyName) =>
                     AssemblyLoader.ResolveAssembly(assemblyName.FullName);
-    }
 #endif
+        }
+
 
         internal CommandProcessor(Version version)
         {

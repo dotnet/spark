@@ -11,18 +11,18 @@ namespace Microsoft.Spark.Utils
 
         internal static Func<string, Assembly> LoadFromName { get; set; } = Assembly.Load;
 
-        internal static readonly ConcurrentDictionary<string, string> s_assemblyNameToFileName =
-            new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, Assembly> s_assemblyCache =
+            new ConcurrentDictionary<string, Assembly>();
 
-        private static readonly ConcurrentDictionary<string, Lazy<Assembly>> s_assemblyCache =
-            new ConcurrentDictionary<string, Lazy<Assembly>>();
+        private static readonly string[] s_searchPaths =
+            new[] { Directory.GetCurrentDirectory(), AppDomain.CurrentDomain.BaseDirectory };
+
+        private static readonly string[] s_extensions =
+            new[] { ".ni.dll", ".ni.exe", ".dll", ".exe", "" };
 
         private static ResolveEventHandler s_eventHandler = null;
 
-        static AssemblyLoader()
-        {
-            InstallHandler();
-        }
+        private static object s_cacheLock = new object();
 
         internal static void InstallHandler()
         {
@@ -45,14 +45,44 @@ namespace Microsoft.Spark.Utils
         internal static Assembly ResolveAssembly(object sender, ResolveEventArgs args) =>
             ResolveAssembly(args.Name);
 
+        /// <summary>
+        /// Return the cached assembly, otherwise look in the following probing paths,
+        /// searching for the simple assembly name and s_extension combination.
+        /// 1) The working directory
+        /// 2) The directory of the application
+        /// </summary>
+        /// <param name="assemblyName">The fullname of the assembly to load</param>
+        /// <returns>The loaded assembly</returns>
+        /// <exception cref="FileNotFoundException">Thrown if the assembly is not
+        /// found.</exception>
         internal static Assembly ResolveAssembly(string assemblyName)
         {
-            if (s_assemblyNameToFileName.TryGetValue(assemblyName, out string assemblyFile))
+            lock (s_cacheLock)
             {
-                return LoadAssembly(assemblyFile);
-            }
+                if (s_assemblyCache.TryGetValue(assemblyName, out Assembly assembly))
+                {
+                    return assembly;
+                }
 
-            throw new FileNotFoundException($"Assembly file not found: '{assemblyName}'");
+                string simpleAsmName = new AssemblyName(assemblyName).Name;
+                foreach (string searchPath in s_searchPaths)
+                {
+                    foreach (string extension in s_extensions)
+                    {
+                        string assemblyPath =
+                            Path.Combine(searchPath, $"{simpleAsmName}{extension}");
+                        if (File.Exists(assemblyPath))
+                        {
+                            assembly = LoadFromFile(assemblyPath);
+                            s_assemblyCache[assemblyName] = assembly;
+                            return assembly;
+                        }
+                    }
+                }
+
+                throw new FileNotFoundException($"Assembly file not found: '{assemblyName}'");
+
+            }
         }
 
         /// <summary>
@@ -64,50 +94,51 @@ namespace Microsoft.Spark.Utils
         /// <param name="assemblyName">The full name of the assembly</param>
         /// <param name="manifestModuleName">Name of the module that contains the assembly</param>
         /// <returns>Cached or Loaded Assembly</returns>
-        internal static Assembly LoadAssembly(string assemblyName, string manifestModuleName) =>
-            s_assemblyCache.GetOrAdd(
-                assemblyName,
-                _ => new Lazy<Assembly>(
-                    () =>
-                    {
-                        try
-                        {
-                            return LoadFromName(assemblyName);
-                        }
-                        catch
-                        {
-                            s_assemblyNameToFileName.TryAdd(assemblyName, manifestModuleName);
-                            return LoadAssembly(manifestModuleName);
-                        }
-                    })).Value;
+        internal static Assembly LoadAssembly(string assemblyName, string manifestModuleName)
+        {
+            lock (s_cacheLock)
+            {
+                if (s_assemblyCache.TryGetValue(assemblyName, out Assembly assembly))
+                {
+                    return assembly;
+                }
+
+                try
+                {
+                    assembly = LoadFromName(assemblyName);
+                }
+                catch
+                {
+                    assembly = LoadAssembly(manifestModuleName);
+                }
+
+                s_assemblyCache[assemblyName] = assembly;
+                return assembly;
+            }
+        }
 
         /// <summary>
         /// Returns the loaded assembly by probing the following locations in order:
         /// 1) The working directory
         /// 2) The directory of the application
-        /// If the assembly is not found in the above locations, the exception from
-        /// AssemblyLoader() will be propagated.
         /// </summary>
-        /// <param name="manifestModuleName">The name of assembly to load</param>
+        /// <param name="manifestModuleName">The name of the assembly to load</param>
         /// <returns>The loaded assembly</returns>
-        internal static Assembly LoadAssembly(string manifestModuleName)
+        /// <exception cref="FileNotFoundException">Thrown if the assembly is not
+        /// found in the probing locations.</exception>
+        private static Assembly LoadAssembly(string manifestModuleName)
         {
-            string currDirAsmPath =
-                Path.Combine(Directory.GetCurrentDirectory(), manifestModuleName);
-            if (File.Exists(currDirAsmPath))
+            foreach (string searchPath in s_searchPaths)
             {
-                return LoadFromFile(currDirAsmPath);
-            }
-
-            string currDomainBaseDirAsmPath =
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, manifestModuleName);
-            if (File.Exists(currDomainBaseDirAsmPath))
-            {
-                return LoadFromFile(currDomainBaseDirAsmPath);
+                string assemblyPath = Path.Combine(searchPath, manifestModuleName);
+                if (File.Exists(assemblyPath))
+                {
+                    return LoadFromFile(assemblyPath);
+                }
             }
 
             throw new FileNotFoundException(
-                $"Assembly files not found: '{currDirAsmPath}', '{currDomainBaseDirAsmPath}'");
+                $"Assembly file '{manifestModuleName}' not found in: ${string.Join(",", s_searchPaths)}");
         }
     }
 }
