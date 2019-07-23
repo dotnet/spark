@@ -291,9 +291,6 @@ namespace Microsoft.Spark.Worker.Command
     /// </summary>
     internal class ArrowSqlCommandExecutor : SqlCommandExecutor
     {
-        [ThreadStatic]
-        private static MemoryStream s_writeOutputStream;
-
         protected override CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
@@ -303,11 +300,6 @@ namespace Microsoft.Spark.Worker.Command
             ICommandRunner commandRunner = CreateCommandRunner(commands);
 
             SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
-
-            // TODO: Remove this MemoryStream once the arrow writer supports non-seekable streams.
-            // For now, we write to a temporary seekable MemoryStream which we then copy to
-            // the actual destination stream.
-            MemoryStream tmp = s_writeOutputStream ?? (s_writeOutputStream = new MemoryStream());
 
             ArrowStreamWriter writer = null;
             Schema resultSchema = null;
@@ -319,24 +311,18 @@ namespace Microsoft.Spark.Worker.Command
                 int numEntries = results[0].Length;
                 stat.NumEntriesProcessed += numEntries;
 
-                tmp.SetLength(0);
-
                 if (writer == null)
                 {
                     Debug.Assert(resultSchema == null);
                     resultSchema = BuildSchema(results);
 
-                    writer = new ArrowStreamWriter(tmp, resultSchema, leaveOpen: true);
+                    writer = new ArrowStreamWriter(outputStream, resultSchema, leaveOpen: true);
                 }
 
                 var recordBatch = new RecordBatch(resultSchema, results, numEntries);
 
                 // TODO: Remove sync-over-async once WriteRecordBatch exists.
                 writer.WriteRecordBatchAsync(recordBatch).GetAwaiter().GetResult();
-
-                tmp.Position = 0;
-                tmp.CopyTo(outputStream);
-                outputStream.Flush();
             }
 
             SerDe.Write(outputStream, 0);
@@ -532,9 +518,6 @@ namespace Microsoft.Spark.Worker.Command
 
     internal class ArrowGroupedMapCommandExecutor : SqlCommandExecutor
     {
-        [ThreadStatic]
-        private static MemoryStream s_writeOutputStream;
-
         protected override CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
@@ -548,11 +531,6 @@ namespace Microsoft.Spark.Worker.Command
 
             SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
 
-            // TODO: Remove this MemoryStream once the arrow writer supports non-seekable streams.
-            // For now, we write to a temporary seekable MemoryStream which we then copy to
-            // the actual destination stream.
-            MemoryStream tmp = s_writeOutputStream ?? (s_writeOutputStream = new MemoryStream());
-
             ArrowStreamWriter writer = null;
             foreach (RecordBatch input in GetInputIterator(inputStream))
             {
@@ -561,19 +539,13 @@ namespace Microsoft.Spark.Worker.Command
                 int numEntries = result.Length;
                 stat.NumEntriesProcessed += numEntries;
 
-                tmp.SetLength(0);
-
                 if (writer == null)
                 {
-                    writer = new ArrowStreamWriter(tmp, result.Schema, leaveOpen: true);
+                    writer = new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true);
                 }
 
                 // TODO: Remove sync-over-async once WriteRecordBatch exists.
                 writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
-
-                tmp.Position = 0;
-                tmp.CopyTo(outputStream);
-                outputStream.Flush();
             }
 
             SerDe.Write(outputStream, 0);
