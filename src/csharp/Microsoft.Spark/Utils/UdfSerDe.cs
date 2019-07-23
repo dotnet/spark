@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -25,7 +26,7 @@ namespace Microsoft.Spark.Utils
         {
             public string Name { get; set; }
             public string AssemblyName { get; set; }
-            public string ManifestModuleName { get; set; }
+            public string AssemblyFileName { get; set; }
 
             public override int GetHashCode()
             {
@@ -45,7 +46,7 @@ namespace Microsoft.Spark.Utils
                 return (other != null) &&
                     (other.Name == Name) &&
                     (other.AssemblyName == AssemblyName) &&
-                    (other.ManifestModuleName == ManifestModuleName);
+                    (other.AssemblyFileName == AssemblyFileName);
             }
         }
 
@@ -249,7 +250,7 @@ namespace Microsoft.Spark.Utils
             {
                 Name = type.FullName,
                 AssemblyName = type.Assembly.FullName,
-                ManifestModuleName = type.Assembly.ManifestModule.Name
+                AssemblyFileName = Path.GetFileName(type.Assembly.Location)
             };
         }
 
@@ -258,6 +259,6 @@ namespace Microsoft.Spark.Utils
                 typeData,
                 td => AssemblyLoader.LoadAssembly(
                     td.AssemblyName,
-                    td.ManifestModuleName).GetType(td.Name));
+                    td.AssemblyFileName).GetType(td.Name));
     }
 }

@@ -34,7 +34,6 @@ namespace Microsoft.Spark.Worker.Processor
 #endif
         }
 
-
         internal CommandProcessor(Version version)
         {
             _version = version;

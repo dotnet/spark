@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
@@ -11,8 +11,8 @@ namespace Microsoft.Spark.Utils
 
         internal static Func<string, Assembly> LoadFromName { get; set; } = Assembly.Load;
 
-        private static readonly ConcurrentDictionary<string, Assembly> s_assemblyCache =
-            new ConcurrentDictionary<string, Assembly>();
+        private static readonly Dictionary<string, Assembly> s_assemblyCache =
+            new Dictionary<string, Assembly>();
 
         private static readonly string[] s_searchPaths =
             new[] { Directory.GetCurrentDirectory(), AppDomain.CurrentDomain.BaseDirectory };
@@ -89,12 +89,12 @@ namespace Microsoft.Spark.Utils
         /// Return the cached assembly, otherwise attempt to load and cache the assembly
         /// in the following order:
         /// 1) Search the assemblies loaded in the current app domain.
-        /// 2) Load the assembly from disk using manifestModuleName.
+        /// 2) Load the assembly from disk using assemblyFileName.
         /// </summary>
         /// <param name="assemblyName">The full name of the assembly</param>
-        /// <param name="manifestModuleName">Name of the module that contains the assembly</param>
+        /// <param name="assemblyFileName">Name of the file that contains the assembly</param>
         /// <returns>Cached or Loaded Assembly</returns>
-        internal static Assembly LoadAssembly(string assemblyName, string manifestModuleName)
+        internal static Assembly LoadAssembly(string assemblyName, string assemblyFileName)
         {
             lock (s_cacheLock)
             {
@@ -109,7 +109,7 @@ namespace Microsoft.Spark.Utils
                 }
                 catch
                 {
-                    assembly = LoadAssembly(manifestModuleName);
+                    assembly = LoadAssembly(assemblyFileName);
                 }
 
                 s_assemblyCache[assemblyName] = assembly;
@@ -122,15 +122,15 @@ namespace Microsoft.Spark.Utils
         /// 1) The working directory
         /// 2) The directory of the application
         /// </summary>
-        /// <param name="manifestModuleName">The name of the assembly to load</param>
+        /// <param name="assemblyFileName">Name of the file that contains the assembly</param>
         /// <returns>The loaded assembly</returns>
         /// <exception cref="FileNotFoundException">Thrown if the assembly is not
         /// found in the probing locations.</exception>
-        private static Assembly LoadAssembly(string manifestModuleName)
+        private static Assembly LoadAssembly(string assemblyFileName)
         {
             foreach (string searchPath in s_searchPaths)
             {
-                string assemblyPath = Path.Combine(searchPath, manifestModuleName);
+                string assemblyPath = Path.Combine(searchPath, assemblyFileName);
                 if (File.Exists(assemblyPath))
                 {
                     return LoadFromFile(assemblyPath);
@@ -138,7 +138,10 @@ namespace Microsoft.Spark.Utils
             }
 
             throw new FileNotFoundException(
-                $"Assembly file '{manifestModuleName}' not found in: ${string.Join(",", s_searchPaths)}");
+                string.Format(
+                    "Assembly file '{0}' not found in: '{1}'",
+                    assemblyFileName,
+                    string.Join(",", s_searchPaths)));
         }
     }
 }
