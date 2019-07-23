@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.Spark.Utils
 {
@@ -18,11 +19,13 @@ namespace Microsoft.Spark.Utils
             new[] { Directory.GetCurrentDirectory(), AppDomain.CurrentDomain.BaseDirectory };
 
         private static readonly string[] s_extensions =
-            new[] { ".ni.dll", ".ni.exe", ".dll", ".exe", "" };
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
+                    new[] { ".ni.dll", ".ni.exe", ".dll", ".exe" } :
+                    new[] { ".ni.dll", ".dll", "" };
 
         private static ResolveEventHandler s_eventHandler = null;
 
-        private static object s_cacheLock = new object();
+        private static readonly object s_cacheLock = new object();
 
         internal static void InstallHandler()
         {
