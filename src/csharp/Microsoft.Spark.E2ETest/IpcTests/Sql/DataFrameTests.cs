@@ -191,16 +191,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.Equal(3, rows.Length);
             foreach (Row row in rows)
             {
-                int age = row.GetAs<int>("age");
-                int? charCount = row.GetAs<int?>("nameCharCount");
+                int? age = row.GetAs<int?>("age");
+                int charCount = row.GetAs<int>("nameCharCount");
                 switch (age)
                 {
-                    case 0:
-                        // The results here are incorrect for the {name: "Michael" age: null} 
-                        // record because of https://issues.apache.org/jira/browse/ARROW-5887.
-                        // When an updated Apache.Arrow library is available with the fix,
-                        // this should change to check for age: null, charCount: 7.
-                        Assert.Null(charCount);
+                    case null:
+                        Assert.Equal(7, charCount);
                         break;
                     case 19:
                         Assert.Equal(11, charCount);
