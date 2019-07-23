@@ -20,8 +20,8 @@ namespace Microsoft.Spark.Utils
 
         private static readonly string[] s_extensions =
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
-                    new[] { ".ni.dll", ".ni.exe", ".dll", ".exe" } :
-                    new[] { ".ni.dll", ".dll", "" };
+                    new[] { ".dll", ".exe", ".ni.dll", ".ni.exe" } :
+                    new[] { ".dll", "", ".ni.dll" };
 
         private static ResolveEventHandler s_eventHandler = null;
 
@@ -44,9 +44,6 @@ namespace Microsoft.Spark.Utils
                 s_eventHandler = null;
             }
         }
-
-        internal static Assembly ResolveAssembly(object sender, ResolveEventArgs args) =>
-            ResolveAssembly(args.Name);
 
         /// <summary>
         /// Return the cached assembly, otherwise look in the following probing paths,
@@ -119,6 +116,9 @@ namespace Microsoft.Spark.Utils
                 return assembly;
             }
         }
+
+        private static Assembly ResolveAssembly(object sender, ResolveEventArgs args) =>
+            ResolveAssembly(args.Name);
 
         /// <summary>
         /// Returns the loaded assembly by probing the following locations in order:
