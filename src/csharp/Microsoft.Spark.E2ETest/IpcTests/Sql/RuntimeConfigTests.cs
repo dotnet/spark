@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Xunit;
 
@@ -37,7 +38,17 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             conf.Unset("stringKey");
             Assert.Equal("defaultValue", conf.Get("stringKey", "defaultValue"));
+        }
 
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 2.4.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
+        public void TestSignaturesV2_4_X()
+        {
+            RuntimeConfig conf = _spark.Conf();
+
+            Assert.True(conf.IsModifiable("spark.sql.streaming.checkpointLocation"));
             Assert.False(conf.IsModifiable("missingKey"));
         }
     }
