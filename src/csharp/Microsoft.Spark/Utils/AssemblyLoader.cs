@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Spark.Utils
 {
-    internal class AssemblyLoader
+    internal static class AssemblyLoader
     {
         internal static Func<string, Assembly> LoadFromFile { get; set; } = Assembly.LoadFrom;
 
@@ -21,7 +21,7 @@ namespace Microsoft.Spark.Utils
         private static readonly string[] s_extensions =
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
                     new[] { ".dll", ".exe", ".ni.dll", ".ni.exe" } :
-                    new[] { ".dll", "", ".ni.dll" };
+                    new[] { ".dll", ".ni.dll" };
 
         private static ResolveEventHandler s_eventHandler = null;
 
@@ -46,6 +46,34 @@ namespace Microsoft.Spark.Utils
         }
 
         /// <summary>
+        /// Return the cached assembly, otherwise attempt to load and cache the assembly
+        /// in the following order:
+        /// 1) Load the assembly from disk using assemblyFileName.
+        /// 2) Search for assemblyName in the current app domain.
+        /// </summary>
+        /// <param name="assemblyName">The full name of the assembly</param>
+        /// <param name="assemblyFileName">Name of the file that contains the assembly</param>
+        /// <returns>Cached or Loaded Assembly</returns>
+        internal static Assembly LoadAssembly(string assemblyName, string assemblyFileName)
+        {
+            lock (s_cacheLock)
+            {
+                if (s_assemblyCache.TryGetValue(assemblyName, out Assembly assembly))
+                {
+                    return assembly;
+                }
+
+                if (!TryLoadAssembly(assemblyFileName, ref assembly))
+                {
+                    assembly = LoadFromName(assemblyName);
+                }
+
+                s_assemblyCache[assemblyName] = assembly;
+                return assembly;
+            }
+        }
+
+        /// <summary>
         /// Return the cached assembly, otherwise look in the following probing paths,
         /// searching for the simple assembly name and s_extension combination.
         /// 1) The working directory
@@ -65,55 +93,17 @@ namespace Microsoft.Spark.Utils
                 }
 
                 string simpleAsmName = new AssemblyName(assemblyName).Name;
-                foreach (string searchPath in s_searchPaths)
+                foreach (string extension in s_extensions)
                 {
-                    foreach (string extension in s_extensions)
+                    var assemblyFileName = $"{simpleAsmName}{extension}";
+                    if (TryLoadAssembly(assemblyFileName, ref assembly))
                     {
-                        string assemblyPath =
-                            Path.Combine(searchPath, $"{simpleAsmName}{extension}");
-                        if (File.Exists(assemblyPath))
-                        {
-                            assembly = LoadFromFile(assemblyPath);
-                            s_assemblyCache[assemblyName] = assembly;
-                            return assembly;
-                        }
+                        s_assemblyCache[assemblyName] = assembly;
+                        return assembly;
                     }
                 }
 
                 throw new FileNotFoundException($"Assembly file not found: '{assemblyName}'");
-
-            }
-        }
-
-        /// <summary>
-        /// Return the cached assembly, otherwise attempt to load and cache the assembly
-        /// in the following order:
-        /// 1) Search the assemblies loaded in the current app domain.
-        /// 2) Load the assembly from disk using assemblyFileName.
-        /// </summary>
-        /// <param name="assemblyName">The full name of the assembly</param>
-        /// <param name="assemblyFileName">Name of the file that contains the assembly</param>
-        /// <returns>Cached or Loaded Assembly</returns>
-        internal static Assembly LoadAssembly(string assemblyName, string assemblyFileName)
-        {
-            lock (s_cacheLock)
-            {
-                if (s_assemblyCache.TryGetValue(assemblyName, out Assembly assembly))
-                {
-                    return assembly;
-                }
-
-                try
-                {
-                    assembly = LoadFromName(assemblyName);
-                }
-                catch
-                {
-                    assembly = LoadAssembly(assemblyFileName);
-                }
-
-                s_assemblyCache[assemblyName] = assembly;
-                return assembly;
             }
         }
 
@@ -126,25 +116,30 @@ namespace Microsoft.Spark.Utils
         /// 2) The directory of the application
         /// </summary>
         /// <param name="assemblyFileName">Name of the file that contains the assembly</param>
+        /// <param name="assembly">The loaded assembly.</param>
         /// <returns>The loaded assembly</returns>
-        /// <exception cref="FileNotFoundException">Thrown if the assembly is not
-        /// found in the probing locations.</exception>
-        private static Assembly LoadAssembly(string assemblyFileName)
+        private static bool TryLoadAssembly(string assemblyFileName, ref Assembly assembly)
         {
             foreach (string searchPath in s_searchPaths)
             {
                 string assemblyPath = Path.Combine(searchPath, assemblyFileName);
                 if (File.Exists(assemblyPath))
                 {
-                    return LoadFromFile(assemblyPath);
+                    try
+                    {
+                        assembly = LoadFromFile(assemblyPath);
+                        return true;
+                    }
+                    catch (Exception ex) when (
+                        ex is FileLoadException ||
+                        ex is BadImageFormatException)
+                    {
+                        // Ignore invalid assemblies.
+                    }
                 }
             }
 
-            throw new FileNotFoundException(
-                string.Format(
-                    "Assembly file '{0}' not found in: '{1}'",
-                    assemblyFileName,
-                    string.Join(",", s_searchPaths)));
+            return false;
         }
     }
 }
