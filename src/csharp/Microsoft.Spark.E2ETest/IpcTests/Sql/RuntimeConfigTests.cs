@@ -38,7 +38,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             conf.Unset("stringKey");
             Assert.Equal("defaultValue", conf.Get("stringKey", "defaultValue"));
 
-            Assert.True(conf.IsModifiable("spark.sql.shuffle.partitions"));
             Assert.False(conf.IsModifiable("missingKey"));
         }
     }
