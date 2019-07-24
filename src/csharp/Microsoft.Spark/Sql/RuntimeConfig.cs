@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
 using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark.Sql
@@ -39,6 +37,12 @@ namespace Microsoft.Spark.Sql
         /// <param name="key">Config name</param>
         /// <param name="value">Config value</param>
         public void Set(string key, long value) => _jvmObject.Invoke("set", key, value);
+
+        /// <summary>
+        /// Returns the value of Spark runtime configuration property for the given key.
+        /// </summary>
+        /// <param name="key">Key to use</param>
+        public string Get(string key) => (string)_jvmObject.Invoke("get", key);
 
         /// <summary>
         /// Returns the value of Spark runtime configuration property for the given key.

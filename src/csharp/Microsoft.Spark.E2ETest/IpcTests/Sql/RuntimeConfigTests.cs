@@ -32,12 +32,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             conf.Set("boolKey", false);
             conf.Set("longKey", 1234L);
 
-            Assert.Equal("stringValue", conf.Get("stringKey", "defaultValue"));
-            Assert.Equal("false", conf.Get("boolKey", "true"));
-            Assert.Equal("1234", conf.Get("longKey", "0"));
+            Assert.Equal("stringValue", conf.Get("stringKey"));
+            Assert.Equal("false", conf.Get("boolKey"));
+            Assert.Equal("1234", conf.Get("longKey"));
 
             conf.Unset("stringKey");
             Assert.Equal("defaultValue", conf.Get("stringKey", "defaultValue"));
+            Assert.Equal("false", conf.Get("boolKey", "true"));
         }
 
         /// <summary>
