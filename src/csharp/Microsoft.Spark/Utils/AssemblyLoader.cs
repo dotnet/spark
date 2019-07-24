@@ -27,18 +27,7 @@ namespace Microsoft.Spark.Utils
                     new[] { ".dll", ".exe", ".ni.dll", ".ni.exe" } :
                     new[] { ".dll", ".ni.dll" };
 
-        private static ResolveEventHandler s_eventHandler = null;
-
         private static readonly object s_cacheLock = new object();
-
-        internal static void InstallHandler()
-        {
-            if (s_eventHandler == null)
-            {
-                s_eventHandler = new ResolveEventHandler(ResolveAssembly);
-                AppDomain.CurrentDomain.AssemblyResolve += s_eventHandler;
-            }
-        }
 
         /// <summary>
         /// Return the cached assembly, otherwise attempt to load and cache the assembly
@@ -101,9 +90,6 @@ namespace Microsoft.Spark.Utils
                 throw new FileNotFoundException($"Assembly file not found: '{assemblyName}'");
             }
         }
-
-        private static Assembly ResolveAssembly(object sender, ResolveEventArgs args) =>
-            ResolveAssembly(args.Name);
 
         /// <summary>
         /// Returns the loaded assembly by probing the following locations in order:
