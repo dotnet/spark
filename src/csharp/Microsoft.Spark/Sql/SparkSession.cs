@@ -59,7 +59,7 @@ namespace Microsoft.Spark.Sql
         /// this defaults to the value set in the underlying SparkContext, if any.
         /// </remarks>
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The RuntimeConfig object</returns>
         public RuntimeConfig Conf() =>
             new RuntimeConfig((JvmObjectReference)_jvmObject.Invoke("conf"));
 

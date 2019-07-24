@@ -59,9 +59,11 @@ namespace Microsoft.Spark.Sql
         /// is modifiable in the current session.
         /// </summary>
         /// <param name="key">Key to check</param>
-        /// <returns>true if the configuration property is modifiable. For static SQL, Spark
+        /// <returns>
+        /// true if the configuration property is modifiable. For static SQL, Spark
         /// Core, invalid(not existing) and other non-modifiable configuration properties,
-        /// the returned value is false.</returns>
+        /// the returned value is false.
+        /// </returns>
         public bool IsModifiable(string key) => (bool)_jvmObject.Invoke("isModifiable", key);
     }
 }
