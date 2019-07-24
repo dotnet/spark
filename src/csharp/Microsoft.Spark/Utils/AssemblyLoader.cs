@@ -117,7 +117,7 @@ namespace Microsoft.Spark.Utils
         /// </summary>
         /// <param name="assemblyFileName">Name of the file that contains the assembly</param>
         /// <param name="assembly">The loaded assembly.</param>
-        /// <returns>The loaded assembly</returns>
+        /// <returns>True if assembly is loaded, false otherwise.</returns>
         private static bool TryLoadAssembly(string assemblyFileName, ref Assembly assembly)
         {
             foreach (string searchPath in s_searchPaths)
