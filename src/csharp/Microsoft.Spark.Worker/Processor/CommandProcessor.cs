@@ -20,7 +20,6 @@ namespace Microsoft.Spark.Worker.Processor
     {
         private readonly Version _version;
 
-
         static CommandProcessor()
         {
 #if NETCOREAPP
