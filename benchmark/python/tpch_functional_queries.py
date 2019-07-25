@@ -10,6 +10,7 @@ from pyspark.sql.functions import *
 from pyspark.sql.types import *
 import re
 
+
 class TpchFunctionalQueries(TpchBase):
     def __init__(self, spark, dir):
         TpchBase.__init__(self, spark, dir)
@@ -21,13 +22,13 @@ class TpchFunctionalQueries(TpchBase):
         self.lineitem.filter(col("l_shipdate") <= "1998-09-02") \
             .groupBy(col("l_returnflag"), col("l_linestatus")) \
             .agg(F.sum(col("l_quantity")).alias("sum_qty"),
-                F.sum(col("l_extendedprice")).alias("sum_base_price"),
-                F.sum(decrease(col("l_extendedprice"), col("l_discount"))).alias("sum_disc_price"),
-                F.sum(increase(decrease(col("l_extendedprice"), col("l_discount")), col("l_tax"))).alias("sum_charge"),
-                F.avg(col("l_quantity")).alias("avg_qty"),
-                F.avg(col("l_extendedprice")).alias("avg_price"),
-                F.avg(col("l_discount")).alias("avg_disc"),
-                F.count(col("l_quantity")).alias("count_order")) \
+                 F.sum(col("l_extendedprice")).alias("sum_base_price"),
+                 F.sum(decrease(col("l_extendedprice"), col("l_discount"))).alias("sum_disc_price"),
+                 F.sum(increase(decrease(col("l_extendedprice"), col("l_discount")), col("l_tax"))).alias("sum_charge"),
+                 F.avg(col("l_quantity")).alias("avg_qty"),
+                 F.avg(col("l_extendedprice")).alias("avg_price"),
+                 F.avg(col("l_discount")).alias("avg_disc"),
+                 F.count(col("l_quantity")).alias("count_order")) \
             .sort(col("l_returnflag"), col("l_linestatus")) \
             .show()
 
@@ -80,7 +81,7 @@ class TpchFunctionalQueries(TpchBase):
             .sort(col("o_orderpriority")) \
             .show()
 
-    def q5(self):        
+    def q5(self):
         decrease = udf(lambda x, y: x * (1 - y), FloatType())
 
         filteredOrders = self.orders.filter((col("o_orderdate") < "1995-01-01") & (col("o_orderdate") >= "1994-01-01"))
@@ -100,10 +101,10 @@ class TpchFunctionalQueries(TpchBase):
 
     def q6(self):
         self.lineitem.filter((col("l_shipdate") >= "1994-01-01")
-                            & (col("l_shipdate") < "1995-01-01")
-                            & (col("l_discount") >= 0.05)
-                            & (col("l_discount") <= 0.07)  
-                            & (col("l_quantity") < 24)) \
+                             & (col("l_shipdate") < "1995-01-01")
+                             & (col("l_discount") >= 0.05)
+                             & (col("l_discount") <= 0.07)
+                             & (col("l_quantity") < 24)) \
             .agg(F.sum(col("l_extendedprice") * col("l_discount")).alias("revenue")) \
             .show()
 
@@ -113,11 +114,13 @@ class TpchFunctionalQueries(TpchBase):
 
         filteredNations = self.nation.filter((col("n_name") == "FRANCE") | (col("n_name") == "GERMANY"))
 
-        filteredLineitems = self.lineitem.filter((col("l_shipdate") >= "1995-01-01") & (col("l_shipdate") <= "1996-12-31"))
+        filteredLineitems = self.lineitem.filter(
+            (col("l_shipdate") >= "1995-01-01") & (col("l_shipdate") <= "1996-12-31"))
 
         supplierNations = filteredNations.join(self.supplier, col("n_nationkey") == col("s_nationkey")) \
             .join(filteredLineitems, col("s_suppkey") == col("l_suppkey")) \
-            .select(col("n_name").alias("supp_nation"), col("l_orderkey"), col("l_extendedprice"), col("l_discount"), col("l_shipdate"))
+            .select(col("n_name").alias("supp_nation"), col("l_orderkey"), col("l_extendedprice"), col("l_discount"),
+                    col("l_shipdate"))
 
         filteredNations.join(self.customer, col("n_nationkey") == col("c_nationkey")) \
             .join(self.orders, col("c_custkey") == col("o_custkey")) \
@@ -145,7 +148,7 @@ class TpchFunctionalQueries(TpchBase):
         filteredNations = self.nation.join(self.supplier, col("n_nationkey") == col("s_nationkey"))
 
         filteredLineitems = self.lineitem.select(col("l_partkey"), col("l_suppkey"), col("l_orderkey"),
-                                                    decrease(col("l_extendedprice"), col("l_discount")).alias("volume")) \
+                                                 decrease(col("l_extendedprice"), col("l_discount")).alias("volume")) \
             .join(filteredParts, col("l_partkey") == col("p_partkey")) \
             .join(filteredNations, col("l_suppkey") == col("s_suppkey"))
 
@@ -174,11 +177,11 @@ class TpchFunctionalQueries(TpchBase):
 
         lineitemParts.join(nationPartSuppliers, col("l_suppkey") == col("s_suppkey")) \
             .join(self.partsupp, (col("l_suppkey") == col("ps_suppkey"))
-                & (col("l_partkey") == col("ps_partkey"))) \
+                  & (col("l_partkey") == col("ps_partkey"))) \
             .join(self.orders, col("l_orderkey") == col("o_orderkey")) \
             .select(col("n_name"), getYear(col("o_orderdate")).alias("o_year"),
                     expression(col("l_extendedprice"), col("l_discount"),
-                            col("ps_supplycost"), col("l_quantity")).alias("amount")) \
+                               col("ps_supplycost"), col("l_quantity")).alias("amount")) \
             .groupBy(col("n_name"), col("o_year")) \
             .agg(F.sum(col("amount"))) \
             .sort(col("n_name"), col("o_year").desc()) \
@@ -193,9 +196,11 @@ class TpchFunctionalQueries(TpchBase):
             .join(self.customer, col("o_custkey") == col("c_custkey")) \
             .join(self.nation, col("c_nationkey") == col("n_nationkey")) \
             .join(filteredLineitems, col("o_orderkey") == col("l_orderkey")) \
-            .select(col("c_custkey"), col("c_name"), decrease(col("l_extendedprice"), col("l_discount")).alias("volume"),
+            .select(col("c_custkey"), col("c_name"),
+                    decrease(col("l_extendedprice"), col("l_discount")).alias("volume"),
                     col("c_acctbal"), col("n_name"), col("c_address"), col("c_phone"), col("c_comment")) \
-            .groupBy(col("c_custkey"), col("c_name"), col("c_acctbal"), col("c_phone"), col("n_name"), col("c_address"), col("c_comment")) \
+            .groupBy(col("c_custkey"), col("c_name"), col("c_acctbal"), col("c_phone"), col("n_name"), col("c_address"),
+                     col("c_comment")) \
             .agg(F.sum(col("volume")).alias("revenue")) \
             .sort(col("revenue").desc()) \
             .limit(20) \
@@ -223,15 +228,15 @@ class TpchFunctionalQueries(TpchBase):
         lowPriority = udf(lambda x: (1 if ((x != "1-URGENT") and (x != "2-HIGH")) else 0), IntegerType())
 
         self.lineitem.filter(((col("l_shipmode") == "MAIL") | (col("l_shipmode") == "SHIP"))
-                & (col("l_commitdate") < col("l_receiptdate"))
-                & (col("l_shipdate") < col("l_commitdate"))
-                & (col("l_receiptdate") >= "1994-01-01") 
-                & (col("l_receiptdate") < "1995-01-01")) \
+                             & (col("l_commitdate") < col("l_receiptdate"))
+                             & (col("l_shipdate") < col("l_commitdate"))
+                             & (col("l_receiptdate") >= "1994-01-01")
+                             & (col("l_receiptdate") < "1995-01-01")) \
             .join(self.orders, col("l_orderkey") == col("o_orderkey")) \
             .select(col("l_shipmode"), col("o_orderpriority")) \
             .groupBy(col("l_shipmode")) \
             .agg(F.sum(highPriority(col("o_orderpriority"))).alias("sum_highorderpriority"),
-                F.sum(lowPriority(col("o_orderpriority"))).alias("sum_loworderpriority")) \
+                 F.sum(lowPriority(col("o_orderpriority"))).alias("sum_loworderpriority")) \
             .sort(col("l_shipmode")) \
             .show()
 
@@ -240,7 +245,7 @@ class TpchFunctionalQueries(TpchBase):
         special = udf(lambda x: special_regex.match(x) is not None, BooleanType())
 
         self.customer.join(self.orders, (col("c_custkey") == col("o_custkey"))
-                & ~special(col("o_comment")), "left_outer") \
+                           & ~special(col("o_comment")), "left_outer") \
             .groupBy(col("c_custkey")) \
             .agg(F.count(col("o_orderkey")).alias("c_count")) \
             .groupBy(col("c_count")) \
@@ -253,8 +258,8 @@ class TpchFunctionalQueries(TpchBase):
         promotion = udf(lambda x, y: (y if (x.startswith("PROMO")) else 0), FloatType())
 
         self.part.join(self.lineitem, (col("l_partkey") == col("p_partkey"))
-                & (col("l_shipdate") >= "1995-09-01")
-                & (col("l_shipdate") < "1995-10-01")) \
+                       & (col("l_shipdate") >= "1995-09-01")
+                       & (col("l_shipdate") < "1995-10-01")) \
             .select(col("p_type"), decrease(col("l_extendedprice"), col("l_discount")).alias("value")) \
             .agg(F.sum(promotion(col("p_type"), col("value"))) * 100 / F.sum(col("value"))) \
             .show()
@@ -263,7 +268,7 @@ class TpchFunctionalQueries(TpchBase):
         decrease = udf(lambda x, y: x * (1 - y), FloatType())
 
         revenue = self.lineitem.filter((col("l_shipdate") >= "1996-01-01")
-                & (col("l_shipdate") < "1996-04-01")) \
+                                       & (col("l_shipdate") < "1996-04-01")) \
             .select(col("l_suppkey"), decrease(col("l_extendedprice"), col("l_discount")).alias("value")) \
             .groupBy(col("l_suppkey")) \
             .agg(F.sum(col("value")).alias("total"))
@@ -286,8 +291,8 @@ class TpchFunctionalQueries(TpchBase):
         numbers = udf(lambda x: numbers_regex.match(str(x)) is not None, BooleanType())
 
         filteredParts = self.part.filter((col("p_brand") != "Brand#45")
-                & (~polished(col("p_type")))
-                & numbers(col("p_size"))) \
+                                         & (~polished(col("p_type")))
+                                         & numbers(col("p_size"))) \
             .select(col("p_partkey"), col("p_brand"), col("p_type"), col("p_size"))
 
         self.supplier.filter(~complains(col("s_comment"))) \
@@ -324,7 +329,8 @@ class TpchFunctionalQueries(TpchBase):
             .join(self.orders, col("o_orderkey") == col("key")) \
             .join(self.lineitem, col("o_orderkey") == col("l_orderkey")) \
             .join(self.customer, col("c_custkey") == col("o_custkey")) \
-            .select(col("l_quantity"), col("c_name"), col("c_custkey"), col("o_orderkey"), col("o_orderdate"), col("o_totalprice")) \
+            .select(col("l_quantity"), col("c_name"), col("c_custkey"), col("o_orderkey"), col("o_orderdate"),
+                    col("o_totalprice")) \
             .groupBy(col("c_name"), col("c_custkey"), col("o_orderkey"), col("o_orderdate"), col("o_totalprice")) \
             .agg(F.sum(col("l_quantity"))) \
             .sort(col("o_totalprice").desc(), col("o_orderdate")) \
@@ -344,26 +350,26 @@ class TpchFunctionalQueries(TpchBase):
 
         self.part.join(self.lineitem, col("l_partkey") == col("p_partkey")) \
             .filter(((col("l_shipmode") == "AIR")
-                    | (col("l_shipmode") == "AIR REG"))
+                     | (col("l_shipmode") == "AIR REG"))
                     & (col("l_shipinstruct") == "DELIVER IN PERSON")) \
             .filter(((col("p_brand") == "Brand#12")
-                    & (sm(col("p_container"))) 
-                    & (col("l_quantity") >= 1)
-                    & (col("l_quantity") <= 11)
-                    & (col("p_size") >= 1)
-                    & (col("p_size") <= 5))
+                     & (sm(col("p_container")))
+                     & (col("l_quantity") >= 1)
+                     & (col("l_quantity") <= 11)
+                     & (col("p_size") >= 1)
+                     & (col("p_size") <= 5))
                     | ((col("p_brand") == "Brand#23")
-                    & (med(col("p_container")))
-                    & (col("l_quantity") >= 10)
-                    & (col("l_quantity") <= 20)
-                    & (col("p_size") >= 1)
-                    & (col("p_size") <= 10))
+                       & (med(col("p_container")))
+                       & (col("l_quantity") >= 10)
+                       & (col("l_quantity") <= 20)
+                       & (col("p_size") >= 1)
+                       & (col("p_size") <= 10))
                     | ((col("p_brand") == "Brand#34")
-                    & (lg(col("p_container")))
-                    & (col("l_quantity") >= 20)
-                    & (col("l_quantity") <= 30) 
-                    & (col("p_size") >= 1) 
-                    & (col("p_size") <= 15))) \
+                       & (lg(col("p_container")))
+                       & (col("l_quantity") >= 20)
+                       & (col("l_quantity") <= 30)
+                       & (col("p_size") >= 1)
+                       & (col("p_size") <= 15))) \
             .select(decrease(col("l_extendedprice"), col("l_discount")).alias("volume")) \
             .agg(F.sum(col("volume")).alias("revenue")) \
             .show()
@@ -371,7 +377,8 @@ class TpchFunctionalQueries(TpchBase):
     def q20(self):
         forest = udf(lambda x: x.startswith("forest"), BooleanType())
 
-        filteredLineitems = self.lineitem.filter((col("l_shipdate") >= "1994-01-01") & (col("l_shipdate") < "1995-01-01")) \
+        filteredLineitems = self.lineitem.filter(
+            (col("l_shipdate") >= "1994-01-01") & (col("l_shipdate") < "1995-01-01")) \
             .groupBy(col("l_partkey"), col("l_suppkey")) \
             .agg((F.sum(col("l_quantity")) * 0.5).alias("sum_quantity"))
 
@@ -394,7 +401,8 @@ class TpchFunctionalQueries(TpchBase):
     def q21(self):
         filteredSuppliers = self.supplier.select(col("s_suppkey"), col("s_nationkey"), col("s_name"))
 
-        selectedLineitems = self.lineitem.select(col("l_suppkey"), col("l_orderkey"), col("l_receiptdate"), col("l_commitdate"))
+        selectedLineitems = self.lineitem.select(col("l_suppkey"), col("l_orderkey"), col("l_receiptdate"),
+                                                 col("l_commitdate"))
         filteredLineitems = selectedLineitems.filter(col("l_receiptdate") > col("l_commitdate"))
 
         selectedGroupedLineItems = selectedLineitems.groupBy(col("l_orderkey")) \
@@ -430,7 +438,8 @@ class TpchFunctionalQueries(TpchBase):
         phone_regex = re.compile("^(13|31|23|29|30|18|17)$")
         phone = udf(lambda x: phone_regex.match(x) is not None, BooleanType())
 
-        filteredCustomers = self.customer.select(col("c_acctbal"), col("c_custkey"), substring(col("c_phone")).alias("cntrycode")) \
+        filteredCustomers = self.customer.select(col("c_acctbal"), col("c_custkey"),
+                                                 substring(col("c_phone")).alias("cntrycode")) \
             .filter(phone(col("cntrycode")))
 
         customerAverage = filteredCustomers.filter(col("c_acctbal") > 0.0) \

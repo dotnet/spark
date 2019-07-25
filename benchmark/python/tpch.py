@@ -9,6 +9,7 @@ from tpch_functional_queries import *
 from tpch_sql_queries import *
 from pyspark.sql import SparkSession
 
+
 def main():
     if len(sys.argv) != 5:
         print("Usage:")
@@ -37,9 +38,11 @@ def main():
         end = time.time()
 
         typeStr = "SQL" if is_sql else "Functional"
-        print("TPCH_Result,Python,%s,%s,%d,%d,%d" % (typeStr, query_number, iter, (end-start) * 1000, (endFunc-startFunc) * 1000))
+        print("TPCH_Result,Python,%s,%s,%d,%d,%d" % (
+            typeStr, query_number, iter, (end - start) * 1000, (endFunc - startFunc) * 1000))
 
     spark.stop()
+
 
 if __name__ == '__main__':
     main()
