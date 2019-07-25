@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2046
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark", "Microsoft.Spark\Microsoft.Spark.csproj", "{2B4236DD-00A9-4B24-9041-6F9727F3B025}"
 EndProject
@@ -24,6 +24,10 @@ EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Microsoft.Spark.FSharp.Examples", "..\..\examples\Microsoft.Spark.FSharp.Examples\Microsoft.Spark.FSharp.Examples.fsproj", "{4E379DB3-7741-43C2-B32D-17AD96FEA7D0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Experimental", "Microsoft.Spark.Experimental\Microsoft.Spark.Experimental.csproj", "{7F276D07-6D94-49E3-A305-4B965DE7A700}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "external", "external", "{37E90B92-593A-47B6-BE89-F2F1E70FC79E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.E2ETest.ExternalLibrary", "..\..\external\Microsoft.Spark.E2ETest.ExternalLibrary\Microsoft.Spark.E2ETest.ExternalLibrary.csproj", "{4FB6EC00-0348-4E5A-93C2-5EAA60FD70B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +67,10 @@ Global
 		{7F276D07-6D94-49E3-A305-4B965DE7A700}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F276D07-6D94-49E3-A305-4B965DE7A700}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F276D07-6D94-49E3-A305-4B965DE7A700}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FB6EC00-0348-4E5A-93C2-5EAA60FD70B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FB6EC00-0348-4E5A-93C2-5EAA60FD70B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FB6EC00-0348-4E5A-93C2-5EAA60FD70B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FB6EC00-0348-4E5A-93C2-5EAA60FD70B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,6 +78,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{69F57F97-0198-4676-9BD9-E25407A132EA} = {C8C53525-4FEB-4B5B-91A2-619566C72F3E}
 		{4E379DB3-7741-43C2-B32D-17AD96FEA7D0} = {C8C53525-4FEB-4B5B-91A2-619566C72F3E}
+		{4FB6EC00-0348-4E5A-93C2-5EAA60FD70B7} = {37E90B92-593A-47B6-BE89-F2F1E70FC79E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FD15FFDB-EA1B-436F-841D-3386DDF94538}
