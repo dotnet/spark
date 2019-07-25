@@ -6,6 +6,7 @@ from tpch_base import TpchBase
 
 from pyspark.sql import SparkSession
 
+
 class TpchSqlQueries(TpchBase):
     def __init__(self, spark, dir):
         TpchBase.__init__(self, spark, dir)

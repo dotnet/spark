@@ -17,7 +17,7 @@ namespace Tpch
             }
 
             int length = price.Length;
-            var builder = new ArrowBuffer.Builder<double>(length);
+            var builder = new DoubleArray.Builder().Reserve(length);
             ReadOnlySpan<double> prices = price.Values;
             ReadOnlySpan<double> discounts = discount.Values;
             ReadOnlySpan<double> taxes = tax.Values;
@@ -26,12 +26,7 @@ namespace Tpch
                 builder.Append(prices[i] * (1 - discounts[i]) * (1 + taxes[i]));
             }
 
-            return new DoubleArray(
-                builder.Build(),
-                nullBitmapBuffer: ArrowBuffer.Empty,
-                length: length,
-                nullCount: 0,
-                offset: 0);
+            return builder.Build();
         }
 
         internal static DoubleArray ComputeDiscountPrice(DoubleArray price, DoubleArray discount)
@@ -42,7 +37,7 @@ namespace Tpch
             }
 
             int length = price.Length;
-            var builder = new ArrowBuffer.Builder<double>(length);
+            var builder = new DoubleArray.Builder().Reserve(length);
             ReadOnlySpan<double> prices = price.Values;
             ReadOnlySpan<double> discounts = discount.Values;
             for (int i = 0; i < length; ++i)
@@ -50,12 +45,7 @@ namespace Tpch
                 builder.Append(prices[i] * (1 - discounts[i]));
             }
 
-            return new DoubleArray(
-                builder.Build(),
-                nullBitmapBuffer: ArrowBuffer.Empty,
-                length: length,
-                nullCount: 0,
-                offset: 0);
+            return builder.Build();
         }
     }
 }
