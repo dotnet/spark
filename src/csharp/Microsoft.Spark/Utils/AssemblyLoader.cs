@@ -79,7 +79,7 @@ namespace Microsoft.Spark.Utils
                 string simpleAsmName = new AssemblyName(assemblyName).Name;
                 foreach (string extension in s_extensions)
                 {
-                    var assemblyFileName = $"{simpleAsmName}{extension}";
+                    string assemblyFileName = $"{simpleAsmName}{extension}";
                     if (TryLoadAssembly(assemblyFileName, ref assembly))
                     {
                         s_assemblyCache[assemblyName] = assembly;
@@ -96,6 +96,12 @@ namespace Microsoft.Spark.Utils
         /// 1) The working directory
         /// 2) The directory of the application
         /// </summary>
+        /// <remarks>
+        /// The probing order is important in cases when spark is launched on
+        /// YARN. The executors are run inside 'containers' and files that are passed
+        /// via 'spark-submit --files' will be pushed to these 'containers'. This path
+        /// is the working directory and the 1st probing path that will be checked.
+        /// </remarks>
         /// <param name="assemblyFileName">Name of the file that contains the assembly</param>
         /// <param name="assembly">The loaded assembly.</param>
         /// <returns>True if assembly is loaded, false otherwise.</returns>
