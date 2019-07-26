@@ -159,7 +159,7 @@ namespace Microsoft.Spark.Utils
                 hashTableReference, // Environment variables
                 arrayListReference, // Python includes
                 SparkEnvironment.ConfigurationService.GetWorkerExePath(),
-                "1.0",
+                Versions.CurrentVersion,
                 arrayListReference, // Broadcast variables
                 null); // Accumulator
         }

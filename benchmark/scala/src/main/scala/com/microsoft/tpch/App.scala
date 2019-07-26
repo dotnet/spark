@@ -11,11 +11,13 @@ import scala.util.Try
 import org.apache.spark.sql.SparkSession
 
 object App {
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     if (args.length != 4) {
       println("Usage:")
-      println("\t<spark-submit> --master local --class com.microsoft.tpch.App microsoft-spark-benchmark-<version>.jar")
-      println("\t\t<tpch_data_root_path> <query_number> <num_iterations> <true for SQL | false for functional>")
+      println(
+        "\t<spark-submit> --master local --class com.microsoft.tpch.App microsoft-spark-benchmark-<version>.jar")
+      println(
+        "\t\t<tpch_data_root_path> <query_number> <num_iterations> <true for SQL | false for functional>")
 
       return
     }
@@ -40,16 +42,15 @@ object App {
         startFunc = System.currentTimeMillis
         tpchFunctional.run(queryNumber.toString)
         endFunc = System.currentTimeMillis
-      }
-      else {
-      }
+      } else {}
 
       val endTs = System.currentTimeMillis
       val totalTime = endTs - startTs
       val totalTimeFunc = endFunc - startFunc
 
-      val typeStr = if (isSql) "SQL"
-      else "Functional"
+      val typeStr =
+        if (isSql) "SQL"
+        else "Functional"
 
       println(s"TPCH_Result,Scala,$typeStr,$queryNumber,$i,$totalTime,$totalTimeFunc")
     }

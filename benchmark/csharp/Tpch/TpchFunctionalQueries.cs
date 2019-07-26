@@ -10,6 +10,7 @@ using Apache.Arrow;
 using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.ExperimentalFunctions;
 using static Microsoft.Spark.Sql.Functions;
+using Column = Microsoft.Spark.Sql.Column;
 
 namespace Tpch
 {

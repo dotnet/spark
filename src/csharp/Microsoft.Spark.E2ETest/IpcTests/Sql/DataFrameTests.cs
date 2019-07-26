@@ -11,6 +11,7 @@ using Microsoft.Spark.Sql.Types;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
 using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
+using Column = Microsoft.Spark.Sql.Column;
 using Int32Type = Apache.Arrow.Types.Int32Type;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
@@ -190,16 +191,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.Equal(3, rows.Length);
             foreach (Row row in rows)
             {
-                int age = row.GetAs<int>("age");
-                int? charCount = row.GetAs<int?>("nameCharCount");
+                int? age = row.GetAs<int?>("age");
+                int charCount = row.GetAs<int>("nameCharCount");
                 switch (age)
                 {
-                    case 0:
-                        // The results here are incorrect for the {name: "Michael" age: null} 
-                        // record because of https://issues.apache.org/jira/browse/ARROW-5887.
-                        // When an updated Apache.Arrow library is available with the fix,
-                        // this should change to check for age: null, charCount: 7.
-                        Assert.Null(charCount);
+                    case null:
+                        Assert.Equal(7, charCount);
                         break;
                     case 19:
                         Assert.Equal(11, charCount);
@@ -234,18 +231,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             return new RecordBatch(
                 new Schema.Builder()
-                    .Field(f => f.Name(groupField.Name).DataType(groupField.DataType))
+                    .Field(groupField)
                     .Field(f => f.Name("name_CharCount").DataType(Int32Type.Default))
                     .Build(),
                 new IArrowArray[]
                 {
                     records.Column(groupFieldIndex),
-                    new Int32Array(
-                        new ArrowBuffer.Builder<int>().Append(characterCount).Build(),
-                        ArrowBuffer.Empty,
-                        length: 1,
-                        nullCount: 0,
-                        offset: 0)
+                    new Int32Array.Builder().Append(characterCount).Build()
                 },
                 returnLength);
         }
