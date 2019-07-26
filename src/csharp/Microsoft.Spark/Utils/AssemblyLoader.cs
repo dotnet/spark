@@ -14,12 +14,22 @@ namespace Microsoft.Spark.Utils
     {
         internal const string AssemblySearchPathsEnvVarName = "DOTNET_ASSEMBLY_SEARCH_PATHS";
 
-        // Returns the paths to search when loading assemblies in the following order of
-        // precedence:
-        // 1) Comma-separated paths specified in DOTNET_ASSEMBLY_SEARCH_PATHS environment variable.
-        //    - Note that if a path starts with ".", the working directory will be prepended.
-        // 2) The working directory.
-        // 3) The directory of the application.
+        /// <summary>
+        /// Returns the paths to search when loading assemblies in the following order of
+        /// precedence:
+        /// 1) Comma-separated paths specified in DOTNET_ASSEMBLY_SEARCH_PATHS environment
+        /// variable. Note that if a path starts with ".", the working directory will be prepended.
+        /// 2) The working directory.
+        /// 3) The directory of the application.
+        /// </summary>
+        /// <remarks>
+        /// The reason that the working directory has higher precedence than the directory
+        /// of the application is for cases when spark is launched on YARN. The executors are run
+        /// inside 'containers' and files that are passed via 'spark-submit --files' will be pushed
+        /// to these 'containers'. This path is the working directory and the 1st probing path that
+        /// will be checked.
+        /// </remarks>
+        /// <returns>Assembly search paths</returns>
         internal static string[] GetAssemblySearchPaths()
         {
             var searchPaths = new List<string>();
@@ -131,16 +141,8 @@ namespace Microsoft.Spark.Utils
         }
 
         /// <summary>
-        /// Returns the loaded assembly by probing the following locations in order:
-        /// 1) The working directory
-        /// 2) The directory of the application
+        /// Returns the loaded assembly by probing paths returned by AssemblySearchPathResolver.
         /// </summary>
-        /// <remarks>
-        /// The probing order is important in cases when spark is launched on
-        /// YARN. The executors are run inside 'containers' and files that are passed
-        /// via 'spark-submit --files' will be pushed to these 'containers'. This path
-        /// is the working directory and the 1st probing path that will be checked.
-        /// </remarks>
         /// <param name="assemblyFileName">Name of the file that contains the assembly</param>
         /// <param name="assembly">The loaded assembly.</param>
         /// <returns>True if assembly is loaded, false otherwise.</returns>
