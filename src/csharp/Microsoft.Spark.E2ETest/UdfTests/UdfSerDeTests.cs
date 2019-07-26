@@ -40,17 +40,13 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
             Assert.Equal(3, rows.Length);
 
-            Row row1 = rows[0];
-            Assert.Equal(1, row1.Size());
-            Assert.Equal("HelloMichael", row1.GetAs<string>(0));
-
-            Row row2 = rows[1];
-            Assert.Equal(1, row2.Size());
-            Assert.Equal("HelloAndy", row2.GetAs<string>(0));
-
-            Row row3 = rows[2];
-            Assert.Equal(1, row3.Size());
-            Assert.Equal("HelloJustin", row3.GetAs<string>(0));
+            var expected = new[] { "HelloMichael", "HelloAndy", "HelloJustin" };
+            for (int i = 0; i < rows.Length; ++i)
+            {
+                Row row = rows[i];
+                Assert.Equal(1, row.Size());
+                Assert.Equal(expected[i], row.GetAs<string>(0));
+            }
         }
 
         [Fact]
@@ -64,17 +60,12 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
             Assert.Equal(3, rows.Length);
 
-            Row row1 = rows[0];
-            Assert.Equal(1, row1.Size());
-            Assert.Equal("Hello World", row1.GetAs<string>(0));
-
-            Row row2 = rows[1];
-            Assert.Equal(1, row2.Size());
-            Assert.Equal("Hello World", row2.GetAs<string>(0));
-
-            Row row3 = rows[2];
-            Assert.Equal(1, row3.Size());
-            Assert.Equal("Hello World", row3.GetAs<string>(0));
+            for (int i = 0; i < rows.Length; ++i)
+            {
+                Row row = rows[i];
+                Assert.Equal(1, row.Size());
+                Assert.Equal("Hello World", row.GetAs<string>(0));
+            }
         }
 
         [Fact]
@@ -91,17 +82,13 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
             Assert.Equal(3, rows.Length);
 
-            Row row1 = rows[0];
-            Assert.Equal(1, row1.Size());
-            Assert.Equal("HelloMichael", row1.GetAs<string>(0));
-
-            Row row2 = rows[1];
-            Assert.Equal(1, row2.Size());
-            Assert.Equal("HelloAndy", row2.GetAs<string>(0));
-
-            Row row3 = rows[2];
-            Assert.Equal(1, row3.Size());
-            Assert.Equal("HelloJustin", row3.GetAs<string>(0));
+            var expected = new[] { "HelloMichael", "HelloAndy", "HelloJustin" };
+            for (int i = 0; i < rows.Length; ++i)
+            {
+                Row row = rows[i];
+                Assert.Equal(1, row.Size());
+                Assert.Equal(expected[i], row.GetAs<string>(0));
+            }
         }
     }
 }
