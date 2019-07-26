@@ -16,9 +16,9 @@ namespace Microsoft.Spark.E2ETest.ExternalLibrary
             _s = s;
         }
 
-        public static void HelloWorld()
+        public static string HelloWorld()
         {
-            Console.WriteLine("Hello World");
+            return "Hello World";
         }
 
         public string Concat(string s)
