@@ -31,13 +31,13 @@ namespace Microsoft.Spark.Utils
 
         /// <summary>
         /// Return the cached assembly, otherwise attempt to load and cache the assembly
-        /// in the following order:
-        /// 1) Load the assembly from disk using assemblyFileName.
-        /// 2) Search for assemblyName in the current app domain.
+        /// by searching for the assembly filename in the search paths.
         /// </summary>
         /// <param name="assemblyName">The full name of the assembly</param>
         /// <param name="assemblyFileName">Name of the file that contains the assembly</param>
         /// <returns>Cached or Loaded Assembly</returns>
+        /// <exception cref="FileNotFoundException">Thrown if the assembly is not
+        /// found.</exception>
         internal static Assembly LoadAssembly(string assemblyName, string assemblyFileName)
         {
             lock (s_cacheLock)
@@ -47,13 +47,13 @@ namespace Microsoft.Spark.Utils
                     return assembly;
                 }
 
-                if (!TryLoadAssembly(assemblyFileName, ref assembly))
+                if (TryLoadAssembly(assemblyFileName, ref assembly))
                 {
-                    assembly = LoadFromName(assemblyName);
+                    s_assemblyCache[assemblyName] = assembly;
+                    return assembly;
                 }
 
-                s_assemblyCache[assemblyName] = assembly;
-                return assembly;
+                throw new FileNotFoundException($"Assembly '{assemblyName}' file not found: '{assemblyFileName}'");
             }
         }
 
