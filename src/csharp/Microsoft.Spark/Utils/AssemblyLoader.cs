@@ -6,12 +6,18 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.Spark.Utils
 {
     internal static class AssemblyLoader
     {
+        // If this environment variable is set, the paths specified in this variable will have
+        // higher precedence over default search paths. Note that if a search path starts with
+        // ".", it will be replaced with the current directory.
+        internal const string AssemblySearchPathsEnvVarName = "DOTNET_ASSEMBLY_SEARCH_PATHS";
+
         internal static Func<string, Assembly> LoadFromFile { get; set; } = Assembly.LoadFrom;
 
         internal static Func<string, Assembly> LoadFromName { get; set; } = Assembly.Load;
@@ -19,8 +25,7 @@ namespace Microsoft.Spark.Utils
         private static readonly Dictionary<string, Assembly> s_assemblyCache =
             new Dictionary<string, Assembly>();
 
-        private static readonly string[] s_searchPaths =
-            new[] { Directory.GetCurrentDirectory(), AppDomain.CurrentDomain.BaseDirectory };
+        private static readonly string[] s_searchPaths = ResolveSearchPaths();
 
         private static readonly string[] s_extensions =
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
@@ -127,6 +132,32 @@ namespace Microsoft.Spark.Utils
             }
 
             return false;
+        }
+
+        private static string[] ResolveSearchPaths()
+        {
+            var searchPaths = new List<string>();
+            string searchPathsStr =
+                Environment.GetEnvironmentVariable(AssemblySearchPathsEnvVarName);
+
+            if (!string.IsNullOrEmpty(searchPathsStr))
+            {
+                foreach (string searchPath in searchPathsStr.Split(','))
+                {
+                    if (searchPath.StartsWith($".{Path.DirectorySeparatorChar}"))
+                    {
+                        searchPaths.Add(Path.Combine(Directory.GetCurrentDirectory(), searchPath));
+                    }
+                    else
+                    {
+                        searchPaths.Add(searchPath);
+                    }
+                }
+            }
+            searchPaths.Add(Directory.GetCurrentDirectory());
+            searchPaths.Add(AppDomain.CurrentDomain.BaseDirectory);
+
+            return searchPaths.ToArray();
         }
     }
 }
