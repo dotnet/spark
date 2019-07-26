@@ -10,6 +10,56 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Spark.Utils
 {
+    internal static class AssemblySearchPathResolver
+    {
+        internal const string AssemblySearchPathsEnvVarName = "DOTNET_ASSEMBLY_SEARCH_PATHS";
+
+        /// <summary>
+        /// Returns the paths to search when loading assemblies in the following order of
+        /// precedence:
+        /// 1) Comma-separated paths specified in DOTNET_ASSEMBLY_SEARCH_PATHS environment
+        /// variable. Note that if a path starts with ".", the working directory will be prepended.
+        /// 2) The working directory.
+        /// 3) The directory of the application.
+        /// </summary>
+        /// <remarks>
+        /// The reason that the working directory has higher precedence than the directory
+        /// of the application is for cases when spark is launched on YARN. The executors are run
+        /// inside 'containers' and files that are passed via 'spark-submit --files' will be pushed
+        /// to these 'containers'. This path is the working directory and the 1st probing path that
+        /// will be checked.
+        /// </remarks>
+        /// <returns>Assembly search paths</returns>
+        internal static string[] GetAssemblySearchPaths()
+        {
+            var searchPaths = new List<string>();
+            string searchPathsStr =
+                Environment.GetEnvironmentVariable(AssemblySearchPathsEnvVarName);
+
+            if (!string.IsNullOrEmpty(searchPathsStr))
+            {
+                foreach (string searchPath in searchPathsStr.Split(','))
+                {
+                    string trimmedSearchPath = searchPath.Trim();
+                    if (trimmedSearchPath.StartsWith("."))
+                    {
+                        searchPaths.Add(
+                            Path.Combine(Directory.GetCurrentDirectory(), trimmedSearchPath));
+                    }
+                    else
+                    {
+                        searchPaths.Add(trimmedSearchPath);
+                    }
+                }
+            }
+
+            searchPaths.Add(Directory.GetCurrentDirectory());
+            searchPaths.Add(AppDomain.CurrentDomain.BaseDirectory);
+
+            return searchPaths.ToArray();
+        }
+    }
+
     internal static class AssemblyLoader
     {
         internal static Func<string, Assembly> LoadFromFile { get; set; } = Assembly.LoadFrom;
@@ -20,7 +70,7 @@ namespace Microsoft.Spark.Utils
             new Dictionary<string, Assembly>();
 
         private static readonly string[] s_searchPaths =
-            new[] { Directory.GetCurrentDirectory(), AppDomain.CurrentDomain.BaseDirectory };
+            AssemblySearchPathResolver.GetAssemblySearchPaths();
 
         private static readonly string[] s_extensions =
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
@@ -58,10 +108,9 @@ namespace Microsoft.Spark.Utils
         }
 
         /// <summary>
-        /// Return the cached assembly, otherwise look in the following probing paths,
-        /// searching for the simple assembly name and s_extension combination.
-        /// 1) The working directory
-        /// 2) The directory of the application
+        /// Return the cached assembly, otherwise look in the probing paths returned
+        /// by AssemblySearchPathResolver, searching for the simple assembly name and
+        /// s_extension combination.
         /// </summary>
         /// <param name="assemblyName">The fullname of the assembly to load</param>
         /// <returns>The loaded assembly</returns>
@@ -92,16 +141,8 @@ namespace Microsoft.Spark.Utils
         }
 
         /// <summary>
-        /// Returns the loaded assembly by probing the following locations in order:
-        /// 1) The working directory
-        /// 2) The directory of the application
+        /// Returns the loaded assembly by probing paths returned by AssemblySearchPathResolver.
         /// </summary>
-        /// <remarks>
-        /// The probing order is important in cases when spark is launched on
-        /// YARN. The executors are run inside 'containers' and files that are passed
-        /// via 'spark-submit --files' will be pushed to these 'containers'. This path
-        /// is the working directory and the 1st probing path that will be checked.
-        /// </remarks>
         /// <param name="assemblyFileName">Name of the file that contains the assembly</param>
         /// <param name="assembly">The loaded assembly.</param>
         /// <returns>True if assembly is loaded, false otherwise.</returns>
