@@ -151,27 +151,33 @@ namespace Microsoft.Spark.Utils
         {
             JvmObjectReference arrayListReference = jvm.CallConstructor("java.util.ArrayList");
 
-            JvmObjectReference environmentVars = jvm.CallConstructor("java.util.Hashtable");
-            string assemblySearchPath = Environment.GetEnvironmentVariable("DOTNET_ASSEMBLY_SEARCH_PATHS");
-            if (!string.IsNullOrEmpty(assemblySearchPath))
-            {
-                jvm.CallNonStaticJavaMethod(
-                    environmentVars,
-                    "put",
-                    "DOTNET_ASSEMBLY_SEARCH_PATHS",
-                    assemblySearchPath);
-            }
-
             return (JvmObjectReference)jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.SQLUtils",
                 "createPythonFunction",
                 command,
-                environmentVars, // Environment variables
+                CreateEnvVarsForPythonFunction(jvm),
                 arrayListReference, // Python includes
                 SparkEnvironment.ConfigurationService.GetWorkerExePath(),
                 Versions.CurrentVersion,
                 arrayListReference, // Broadcast variables
                 null); // Accumulator
+        }
+
+        private static JvmObjectReference CreateEnvVarsForPythonFunction(IJvmBridge jvm)
+        {
+            JvmObjectReference environmentVars = jvm.CallConstructor("java.util.Hashtable");
+            string assemblySearchPath = Environment.GetEnvironmentVariable(
+                AssemblySearchPathResolver.AssemblySearchPathsEnvVarName);
+            if (!string.IsNullOrEmpty(assemblySearchPath))
+            {
+                jvm.CallNonStaticJavaMethod(
+                    environmentVars,
+                    "put",
+                    AssemblySearchPathResolver.AssemblySearchPathsEnvVarName,
+                    assemblySearchPath);
+            }
+
+            return environmentVars;
         }
 
         internal static Delegate CreateUdfWrapper<TResult>(Func<TResult> udf)
