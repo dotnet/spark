@@ -14,14 +14,13 @@ foreach ($framework in $frameworks)
         Copy-Item "$($runtime.FullName)\*" -Destination $worker_version_dir -Recurse
         $filename = "Microsoft.Spark.Worker.$framework.$runtime-$version"
 
+        # Generate additional tar.gz worker files only for linux-x64.
         if ($runtime.Name.ToLower().Equals("linux-x64"))
         {
             tar czf "$output_dir/$filename.tar.gz" $worker_version_dir
         }
-        else
-        {
-            Compress-Archive -DestinationPath "$output_dir/$filename.zip" -Path $worker_version_dir -CompressionLevel Optimal
-        }
+        
+        Compress-Archive -DestinationPath "$output_dir/$filename.zip" -Path $worker_version_dir -CompressionLevel Optimal
 
         Remove-Item -Path $worker_version_dir -Recurse -Force
     }
