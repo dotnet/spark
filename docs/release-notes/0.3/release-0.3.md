@@ -26,11 +26,11 @@ The following table outlines the supported Spark versions along with the microso
     <tbody align="center">
         <tr>
             <td>2.3.*</td>
-            <td>microsoft-spark-2.3.x-0.2.0.jar</td>
+            <td>microsoft-spark-2.3.x-0.3.0.jar</td>
         </tr>
         <tr>
             <td>2.4.0</td>
-            <td rowspan=3>microsoft-spark-2.4.x-0.2.0.jar</td>
+            <td rowspan=3>microsoft-spark-2.4.x-0.3.0.jar</td>
         </tr>
         <tr>
             <td>2.4.1</td>
