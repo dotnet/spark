@@ -10,7 +10,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Microsoft.Spark.Utils
 {
@@ -19,20 +18,15 @@ namespace Microsoft.Spark.Utils
     /// </summary>
     internal class UdfSerDe
     {
-        private static readonly ConcurrentDictionary<string, Lazy<Assembly>> s_assemblyCache =
-            new ConcurrentDictionary<string, Lazy<Assembly>>();
-
         private static readonly ConcurrentDictionary<TypeData, Type> s_typeCache =
             new ConcurrentDictionary<TypeData, Type>();
-
-        internal static Func<string, Assembly> AssemblyLoader { get; set; } = Assembly.LoadFrom;
 
         [Serializable]
         internal sealed class TypeData : IEquatable<TypeData>
         {
             public string Name { get; set; }
             public string AssemblyName { get; set; }
-            public string ManifestModuleName { get; set; }
+            public string AssemblyFileName { get; set; }
 
             public override int GetHashCode()
             {
@@ -52,7 +46,7 @@ namespace Microsoft.Spark.Utils
                 return (other != null) &&
                     (other.Name == Name) &&
                     (other.AssemblyName == AssemblyName) &&
-                    (other.ManifestModuleName == ManifestModuleName);
+                    (other.AssemblyFileName == AssemblyFileName);
             }
         }
 
@@ -121,20 +115,9 @@ namespace Microsoft.Spark.Utils
         [Serializable]
         internal sealed class FieldData
         {
-            public FieldData(object target, FieldInfo field)
-            {
-                object value = field.GetValue(target);
-
-                TypeData = SerializeType(field.FieldType);
-                Name = field.Name;
-                ValueData = (value != null)
-                    ? new ValueData(value)
-                    : null;
-            }
-
-            public TypeData TypeData { get; private set; }
-            public string Name { get; private set; }
-            public ValueData ValueData { get; private set; }
+            public TypeData TypeData { get; set; }
+            public string Name { get; set; }
+            public object Value { get; set; }
 
             public override int GetHashCode()
             {
@@ -152,77 +135,8 @@ namespace Microsoft.Spark.Utils
                 return (other != null) &&
                     TypeData.Equals(other.TypeData) &&
                     (Name == other.Name) &&
-                    (((ValueData == null) && (other.ValueData == null)) ||
-                        ((ValueData != null) && ValueData.Equals(other.ValueData)));
-            }
-        }
-
-        /// <summary>
-        /// The type of Value may be contained in an assembly outside the default
-        /// load context. Upon serialization, the TypeData is preserved, and Value
-        /// is serialized as a byte[]. Upon deserialization, if the assembly cannot
-        /// be found within the load context then TypeData will be used to load the
-        /// correct assembly.
-        /// </summary>
-        [Serializable]
-        internal sealed class ValueData : ISerializable
-        {
-            public ValueData(object value)
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value cannot be null.");
-                }
-
-                TypeData = SerializeType(value.GetType());
-                Value = value;
-            }
-
-            public ValueData(SerializationInfo info, StreamingContext context)
-            {
-                TypeData = (TypeData)info.GetValue("TypeData", typeof(TypeData));
-                LoadAssembly(TypeData.AssemblyName, TypeData.ManifestModuleName);
-
-                var valueSerialized = (byte[])info.GetValue("ValueSerialized", typeof(byte[]));
-                using (var ms = new MemoryStream(valueSerialized, false))
-                {
-                    var bf = new BinaryFormatter();
-                    Value = bf.Deserialize(ms);
-                }
-            }
-
-            public TypeData TypeData { get; private set; }
-
-            public object Value { get; private set; }
-
-            public void GetObjectData(SerializationInfo info, StreamingContext context)
-            {
-                info.AddValue("TypeData", TypeData, typeof(TypeData));
-
-                using (var ms = new MemoryStream())
-                {
-                    var bf = new BinaryFormatter();
-                    bf.Serialize(ms, Value);
-                    info.AddValue("ValueSerialized", ms.ToArray(), typeof(byte[]));
-                }
-            }
-
-            public override int GetHashCode()
-            {
-                return base.GetHashCode();
-            }
-
-            public override bool Equals(object obj)
-            {
-                return (obj is ValueData valueData) &&
-                    Equals(valueData);
-            }
-
-            public bool Equals(ValueData other)
-            {
-                return (other != null) &&
-                    TypeData.Equals(other.TypeData) &&
-                    Value.Equals(other.Value);
+                    (((Value == null) && (other.Value == null)) ||
+                        ((Value != null) && Value.Equals(other.Value)));
             }
         }
 
@@ -287,7 +201,12 @@ namespace Microsoft.Spark.Utils
                 BindingFlags.Public |
                 BindingFlags.NonPublic))
             {
-                fields.Add(new FieldData(target, field));
+                fields.Add(new FieldData()
+                {
+                    TypeData = SerializeType(field.FieldType),
+                    Name = field.Name,
+                    Value = field.GetValue(target)
+                });
             }
 
             // Even when an UDF does not have any closure, GetFields() returns some fields
@@ -319,7 +238,7 @@ namespace Microsoft.Spark.Utils
                     field.Name,
                     BindingFlags.Instance |
                     BindingFlags.Public |
-                    BindingFlags.NonPublic).SetValue(target, field.ValueData?.Value);
+                    BindingFlags.NonPublic).SetValue(target, field.Value);
             }
 
             return target;
@@ -331,69 +250,15 @@ namespace Microsoft.Spark.Utils
             {
                 Name = type.FullName,
                 AssemblyName = type.Assembly.FullName,
-                ManifestModuleName = type.Assembly.ManifestModule.Name
+                AssemblyFileName = Path.GetFileName(type.Assembly.Location)
             };
         }
 
         private static Type DeserializeType(TypeData typeData) =>
-            s_typeCache.GetOrAdd(typeData,
-                td => LoadAssembly(td.AssemblyName, td.ManifestModuleName).GetType(td.Name));
-
-        /// <summary>
-        /// Return the cached assembly, otherwise attempt to load and cache the assembly
-        /// in the following order:
-        /// 1) Search the assemblies loaded in the current app domain.
-        /// 2) Load the assembly from disk using manifestModuleName.
-        /// </summary>
-        /// <param name="assemblyName">The full name of the assembly</param>
-        /// <param name="manifestModuleName">Name of the module that contains the assembly</param>
-        /// <returns>Cached or Loaded Assembly</returns>
-        private static Assembly LoadAssembly(string assemblyName, string manifestModuleName)
-        {
-            return s_assemblyCache.GetOrAdd(
-                assemblyName,
-                _ => new Lazy<Assembly>(
-                    () =>
-                    {
-                        foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
-                        {
-                            if (asm.FullName.Equals(assemblyName))
-                            {
-                                return asm;
-                            }
-                        }
-
-                        return LoadAssembly(manifestModuleName);
-                    })).Value;
-        }
-
-        /// <summary>
-        /// Returns the loaded assembly by probing the following locations in order:
-        /// 1) The working directory
-        /// 2) The directory of the application
-        /// If the assembly is not found in the above locations, the exception from
-        /// AssemblyLoader() will be propagated.
-        /// </summary>
-        /// <param name="manifestModuleName">The name of assembly to load</param>
-        /// <returns>The loaded assembly</returns>
-        private static Assembly LoadAssembly(string manifestModuleName)
-        {
-            string currDirAsmPath =
-                Path.Combine(Directory.GetCurrentDirectory(), manifestModuleName);
-            if (File.Exists(currDirAsmPath))
-            {
-                return AssemblyLoader(currDirAsmPath);
-            }
-
-            string currDomainBaseDirAsmPath =
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, manifestModuleName);
-            if (File.Exists(currDomainBaseDirAsmPath))
-            {
-                return AssemblyLoader(currDomainBaseDirAsmPath);
-            }
-
-            throw new FileNotFoundException(
-                $"Assembly files not found: '{currDirAsmPath}', '{currDomainBaseDirAsmPath}'");
-        }
+            s_typeCache.GetOrAdd(
+                typeData,
+                td => AssemblyLoader.LoadAssembly(
+                    td.AssemblyName,
+                    td.AssemblyFileName).GetType(td.Name));
     }
 }

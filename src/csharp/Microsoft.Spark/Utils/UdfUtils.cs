@@ -125,7 +125,7 @@ namespace Microsoft.Spark.Utils
                 Type valueType = typeArguments[1];
                 return @"{""type"":""map"", " +
                     $@"""keyType"":{GetReturnType(keyType)}, " +
-                    $@"""valueType"":{GetReturnType(valueType)}, " + 
+                    $@"""valueType"":{GetReturnType(valueType)}, " +
                     $@"""valueContainsNull"":{valueType.CanBeNull()}}}";
             }
 
@@ -134,7 +134,7 @@ namespace Microsoft.Spark.Utils
             {
                 Type elementType = enumerableType.GenericTypeArguments[0];
                 return @"{""type"":""array"", " +
-                    $@"""elementType"":{GetReturnType(elementType)}, " + 
+                    $@"""elementType"":{GetReturnType(elementType)}, " +
                     $@"""containsNull"":{elementType.CanBeNull()}}}";
             }
 
@@ -149,19 +149,35 @@ namespace Microsoft.Spark.Utils
         /// <returns>JvmObjectReference object to the PythonFunction object</returns>
         internal static JvmObjectReference CreatePythonFunction(IJvmBridge jvm, byte[] command)
         {
-            JvmObjectReference hashTableReference = jvm.CallConstructor("java.util.Hashtable");
             JvmObjectReference arrayListReference = jvm.CallConstructor("java.util.ArrayList");
 
             return (JvmObjectReference)jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.SQLUtils",
                 "createPythonFunction",
                 command,
-                hashTableReference, // Environment variables
+                CreateEnvVarsForPythonFunction(jvm),
                 arrayListReference, // Python includes
                 SparkEnvironment.ConfigurationService.GetWorkerExePath(),
                 Versions.CurrentVersion,
                 arrayListReference, // Broadcast variables
                 null); // Accumulator
+        }
+
+        private static JvmObjectReference CreateEnvVarsForPythonFunction(IJvmBridge jvm)
+        {
+            JvmObjectReference environmentVars = jvm.CallConstructor("java.util.Hashtable");
+            string assemblySearchPath = Environment.GetEnvironmentVariable(
+                AssemblySearchPathResolver.AssemblySearchPathsEnvVarName);
+            if (!string.IsNullOrEmpty(assemblySearchPath))
+            {
+                jvm.CallNonStaticJavaMethod(
+                    environmentVars,
+                    "put",
+                    AssemblySearchPathResolver.AssemblySearchPathsEnvVarName,
+                    assemblySearchPath);
+            }
+
+            return environmentVars;
         }
 
         internal static Delegate CreateUdfWrapper<TResult>(Func<TResult> udf)
