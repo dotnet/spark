@@ -434,7 +434,7 @@ namespace Microsoft.Spark.UnitTest
             _mockJvm.Verify(m => m.CallNonStaticJavaMethod(
                 obj.Reference,
                 methodName,
-                arg0));                
+                arg0));
         }
 
         private void VerifyNonStaticCall(
