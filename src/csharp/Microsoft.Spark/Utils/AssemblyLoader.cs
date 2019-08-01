@@ -5,8 +5,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Microsoft.Spark.Interop;
 
 namespace Microsoft.Spark.Utils
 {
@@ -56,6 +58,22 @@ namespace Microsoft.Spark.Utils
             searchPaths.Add(Directory.GetCurrentDirectory());
             searchPaths.Add(AppDomain.CurrentDomain.BaseDirectory);
 
+            string archiveName = SparkEnvironment.ConfigurationService.GetApplicationArchiveName();
+            if(!string.IsNullOrEmpty(archiveName))
+            {
+                string archivePath = Path.Combine(Directory.GetCurrentDirectory(), archiveName);
+                if (File.Exists(archivePath))
+                {
+                    string extractedPath = Path.Combine(
+                        Path.GetDirectoryName(archivePath),
+                        Path.GetFileNameWithoutExtension(archiveName));
+                    if (!File.Exists(extractedPath))
+                    {
+                        ZipFile.ExtractToDirectory(archivePath, extractedPath);
+                        searchPaths.Add(extractedPath);
+                    }
+                }
+            }
             return searchPaths.ToArray();
         }
     }

@@ -22,6 +22,9 @@ namespace Microsoft.Spark.Services
         private const string DotnetBackendPortEnvVarName = "DOTNETBACKEND_PORT";
         private const int DotnetBackendDebugPort = 5567;
 
+        private const string DotNetApplicationArchiveEnvVarName = "DOTNET_APPLICATION_ARCHIVE";
+        private string _applicationArchive;
+
         private static readonly string s_procBaseFileName = "Microsoft.Spark.Worker";
         private static readonly string s_procFileName =
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
@@ -76,6 +79,27 @@ namespace Microsoft.Spark.Services
             // Otherwise, the worker exectuable name is returned meaning it should be PATH.
             _workerPath = s_procFileName;
             return _workerPath;
+        }
+
+        public string GetApplicationArchiveName()
+        {
+            if(_applicationArchive != null)
+            {
+                return _applicationArchive;
+            }
+
+            string appArchive = Environment.GetEnvironmentVariable(DotNetApplicationArchiveEnvVarName);
+
+            if(!string.IsNullOrEmpty(appArchive))
+            {
+                _logger.LogInfo("Application archive variable not set.");
+                return null;
+            }
+
+            _logger.LogInfo($"Application archive is {appArchive}.");
+
+            _applicationArchive = appArchive;
+            return _applicationArchive;
         }
     }
 }

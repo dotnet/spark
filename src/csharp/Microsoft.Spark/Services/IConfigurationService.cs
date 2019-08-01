@@ -18,5 +18,11 @@ namespace Microsoft.Spark.Services
         /// The full path to the .NET worker executable.
         /// </summary>
         string GetWorkerExePath();
+
+        /// <summary>
+        /// The name of the Application Archive.
+        /// </summary>
+        /// <returns></returns>
+        string GetApplicationArchiveName();
     }
 }
