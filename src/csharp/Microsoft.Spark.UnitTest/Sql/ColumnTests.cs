@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Expressions;
@@ -367,7 +368,7 @@ namespace Microsoft.Spark.UnitTest
         public void TestIsIn()
         {   
             {
-                var expected = new System.Collections.Generic.List<string> {"vararg_1", "vararg_2"};
+                var expected = new List<string> {"vararg_1", "vararg_2"};
                 Column column1 = CreateColumn("col1");                
                 column1.IsIn("vararg_1", "vararg_2");          
                 
@@ -375,19 +376,19 @@ namespace Microsoft.Spark.UnitTest
             }
             {
                 Column column1 = CreateColumn("col1");
-                var expected = new System.Collections.Generic.List<int>(){0, 1, 99};
+                var expected = new List<int>(){0, 1, 99};
                 column1.IsIn(0, 1, 99);            
                 VerifyNonStaticCall(column1, "isin", expected);
             }
             {
                 Column column1 = CreateColumn("col1");
-                var expected = new System.Collections.Generic.List<long>(){0L, 1L, 99L};
+                var expected = new List<long>(){0L, 1L, 99L};
                 column1.IsIn(0L, 1L, 99L);            
                 VerifyNonStaticCall(column1, "isin", expected);
             }
             {
                 Column column1 = CreateColumn("col1");
-                var expected = new System.Collections.Generic.List<bool>(){true, false};
+                var expected = new List<bool>(){true, false};
                 column1.IsIn(true, false);            
                 VerifyNonStaticCall(column1, "isin", expected);
             }
@@ -397,19 +398,19 @@ namespace Microsoft.Spark.UnitTest
                 short short2 = 2;
                 short short3 = 99;
 
-                var expected = new System.Collections.Generic.List<short>(){short1, short2, short3};
+                var expected = new List<short>(){short1, short2, short3};
                 column1.IsIn(short1, short2, short3);            
                 VerifyNonStaticCall(column1, "isin", expected);
             }            
             {
                 Column column1 = CreateColumn("col1");
-                var expected = new System.Collections.Generic.List<float>(){0F, 1F, 99F};
+                var expected = new List<float>(){0F, 1F, 99F};
                 column1.IsIn(0F, 1F, 99F);            
                 VerifyNonStaticCall(column1, "isin", expected);
             }
             {
                 Column column1 = CreateColumn("col1");
-                var expected = new System.Collections.Generic.List<double>(){0.0, 1.0, 99.99};
+                var expected = new List<double>(){0.0, 1.0, 99.99};
                 column1.IsIn(0.0, 1.0, 99.99);            
                 VerifyNonStaticCall(column1, "isin", expected);
             }
@@ -419,7 +420,7 @@ namespace Microsoft.Spark.UnitTest
                 decimal decimal2 = 2;
                 decimal decimal3 = 3;
 
-                var expected = new System.Collections.Generic.List<decimal>(){decimal1, decimal2, decimal3};
+                var expected = new List<decimal>(){decimal1, decimal2, decimal3};
                 column1.IsIn(decimal1, decimal2, decimal3);            
                 VerifyNonStaticCall(column1, "isin", expected);
             }
