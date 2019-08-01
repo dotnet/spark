@@ -1,3 +1,5 @@
+[![NuGet Badge](https://buildstats.info/nuget/Microsoft.Spark)](https://www.nuget.org/packages/Microsoft.Spark)
+
 ![Icon](docs/img/dotnetsparklogo-6.png)
 
 # .NET for Apache® Spark™
@@ -12,6 +14,8 @@
 
 ## Table of Contents
 
+- [Supported Apache Spark](#supported-apache-spark)
+- [Releases](#releases)
 - [Get Started](#get-started)
 - [Build Status](#build-status)
 - [Building from Source](#building-from-source)
@@ -22,6 +26,40 @@
 - [.NET Foundation](#net-foundation)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
+
+## Supported Apache Spark
+
+<table>
+    <thead>
+        <tr>
+            <th>Apache Spark</th>
+            <th>.NET for Apache Spark</th>
+        </tr>
+    </thead>
+    <tbody align="center">
+        <tr>
+            <td >2.3.*</td>
+            <td rowspan=4><a href="https://github.com/dotnet/spark/releases/tag/v0.4.0">v0.4.0</a></td>
+        </tr>
+        <tr>
+            <td>2.4.0</td>
+        </tr>
+        <tr>
+            <td>2.4.1</td>
+        </tr>
+        <tr>
+            <td>2.4.3</td>
+        </tr>
+        <tr>
+            <td>2.4.2</td>
+            <td><a href="https://github.com/dotnet/spark/issues/60">Not supported</a></td>
+        </tr>
+    </tbody>
+</table>
+
+## Releases
+
+.NET for Apache Spark releases are available [here](https://github.com/dotnet/spark/releases) and NuGet packages are available [here](https://www.nuget.org/packages/Microsoft.Spark).
 
 ## Get Started
 These instructions will show you how to run a .NET for Apache Spark app using .NET Core.

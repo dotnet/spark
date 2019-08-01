@@ -1,0 +1,29 @@
+<Project>
+
+  <ItemGroup>
+    <_PublishProject Include="$(RepoRoot)src\csharp\Microsoft.Spark.Worker\Microsoft.Spark.Worker.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_PublishTarget Include="FullFramework" Framework="net461" RuntimeId="win-x64" />
+    <_PublishTarget Include="WindowsCore" Framework="netcoreapp2.1" RuntimeId="win-x64" />
+    <_PublishTarget Include="LinuxCore" Framework="netcoreapp2.1" RuntimeId="linux-x64" />
+    <_PublishTarget Include="MacOSCore" Framework="netcoreapp2.1" RuntimeId="osx-x64" />
+  </ItemGroup>
+
+  <Target Name="PublishSparkWorker"
+          AfterTargets="Build"
+          Condition="'$(PublishSparkWorker)' == 'true'">
+
+    <Error Condition="'$(SparkWorkerPublishDir)' == ''"
+           Text="SparkWorkerPublishDir variable is not set." />
+    
+    <Exec Command="dotnet publish &quot;@(_PublishProject)&quot; ^
+                   -c $(Configuration) ^
+                   -f %(_PublishTarget.Framework) ^
+                   -r %(_PublishTarget.RuntimeId) ^
+                   -o &quot;$(SparkWorkerPublishDir)\%(_PublishTarget.Framework)\%(_PublishTarget.RuntimeId)&quot; ^
+                   /p:OfficialBuildId=$(OfficialBuildId)" />
+
+  </Target>
+</Project>

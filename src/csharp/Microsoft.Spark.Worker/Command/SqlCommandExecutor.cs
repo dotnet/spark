@@ -10,8 +10,8 @@ using System.IO;
 using System.Linq;
 using Apache.Arrow;
 using Apache.Arrow.Ipc;
+using Apache.Arrow.Types;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.IO;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
 using Razorvine.Pickle;
@@ -52,13 +52,17 @@ namespace Microsoft.Spark.Worker.Command
             }
 
             SqlCommandExecutor executor;
-            if (evalType == UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF)
+            if (evalType == UdfUtils.PythonEvalType.SQL_BATCHED_UDF)
+            {
+                executor = new PicklingSqlCommandExecutor();
+            }
+            else if (evalType == UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF)
             {
                 executor = new ArrowSqlCommandExecutor();
             }
-            else if (evalType == UdfUtils.PythonEvalType.SQL_BATCHED_UDF)
+            else if (evalType == UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF)
             {
-                executor = new PicklingSqlCommandExecutor();
+                executor = new ArrowGroupedMapCommandExecutor();
             }
             else
             {
@@ -81,11 +85,10 @@ namespace Microsoft.Spark.Worker.Command
     internal class PicklingSqlCommandExecutor : SqlCommandExecutor
     {
         [ThreadStatic]
-        private static MemoryStream s_writeOutputStream;
-        [ThreadStatic]
-        private static MaxLengthReadStream s_slicedReadStream;
-        [ThreadStatic]
         private static Pickler s_pickler;
+
+        [ThreadStatic]
+        private static byte[] s_outputBuffer;
 
         protected override CommandExecutorStat ExecuteCore(
             Stream inputStream,
@@ -118,10 +121,6 @@ namespace Microsoft.Spark.Worker.Command
                             $"Invalid message length: {messageLength}");
                     }
 
-                    MaxLengthReadStream readStream = s_slicedReadStream ??
-                            (s_slicedReadStream = new MaxLengthReadStream());
-                    readStream.Reset(inputStream, messageLength);
-
                     // Each row in inputRows is of type object[]. If a null is present in a row
                     // then the corresponding index column of the row object[] will be set to null.
                     // For example, (inputRows.Length == 2) and (inputRows[0][0] == null)
@@ -131,7 +130,8 @@ namespace Microsoft.Spark.Worker.Command
                     //   |null|
                     //   |  11|
                     //   +----+
-                    object[] inputRows = PythonSerDe.GetUnpickledObjects(readStream);
+                    object[] inputRows =
+                        PythonSerDe.GetUnpickledObjects(inputStream, messageLength);
 
                     for (int i = 0; i < inputRows.Length; ++i)
                     {
@@ -139,7 +139,10 @@ namespace Microsoft.Spark.Worker.Command
                         outputRows.Add(commandRunner.Run(0, inputRows[i]));
                     }
 
-                    WriteOutput(outputStream, outputRows);
+                    // The initial (estimated) buffer size for pickling rows is set to the size of
+                    // input pickled rows because the number of rows are the same for both input
+                    // and output.
+                    WriteOutput(outputStream, outputRows, messageLength);
                     stat.NumEntriesProcessed += inputRows.Length;
                     outputRows.Clear();
                 }
@@ -153,22 +156,25 @@ namespace Microsoft.Spark.Worker.Command
         /// </summary>
         /// <param name="stream">Stream to write to</param>
         /// <param name="rows">Rows to write to</param>
-        private void WriteOutput(Stream stream, IEnumerable<object> rows)
+        /// <param name="sizeHint">
+        /// Estimated max size of the serialized output.
+        /// If it's not big enough, pickler increases the buffer.
+        /// </param>
+        private void WriteOutput(Stream stream, IEnumerable<object> rows, int sizeHint)
         {
-            MemoryStream writeOutputStream = s_writeOutputStream ??
-                (s_writeOutputStream = new MemoryStream());
-            writeOutputStream.Position = 0;
+            if (s_outputBuffer == null)
+                s_outputBuffer = new byte[sizeHint];
 
             Pickler pickler = s_pickler ?? (s_pickler = new Pickler(false));
-            pickler.dump(rows, writeOutputStream);
+            pickler.dumps(rows, ref s_outputBuffer, out int bytesWritten);
 
-            if (writeOutputStream.Position == 0)
+            if (bytesWritten <= 0)
             {
-                throw new Exception("Message buffer cannot be null.");
+                throw new Exception($"Serialized output size must be positive. Was {bytesWritten}.");
             }
 
-            SerDe.Write(stream, (int)writeOutputStream.Position);
-            SerDe.Write(stream, writeOutputStream.GetBuffer(), (int)writeOutputStream.Position);
+            SerDe.Write(stream, bytesWritten);
+            SerDe.Write(stream, s_outputBuffer, bytesWritten);
         }
 
         /// <summary>
@@ -285,9 +291,6 @@ namespace Microsoft.Spark.Worker.Command
     /// </summary>
     internal class ArrowSqlCommandExecutor : SqlCommandExecutor
     {
-        [ThreadStatic]
-        private static MemoryStream s_writeOutputStream;
-
         protected override CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
@@ -298,40 +301,28 @@ namespace Microsoft.Spark.Worker.Command
 
             SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
 
-            // TODO: Remove this MemoryStream once the arrow writer supports non-seekable streams.
-            // For now, we write to a temporary seekable MemoryStream which we then copy to
-            // the actual destination stream.
-            MemoryStream tmp = s_writeOutputStream ?? (s_writeOutputStream = new MemoryStream());
-
             ArrowStreamWriter writer = null;
             Schema resultSchema = null;
             foreach (ReadOnlyMemory<IArrowArray> input in GetInputIterator(inputStream))
             {
-                // Split id is currently not used, so 0 is passed.
-                IArrowArray[] results = commandRunner.Run(0, input);
+                IArrowArray[] results = commandRunner.Run(input);
 
                 // Assumes all columns have the same length, so uses 0th for num entries.
                 int numEntries = results[0].Length;
                 stat.NumEntriesProcessed += numEntries;
-
-                tmp.SetLength(0);
 
                 if (writer == null)
                 {
                     Debug.Assert(resultSchema == null);
                     resultSchema = BuildSchema(results);
 
-                    writer = new ArrowStreamWriter(tmp, resultSchema, leaveOpen: true);
+                    writer = new ArrowStreamWriter(outputStream, resultSchema, leaveOpen: true);
                 }
 
                 var recordBatch = new RecordBatch(resultSchema, results, numEntries);
 
                 // TODO: Remove sync-over-async once WriteRecordBatch exists.
                 writer.WriteRecordBatchAsync(recordBatch).GetAwaiter().GetResult();
-
-                tmp.Position = 0;
-                tmp.CopyTo(outputStream);
-                outputStream.Flush();
             }
 
             SerDe.Write(outputStream, 0);
@@ -449,10 +440,9 @@ namespace Microsoft.Spark.Worker.Command
             /// <summary>
             /// Runs commands based on the given split id and input.
             /// </summary>
-            /// <param name="splitId">Split id for the commands to run</param>
             /// <param name="input">Input data for the commands to run</param>
             /// <returns>Value returned by running the commands</returns>
-            IArrowArray[] Run(int splitId, ReadOnlyMemory<IArrowArray> input);
+            IArrowArray[] Run(ReadOnlyMemory<IArrowArray> input);
         }
 
         /// <summary>
@@ -477,13 +467,11 @@ namespace Microsoft.Spark.Worker.Command
             /// <summary>
             /// Runs a single command.
             /// </summary>
-            /// <param name="splitId">Split id for the command to run</param>
             /// <param name="input">Input data for the command to run</param>
             /// <returns>Value returned by running the command</returns>
-            public IArrowArray[] Run(int splitId, ReadOnlyMemory<IArrowArray> input)
+            public IArrowArray[] Run(ReadOnlyMemory<IArrowArray> input)
             {
                 return new[] { ((ArrowWorkerFunction)_command.WorkerFunction).Func(
-                    splitId,
                     input,
                     _command.ArgOffsets) };
             }
@@ -511,21 +499,91 @@ namespace Microsoft.Spark.Worker.Command
             /// <summary>
             /// Runs multiple commands.
             /// </summary>
-            /// <param name="splitId">Split id for the commands to run</param>
             /// <param name="input">Input data for the commands to run</param>
             /// <returns>An array of values returned by running the commands</returns>
-            public IArrowArray[] Run(int splitId, ReadOnlyMemory<IArrowArray> input)
+            public IArrowArray[] Run(ReadOnlyMemory<IArrowArray> input)
             {
                 var resultColumns = new IArrowArray[_commands.Length];
                 for (int i = 0; i < resultColumns.Length; ++i)
                 {
                     SqlCommand command = _commands[i];
                     resultColumns[i] = ((ArrowWorkerFunction)command.WorkerFunction).Func(
-                        splitId,
                         input,
                         command.ArgOffsets);
                 }
                 return resultColumns;
+            }
+        }
+    }
+
+    internal class ArrowGroupedMapCommandExecutor : SqlCommandExecutor
+    {
+        protected override CommandExecutorStat ExecuteCore(
+            Stream inputStream,
+            Stream outputStream,
+            SqlCommand[] commands)
+        {
+            Debug.Assert(commands.Length == 1,
+                "Grouped Map UDFs do not support combining multiple UDFs.");
+
+            var stat = new CommandExecutorStat();
+            var worker = (ArrowGroupedMapWorkerFunction)commands[0].WorkerFunction;
+
+            SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
+
+            ArrowStreamWriter writer = null;
+            foreach (RecordBatch input in GetInputIterator(inputStream))
+            {
+                RecordBatch result = worker.Func(input);
+
+                int numEntries = result.Length;
+                stat.NumEntriesProcessed += numEntries;
+
+                if (writer == null)
+                {
+                    writer = new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true);
+                }
+
+                // TODO: Remove sync-over-async once WriteRecordBatch exists.
+                writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
+            }
+
+            SerDe.Write(outputStream, 0);
+
+            if (writer != null)
+            {
+                writer.Dispose();
+            }
+
+            return stat;
+        }
+
+        private IEnumerable<RecordBatch> GetInputIterator(Stream inputStream)
+        {
+            using (var reader = new ArrowStreamReader(inputStream, leaveOpen: true))
+            {
+                RecordBatch batch;
+                bool returnedResult = false;
+                while ((batch = reader.ReadNextRecordBatch()) != null)
+                {
+                    yield return batch;
+                    returnedResult = true;
+                }
+
+                if (!returnedResult)
+                {
+                    // When no input batches were received, return an empty RecordBatch
+                    // in order to create and write back the result schema.
+
+                    int columnCount = reader.Schema.Fields.Count;
+                    var arrays = new IArrowArray[columnCount];
+                    for (int i = 0; i < columnCount; ++i)
+                    {
+                        IArrowType type = reader.Schema.GetFieldByIndex(i).DataType;
+                        arrays[i] = ArrowArrayHelpers.CreateEmptyArray(type);
+                    }
+                    yield return new RecordBatch(reader.Schema, arrays, 0);
+                }
             }
         }
     }

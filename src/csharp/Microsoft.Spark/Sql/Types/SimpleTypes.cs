@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.Spark.Sql.Types
 {
@@ -119,16 +119,38 @@ namespace Microsoft.Spark.Sql.Types
     }
 
     /// <summary>
-    /// Represents a decimal type (not implemented).
+    /// Represents a decimal type.
     /// </summary>
     public sealed class DecimalType : FractionalType
     {
+        internal static Regex s_fixedDecimal =
+            new Regex(@"decimal\(\s*(\d+)\s*,\s*(\-?\d+)\s*\)", RegexOptions.Compiled);
+
+        private readonly int _precision;
+        private readonly int _scale;
+
         /// <summary>
         /// Initializes the <see cref="DecimalType"/> instance.
         /// </summary>
-        public DecimalType()
+        /// <remarks>
+        /// Default values of precision and scale are from Scala:
+        /// sql/catalyst/src/main/scala/org/apache/spark/sql/types/DecimalType.scala.
+        /// </remarks>
+        /// <param name="precision">Number of digits in a number</param>
+        /// <param name="scale">
+        /// Number of digits to the right of the decimal point in a number
+        /// </param>
+        public DecimalType(int precision = 10, int scale = 0)
         {
-            throw new NotImplementedException();
+            _precision = precision;
+            _scale = scale;
         }
+
+        /// <summary>
+        /// Returns simple string version of DecimalType.
+        /// </summary>
+        public override string SimpleString => $"decimal({_precision},{_scale})";
+
+        internal override object JsonValue => SimpleString;
     }
 }

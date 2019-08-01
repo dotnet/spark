@@ -5,6 +5,7 @@
 import pyspark
 from pyspark.sql import SparkSession
 
+
 class TpchBase:
     def __init__(self, spark, dir):
         self.customer = spark.read.parquet(dir + "customer")

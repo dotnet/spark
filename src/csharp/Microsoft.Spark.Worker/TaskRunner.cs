@@ -3,11 +3,13 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
+using Microsoft.Spark.Utils;
 using Microsoft.Spark.Worker.Command;
 using Microsoft.Spark.Worker.Processor;
 using Microsoft.Spark.Worker.Utils;
@@ -46,6 +48,11 @@ namespace Microsoft.Spark.Worker
         public void Run()
         {
             s_logger.LogInfo($"[{TaskId}] Starting with ReuseSocket[{_reuseSocket}].");
+
+            if (EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_WORKER_DEBUG"))
+            {
+                Debugger.Launch();
+            }
 
             _isRunning = true;
             Stream inputStream = _socket.InputStream;
@@ -139,6 +146,8 @@ namespace Microsoft.Spark.Worker
                     return null;
                 }
 
+                ValidateVersion(payload.Version);
+
                 DateTime initTime = DateTime.UtcNow;
 
                 CommandExecutorStat commandExecutorStat = new CommandExecutor().Execute(
@@ -177,7 +186,7 @@ namespace Microsoft.Spark.Worker
                     SerDe.Write(outputStream, (int)SpecialLengths.END_OF_DATA_SECTION);
                 }
 
-                LogStat(payload, commandExecutorStat, readComplete);
+                LogStat(commandExecutorStat, readComplete);
 
                 return payload;
             }
@@ -204,7 +213,22 @@ namespace Microsoft.Spark.Worker
             }
         }
 
-        private void LogStat(Payload payloa, CommandExecutorStat stat, bool readComplete)
+        private void ValidateVersion(string versionStr)
+        {
+            // Initial version was shipped with version "1.0", so this needs to be adjusted
+            // to be compatible going forward.
+            if (versionStr == "1.0")
+            {
+                versionStr = "0.1.0";
+            }
+
+            if (new Version(versionStr) < new Version(Versions.CurrentVersion))
+            {
+                throw new Exception($"Upgrade Microsoft.Spark to '{Versions.CurrentVersion}+' from '{versionStr}+'.");
+            }
+        }
+
+        private void LogStat(CommandExecutorStat stat, bool readComplete)
         {
             s_logger.LogInfo($"[{TaskId}] Processed a task: readComplete:{readComplete}, entries:{stat.NumEntriesProcessed}");
         }

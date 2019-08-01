@@ -7,7 +7,7 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
 - Download and install the following: **[.NET Core 2.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.1)** | **[Visual Studio 2019](https://www.visualstudio.com/downloads/)** | **[Java 1.8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)** | **[Apache Spark 2.4.1](https://archive.apache.org/dist/spark/spark-2.4.1/spark-2.4.1-bin-hadoop2.7.tgz)**
 - Download and install **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release:
     - Select a **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release from .NET for Apache Spark GitHub Releases page and download into your local machine (e.g., `c:\bin\Microsoft.Spark.Worker\`).
-    - **IMPORTANT** Create a [new environment variable](https://www.java.com/en/download/help/path.xml) `DotnetWorkerPath` and set it to the directory where you downloaded and extracted the Microsoft.Spark.Worker (e.g., `c:\bin\Microsoft.Spark.Worker`).
+    - **IMPORTANT** Create a [new environment variable](https://www.java.com/en/download/help/path.xml) `DOTNET_WORKER_DIR` and set it to the directory where you downloaded and extracted the Microsoft.Spark.Worker (e.g., `c:\bin\Microsoft.Spark.Worker`).
 
 For detailed instructions, you can see [Building .NET for Apache Spark from Source on Windows](../building/windows-instructions.md).
 
@@ -47,7 +47,7 @@ For detailed instructions, you can see [Building .NET for Apache Spark from Sour
 - Run your app
     ```
     spark-submit `
-    --class org.apache.spark.deploy.DotnetRunner `
+    --class org.apache.spark.deploy.dotnet.DotnetRunner `
     --master local `
     microsoft-spark-2.4.x-<version>.jar `
     dotnet HelloSpark.dll

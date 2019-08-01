@@ -18,7 +18,7 @@ using Microsoft.Spark.Utils;
 using Microsoft.Spark.Worker.Command;
 using Razorvine.Pickle;
 using Xunit;
-using static Microsoft.Spark.Sql.ArrowArrayHelpers;
+using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
 
 namespace Microsoft.Spark.Worker.UnitTest
 {
@@ -230,7 +230,12 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public async Task TestArrowSqlCommandExecutorWithSingleCommand()
         {
-            var udfWrapper = new Sql.ArrowUdfWrapper<string, string>((str) => $"udf: {str}");
+            var udfWrapper = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
+                (strings) => (StringArray)ToArrowArray(
+                    Enumerable.Range(0, strings.Length)
+                        .Select(i => $"udf: {strings.GetString(i)}")
+                        .ToArray()));
+
             var command = new SqlCommand()
             {
                 ArgOffsets = new[] { 0 },
@@ -307,8 +312,16 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public async Task TestArrowSqlCommandExecutorWithMultiCommands()
         {
-            var udfWrapper1 = new Sql.ArrowUdfWrapper<string, string>((str) => $"udf: {str}");
-            var udfWrapper2 = new Sql.ArrowUdfWrapper<int, int, int>((arg1, arg2) => arg1 * arg2);
+            var udfWrapper1 = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
+                (strings) => (StringArray)ToArrowArray(
+                    Enumerable.Range(0, strings.Length)
+                        .Select(i => $"udf: {strings.GetString(i)}")
+                        .ToArray()));
+            var udfWrapper2 = new Sql.ArrowUdfWrapper<Int32Array, Int32Array, Int32Array>(
+                (arg1, arg2) => (Int32Array)ToArrowArray(
+                    Enumerable.Range(0, arg1.Length)
+                        .Select(i => arg1.Values[i] * arg2.Values[i])
+                        .ToArray()));
 
             var command1 = new SqlCommand()
             {
@@ -405,7 +418,12 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public void TestArrowSqlCommandExecutorWithEmptyInput()
         {
-            var udfWrapper = new Sql.ArrowUdfWrapper<string, string>((str) => $"udf: {str}");
+            var udfWrapper = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
+                (strings) => (StringArray)ToArrowArray(
+                    Enumerable.Range(0, strings.Length)
+                        .Select(i => $"udf: {strings.GetString(i)}")
+                        .ToArray()));
+
             var command = new SqlCommand()
             {
                 ArgOffsets = new[] { 0 },
@@ -470,6 +488,124 @@ namespace Microsoft.Spark.Worker.UnitTest
 
                 var array = (StringArray)outputBatch.Arrays.ElementAt(0);
                 Assert.Equal(0, array.Length);
+
+                int end = SerDe.ReadInt32(outputStream);
+                Assert.Equal(0, end);
+
+                // Validate all the data on the stream is read.
+                Assert.Equal(outputStream.Length, outputStream.Position);
+            }
+        }
+
+        [Fact]
+        public async Task TestArrowGroupedMapCommandExecutor()
+        {
+            StringArray ConvertStrings(StringArray strings)
+            {
+                return (StringArray)ToArrowArray(
+                    Enumerable.Range(0, strings.Length)
+                        .Select(i => $"udf: {strings.GetString(i)}")
+                        .ToArray());
+            }
+
+            Int64Array ConvertInt64s(Int64Array int64s)
+            {
+                return (Int64Array)ToArrowArray(
+                    Enumerable.Range(0, int64s.Length)
+                        .Select(i => int64s.Values[i] + 100)
+                        .ToArray());
+            }
+
+            Schema resultSchema = new Schema.Builder()
+                .Field(b => b.Name("arg1").DataType(StringType.Default))
+                .Field(b => b.Name("arg2").DataType(Int64Type.Default))
+                .Build();
+
+            var udfWrapper = new Sql.ArrowGroupedMapUdfWrapper(
+                (batch) => new RecordBatch(
+                    resultSchema,
+                    new IArrowArray[]
+                    {
+                        ConvertStrings((StringArray)batch.Column(0)),
+                        ConvertInt64s((Int64Array)batch.Column(1)),
+                    },
+                    batch.Length));
+
+            var command = new SqlCommand()
+            {
+                ArgOffsets = new[] { 0 },
+                NumChainedFunctions = 1,
+                WorkerFunction = new Sql.ArrowGroupedMapWorkerFunction(udfWrapper.Execute),
+                SerializerMode = CommandSerDe.SerializedMode.Row,
+                DeserializerMode = CommandSerDe.SerializedMode.Row
+            };
+
+            var commandPayload = new Worker.CommandPayload()
+            {
+                EvalType = UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF,
+                Commands = new[] { command }
+            };
+
+            using (var inputStream = new MemoryStream())
+            using (var outputStream = new MemoryStream())
+            {
+                int numRows = 10;
+
+                // Write test data to the input stream.
+                Schema schema = new Schema.Builder()
+                    .Field(b => b.Name("arg1").DataType(StringType.Default))
+                    .Field(b => b.Name("arg2").DataType(Int64Type.Default))
+                    .Build();
+                var arrowWriter = new ArrowStreamWriter(inputStream, schema);
+                await arrowWriter.WriteRecordBatchAsync(
+                    new RecordBatch(
+                        schema,
+                        new[]
+                        {
+                            ToArrowArray(
+                                Enumerable.Range(0, numRows)
+                                    .Select(i => i.ToString())
+                                    .ToArray()),
+                            ToArrowArray(
+                                Enumerable.Range(0, numRows)
+                                    .Select(i => (long)i)
+                                    .ToArray())
+                        },
+                        numRows));
+
+                inputStream.Seek(0, SeekOrigin.Begin);
+
+                CommandExecutorStat stat = new CommandExecutor().Execute(
+                    inputStream,
+                    outputStream,
+                    0,
+                    commandPayload);
+
+                // Validate that all the data on the stream is read.
+                Assert.Equal(inputStream.Length, inputStream.Position);
+                Assert.Equal(numRows, stat.NumEntriesProcessed);
+
+                // Validate the output stream.
+                outputStream.Seek(0, SeekOrigin.Begin);
+                int arrowLength = SerDe.ReadInt32(outputStream);
+                Assert.Equal((int)SpecialLengths.START_ARROW_STREAM, arrowLength);
+                var arrowReader = new ArrowStreamReader(outputStream);
+                RecordBatch outputBatch = await arrowReader.ReadNextRecordBatchAsync();
+
+                Assert.Equal(numRows, outputBatch.Length);
+                Assert.Equal(2, outputBatch.ColumnCount);
+
+                var stringArray = (StringArray)outputBatch.Column(0);
+                for (int i = 0; i < numRows; ++i)
+                {
+                    Assert.Equal($"udf: {i}", stringArray.GetString(i));
+                }
+
+                var longArray = (Int64Array)outputBatch.Column(1);
+                for (int i = 0; i < numRows; ++i)
+                {
+                    Assert.Equal(100 + i, longArray.Values[i]);
+                }
 
                 int end = SerDe.ReadInt32(outputStream);
                 Assert.Equal(0, end);

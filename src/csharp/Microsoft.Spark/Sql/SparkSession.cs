@@ -52,6 +52,18 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Runtime configuration interface for Spark.
+        /// <remarks>
+        /// This is the interface through which the user can get and set all Spark and Hadoop
+        /// configurations that are relevant to Spark SQL. When getting the value of a config,
+        /// this defaults to the value set in the underlying SparkContext, if any.
+        /// </remarks>
+        /// </summary>
+        /// <returns>The RuntimeConfig object</returns>
+        public RuntimeConfig Conf() =>
+            new RuntimeConfig((JvmObjectReference)_jvmObject.Invoke("conf"));
+
+        /// <summary>
         /// Start a new session with isolated SQL configurations, temporary tables, registered
         /// functions are isolated, but sharing the underlying SparkContext and cached data.
         /// </summary>
@@ -64,6 +76,22 @@ namespace Microsoft.Spark.Sql
         /// <returns>New SparkSession object</returns>
         public SparkSession NewSession() =>
             new SparkSession((JvmObjectReference)_jvmObject.Invoke("newSession"));
+
+        /// <summary>
+        /// Returns the specified table/view as a DataFrame.
+        /// </summary>
+        /// <param name="tableName">Name of a table or view</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Table(string tableName) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("table", tableName));
+
+        /// <summary>
+        /// Executes a SQL query using Spark, returning the result as a DataFrame.
+        /// </summary>
+        /// <param name="sqlText">SQL query text</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Sql(string sqlText) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("sql", sqlText));
 
         /// <summary>
         /// Returns a DataFrameReader that can be used to read non-streaming data in
@@ -79,14 +107,6 @@ namespace Microsoft.Spark.Sql
         /// <returns>DataStreamReader object</returns>
         public DataStreamReader ReadStream() =>
             new DataStreamReader((JvmObjectReference)_jvmObject.Invoke("readStream"));
-
-        /// <summary>
-        /// Executes a SQL query using Spark, returning the result as a DataFrame.
-        /// </summary>
-        /// <param name="sqlText">SQL query text</param>
-        /// <returns>DataFrame object</returns>
-        public DataFrame Sql(string sqlText)
-            => new DataFrame((JvmObjectReference)_jvmObject.Invoke("sql", sqlText));
 
         /// <summary>
         /// Returns UDFRegistraion object with which user-defined functions (UDF) can 

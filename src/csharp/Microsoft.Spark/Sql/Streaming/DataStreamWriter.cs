@@ -119,6 +119,31 @@ namespace Microsoft.Spark.Sql.Streaming
         }
 
         /// <summary>
+        /// Sets the trigger for the stream query.
+        /// </summary>
+        /// <param name="trigger">Trigger object</param>
+        /// <returns>This DataStreamReader object</returns>
+        public DataStreamWriter Trigger(Trigger trigger)
+        {
+            _jvmObject.Invoke("trigger", trigger);
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies the name of the <see cref="StreamingQuery"/> 
+        /// that can be started with `start()`.
+        /// This name must be unique among all the currently active queries 
+        /// in the associated SQLContext.
+        /// </summary>
+        /// <param name="queryName">Query name</param>
+        /// <returns>This DataStreamReader object</returns>
+        public DataStreamWriter QueryName(string queryName)
+        {
+            _jvmObject.Invoke("queryName", queryName);
+            return this;
+        }
+
+        /// <summary>
         /// Starts the execution of the streaming query.
         /// </summary>
         /// <param name="path">Optional output path</param>

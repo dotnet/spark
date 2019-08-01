@@ -6,8 +6,11 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Apache.Arrow;
 using Microsoft.Spark.Sql;
+using static Microsoft.Spark.Sql.ExperimentalFunctions;
 using static Microsoft.Spark.Sql.Functions;
+using Column = Microsoft.Spark.Sql.Column;
 
 namespace Tpch
 {
@@ -48,6 +51,28 @@ namespace Tpch
               .Agg(Sum(Col("l_quantity")).As("sum_qty"), Sum(Col("l_extendedprice")).As("sum_base_price"),
                 Sum(decrease(Col("l_extendedprice"), Col("l_discount"))).As("sum_disc_price"),
                 Sum(increase(decrease(Col("l_extendedprice"), Col("l_discount")), Col("l_tax"))).As("sum_charge"),
+                Avg(Col("l_quantity")).As("avg_qty"),
+                Avg(Col("l_extendedprice")).As("avg_price"),
+                Avg(Col("l_discount")).As("avg_disc"),
+                Count(Col("l_quantity")).As("count_order")
+               )
+              .Sort(Col("l_returnflag"), Col("l_linestatus"))
+              .Show();
+        }
+
+        internal void Q1v()
+        {
+            Func<Column, Column, Column> discPrice = VectorUdf<DoubleArray, DoubleArray, DoubleArray>(
+                (price, discount) => VectorFunctions.ComputeDiscountPrice(price, discount));
+
+            Func<Column, Column, Column, Column> total = VectorUdf<DoubleArray, DoubleArray, DoubleArray, DoubleArray>(
+                (price, discount, tax) => VectorFunctions.ComputeTotal(price, discount, tax));
+
+            _lineitem.Filter(Col("l_shipdate") <= "1998-09-02")
+              .GroupBy(Col("l_returnflag"), Col("l_linestatus"))
+              .Agg(Sum(Col("l_quantity")).As("sum_qty"), Sum(Col("l_extendedprice")).As("sum_base_price"),
+                Sum(discPrice(Col("l_extendedprice"), Col("l_discount"))).As("sum_disc_price"),
+                Sum(total(Col("l_extendedprice"), Col("l_discount"), Col("l_tax"))).As("sum_charge"),
                 Avg(Col("l_quantity")).As("avg_qty"),
                 Avg(Col("l_extendedprice")).As("avg_price"),
                 Avg(Col("l_discount")).As("avg_disc"),
@@ -202,6 +227,40 @@ namespace Tpch
               .Show();
         }
 
+        internal void Q8v()
+        {
+            Func<Column, Column> getYear = Udf<string, string>(x => x.Substring(0, 4));
+            Func<Column, Column, Column> discPrice = VectorUdf<DoubleArray, DoubleArray, DoubleArray>(
+                (price, discount) => VectorFunctions.ComputeDiscountPrice(price, discount));
+
+            Func<Column, Column, Column> isBrazil = Udf<string, double, double>((x, y) => x == "BRAZIL" ? y : 0);
+
+            DataFrame fregion = _region.Filter(Col("r_name") == "AMERICA");
+            DataFrame forder = _orders.Filter(Col("o_orderdate") <= "1996-12-31" & Col("o_orderdate") >= "1995-01-01");
+            DataFrame fpart = _part.Filter(Col("p_type") == "ECONOMY ANODIZED STEEL");
+
+            DataFrame nat = _nation.Join(_supplier, Col("n_nationkey") == _supplier["s_nationkey"]);
+
+            DataFrame line = _lineitem.Select(Col("l_partkey"), Col("l_suppkey"), Col("l_orderkey"),
+              discPrice(Col("l_extendedprice"), Col("l_discount")).As("volume"))
+              .Join(fpart, Col("l_partkey") == fpart["p_partkey"])
+              .Join(nat, Col("l_suppkey") == nat["s_suppkey"]);
+
+            _nation.Join(fregion, Col("n_regionkey") == fregion["r_regionkey"])
+              .Select(Col("n_nationkey"))
+              .Join(_customer, Col("n_nationkey") == _customer["c_nationkey"])
+              .Select(Col("c_custkey"))
+              .Join(forder, Col("c_custkey") == forder["o_custkey"])
+              .Select(Col("o_orderkey"), Col("o_orderdate"))
+              .Join(line, Col("o_orderkey") == line["l_orderkey"])
+              .Select(getYear(Col("o_orderdate")).As("o_year"), Col("volume"),
+                isBrazil(Col("n_name"), Col("volume")).As("case_volume"))
+              .GroupBy(Col("o_year"))
+              .Agg((Sum(Col("case_volume")) / Sum("volume")).As("mkt_share"))
+              .Sort(Col("o_year"))
+              .Show();
+        }
+
         internal void Q9()
         {
             Func<Column, Column> getYear = Udf<string, string>(x => x.Substring(0, 4));
@@ -333,8 +392,6 @@ namespace Tpch
         private static readonly Regex s_q16NumbersRegex = new Regex("^(49|14|23|45|19|3|36|9)$", RegexOptions.Compiled);
         internal void Q16()
         {
-            Func<Column, Column, Column> decrease = Udf<double, double, double>((x, y) => x * (1 - y));
-
             Func<Column, Column> complains = Udf<string, bool>((x) => s_q16CompainsRegex.Match(x).Success);
 
             Func<Column, Column> polished = Udf<string, bool>((x) => x.StartsWith("MEDIUM POLISHED"));

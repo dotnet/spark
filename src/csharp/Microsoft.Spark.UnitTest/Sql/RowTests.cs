@@ -86,7 +86,9 @@ namespace Microsoft.Spark.UnitTest
             var pickledBytes = pickler.dumps(new[] { row1, row2 });
 
             // Note that the following will invoke RowConstructor.construct().
-            var unpickledData = PythonSerDe.GetUnpickledObjects(new MemoryStream(pickledBytes));
+            var unpickledData = PythonSerDe.GetUnpickledObjects(
+                new MemoryStream(pickledBytes),
+                pickledBytes.Length);
 
             Assert.Equal(2, unpickledData.Length);
             Assert.Equal(row1, (unpickledData[0] as RowConstructor).GetRow());
