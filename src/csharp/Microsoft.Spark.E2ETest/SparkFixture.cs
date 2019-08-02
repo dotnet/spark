@@ -78,6 +78,8 @@ namespace Microsoft.Spark.E2ETest
 
             Spark = SparkSession
                 .Builder()
+                // Lower the shuffle partitions to speed up groupBy() operations.
+                .Config("spark.sql.shuffle.partitions", "3")
                 .AppName("Microsoft.Spark.E2ETest")
                 .GetOrCreate();
         }
@@ -111,7 +113,7 @@ namespace Microsoft.Spark.E2ETest
             }
 
             // Build the arguments for the spark-submit.
-            string classArg = "--class org.apache.spark.deploy.DotnetRunner";
+            string classArg = "--class org.apache.spark.deploy.dotnet.DotnetRunner";
             string curDir = AppDomain.CurrentDomain.BaseDirectory;
             string jarPrefix = GetJarPrefix(sparkHome);
             string scalaDir = $"{curDir}{sep}..{sep}..{sep}..{sep}..{sep}..{sep}src{sep}scala";

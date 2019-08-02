@@ -4,10 +4,12 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Microsoft.Spark.Utils
 {
@@ -24,7 +26,7 @@ namespace Microsoft.Spark.Utils
         {
             public string Name { get; set; }
             public string AssemblyName { get; set; }
-            public string ManifestModuleName { get; set; }
+            public string AssemblyFileName { get; set; }
 
             public override int GetHashCode()
             {
@@ -44,7 +46,7 @@ namespace Microsoft.Spark.Utils
                 return (other != null) &&
                     (other.Name == Name) &&
                     (other.AssemblyName == AssemblyName) &&
-                    (other.ManifestModuleName == ManifestModuleName);
+                    (other.AssemblyFileName == AssemblyFileName);
             }
         }
 
@@ -54,6 +56,25 @@ namespace Microsoft.Spark.Utils
             public TypeData TypeData { get; set; }
             public string MethodName { get; set; }
             public TargetData TargetData { get; set; }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                return (obj is UdfData udfData) &&
+                    Equals(udfData);
+            }
+
+            public bool Equals(UdfData other)
+            {
+                return (other != null) &&
+                    TypeData.Equals(other.TypeData) &&
+                    (MethodName == other.MethodName) &&
+                    TargetData.Equals(other.TargetData);
+            }
         }
 
         [Serializable]
@@ -61,6 +82,34 @@ namespace Microsoft.Spark.Utils
         {
             public TypeData TypeData { get; set; }
             public FieldData[] Fields { get; set; }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                return (obj is TargetData targetData) &&
+                    Equals(targetData);
+            }
+
+            public bool Equals(TargetData other)
+            {
+                if ((other == null) ||
+                    !TypeData.Equals(other.TypeData) ||
+                    (Fields?.Length != other.Fields?.Length))
+                {
+                    return false;
+                }
+
+                if ((Fields == null) && (other.Fields == null))
+                {
+                    return true;
+                }
+
+                return Fields.SequenceEqual(other.Fields);
+            }
         }
 
         [Serializable]
@@ -69,6 +118,26 @@ namespace Microsoft.Spark.Utils
             public TypeData TypeData { get; set; }
             public string Name { get; set; }
             public object Value { get; set; }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                return (obj is FieldData fieldData) &&
+                    Equals(fieldData);
+            }
+
+            public bool Equals(FieldData other)
+            {
+                return (other != null) &&
+                    TypeData.Equals(other.TypeData) &&
+                    (Name == other.Name) &&
+                    (((Value == null) && (other.Value == null)) ||
+                        ((Value != null) && Value.Equals(other.Value)));
+            }
         }
 
         internal static UdfData Serialize(Delegate udf)
@@ -125,17 +194,20 @@ namespace Microsoft.Spark.Utils
             Type targetType = target.GetType();
             TypeData targetTypeData = SerializeType(targetType);
 
-            System.Collections.Generic.IEnumerable<FieldData> fields = targetType.GetFields(
+            var fields = new List<FieldData>();
+            foreach (FieldInfo field in targetType.GetFields(
                 BindingFlags.Instance |
                 BindingFlags.Static |
                 BindingFlags.Public |
-                BindingFlags.NonPublic).
-                    Select((field) => new FieldData()
-                    {
-                        TypeData = SerializeType(field.FieldType),
-                        Name = field.Name,
-                        Value = field.GetValue(target)
-                    });
+                BindingFlags.NonPublic))
+            {
+                fields.Add(new FieldData()
+                {
+                    TypeData = SerializeType(field.FieldType),
+                    Name = field.Name,
+                    Value = field.GetValue(target)
+                });
+            }
 
             // Even when an UDF does not have any closure, GetFields() returns some fields
             // which include Func<> of the udf specified.
@@ -158,7 +230,7 @@ namespace Microsoft.Spark.Utils
         private static object DeserializeTargetData(TargetData targetData)
         {
             Type targetType = DeserializeType(targetData.TypeData);
-            var target = Activator.CreateInstance(targetType);
+            var target = FormatterServices.GetUninitializedObject(targetType);
 
             foreach (FieldData field in targetData.Fields ?? Enumerable.Empty<FieldData>())
             {
@@ -178,36 +250,15 @@ namespace Microsoft.Spark.Utils
             {
                 Name = type.FullName,
                 AssemblyName = type.Assembly.FullName,
-                ManifestModuleName = type.Assembly.ManifestModule.Name
+                AssemblyFileName = Path.GetFileName(type.Assembly.Location)
             };
         }
 
         private static Type DeserializeType(TypeData typeData) =>
-            s_typeCache.GetOrAdd(typeData,
-                td => LoadAssembly(typeData.ManifestModuleName).GetType(typeData.Name));
-
-        /// <summary>
-        /// Returns the loaded assembly by probing the following locations in order:
-        /// 1) The working directory
-        /// 2) The directory of the application
-        /// If the assembly is not found in the above locations, the exception from
-        /// Assembly.LoadFrom() will be propagated.
-        /// </summary>
-        /// <param name="manifestModuleName">The name of assembly to load</param>
-        /// <returns>The loaded assembly</returns>
-        private static Assembly LoadAssembly(string manifestModuleName)
-        {
-            var sep = Path.DirectorySeparatorChar;
-            try
-            {
-                return Assembly.LoadFrom(
-                    $"{Directory.GetCurrentDirectory()}{sep}{manifestModuleName}");
-            }
-            catch (FileNotFoundException)
-            {
-                return Assembly.LoadFrom(
-                    $"{AppDomain.CurrentDomain.BaseDirectory}{sep}{manifestModuleName}");
-            }
-        }
+            s_typeCache.GetOrAdd(
+                typeData,
+                td => AssemblyLoader.LoadAssembly(
+                    td.AssemblyName,
+                    td.AssemblyFileName).GetType(td.Name));
     }
 }

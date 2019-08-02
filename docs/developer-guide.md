@@ -11,7 +11,7 @@
 Open a new command prompt window, run the following:
 ```shell
 spark-submit \
-  --class org.apache.spark.deploy.DotnetRunner \
+  --class org.apache.spark.deploy.dotnet.DotnetRunner \
   --master local \
   <path-to-microsoft-spark-jar> \
   debug
@@ -33,7 +33,7 @@ If you need to debug the Scala side code (`DotnetRunner`, `DotnetBackendHandler`
 ```shell
 spark-submit \
   --driver-java-options -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 \
-  --class org.apache.spark.deploy.DotnetRunner \
+  --class org.apache.spark.deploy.dotnet.DotnetRunner \
   --master local \
   <path-to-microsoft-spark-jar> \
   <path-to-your-app-exe> <argument(s)-to-your-app>
@@ -51,7 +51,7 @@ Since Apache Spark's [MAINTENANCE] releases involve only internal changes (e.g.,
 1. In the corresponding `pom.xml`, update the `spark.version` value to the newly released version.
    * For example, if a new patch release is 2.4.3, you will update [src/scala/microsoft-spark-2.4.x/pom.xml](/src/scala/microsoft-spark-2.4.x/pom.xml) to have `<spark.version>2.4.3</spark.version>`.
 2. Update `DotnetRunner.supportedSparkVersions` to include the newly released version.
-   * For example, if a new patch release is 2.4.3, you will update [src/scala/microsoft-spark-2.4.x/src/main/scala/org/apache/spark/deploy/DotnetRunner.scala](/src/scala/microsoft-spark-2.4.x/src/main/scala/org/apache/spark/deploy/DotnetRunner.scala).
+   * For example, if a new patch release is 2.4.3, you will update [src/scala/microsoft-spark-2.4.x/src/main/scala/org/apache/spark/deploy/dotnet/DotnetRunner.scala](/src/scala/microsoft-spark-2.4.x/src/main/scala/org/apache/spark/deploy/dotnet/DotnetRunner.scala).
 3. Update the [azure-pipelines.yml](/azure-pipelines.yml) to include E2E testing for the newly released version.
 
 Refer to [this commit](https://github.com/dotnet/spark/commit/eb26baa46200bfcbe3e1080e650f335853d9990e) for an example.

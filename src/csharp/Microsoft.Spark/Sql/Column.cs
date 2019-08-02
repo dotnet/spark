@@ -743,6 +743,102 @@ namespace Microsoft.Spark.Sql
             return Apply("over");
         }
 
+        /// <summary>
+        ///  A boolean expression that is evaluated to true if the value of this expression 
+        ///  is contained by the evaluated values of the arguments.  
+        /// </summary>
+        /// <param name="list">List of values to check the column against</param>
+        /// <returns>Column object</returns>
+        public Column IsIn(params string[] list)
+        {
+            return Apply("isin", list);
+        }
+        
+        /// <summary>
+        ///  A boolean expression that is evaluated to true if the value of this expression 
+        ///  is contained by the evaluated values of the arguments.  
+        /// </summary>
+        /// <param name="list">List of values to check the column against</param>
+        /// <returns>Column object</returns>
+        public Column IsIn(params int[] list)
+        {
+            return Apply("isin", list);
+        }
+
+        /// <summary>
+        ///  A boolean expression that is evaluated to true if the value of this expression 
+        ///  is contained by the evaluated values of the arguments.  
+        /// </summary>
+        /// <param name="list">List of values to check the column against</param>
+        /// <returns>Column object</returns>
+        public Column IsIn(params long[] list)
+        {
+            return Apply("isin", list);
+        }
+
+        /// <summary>
+        ///  A boolean expression that is evaluated to true if the value of this expression 
+        ///  is contained by the evaluated values of the arguments.  
+        /// </summary>
+        /// <param name="list">List of values to check the column against</param>
+        /// <returns>Column object</returns>
+        public Column IsIn(params bool[] list)
+        {
+            return Apply("isin", list);
+        }
+        
+        /// <summary>
+        ///  A boolean expression that is evaluated to true if the value of this expression 
+        ///  is contained by the evaluated values of the arguments.  
+        /// </summary>
+        /// <param name="list">List of values to check the column against</param>
+        /// <returns>Column object</returns>
+        public Column IsIn(params short[] list)
+        {
+            return Apply("isin", list);
+        }
+        
+        /// <summary>
+        ///  A boolean expression that is evaluated to true if the value of this expression 
+        ///  is contained by the evaluated values of the arguments.  
+        /// </summary>
+        /// <param name="list">List of values to check the column against</param>
+        /// <returns>Column object</returns>
+        public Column IsIn(params float[] list)
+        {
+            return Apply("isin", list);
+        }
+        
+        /// <summary>
+        ///  A boolean expression that is evaluated to true if the value of this expression 
+        ///  is contained by the evaluated values of the arguments.  
+        /// </summary>
+        /// <param name="list">List of values to check the column against</param>
+        /// <returns>Column object</returns>
+        public Column IsIn(params double[] list)
+        {
+            return Apply("isin", list);
+        }
+        
+        /// <summary>
+        ///  A boolean expression that is evaluated to true if the value of this expression 
+        ///  is contained by the evaluated values of the arguments.  
+        /// </summary>
+        /// <param name="list">List of values to check the column against</param>
+        /// <returns>Column object</returns>
+        public Column IsIn(params decimal[] list)
+        {
+            return Apply("isin", list);
+        }        
+
+        /// <summary>
+        /// Gets the underlying Expression object of the <see cref="Column"/>.
+        /// </summary>
+        internal JvmObjectReference Expr()
+        {
+            return (JvmObjectReference)_jvmObject.Invoke("expr");
+        }
+
         // Equals() and GetHashCode() are required to be defined when operator==/!=
         // are overloaded.
 

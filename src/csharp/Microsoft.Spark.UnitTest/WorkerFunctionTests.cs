@@ -93,7 +93,7 @@ namespace Microsoft.Spark.UnitTest
                 new ArrowUdfWrapper<StringArray, BooleanArray, BooleanArray>(
                     (strings, flags) => (BooleanArray)ToArrowArray(
                         Enumerable.Range(0, strings.Length)
-                            .Select(i => flags.GetBoolean(i).Value || strings.GetString(i).Contains("true"))
+                            .Select(i => flags.GetBoolean(i) || strings.GetString(i).Contains("true"))
                             .ToArray())).Execute);
 
             IArrowArray[] input = new[]

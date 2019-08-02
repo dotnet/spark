@@ -47,7 +47,7 @@ For detailed instructions, you can see [Building .NET for Apache Spark from Sour
 - Run your app
     ```
     spark-submit `
-    --class org.apache.spark.deploy.DotnetRunner `
+    --class org.apache.spark.deploy.dotnet.DotnetRunner `
     --master local `
     microsoft-spark-2.4.x-<version>.jar `
     dotnet HelloSpark.dll
