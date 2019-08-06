@@ -177,6 +177,17 @@ namespace Microsoft.Spark.Utils
                     assemblySearchPath);
             }
 
+            string assemblyArchivePath = Environment.GetEnvironmentVariable(
+                AssemblySearchPathResolver.DotNetApplicationArchiveEnvVarName);
+            if (!string.IsNullOrEmpty(assemblyArchivePath))
+            {
+                jvm.CallNonStaticJavaMethod(
+                    environmentVars,
+                    "put",
+                    AssemblySearchPathResolver.DotNetApplicationArchiveEnvVarName,
+                    assemblyArchivePath);
+            }
+
             return environmentVars;
         }
 

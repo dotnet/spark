@@ -8,13 +8,13 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Microsoft.Spark.Interop;
 
 namespace Microsoft.Spark.Utils
 {
     internal static class AssemblySearchPathResolver
     {
         internal const string AssemblySearchPathsEnvVarName = "DOTNET_ASSEMBLY_SEARCH_PATHS";
+        internal const string DotNetApplicationArchiveEnvVarName = "DOTNET_APPLICATION_ARCHIVE";
 
         /// <summary>
         /// Returns the paths to search when loading assemblies in the following order of
@@ -58,22 +58,21 @@ namespace Microsoft.Spark.Utils
             searchPaths.Add(Directory.GetCurrentDirectory());
             searchPaths.Add(AppDomain.CurrentDomain.BaseDirectory);
 
-            string archiveName = SparkEnvironment.ConfigurationService.GetApplicationArchiveName();
+            string archiveName = Environment.GetEnvironmentVariable(
+                DotNetApplicationArchiveEnvVarName);
             if(!string.IsNullOrEmpty(archiveName))
             {
-                string archivePath = Path.Combine(Directory.GetCurrentDirectory(), archiveName);
-                if (File.Exists(archivePath))
-                {
-                    string extractedPath = Path.Combine(
-                        Path.GetDirectoryName(archivePath),
+                string
+                    archivePath = Path.Combine(Directory.GetCurrentDirectory(), archiveName),
+                    extractPath = Path.Combine(Directory.GetCurrentDirectory(),
                         Path.GetFileNameWithoutExtension(archiveName));
-                    if (!File.Exists(extractedPath))
-                    {
-                        ZipFile.ExtractToDirectory(archivePath, extractedPath);
-                        searchPaths.Add(extractedPath);
-                    }
+                if (File.Exists(archivePath) && !File.Exists(extractPath))
+                {
+                    ZipFile.ExtractToDirectory(archivePath, extractPath);
+                    searchPaths.Add(extractPath);
                 }
             }
+
             return searchPaths.ToArray();
         }
     }
