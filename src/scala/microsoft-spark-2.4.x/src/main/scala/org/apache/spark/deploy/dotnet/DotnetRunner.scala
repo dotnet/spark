@@ -117,9 +117,11 @@ object DotnetRunner extends Logging {
           val builder = new ProcessBuilder(processParameters)
           val env = builder.environment()
           env.put("DOTNETBACKEND_PORT", dotnetBackendPortNumber.toString)
+          logInfo(s"Adding key=DOTNETBACKEND_PORT and value=$dotnetBackendPortNumber to environment")
 
           if(dotnetApplicationArchive != "") {
             env.put("DOTNET_APPLICATION_ARCHIVE", dotnetApplicationArchive)
+            logInfo(s"Adding key=DOTNET_APPLICATION_ARCHIVE and value=$dotnetApplicationArchive to environment")
           }
 
           for ((key, value) <- Utils.getSystemProperties if key.startsWith("spark.")) {
