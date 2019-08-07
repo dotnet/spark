@@ -16,7 +16,7 @@ namespace Microsoft.Spark.UnitTest
         [Serializable]
         private class TestClass
         {
-            private string _str;
+            private readonly string _str;
 
             public TestClass(string s)
             {
