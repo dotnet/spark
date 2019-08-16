@@ -1,3 +1,6 @@
+Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
+Install-Module -Name Microsoft.PowerShell.Archive -Scope CurrentUser -Force -AllowClobber -Verbose -MinimumVersion 1.2.3.0
+
 $version = $args[0]
 $worker_dir = $args[1]
 $output_dir = $args[2]
