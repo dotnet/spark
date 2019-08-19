@@ -3,8 +3,12 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Spark.Sql.Types;
 using Razorvine.Pickle;
+using System.Diagnostics;
+using Apache.Arrow;
+using System.Collections.Concurrent;
 
 namespace Microsoft.Spark.Sql
 {
@@ -21,25 +25,30 @@ namespace Microsoft.Spark.Sql
         /// could be multiple threads unpickling the data using the same object registered.
         /// </summary>
         [ThreadStatic]
-        private static StructType s_currentSchema;
+        private static ConcurrentDictionary<string, StructType> s_schemaCache =
+            new ConcurrentDictionary<string, StructType>();
 
-        /// <summary>
-        /// Stores values passed from construct().
-        /// </summary>
-        private object[] _values;
+        //private object[] _values;
 
-        /// <summary>
-        /// Stores the schema for a row.
-        /// </summary>
-        private StructType _schema;
+        ///// <summary>
+        ///// Stores the schema for a row.
+        ///// </summary>
+        //private StructType _schema;
 
-        /// <summary>
-        /// Returns a string representation of this object.
-        /// </summary>
-        /// <returns>A string representation of this object</returns>
-        public override string ToString()
+        private object[] _args;
+
+        //private List<RowConstructor> _children;
+
+        private RowConstructor _parent;
+
+        public RowConstructor() : this(null, null)
         {
-            return string.Format("{{{0}}}", string.Join(",", _values));
+        }
+
+        public RowConstructor(RowConstructor parent, object[] args)
+        {
+            _parent = parent;
+            _args = args;
         }
 
         /// <summary>
@@ -49,41 +58,39 @@ namespace Microsoft.Spark.Sql
         /// <returns>New RowConstructor object capturing unpickled data</returns>
         public object construct(object[] args)
         {
-            // Every first call to construct() contains the schema data. When
-            // a new RowConstructor object is returned from this function,
-            // construct() is called on the returned object with the actual
-            // row data.
-
-            // Cache the schema to avoid parsing it for each construct() call.
-            if (s_currentSchema is null)
+            if ((args.Length == 1) && (args[0] is RowConstructor))
             {
-                s_currentSchema = (StructType)DataType.ParseDataType((string)args[0]);
+                args[0] = ((RowConstructor)args[0]).GetRow();
+                return args;
             }
 
-            // Note that on the first call, _values will be set to schema passed in,
-            // but the subsequent construct() call on this object will replace
-            // _values with the actual row data.
-            return new RowConstructor { _values = args, _schema = s_currentSchema };
+            return new RowConstructor(this, args);
         }
 
-        /// <summary>
-        /// Construct a Row object from unpickled data.
-        /// Resets the cached row schema.
-        /// </summary>
-        /// <returns>A row object with unpickled data</returns>
         public Row GetRow()
         {
-            // Reset the current schema to ensure that the subsequent construct()
-            // will use the correct schema if rows from different tables are being
-            // unpickled. This means that if pickled data is received per row, the
-            // JSON schema will be parsed for each row. In Spark, rows are batched
-            // such that the schema will be parsed once for a batch.
-            // One optimization is to introduce Reset() to reset the s_currentSchema,
-            // but this has a burden of remembering to call Reset() on the user side,
-            // thus not done.
-            s_currentSchema = null;
+            Debug.Assert(_parent != null);
+            for(int i = 0; i < _args.Length; ++i)
+            {
+                if (_args[i] is RowConstructor)
+                {
+                    _args[i] = ((RowConstructor)_args[i]).GetRow();
+                }
+            }
+            return new Row(_args, _parent.GetSchema());
+        }
 
-            return new Row(_values, _schema);
+        private StructType GetSchema()
+        {
+            Debug.Assert((_args != null) && (_args.Length == 1) && (_args[0] is string));
+            string schemaString = _args[0] as string;
+            return s_schemaCache
+                .GetOrAdd(schemaString, s => (StructType)DataType.ParseDataType(s));
+        }
+
+        internal void Reset()
+        {
+            s_schemaCache.Clear();
         }
     }
 }

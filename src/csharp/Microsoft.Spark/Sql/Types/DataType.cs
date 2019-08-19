@@ -146,6 +146,10 @@ namespace Microsoft.Spark.Sql.Types
 
         }
 
+        internal virtual bool NeedConversion() => false;
+
+        internal virtual object FromInternal(object obj) => obj;
+
         /// <summary>
         /// Parses a JToken object that represents a simple type.
         /// </summary>

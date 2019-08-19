@@ -32,25 +32,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         [Fact]
-        public void TestCollect()
-        {
-            Row[] rows = _df.Collect().ToArray();
-            Assert.Equal(3, rows.Length);
-
-            Row row1 = rows[0];
-            Assert.Equal("Michael", row1.GetAs<string>("name"));
-            Assert.Null(row1.Get("age"));
-
-            Row row2 = rows[1];
-            Assert.Equal("Andy", row2.GetAs<string>("name"));
-            Assert.Equal(30, row2.GetAs<int>("age"));
-
-            Row row3 = rows[2];
-            Assert.Equal("Justin", row3.GetAs<string>("name"));
-            Assert.Equal(19, row3.GetAs<int>("age"));
-        }
-
-        [Fact]
         public void TestUDF()
         {
             // Single UDF.

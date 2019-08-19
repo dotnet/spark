@@ -18,14 +18,18 @@ namespace Microsoft.Spark.Utils
     /// </summary>
     internal class PythonSerDe
     {
+        private static readonly RowConstructor s_rowConstructor;
+
         static PythonSerDe()
         {
             // Custom picklers used in PySpark implementation.
             // Refer to spark/python/pyspark/sql/types.py.
             Unpickler.registerConstructor(
                 "pyspark.sql.types", "_parse_datatype_json_string", new StringConstructor());
+
+            s_rowConstructor = new RowConstructor();
             Unpickler.registerConstructor(
-                "pyspark.sql.types", "_create_row_inbound_converter", new RowConstructor());
+                "pyspark.sql.types", "_create_row_inbound_converter", s_rowConstructor);
         }
 
         /// <summary>
@@ -49,6 +53,7 @@ namespace Microsoft.Spark.Utils
                 object unpickledItems = unpickler.loads(
                     new ReadOnlyMemory<byte>(buffer, 0, messageLength), 
                     stackCapacity: 102); // Spark sends batches of 100 rows, and +2 is for markers.
+                s_rowConstructor.Reset();
                 Debug.Assert(unpickledItems != null);
                 return (unpickledItems as object[]);
             }

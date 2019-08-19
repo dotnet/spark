@@ -4,16 +4,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Spark.Interop.Ipc;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Spark.Sql.Types
 {
+    public abstract class ComplexType : DataType
+    {
+        internal override bool NeedConversion() => true;
+
+        internal override object FromInternal(object obj) => throw new NotImplementedException();
+    }
+
     /// <summary>
     /// An array type containing multiple values of a type.
     /// </summary>
-    public sealed class ArrayType : DataType
+    public sealed class ArrayType : ComplexType
     {
         /// <summary>
         /// Constructor for ArrayType class.
@@ -73,7 +81,7 @@ namespace Microsoft.Spark.Sql.Types
     /// <summary>
     /// The data type for a map. This class is not implemented yet.
     /// </summary>
-    public sealed class MapType : DataType
+    public sealed class MapType : ComplexType
     {
         /// <summary>
         /// Initializes the <see cref="MapType"/> instance.
@@ -157,7 +165,7 @@ namespace Microsoft.Spark.Sql.Types
     /// Struct type represents a struct with multiple fields.
     /// This type is also used to represent a Row object in Spark.
     /// </summary>
-    public sealed class StructType : DataType
+    public sealed class StructType : ComplexType
     {
         /// <summary>
         /// Constructor for StructType class.
@@ -199,6 +207,17 @@ namespace Microsoft.Spark.Sql.Types
             new JObject(
                 new JProperty("type", TypeName),
                 new JProperty("fields", Fields.Select(f => f.JsonValue).ToArray()));
+
+
+        internal override object FromInternal(object obj)
+        {
+            if (obj is Row)
+            {
+                return obj;
+            }
+
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Constructs a StructType object from a JSON object
