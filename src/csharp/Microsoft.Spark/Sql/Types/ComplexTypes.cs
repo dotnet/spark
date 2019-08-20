@@ -11,19 +11,9 @@ using Newtonsoft.Json.Linq;
 namespace Microsoft.Spark.Sql.Types
 {
     /// <summary>
-    /// Complex types
-    /// </summary>
-    public abstract class ComplexType : DataType
-    {
-        internal override bool NeedConversion() => true;
-
-        internal override object FromInternal(object obj) => throw new NotImplementedException();
-    }
-
-    /// <summary>
     /// An array type containing multiple values of a type.
     /// </summary>
-    public sealed class ArrayType : ComplexType
+    public sealed class ArrayType : DataType
     {
         /// <summary>
         /// Constructor for ArrayType class.
@@ -68,6 +58,19 @@ namespace Microsoft.Spark.Sql.Types
                 new JProperty("containsNull", ContainsNull));
 
         /// <summary>
+        /// Does this type need to convert between C# object and internal SQL object.
+        /// </summary>
+        /// <returns>True if conversion needed, false otherwise</returns>
+        internal override bool NeedConversion() => true;
+
+        /// <summary>
+        /// Converts an internal SQL object into a native C# object.
+        /// </summary>
+        /// <param name="obj">The object to convert.</param>
+        /// <returns>Converted C# object</returns>
+        internal override object FromInternal(object obj) => throw new NotImplementedException();
+
+        /// <summary>
         /// Constructs a ArrayType object from a JSON object.
         /// </summary>
         /// <param name="json">JSON object used to construct a ArrayType object</param>
@@ -83,12 +86,25 @@ namespace Microsoft.Spark.Sql.Types
     /// <summary>
     /// The data type for a map. This class is not implemented yet.
     /// </summary>
-    public sealed class MapType : ComplexType
+    public sealed class MapType : DataType
     {
         /// <summary>
         /// Initializes the <see cref="MapType"/> instance.
         /// </summary>
         public MapType() => throw new NotImplementedException();
+
+        /// <summary>
+        /// Does this type need to convert between C# object and internal SQL object.
+        /// </summary>
+        /// <returns>True if conversion needed, false otherwise</returns>
+        internal override bool NeedConversion() => true;
+
+        /// <summary>
+        /// Converts an internal SQL object into a native C# object.
+        /// </summary>
+        /// <param name="obj">The object to convert.</param>
+        /// <returns>Converted C# object</returns>
+        internal override object FromInternal(object obj) => throw new NotImplementedException();
     }
 
     /// <summary>
@@ -167,7 +183,7 @@ namespace Microsoft.Spark.Sql.Types
     /// Struct type represents a struct with multiple fields.
     /// This type is also used to represent a Row object in Spark.
     /// </summary>
-    public sealed class StructType : ComplexType
+    public sealed class StructType : DataType
     {
         /// <summary>
         /// Constructor for StructType class.
@@ -210,7 +226,17 @@ namespace Microsoft.Spark.Sql.Types
                 new JProperty("type", TypeName),
                 new JProperty("fields", Fields.Select(f => f.JsonValue).ToArray()));
 
+        /// <summary>
+        /// Does this type need to convert between C# object and internal SQL object.
+        /// </summary>
+        /// <returns>True if conversion needed, false otherwise</returns>
+        internal override bool NeedConversion() => true;
 
+        /// <summary>
+        /// Converts an internal SQL object into a native C# object.
+        /// </summary>
+        /// <param name="obj">The object to convert.</param>
+        /// <returns>Converted C# object</returns>
         internal override object FromInternal(object obj)
         {
             if ((obj is null) || (obj is Row))

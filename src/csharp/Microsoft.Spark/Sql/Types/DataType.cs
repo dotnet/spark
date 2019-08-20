@@ -155,7 +155,7 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Converts an internal SQL object into a native C# object.
         /// </summary>
-        /// <param name="obj"></param>
+        /// <param name="obj">The object to convert.</param>
         /// <returns>Converted C# object</returns>
         internal virtual object FromInternal(object obj) => obj;
 
