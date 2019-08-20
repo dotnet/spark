@@ -3,13 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
-
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
