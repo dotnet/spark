@@ -63,31 +63,31 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             DataFrame ageIsNullDF =
                 dummyColDF.WithColumn("AgeIsNull", AgeIsNull(dummyColDF["DummyCol"]));
 
-            Row[] originalRows = _df.Collect().ToArray();
-            Row[] rows = ageIsNullDF.Collect().ToArray();
-            Assert.Equal(3, rows.Length);
+            Row[] originalDFRows = _df.Collect().ToArray();
+            Row[] ageIsNullDFRows = ageIsNullDF.Collect().ToArray();
+            Assert.Equal(3, ageIsNullDFRows.Length);
 
             {
-                Row row = rows[0];
+                Row row = ageIsNullDFRows[0];
                 Assert.Equal("Michael", row.GetAs<string>("name"));
                 Assert.Null(row.Get("age"));
-                Assert.Equal(originalRows[0], row.Get("DummyCol"));
+                Assert.Equal(originalDFRows[0], row.Get("DummyCol"));
                 Assert.True(row.GetAs<bool>("AgeIsNull"));
             }
 
             {
-                Row row = rows[1];
+                Row row = ageIsNullDFRows[1];
                 Assert.Equal("Andy", row.GetAs<string>("name"));
                 Assert.Equal(30, row.GetAs<int>("age"));
-                Assert.Equal(originalRows[1], row.Get("DummyCol"));
+                Assert.Equal(originalDFRows[1], row.Get("DummyCol"));
                 Assert.False(row.GetAs<bool>("AgeIsNull"));
             }
 
             {
-                Row row = rows[2];
+                Row row = ageIsNullDFRows[2];
                 Assert.Equal("Justin", row.GetAs<string>("name"));
                 Assert.Equal(19, row.GetAs<int>("age"));
-                Assert.Equal(originalRows[2], row.Get("DummyCol"));
+                Assert.Equal(originalDFRows[2], row.Get("DummyCol"));
                 Assert.False(row.GetAs<bool>("AgeIsNull"));
             }
         }

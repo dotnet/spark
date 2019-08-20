@@ -3,12 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using Microsoft.Spark.Sql.Types;
 using Razorvine.Pickle;
-using System.Diagnostics;
-using Apache.Arrow;
-using System.Collections.Concurrent;
 
 namespace Microsoft.Spark.Sql
 {
@@ -20,26 +18,23 @@ namespace Microsoft.Spark.Sql
     internal sealed class RowConstructor : IObjectConstructor
     {
         /// <summary>
-        /// Schema of the rows being received. Note that this is thread local variable
+        /// Cache the schema of the rows being received. Note that this is thread local variable
         /// because one RowConstructor object is registered to the Unpickler and there
         /// could be multiple threads unpickling the data using the same object registered.
         /// </summary>
         [ThreadStatic]
-        private static ConcurrentDictionary<string, StructType> s_schemaCache =
+        private static readonly ConcurrentDictionary<string, StructType> s_schemaCache =
             new ConcurrentDictionary<string, StructType>();
 
-        //private object[] _values;
+        /// <summary>
+        /// The RowConstructor that created this instance.
+        /// </summary>
+        private readonly RowConstructor _parent;
 
-        ///// <summary>
-        ///// Stores the schema for a row.
-        ///// </summary>
-        //private StructType _schema;
-
-        private object[] _args;
-
-        //private List<RowConstructor> _children;
-
-        private RowConstructor _parent;
+        /// <summary>
+        /// Stores the args passed from construct().
+        /// </summary>
+        private readonly object[] _args;
 
         public RowConstructor() : this(null, null)
         {
@@ -55,7 +50,7 @@ namespace Microsoft.Spark.Sql
         /// Used by Unpickler to pass unpickled data for handling.
         /// </summary>
         /// <param name="args">Unpickled data</param>
-        /// <returns>New RowConstructor object capturing unpickled data</returns>
+        /// <returns>New RowConstructor object capturing args data</returns>
         public object construct(object[] args)
         {
             if ((args.Length == 1) && (args[0] is RowConstructor))
@@ -67,9 +62,14 @@ namespace Microsoft.Spark.Sql
             return new RowConstructor(this, args);
         }
 
+        /// <summary>
+        /// Construct a Row object from unpickled data.
+        /// </summary>
+        /// <returns>A row object with unpickled data</returns>
         public Row GetRow()
         {
             Debug.Assert(_parent != null);
+
             for(int i = 0; i < _args.Length; ++i)
             {
                 if (_args[i] is RowConstructor)
@@ -77,20 +77,26 @@ namespace Microsoft.Spark.Sql
                     _args[i] = ((RowConstructor)_args[i]).GetRow();
                 }
             }
+
             return new Row(_args, _parent.GetSchema());
         }
 
+        internal void Reset()
+        {
+            s_schemaCache.Clear();
+        }
+
+        /// <summary>
+        /// Get or cache the schema string contained in args. Calling this
+        /// is only valid if the child args contain the row values.
+        /// </summary>
+        /// <returns></returns>
         private StructType GetSchema()
         {
             Debug.Assert((_args != null) && (_args.Length == 1) && (_args[0] is string));
             string schemaString = _args[0] as string;
             return s_schemaCache
                 .GetOrAdd(schemaString, s => (StructType)DataType.ParseDataType(s));
-        }
-
-        internal void Reset()
-        {
-            s_schemaCache.Clear();
         }
     }
 }

@@ -91,8 +91,8 @@ namespace Microsoft.Spark.UnitTest
                 pickledBytes.Length);
 
             Assert.Equal(2, unpickledData.Length);
-            Assert.Equal(row1, unpickledData[0]);
-            Assert.Equal(row2, unpickledData[1]);
+            Assert.Equal(row1, (unpickledData[0] as RowConstructor).GetRow());
+            Assert.Equal(row2, (unpickledData[1] as RowConstructor).GetRow());
         }
 
         [Fact]

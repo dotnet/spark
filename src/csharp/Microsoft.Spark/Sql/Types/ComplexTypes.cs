@@ -4,13 +4,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.Spark.Interop.Ipc;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Spark.Sql.Types
 {
+    /// <summary>
+    /// Complex types
+    /// </summary>
     public abstract class ComplexType : DataType
     {
         internal override bool NeedConversion() => true;
@@ -211,7 +213,7 @@ namespace Microsoft.Spark.Sql.Types
 
         internal override object FromInternal(object obj)
         {
-            if (obj is Row)
+            if ((obj is null) || (obj is Row))
             {
                 return obj;
             }
