@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using Microsoft.Spark.Sql.Types;
@@ -21,8 +22,8 @@ namespace Microsoft.Spark.Sql
         /// because one RowConstructor object is registered to the Unpickler and there
         /// could be multiple threads unpickling the data using the same object registered.
         /// </summary>
-        private static ConcurrentDictionary<string, StructType> s_schemaCache =
-            new ConcurrentDictionary<string, StructType>();
+        [ThreadStatic]
+        private static ConcurrentDictionary<string, StructType> s_schemaCache;
 
         /// <summary>
         /// The RowConstructor that created this instance.
@@ -51,6 +52,11 @@ namespace Microsoft.Spark.Sql
         /// <returns>New RowConstructor object capturing args data</returns>
         public object construct(object[] args)
         {
+            if (s_schemaCache is null)
+            {
+                s_schemaCache = new ConcurrentDictionary<string, StructType>();
+            }
+
             if ((args.Length == 1) && (args[0] is RowConstructor))
             {
                 args[0] = ((RowConstructor)args[0]).GetRow();
@@ -81,7 +87,7 @@ namespace Microsoft.Spark.Sql
 
         internal void Reset()
         {
-            s_schemaCache = new ConcurrentDictionary<string, StructType>();
+            s_schemaCache.Clear();
         }
 
         /// <summary>
