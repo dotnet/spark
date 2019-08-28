@@ -210,17 +210,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                .Json($"{TestEnvironment.ResourceDirectory}people.json");
             df = Broadcast(df);
 
-            df = _spark
-                .Range(10);
+            df = _spark.Range(10);
 
-            df = _spark
-                .Range(10, 100);
+            df = _spark.Range(10, 100);
 
-            df = _spark
-                .Range(10, 100, 10);
+            df = _spark.Range(10, 100, 10);
 
-            df = _spark
-                .Range(10, 100, 10, 5);
+            df = _spark.Range(10, 100, 10, 5);
 
             col = Coalesce();
             col = Coalesce(col);
@@ -265,8 +261,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             col = BitwiseNOT(col);
 
             col = Expr("expr");
-
-             
 
             //////////////////////////////
             // Math Functions
