@@ -26,7 +26,8 @@ namespace Microsoft.Spark.E2ETest
         public SparkFixture()
         {
             string workerDirEnvVarName = Services.ConfigurationService.WorkerDirEnvVarName;
-
+            Environment.SetEnvironmentVariable(workerDirEnvVarName, @"C:\spark\worker\Microsoft.Spark.Worker.netcoreapp2.1.win-x64-0.4.0\Microsoft.Spark.Worker-0.4.0");
+            Environment.SetEnvironmentVariable("SPARK_HOME", @"C:\spark-2.4.1-bin-hadoop2.7");
             // The worker directory must be set for the Microsoft.Spark.Worker executable.
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(workerDirEnvVarName)))
             {
