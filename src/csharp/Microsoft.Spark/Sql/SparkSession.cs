@@ -140,7 +140,6 @@ namespace Microsoft.Spark.Sql
                 (JvmObjectReference)_jvmObject.Invoke(
                     "range", start, end, step, numPartitions));
 
-
         /// <summary>
         /// Returns a DataStreamReader that can be used to read streaming data in as a DataFrame.
         /// </summary>

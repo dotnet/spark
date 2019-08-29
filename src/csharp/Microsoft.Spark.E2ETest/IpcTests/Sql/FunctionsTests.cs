@@ -208,15 +208,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             DataFrame df = _spark
                .Read()
                .Json($"{TestEnvironment.ResourceDirectory}people.json");
-            df = Broadcast(df);
 
-            df = _spark.Range(10);
+            Assert.IsType<DataFrame>(Broadcast(df));
 
-            df = _spark.Range(10, 100);
-
-            df = _spark.Range(10, 100, 10);
-
-            df = _spark.Range(10, 100, 10, 5);
+            Assert.IsType<DataFrame>(_spark.Range(10));
+            Assert.IsType<DataFrame>(_spark.Range(10, 100));
+            Assert.IsType<DataFrame>(_spark.Range(10, 100, 10));
+            Assert.IsType<DataFrame>(_spark.Range(10, 100, 10, 5));
 
             col = Coalesce();
             col = Coalesce(col);
