@@ -116,9 +116,8 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <returns>DataFrame object</returns>
         public DataFrame Range(long start, long end) =>
-        new DataFrame(
-                (JvmObjectReference)_jvmObject.Invoke(
-                    "range", start, end));
+            new DataFrame(
+                (JvmObjectReference)_jvmObject.Invoke("range", start, end));
 
         /// <summary>
         /// Creates a DataFrame with a single column named id, containing elements in
