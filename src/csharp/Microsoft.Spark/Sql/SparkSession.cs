@@ -104,7 +104,6 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Creates a DataFrame with a single column named id, containing elements in
         /// a range from 0 to end (exclusive) with step value 1.
-        /// as a DataFrame.
         /// </summary>
         /// <returns>DataFrame object</returns>
         public DataFrame Range(long end) =>
