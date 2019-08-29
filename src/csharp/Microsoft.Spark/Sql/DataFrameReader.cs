@@ -116,6 +116,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>DataFrame object</returns>
         public DataFrame Load(params string[] paths)
         {
+            // Some Scala libraries only support particular overloads of load().
             if (paths == null || paths.Length == 0)
             {
                 return new DataFrame((JvmObjectReference)_jvmObject.Invoke("load"));
