@@ -105,7 +105,7 @@ namespace Microsoft.Spark.Sql
         /// Creates a DataFrame with a single column named id, containing elements in
         /// a range from 0 to end (exclusive) with step value 1.
         /// </summary>
-        /// <param name="end">Last number in the range to create</param>
+        /// <param name="end">The end value (exclusive)</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Range(long end) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("range", end));
