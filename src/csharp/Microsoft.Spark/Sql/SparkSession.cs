@@ -136,7 +136,7 @@ namespace Microsoft.Spark.Sql
         /// a range from start to end (exclusive) with a step value, with partition
         /// number specified.
         /// </summary>
-        /// <param name="start">First number in the range to create</param>
+        /// <param name="start">The start value</param>
         /// <param name="end">Last number in the range to create</param>
         /// <param name="step">Step value to use when creating the range</param>
         /// <param name="numPartitions">The number of partitions of the DataFrame</param>
