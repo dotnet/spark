@@ -118,8 +118,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="end">Last number in the range to create</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Range(long start, long end) =>
-            new DataFrame(
-                (JvmObjectReference)_jvmObject.Invoke("range", start, end));
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("range", start, end));
 
         /// <summary>
         /// Creates a DataFrame with a single column named id, containing elements in
@@ -130,9 +129,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="step">Step value to use when creating the range</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Range(long start, long end, long step) =>
-            new DataFrame(
-                (JvmObjectReference)_jvmObject.Invoke(
-                    "range", start, end, step));
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("range", start, end, step));
 
         /// <summary>
         /// Creates a DataFrame with a single column named id, containing elements in
@@ -146,8 +143,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>DataFrame object</returns>
         public DataFrame Range(long start, long end, long step, int numPartitions) =>
             new DataFrame(
-                (JvmObjectReference)_jvmObject.Invoke(
-                    "range", start, end, step, numPartitions));
+                (JvmObjectReference)_jvmObject.Invoke("range", start, end, step, numPartitions));
 
         /// <summary>
         /// Returns a DataStreamReader that can be used to read streaming data in as a DataFrame.
