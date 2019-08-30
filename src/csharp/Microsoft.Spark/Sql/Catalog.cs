@@ -255,12 +255,10 @@ namespace Microsoft.Spark.Sql
         public bool TableExists(string dbName, string tableName) =>
             (bool)_jvmObject.Invoke("tableExists", dbName, tableName);
 
-
         ///<summary>
         ///Removes the specified table from the in-memory cache.
         ///</summary>
         ///<param name="tableName">is either a qualified or unqualified name that designates a table. If no database identifier is provided, it refers to a table in the current database.</param>
         public void UncacheTable(string tableName) => _jvmObject.Invoke("uncacheTable", tableName);
-
     }
 }
