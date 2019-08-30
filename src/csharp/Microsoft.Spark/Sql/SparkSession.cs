@@ -115,7 +115,7 @@ namespace Microsoft.Spark.Sql
         /// a range from start to end (exclusive) with step value 1.
         /// </summary>
         /// <param name="start">The start value</param>
-        /// <param name="end">Last number in the range to create</param>
+        /// <param name="end">The end value (exclusive)</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Range(long start, long end) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("range", start, end));
