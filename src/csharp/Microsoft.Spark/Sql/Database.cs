@@ -2,23 +2,17 @@ using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark.Sql
 {
-    public sealed class Function : IJvmObjectReferenceProvider
+    public sealed class Database : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
+        private JvmObjectReference _jvmObject;
 
-        internal Function(JvmObjectReference jvmObject)
+        internal Database(JvmObjectReference jvmObject)
         {
             _jvmObject = jvmObject;
         }
-
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns>string</returns>
-        public string Database => (string)_jvmObject.Invoke("database");
-
+  
         /// <summary>
         /// 
         /// </summary>
@@ -29,19 +23,13 @@ namespace Microsoft.Spark.Sql
         /// 
         /// </summary>
         /// <returns>string</returns>
-        public bool IsTemporary => (bool)_jvmObject.Invoke("isTemporary");
+        public string LocationUri => (string)_jvmObject.Invoke("locationUri");
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns>string</returns>
         public string Name => (string)_jvmObject.Invoke("name");
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns>string</returns>
-        public string ClassName => (string)_jvmObject.Invoke("className");
 
         /// <summary>
         /// 
