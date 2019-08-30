@@ -33,7 +33,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             //////////////////////////////
 
             Column col = Column("col1");
-
+            Assert.IsType<Column>(col);
+            
             Assert.IsType<Column>(Col("col2"));
             Assert.IsType<Column>(Lit(1));
             Assert.IsType<Column>(Lit("some column"));
