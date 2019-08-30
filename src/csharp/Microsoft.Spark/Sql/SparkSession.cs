@@ -125,7 +125,7 @@ namespace Microsoft.Spark.Sql
         /// a range from start to end (exclusive) with a step value.
         /// </summary>
         /// <param name="start">The start value</param>
-        /// <param name="end">Last number in the range to create</param>
+        /// <param name="end">The end value (exclusive)</param>
         /// <param name="step">Step value to use when creating the range</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Range(long start, long end, long step) =>
