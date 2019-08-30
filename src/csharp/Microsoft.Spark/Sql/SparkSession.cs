@@ -139,7 +139,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="start">First number in the range to create</param>
         /// <param name="end">Last number in the range to create</param>
         /// <param name="step">Step value to use when creating the range</param>
-        /// <param name="numPartitions">Number of partitions to use</param>
+        /// <param name="numPartitions">The number of partitions of the DataFrame</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Range(long start, long end, long step, int numPartitions) =>
             new DataFrame(
