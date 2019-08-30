@@ -3,11 +3,29 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Streaming;
 
 namespace Microsoft.Spark.Sql
 {
+    public sealed class Database : IJvmObjectReferenceProvider
+    {
+        private JvmObjectReference _jvmObject;
+
+        internal Database(JvmObjectReference jvmObject)
+        {
+            _jvmObject = jvmObject;
+        }
+        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+    }
+
+    public enum StorageLevel
+    {
+        //eek don't know how to implement this! 
+    }
+
     /// <summary>
     /// The entry point to programming Spark with the Dataset and DataFrame API.
     /// </summary>
@@ -115,6 +133,9 @@ namespace Microsoft.Spark.Sql
         /// <returns>UDFRegistration object</returns>
         public UdfRegistration Udf() =>
             new UdfRegistration((JvmObjectReference)_jvmObject.Invoke("udf"));
+
+        public Catalog Catalog() =>
+            new Catalog((JvmObjectReference)_jvmObject.Invoke("catalog"));
 
         /// <summary>
         /// Stops the underlying SparkContext.
