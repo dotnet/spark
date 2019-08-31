@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Spark.Sql.Types;
 using Razorvine.Pickle;
@@ -23,7 +23,7 @@ namespace Microsoft.Spark.Sql
         /// could be multiple threads unpickling the data using the same object registered.
         /// </summary>
         [ThreadStatic]
-        private static ConcurrentDictionary<string, StructType> s_schemaCache;
+        private static IDictionary<string, StructType> s_schemaCache;
 
         /// <summary>
         /// The RowConstructor that created this instance.
@@ -54,7 +54,7 @@ namespace Microsoft.Spark.Sql
         {
             if (s_schemaCache is null)
             {
-                s_schemaCache = new ConcurrentDictionary<string, StructType>();
+                s_schemaCache = new Dictionary<string, StructType>();
             }
 
             if ((args.Length == 1) && (args[0] is RowConstructor))
@@ -87,7 +87,7 @@ namespace Microsoft.Spark.Sql
 
         internal void Reset()
         {
-            s_schemaCache.Clear();
+            s_schemaCache?.Clear();
         }
 
         /// <summary>
@@ -99,8 +99,14 @@ namespace Microsoft.Spark.Sql
         {
             Debug.Assert((_args != null) && (_args.Length == 1) && (_args[0] is string));
             string schemaString = _args[0] as string;
-            return s_schemaCache
-                .GetOrAdd(schemaString, s => (StructType)DataType.ParseDataType(s));
+            if (!s_schemaCache.TryGetValue(schemaString, out StructType schema))
+            {
+                s_schemaCache.Add(
+                    schemaString,
+                    (StructType)DataType.ParseDataType(schemaString));
+            }
+
+            return schema;
         }
     }
 }
