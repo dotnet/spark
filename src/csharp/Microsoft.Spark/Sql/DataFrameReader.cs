@@ -106,6 +106,22 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Loads input in as a DataFrame, for data sources that don't require a path
+        /// (e.g. external key-value stores).
+        /// </summary>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Load() => new DataFrame((JvmObjectReference)_jvmObject.Invoke("load"));
+
+        /// <summary>
+        /// Loads input in as a DataFrame, for data sources that require a path 
+        /// (e.g. data backed by a local or distributed file system).
+        /// </summary>
+        /// <param name="path">Input path</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Load(string path) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("load", path));
+
+        /// <summary>
         /// Loads input in as a DataFrame from the given paths.
         /// </summary>
         /// <remarks>

@@ -109,6 +109,50 @@ namespace Microsoft.Spark.Sql
             new DataFrameReader((JvmObjectReference)_jvmObject.Invoke("read"));
 
         /// <summary>
+        /// Creates a DataFrame with a single column named id, containing elements in
+        /// a range from 0 to end (exclusive) with step value 1.
+        /// </summary>
+        /// <param name="end">The end value (exclusive)</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Range(long end) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("range", end));
+
+        /// <summary>
+        /// Creates a DataFrame with a single column named id, containing elements in 
+        /// a range from start to end (exclusive) with step value 1.
+        /// </summary>
+        /// <param name="start">The start value</param>
+        /// <param name="end">The end value (exclusive)</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Range(long start, long end) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("range", start, end));
+
+        /// <summary>
+        /// Creates a DataFrame with a single column named id, containing elements in
+        /// a range from start to end (exclusive) with a step value.
+        /// </summary>
+        /// <param name="start">The start value</param>
+        /// <param name="end">The end value (exclusive)</param>
+        /// <param name="step">Step value to use when creating the range</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Range(long start, long end, long step) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("range", start, end, step));
+
+        /// <summary>
+        /// Creates a DataFrame with a single column named id, containing elements in
+        /// a range from start to end (exclusive) with a step value, with partition
+        /// number specified.
+        /// </summary>
+        /// <param name="start">The start value</param>
+        /// <param name="end">The end value (exclusive)</param>
+        /// <param name="step">Step value to use when creating the range</param>
+        /// <param name="numPartitions">The number of partitions of the DataFrame</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Range(long start, long end, long step, int numPartitions) =>
+            new DataFrame(
+                (JvmObjectReference)_jvmObject.Invoke("range", start, end, step, numPartitions));
+
+        /// <summary>
         /// Returns a DataStreamReader that can be used to read streaming data in as a DataFrame.
         /// </summary>
         /// <returns>DataStreamReader object</returns>
