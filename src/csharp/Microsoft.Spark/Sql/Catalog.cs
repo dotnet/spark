@@ -15,8 +15,9 @@ namespace Microsoft.Spark.Sql
         ///<summary>
         ///Caches the specified table in-memory.
         ///</summary>
-        ///<param name="tableName">is either a qualified or unqualified name that designates a table.
-        /// If no database identifier is provided, it refers to a table in the current database.</param>
+        ///<param name="tableName">is either a qualified or unqualified name that designates a
+        /// table. If no database identifier is provided, it refers to a table in the current
+        /// database.</param>
         public void CacheTable(string tableName) =>
             _jvmObject.Invoke("cacheTable", tableName);
 
@@ -35,10 +36,12 @@ namespace Microsoft.Spark.Sql
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("createTable", tableName, path));
 
         ///<summary>
-        ///Creates a table from the given path based on a data source and returns the corresponding DataFrame.
+        ///Creates a table from the given path based on a data source and returns the corresponding
+        /// DataFrame.
         ///</summary>
-        ///<param name="tableName">is either a qualified or unqualified name that designates a table.
-        /// If no database identifier is provided, it refers to a table in the current database.</param>
+        ///<param name="tableName">is either a qualified or unqualified name that designates a
+        /// table. If no database identifier is provided, it refers to a table in the current
+        /// database.</param>
         ///<param name="path">Path to use to create the table</param>
         ///<param name="source"></param>
         ///<returns>DataFrame</returns>
@@ -72,7 +75,8 @@ namespace Microsoft.Spark.Sql
         ///Drops the local temporary view with the given view name in the catalog.
         /// Local temporary view is session-scoped. Its lifetime is the lifetime of the session
         /// that created it, i.e. it will be automatically dropped when the session terminates.
-        /// It's not tied to any databases, i.e. we can't use db1.view1 to reference a local temporary view.
+        /// It's not tied to any databases, i.e. we can't use db1.view1 to reference a local
+        /// temporary view.
         ///</summary>
         ///<param name="viewName">The unqualified name of the temporary view to be dropped.</param>
         ///<returns>bool</returns>
@@ -82,8 +86,9 @@ namespace Microsoft.Spark.Sql
         ///<summary>
         ///Check if the function with the specified name exists.
         ///</summary>
-        ///<param name="functionName">Is either a qualified or unqualified name that designates a function.
-        /// If no database identifier is provided, it refers to a function in the current database.</param>
+        ///<param name="functionName">Is either a qualified or unqualified name that designates a
+        /// function. If no database identifier is provided, it refers to a function in the
+        /// current database.</param>
         ///<returns>bool</returns>
         public bool FunctionExists(string functionName) =>
             (bool)_jvmObject.Invoke("functionExists", functionName);
@@ -119,15 +124,19 @@ namespace Microsoft.Spark.Sql
         ///Get the function with the specified name.
         ///</summary>
         ///<param name="dbName">Is a name that designates a database.</param>
-        ///<param name="functionName">Is an unqualified name that designates a function in the specified database.</param>
+        ///<param name="functionName">Is an unqualified name that designates a function in the
+        /// specified database.</param>
         ///<returns>Function</returns>
         public Function GetFunction(string dbName, string functionName) =>
-            new Function((JvmObjectReference)_jvmObject.Invoke("getFunction", dbName, functionName));
+            new Function(
+                (JvmObjectReference)_jvmObject.Invoke("getFunction", dbName, functionName));
 
         ///<summary>
         ///Get the table or view with the specified name.
         ///</summary>
-        ///<param name="tableName">is either a qualified or unqualified name that designates a table. If no database identifier is provided, it refers to a table in the current database.</param>
+        ///<param name="tableName">is either a qualified or unqualified name that designates a
+        /// table. If no database identifier is provided, it refers to a table in the current
+        /// database.</param>
         ///<returns>Table</returns>
         public Table GetTable(string tableName) =>
             new Table((JvmObjectReference)_jvmObject.Invoke("getTable", tableName));
@@ -136,7 +145,8 @@ namespace Microsoft.Spark.Sql
         ///Get the table or view with the specified name in the specified database.
         ///</summary>
         ///<param name="dbName">Is a name that designates a database.</param>
-        ///<param name="tableName">Is an unqualified name that designates a table in the specified database.</param>
+        ///<param name="tableName">Is an unqualified name that designates a table in the specified
+        /// database.</param>
         ///<returns>Table</returns>
         public Table GetTable(string dbName, string tableName) =>
             new Table((JvmObjectReference)_jvmObject.Invoke("getTable", dbName, tableName));
@@ -144,16 +154,19 @@ namespace Microsoft.Spark.Sql
         ///<summary>
         ///Returns true if the table is currently cached in-memory.
         ///</summary>
-        ///<param name="tableName">is either a qualified or unqualified name that designates a table. If no database identifier is provided, it refers to a table in the current database.</param>
+        ///<param name="tableName">is either a qualified or unqualified name that designates a
+        /// table. If no database identifier is provided, it refers to a table in the current
+        /// database.</param>
         ///<returns>bool</returns>
         public bool IsCached(string tableName) =>
             (bool)_jvmObject.Invoke("isCached", tableName);
 
-
         ///<summary>
         ///Returns a list of columns for the given table/view or temporary view.
         ///</summary>
-        ///<param name="tableName">is either a qualified or unqualified name that designates a table. If no database identifier is provided, it refers to a table in the current database.</param>
+        ///<param name="tableName">is either a qualified or unqualified name that designates a
+        /// table. If no database identifier is provided, it refers to a table in the current
+        /// database.</param>
         ///<returns>DataFrame</returns>
         public DataFrame ListColumns(string tableName) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("listColumns", tableName));
@@ -162,7 +175,8 @@ namespace Microsoft.Spark.Sql
         ///Returns a list of columns for the given table/view in the specified database.
         ///</summary>
         ///<param name="dbName">Is a name that designates a database.</param>
-        ///<param name="tableName">Is an unqualified name that designates a table in the specified database.</param>
+        ///<param name="tableName">Is an unqualified name that designates a table in the specified
+        /// database.</param>
         ///<returns>DataFrame</returns>
         public DataFrame ListColumns(string dbName, string tableName) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("listColumns", dbName, tableName));
@@ -258,7 +272,10 @@ namespace Microsoft.Spark.Sql
         ///<summary>
         ///Removes the specified table from the in-memory cache.
         ///</summary>
-        ///<param name="tableName">is either a qualified or unqualified name that designates a table. If no database identifier is provided, it refers to a table in the current database.</param>
-        public void UncacheTable(string tableName) => _jvmObject.Invoke("uncacheTable", tableName);
+        ///<param name="tableName">is either a qualified or unqualified name that designates a
+        /// table. If no database identifier is provided, it refers to a table in the current
+        /// database.</param>
+        public void UncacheTable(string tableName) =>
+            _jvmObject.Invoke("uncacheTable", tableName);
     }
 }

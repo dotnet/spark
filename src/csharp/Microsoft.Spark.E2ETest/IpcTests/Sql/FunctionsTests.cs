@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
@@ -656,6 +657,20 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 (arg) => new Dictionary<string, string> { { arg, arg } });
             Udf<string, IDictionary<string, string[]>>(
                 (arg) => new Dictionary<string, string[]> { { arg, new[] { arg } } });
+        }
+
+        [Fact]
+        public void CatalogFunctions()
+        {
+            var spark = SparkSession.Builder().GetOrCreate();
+            var catalog = spark.Catalog();
+
+            Assert.IsType<DataFrame>(catalog.ListDatabases());
+            Assert.IsType<DataFrame>(catalog.ListFunctions());
+            Assert.IsType<DataFrame>(catalog.ListFunctions("default"));
+
+            var tableName = Guid.NewGuid().ToString();
+            catalog.CreateTable(tableName, "/new-table");
         }
 
         /// <summary>
