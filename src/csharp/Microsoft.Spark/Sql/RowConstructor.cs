@@ -101,9 +101,8 @@ namespace Microsoft.Spark.Sql
             string schemaString = _args[0] as string;
             if (!s_schemaCache.TryGetValue(schemaString, out StructType schema))
             {
-                s_schemaCache.Add(
-                    schemaString,
-                    (StructType)DataType.ParseDataType(schemaString));
+                schema = (StructType)DataType.ParseDataType(schemaString);
+                s_schemaCache.Add(schemaString, schema);
             }
 
             return schema;
