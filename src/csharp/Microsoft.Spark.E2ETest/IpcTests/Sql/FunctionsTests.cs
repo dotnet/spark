@@ -669,9 +669,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<DataFrame>(catalog.ListDatabases());
             Assert.IsType<DataFrame>(catalog.ListFunctions());
             Assert.IsType<DataFrame>(catalog.ListFunctions("default"));
+            
+            var table = catalog.CreateTable("users", TestEnvironment.ResourceDirectory + "users.parquet");
+            Assert.IsType<DataFrame>(table);
 
-            var tableName = Guid.NewGuid().ToString();
-            catalog.CreateTable(tableName, "/new-table");
+            Assert.IsType<string>(catalog.CurrentDatabase());
+            Assert.IsType<bool>(catalog.DatabaseExists("default"));
+
+
+
+            
         }
 
         /// <summary>
