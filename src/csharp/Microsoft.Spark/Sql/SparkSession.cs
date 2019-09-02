@@ -3,8 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Streaming;
 
@@ -163,7 +161,7 @@ namespace Microsoft.Spark.Sql
             new UdfRegistration((JvmObjectReference)_jvmObject.Invoke("udf"));
 
         /// <summary>
-        /// 
+        /// Interface through which the user may create, drop, alter or query underlying databases, tables, functions etc.
         /// </summary>
         /// <returns></returns>
         public Catalog.Catalog Catalog() =>
