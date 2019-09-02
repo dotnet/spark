@@ -10,11 +10,6 @@ using Microsoft.Spark.Sql.Streaming;
 
 namespace Microsoft.Spark.Sql
 {
-    public enum StorageLevel
-    {
-        //eek don't know how to implement this! 
-    }
-
     /// <summary>
     /// The entry point to programming Spark with the Dataset and DataFrame API.
     /// </summary>
@@ -167,8 +162,12 @@ namespace Microsoft.Spark.Sql
         public UdfRegistration Udf() =>
             new UdfRegistration((JvmObjectReference)_jvmObject.Invoke("udf"));
 
-        public Catalog Catalog() =>
-            new Catalog((JvmObjectReference)_jvmObject.Invoke("catalog"));
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public Catalog.Catalog Catalog() =>
+            new Catalog.Catalog((JvmObjectReference)_jvmObject.Invoke("catalog"));
 
         /// <summary>
         /// Stops the underlying SparkContext.

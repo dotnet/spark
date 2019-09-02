@@ -1,7 +1,14 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
 using Microsoft.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Sql
+namespace Microsoft.Spark.Sql.Catalog
 {
+    /// <summary>
+    /// Catalog interface for Spark. To access this, use SparkSession.Catalog.
+    /// </summary>
     public sealed class Catalog : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
@@ -60,7 +67,7 @@ namespace Microsoft.Spark.Sql
         ///</summary>
         ///<param name="dbName">Name of the database to check</param>
         ///<returns>bool</returns>
-        public bool DatabaseExists(string dbName) => 
+        public bool DatabaseExists(string dbName) =>
             (bool)_jvmObject.Invoke("databaseExists", dbName);
 
         ///<summary>
@@ -123,7 +130,8 @@ namespace Microsoft.Spark.Sql
         ///<summary>
         ///Get the function with the specified name.
         ///</summary>
-        ///<param name="dbName">Is a name that designates a database.</param>
+        ///<param name="dbName">Is a name that designates a database. Built-in functions will be
+        /// in database null rather than default</param>
         ///<param name="functionName">Is an unqualified name that designates a function in the
         /// specified database.</param>
         ///<returns>Function</returns>
@@ -158,8 +166,7 @@ namespace Microsoft.Spark.Sql
         /// table. If no database identifier is provided, it refers to a table in the current
         /// database.</param>
         ///<returns>bool</returns>
-        public bool IsCached(string tableName) =>
-            (bool)_jvmObject.Invoke("isCached", tableName);
+        public bool IsCached(string tableName) => (bool)_jvmObject.Invoke("isCached", tableName);
 
         ///<summary>
         ///Returns a list of columns for the given table/view or temporary view.
@@ -266,7 +273,7 @@ namespace Microsoft.Spark.Sql
         ///<param name="dbName">Is a name that designates a database.</param>
         ///<param name="tableName">Is an unqualified name that designates a table.</param>
         /// <returns>bool</returns>
-        public bool TableExists(string dbName, string tableName) =>
+        public bool TableExists(string dbName, string tableName) => 
             (bool)_jvmObject.Invoke("tableExists", dbName, tableName);
 
         ///<summary>
@@ -275,7 +282,6 @@ namespace Microsoft.Spark.Sql
         ///<param name="tableName">is either a qualified or unqualified name that designates a
         /// table. If no database identifier is provided, it refers to a table in the current
         /// database.</param>
-        public void UncacheTable(string tableName) =>
-            _jvmObject.Invoke("uncacheTable", tableName);
+        public void UncacheTable(string tableName) => _jvmObject.Invoke("uncacheTable", tableName);
     }
 }
