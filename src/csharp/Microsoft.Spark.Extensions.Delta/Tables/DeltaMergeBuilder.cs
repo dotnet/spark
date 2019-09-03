@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Ipc;
+﻿using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.Extensions.Delta.Tables
