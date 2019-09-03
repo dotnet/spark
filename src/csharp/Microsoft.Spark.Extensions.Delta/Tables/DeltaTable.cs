@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
@@ -14,7 +13,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     /// DeltaTable.ForPath(sparkSession, pathToTheDeltaTable)
     /// </code>
     /// </summary>
-    public sealed class DeltaTable : IJvmObjectReferenceProvider
+    public class DeltaTable : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
 
