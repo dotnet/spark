@@ -91,7 +91,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// DeltaMergeMatchedActionBuilder object which can be used to specify how to update or
         /// delete the matched target table row with the source row.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>DeltaMergeMatchedActionBuilder object.</returns>
         public DeltaMergeMatchedActionBuilder WhenMatched() =>
             new DeltaMergeMatchedActionBuilder(
                 (JvmObjectReference)_jvmObject.Invoke("whenMatched"));
@@ -103,7 +103,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// row.
         /// </summary>
         /// <param name="condition">Boolean expression as a SQL formatted string.</param>
-        /// <returns></returns>
+        /// <returns>DeltaMergeMatchedActionBuilder object.</returns>
         public DeltaMergeMatchedActionBuilder WhenMatched(string condition) =>
             new DeltaMergeMatchedActionBuilder(
                 (JvmObjectReference)_jvmObject.Invoke("whenMatched", condition));
@@ -115,11 +115,10 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// row.
         /// </summary>
         /// <param name="condition">Boolean expression as a Column object.</param>
-        /// <returns></returns>
+        /// <returns>DeltaMergeMatchedActionBuilder object.</returns>
         public DeltaMergeMatchedActionBuilder WhenMatched(Column condition) =>
             new DeltaMergeMatchedActionBuilder(
-                (JvmObjectReference)_jvmObject.Invoke(
-                    "whenMatched",
+                (JvmObjectReference)_jvmObject.Invoke("whenMatched",
                     ((IJvmObjectReferenceProvider)condition).Reference));
 
         /// <summary>
@@ -127,7 +126,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// DeltaMergeNotMatchedActionBuilder object which can be used to specify how to insert the
         /// new sourced row into the target table.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>DeltaMergeNotMatchedActionBuilder object.</returns>
         public DeltaMergeNotMatchedActionBuilder WhenNotMatched() =>
             new DeltaMergeNotMatchedActionBuilder(
                 (JvmObjectReference)_jvmObject.Invoke("whenNotMatched"));
@@ -138,7 +137,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// used to specify how to insert the new sourced row into the target table.
         /// </summary>
         /// <param name="condition">Boolean expression as a SQL formatted string.</param>
-        /// <returns></returns>
+        /// <returns>DeltaMergeNotMatchedActionBuilder object.</returns>
         public DeltaMergeNotMatchedActionBuilder WhenNotMatched(string condition) =>
             new DeltaMergeNotMatchedActionBuilder(
                 (JvmObjectReference)_jvmObject.Invoke("whenNotMatched", condition));
@@ -149,11 +148,10 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// used to specify how to insert the new sourced row into the target table.
         /// </summary>
         /// <param name="condition">Boolean expression as a Column object.</param>
-        /// <returns></returns>
+        /// <returns>DeltaMergeNotMatchedActionBuilder object.</returns>
         public DeltaMergeNotMatchedActionBuilder WhenNotMatched(Column condition) =>
             new DeltaMergeNotMatchedActionBuilder(
-                (JvmObjectReference)_jvmObject.Invoke(
-                    "whenNotMatched",
+                (JvmObjectReference)_jvmObject.Invoke("whenNotMatched",
                     ((IJvmObjectReferenceProvider)condition).Reference));
 
         /// <summary>

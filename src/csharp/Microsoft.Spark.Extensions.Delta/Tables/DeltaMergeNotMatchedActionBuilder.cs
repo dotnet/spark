@@ -6,6 +6,13 @@ using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.Extensions.Delta.Tables
 {
+    /// <summary>
+    /// Builder class to specify the actions to perform when a source row has not matched any
+    /// target Delta table row based on the merge condition, but has matched the additional
+    /// condition if specified.
+    /// 
+    /// See <see cref="DeltaMergeBuilder"/> for more information.
+    /// </summary>
     public class DeltaMergeNotMatchedActionBuilder : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
@@ -18,25 +25,28 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
-        /// 
+        /// Insert a new row to the target table based on the rules defined by <c>values</c>.
         /// </summary>
-        /// <param name="values"></param>
-        /// <returns></returns>
+        /// <param name="values">Rules to insert a row as a map between target column names and
+        /// corresponding expressions as Column objects.</param>
+        /// <returns>DeltaMergeBuilder object.</returns>
         public DeltaMergeBuilder Insert(Dictionary<string, Column> values) =>
-            throw new NotImplementedException();
+            new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("insert", values));
 
         /// <summary>
-        /// 
+        /// Insert a new row to the target table based on the rules defined by <c>values</c>.
         /// </summary>
-        /// <param name="values"></param>
-        /// <returns></returns>
+        /// <param name="values">Rules to insert a row as a map between target column names and
+        /// corresponding expressions as SQL formatted strings.</param>
+        /// <returns>DeltaMergeBuilder object.</returns>
         public DeltaMergeBuilder InsertExpr(Dictionary<string, string> values) =>
-            throw new NotImplementedException();
+            new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("insertExpr", values));
 
         /// <summary>
-        /// 
+        /// Insert a new target Delta table row by assigning the target columns to the values of the
+        /// corresponding columns in the source row.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>DeltaMergeBuilder object.</returns>
         public DeltaMergeBuilder InsertAll() =>
             new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("insertAll"));
     }
