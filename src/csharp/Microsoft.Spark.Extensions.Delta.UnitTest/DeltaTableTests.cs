@@ -1,5 +1,8 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -29,21 +32,20 @@ namespace Microsoft.Spark.Extensions.Delta.UnitTest
         public void TestTutorialScenario()
         {
             using TemporaryDirectory dir = new TemporaryDirectory();
-            string path = Path.Combine(dir.Path, "delta-table");
 
             // Write data to a Delta table.
             DataFrame data = _spark.Range(0, 5);
-            data.Write().Format("delta").Save(path);
+            data.Write().Format("delta").Save(dir.Path);
 
             // Validate that data contains the the sequence [0 ... 4].
             ValidateTutorialDataFrame(Enumerable.Range(0, 5), data);
 
             // Create a second iteration of the table.
             data = _spark.Range(5, 10);
-            data.Write().Format("delta").Mode("overwrite").Save(path);
+            data.Write().Format("delta").Mode("overwrite").Save(dir.Path);
 
             // Load the data into a DeltaTable object.
-            var deltaTable = DeltaTable.ForPath(path);
+            var deltaTable = DeltaTable.ForPath(dir.Path);
 
             // Validate that deltaTable contains the the sequence [5 ... 9].
             ValidateTutorialDataFrame(Enumerable.Range(5, 5), deltaTable.ToDF());
@@ -151,21 +153,21 @@ namespace Microsoft.Spark.Extensions.Delta.UnitTest
         /// </summary>
         /// <param name="expectedValues"></param>
         /// <param name="df"></param>
-        private void ValidateTutorialDataFrame(IEnumerable<int> expectedValues, DataFrame df)
+        private void ValidateTutorialDataFrame(
+            IEnumerable<int> expectedValues,
+            DataFrame df)
         {
-            long expectedCount = expectedValues.Count();
-            long dfCount = df.Count();
+            Assert.Equal(expectedValues.Count(), df.Count());
 
-            Assert.Equal(expectedCount, dfCount);
+            df.Show();
 
-            List<int> expectedList = new List<int>(expectedValues);
-            IEnumerable<Row> dfCollection = df.Collect();
-            List<int> dfList = new List<int>(dfCollection.Select(r => Convert.ToInt32(r.Get("id"))));
+            // We have to write to disk to get around a Delta bug involving Collect().
+            using TemporaryDirectory tempDir = new TemporaryDirectory();
+            df.Write().Format("delta").Save(tempDir.Path);
 
-            HashSet<int> expectedSet = new HashSet<int>(expectedList);
-            HashSet<int> resultSet = new HashSet<int>(dfList);
+            var newDeltaTable = DeltaTable.ForPath(tempDir.Path);
 
-            Assert.True(expectedSet.SetEquals(resultSet));
+            var values = newDeltaTable.ToDF().Collect().Select(r => Convert.ToInt32(r.Get("id")));
         }
     }
 
