@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Microsoft.Spark.Extensions.Delta.UnitTest
 {
-    [Collection("Delta Tests")]
+    [Collection(Constants.DeltaTestContainerName)]
     public class DeltaTableTests
     {
         private readonly SparkSession _spark;
@@ -167,15 +167,7 @@ namespace Microsoft.Spark.Extensions.Delta.UnitTest
 
             var newDeltaTable = DeltaTable.ForPath(tempDir.Path);
 
-            var values = newDeltaTable.ToDF().Collect().Select(r => Convert.ToInt32(r.Get("id")));
+            IEnumerable<int> values = newDeltaTable.ToDF().Collect().Select(r => Convert.ToInt32(r.Get("id")));
         }
-    }
-
-    [CollectionDefinition("Delta Tests")]
-    public class SparkCollection : ICollectionFixture<SparkFixture>
-    {
-        // This class has no code, and is never created. Its purpose is simply
-        // to be the place to apply [CollectionDefinition] and all the
-        // ICollectionFixture<> interfaces.
     }
 }
