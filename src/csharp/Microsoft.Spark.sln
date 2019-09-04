@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.779
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29209.152
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark", "Microsoft.Spark\Microsoft.Spark.csproj", "{2B4236DD-00A9-4B24-9041-6F9727F3B025}"
 EndProject
@@ -27,7 +27,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Experimenta
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.E2ETest.ExternalLibrary", "Microsoft.Spark.E2ETest.ExternalLibrary\Microsoft.Spark.E2ETest.ExternalLibrary.csproj", "{920A2CC8-4075-41D1-BC30-C496430BD9E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Spark.Extensions.Delta", "Microsoft.Spark.Extensions.Delta\Microsoft.Spark.Extensions.Delta.csproj", "{81B77616-58AC-495E-828F-EF2867254F69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Delta", "Microsoft.Spark.Extensions.Delta\Microsoft.Spark.Extensions.Delta.csproj", "{81B77616-58AC-495E-828F-EF2867254F69}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Spark.Extensions.Delta.UnitTest", "Microsoft.Spark.Extensions.Delta.UnitTest\Microsoft.Spark.Extensions.Delta.UnitTest.csproj", "{84C91E59-725D-48E3-8DE0-451AB35E4F43}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +77,10 @@ Global
 		{81B77616-58AC-495E-828F-EF2867254F69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81B77616-58AC-495E-828F-EF2867254F69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81B77616-58AC-495E-828F-EF2867254F69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84C91E59-725D-48E3-8DE0-451AB35E4F43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84C91E59-725D-48E3-8DE0-451AB35E4F43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84C91E59-725D-48E3-8DE0-451AB35E4F43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84C91E59-725D-48E3-8DE0-451AB35E4F43}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -83,25 +83,19 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// Delete data from the table that match the given <c>condition</c>.
         /// </summary>
         /// <param name="condition">Boolean SQL expression.</param>
-        /// <returns></returns>
-        public DataFrame Delete(string condition) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("delete", condition));
+        public void Delete(string condition) => _jvmObject.Invoke("delete", condition);
 
         /// <summary>
         /// Delete data from the table that match the given <c>condition</c>.
         /// </summary>
         /// <param name="condition">Boolean SQL expression.</param>
-        /// <returns></returns>
-        public DataFrame Delete(Column condition) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke(
-                "delete", ((IJvmObjectReferenceProvider)condition).Reference));
+        public void Delete(Column condition) =>
+            _jvmObject.Invoke("delete", ((IJvmObjectReferenceProvider)condition).Reference);
 
         /// <summary>
         /// Delete data from the table.
         /// </summary>
-        /// <returns></returns>
-        public DataFrame Delete() =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("delete"));
+        public void Delete() => _jvmObject.Invoke("delete");
 
         /// <summary>
         /// Update rows in the table based on the rules defined by <c>set</c>.
