@@ -116,7 +116,8 @@ namespace Microsoft.Spark.Extensions.Delta.UnitTest
         [Fact]
         public void TestSignatures()
         {
-            using TemporaryDirectory tempDirectory = new TemporaryDirectory();
+            using (var tempDirectory = new TemporaryDirectory())
+            {
             string path = Path.Combine(tempDirectory.Path, "delta-table");
 
             DataFrame rangeRate = _spark.Range(15);
