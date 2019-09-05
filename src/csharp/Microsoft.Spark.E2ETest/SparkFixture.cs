@@ -133,10 +133,12 @@ namespace Microsoft.Spark.E2ETest
             // The solution is to use custom log configuration that appends NullLogger, which
             // works across all Spark versions.
             string resourceUri = new Uri(TestEnvironment.ResourceDirectory).AbsoluteUri;
-            string logOption = $"--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
+            string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
 
-            args = $"{logOption} {classArg} --master local {jar} debug";
+            string warehouseUri = new Uri(Path.Combine(TestEnvironment.ResourceDirectory, "spark-warehouse")).AbsoluteUri;
+            string warehouseDir = $"--conf spark.sql.warehouse.dir={warehouseUri}";
+            args = $"{logOption} {warehouseDir} {classArg} --master local {jar} debug";
         }
 
         private string GetJarPrefix(string sparkHome)
