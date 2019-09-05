@@ -32,31 +32,32 @@ namespace Microsoft.Spark.Extensions.Delta.UnitTest
         public void TestTutorialScenario()
         {
             using TemporaryDirectory dir = new TemporaryDirectory();
+            string path = Path.Combine(dir.Path, "delta-table");
 
             // Write data to a Delta table.
             DataFrame data = _spark.Range(0, 5);
-            data.Write().Format("delta").Save(dir.Path);
+            data.Write().Format("delta").Save(path);
 
             // Validate that data contains the the sequence [0 ... 4].
             ValidateTutorialDataFrame(Enumerable.Range(0, 5), data);
 
             // Create a second iteration of the table.
             data = _spark.Range(5, 10);
-            data.Write().Format("delta").Mode("overwrite").Save(dir.Path);
+            data.Write().Format("delta").Mode("overwrite").Save(path);
 
             // Load the data into a DeltaTable object.
-            var deltaTable = DeltaTable.ForPath(dir.Path);
+            var deltaTable = DeltaTable.ForPath(path);
 
             // Validate that deltaTable contains the the sequence [5 ... 9].
             ValidateTutorialDataFrame(Enumerable.Range(5, 5), deltaTable.ToDF());
 
             //// Update every even value by adding 100 to it.
-            //deltaTable.Update(
-            //    condition: Functions.Expr("id % 2 == 0"),
-            //    set: new Dictionary<string, Column>()
-            //    {
-            //        { "id", Functions.Expr("id + 100") }
-            //    });
+            deltaTable.Update(
+                condition: Functions.Expr("id % 2 == 0"),
+                set: new Dictionary<string, Column>()
+                {
+                    { "id", Functions.Expr("id + 100") }
+                });
 
             //// Validate that deltaTable contains the the data:
             //// +---+
@@ -68,7 +69,7 @@ namespace Microsoft.Spark.Extensions.Delta.UnitTest
             //// |106|
             //// |108|
             //// +---+
-            //ValidateTutorialDataFrame(new List<int>() { 5, 7, 9, 106, 108 }, deltaTable.ToDF());
+            ValidateTutorialDataFrame(new List<int>() { 5, 7, 9, 106, 108 }, deltaTable.ToDF());
 
             // Delete every even value.
             deltaTable.Delete(condition: Functions.Expr("id % 2 == 0"));
@@ -152,22 +153,27 @@ namespace Microsoft.Spark.Extensions.Delta.UnitTest
         /// Validate that a tutorial DataFrame contains only the expected values.
         /// </summary>
         /// <param name="expectedValues"></param>
-        /// <param name="df"></param>
+        /// <param name="dataFrame"></param>
         private void ValidateTutorialDataFrame(
             IEnumerable<int> expectedValues,
-            DataFrame df)
+            DataFrame dataFrame)
         {
-            Assert.Equal(expectedValues.Count(), df.Count());
+            Assert.Equal(expectedValues.Count(), dataFrame.Count());
 
-            df.Show();
+            List<int> sortedExpectedValues = new List<int>(expectedValues);
+            sortedExpectedValues.Sort();
 
-            // We have to write to disk to get around a Delta bug involving Collect().
-            using TemporaryDirectory tempDir = new TemporaryDirectory();
-            df.Write().Format("delta").Save(tempDir.Path);
+            List<int> sortedValues = new List<int>(
+                dataFrame
+                    .ToDF()
+                    // We need to select the "id" column, otherwise Collect() won't show the
+                    // updates made to the DeltaTable.
+                    .Select("id")
+                    .Sort("id")
+                    .Collect()
+                    .Select(r => Convert.ToInt32(r.Get("id"))));
 
-            var newDeltaTable = DeltaTable.ForPath(tempDir.Path);
-
-            IEnumerable<int> values = newDeltaTable.ToDF().Collect().Select(r => Convert.ToInt32(r.Get("id")));
+            Assert.True(sortedValues.SequenceEqual(expectedValues));
         }
     }
 }
