@@ -58,12 +58,6 @@ namespace Microsoft.Spark.Sql.Types
                 new JProperty("containsNull", ContainsNull));
 
         /// <summary>
-        /// Does this type need to convert between C# object and internal SQL object.
-        /// </summary>
-        /// <returns>True if conversion needed, false otherwise</returns>
-        internal override bool NeedConversion() => true;
-
-        /// <summary>
         /// Converts an internal SQL object into a native C# object.
         /// </summary>
         /// <param name="obj">The object to convert.</param>
@@ -92,12 +86,6 @@ namespace Microsoft.Spark.Sql.Types
         /// Initializes the <see cref="MapType"/> instance.
         /// </summary>
         public MapType() => throw new NotImplementedException();
-
-        /// <summary>
-        /// Does this type need to convert between C# object and internal SQL object.
-        /// </summary>
-        /// <returns>True if conversion needed, false otherwise</returns>
-        internal override bool NeedConversion() => true;
 
         /// <summary>
         /// Converts an internal SQL object into a native C# object.
@@ -225,12 +213,6 @@ namespace Microsoft.Spark.Sql.Types
             new JObject(
                 new JProperty("type", TypeName),
                 new JProperty("fields", Fields.Select(f => f.JsonValue).ToArray()));
-
-        /// <summary>
-        /// Does this type need to convert between C# object and internal SQL object.
-        /// </summary>
-        /// <returns>True if conversion needed, false otherwise</returns>
-        internal override bool NeedConversion() => true;
 
         /// <summary>
         /// Converts an internal SQL object into a native C# object.

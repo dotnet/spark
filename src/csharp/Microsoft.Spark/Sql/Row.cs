@@ -163,10 +163,7 @@ namespace Microsoft.Spark.Sql
             for (int i = 0; i < Size(); ++i)
             {
                 DataType dataType = Schema.Fields[i].DataType;
-                if (dataType.NeedConversion())
-                {
-                    Values[i] = dataType.FromInternal(Values[i]);
-                }
+                Values[i] = dataType.FromInternal(Values[i]);
             }
         }
     }
