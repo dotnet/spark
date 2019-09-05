@@ -14,6 +14,10 @@ using Xunit;
 
 namespace Microsoft.Spark.Extensions.Delta.UnitTest
 {
+    /// <summary>
+    /// These tests will fail if the Delta Jar is not installed in the 
+    /// $SPARK_HOME/jars/ directory.
+    /// </summary>
     [Collection(Constants.DeltaTestContainerName)]
     public class DeltaTableTests
     {
@@ -82,9 +86,7 @@ namespace Microsoft.Spark.Extensions.Delta.UnitTest
             // |  7|
             // |  9|
             // +---+
-            ValidateTutorialDataFrame(
-                new List<int>() { 5, 7, 9 },
-                deltaTable.ToDF());
+            ValidateTutorialDataFrame(new List<int>() { 5, 7, 9 }, deltaTable.ToDF());
 
             // Upsert (merge) new data.
             DataFrame newData = _spark.Range(0, 20).As("newData").ToDF();
@@ -165,7 +167,6 @@ namespace Microsoft.Spark.Extensions.Delta.UnitTest
 
             List<int> sortedValues = new List<int>(
                 dataFrame
-                    .ToDF()
                     // We need to select the "id" column, otherwise Collect() won't show the
                     // updates made to the DeltaTable.
                     .Select("id")

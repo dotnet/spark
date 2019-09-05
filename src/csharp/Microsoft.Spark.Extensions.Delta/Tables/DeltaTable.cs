@@ -21,12 +21,12 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     {
         private readonly JvmObjectReference _jvmObject;
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-
         internal DeltaTable(JvmObjectReference jvmObject)
         {
             _jvmObject = jvmObject;
         }
+
+        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
         /// Create a DeltaTable for the data at the given <c>path</c>.

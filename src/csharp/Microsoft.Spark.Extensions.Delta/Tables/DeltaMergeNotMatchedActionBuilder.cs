@@ -19,12 +19,12 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     {
         private readonly JvmObjectReference _jvmObject;
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-
         internal DeltaMergeNotMatchedActionBuilder(JvmObjectReference jvmObject)
         {
             _jvmObject = jvmObject;
         }
+
+        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
         /// Insert a new row to the target table based on the rules defined by <c>values</c>.
