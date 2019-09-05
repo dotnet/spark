@@ -672,7 +672,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<DataFrame>(catalog.ListFunctions());
             Assert.IsType<DataFrame>(catalog.ListFunctions("default"));
             
-            var table = catalog.CreateTable("users", TestEnvironment.ResourceDirectory + "users.parquet");
+            var table = catalog.CreateTable("users", Path.Combine(TestEnvironment.ResourceDirectory, "users.parquet"));
             Assert.IsType<DataFrame>(table);
 
             Assert.IsType<string>(catalog.CurrentDatabase());
@@ -705,14 +705,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<bool>(catalog.TableExists("users"));
             Assert.IsType<bool>(catalog.TableExists("default", "users"));
-
-            //if the test doesn't get to drop the paritioned table then spark-warehouse is leaving files
-            //behind so we need to manually delete them 
-            var cleanupPath = Path.Join(TestEnvironment.ResourceDirectory, "../spark-warehouse/usersp");
-            if (Directory.Exists(cleanupPath))
-            {
-                Directory.Delete(cleanupPath, true);
-            }
 
             spark.Sql(@"CREATE TABLE IF NOT EXISTS usersp USING PARQUET PARTITIONED BY (name)  
                             AS SELECT * FROM users");
