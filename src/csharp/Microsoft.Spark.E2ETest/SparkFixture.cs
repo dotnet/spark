@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Xunit;
 
@@ -20,6 +21,7 @@ namespace Microsoft.Spark.E2ETest
     public class SparkFixture : IDisposable
     {
         private Process _process = new Process();
+        private TemporaryDirectory _tempDirectory = new TemporaryDirectory();
 
         internal SparkSession Spark { get; }
 
@@ -93,6 +95,8 @@ namespace Microsoft.Spark.E2ETest
             _process.StandardInput.WriteLine("done");
             _process.StandardInput.Flush();
             _process.WaitForExit();
+
+            _tempDirectory.Dispose();
         }
 
         private void BuildSparkCmd(out string filename, out string args)
@@ -135,8 +139,8 @@ namespace Microsoft.Spark.E2ETest
             string resourceUri = new Uri(TestEnvironment.ResourceDirectory).AbsoluteUri;
             string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
-
-            string warehouseUri = new Uri(Path.Combine(TestEnvironment.ResourceDirectory, "spark-warehouse")).AbsoluteUri;
+            
+            string warehouseUri = new Uri(Path.Combine(_tempDirectory.Path, "spark-warehouse")).AbsoluteUri;
             string warehouseDir = $"--conf spark.sql.warehouse.dir={warehouseUri}";
             args = $"{logOption} {warehouseDir} {classArg} --master local {jar} debug";
         }
