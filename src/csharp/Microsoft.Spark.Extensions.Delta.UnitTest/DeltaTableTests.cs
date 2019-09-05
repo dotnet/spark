@@ -32,7 +32,7 @@ namespace Microsoft.Spark.Extensions.Delta.UnitTest
         /// Run the end-to-end scenario from the Delta Quickstart tutorial.
         /// </summary>
         /// <see cref="https://docs.delta.io/latest/quick-start.html"/>
-        [Fact]
+        [SkipIfSparkVersionIsLessThan(Versions.V2_4_3)]
         public void TestTutorialScenario()
         {
             using (var tempDirectory = new TemporaryDirectory())
