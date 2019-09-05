@@ -31,8 +31,8 @@ namespace Microsoft.Spark.Extensions.Delta.UnitTest
         [Fact]
         public void TestTutorialScenario()
         {
-            using TemporaryDirectory dir = new TemporaryDirectory();
-            string path = Path.Combine(dir.Path, "delta-table");
+            using TemporaryDirectory tempDirectory = new TemporaryDirectory();
+            string path = Path.Combine(tempDirectory.Path, "delta-table");
 
             // Write data to a Delta table.
             DataFrame data = _spark.Range(0, 5);
@@ -113,8 +113,8 @@ namespace Microsoft.Spark.Extensions.Delta.UnitTest
         [Fact]
         public void TestSignatures()
         {
-            using TemporaryDirectory dir = new TemporaryDirectory();
-            string path = Path.Combine(dir.Path, "delta-table");
+            using TemporaryDirectory tempDirectory = new TemporaryDirectory();
+            string path = Path.Combine(tempDirectory.Path, "delta-table");
 
             DataFrame rangeRate = _spark.Range(15);
             rangeRate.Write().Format("delta").Save(path);
