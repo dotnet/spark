@@ -58,7 +58,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 {
                     string name = r.GetAs<string>("name");
                     int? age = r.GetAs<int?>("age");
-
                     if (age.HasValue)
                     {
                         return $"{r.Size()},{name},{age.Value}";

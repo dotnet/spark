@@ -18,6 +18,9 @@ namespace Microsoft.Spark.Utils
     /// </summary>
     internal class PythonSerDe
     {
+        // One RowConstructor object is registered to the Unpickler and
+        // there could be multiple threads unpickling row data using
+        // this object.
         private static readonly RowConstructor s_rowConstructor;
 
         static PythonSerDe()
