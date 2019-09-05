@@ -160,10 +160,24 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         private void Convert()
         {
-            for (int i = 0; i < Size(); ++i)
+            foreach (StructField field in Schema.Fields)
             {
-                DataType dataType = Schema.Fields[i].DataType;
-                Values[i] = dataType.FromInternal(Values[i]);
+                if (field.DataType is ArrayType)
+                {
+                    throw new NotImplementedException();
+                }
+                else if (field.DataType is MapType)
+                {
+                    throw new NotImplementedException();
+                }
+                else if (field.DataType is DecimalType)
+                {
+                    throw new NotImplementedException();
+                }
+                else if (field.DataType is DateType)
+                {
+                    throw new NotImplementedException();
+                }
             }
         }
     }

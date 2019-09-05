@@ -58,13 +58,6 @@ namespace Microsoft.Spark.Sql.Types
                 new JProperty("containsNull", ContainsNull));
 
         /// <summary>
-        /// Converts an internal SQL object into a native C# object.
-        /// </summary>
-        /// <param name="obj">The object to convert.</param>
-        /// <returns>Converted C# object</returns>
-        internal override object FromInternal(object obj) => throw new NotImplementedException();
-
-        /// <summary>
         /// Constructs a ArrayType object from a JSON object.
         /// </summary>
         /// <param name="json">JSON object used to construct a ArrayType object</param>
@@ -86,13 +79,6 @@ namespace Microsoft.Spark.Sql.Types
         /// Initializes the <see cref="MapType"/> instance.
         /// </summary>
         public MapType() => throw new NotImplementedException();
-
-        /// <summary>
-        /// Converts an internal SQL object into a native C# object.
-        /// </summary>
-        /// <param name="obj">The object to convert.</param>
-        /// <returns>Converted C# object</returns>
-        internal override object FromInternal(object obj) => throw new NotImplementedException();
     }
 
     /// <summary>
@@ -213,21 +199,6 @@ namespace Microsoft.Spark.Sql.Types
             new JObject(
                 new JProperty("type", TypeName),
                 new JProperty("fields", Fields.Select(f => f.JsonValue).ToArray()));
-
-        /// <summary>
-        /// Converts an internal SQL object into a native C# object.
-        /// </summary>
-        /// <param name="obj">The object to convert.</param>
-        /// <returns>Converted C# object</returns>
-        internal override object FromInternal(object obj)
-        {
-            if ((obj is null) || (obj is Row))
-            {
-                return obj;
-            }
-
-            throw new NotImplementedException();
-        }
 
         /// <summary>
         /// Constructs a StructType object from a JSON object
