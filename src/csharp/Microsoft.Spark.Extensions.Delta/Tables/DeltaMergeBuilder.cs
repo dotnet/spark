@@ -79,12 +79,12 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     {
         private readonly JvmObjectReference _jvmObject;
 
+        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+
         internal DeltaMergeBuilder(JvmObjectReference jvmObject)
         {
             _jvmObject = jvmObject;
         }
-
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
         /// Build the actions to perform when the merge condition was matched. This returns
@@ -118,7 +118,8 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <returns>DeltaMergeMatchedActionBuilder object.</returns>
         public DeltaMergeMatchedActionBuilder WhenMatched(Column condition) =>
             new DeltaMergeMatchedActionBuilder(
-                (JvmObjectReference)_jvmObject.Invoke("whenMatched",
+                (JvmObjectReference)_jvmObject.Invoke(
+                    "whenMatched",
                     ((IJvmObjectReferenceProvider)condition).Reference));
 
         /// <summary>

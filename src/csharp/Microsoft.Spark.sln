@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Spark.Extensions.Delta.UnitTest", "Microsoft.Spark.Extensions.Delta.UnitTest\Microsoft.Spark.Extensions.Delta.UnitTest.csproj", "{84C91E59-725D-48E3-8DE0-451AB35E4F43}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{71A19F75-8279-40AB-BEA0-7D4B153FC416}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{69F57F97-0198-4676-9BD9-E25407A132EA} = {C8C53525-4FEB-4B5B-91A2-619566C72F3E}
 		{4E379DB3-7741-43C2-B32D-17AD96FEA7D0} = {C8C53525-4FEB-4B5B-91A2-619566C72F3E}
+		{81B77616-58AC-495E-828F-EF2867254F69} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
+		{84C91E59-725D-48E3-8DE0-451AB35E4F43} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FD15FFDB-EA1B-436F-841D-3386DDF94538}

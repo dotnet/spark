@@ -21,26 +21,55 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     {
         private readonly JvmObjectReference _jvmObject;
 
+        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+
         internal DeltaTable(JvmObjectReference jvmObject)
         {
             _jvmObject = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        /// <summary>
+        /// Create a DeltaTable for the data at the given <c>path</c>.
+        /// 
+        /// Note: This uses the active SparkSession in the current thread to read the table data.
+        /// Hence, this throws error if active SparkSession has not been set, that is,
+        /// <c>SparkSession.GetActiveSession()</c> is empty.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns>DeltaTable loaded from the path.</returns>
+        public static DeltaTable ForPath(string path) =>
+            new DeltaTable((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                "io.delta.tables.DeltaTable",
+                "forPath",
+                path));
+
+        /// <summary>
+        /// Create a DeltaTable for the data at the given <c>path</c> using the given SparkSession
+        /// to read the data.
+        /// </summary>
+        /// <param name="sparkSession"></param>
+        /// <param name="path"></param>
+        /// <returns>DeltaTable loaded from the path.</returns>
+        public static DeltaTable ForPath(SparkSession sparkSession, string path) =>
+            new DeltaTable((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                "io.delta.tables.DeltaTable",
+                "forPath",
+                ((IJvmObjectReferenceProvider)sparkSession).Reference,
+                path));
 
         /// <summary>
         /// Apply an alias to the DeltaTable. This is similar to <c>Dataset.As(alias)</c> or SQL
         /// <c>tableName AS alias</c>.
         /// </summary>
         /// <param name="alias"></param>
-        /// <returns></returns>
+        /// <returns>Aliased DeltaTable.</returns>
         public DeltaTable As(string alias) =>
             new DeltaTable((JvmObjectReference)_jvmObject.Invoke("as", alias));
 
         /// <summary>
         /// Get a DataFrame (that is, Dataset[Row]) representation of this Delta table.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>DataFrame representation of Delta table.</returns>
         public DataFrame ToDF() => new DataFrame((JvmObjectReference)_jvmObject.Invoke("toDF"));
 
         /// <summary>
@@ -51,7 +80,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="retentionHours">The retention threshold in hours. Files required by the
         /// table for reading versions earlier than this will be preserved and the rest of them
         /// will be deleted.</param>
-        /// <returns></returns>
+        /// <returns>Vacuumed DataFrame.</returns>
         public DataFrame Vacuum(double retentionHours) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("vacuum", retentionHours));
 
@@ -62,7 +91,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// 
         /// Note: This will use the default retention period of 7 hours.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Vacuumed DataFrame.</returns>
         public DataFrame Vacuum() =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("vacuum"));
 
@@ -71,7 +100,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// DataFrame. The information is in reverse chronological order.
         /// </summary>
         /// <param name="limit">The number of previous commands to get history for.</param>
-        /// <returns></returns>
+        /// <returns>History DataFrame.</returns>
         public DataFrame History(int limit) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("history", limit));
 
@@ -79,7 +108,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// Get the information available commits on this table as a Spark DataFrame. The
         /// information is in reverse chronological order.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>History DataFrame</returns>
         public DataFrame History() =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("history"));
 
@@ -211,10 +240,12 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </example>
         /// <param name="source">Source Dataframe to be merged.</param>
         /// <param name="condition">Boolean expression as SQL formatted string.</param>
-        /// <returns></returns>
+        /// <returns>DeltaMergeBuilder</returns>
         public DeltaMergeBuilder Merge(DataFrame source, string condition) =>
             new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke(
-                "merge", ((IJvmObjectReferenceProvider)source).Reference, condition));
+                "merge",
+                ((IJvmObjectReferenceProvider)source).Reference,
+                condition));
 
         /// <summary>
         /// Merge data from the <c>source</c> DataFrame based on the given merge <c>condition</c>.
@@ -249,40 +280,11 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </example>
         /// <param name="source">Source Dataframe to be merged.</param>
         /// <param name="condition">Coolean expression as a Column object</param>
-        /// <returns></returns>
+        /// <returns>DeltaMergeBuilder</returns>
         public DeltaMergeBuilder Merge(DataFrame source, Column condition) =>
             new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke(
                 "merge",
                 ((IJvmObjectReferenceProvider)source).Reference,
                 ((IJvmObjectReferenceProvider)condition).Reference));
-
-        /// <summary>
-        /// Create a DeltaTable for the data at the given <c>path</c>.
-        /// 
-        /// Note: This uses the active SparkSession in the current thread to read the table data.
-        /// Hence, this throws error if active SparkSession has not been set, that is,
-        /// <c>SparkSession.GetActiveSession()</c> is empty.
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        public static DeltaTable ForPath(string path) =>
-            new DeltaTable((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "io.delta.tables.DeltaTable",
-                "forPath",
-                path));
-
-        /// <summary>
-        /// Create a DeltaTable for the data at the given <c>path</c> using the given SparkSession
-        /// to read the data.
-        /// </summary>
-        /// <param name="sparkSession"></param>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        public static DeltaTable ForPath(SparkSession sparkSession, string path) =>
-            new DeltaTable((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "io.delta.tables.DeltaTable",
-                "forPath",
-                ((IJvmObjectReferenceProvider)sparkSession).Reference,
-                path));
     }
 }
