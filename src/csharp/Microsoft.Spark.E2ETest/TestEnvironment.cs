@@ -19,7 +19,11 @@ namespace Microsoft.Spark.E2ETest
             {
                 if (s_resourceDirectory is null)
                 {
-                    s_resourceDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources");
+                    s_resourceDirectory =
+                        AppDomain.CurrentDomain.BaseDirectory +
+                        Path.DirectorySeparatorChar +
+                        "Resources" +
+                        Path.DirectorySeparatorChar;
                 }
 
                 return s_resourceDirectory;
