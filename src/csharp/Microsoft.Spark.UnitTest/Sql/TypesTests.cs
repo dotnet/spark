@@ -43,7 +43,7 @@ namespace Microsoft.Spark.UnitTest
             Assert.Equal("array", arrayType.TypeName);
             Assert.Equal("array<integer>", arrayType.SimpleString);
             Assert.Equal("integer", arrayType.ElementType.TypeName);
-            Assert.True(arrayType.ContainsNull);
+            Assert.False(arrayType.ContainsNull);
         }
         
         [Fact]
@@ -61,7 +61,7 @@ namespace Microsoft.Spark.UnitTest
             Assert.Equal("map<integer,double>", mapType.SimpleString);
             Assert.Equal("integer", mapType.KeyType.TypeName);
             Assert.Equal("double", mapType.ValueType.TypeName);
-            Assert.True(mapType.ValueContainsNull);
+            Assert.False(mapType.ValueContainsNull);
         }
         
         [Fact]
