@@ -33,11 +33,11 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestArrayType()
         {
-            var schemaJson =
+            string schemaJson =
                 @"{
                     ""type"":""array"",
                     ""elementType"":""integer"",
-                    ""containsNull"":true
+                    ""containsNull"":false
                 }";
             var arrayType = (ArrayType)DataType.ParseDataType(schemaJson);
             Assert.Equal("array", arrayType.TypeName);
@@ -49,12 +49,12 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestMapType()
         {
-            var schemaJson =
+            string schemaJson =
                 @"{
                     ""type"":""map"",
                     ""keyType"":""integer"",
                     ""valueType"":""double"",
-                    ""valueContainsNull"":true
+                    ""valueContainsNull"":false
                 }";
             var mapType = (MapType)DataType.ParseDataType(schemaJson);
             Assert.Equal("map", mapType.TypeName);
@@ -67,7 +67,7 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestStructTypeAndStructFieldTypes()
         {
-            var schemaJson =
+            string schemaJson =
                 @"{
                     ""type"":""struct"",
                     ""fields"":[
