@@ -12,6 +12,7 @@ namespace Microsoft.Spark.Sql.Catalog
     public sealed class Catalog : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
+
         internal Catalog(JvmObjectReference jvmObject)
         {
             _jvmObject = jvmObject;
