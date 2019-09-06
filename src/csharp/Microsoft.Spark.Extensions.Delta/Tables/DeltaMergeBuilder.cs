@@ -64,13 +64,13 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     ///       "target.Key = source.key")
     ///     .WhenMatched
     ///     .UpdateExpr(new Dictionary<string, string>() {
-	///			{"value", "source.value"}
-	///		})
+    ///         {"value", "source.value"}
+    ///     })
     ///     .WhenNotMatched
     ///     .InsertExpr(new Dictionary<string, string>() {
-    ///			{"key", "source.key"},
-    ///			{"value, "source.value"}
-    ///		})
+    ///         {"key", "source.key"},
+    ///         {"value, "source.value"}
+    ///     })
     ///     .Execute();
     /// </code>
     /// </example>

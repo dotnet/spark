@@ -5,7 +5,7 @@
 using Microsoft.Spark.E2ETest;
 using Xunit;
 
-namespace Microsoft.Spark.Extensions.Delta.UnitTest
+namespace Microsoft.Spark.Extensions.Delta.E2ETest
 {
     [CollectionDefinition(Constants.DeltaTestContainerName)]
     public class SparkCollection : ICollectionFixture<SparkFixture>
