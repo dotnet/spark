@@ -32,7 +32,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// Run the end-to-end scenario from the Delta Quickstart tutorial.
         /// </summary>
         /// <see cref="https://docs.delta.io/latest/quick-start.html"/>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_3)]
+        [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
         public void TestTutorialScenario()
         {
             using (var tempDirectory = new TemporaryDirectory())
@@ -106,7 +106,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// <summary>
         /// Test that methods return the expected signature.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_3)]
+        [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
         public void TestSignatures()
         {
             using (var tempDirectory = new TemporaryDirectory())
