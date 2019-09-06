@@ -56,7 +56,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 "io.delta.tables.DeltaTable",
                 "forPath",
-                ((IJvmObjectReferenceProvider)sparkSession).Reference,
+                sparkSession,
                 path));
 
         /// <summary>
@@ -124,8 +124,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// Delete data from the table that match the given <c>condition</c>.
         /// </summary>
         /// <param name="condition">Boolean SQL expression.</param>
-        public void Delete(Column condition) =>
-            _jvmObject.Invoke("delete", ((IJvmObjectReferenceProvider)condition).Reference);
+        public void Delete(Column condition) => _jvmObject.Invoke("delete", condition);
 
         /// <summary>
         /// Delete data from the table.
@@ -166,7 +165,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="set">Rules to update a row as a Scala map between target column names and
         /// corresponding update expressions as Column objects.</param>
         public void Update(Column condition, Dictionary<string, Column> set) =>
-            _jvmObject.Invoke("update", ((IJvmObjectReferenceProvider)condition).Reference, set);
+            _jvmObject.Invoke("update", condition, set);
 
         /// <summary>
         /// Update rows in the table based on the rules defined by <c>set</c>.
@@ -246,7 +245,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         public DeltaMergeBuilder Merge(DataFrame source, string condition) =>
             new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke(
                 "merge",
-                ((IJvmObjectReferenceProvider)source).Reference,
+                source,
                 condition));
 
         /// <summary>
@@ -284,9 +283,10 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="condition">Coolean expression as a Column object</param>
         /// <returns>DeltaMergeBuilder</returns>
         public DeltaMergeBuilder Merge(DataFrame source, Column condition) =>
-            new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke(
+            new DeltaMergeBuilder(
+                (JvmObjectReference)_jvmObject.Invoke(
                 "merge",
-                ((IJvmObjectReferenceProvider)source).Reference,
-                ((IJvmObjectReferenceProvider)condition).Reference));
+                source,
+                condition));
     }
 }
