@@ -115,7 +115,10 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         {
             using (var tempDirectory = new TemporaryDirectory())
             {
-                string path = BuildSampleDeltaTable(tempDirectory);
+                string path = Path.Combine(tempDirectory.Path, "delta-table");
+
+                DataFrame rangeRate = _spark.Range(15);
+                rangeRate.Write().Format("delta").Save(path);
 
                 DeltaTable table = Assert.IsType<DeltaTable>(DeltaTable.ForPath(path));
                 table = Assert.IsType<DeltaTable>(DeltaTable.ForPath(_spark, path));
