@@ -126,6 +126,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 Assert.IsType<DeltaTable>(table.As("oldTable"));
                 Assert.IsType<DataFrame>(table.History());
                 Assert.IsType<DataFrame>(table.History(200));
+                Assert.IsType<DataFrame>(table.ToDF());
 
                 DataFrame newTable = _spark.Range(10, 15).As("newTable");
                 Assert.IsType<DeltaMergeBuilder>(
@@ -160,8 +161,6 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 Assert.IsType<DeltaMergeBuilder>(
                     notMatchedActionBuilder.InsertExpr(new Dictionary<string, string>()));
                 Assert.IsType<DeltaMergeBuilder>(notMatchedActionBuilder.InsertAll());
-
-                Assert.IsType<DataFrame>(table.ToDF());
 
                 // Update and UpdateExpr should return void.
                 table.Update(new Dictionary<string, Column>() { });

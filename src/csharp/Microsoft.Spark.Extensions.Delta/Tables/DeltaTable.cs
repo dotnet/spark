@@ -38,7 +38,8 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="path"></param>
         /// <returns>DeltaTable loaded from the path.</returns>
         public static DeltaTable ForPath(string path) =>
-            new DeltaTable((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+            new DeltaTable(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 "io.delta.tables.DeltaTable",
                 "forPath",
                 path));
@@ -51,7 +52,8 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="path"></param>
         /// <returns>DeltaTable loaded from the path.</returns>
         public static DeltaTable ForPath(SparkSession sparkSession, string path) =>
-            new DeltaTable((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+            new DeltaTable(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 "io.delta.tables.DeltaTable",
                 "forPath",
                 ((IJvmObjectReferenceProvider)sparkSession).Reference,
