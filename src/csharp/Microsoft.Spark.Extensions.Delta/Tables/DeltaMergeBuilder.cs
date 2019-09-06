@@ -155,7 +155,6 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <summary>
         /// Execute the merge operation based on the built matched and not matched actions.
         /// </summary>
-        public void Execute() =>
-            new DeltaMergeMatchedActionBuilder((JvmObjectReference)_jvmObject.Invoke("execute"));
+        public void Execute() => _jvmObject.Invoke("execute");
     }
 }

@@ -243,7 +243,8 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="condition">Boolean expression as SQL formatted string.</param>
         /// <returns>DeltaMergeBuilder</returns>
         public DeltaMergeBuilder Merge(DataFrame source, string condition) =>
-            new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke(
+            new DeltaMergeBuilder(
+                (JvmObjectReference)_jvmObject.Invoke(
                 "merge",
                 source,
                 condition));
