@@ -127,7 +127,9 @@ jobs:
     displayName: 'E2E tests for Spark 2.4.3'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: |
+        '**/Microsoft.Spark.E2ETest/*.csproj'
+        '**/Microsoft.Spark.Extensions.Delta.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
@@ -138,7 +140,9 @@ jobs:
     displayName: 'E2E tests for Spark 2.4.4'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: |
+        '**/Microsoft.Spark.E2ETest/*.csproj'
+        '**/Microsoft.Spark.Extensions.Delta.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
