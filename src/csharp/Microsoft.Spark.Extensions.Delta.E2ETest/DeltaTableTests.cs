@@ -59,7 +59,9 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 //// Update every even value by adding 100 to it.
                 deltaTable.Update(
                     condition: Functions.Expr("id % 2 == 0"),
-                    set: new Dictionary<string, Column>(){{ "id", Functions.Expr("id + 100") }});
+                    set: new Dictionary<string, Column>() {
+                        { "id", Functions.Expr("id + 100") }
+                    });
 
                 //// Validate that deltaTable contains the the data:
                 //// +---+
@@ -71,7 +73,9 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 //// |106|
                 //// |108|
                 //// +---+
-                ValidateTutorialDataFrame(new List<int>() { 5, 7, 9, 106, 108 }, deltaTable.ToDF());
+                ValidateTutorialDataFrame(
+                    new List<int>() { 5, 7, 9, 106, 108 },
+                    deltaTable.ToDF());
 
                 // Delete every even value.
                 deltaTable.Delete(condition: Functions.Expr("id % 2 == 0"));
@@ -93,9 +97,9 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                     .Merge(newData, "oldData.id = newData.id")
                     .WhenMatched()
                     .Update(
-                        new Dictionary<string, Column>() {{ "id", Functions.Col("newData.id") }})
+                        new Dictionary<string, Column>() { { "id", Functions.Col("newData.id") } })
                     .WhenNotMatched()
-                    .InsertExpr(new Dictionary<string, string>() {{ "id", "newData.id" }})
+                    .InsertExpr(new Dictionary<string, string>() { { "id", "newData.id" } })
                     .Execute();
 
                 // Validate that the resulTable contains the the sequence [0 ... 19].
@@ -111,12 +115,10 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         {
             using (var tempDirectory = new TemporaryDirectory())
             {
-                string path = Path.Combine(tempDirectory.Path, "delta-table");
+                string path = BuildSampleDeltaTable(tempDirectory);
 
-                DataFrame rangeRate = _spark.Range(15);
-                rangeRate.Write().Format("delta").Save(path);
-
-                DeltaTable table = DeltaTable.ForPath(path);
+                DeltaTable table = Assert.IsType<DeltaTable>(DeltaTable.ForPath(path));
+                table = Assert.IsType<DeltaTable>(DeltaTable.ForPath(_spark, path));
 
                 Assert.IsType<DeltaTable>(table.As("oldTable"));
 
@@ -126,8 +128,37 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 DataFrame newTable = _spark.Range(10, 15).As("newTable");
                 Assert.IsType<DeltaMergeBuilder>(
                     table.Merge(newTable, Functions.Exp("oldTable.id == newTable.id")));
-                Assert.IsType<DeltaMergeBuilder>(
+                DeltaMergeBuilder mergeBuilder = Assert.IsType<DeltaMergeBuilder>(
                     table.Merge(newTable, "oldTable.id == newTable.id"));
+
+                // Validate the MergeBuilder matched signatures.
+                Assert.IsType<DeltaMergeMatchedActionBuilder>(mergeBuilder.WhenMatched());
+                Assert.IsType<DeltaMergeMatchedActionBuilder>(mergeBuilder.WhenMatched("id = 5"));
+                DeltaMergeMatchedActionBuilder matchedActionBuilder =
+                    Assert.IsType<DeltaMergeMatchedActionBuilder>(
+                        mergeBuilder.WhenMatched(Functions.Expr("id = 5")));
+
+                Assert.IsType<DeltaMergeBuilder>(
+                    matchedActionBuilder.Update(new Dictionary<string, Column>()));
+                Assert.IsType<DeltaMergeBuilder>(
+                    matchedActionBuilder.UpdateExpr(new Dictionary<string, string>()));
+                Assert.IsType<DeltaMergeBuilder>(matchedActionBuilder.UpdateAll());
+
+                // Validate the MergeBuilder not-matched signatures.
+                Assert.IsType<DeltaMergeNotMatchedActionBuilder>(mergeBuilder.WhenNotMatched());
+                Assert.IsType<DeltaMergeNotMatchedActionBuilder>(
+                    mergeBuilder.WhenNotMatched("id = 5"));
+                DeltaMergeNotMatchedActionBuilder notMatchedActionBuilder =
+                    Assert.IsType<DeltaMergeNotMatchedActionBuilder>(
+                        mergeBuilder.WhenNotMatched(Functions.Expr("id = 5")));
+
+                Assert.IsType<DeltaMergeBuilder>(
+                    notMatchedActionBuilder.Insert(new Dictionary<string, Column>()));
+                Assert.IsType<DeltaMergeBuilder>(
+                    notMatchedActionBuilder.InsertExpr(new Dictionary<string, string>()));
+                Assert.IsType<DeltaMergeBuilder>(notMatchedActionBuilder.InsertAll());
+
+                mergeBuilder.Execute();
 
                 Assert.IsType<DataFrame>(table.ToDF());
 
@@ -153,8 +184,8 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// <param name="expectedValues"></param>
         /// <param name="dataFrame"></param>
         private void ValidateTutorialDataFrame(
-            IEnumerable<int> expectedValues,
-            DataFrame dataFrame)
+        IEnumerable<int> expectedValues,
+        DataFrame dataFrame)
         {
             Assert.Equal(expectedValues.Count(), dataFrame.Count());
 
