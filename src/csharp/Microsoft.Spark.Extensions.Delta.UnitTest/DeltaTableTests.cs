@@ -106,7 +106,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// <summary>
         /// Test that methods return the expected signature.
         /// </summary>
-        [Fact]
+        [SkipIfSparkVersionIsLessThan(Versions.V2_4_3)]
         public void TestSignatures()
         {
             using (var tempDirectory = new TemporaryDirectory())
