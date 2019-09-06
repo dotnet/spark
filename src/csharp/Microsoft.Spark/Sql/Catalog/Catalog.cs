@@ -25,8 +25,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <param name="tableName">Is either a qualified or unqualified name that designates a
         /// table. If no database identifier is provided, it refers to a table in the current
         /// database.</param>
-        public void CacheTable(string tableName) =>
-            _jvmObject.Invoke("cacheTable", tableName);
+        public void CacheTable(string tableName) => _jvmObject.Invoke("cacheTable", tableName);
 
         /// <summary>
         /// Removes all cached tables from the in-memory cache.
@@ -50,7 +49,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// table. If no database identifier is provided, it refers to a table in the current
         /// database.</param>
         /// <param name="path">Path to use to create the table</param>
-        /// <param name="source"></param>
+        /// <param name="source">Data source to use to create the table</param>
         /// <returns>DataFrame</returns>
         public DataFrame CreateTable(string tableName, string path, string source) =>
             new DataFrame(
@@ -111,6 +110,11 @@ namespace Microsoft.Spark.Sql.Catalog
 
         /// <summary>
         /// Get the database with the specified name.
+        ///
+        /// This throws an AnalysisException when the database cannot be found.
+        ///
+        /// Calling GetDatabase gives you access to the hive database name, description and
+        /// location
         /// </summary>
         /// <param name="dbName">Name of the database to get</param>
         /// <returns>Database</returns>
