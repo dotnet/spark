@@ -17,6 +17,7 @@ namespace Microsoft.Spark.Sql.Catalog
         {
             _jvmObject = jvmObject;
         }
+
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
         
         /// <summary>
