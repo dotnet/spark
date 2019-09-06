@@ -124,7 +124,6 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 table = Assert.IsType<DeltaTable>(DeltaTable.ForPath(_spark, path));
 
                 Assert.IsType<DeltaTable>(table.As("oldTable"));
-
                 Assert.IsType<DataFrame>(table.History());
                 Assert.IsType<DataFrame>(table.History(200));
 
@@ -146,6 +145,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 Assert.IsType<DeltaMergeBuilder>(
                     matchedActionBuilder.UpdateExpr(new Dictionary<string, string>()));
                 Assert.IsType<DeltaMergeBuilder>(matchedActionBuilder.UpdateAll());
+                Assert.IsType<DeltaMergeBuilder>(matchedActionBuilder.Delete());
 
                 // Validate the MergeBuilder not-matched signatures.
                 Assert.IsType<DeltaMergeNotMatchedActionBuilder>(mergeBuilder.WhenNotMatched());
@@ -160,8 +160,6 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 Assert.IsType<DeltaMergeBuilder>(
                     notMatchedActionBuilder.InsertExpr(new Dictionary<string, string>()));
                 Assert.IsType<DeltaMergeBuilder>(notMatchedActionBuilder.InsertAll());
-
-                mergeBuilder.Execute();
 
                 Assert.IsType<DataFrame>(table.ToDF());
 
