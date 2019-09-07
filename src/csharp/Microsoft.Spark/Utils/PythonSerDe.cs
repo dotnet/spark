@@ -20,7 +20,9 @@ namespace Microsoft.Spark.Utils
     {
         // One RowConstructor object is registered to the Unpickler and
         // there could be multiple threads unpickling row data using
-        // this object.
+        // this object. However there is no issue as the field(s) that are
+        // reused by this object are instantiated on a per-thread basis and
+        // therefore not shared between threads.
         private static readonly RowConstructor s_rowConstructor;
 
         static PythonSerDe()

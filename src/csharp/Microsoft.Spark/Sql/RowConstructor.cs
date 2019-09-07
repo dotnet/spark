@@ -52,6 +52,12 @@ namespace Microsoft.Spark.Sql
         /// <returns>New RowConstructor object capturing args data</returns>
         public object construct(object[] args)
         {
+            // Every first call to construct() contains the schema data. When
+            // a new RowConstructor object is returned from this function,
+            // construct() is called on the returned object with the actual
+            // row data. The original RowConstructor object may be reused by the
+            // Unpickler and each subsequent construct() call can contain the
+            // schema data or a RowConstructor object that contains row data.
             if (s_schemaCache is null)
             {
                 s_schemaCache = new Dictionary<string, StructType>();
@@ -67,14 +73,20 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
-        /// Construct a Row object from unpickled data.
+        /// Construct a Row object from unpickled data. This is only to be called
+        /// on a RowConstructor that contains the row data.
         /// </summary>
         /// <returns>A row object with unpickled data</returns>
         public Row GetRow()
         {
             Debug.Assert(_parent != null);
 
-            for(int i = 0; i < _args.Length; ++i)
+            // It is possible that an entry of a Row (row1) may itself be a Row (row2).
+            // If the entry is a RowConstructor then it will be a RowConstructor
+            // which contains the data for row2. Therefore we will call GetRow()
+            // on the RowConstructor to materialize row2 and replace the RowConstructor
+            // entry in row1.
+            for (int i = 0; i < _args.Length; ++i)
             {
                 if (_args[i] is RowConstructor)
                 {
@@ -85,6 +97,16 @@ namespace Microsoft.Spark.Sql
             return new Row(_args, _parent.GetSchema());
         }
 
+        /// <summary>
+        /// Clears the schema cache. Spark sends rows in batches and for each
+        /// row there is an accompany set of schemas and row entries. If the
+        /// schema was not cached, then it would need to be parsed and converted
+        /// to a StructType for every row in the batch. A new batch may contain
+        /// rows from a different table, so calling <c>Reset</c> after each
+        /// batch would aid in preventing the cache from growing too large.
+        /// Caching the schemas for each batch, ensures that each schema is
+        /// only parsed and converted to a StructType once per batch.
+        /// </summary>
         internal void Reset()
         {
             s_schemaCache?.Clear();
