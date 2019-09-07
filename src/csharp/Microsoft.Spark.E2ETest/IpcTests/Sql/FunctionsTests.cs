@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Catalog;
@@ -674,6 +675,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             var table = catalog.CreateTable("users", Path.Combine(TestEnvironment.ResourceDirectory, "users.parquet"));
             Assert.IsType<DataFrame>(table);
 
+            Console.WriteLine(catalog.TableExists("users"));
+            catalog.DropTempView("users");
+            Console.WriteLine(catalog.TableExists("users"));
+
             Assert.IsType<string>(catalog.CurrentDatabase());
             Assert.IsType<bool>(catalog.DatabaseExists("default"));
 
@@ -708,7 +713,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             spark.Sql(@"CREATE TABLE IF NOT EXISTS usersp USING PARQUET PARTITIONED BY (name)  
                             AS SELECT * FROM users");
             catalog.RecoverPartitions("usersp");
-            spark.Sql("DROP TABLE usersp");
+            var t = catalog.ListDatabases();
+                t.Show();
+                t.CreateOrReplaceTempView("testview");
+            Assert.True(catalog.DropTempView("testview"));
+//            Assert.True   ();
+//            spark.Sql("DROP TABLE usersp");
         }
 
         /// <summary>
