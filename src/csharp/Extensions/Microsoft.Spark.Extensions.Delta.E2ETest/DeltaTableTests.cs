@@ -14,10 +14,6 @@ using Xunit;
 
 namespace Microsoft.Spark.Extensions.Delta.E2ETest
 {
-    /// <summary>
-    /// These tests will fail if the Delta Jar is not installed in the 
-    /// $SPARK_HOME/jars/ directory.
-    /// </summary>
     [Collection(Constants.DeltaTestContainerName)]
     public class DeltaTableTests
     {

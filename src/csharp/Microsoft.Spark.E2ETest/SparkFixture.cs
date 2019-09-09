@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -120,6 +121,9 @@ namespace Microsoft.Spark.E2ETest
             string jarDir = $"{scalaDir}{sep}{jarPrefix}{sep}target";
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
             string jar = $"{jarDir}{sep}{jarPrefix}-{assemblyVersion}.jar";
+            string packagesArg = $@"--packages {string.Join(',', new List<string>() {
+                "io.delta:delta-core_2.11:0.3.0"
+            })}";
 
             if (!File.Exists(jar))
             {
@@ -136,7 +140,7 @@ namespace Microsoft.Spark.E2ETest
             string logOption = $"--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
 
-            args = $"{logOption} {classArg} --master local {jar} debug";
+            args = $"{logOption} {packagesArg} {classArg} --master local {jar} debug";
         }
 
         private string GetJarPrefix(string sparkHome)
