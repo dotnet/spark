@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <InternalsAssemblyNames>Microsoft.Spark</InternalsAssemblyNames>
+    <InternalsAssemblyNames>Microsoft.Spark;Microsoft.Spark.E2ETest</InternalsAssemblyNames>
   </PropertyGroup>
 
   <ItemGroup>
