@@ -121,9 +121,7 @@ namespace Microsoft.Spark.E2ETest
             string jarDir = $"{scalaDir}{sep}{jarPrefix}{sep}target";
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
             string jar = $"{jarDir}{sep}{jarPrefix}-{assemblyVersion}.jar";
-            string packagesArg = $@"--packages {string.Join(',', new List<string>() {
-                "io.delta:delta-core_2.11:0.3.0"
-            })}";
+            string packagesArg = "--packages io.delta:delta-core_2.11:0.3.0";
 
             if (!File.Exists(jar))
             {
