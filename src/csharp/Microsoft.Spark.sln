@@ -27,11 +27,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Experimenta
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.E2ETest.ExternalLibrary", "Microsoft.Spark.E2ETest.ExternalLibrary\Microsoft.Spark.E2ETest.ExternalLibrary.csproj", "{920A2CC8-4075-41D1-BC30-C496430BD9E4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Delta", "Extensions\Microsoft.Spark.Extensions.Delta\Microsoft.Spark.Extensions.Delta.csproj", "{81B77616-58AC-495E-828F-EF2867254F69}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Spark.Extensions.Delta.E2ETest", "Extensions\Microsoft.Spark.Extensions.Delta.E2ETest\Microsoft.Spark.Extensions.Delta.E2ETest.csproj", "{84C91E59-725D-48E3-8DE0-451AB35E4F43}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{71A19F75-8279-40AB-BEA0-7D4B153FC416}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Delta", "Extensions\Microsoft.Spark.Extensions.Delta\Microsoft.Spark.Extensions.Delta.csproj", "{2048446B-45AB-4304-B230-50EDF6E8E6A4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Delta.E2ETest", "Extensions\Microsoft.Spark.Extensions.Delta.E2ETest\Microsoft.Spark.Extensions.Delta.E2ETest.csproj", "{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,14 +75,14 @@ Global
 		{920A2CC8-4075-41D1-BC30-C496430BD9E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{920A2CC8-4075-41D1-BC30-C496430BD9E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{920A2CC8-4075-41D1-BC30-C496430BD9E4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{81B77616-58AC-495E-828F-EF2867254F69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{81B77616-58AC-495E-828F-EF2867254F69}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{81B77616-58AC-495E-828F-EF2867254F69}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{81B77616-58AC-495E-828F-EF2867254F69}.Release|Any CPU.Build.0 = Release|Any CPU
-		{84C91E59-725D-48E3-8DE0-451AB35E4F43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{84C91E59-725D-48E3-8DE0-451AB35E4F43}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{84C91E59-725D-48E3-8DE0-451AB35E4F43}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{84C91E59-725D-48E3-8DE0-451AB35E4F43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2048446B-45AB-4304-B230-50EDF6E8E6A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2048446B-45AB-4304-B230-50EDF6E8E6A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2048446B-45AB-4304-B230-50EDF6E8E6A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2048446B-45AB-4304-B230-50EDF6E8E6A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,8 +90,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{69F57F97-0198-4676-9BD9-E25407A132EA} = {C8C53525-4FEB-4B5B-91A2-619566C72F3E}
 		{4E379DB3-7741-43C2-B32D-17AD96FEA7D0} = {C8C53525-4FEB-4B5B-91A2-619566C72F3E}
-		{81B77616-58AC-495E-828F-EF2867254F69} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
-		{84C91E59-725D-48E3-8DE0-451AB35E4F43} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
+		{2048446B-45AB-4304-B230-50EDF6E8E6A4} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
+		{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FD15FFDB-EA1B-436F-841D-3386DDF94538}

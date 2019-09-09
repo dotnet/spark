@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Spark\Microsoft.Spark.csproj" />
+    <ProjectReference Include="..\..\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
 
 </Project>
