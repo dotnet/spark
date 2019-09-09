@@ -35,7 +35,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// Hence, this throws error if active SparkSession has not been set, that is,
         /// <c>SparkSession.GetActiveSession()</c> is empty.
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The path to the data.</param>
         /// <returns>DeltaTable loaded from the path.</returns>
         public static DeltaTable ForPath(string path) =>
             new DeltaTable(
@@ -48,8 +48,8 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// Create a DeltaTable for the data at the given <c>path</c> using the given SparkSession
         /// to read the data.
         /// </summary>
-        /// <param name="sparkSession"></param>
-        /// <param name="path"></param>
+        /// <param name="sparkSession">The active SparkSession.</param>
+        /// <param name="path">The path to the data.</param>
         /// <returns>DeltaTable loaded from the path.</returns>
         public static DeltaTable ForPath(SparkSession sparkSession, string path) =>
             new DeltaTable(
@@ -63,7 +63,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// Apply an alias to the DeltaTable. This is similar to <c>Dataset.As(alias)</c> or SQL
         /// <c>tableName AS alias</c>.
         /// </summary>
-        /// <param name="alias"></param>
+        /// <param name="alias">The table alias.</param>
         /// <returns>Aliased DeltaTable.</returns>
         public DeltaTable As(string alias) =>
             new DeltaTable((JvmObjectReference)_jvmObject.Invoke("as", alias));

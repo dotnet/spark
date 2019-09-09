@@ -56,23 +56,23 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 // Validate that deltaTable contains the the sequence [5 ... 9].
                 ValidateTutorialDataFrame(Enumerable.Range(5, 5), deltaTable.ToDF());
 
-                //// Update every even value by adding 100 to it.
+                // Update every even value by adding 100 to it.
                 deltaTable.Update(
                     condition: Functions.Expr("id % 2 == 0"),
                     set: new Dictionary<string, Column>() {
                         { "id", Functions.Expr("id + 100") }
                     });
 
-                //// Validate that deltaTable contains the the data:
-                //// +---+
-                //// | id|
-                //// +---+
-                //// |  5|
-                //// |  7|
-                //// |  9|
-                //// |106|
-                //// |108|
-                //// +---+
+                // Validate that deltaTable contains the the data:
+                // +---+
+                // | id|
+                // +---+
+                // |  5|
+                // |  7|
+                // |  9|
+                // |106|
+                // |108|
+                // +---+
                 ValidateTutorialDataFrame(
                     new List<int>() { 5, 7, 9, 106, 108 },
                     deltaTable.ToDF());
