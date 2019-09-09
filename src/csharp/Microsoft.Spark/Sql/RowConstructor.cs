@@ -18,9 +18,11 @@ namespace Microsoft.Spark.Sql
     internal sealed class RowConstructor : IObjectConstructor
     {
         /// <summary>
-        /// Cache the schema of the rows being received. Note that this is thread local variable
-        /// because one RowConstructor object is registered to the Unpickler and there
-        /// could be multiple threads unpickling the data using the same object registered.
+        /// Cache the schemas of the rows being received. Multiple schemas may be
+        /// sent per batch if there are nested rows contained in the row. Note that
+        /// this is thread local variable because one RowConstructor object is
+        /// registered to the Unpickler and there could be multiple threads unpickling
+        /// the data using the same object registered.
         /// </summary>
         [ThreadStatic]
         private static IDictionary<string, StructType> s_schemaCache;
@@ -63,12 +65,26 @@ namespace Microsoft.Spark.Sql
                 s_schemaCache = new Dictionary<string, StructType>();
             }
 
-            if ((args.Length == 1) && (args[0] is RowConstructor))
+            // When a row is ready to be materialized, then construct() is called
+            // on the RowConstructor which represents the row.
+            if ((args.Length == 1) && (args[0] is RowConstructor rowConstructor))
             {
-                args[0] = ((RowConstructor)args[0]).GetRow();
+                // Construct the Row and return args containing the Row.
+                args[0] = rowConstructor.GetRow();
                 return args;
             }
 
+            // Return a new RowConstructor where the args either represent the
+            // schema or the row data. The parent becomes important when calling
+            // GetRow() on the RowConstructor containing the row data.
+            //
+            // - When args is the schema, return a new RowConstructor where the
+            // parent is set to the calling RowConstructor object.
+            //
+            // - In the case where args is the row data, construct() is called on a
+            // RowConstructor object that contains the schema for the row data. A
+            // new RowConstructor is returned where the parent is set to the schema
+            // containing RowConstructor.
             return new RowConstructor(this, args);
         }
 
@@ -88,9 +104,9 @@ namespace Microsoft.Spark.Sql
             // entry in row1.
             for (int i = 0; i < _args.Length; ++i)
             {
-                if (_args[i] is RowConstructor)
+                if (_args[i] is RowConstructor rowConstructor)
                 {
-                    _args[i] = ((RowConstructor)_args[i]).GetRow();
+                    _args[i] = rowConstructor.GetRow();
                 }
             }
 
@@ -99,7 +115,7 @@ namespace Microsoft.Spark.Sql
 
         /// <summary>
         /// Clears the schema cache. Spark sends rows in batches and for each
-        /// row there is an accompany set of schemas and row entries. If the
+        /// row there is an accompanying set of schemas and row entries. If the
         /// schema was not cached, then it would need to be parsed and converted
         /// to a StructType for every row in the batch. A new batch may contain
         /// rows from a different table, so calling <c>Reset</c> after each
@@ -119,8 +135,9 @@ namespace Microsoft.Spark.Sql
         /// <returns></returns>
         private StructType GetSchema()
         {
+            Debug.Assert(s_schemaCache != null);
             Debug.Assert((_args != null) && (_args.Length == 1) && (_args[0] is string));
-            string schemaString = _args[0] as string;
+            var schemaString = (string)_args[0];
             if (!s_schemaCache.TryGetValue(schemaString, out StructType schema))
             {
                 schema = (StructType)DataType.ParseDataType(schemaString);
