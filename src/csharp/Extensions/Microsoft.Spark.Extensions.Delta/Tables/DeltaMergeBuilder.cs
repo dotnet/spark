@@ -11,7 +11,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     /// Builder to specify how to merge data from source DataFrame into the target Delta table.
     /// You can specify 1, 2 or 3 "when" clauses of which there can be at most 2 "WhenMatched" clauses
     /// and at most 1 "WhenNotMatched" clause. Here are the constraints on these clauses.
-    /// 
+    ///
     ///   - "WhenMatched" clauses:
     ///
     ///     - There can be at most one "update" action and one "delete" action in "WhenMatched" clauses.
