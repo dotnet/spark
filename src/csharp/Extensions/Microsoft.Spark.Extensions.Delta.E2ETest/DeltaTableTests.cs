@@ -180,8 +180,8 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// <param name="expectedValues"></param>
         /// <param name="dataFrame"></param>
         private void ValidateTutorialDataFrame(
-        IEnumerable<int> expectedValues,
-        DataFrame dataFrame)
+            IEnumerable<int> expectedValues,
+            DataFrame dataFrame)
         {
             Assert.Equal(expectedValues.Count(), dataFrame.Count());
 
