@@ -46,7 +46,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     ///     - If you want to Insert all the columns of the target Delta table with the
     ///       corresponding column of the source DataFrame, then you can use
     ///       "WhenMatched(...).InsertAll()". This is equivalent to
-    ///       
+    ///
     ///     <code>
     ///         WhenMatched(...).InsertExpr(new Dictionary<string, string>() {
     ///             {"col1", "source.col1"},
