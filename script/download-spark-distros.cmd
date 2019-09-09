@@ -22,13 +22,4 @@ curl -k -L -o spark-2.4.1.tgz https://archive.apache.org/dist/spark/spark-2.4.1/
 curl -k -L -o spark-2.4.3.tgz https://archive.apache.org/dist/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz && tar xzvf spark-2.4.3.tgz
 curl -k -L -o spark-2.4.4.tgz https://archive.apache.org/dist/spark/spark-2.4.4/spark-2.4.4-bin-hadoop2.7.tgz && tar xzvf spark-2.4.4.tgz
 
-echo "Installing extension libraries."
-
-SET ScalaVersion="2.11"
-SET DeltaVersion="0.3.0"
-SET DeltaJar="delta-core_%ScalaVersion%-%DeltaVersion%.jar"
-curl -k -L -o %DeltaJar% "https://repo1.maven.org/maven2/io/delta/delta-core_%ScalaVersion%/%DeltaVersion%/%DeltaJar%"
-cp %DeltaJar% spark-2.4.3-bin-hadoop2.7/jars/
-cp %DeltaJar% spark-2.4.4-bin-hadoop2.7/jars/
-
 endlocal
