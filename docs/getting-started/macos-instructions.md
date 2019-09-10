@@ -7,7 +7,10 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
 - Download and install the following: **[.NET Core 2.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.1)** 
 - Download and install Java using 
   ```brew cask install java```
-- Download and install Scala using ```brew install scala```
+- Download and install Scala using
+    ```shell
+    brew install scala
+    ```
 - Download and install Apache Spark using ```brew install apache-spark```
     
 - Download and install **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release:
