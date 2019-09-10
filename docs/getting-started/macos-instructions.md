@@ -25,7 +25,7 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
     cd HelloSpark
     dotnet add package Microsoft.Spark
     ```
-- Write the following code into `Program.cs`:
+- Replace the contents of the `Program.cs` file with the following code:
     ```csharp
     using Microsoft.Spark.Sql;
 
