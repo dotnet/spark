@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Spark.E2ETest;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Extensions.Delta.Tables;
 using Microsoft.Spark.Sql;
@@ -19,9 +18,9 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
     {
         private readonly SparkSession _spark;
 
-        public DeltaTableTests(SparkFixture fixture)
+        public DeltaTableTests(DeltaFixture fixture)
         {
-            _spark = fixture.Spark;
+            _spark = fixture.SparkFixture.Spark;
         }
 
         /// <summary>

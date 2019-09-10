@@ -3,8 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Spark.Sql;
@@ -17,7 +19,7 @@ namespace Microsoft.Spark.E2ETest
     /// mode through the spark-submit. It also provides a default SparkSession
     /// object that any tests can use.
     /// </summary>
-    public class SparkFixture : IDisposable
+    public sealed class SparkFixture : IDisposable
     {
         private Process _process = new Process();
 
@@ -100,8 +102,7 @@ namespace Microsoft.Spark.E2ETest
             string sparkHome = SparkSettings.SparkHome;
 
             // Build the executable name.
-            char sep = Path.DirectorySeparatorChar;
-            filename = $"{sparkHome}{sep}bin{sep}spark-submit";
+            filename = Path.Combine(sparkHome, "bin", "spark-submit");
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 filename += ".cmd";
@@ -116,11 +117,15 @@ namespace Microsoft.Spark.E2ETest
             string classArg = "--class org.apache.spark.deploy.dotnet.DotnetRunner";
             string curDir = AppDomain.CurrentDomain.BaseDirectory;
             string jarPrefix = GetJarPrefix(sparkHome);
-            string scalaDir = $"{curDir}{sep}..{sep}..{sep}..{sep}..{sep}..{sep}src{sep}scala";
-            string jarDir = $"{scalaDir}{sep}{jarPrefix}{sep}target";
+            string scalaDir = Path.Combine(curDir, "..", "..", "..", "..", "..", "src", "scala");
+            string jarDir = Path.Combine(scalaDir, jarPrefix, "target");
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
-            string jar = $"{jarDir}{sep}{jarPrefix}-{assemblyVersion}.jar";
-            string packagesArg = "--packages io.delta:delta-core_2.11:0.3.0";
+            string jar = Path.Combine(jarDir, $"{jarPrefix}-{assemblyVersion}.jar");
+
+            string packages = Environment.GetEnvironmentVariable(
+                Services.ConfigurationService.PackagesVarName);
+            string packagesArg = string.IsNullOrEmpty(packages)
+                ? string.Empty : $"--packages {packages}";
 
             if (!File.Exists(jar))
             {

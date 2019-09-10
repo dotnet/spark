@@ -11,15 +11,7 @@
     <ProjectReference Include="..\Microsoft.Spark.Extensions.Delta\Microsoft.Spark.Extensions.Delta.csproj" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <InternalsAssemblyNames>Microsoft.Spark;Microsoft.Spark.E2ETest</InternalsAssemblyNames>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="IgnoresAccessChecksToGenerator" Version="0.4.0" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="obj\GeneratedPublicizedAssemblies\" />
+    <Folder Include="Properties\" />
   </ItemGroup>
 </Project>

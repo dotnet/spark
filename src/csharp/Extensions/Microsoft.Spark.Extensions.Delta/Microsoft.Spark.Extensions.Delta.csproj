@@ -8,12 +8,4 @@
     <ProjectReference Include="..\..\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <InternalsAssemblyNames>Microsoft.Spark</InternalsAssemblyNames>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="IgnoresAccessChecksToGenerator" Version="0.4.0" PrivateAssets="All" />
-  </ItemGroup>
-
 </Project>
