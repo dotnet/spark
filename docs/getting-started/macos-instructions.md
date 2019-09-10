@@ -42,7 +42,10 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
         }
     }
     ```
-- Build the solution using ```dotnet build```
+- Use the `dotnet` CLI to build the application:
+    ```shell
+    dotnet build
+    ```
 
 ## Running your .NET for Apache Spark App
 - Open your terminal and navigate into your app folder:
