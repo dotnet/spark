@@ -11,7 +11,10 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
     ```shell
     brew install scala
     ```
-- Download and install Apache Spark using ```brew install apache-spark```
+- Download and install Apache Spark using
+    ```shell
+    brew install apache-spark
+    ```
     
 - Download and install **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release:
     - Select a **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release from .NET for Apache Spark GitHub Releases page and download into your local machine (e.g., `/bin/Microsoft.Spark.Worker-0.4.0`).
