@@ -18,4 +18,8 @@
   <ItemGroup>
     <PackageReference Include="IgnoresAccessChecksToGenerator" Version="0.4.0" PrivateAssets="All" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="obj\GeneratedPublicizedAssemblies\" />
+  </ItemGroup>
 </Project>

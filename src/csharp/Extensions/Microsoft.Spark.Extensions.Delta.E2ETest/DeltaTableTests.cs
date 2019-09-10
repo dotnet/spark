@@ -185,10 +185,10 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         {
             Assert.Equal(expectedValues.Count(), dataFrame.Count());
 
-            List<int> sortedExpectedValues = new List<int>(expectedValues);
+            var sortedExpectedValues = new List<int>(expectedValues);
             sortedExpectedValues.Sort();
 
-            List<int> sortedValues = new List<int>(
+            var sortedValues = new List<int>(
                 dataFrame
                     // We need to select the "id" column, otherwise Collect() won't show the
                     // updates made to the DeltaTable.
