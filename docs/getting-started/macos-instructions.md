@@ -46,7 +46,7 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
 
 ## Running your .NET for Apache Spark App
 - Open your terminal and navigate into your app folder:
-    ```
+    ```shell
     cd <your-app-output-directory>
     ```
 - Create `people.json` with the following content:
