@@ -20,7 +20,11 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
 
 ## Authoring a .NET for Apache Spark App
 - Create a new Console Appliction using  `dotnet new console -n HelloSpark`
-- Install ```Microsoft.Spark``` Nuget package into the solution by executing the following command ```dotnet add package Microsoft.Spark``` into the project folder.
+- Install `Microsoft.Spark` Nuget package into the project from the [spark nuget.org feed](https://www.nuget.org/profiles/spark) - see [Ways to install Nuget Package](https://docs.microsoft.com/en-us/nuget/consume-packages/ways-to-install-a-package)
+    ```shell
+    cd HelloSpark
+    dotnet add package Microsoft.Spark
+    ```
 - Write the following code into `Program.cs`:
     ```csharp
     using Microsoft.Spark.Sql;
