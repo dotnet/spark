@@ -42,9 +42,11 @@ namespace Microsoft.Spark.E2ETest
         public SparkFixture()
         {
             // The worker directory must be set for the Microsoft.Spark.Worker executable.
-            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(EnvironmentVariableNames.WorkerDir)))
+            if (string.IsNullOrEmpty(
+                Environment.GetEnvironmentVariable(EnvironmentVariableNames.WorkerDir)))
             {
-                throw new Exception($"Environment variable '{EnvironmentVariableNames.WorkerDir}' must be set.");
+                throw new Exception(
+                    $"Environment variable '{EnvironmentVariableNames.WorkerDir}' must be set.");
             }
 
             BuildSparkCmd(out var filename, out var args);
