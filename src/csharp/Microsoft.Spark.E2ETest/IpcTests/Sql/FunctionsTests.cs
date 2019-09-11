@@ -675,7 +675,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             var table = catalog.CreateTable("users", Path.Combine(TestEnvironment.ResourceDirectory, "users.parquet"));
             Assert.IsType<DataFrame>(table);
 
-            Console.WriteLine(catalog.TableExists("users"));
+            Assert.True(catalog.TableExists("users"));
             catalog.DropTempView("users");
             Console.WriteLine(catalog.TableExists("users"));
 
