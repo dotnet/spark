@@ -27,7 +27,7 @@ namespace Microsoft.Spark.E2ETest
             /// <summary>
             /// This environment variable specifies a comma-separated list of Maven packages.
             /// </summary>
-            public const string Packages = "packages";
+            public const string Packages = "DOTNET_SPARKFIXTURE_PACKAGES";
 
             /// <summary>
             /// This environment variable specifies the path where the DotNet worker is installed.
