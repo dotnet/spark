@@ -677,7 +677,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.True(catalog.TableExists("users"));
             catalog.DropTempView("users");
-            Console.WriteLine(catalog.TableExists("users"));
+            Assert.False(catalog.TableExists("users"));
 
             Assert.IsType<string>(catalog.CurrentDatabase());
             Assert.IsType<bool>(catalog.DatabaseExists("default"));
