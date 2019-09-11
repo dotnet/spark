@@ -14,7 +14,6 @@ namespace Microsoft.Spark.Services
     /// </summary>
     internal sealed class ConfigurationService : IConfigurationService
     {
-        public const string PackagesVarName = "packages";
         public const string WorkerDirEnvVarName = "DOTNET_WORKER_DIR";
         public const string WorkerReadBufferSizeEnvVarName = "spark.dotnet.worker.readBufferSize";
         public const string WorkerWriteBufferSizeEnvVarName =

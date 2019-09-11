@@ -15,7 +15,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         {
             // Set environment variables.
             Environment.SetEnvironmentVariable(
-                Services.ConfigurationService.PackagesVarName,
+                SparkFixture.EnvironmentVariableNames.Packages,
                 "io.delta:delta-core_2.11:0.3.0");
 
             SparkFixture = new SparkFixture();

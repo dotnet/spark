@@ -19,18 +19,32 @@ namespace Microsoft.Spark.E2ETest
     /// </summary>
     public sealed class SparkFixture : IDisposable
     {
+        /// <summary>
+        /// The names of environment variables used by the SparkFixture.
+        /// </summary>
+        public class EnvironmentVariableNames
+        {
+            /// <summary>
+            /// This environment variable specifies a comma-separated list of Maven packages.
+            /// </summary>
+            public const string Packages = "packages";
+
+            /// <summary>
+            /// This environment variable 
+            /// </summary>
+            public const string WorkerDir = Services.ConfigurationService.WorkerDirEnvVarName;
+        }
+
         private Process _process = new Process();
 
         internal SparkSession Spark { get; }
 
         public SparkFixture()
         {
-            string workerDirEnvVarName = Services.ConfigurationService.WorkerDirEnvVarName;
-
             // The worker directory must be set for the Microsoft.Spark.Worker executable.
-            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(workerDirEnvVarName)))
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(EnvironmentVariableNames.WorkerDir)))
             {
-                throw new Exception($"Environment variable '{workerDirEnvVarName}' must be set.");
+                throw new Exception($"Environment variable '{EnvironmentVariableNames.WorkerDir}' must be set.");
             }
 
             BuildSparkCmd(out var filename, out var args);
@@ -121,7 +135,7 @@ namespace Microsoft.Spark.E2ETest
             string jar = Path.Combine(jarDir, $"{jarPrefix}-{assemblyVersion}.jar");
 
             string packages = Environment.GetEnvironmentVariable(
-                Services.ConfigurationService.PackagesVarName);
+                EnvironmentVariableNames.Packages);
             string packagesArg = string.IsNullOrEmpty(packages)
                 ? string.Empty : $"--packages {packages}";
 
