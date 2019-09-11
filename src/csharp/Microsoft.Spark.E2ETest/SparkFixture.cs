@@ -30,7 +30,7 @@ namespace Microsoft.Spark.E2ETest
             public const string Packages = "packages";
 
             /// <summary>
-            /// This environment variable 
+            /// This environment variable specifies the path where the DotNet worker is installed.
             /// </summary>
             public const string WorkerDir = Services.ConfigurationService.WorkerDirEnvVarName;
         }
