@@ -44,6 +44,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                     }));
 
             string jsonFile = $"{TestEnvironment.ResourceDirectory}people.json";
+            Assert.IsType<DataFrame>(dfr.Load());
             Assert.IsType<DataFrame>(dfr.Load(jsonFile));
             Assert.IsType<DataFrame>(dfr.Load(jsonFile, jsonFile));
 

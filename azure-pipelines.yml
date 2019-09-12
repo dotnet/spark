@@ -102,6 +102,17 @@ jobs:
       DOTNET_WORKER_DIR: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
 
   - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.3.4'
+    inputs:
+      command: test
+      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.4-bin-hadoop2.7
+      HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
+      DOTNET_WORKER_DIR: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
+
+  - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 2.4.0'
     inputs:
       command: test
@@ -134,6 +145,17 @@ jobs:
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
       DOTNET_WORKER_DIR: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
 
+  - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.4.4'
+    inputs:
+      command: test
+      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
+      HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
+      DOTNET_WORKER_DIR: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
+
   - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
     - task: CopyFiles@2
       displayName: Stage .NET artifacts
@@ -155,7 +177,7 @@ jobs:
       - Build
     displayName: Sign and Publish Artifacts
     pool:
-      name: NetCoreInternal-Int-Pool
+      name: NetCoreInternal-Pool
       queue: buildpool.windows.10.amd64.vs2017
 
     variables:
