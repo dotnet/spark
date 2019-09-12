@@ -9,6 +9,7 @@ from pyspark.sql import functions as F
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
 import re
+│from pyspark.sql.functions import pandas_udf, PandasUDFType
 
 
 class TpchFunctionalQueries(TpchBase):
@@ -25,6 +26,28 @@ class TpchFunctionalQueries(TpchBase):
                  F.sum(col("l_extendedprice")).alias("sum_base_price"),
                  F.sum(decrease(col("l_extendedprice"), col("l_discount"))).alias("sum_disc_price"),
                  F.sum(increase(decrease(col("l_extendedprice"), col("l_discount")), col("l_tax"))).alias("sum_charge"),
+                 F.avg(col("l_quantity")).alias("avg_qty"),
+                 F.avg(col("l_extendedprice")).alias("avg_price"),
+                 F.avg(col("l_discount")).alias("avg_disc"),
+                 F.count(col("l_quantity")).alias("count_order")) \
+            .sort(col("l_returnflag"), col("l_linestatus")) \
+            .show()
+
+    def q1v(self):        
+        def discount_price_f(x, y):
+            return x * (1 - y)
+        disc_price = pandas_udf(discount_price_f, returnType=DoubleType())
+
+        def total_f(x, y, z):
+            return x * (1 - y) * (1 + z)
+        total = pandas_udf(total_f, returnType=DoubleType())
+
+        self.lineitem.filter(col("l_shipdate") <= "1998-09-02") \
+            .groupBy(col("l_returnflag"), col("l_linestatus")) \
+            .agg(F.sum(col("l_quantity")).alias("sum_qty"),
+                 F.sum(col("l_extendedprice")).alias("sum_base_price"),
+                 F.sum(disc_price(col("l_extendedprice"), col("l_discount"))).alias("sum_disc_price"),
+                 F.sum(total(col("l_extendedprice"), col("l_discount"), col("l_tax"))).alias("sum_charge"),
                  F.avg(col("l_quantity")).alias("avg_qty"),
                  F.avg(col("l_extendedprice")).alias("avg_price"),
                  F.avg(col("l_discount")).alias("avg_disc"),
@@ -165,6 +188,38 @@ class TpchFunctionalQueries(TpchBase):
             .agg((F.sum(col("case_volume")) / F.sum(col("volume"))).alias("mkt_share")) \
             .sort(col("o_year")) \
             .show()
+
+    def q8v(self):               
+            getYear = udf(lambda x: x[0:4], StringType())
+            def decrease_f(x, y):
+                return x * (1 - y)
+            decrease = pandas_udf(decrease_f, returnType=FloatType())
+            isBrazil = udf(lambda x, y: (y if (x == "BRAZIL") else 0), FloatType())        
+
+            filteredRegions = self.region.filter(col("r_name") == "AMERICA")
+            filteredOrders = self.orders.filter((col("o_orderdate") <= "1996-12-31") & (col("o_orderdate") >= "1995-01-01"))
+            filteredParts = self.part.filter(col("p_type") == "ECONOMY ANODIZED STEEL")
+
+            filteredNations = self.nation.join(self.supplier, col("n_nationkey") == col("s_nationkey"))
+
+            filteredLineitems = self.lineitem.select(col("l_partkey"), col("l_suppkey"), col("l_orderkey"),
+                                                     decrease(col("l_extendedprice"), col("l_discount")).alias("volume")) \
+                .join(filteredParts, col("l_partkey") == col("p_partkey")) \
+                .join(filteredNations, col("l_suppkey") == col("s_suppkey"))
+
+            self.nation.join(filteredRegions, col("n_regionkey") == col("r_regionkey")) \
+                .select(col("n_nationkey")) \
+                .join(self.customer, col("n_nationkey") == col("c_nationkey")) \
+                .select(col("c_custkey")) \
+                .join(filteredOrders, col("c_custkey") == col("o_custkey")) \
+                .select(col("o_orderkey"), col("o_orderdate")) \
+                .join(filteredLineitems, col("o_orderkey") == col("l_orderkey")) \
+                .select(getYear(col("o_orderdate")).alias("o_year"), col("volume"),
+                        isBrazil(col("n_name"), col("volume")).alias("case_volume")) \
+                .groupBy(col("o_year")) \
+                .agg((F.sum(col("case_volume")) / F.sum(col("volume"))).alias("mkt_share")) \
+                .sort(col("o_year")) \
+                .show()
 
     def q9(self):
         getYear = udf(lambda x: x[0:4], StringType())
