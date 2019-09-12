@@ -9,7 +9,6 @@ from pyspark.sql import functions as F
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
 import re
-│from pyspark.sql.functions import pandas_udf, PandasUDFType
 
 
 class TpchFunctionalQueries(TpchBase):
@@ -191,9 +190,9 @@ class TpchFunctionalQueries(TpchBase):
 
     def q8v(self):               
             getYear = udf(lambda x: x[0:4], StringType())
-            def decrease_f(x, y):
+            def discount_price_f(x, y):
                 return x * (1 - y)
-            decrease = pandas_udf(decrease_f, returnType=FloatType())
+            disc_price = pandas_udf(discount_price_f, returnType=FloatType())
             isBrazil = udf(lambda x, y: (y if (x == "BRAZIL") else 0), FloatType())        
 
             filteredRegions = self.region.filter(col("r_name") == "AMERICA")
@@ -203,7 +202,7 @@ class TpchFunctionalQueries(TpchBase):
             filteredNations = self.nation.join(self.supplier, col("n_nationkey") == col("s_nationkey"))
 
             filteredLineitems = self.lineitem.select(col("l_partkey"), col("l_suppkey"), col("l_orderkey"),
-                                                     decrease(col("l_extendedprice"), col("l_discount")).alias("volume")) \
+                                                     disc_price(col("l_extendedprice"), col("l_discount")).alias("volume")) \
                 .join(filteredParts, col("l_partkey") == col("p_partkey")) \
                 .join(filteredNations, col("l_suppkey") == col("s_suppkey"))
 
