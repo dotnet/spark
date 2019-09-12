@@ -5,19 +5,19 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
 ## Pre-requisites
 
 - Download and install the following: **[.NET Core 2.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.1)** 
+- Download and install brew package manager using: 
+    ```shell
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    ```
 - Download and install Java using 
     ```shell
-    brew cask install java
-    ```
-- Download and install Scala using
-    ```shell
-    brew install scala
+    brew tap caskroom/versions
+    brew cask install java8
     ```
 - Download and install Apache Spark using
     ```shell
     brew install apache-spark
     ```
-    
 - Download and install **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release:
     - Select a **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release from .NET for Apache Spark GitHub Releases page and download into your local machine (e.g., `/bin/Microsoft.Spark.Worker-0.4.0`).
     - **IMPORTANT** Create a new environment variable using ```export DOTNET_WORKER_DIR <your_path>``` and set it to the directory where you downloaded and extracted the Microsoft.Spark.Worker (e.g., `/bin/Microsoft.Spark.Worker-0.4.0`).
@@ -68,12 +68,14 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
     ```
 - Run your app
     ```
-    spark-submit `
-    --class org.apache.spark.deploy.dotnet.DotnetRunner `
-    --master local `
-    microsoft-spark-2.4.x-<version>.jar `
+    spark-submit \
+    --class org.apache.spark.deploy.dotnet.DotnetRunner \
+    --master local \
+    microsoft-spark-2.4.x-<version>.jar \
     dotnet HelloSpark.dll
     ```
+    **Note**: This command assumes you have downloaded Apache Spark and added it to your PATH environment variable to be able to use `spark-submit`, otherwise, you would have to use the full path (e.g., `~/spark/bin/spark-submit`).
+    
 - The output of the application should look similar to the output below:
     ```text
     +----+-------+
