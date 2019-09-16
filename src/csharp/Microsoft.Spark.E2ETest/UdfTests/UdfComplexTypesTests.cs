@@ -22,7 +22,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             _spark = fixture.Spark;
             _df = _spark
                 .Read()
-                .Json($"{TestEnvironment.ResourceDirectory}people_array.json");
+                .Json($"{TestEnvironment.ResourceDirectory}people_types.json");
         }
 
         // UDF that takes in Array type.
