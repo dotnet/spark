@@ -10,8 +10,4 @@
     <ProjectReference Include="..\..\Microsoft.Spark\Microsoft.Spark.csproj" />
     <ProjectReference Include="..\Microsoft.Spark.Extensions.Delta\Microsoft.Spark.Extensions.Delta.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
 </Project>

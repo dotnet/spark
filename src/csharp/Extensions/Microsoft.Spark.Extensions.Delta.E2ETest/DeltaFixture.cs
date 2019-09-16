@@ -4,6 +4,7 @@
 
 using System;
 using Microsoft.Spark.E2ETest;
+using Xunit;
 
 namespace Microsoft.Spark.Extensions.Delta.E2ETest
 {
@@ -13,12 +14,19 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
 
         public DeltaFixture()
         {
-            // Set environment variables.
             Environment.SetEnvironmentVariable(
                 SparkFixture.EnvironmentVariableNames.Packages,
                 "io.delta:delta-core_2.11:0.3.0");
 
             SparkFixture = new SparkFixture();
         }
+    }
+
+    [CollectionDefinition(Constants.DeltaTestContainerName)]
+    public class DeltaTestCollection : ICollectionFixture<DeltaFixture>
+    {
+        // This class has no code, and is never created. Its purpose is simply
+        // to be the place to apply [CollectionDefinition] and all the
+        // ICollectionFixture<> interfaces.
     }
 }

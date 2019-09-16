@@ -39,7 +39,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 data.Write().Format("delta").Save(path);
 
                 // Validate that data contains the the sequence [0 ... 4].
-                ValidateTutorialDataFrame(Enumerable.Range(0, 5), data);
+                ValidateDataFrame(Enumerable.Range(0, 5), data);
 
                 // Create a second iteration of the table.
                 data = _spark.Range(5, 10);
@@ -49,7 +49,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 var deltaTable = DeltaTable.ForPath(path);
 
                 // Validate that deltaTable contains the the sequence [5 ... 9].
-                ValidateTutorialDataFrame(Enumerable.Range(5, 5), deltaTable.ToDF());
+                ValidateDataFrame(Enumerable.Range(5, 5), deltaTable.ToDF());
 
                 // Update every even value by adding 100 to it.
                 deltaTable.Update(
@@ -68,7 +68,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 // |106|
                 // |108|
                 // +---+
-                ValidateTutorialDataFrame(
+                ValidateDataFrame(
                     new List<int>() { 5, 7, 9, 106, 108 },
                     deltaTable.ToDF());
 
@@ -83,7 +83,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 // |  7|
                 // |  9|
                 // +---+
-                ValidateTutorialDataFrame(new List<int>() { 5, 7, 9 }, deltaTable.ToDF());
+                ValidateDataFrame(new List<int>() { 5, 7, 9 }, deltaTable.ToDF());
 
                 // Upsert (merge) new data.
                 DataFrame newData = _spark.Range(0, 20).As("newData").ToDF();
@@ -98,7 +98,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                     .Execute();
 
                 // Validate that the resulTable contains the the sequence [0 ... 19].
-                ValidateTutorialDataFrame(Enumerable.Range(0, 20), deltaTable.ToDF());
+                ValidateDataFrame(Enumerable.Range(0, 20), deltaTable.ToDF());
             }
         }
 
@@ -178,7 +178,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// </summary>
         /// <param name="expectedValues"></param>
         /// <param name="dataFrame"></param>
-        private void ValidateTutorialDataFrame(
+        private void ValidateDataFrame(
             IEnumerable<int> expectedValues,
             DataFrame dataFrame)
         {
@@ -194,7 +194,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                     .Select("id")
                     .Sort("id")
                     .Collect()
-                    .Select(r => Convert.ToInt32(r.Get("id"))));
+                    .Select(row => Convert.ToInt32(row.Get("id"))));
 
             Assert.True(sortedValues.SequenceEqual(expectedValues));
         }
