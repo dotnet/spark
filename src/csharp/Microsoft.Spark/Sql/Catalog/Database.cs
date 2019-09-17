@@ -7,7 +7,7 @@ using Microsoft.Spark.Interop.Ipc;
 namespace Microsoft.Spark.Sql.Catalog
 {
     /// <summary>
-    /// A database in Spark, defined in Catalog.
+    /// A database in Spark, as returned by the `ListDatabases` method defined in `Catalog`.
     /// </summary>
     public sealed class Database : IJvmObjectReferenceProvider
     {

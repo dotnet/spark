@@ -7,7 +7,7 @@ using Microsoft.Spark.Interop.Ipc;
 namespace Microsoft.Spark.Sql.Catalog
 {
     /// <summary>
-    /// A user-defined function in Spark Catalog.
+    /// A user-defined function in Spark, as returned by `ListFunctions` method in `Catalog`.
     /// </summary>
     public sealed class Function : IJvmObjectReferenceProvider
     {

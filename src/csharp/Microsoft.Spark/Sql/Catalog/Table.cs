@@ -7,7 +7,7 @@ using Microsoft.Spark.Interop.Ipc;
 namespace Microsoft.Spark.Sql.Catalog
 {
     /// <summary>
-    /// A table in Spark Catalog.
+    /// A table in Spark, as returned by the `ListTables` method in `Catalog`.
     /// </summary>
     public sealed class Table : IJvmObjectReferenceProvider
     {
