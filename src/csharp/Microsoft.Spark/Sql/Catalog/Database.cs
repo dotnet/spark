@@ -23,19 +23,19 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <summary>
         /// Description of the database.
         /// </summary>
-        /// <returns>string</returns>
+        /// <returns>string, the description of the database.</returns>
         public string Description => (string)_jvmObject.Invoke("description");
 
         /// <summary>
         /// Path (in the form of a uri) to data files
         /// </summary>
-        /// <returns>string</returns>
+        /// <returns>string, the location of the database.</returns>
         public string LocationUri => (string)_jvmObject.Invoke("locationUri");
 
         /// <summary>
         /// Name of the database.
         /// </summary>
-        /// <returns>string</returns>
+        /// <returns>string, the name of the database.</returns>
         public string Name => (string)_jvmObject.Invoke("name");
     }
 }
