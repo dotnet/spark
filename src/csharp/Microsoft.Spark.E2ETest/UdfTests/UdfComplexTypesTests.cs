@@ -1,9 +1,10 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Spark.Sql;
 using Xunit;
@@ -22,71 +23,67 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             _spark = fixture.Spark;
             _df = _spark
                 .Read()
-                .Json($"{TestEnvironment.ResourceDirectory}people_types.json");
+                .Json(Path.Combine($"{TestEnvironment.ResourceDirectory}people_types.json"));
         }
 
-        // UDF that takes in Array type.
+        /// <summary>
+        /// UDF that takes in Array type.
+        /// </summary>
         [Fact]
         public void TestUdfWithArrayType()
         {
-            //ArrayList works for this type.
-            Func<Column, Column> udfInt = Udf<int[], string>(
-                    (arr) =>
-                    {
-                        return string.Join(',', arr);
-                    });
+            // ArrayList works for this type.
+            Func<Column, Column> udfInt = Udf<int[], string>(array => string.Join(',', array));
 
             Assert.Throws<Exception>(() => _df.Select(udfInt(_df["ages"])).Collect().ToArray());
 
             Func<Column, Column> udfString = Udf<string[], string>(
-                    (arr) =>
-                    {
-                        return string.Join(',', arr);
-                    });
+                array => string.Join(',', array));
 
             Assert.Throws<Exception>(() => _df.Select(udfString(_df["cars"])).Collect().ToArray());
         }
 
-        // UDF that returns Array type.
+        /// <summary>
+        /// UDF that returns Array type.
+        /// </summary>
         [Fact]
         public void TestUdfWithReturnTypeAsArray()
         {
             Func<Column, Column> udf = Udf<string, string[]>(
-                    (str) =>
-                    {
-                        return new string[] { str, str + str };
-                    });
+                str => new string[] { str, str + str });
 
-            Assert.Throws<NotImplementedException>(() => _df.Select(udf(_df["name"])).Collect().ToArray());
+            Assert.Throws<NotImplementedException>(
+                () => _df.Select(udf(_df["name"])).Collect().ToArray());
         }
 
-        // UDF that takes in Map type.
+        /// <summary>
+        /// UDF that takes in Map type.
+        /// </summary>
         [Fact]
         public void TestUdfWithMapType()
         {
             Func<Column, Column> udf = Udf<IDictionary<string, string>, string>(
-                    (dict) =>
-                    {
-                        return dict.Count.ToString();
-                    });
+                    dict => dict.Count.ToString());
 
             Assert.Throws<Exception>(() => _df.Select(udf(_df["info"])).Collect().ToArray());
         }
 
-        // UDF that returns Map type.
+        /// <summary>
+        /// UDF that returns Map type.
+        /// </summary>
         [Fact]
         public void TestUdfWithReturnTypeAsMap()
         {
             Func<Column, Column> udf = Udf<string, IDictionary<string, string>>(
-                (str) =>
-                {
-                    return new Dictionary<string, string> { { str, str } };
-                });
+                str => new Dictionary<string, string> { { str, str } });
 
-            Assert.Throws<NotImplementedException>(() => _df.Select(udf(_df["name"])).Collect().ToArray());
+            Assert.Throws<NotImplementedException>(
+                () => _df.Select(udf(_df["name"])).Collect().ToArray());
         }
 
-        // UDF that takes in Row type.
+        /// <summary>
+        /// UDF that takes in Row type.
+        /// </summary>
         [Fact]
         public void TestUdfWithRowType()
         {
@@ -110,15 +107,14 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             }
         }
 
-        // UDF that returns Row type.
+        /// <summary>
+        /// UDF that returns Row type.
+        /// </summary>
         [Fact]
         public void TestUdfWithReturnTypeAsRow()
         {
             Assert.Throws<ArgumentException>(() => Udf<string, object[]>(
-                (str) =>
-                {
-                    return new object[] { 1, "abc" };
-                }));
+                str => new object[] { 1, "abc" }));
         }
     }
 }
