@@ -51,6 +51,62 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         [Fact]
+        public void TestWithColumn()
+        {
+            Func<Column, Column> sizeNameAgeUdf = Udf<Row, string>(
+                r =>
+                {
+                    string name = r.GetAs<string>("name");
+                    int? age = r.GetAs<int?>("age");
+                    if (age.HasValue)
+                    {
+                        return $"{r.Size()},{name},{age.Value}";
+                    }
+
+                    return $"{r.Size()},{name},{string.Empty}";
+                });
+
+            string[] allCols = _df.Columns().ToArray();
+            DataFrame nameAgeColDF =
+                _df.WithColumn("NameAgeCol", Struct(allCols[0], allCols.Skip(1).ToArray()));
+            DataFrame sizeNameAgeColDF =
+                nameAgeColDF.WithColumn("SizeNameAgeCol", sizeNameAgeUdf(nameAgeColDF["NameAgeCol"]));
+
+            Row[] originalDFRows = _df.Collect().ToArray();
+            Assert.Equal(3, originalDFRows.Length);
+
+            Row[] sizeNameAgeColDFRows = sizeNameAgeColDF.Collect().ToArray();
+            Assert.Equal(3, sizeNameAgeColDFRows.Length);
+
+            {
+                Row row = sizeNameAgeColDFRows[0];
+                Assert.Equal("Michael", row.GetAs<string>("name"));
+                Assert.Null(row.Get("age"));
+                Assert.IsType<Row>(row.Get("NameAgeCol"));
+                Assert.Equal(originalDFRows[0], row.GetAs<Row>("NameAgeCol"));
+                Assert.Equal("2,Michael,", row.GetAs<string>("SizeNameAgeCol"));
+            }
+
+            {
+                Row row = sizeNameAgeColDFRows[1];
+                Assert.Equal("Andy", row.GetAs<string>("name"));
+                Assert.Equal(30, row.GetAs<int>("age"));
+                Assert.IsType<Row>(row.Get("NameAgeCol"));
+                Assert.Equal(originalDFRows[1], row.GetAs<Row>("NameAgeCol"));
+                Assert.Equal("2,Andy,30", row.GetAs<string>("SizeNameAgeCol"));
+            }
+
+            {
+                Row row = sizeNameAgeColDFRows[2];
+                Assert.Equal("Justin", row.GetAs<string>("name"));
+                Assert.Equal(19, row.GetAs<int>("age"));
+                Assert.IsType<Row>(row.Get("NameAgeCol"));
+                Assert.Equal(originalDFRows[2], row.GetAs<Row>("NameAgeCol"));
+                Assert.Equal("2,Justin,19", row.GetAs<string>("SizeNameAgeCol"));
+            }
+        }
+
+        [Fact]
         public void TestUDF()
         {
             // Single UDF.
