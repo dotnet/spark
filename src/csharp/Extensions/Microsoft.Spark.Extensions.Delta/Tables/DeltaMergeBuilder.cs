@@ -29,7 +29,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     ///     - If you want to update all the columns of the target Delta table with the
     ///       corresponding column of the source DataFrame, then you can use the
     ///       "WhenMatched(...).UpdateAll()". This is equivalent to
-    ///     <code> 
+    ///     <code>
     ///         WhenMatched(...).UpdateExpr(new Dictionary&lt;string, string&gt;() {
     ///           {"col1", "source.col1"},
     ///           {"col2", "source.col2"},
