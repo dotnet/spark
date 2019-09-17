@@ -29,12 +29,12 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     ///     - If you want to update all the columns of the target Delta table with the
     ///       corresponding column of the source DataFrame, then you can use the
     ///       "WhenMatched(...).UpdateAll()". This is equivalent to
-    ///     <code>
+    ///     <code><![CDATA[ 
     ///         WhenMatched(...).UpdateExpr(new Dictionary<string, string>() {
     ///           {"col1", "source.col1"},
     ///           {"col2", "source.col2"},
     ///           ...})
-    ///     </code>
+    ///     ]]></code>
     ///
     ///   - "WhenNotMatched" clauses:
     ///
@@ -47,16 +47,16 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     ///       corresponding column of the source DataFrame, then you can use
     ///       "WhenMatched(...).InsertAll()". This is equivalent to
     ///
-    ///     <code>
+    ///     <code><![CDATA[ 
     ///         WhenMatched(...).InsertExpr(new Dictionary<string, string>() {
     ///             {"col1", "source.col1"},
     ///             {"col2", "source.col2"}
     ///           ...})
-    ///     </code>
+    ///     ]]></code>
     ///
     /// <example>
     /// C# example to update a key-value Delta table with new key-values from a source DataFrame:
-    /// <code>
+    ///     <code><![CDATA[ 
     ///    deltaTable
     ///     .As("target")
     ///     .Merge(
@@ -72,7 +72,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     ///         {"value, "source.value"}
     ///     })
     ///     .Execute();
-    /// </code>
+    ///     ]]></code>
     /// </example>
     /// </summary>
     public class DeltaMergeBuilder : IJvmObjectReferenceProvider
