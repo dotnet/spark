@@ -60,7 +60,6 @@ namespace Microsoft.Spark.E2ETest
                 {
                     isSparkReady = true;
                 }
-                
             };
 
             _process.Start();
