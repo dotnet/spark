@@ -137,7 +137,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <example>
         /// Example to increment the column <c>data</c>.
         /// <code>
-        /// deltaTable.Update(new Dictionary<string, Column>(){
+        /// deltaTable.Update(new Dictionary&lt;string, Column&gt;(){
         ///     {"data" , table.Col("data").Plus(1) }   
         /// })
         /// </code>
@@ -155,7 +155,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <code>
         /// deltaTable.Update(
         ///     table.Col("date").Gt("2018-01-01")
-        ///     new Dictionary<string, Column>(){
+        ///     new Dictionary&lt;string, Column&gt;(){
         ///         {"data" , table.Col("data").Plus(1) }   
         ///     })
         /// </code>
@@ -174,7 +174,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// Example to increment the column <c>data</c>.
         /// <code>
         /// deltaTable.UpdateExpr(
-        ///     new Dictionary<string, string>(){
+        ///     new Dictionary&lt;string, string&gt;(){
         ///         {"data" , "data + 1" }   
         ///     })
         /// </code>
@@ -193,7 +193,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <code>
         /// deltaTable.UpdateExpr(
         ///     "date > '2018-01-01'",
-        ///     new Dictionary<string, string>(){
+        ///     new Dictionary&lt;string, string&gt;(){
         ///         {"data" , "data + 1" }   
         /// })
         /// </code>
@@ -227,12 +227,12 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         ///       "target.key = source.key")
         ///     .WhenMatched
         ///     .UpdateExpr(
-        ///        new Dictionary<String, String>() {
+        ///        new Dictionary&lt;String, String&gt;() {
         ///          {"value", "source.value"}
         ///        })
         ///     .WhenNotMatched()
         ///     .InsertExpr(
-        ///        new Dictionary<String, String>() {
+        ///        new Dictionary&lt;String, String&gt;() {
         ///         {"key", "source.key"};
         ///         {"value", "source.value"};
         ///       })
@@ -268,12 +268,12 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         ///       "target.key = source.key")
         ///     .WhenMatched()
         ///     .UpdateExpr(
-        ///        new Dictionary<String, String>() {
+        ///        new Dictionary&lt;String, String&gt;() {
         ///          {"value", "source.value"}
         ///        })
         ///     .WhenNotMatched()
         ///     .InsertExpr(
-        ///        new Dictionary<String, String>() {
+        ///        new Dictionary&lt;String, String&gt;() {
         ///         {"key", "source.key"},
         ///         {"value", "source.value"}
         ///       })

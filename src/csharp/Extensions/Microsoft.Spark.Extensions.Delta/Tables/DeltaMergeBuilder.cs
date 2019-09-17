@@ -30,7 +30,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     ///       corresponding column of the source DataFrame, then you can use the
     ///       "WhenMatched(...).UpdateAll()". This is equivalent to
     ///     <code>
-    ///         WhenMatched(...).UpdateExpr(new Dictionary<string, string>() {
+    ///         WhenMatched(...).UpdateExpr(new Dictionary&lt;string, string&gt;() {
     ///           {"col1", "source.col1"},
     ///           {"col2", "source.col2"},
     ///           ...})
@@ -48,7 +48,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     ///       "WhenMatched(...).InsertAll()". This is equivalent to
     ///
     ///     <code>
-    ///         WhenMatched(...).InsertExpr(new Dictionary<string, string>() {
+    ///         WhenMatched(...).InsertExpr(new Dictionary&lt;string, string&gt;() {
     ///             {"col1", "source.col1"},
     ///             {"col2", "source.col2"}
     ///           ...})
@@ -63,11 +63,11 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     ///       source.As("source"),
     ///       "target.Key = source.key")
     ///     .WhenMatched
-    ///     .UpdateExpr(new Dictionary<string, string>() {
+    ///     .UpdateExpr(new Dictionary&lt;string, string&gt;() {
     ///         {"value", "source.value"}
     ///     })
     ///     .WhenNotMatched
-    ///     .InsertExpr(new Dictionary<string, string>() {
+    ///     .InsertExpr(new Dictionary&lt;string, string&gt;() {
     ///         {"key", "source.key"},
     ///         {"value, "source.value"}
     ///     })
