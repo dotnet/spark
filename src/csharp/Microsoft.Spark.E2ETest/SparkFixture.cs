@@ -9,7 +9,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.DataCollection;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest
