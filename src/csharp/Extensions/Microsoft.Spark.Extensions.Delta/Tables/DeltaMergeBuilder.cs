@@ -29,12 +29,12 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     ///     - If you want to update all the columns of the target Delta table with the
     ///       corresponding column of the source DataFrame, then you can use the
     ///       "WhenMatched(...).UpdateAll()". This is equivalent to
-    ///     <code><![CDATA[ 
-    ///         WhenMatched(...).UpdateExpr(new Dictionary<string, string>() {
+    ///     <code> 
+    ///         WhenMatched(...).UpdateExpr(new Dictionary&lt;string, string&gt;() {
     ///           {"col1", "source.col1"},
     ///           {"col2", "source.col2"},
     ///           ...})
-    ///     ]]></code>
+    ///     </code>
     ///
     ///   - "WhenNotMatched" clauses:
     ///
@@ -47,32 +47,32 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     ///       corresponding column of the source DataFrame, then you can use
     ///       "WhenMatched(...).InsertAll()". This is equivalent to
     ///
-    ///     <code><![CDATA[ 
-    ///         WhenMatched(...).InsertExpr(new Dictionary<string, string>() {
+    ///     <code>
+    ///         WhenMatched(...).InsertExpr(new Dictionary&lt;string, string&gt;() {
     ///             {"col1", "source.col1"},
     ///             {"col2", "source.col2"}
     ///           ...})
-    ///     ]]></code>
+    ///     </code>
     ///
     /// <example>
     /// C# example to update a key-value Delta table with new key-values from a source DataFrame:
-    ///     <code><![CDATA[ 
+    /// <code>
     ///    deltaTable
     ///     .As("target")
     ///     .Merge(
     ///       source.As("source"),
     ///       "target.Key = source.key")
     ///     .WhenMatched
-    ///     .UpdateExpr(new Dictionary<string, string>() {
+    ///     .UpdateExpr(new Dictionary&lt;string, string&gt;() {
     ///         {"value", "source.value"}
     ///     })
     ///     .WhenNotMatched
-    ///     .InsertExpr(new Dictionary<string, string>() {
+    ///     .InsertExpr(new Dictionary&lt;string, string&gt;() {
     ///         {"key", "source.key"},
     ///         {"value, "source.value"}
     ///     })
     ///     .Execute();
-    ///     ]]></code>
+    /// </code>
     /// </example>
     /// </summary>
     public class DeltaMergeBuilder : IJvmObjectReferenceProvider

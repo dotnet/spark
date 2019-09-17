@@ -136,11 +136,11 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </summary>
         /// <example>
         /// Example to increment the column <c>data</c>.
-        /// <code><![CDATA[ 
-        /// deltaTable.Update(new Dictionary<string, Column>(){
+        /// <code>
+        /// deltaTable.Update(new Dictionary&lt;string, Column&gt;(){
         ///     {"data" , table.Col("data").Plus(1) }   
         /// })
-        /// ]]></code>
+        /// </code>
         /// </example>
         /// <param name="set">Pules to update a row as a Scala map between target column names
         /// and corresponding update expressions as Column objects.</param>
@@ -152,13 +152,13 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </summary>
         /// <example>
         /// Example to increment the column <c>data</c>.
-        /// <code><![CDATA[ 
+        /// <code>
         /// deltaTable.Update(
         ///     table.Col("date").Gt("2018-01-01")
-        ///     new Dictionary<string, Column>(){
+        ///     new Dictionary&lt;string, Column&gt;(){
         ///         {"data" , table.Col("data").Plus(1) }   
         ///     })
-        /// ]]></code>
+        /// </code>
         /// </example>
         /// <param name="condition">Boolean expression as Column object specifying which rows
         /// to update.</param>
@@ -172,12 +172,12 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </summary>
         /// <example>
         /// Example to increment the column <c>data</c>.
-        /// <code><![CDATA[ 
+        /// <code>
         /// deltaTable.UpdateExpr(
-        ///     new Dictionary<string, string>(){
+        ///     new Dictionary&lt;string, string&gt;(){
         ///         {"data" , "data + 1" }   
         ///     })
-        /// ]]></code>
+        /// </code>
         /// </example>
         /// <param name="set">Rules to update a row as a Scala map between target column names and
         /// corresponding update expressions as SQL formatted strings.</param>
@@ -190,13 +190,13 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </summary>
         /// <example>
         /// Example to increment the column <c>data</c>.
-        /// <code><![CDATA[ 
+        /// <code>
         /// deltaTable.UpdateExpr(
         ///     "date > '2018-01-01'",
-        ///     new Dictionary<string, string>(){
+        ///     new Dictionary&lt;string, string&gt;(){
         ///         {"data" , "data + 1" }   
         /// })
-        /// ]]></code>
+        /// </code>
         /// </example>
         /// <param name="condition">Boolean expression as SQL formatted string object specifying 
         /// which rows to update.</param>
@@ -219,7 +219,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// update, delete and insert operations are allowed.
         ///
         /// Example to update a key-value Delta table with new key-values from a source DataFrame:
-        /// <code><![CDATA[ 
+        /// <code>
         ///    deltaTable
         ///     .As("target")
         ///     .Merge(
@@ -227,17 +227,17 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         ///       "target.key = source.key")
         ///     .WhenMatched
         ///     .UpdateExpr(
-        ///        new Dictionary<String, String>() {
+        ///        new Dictionary&lt;String, String&gt;() {
         ///          {"value", "source.value"}
         ///        })
         ///     .WhenNotMatched()
         ///     .InsertExpr(
-        ///        new Dictionary<String, String>() {
+        ///        new Dictionary&lt;String, String&gt;() {
         ///         {"key", "source.key"};
         ///         {"value", "source.value"};
         ///       })
         ///     .Execute();
-        /// ]]></code>
+        /// </code>
         /// </example>
         /// <param name="source">Source Dataframe to be merged.</param>
         /// <param name="condition">Boolean expression as SQL formatted string.</param>
@@ -260,7 +260,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </summary>
         /// <example>
         /// Example to update a key-value Delta table with new key-values from a source DataFrame:
-        /// <code><![CDATA[ 
+        /// <code>
         ///    deltaTable
         ///     .As("target")
         ///     .Merge(
@@ -268,17 +268,17 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         ///       "target.key = source.key")
         ///     .WhenMatched()
         ///     .UpdateExpr(
-        ///        new Dictionary<String, String>() {
+        ///        new Dictionary&lt;String, String&gt;() {
         ///          {"value", "source.value"}
         ///        })
         ///     .WhenNotMatched()
         ///     .InsertExpr(
-        ///        new Dictionary<String, String>() {
+        ///        new Dictionary&lt;String, String&gt;() {
         ///         {"key", "source.key"},
         ///         {"value", "source.value"}
         ///       })
         ///     .Execute()
-        /// ]]></code>
+        /// </code>
         /// </example>
         /// <param name="source">Source Dataframe to be merged.</param>
         /// <param name="condition">Coolean expression as a Column object</param>
