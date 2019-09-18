@@ -15,9 +15,12 @@ class TpchFunctionalQueries(TpchBase):
     def __init__(self, spark, dir):
         TpchBase.__init__(self, spark, dir)
 
+    def generic_udf(self, func, *args, **kwargs):
+        return func(*args, **kwargs)
+
     def q1(self):
-        decrease = udf(lambda x, y: x * (1 - y), FloatType())
-        increase = udf(lambda x, y: x * (1 + y), FloatType())
+        decrease = self.generic_udf(udf, lambda x, y: x * (1 - y), FloatType())
+        increase = self.generic_udf(udf, lambda x, y: x * (1 + y), FloatType())
 
         self.lineitem.filter(col("l_shipdate") <= "1998-09-02") \
             .groupBy(col("l_returnflag"), col("l_linestatus")) \
@@ -35,11 +38,11 @@ class TpchFunctionalQueries(TpchBase):
     def q1v(self):        
         def discount_price_f(x, y):
             return x * (1 - y)
-        decrease = pandas_udf(discount_price_f, returnType=DoubleType())
+        decrease = self.generic_udf(pandas_udf, discount_price_f, returnType=DoubleType())
 
         def total_f(x, y, z):
             return x * (1 - y) * (1 + z)
-        total = pandas_udf(total_f, returnType=DoubleType())
+        total = self.generic_udf(pandas_udf, total_f, returnType=DoubleType())
 
         self.lineitem.filter(col("l_shipdate") <= "1998-09-02") \
             .groupBy(col("l_returnflag"), col("l_linestatus")) \
@@ -73,7 +76,7 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q3(self):
-        decrease = udf(lambda x, y: x * (1 - y), FloatType())
+        decrease = self.generic_udf(udf, lambda x, y: x * (1 - y), FloatType())
 
         filteredCustomers = self.customer.filter(col("c_mktsegment") == "BUILDING")
         filteredOrders = self.orders.filter(col("o_orderdate") < "1995-03-15")
@@ -104,7 +107,7 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q5(self):
-        decrease = udf(lambda x, y: x * (1 - y), FloatType())
+        decrease = self.generic_udf(udf, lambda x, y: x * (1 - y), FloatType())
 
         filteredOrders = self.orders.filter((col("o_orderdate") < "1995-01-01") & (col("o_orderdate") >= "1994-01-01"))
 
@@ -131,8 +134,8 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q7(self):
-        getYear = udf(lambda x: x[0:4], StringType())
-        decrease = udf(lambda x, y: x * (1 - y), FloatType())
+        getYear = self.generic_udf(udf, lambda x: x[0:4], StringType())
+        decrease = self.generic_udf(udf, lambda x, y: x * (1 - y), FloatType())
 
         filteredNations = self.nation.filter((col("n_name") == "FRANCE") | (col("n_name") == "GERMANY"))
 
@@ -159,9 +162,9 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q8(self):
-        getYear = udf(lambda x: x[0:4], StringType())
-        decrease = udf(lambda x, y: x * (1 - y), FloatType())
-        isBrazil = udf(lambda x, y: (y if (x == "BRAZIL") else 0), FloatType())
+        getYear = self.generic_udf(udf, lambda x: x[0:4], StringType())
+        decrease = self.generic_udf(udf, lambda x, y: x * (1 - y), FloatType())
+        isBrazil = self.generic_udf(udf, lambda x, y: (y if (x == "BRAZIL") else 0), FloatType())
 
         filteredRegions = self.region.filter(col("r_name") == "AMERICA")
         filteredOrders = self.orders.filter((col("o_orderdate") <= "1996-12-31") & (col("o_orderdate") >= "1995-01-01"))
@@ -189,11 +192,11 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q8v(self):               
-        getYear = udf(lambda x: x[0:4], StringType())
+        getYear = self.generic_udf(udf, lambda x: x[0:4], StringType())
         def discount_price_f(x, y):
             return x * (1 - y)
-        decrease = pandas_udf(discount_price_f, returnType=FloatType())
-        isBrazil = udf(lambda x, y: (y if (x == "BRAZIL") else 0), FloatType())        
+        decrease = self.generic_udf(pandas_udf, discount_price_f, returnType=FloatType())
+        isBrazil = self.generic_udf(udf, lambda x, y: (y if (x == "BRAZIL") else 0), FloatType())        
 
         filteredRegions = self.region.filter(col("r_name") == "AMERICA")
         filteredOrders = self.orders.filter((col("o_orderdate") <= "1996-12-31") & (col("o_orderdate") >= "1995-01-01"))
@@ -221,8 +224,8 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q9(self):
-        getYear = udf(lambda x: x[0:4], StringType())
-        expression = udf(lambda x, y, v, w: x * (1 - y) - (v * w), FloatType())
+        getYear = self.generic_udf(udf, lambda x: x[0:4], StringType())
+        expression = self.generic_udf(udf, lambda x, y, v, w: x * (1 - y) - (v * w), FloatType())
 
         lineitemParts = self.part.filter(col("p_name").contains("green")) \
             .join(self.lineitem, col("p_partkey") == col("l_partkey"))
@@ -242,7 +245,7 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q10(self):
-        decrease = udf(lambda x, y: x * (1 - y), FloatType())
+        decrease = self.generic_udf(udf, lambda x, y: x * (1 - y), FloatType())
 
         filteredLineitems = self.lineitem.filter(col("l_returnflag") == "R")
 
@@ -261,8 +264,8 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q11(self):
-        multiplication = udf(lambda x, y: x * y, FloatType())
-        division = udf(lambda x: x * 0.0001, FloatType())
+        multiplication = self.generic_udf(udf, lambda x, y: x * y, FloatType())
+        division = self.generic_udf(udf, lambda x: x * 0.0001, FloatType())
 
         nationPartSuppliers = self.nation.filter(col("n_name") == "GERMANY") \
             .join(self.supplier, col("n_nationkey") == col("s_nationkey")) \
@@ -278,8 +281,8 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q12(self):
-        highPriority = udf(lambda x: (1 if ((x == "1-URGENT") or (x == "2-HIGH")) else 0), IntegerType())
-        lowPriority = udf(lambda x: (1 if ((x != "1-URGENT") and (x != "2-HIGH")) else 0), IntegerType())
+        highPriority = self.generic_udf(udf, lambda x: (1 if ((x == "1-URGENT") or (x == "2-HIGH")) else 0), IntegerType())
+        lowPriority = self.generic_udf(udf, lambda x: (1 if ((x != "1-URGENT") and (x != "2-HIGH")) else 0), IntegerType())
 
         self.lineitem.filter(((col("l_shipmode") == "MAIL") | (col("l_shipmode") == "SHIP"))
                              & (col("l_commitdate") < col("l_receiptdate"))
@@ -296,7 +299,7 @@ class TpchFunctionalQueries(TpchBase):
 
     def q13(self):
         special_regex = re.compile(".*special.*requests.*")
-        special = udf(lambda x: special_regex.match(x) is not None, BooleanType())
+        special = self.generic_udf(udf, lambda x: special_regex.match(x) is not None, BooleanType())
 
         self.customer.join(self.orders, (col("c_custkey") == col("o_custkey"))
                            & ~special(col("o_comment")), "left_outer") \
@@ -308,8 +311,8 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q14(self):
-        decrease = udf(lambda x, y: x * (1 - y), FloatType())
-        promotion = udf(lambda x, y: (y if (x.startswith("PROMO")) else 0), FloatType())
+        decrease = self.generic_udf(udf, lambda x, y: x * (1 - y), FloatType())
+        promotion = self.generic_udf(udf, lambda x, y: (y if (x.startswith("PROMO")) else 0), FloatType())
 
         self.part.join(self.lineitem, (col("l_partkey") == col("p_partkey"))
                        & (col("l_shipdate") >= "1995-09-01")
@@ -319,7 +322,7 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q15(self):
-        decrease = udf(lambda x, y: x * (1 - y), FloatType())
+        decrease = self.generic_udf(udf, lambda x, y: x * (1 - y), FloatType())
 
         revenue = self.lineitem.filter((col("l_shipdate") >= "1996-01-01")
                                        & (col("l_shipdate") < "1996-04-01")) \
@@ -335,14 +338,14 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q16(self):
-        decrease = udf(lambda x, y: x * (1 - y), FloatType())
-        polished = udf(lambda x: x.startswith("MEDIUM POLISHED"), BooleanType())
+        decrease = self.generic_udf(udf, lambda x, y: x * (1 - y), FloatType())
+        polished = self.generic_udf(udf, lambda x: x.startswith("MEDIUM POLISHED"), BooleanType())
 
         complains_regex = re.compile(".*Customer.*Complaints.*")
-        complains = udf(lambda x: complains_regex.match(x) is not None, BooleanType())
+        complains = self.generic_udf(udf, lambda x: complains_regex.match(x) is not None, BooleanType())
 
         numbers_regex = re.compile("^(49|14|23|45|19|3|36|9)$")
-        numbers = udf(lambda x: numbers_regex.match(str(x)) is not None, BooleanType())
+        numbers = self.generic_udf(udf, lambda x: numbers_regex.match(str(x)) is not None, BooleanType())
 
         filteredParts = self.part.filter((col("p_brand") != "Brand#45")
                                          & (~polished(col("p_type")))
@@ -359,7 +362,7 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q17(self):
-        multiplier = udf(lambda x: x * 0.2)
+        multiplier = self.generic_udf(udf, lambda x: x * 0.2)
 
         filteredLineitems = self.lineitem.select(col("l_partkey"), col("l_quantity"), col("l_extendedprice"))
 
@@ -391,16 +394,16 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q19(self):
-        decrease = udf(lambda x, y: x * (1 - y), FloatType())
+        decrease = self.generic_udf(udf, lambda x, y: x * (1 - y), FloatType())
 
         sm_regex = re.compile("SM CASE|SM BOX|SM PACK|SM PKG")
-        sm = udf(lambda x: sm_regex.match(x) is not None, BooleanType())
+        sm = self.generic_udf(udf, lambda x: sm_regex.match(x) is not None, BooleanType())
 
         med_regex = re.compile("MED BAG|MED BOX|MED PKG|MED PACK")
-        med = udf(lambda x: med_regex.match(x) is not None, BooleanType())
+        med = self.generic_udf(udf, lambda x: med_regex.match(x) is not None, BooleanType())
 
         lg_regex = re.compile("LG CASE|LG BOX|LG PACK|LG PKG")
-        lg = udf(lambda x: lg_regex.match(x) is not None, BooleanType())
+        lg = self.generic_udf(udf, lambda x: lg_regex.match(x) is not None, BooleanType())
 
         self.part.join(self.lineitem, col("l_partkey") == col("p_partkey")) \
             .filter(((col("l_shipmode") == "AIR")
@@ -429,7 +432,7 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q20(self):
-        forest = udf(lambda x: x.startswith("forest"), BooleanType())
+        forest = self.generic_udf(udf, lambda x: x.startswith("forest"), BooleanType())
 
         filteredLineitems = self.lineitem.filter(
             (col("l_shipdate") >= "1994-01-01") & (col("l_shipdate") < "1995-01-01")) \
@@ -487,10 +490,10 @@ class TpchFunctionalQueries(TpchBase):
             .show()
 
     def q22(self):
-        substring = udf(lambda x: x[0:2], StringType())
+        substring = self.generic_udf(udf, lambda x: x[0:2], StringType())
 
         phone_regex = re.compile("^(13|31|23|29|30|18|17)$")
-        phone = udf(lambda x: phone_regex.match(x) is not None, BooleanType())
+        phone = self.generic_udf(udf, lambda x: phone_regex.match(x) is not None, BooleanType())
 
         filteredCustomers = self.customer.select(col("c_acctbal"), col("c_custkey"),
                                                  substring(col("c_phone")).alias("cntrycode")) \
