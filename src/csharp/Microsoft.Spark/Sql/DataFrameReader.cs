@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql
 {
