@@ -9,7 +9,7 @@ using Apache.Arrow;
 
 namespace Tpch
 {
-    internal static class VectorFunctions
+    internal static class VectorFunctionsIntrinsics
     {
         internal static unsafe DoubleArray ComputeTotal(DoubleArray price, DoubleArray discount, DoubleArray tax)
         {
