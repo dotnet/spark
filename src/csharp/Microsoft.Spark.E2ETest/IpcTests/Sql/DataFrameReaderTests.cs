@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
