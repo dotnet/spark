@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.Spark.Utils
 {
@@ -79,6 +80,10 @@ namespace Microsoft.Spark.Utils
 
         private static readonly object s_cacheLock = new object();
 
+        // Illegal characters: #, *, :, <, >, ", |, ?, /, \
+        private static readonly Regex s_illegalCharRegex =
+            new Regex(@"[#*:<>""|?/\\]", RegexOptions.Compiled);
+
         /// <summary>
         /// Return the cached assembly, otherwise attempt to load and cache the assembly
         /// by searching for the assembly filename in the search paths.
@@ -90,6 +95,11 @@ namespace Microsoft.Spark.Utils
         /// found.</exception>
         internal static Assembly LoadAssembly(string assemblyName, string assemblyFileName)
         {
+            if (string.IsNullOrWhiteSpace(assemblyFileName))
+            {
+                return ResolveAssembly(assemblyName);
+            }
+
             lock (s_cacheLock)
             {
                 if (s_assemblyCache.TryGetValue(assemblyName, out Assembly assembly))
@@ -125,7 +135,8 @@ namespace Microsoft.Spark.Utils
                     return assembly;
                 }
 
-                string simpleAsmName = new AssemblyName(assemblyName).Name;
+                string simpleAsmName =
+                    NormalizeAssemblyName(new AssemblyName(assemblyName).Name);
                 foreach (string extension in s_extensions)
                 {
                     string assemblyFileName = $"{simpleAsmName}{extension}";
@@ -169,5 +180,8 @@ namespace Microsoft.Spark.Utils
 
             return false;
         }
+
+        private static string NormalizeAssemblyName(string assemblyName) =>
+            s_illegalCharRegex.Replace(assemblyName, "");
     }
 }
