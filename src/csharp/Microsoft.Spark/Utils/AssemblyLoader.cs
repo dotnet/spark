@@ -82,7 +82,7 @@ namespace Microsoft.Spark.Utils
 
         // Illegal characters: #, *, :, <, >, ", |, ?, /, \
         private static readonly Regex s_illegalCharRegex =
-            new Regex(@"[#*:<>""|?/\\]", RegexOptions.Compiled);
+            new Regex(@"[#*:<>""|?/\\]", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         /// <summary>
         /// Return the cached assembly, otherwise attempt to load and cache the assembly
@@ -147,7 +147,7 @@ namespace Microsoft.Spark.Utils
                     }
                 }
 
-                throw new FileNotFoundException($"Assembly file not found: '{assemblyName}'");
+                throw new FileNotFoundException($"Assembly '{assemblyName}' file not found: '{simpleAsmName}.[{string.Join(",", s_extensions)}]'");
             }
         }
 
