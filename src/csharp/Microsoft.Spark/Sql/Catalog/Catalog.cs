@@ -42,7 +42,7 @@ namespace Microsoft.Spark.Sql.Catalog
 
         /// <summary>
         /// Creates a table, in the hive warehouse, from the given path and returns the
-        /// corresponding DataFrame. The table will contains the contents of the parquet
+        /// corresponding DataFrame. The table will contain the contents of the parquet
         /// file that is in the `path` parameter. The default data source type is parquet. This can
         /// be changed using `CreateTable(tableName, path, source)` or setting the configuration
         /// option `spark.sql.sources.default` when creating the spark session using
@@ -51,7 +51,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// </summary>
         /// <param name="tableName">The name of the table to create.</param>
         /// <param name="path">Path to use to create the table.</param>
-        /// <returns>The results of reading the files in path as a `DataFrame`.</returns>
+        /// <returns>The contents of the files in the path parameter as a `DataFrame`.</returns>
         public DataFrame CreateTable(string tableName, string path) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("createTable", tableName, path));
 
@@ -86,7 +86,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// of hive databases in the current session to see if the database exists.
         /// </summary>
         /// <param name="dbName">Name of the database to check.</param>
-        /// <returns>true if the database exists and false if it does not exist.</returns>
+        /// <returns>bool, true if the database exists and false if it does not exist.</returns>
         public bool DatabaseExists(string dbName) =>
             (bool)_jvmObject.Invoke("databaseExists", dbName);
 
