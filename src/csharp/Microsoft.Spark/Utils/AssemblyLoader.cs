@@ -80,7 +80,8 @@ namespace Microsoft.Spark.Utils
 
         private static readonly object s_cacheLock = new object();
 
-        // Illegal characters: #, *, :, <, >, ", |, ?, /, \
+        // Windows reserved characters: *, :, <, >, ", |, ?, /, \
+        // SparkContext.AddFile is not able to load a file that contains a #.
         private static readonly Regex s_illegalCharRegex =
             new Regex(@"[#*:<>""|?/\\]", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
@@ -95,6 +96,7 @@ namespace Microsoft.Spark.Utils
         /// found.</exception>
         internal static Assembly LoadAssembly(string assemblyName, string assemblyFileName)
         {
+            // assemblyFileName is empty when serializing a UDF from within the REPL.
             if (string.IsNullOrWhiteSpace(assemblyFileName))
             {
                 return ResolveAssembly(assemblyName);
@@ -181,6 +183,14 @@ namespace Microsoft.Spark.Utils
             return false;
         }
 
+        /// <summary>
+        /// Normalizes the assemblyName by removing characters known to cause
+        /// issues. This is useful in situations where the assemblyName is
+        /// automatically generated, ie the Roslyn compiler used in the REPL
+        /// generates an assembly name that contains * and #.
+        /// </summary>
+        /// <param name="assemblyName">Assembly name</param>
+        /// <returns>Normalized assembly name</returns>
         private static string NormalizeAssemblyName(string assemblyName) =>
             s_illegalCharRegex.Replace(assemblyName, "");
     }
