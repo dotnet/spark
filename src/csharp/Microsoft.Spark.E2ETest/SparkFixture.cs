@@ -17,20 +17,36 @@ namespace Microsoft.Spark.E2ETest
     /// mode through the spark-submit. It also provides a default SparkSession
     /// object that any tests can use.
     /// </summary>
-    public class SparkFixture : IDisposable
+    public sealed class SparkFixture : IDisposable
     {
+        /// <summary>
+        /// The names of environment variables used by the SparkFixture.
+        /// </summary>
+        public class EnvironmentVariableNames
+        {
+            /// <summary>
+            /// This environment variable specifies a comma-separated list of Maven packages.
+            /// </summary>
+            public const string Packages = "DOTNET_SPARKFIXTURE_PACKAGES";
+
+            /// <summary>
+            /// This environment variable specifies the path where the DotNet worker is installed.
+            /// </summary>
+            public const string WorkerDir = Services.ConfigurationService.WorkerDirEnvVarName;
+        }
+
         private Process _process = new Process();
 
         internal SparkSession Spark { get; }
 
         public SparkFixture()
         {
-            string workerDirEnvVarName = Services.ConfigurationService.WorkerDirEnvVarName;
-
             // The worker directory must be set for the Microsoft.Spark.Worker executable.
-            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(workerDirEnvVarName)))
+            if (string.IsNullOrEmpty(
+                Environment.GetEnvironmentVariable(EnvironmentVariableNames.WorkerDir)))
             {
-                throw new Exception($"Environment variable '{workerDirEnvVarName}' must be set.");
+                throw new Exception(
+                    $"Environment variable '{EnvironmentVariableNames.WorkerDir}' must be set.");
             }
 
             BuildSparkCmd(out var filename, out var args);
@@ -100,8 +116,7 @@ namespace Microsoft.Spark.E2ETest
             string sparkHome = SparkSettings.SparkHome;
 
             // Build the executable name.
-            char sep = Path.DirectorySeparatorChar;
-            filename = $"{sparkHome}{sep}bin{sep}spark-submit";
+            filename = Path.Combine(sparkHome, "bin", "spark-submit");
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 filename += ".cmd";
@@ -116,10 +131,15 @@ namespace Microsoft.Spark.E2ETest
             string classArg = "--class org.apache.spark.deploy.dotnet.DotnetRunner";
             string curDir = AppDomain.CurrentDomain.BaseDirectory;
             string jarPrefix = GetJarPrefix(sparkHome);
-            string scalaDir = $"{curDir}{sep}..{sep}..{sep}..{sep}..{sep}..{sep}src{sep}scala";
-            string jarDir = $"{scalaDir}{sep}{jarPrefix}{sep}target";
+            string scalaDir = Path.Combine(curDir, "..", "..", "..", "..", "..", "src", "scala");
+            string jarDir = Path.Combine(scalaDir, jarPrefix, "target");
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
-            string jar = $"{jarDir}{sep}{jarPrefix}-{assemblyVersion}.jar";
+            string jar = Path.Combine(jarDir, $"{jarPrefix}-{assemblyVersion}.jar");
+
+            string packages = Environment.GetEnvironmentVariable(
+                EnvironmentVariableNames.Packages);
+            string packagesArg = string.IsNullOrEmpty(packages)
+                ? string.Empty : $"--packages {packages}";
 
             if (!File.Exists(jar))
             {
@@ -136,7 +156,7 @@ namespace Microsoft.Spark.E2ETest
             string logOption = $"--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
 
-            args = $"{logOption} {classArg} --master local {jar} debug";
+            args = $"{logOption} {packagesArg} {classArg} --master local {jar} debug";
         }
 
         private string GetJarPrefix(string sparkHome)
