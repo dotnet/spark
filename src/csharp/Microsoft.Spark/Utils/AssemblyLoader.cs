@@ -113,7 +113,7 @@ namespace Microsoft.Spark.Utils
                     return assembly;
                 }
 
-                throw new FileNotFoundException($"Assembly '{assemblyName}' file not found: '{assemblyFileName}'");
+                throw new FileNotFoundException($"Assembly '{assemblyName}' file not found '{assemblyFileName}' in '{string.Join(",", s_searchPaths)}'");
             }
         }
 
@@ -147,7 +147,7 @@ namespace Microsoft.Spark.Utils
                     }
                 }
 
-                throw new FileNotFoundException($"Assembly '{assemblyName}' file not found: '{simpleAsmName}.[{string.Join(",", s_extensions)}]'");
+                throw new FileNotFoundException($"Assembly '{assemblyName}' file not found '{simpleAsmName}[{string.Join(",", s_extensions)}]' in '{string.Join(",", s_searchPaths)}'");
             }
         }
 
