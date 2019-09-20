@@ -2,9 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Newtonsoft.Json.Linq;
 
@@ -215,7 +215,7 @@ namespace Microsoft.Spark.Sql.Types
     /// Struct type represents a struct with multiple fields.
     /// This type is also used to represent a Row object in Spark.
     /// </summary>
-    public sealed class StructType : DataType
+    public sealed class StructType : DataType, IJvmObjectReferenceProvider
     {
         /// <summary>
         /// Constructor for StructType class.
@@ -234,6 +234,22 @@ namespace Microsoft.Spark.Sql.Types
         /// Returns a list of StructFieldType objects.
         /// </summary>
         public List<StructField> Fields { get; private set; }
+
+        /// <summary>
+        /// Constructor for StructType class.
+        /// </summary>
+        JvmObjectReference IJvmObjectReferenceProvider.Reference
+        {
+            get
+            {
+                using (JvmBridge jvmBridge = new JvmBridge(
+                    SparkEnvironment.ConfigurationService.GetBackendPortNumber()))
+                {
+                    return (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                        "org.apache.spark.sql.types.StructType", "fromJson", new object[] { Json });
+                }
+            }
+        }
 
         /// <summary>
         /// Constructor for StructType class.
