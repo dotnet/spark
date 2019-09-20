@@ -80,10 +80,12 @@ namespace Microsoft.Spark.Utils
 
         private static readonly object s_cacheLock = new object();
 
-        // Windows reserved characters: *, :, <, >, ", |, ?, /, \
-        // SparkContext.AddFile is not able to load a file that contains a #.
+        // Roslyn generates assembly names with characters that cause issues.
+        // The generated name contains *, a reserved character in Windows,
+        // and #, which causes problems when used with SparkContext.AddFile.
+        // https://github.com/dotnet/roslyn/blob/da63493c37e4a450076d6dac02044bf0fcdbcc50/src/Scripting/Core/ScriptBuilder.cs#L51
         private static readonly Regex s_illegalCharRegex =
-            new Regex(@"[#*:<>""|?/\\]", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+            new Regex(@"[#*]", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         /// <summary>
         /// Return the cached assembly, otherwise attempt to load and cache the assembly
