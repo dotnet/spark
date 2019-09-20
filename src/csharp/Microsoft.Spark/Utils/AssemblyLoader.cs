@@ -200,15 +200,10 @@ namespace Microsoft.Spark.Utils
             // Check if the assembly name follows the Roslyn naming convention.
             // Roslyn assembly name: "\u211B*4b31b71b-d4bd-4642-9f63-eef5f5d99197#1-14"
             // Normalized Roslyn assembly name: "4b31b71b-d4bd-4642-9f63-eef5f5d99197-1-14"
-            if (assemblyName.StartsWith("\u211B*")) {
-                Match match = s_roslynAssemblyNameRegex.Match(assemblyName);
-                if (match.Success)
-                {
-                    return $"{match.Groups[1].Value}-{match.Groups[2].Value}";
-                }
-
-                throw new FormatException(
-                    $"Expected Roslyn generated assembly name '{assemblyName}'");
+            Match match = s_roslynAssemblyNameRegex.Match(assemblyName);
+            if (match.Success)
+            {
+                return $"{match.Groups[1].Value}-{match.Groups[2].Value}";
             }
 
             return assemblyName;
