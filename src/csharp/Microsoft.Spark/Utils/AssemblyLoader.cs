@@ -84,8 +84,10 @@ namespace Microsoft.Spark.Utils
         // The generated name contains *, a reserved character in Windows,
         // and #, which causes problems when used with SparkContext.AddFile.
         // https://github.com/dotnet/roslyn/blob/da63493c37e4a450076d6dac02044bf0fcdbcc50/src/Scripting/Core/ScriptBuilder.cs#L51
-        private static readonly Regex s_illegalCharRegex =
-            new Regex(@"[#*]", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex s_roslynAssemblyNameRegex =
+            new Regex(
+                "^\u211B\\*([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})#([0-9]+-[0-9]+)",
+                RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         /// <summary>
         /// Return the cached assembly, otherwise attempt to load and cache the assembly
@@ -193,7 +195,23 @@ namespace Microsoft.Spark.Utils
         /// </summary>
         /// <param name="assemblyName">Assembly name</param>
         /// <returns>Normalized assembly name</returns>
-        private static string NormalizeAssemblyName(string assemblyName) =>
-            s_illegalCharRegex.Replace(assemblyName, "_");
+        private static string NormalizeAssemblyName(string assemblyName)
+        {
+            // Check if the assembly name follows the Roslyn naming convention.
+            // Roslyn assembly name: "\u211B*4b31b71b-d4bd-4642-9f63-eef5f5d99197#1-14"
+            // Normalized Roslyn assembly name: "4b31b71b-d4bd-4642-9f63-eef5f5d99197-1-14"
+            if (assemblyName.StartsWith("\u211B*")) {
+                Match match = s_roslynAssemblyNameRegex.Match(assemblyName);
+                if (match.Success)
+                {
+                    return $"{match.Groups[1].Value}-{match.Groups[2].Value}";
+                }
+
+                throw new FormatException(
+                    $"Expected Roslyn generated assembly name '{assemblyName}'");
+            }
+
+            return assemblyName;
+        }
     }
 }
