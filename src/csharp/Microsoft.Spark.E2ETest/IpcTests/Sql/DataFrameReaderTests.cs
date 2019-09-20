@@ -35,7 +35,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                     {
                         new StructField("age", new IntegerType()),
                         new StructField("name", new StringType())
-                    }))));
+                    })));
             Assert.IsType<DataFrameReader>(dfr.Schema("age INT, name STRING"));
 
             Assert.IsType<DataFrameReader>(dfr.Option("stringOption", "value"));
