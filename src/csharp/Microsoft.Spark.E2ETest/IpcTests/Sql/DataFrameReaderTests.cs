@@ -29,7 +29,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<DataFrameReader>(dfr.Format("json"));
             
-            Assert.Throws<NotSupportedException>(() => Assert.IsType<DataFrameReader>(
+            Assert.IsType<DataFrameReader>(
                 dfr.Schema(
                     new StructType(new[]
                     {
