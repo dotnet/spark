@@ -194,6 +194,6 @@ namespace Microsoft.Spark.Utils
         /// <param name="assemblyName">Assembly name</param>
         /// <returns>Normalized assembly name</returns>
         private static string NormalizeAssemblyName(string assemblyName) =>
-            s_illegalCharRegex.Replace(assemblyName, "");
+            s_illegalCharRegex.Replace(assemblyName, "_");
     }
 }
