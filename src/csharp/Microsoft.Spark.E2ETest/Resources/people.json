@@ -1,3 +1,3 @@
-{"name":"Michael"}
-{"name":"Andy", "age":30}
-{"name":"Justin", "age":19}
+{"name":"Michael", "ages":[19], "info":{"city":"Burdwan", "state":"Paschimbanga"}}
+{"name":"Andy", "age":30, "ages":[19,30], "info":{"city":"Los Angeles", "state":"California"}}
+{"name":"Justin", "age":19, "ages":[30,40], "info":{"city":"Seattle"}}
