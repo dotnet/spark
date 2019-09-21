@@ -1,3 +1,0 @@
-{ "name": "Michael", "ages": [ 19 ], "cars": [ "Ford", "BMW" ], "info": { "city": "Burdwan", "state": "Paschimbanga" } }
-{ "name": "Andy", "ages": [ 19, 30 ], "age": 30, "cars": [ "Jeep", "Audi" ], "info": { "city": "Los Angeles", "state": "California" } }
-{ "name": "Justin", "ages": [ 19, 30, 40 ], "age": 19, "cars": [ "BMW", "Fiat" ], "info": { "city": "Seattle" } }
