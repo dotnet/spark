@@ -37,7 +37,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Column col = Column("col1");
             Assert.IsType<Column>(col);
-            
+
             Assert.IsType<Column>(Col("col2"));
             Assert.IsType<Column>(Lit(1));
             Assert.IsType<Column>(Lit("some column"));
@@ -204,8 +204,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(Map(col, col));
 
             DataFrame df = _spark
-               .Read()
-               .Json($"{TestEnvironment.ResourceDirectory}people.json");
+                .Read()
+                .Json($"{TestEnvironment.ResourceDirectory}people.json");
 
             Assert.IsType<DataFrame>(Broadcast(df));
 
@@ -571,7 +571,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(JsonTuple(col, "a"));
             Assert.IsType<Column>(JsonTuple(col, "a", "b"));
 
-            var options = new Dictionary<string, string>() { { "hello", "world" } };
+            var options = new Dictionary<string, string>() {{"hello", "world"}};
 
             Assert.IsType<Column>(FromJson(col, "a Int"));
             Assert.IsType<Column>(FromJson(col, "a Int", options));
@@ -628,11 +628,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             col = Udf<int, int, int, int, int, int, int, int, int, int>(
                 (a1, a2, a3, a4, a5, a6, a7, a8, a9) => 1)(
-                    col, col, col, col, col, col, col, col, col);
+                col, col, col, col, col, col, col, col, col);
 
             col = Udf<int, int, int, int, int, int, int, int, int, int, int>(
                 (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) => 1)(
-                    col, col, col, col, col, col, col, col, col, col);
+                col, col, col, col, col, col, col, col, col, col);
 
             // Test various retun types of Udf.
 
@@ -647,32 +647,32 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Udf<int, int>((arg) => arg);
             Udf<long, long>((arg) => arg);
             Udf<short, short>((arg) => arg);
-            
+
             // Test array type.
-            Udf<string, string[]>((arg) => new[] { arg } );
-            Udf<string, IEnumerable<string>>((arg) => new[] { arg });
-            Udf<string, IEnumerable<IEnumerable<string>>>((arg) => new[] { new[] { arg } });
+            Udf<string, string[]>((arg) => new[] {arg});
+            Udf<string, IEnumerable<string>>((arg) => new[] {arg});
+            Udf<string, IEnumerable<IEnumerable<string>>>((arg) => new[] {new[] {arg}});
 
             // Test map type.
             Udf<string, Dictionary<string, string>>(
-                (arg) => new Dictionary<string, string> { { arg, arg } });
+                (arg) => new Dictionary<string, string> {{arg, arg}});
             Udf<string, IDictionary<string, string>>(
-                (arg) => new Dictionary<string, string> { { arg, arg } });
+                (arg) => new Dictionary<string, string> {{arg, arg}});
             Udf<string, IDictionary<string, string[]>>(
-                (arg) => new Dictionary<string, string[]> { { arg, new[] { arg } } });
+                (arg) => new Dictionary<string, string[]> {{arg, new[] {arg}}});
         }
 
         [Fact]
         public void CatalogFunctions()
         {
-            var spark = SparkSession.Builder().GetOrCreate();
-            var catalog = spark.Catalog();
+            var catalog = _spark.Catalog();
 
             Assert.IsType<DataFrame>(catalog.ListDatabases());
             Assert.IsType<DataFrame>(catalog.ListFunctions());
             Assert.IsType<DataFrame>(catalog.ListFunctions("default"));
-            
-            var table = catalog.CreateTable("users", Path.Combine(TestEnvironment.ResourceDirectory, "users.parquet"));
+
+            var table = catalog.CreateTable("users",
+                Path.Combine(TestEnvironment.ResourceDirectory, "users.parquet"));
             Assert.IsType<DataFrame>(table);
 
             Assert.IsType<string>(catalog.CurrentDatabase());
@@ -684,7 +684,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<bool>(catalog.FunctionExists("functionname"));
             Assert.IsType<Database>(catalog.GetDatabase("default"));
             Assert.IsType<Function>(catalog.GetFunction("abs"));
-            Assert.IsType<Function>( catalog.GetFunction(null, "abs"));
+            Assert.IsType<Function>(catalog.GetFunction(null, "abs"));
             Assert.IsType<Table>(catalog.GetTable("users"));
             Assert.IsType<Table>(catalog.GetTable("default", "users"));
             Assert.IsType<bool>(catalog.IsCached("users"));
@@ -695,7 +695,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<DataFrame>(catalog.ListFunctions("default"));
             Assert.IsType<DataFrame>(catalog.ListTables());
             Assert.IsType<DataFrame>(catalog.ListTables("default"));
-            
+
             catalog.RefreshByPath("/");
             catalog.RefreshTable("users");
             catalog.SetCurrentDatabase("default");
@@ -706,7 +706,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<bool>(catalog.TableExists("users"));
             Assert.IsType<bool>(catalog.TableExists("default", "users"));
 
-            spark.Sql(@"CREATE TABLE IF NOT EXISTS usersp USING PARQUET PARTITIONED BY (name)  
+            _spark.Sql(@"CREATE TABLE IF NOT EXISTS usersp USING PARQUET PARTITIONED BY (name)  
                             AS SELECT * FROM users");
             catalog.RecoverPartitions("usersp");
         }
@@ -750,7 +750,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             col = ArrayExcept(col, col);
 
-            var options = new Dictionary<string, string>() { { "hello", "world" } };
+            var options = new Dictionary<string, string>() {{"hello", "world"}};
             Column schema = SchemaOfJson("[{\"col\":0}]");
 
             col = FromJson(col, schema);

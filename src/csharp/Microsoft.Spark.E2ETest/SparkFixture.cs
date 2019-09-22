@@ -150,7 +150,8 @@ namespace Microsoft.Spark.E2ETest
                 throw new FileNotFoundException($"{jar} does not exist.");
             }
 
-            string warehouseUri = new Uri(Path.Combine(_tempDirectory.Path, "spark-warehouse")).AbsoluteUri;
+            string warehouseUri = new Uri(
+                Path.Combine(_tempDirectory.Path, "spark-warehouse")).AbsoluteUri;
             string warehouseDir = $"--conf spark.sql.warehouse.dir={warehouseUri}";
 
             // If there exists log4j.properties in SPARK_HOME/conf directory, Spark from 2.3.*
@@ -163,7 +164,8 @@ namespace Microsoft.Spark.E2ETest
             string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
 
-            args = $"{logOption} {warehouseDir} {packagesArg} {classArg} --master local {jar} debug";
+            args = $"{logOption} {warehouseDir} {packagesArg} {classArg}" + 
+                   $" --master local {jar} debug";
 
         }
 
