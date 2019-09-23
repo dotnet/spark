@@ -24,7 +24,6 @@ namespace Microsoft.Spark
         public static string Get(string fileName) =>
             (string)Jvm.CallStaticJavaMethod(s_sparkFilesClassName, "get", fileName);
 
-
         /// <summary>
         /// Get the root directory that contains files added through `SparkContext.addFile()`.
         /// </summary>
