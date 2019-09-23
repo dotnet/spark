@@ -166,8 +166,13 @@ namespace Microsoft.Spark.Utils
         private static JvmObjectReference CreateEnvVarsForPythonFunction(IJvmBridge jvm)
         {
             JvmObjectReference environmentVars = jvm.CallConstructor("java.util.Hashtable");
-            string assemblySearchPath = Environment.GetEnvironmentVariable(
-                AssemblySearchPathResolver.AssemblySearchPathsEnvVarName);
+            string assemblySearchPath = string.Join(",",
+                new[] {
+                    SparkFiles.GetRootDirectory(),
+                    Environment.GetEnvironmentVariable(
+                        AssemblySearchPathResolver.AssemblySearchPathsEnvVarName)
+                }.Where(s => !string.IsNullOrWhiteSpace(s)));
+
             if (!string.IsNullOrEmpty(assemblySearchPath))
             {
                 jvm.CallNonStaticJavaMethod(
