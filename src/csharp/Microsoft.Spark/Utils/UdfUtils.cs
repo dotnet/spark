@@ -167,7 +167,8 @@ namespace Microsoft.Spark.Utils
         {
             JvmObjectReference environmentVars = jvm.CallConstructor("java.util.Hashtable");
             string assemblySearchPath = string.Join(",",
-                new[] {
+                new[]
+                {
                     SparkFiles.GetRootDirectory(),
                     Environment.GetEnvironmentVariable(
                         AssemblySearchPathResolver.AssemblySearchPathsEnvVarName)
