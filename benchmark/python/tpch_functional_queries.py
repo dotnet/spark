@@ -158,7 +158,9 @@ class TpchFunctionalQueries(TpchBase):
             .sort(col("supp_nation"), col("cust_nation"), col("l_year")) \
             .show()
 
-    def q8Common(self, getYear, decrease, isBrazil):
+    def q8Common(self, decrease):
+        getYear = udf(lambda x: x[0:4], StringType())
+        isBrazil = udf(lambda x, y: (y if (x == "BRAZIL") else 0), FloatType())
         filteredRegions = self.region.filter(col("r_name") == "AMERICA")
         filteredOrders = self.orders.filter((col("o_orderdate") <= "1996-12-31") & (col("o_orderdate") >= "1995-01-01"))
         filteredParts = self.part.filter(col("p_type") == "ECONOMY ANODIZED STEEL")
@@ -184,22 +186,15 @@ class TpchFunctionalQueries(TpchBase):
             .sort(col("o_year")) \
             .show()
 
-    def q8(self):
-        getYear = udf(lambda x: x[0:4], StringType())
-        decrease = udf(lambda x, y: x * (1 - y), FloatType())
-        isBrazil = udf(lambda x, y: (y if (x == "BRAZIL") else 0), FloatType())
-
-        self.q8Common(getYear, decrease, isBrazil)
+    def q8(self):     
+        decrease = udf(lambda x, y: x * (1 - y), FloatType())        
+        self.q8Common(decrease)
         
-
-    def q8a(self):               
-        getYear = udf(lambda x: x[0:4], StringType())
+    def q8a(self):                       
         def discount_price_f(x, y):
             return x * (1 - y)
-        decrease = pandas_udf(discount_price_f, returnType=FloatType())
-        isBrazil = udf(lambda x, y: (y if (x == "BRAZIL") else 0), FloatType())        
-
-        self.q8Common(getYear, decrease, isBrazil)
+        decrease = pandas_udf(discount_price_f, returnType=FloatType())              
+        self.q8Common(decrease)
 
     def q9(self):
         getYear = udf(lambda x: x[0:4], StringType())
