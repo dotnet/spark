@@ -204,8 +204,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(Map(col, col));
 
             DataFrame df = _spark
-                .Read()
-                .Json($"{TestEnvironment.ResourceDirectory}people.json");
+               .Read()
+               .Json($"{TestEnvironment.ResourceDirectory}people.json");
 
             Assert.IsType<DataFrame>(Broadcast(df));
 
@@ -571,7 +571,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(JsonTuple(col, "a"));
             Assert.IsType<Column>(JsonTuple(col, "a", "b"));
 
-            var options = new Dictionary<string, string>() {{"hello", "world"}};
+            var options = new Dictionary<string, string>() { { "hello", "world" } };
 
             Assert.IsType<Column>(FromJson(col, "a Int"));
             Assert.IsType<Column>(FromJson(col, "a Int", options));
@@ -628,11 +628,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             col = Udf<int, int, int, int, int, int, int, int, int, int>(
                 (a1, a2, a3, a4, a5, a6, a7, a8, a9) => 1)(
-                col, col, col, col, col, col, col, col, col);
+                    col, col, col, col, col, col, col, col, col);
 
             col = Udf<int, int, int, int, int, int, int, int, int, int, int>(
                 (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) => 1)(
-                col, col, col, col, col, col, col, col, col, col);
+                    col, col, col, col, col, col, col, col, col, col);
 
             // Test various retun types of Udf.
 
@@ -649,29 +649,30 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Udf<short, short>((arg) => arg);
 
             // Test array type.
-            Udf<string, string[]>((arg) => new[] {arg});
-            Udf<string, IEnumerable<string>>((arg) => new[] {arg});
-            Udf<string, IEnumerable<IEnumerable<string>>>((arg) => new[] {new[] {arg}});
+            Udf<string, string[]>((arg) => new[] { arg });
+            Udf<string, IEnumerable<string>>((arg) => new[] { arg });
+            Udf<string, IEnumerable<IEnumerable<string>>>((arg) => new[] { new[] { arg } });
 
             // Test map type.
             Udf<string, Dictionary<string, string>>(
-                (arg) => new Dictionary<string, string> {{arg, arg}});
+                (arg) => new Dictionary<string, string> { { arg, arg } });
             Udf<string, IDictionary<string, string>>(
-                (arg) => new Dictionary<string, string> {{arg, arg}});
+                (arg) => new Dictionary<string, string> { { arg, arg } });
             Udf<string, IDictionary<string, string[]>>(
-                (arg) => new Dictionary<string, string[]> {{arg, new[] {arg}}});
+                (arg) => new Dictionary<string, string[]> { { arg, new[] { arg } } });
         }
 
         [Fact]
+        /// Tests for the Catclog Functions - returned from SparkSession.Catalog
         public void CatalogFunctions()
         {
-            var catalog = _spark.Catalog();
+           var catalog = _spark.Catalog();
 
             Assert.IsType<DataFrame>(catalog.ListDatabases());
             Assert.IsType<DataFrame>(catalog.ListFunctions());
             Assert.IsType<DataFrame>(catalog.ListFunctions("default"));
 
-            var table = catalog.CreateTable("users",
+            var table = catalog.CreateTable("users", 
                 Path.Combine(TestEnvironment.ResourceDirectory, "users.parquet"));
             Assert.IsType<DataFrame>(table);
 
@@ -750,7 +751,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             col = ArrayExcept(col, col);
 
-            var options = new Dictionary<string, string>() {{"hello", "world"}};
+            var options = new Dictionary<string, string>() { { "hello", "world" } };
             Column schema = SchemaOfJson("[{\"col\":0}]");
 
             col = FromJson(col, schema);
