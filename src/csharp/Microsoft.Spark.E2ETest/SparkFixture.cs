@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Xunit;
 
@@ -37,6 +38,7 @@ namespace Microsoft.Spark.E2ETest
         }
 
         private readonly Process _process = new Process();
+        private readonly TemporaryDirectory _tempDirectory = new TemporaryDirectory();
 
         internal SparkSession Spark { get; }
 
@@ -112,6 +114,8 @@ namespace Microsoft.Spark.E2ETest
             _process.StandardInput.WriteLine("done");
             _process.StandardInput.Flush();
             _process.WaitForExit();
+
+            _tempDirectory.Dispose();
         }
 
         private void BuildSparkCmd(out string filename, out string args)
@@ -139,13 +143,17 @@ namespace Microsoft.Spark.E2ETest
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
             string jar = Path.Combine(jarDir, $"{jarPrefix}-{assemblyVersion}.jar");
 
-            string extraParams = Environment.GetEnvironmentVariable(
-                EnvironmentVariableNames.ExtraSparkSubmitArgs) ?? "";
-
             if (!File.Exists(jar))
             {
                 throw new FileNotFoundException($"{jar} does not exist.");
             }
+
+            string warehouseUri = new Uri(
+                Path.Combine(_tempDirectory.Path, "spark-warehouse")).AbsoluteUri;
+            string warehouseDir = $"--conf spark.sql.warehouse.dir={warehouseUri}";
+
+            string extraArgs = Environment.GetEnvironmentVariable(
+                EnvironmentVariableNames.ExtraSparkSubmitArgs) ?? "";
 
             // If there exists log4j.properties in SPARK_HOME/conf directory, Spark from 2.3.*
             // to 2.4.0 hang in E2E test. The reverse behavior is true for Spark 2.4.1; if
@@ -154,10 +162,10 @@ namespace Microsoft.Spark.E2ETest
             // The solution is to use custom log configuration that appends NullLogger, which
             // works across all Spark versions.
             string resourceUri = new Uri(TestEnvironment.ResourceDirectory).AbsoluteUri;
-            string logOption = $"--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
+            string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
 
-            args = $"{logOption} {extraParams} {classArg} --master local {jar} debug";
+            args = $"{logOption} {warehouseDir} {extraArgs} {classArg} --master local {jar} debug";
         }
 
         private string GetJarPrefix()
