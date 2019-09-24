@@ -32,7 +32,7 @@ class TpchFunctionalQueries(TpchBase):
             .sort(col("l_returnflag"), col("l_linestatus")) \
             .show()
 
-    def q1v(self):        
+    def q1a(self):        
         def discount_price_f(x, y):
             return x * (1 - y)
         decrease = pandas_udf(discount_price_f, returnType=DoubleType())
@@ -158,11 +158,7 @@ class TpchFunctionalQueries(TpchBase):
             .sort(col("supp_nation"), col("cust_nation"), col("l_year")) \
             .show()
 
-    def q8(self):
-        getYear = udf(lambda x: x[0:4], StringType())
-        decrease = udf(lambda x, y: x * (1 - y), FloatType())
-        isBrazil = udf(lambda x, y: (y if (x == "BRAZIL") else 0), FloatType())
-
+    def q8Common(self, getYear, decrease, isBrazil):
         filteredRegions = self.region.filter(col("r_name") == "AMERICA")
         filteredOrders = self.orders.filter((col("o_orderdate") <= "1996-12-31") & (col("o_orderdate") >= "1995-01-01"))
         filteredParts = self.part.filter(col("p_type") == "ECONOMY ANODIZED STEEL")
@@ -188,37 +184,22 @@ class TpchFunctionalQueries(TpchBase):
             .sort(col("o_year")) \
             .show()
 
-    def q8v(self):               
+    def q8(self):
+        getYear = udf(lambda x: x[0:4], StringType())
+        decrease = udf(lambda x, y: x * (1 - y), FloatType())
+        isBrazil = udf(lambda x, y: (y if (x == "BRAZIL") else 0), FloatType())
+
+        self.q8Common(getYear, decrease, isBrazil)
+        
+
+    def q8a(self):               
         getYear = udf(lambda x: x[0:4], StringType())
         def discount_price_f(x, y):
             return x * (1 - y)
         decrease = pandas_udf(discount_price_f, returnType=FloatType())
         isBrazil = udf(lambda x, y: (y if (x == "BRAZIL") else 0), FloatType())        
 
-        filteredRegions = self.region.filter(col("r_name") == "AMERICA")
-        filteredOrders = self.orders.filter((col("o_orderdate") <= "1996-12-31") & (col("o_orderdate") >= "1995-01-01"))
-        filteredParts = self.part.filter(col("p_type") == "ECONOMY ANODIZED STEEL")
-
-        filteredNations = self.nation.join(self.supplier, col("n_nationkey") == col("s_nationkey"))
-
-        filteredLineitems = self.lineitem.select(col("l_partkey"), col("l_suppkey"), col("l_orderkey"),
-                                                    decrease(col("l_extendedprice"), col("l_discount")).alias("volume")) \
-            .join(filteredParts, col("l_partkey") == col("p_partkey")) \
-            .join(filteredNations, col("l_suppkey") == col("s_suppkey"))
-
-        self.nation.join(filteredRegions, col("n_regionkey") == col("r_regionkey")) \
-            .select(col("n_nationkey")) \
-            .join(self.customer, col("n_nationkey") == col("c_nationkey")) \
-            .select(col("c_custkey")) \
-            .join(filteredOrders, col("c_custkey") == col("o_custkey")) \
-            .select(col("o_orderkey"), col("o_orderdate")) \
-            .join(filteredLineitems, col("o_orderkey") == col("l_orderkey")) \
-            .select(getYear(col("o_orderdate")).alias("o_year"), col("volume"),
-                    isBrazil(col("n_name"), col("volume")).alias("case_volume")) \
-            .groupBy(col("o_year")) \
-            .agg((F.sum(col("case_volume")) / F.sum(col("volume"))).alias("mkt_share")) \
-            .sort(col("o_year")) \
-            .show()
+        self.q8Common(getYear, decrease, isBrazil)
 
     def q9(self):
         getYear = udf(lambda x: x[0:4], StringType())
