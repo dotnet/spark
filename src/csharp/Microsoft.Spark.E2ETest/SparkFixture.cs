@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Xunit;
 
@@ -36,6 +37,7 @@ namespace Microsoft.Spark.E2ETest
         }
 
         private Process _process = new Process();
+        private TemporaryDirectory _tempDirectory = new TemporaryDirectory();
 
         internal SparkSession Spark { get; }
 
@@ -109,6 +111,8 @@ namespace Microsoft.Spark.E2ETest
             _process.StandardInput.WriteLine("done");
             _process.StandardInput.Flush();
             _process.WaitForExit();
+
+            _tempDirectory.Dispose();
         }
 
         private void BuildSparkCmd(out string filename, out string args)
@@ -146,6 +150,10 @@ namespace Microsoft.Spark.E2ETest
                 throw new FileNotFoundException($"{jar} does not exist.");
             }
 
+            string warehouseUri = new Uri(
+                Path.Combine(_tempDirectory.Path, "spark-warehouse")).AbsoluteUri;
+            string warehouseDir = $"--conf spark.sql.warehouse.dir={warehouseUri}";
+
             // If there exists log4j.properties in SPARK_HOME/conf directory, Spark from 2.3.*
             // to 2.4.0 hang in E2E test. The reverse behavior is true for Spark 2.4.1; if
             // there does not exist log4j.properties, the tests hang.
@@ -153,10 +161,12 @@ namespace Microsoft.Spark.E2ETest
             // The solution is to use custom log configuration that appends NullLogger, which
             // works across all Spark versions.
             string resourceUri = new Uri(TestEnvironment.ResourceDirectory).AbsoluteUri;
-            string logOption = $"--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
+            string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
 
-            args = $"{logOption} {packagesArg} {classArg} --master local {jar} debug";
+            args = $"{logOption} {warehouseDir} {packagesArg} {classArg}" + 
+                   $" --master local {jar} debug";
+
         }
 
         private string GetJarPrefix(string sparkHome)
