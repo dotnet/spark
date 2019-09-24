@@ -169,9 +169,9 @@ namespace Microsoft.Spark.Utils
             string assemblySearchPath = string.Join(",",
                 new[]
                 {
-                    SparkFiles.GetRootDirectory(),
                     Environment.GetEnvironmentVariable(
-                        AssemblySearchPathResolver.AssemblySearchPathsEnvVarName)
+                        AssemblySearchPathResolver.AssemblySearchPathsEnvVarName),
+                    SparkFiles.GetRootDirectory()
                 }.Where(s => !string.IsNullOrWhiteSpace(s)));
 
             if (!string.IsNullOrEmpty(assemblySearchPath))
