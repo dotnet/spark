@@ -26,7 +26,7 @@ namespace Microsoft.Spark.E2ETest
         public class EnvironmentVariableNames
         {
             /// <summary>
-            /// This environment variable specifies extra params passed to spark-submit.
+            /// This environment variable specifies extra args passed to spark-submit.
             /// </summary>
             public const string ExtraSparkSubmitArgs =
                 "DOTNET_SPARKFIXTURE_EXTRA_SPARK_SUBMIT_ARGS";
