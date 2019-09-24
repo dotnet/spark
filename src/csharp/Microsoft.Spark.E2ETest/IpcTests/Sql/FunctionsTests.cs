@@ -34,7 +34,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Column col = Column("col1");
             Assert.IsType<Column>(col);
-            
+
             Assert.IsType<Column>(Col("col2"));
             Assert.IsType<Column>(Lit(1));
             Assert.IsType<Column>(Lit("some column"));
@@ -201,8 +201,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(Map(col, col));
 
             DataFrame df = _spark
-               .Read()
-               .Json($"{TestEnvironment.ResourceDirectory}people.json");
+                .Read()
+                .Json($"{TestEnvironment.ResourceDirectory}people.json");
 
             Assert.IsType<DataFrame>(Broadcast(df));
 
@@ -644,9 +644,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Udf<int, int>((arg) => arg);
             Udf<long, long>((arg) => arg);
             Udf<short, short>((arg) => arg);
-            
+
             // Test array type.
-            Udf<string, string[]>((arg) => new[] { arg } );
+            Udf<string, string[]>((arg) => new[] { arg });
             Udf<string, IEnumerable<string>>((arg) => new[] { arg });
             Udf<string, IEnumerable<IEnumerable<string>>>((arg) => new[] { new[] { arg } });
 
