@@ -2,9 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Catalog;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
 
@@ -34,7 +37,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Column col = Column("col1");
             Assert.IsType<Column>(col);
-            
+
             Assert.IsType<Column>(Col("col2"));
             Assert.IsType<Column>(Lit(1));
             Assert.IsType<Column>(Lit("some column"));
@@ -201,8 +204,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(Map(col, col));
 
             DataFrame df = _spark
-               .Read()
-               .Json($"{TestEnvironment.ResourceDirectory}people.json");
+                .Read()
+                .Json($"{TestEnvironment.ResourceDirectory}people.json");
 
             Assert.IsType<DataFrame>(Broadcast(df));
 
@@ -644,9 +647,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Udf<int, int>((arg) => arg);
             Udf<long, long>((arg) => arg);
             Udf<short, short>((arg) => arg);
-            
+
             // Test array type.
-            Udf<string, string[]>((arg) => new[] { arg } );
+            Udf<string, string[]>((arg) => new[] { arg });
             Udf<string, IEnumerable<string>>((arg) => new[] { arg });
             Udf<string, IEnumerable<IEnumerable<string>>>((arg) => new[] { new[] { arg } });
 
@@ -657,6 +660,56 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 (arg) => new Dictionary<string, string> { { arg, arg } });
             Udf<string, IDictionary<string, string[]>>(
                 (arg) => new Dictionary<string, string[]> { { arg, new[] { arg } } });
+        }
+
+        [Fact]
+        /// Tests for the Catclog Functions - returned from SparkSession.Catalog
+        public void CatalogFunctions()
+        {
+           var catalog = _spark.Catalog();
+
+            Assert.IsType<DataFrame>(catalog.ListDatabases());
+            Assert.IsType<DataFrame>(catalog.ListFunctions());
+            Assert.IsType<DataFrame>(catalog.ListFunctions("default"));
+
+            var table = catalog.CreateTable("users", 
+                Path.Combine(TestEnvironment.ResourceDirectory, "users.parquet"));
+            Assert.IsType<DataFrame>(table);
+
+            Assert.IsType<string>(catalog.CurrentDatabase());
+            Assert.IsType<bool>(catalog.DatabaseExists("default"));
+
+            Assert.IsType<bool>(catalog.DropGlobalTempView("no-view"));
+            Assert.IsType<bool>(catalog.DropTempView("no-view"));
+            Assert.IsType<bool>(catalog.FunctionExists("default", "functionname"));
+            Assert.IsType<bool>(catalog.FunctionExists("functionname"));
+            Assert.IsType<Database>(catalog.GetDatabase("default"));
+            Assert.IsType<Function>(catalog.GetFunction("abs"));
+            Assert.IsType<Function>(catalog.GetFunction(null, "abs"));
+            Assert.IsType<Table>(catalog.GetTable("users"));
+            Assert.IsType<Table>(catalog.GetTable("default", "users"));
+            Assert.IsType<bool>(catalog.IsCached("users"));
+            Assert.IsType<DataFrame>(catalog.ListColumns("users"));
+            Assert.IsType<DataFrame>(catalog.ListColumns("default", "users"));
+            Assert.IsType<DataFrame>(catalog.ListDatabases());
+            Assert.IsType<DataFrame>(catalog.ListFunctions());
+            Assert.IsType<DataFrame>(catalog.ListFunctions("default"));
+            Assert.IsType<DataFrame>(catalog.ListTables());
+            Assert.IsType<DataFrame>(catalog.ListTables("default"));
+
+            catalog.RefreshByPath("/");
+            catalog.RefreshTable("users");
+            catalog.SetCurrentDatabase("default");
+            catalog.CacheTable("users");
+            catalog.UncacheTable("users");
+            catalog.ClearCache();
+
+            Assert.IsType<bool>(catalog.TableExists("users"));
+            Assert.IsType<bool>(catalog.TableExists("default", "users"));
+
+            _spark.Sql(@"CREATE TABLE IF NOT EXISTS usersp USING PARQUET PARTITIONED BY (name)  
+                            AS SELECT * FROM users");
+            catalog.RecoverPartitions("usersp");
         }
 
         /// <summary>
