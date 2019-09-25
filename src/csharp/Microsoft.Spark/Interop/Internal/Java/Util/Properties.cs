@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using Microsoft.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Internal.Java.Util
+namespace Microsoft.Spark.Interop.Internal.Java.Util
 {
     /// <summary>
     /// Properties class represents a <c>java.util.Properties</c> object.
