@@ -45,8 +45,41 @@ namespace Microsoft.Spark.Sql
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("count"));
 
         /// <summary>
+        /// Compute the mean value for each numeric columns for each group.
+        /// </summary>
+        /// <param name="colNames">Name of columns to compute mean on</param>
+        /// <returns>New DataFrame object with mean applied</returns>
+        public DataFrame Mean(params string[] colNames) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("mean", (object)colNames));
+
+        /// <summary>
+        /// Compute the max value for each numeric columns for each group.
+        /// </summary>
+        /// <param name="colNames">Name of columns to compute max on</param>
+        /// <returns>New DataFrame object with max applied</returns>
+        public DataFrame Max(params string[] colNames) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("max", (object)colNames));
+
+        /// <summary>
+        /// Compute the average value for each numeric columns for each group.
+        /// </summary>
+        /// <param name="colNames">Name of columns to compute average on</param>
+        /// <returns>New DataFrame object with average applied</returns>
+        public DataFrame Avg(params string[] colNames) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("avg", (object)colNames));
+
+        /// <summary>
+        /// Compute the min value for each numeric columns for each group.
+        /// </summary>
+        /// <param name="colNames">Name of columns to compute min on</param>
+        /// <returns>New DataFrame object with min applied</returns>
+        public DataFrame Min(params string[] colNames) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("min", (object)colNames));
+
+        /// <summary>
         /// Compute the sum for each numeric columns for each group.
         /// </summary>
+        /// <param name="colNames">Name of columns to compute sum on</param>
         /// <returns>New DataFrame object with sum applied</returns>
         public DataFrame Sum(params string[] colNames) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("sum", (object)colNames));
