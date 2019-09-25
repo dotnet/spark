@@ -9,7 +9,7 @@ namespace Microsoft.Spark.Internal.Java.Util
     /// <summary>
     /// ArrayList class represents a <c>java.util.ArrayList</c> object.
     /// </summary>
-    public sealed class ArrayList : IJvmObjectReferenceProvider
+    internal sealed class ArrayList : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
 
