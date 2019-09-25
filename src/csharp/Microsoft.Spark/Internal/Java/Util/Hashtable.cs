@@ -7,7 +7,7 @@ using Microsoft.Spark.Interop.Ipc;
 namespace Microsoft.Spark.Internal.Java.Util
 {
     /// <summary>
-    /// Hashtable class represents a <c>java.util.Properties</c> object.
+    /// Hashtable class represents a <c>java.util.Hashtable</c> object.
     /// </summary>
     internal sealed class Hashtable : IJvmObjectReferenceProvider
     {

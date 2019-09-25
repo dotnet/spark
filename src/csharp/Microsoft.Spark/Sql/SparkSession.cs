@@ -19,6 +19,9 @@ namespace Microsoft.Spark.Sql
 
         private readonly Lazy<SparkContext> _sparkContext;
 
+        private static readonly string s_sparkSessionClassName =
+            "org.apache.spark.sql.SparkSession";
+
         /// <summary>
         /// Constructor for SparkSession.
         /// </summary>
@@ -53,7 +56,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="session">SparkSession object</param>
         public static void SetActiveSession(SparkSession session) =>
             session._jvmObject.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.sql.SparkSession", "setActiveSession", session);
+                s_sparkSessionClassName, "setActiveSession", session);
 
         /// <summary>
         /// Clears the active SparkSession for current thread. Subsequent calls to
@@ -62,7 +65,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         public static void ClearActiveSession() =>
             SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "org.apache.spark.sql.SparkSession", "clearActiveSession");
+                s_sparkSessionClassName, "clearActiveSession");
 
         /// <summary>
         /// Sets the default SparkSession that is returned by the builder.
@@ -70,14 +73,14 @@ namespace Microsoft.Spark.Sql
         /// <param name="session">SparkSession object</param>
         public static void SetDefaultSession(SparkSession session) =>
             session._jvmObject.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.sql.SparkSession", "setDefaultSession", session);
+                s_sparkSessionClassName, "setDefaultSession", session);
 
         /// <summary>
         /// Clears the default SparkSession that is returned by the builder.
         /// </summary>
         public static void ClearDefaultSession() =>
             SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "org.apache.spark.sql.SparkSession", "clearDefaultSession");
+                s_sparkSessionClassName, "clearDefaultSession");
 
         /// <summary>
         /// Returns the active SparkSession for the current thread, returned by the builder.
@@ -100,7 +103,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>SparkSession object or null if called on executors</returns>
         public static SparkSession GetDefaultSession()
         {
-            var optionalSession= new Option(
+            var optionalSession = new Option(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     "org.apache.spark.sql.SparkSession", "getDefaultSession"));
 
