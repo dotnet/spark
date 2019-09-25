@@ -7,7 +7,7 @@ using Microsoft.Spark.Interop.Ipc;
 namespace Microsoft.Spark.Internal.Java.Util
 {
     /// <summary>
-    /// Properties class represents a <c>java.util.Properties</c> object.
+    /// ArrayList class represents a <c>java.util.ArrayList</c> object.
     /// </summary>
     public sealed class ArrayList : IJvmObjectReferenceProvider
     {
