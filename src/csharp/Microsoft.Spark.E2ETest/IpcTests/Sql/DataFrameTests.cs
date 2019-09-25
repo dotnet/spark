@@ -404,25 +404,23 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<RelationalGroupedDataset>(_df.GroupBy(_df["age"]));
             Assert.IsType<RelationalGroupedDataset>(_df.GroupBy(_df["age"], _df["name"]));
 
-            Assert.IsType<DataFrame>(_df.GroupBy("name").Mean("age"));
-            Assert.IsType<DataFrame>(
-                _df.WithColumn("tempAge", _df["age"]).GroupBy("name").Mean("age", "tempAge"));
+            var relationalGroupedDataset = _df.GroupBy("name");
+            var relationalGroupedDatasetAdditionalCol = _df.WithColumn("tempAge", _df["age"]).GroupBy("name");
 
-            Assert.IsType<DataFrame>(_df.GroupBy("name").Max("age"));
-            Assert.IsType<DataFrame>(
-                _df.WithColumn("tempAge", _df["age"]).GroupBy("name").Max("age", "tempAge"));
+            Assert.IsType<DataFrame>(relationalGroupedDataset.Mean("age"));
+            Assert.IsType<DataFrame>(relationalGroupedDatasetAdditionalCol.Mean("age", "tempAge"));
 
-            Assert.IsType<DataFrame>(_df.GroupBy("name").Avg("age"));
-            Assert.IsType<DataFrame>(
-                _df.WithColumn("tempAge", _df["age"]).GroupBy("name").Avg("age", "tempAge"));
+            Assert.IsType<DataFrame>(relationalGroupedDataset.Max("age"));
+            Assert.IsType<DataFrame>(relationalGroupedDatasetAdditionalCol.Max("age", "tempAge"));
 
-            Assert.IsType<DataFrame>(_df.GroupBy("name").Min("age"));
-            Assert.IsType<DataFrame>(
-                _df.WithColumn("tempAge", _df["age"]).GroupBy("name").Min("age", "tempAge"));
+            Assert.IsType<DataFrame>(relationalGroupedDataset.Avg("age"));
+            Assert.IsType<DataFrame>(relationalGroupedDatasetAdditionalCol.Avg("age", "tempAge"));
 
-            Assert.IsType<DataFrame>(_df.GroupBy("name").Sum("age"));
-            Assert.IsType<DataFrame>(
-                _df.WithColumn("tempAge", _df["age"]).GroupBy("name").Sum("age", "tempAge"));
+            Assert.IsType<DataFrame>(relationalGroupedDataset.Min("age"));
+            Assert.IsType<DataFrame>(relationalGroupedDatasetAdditionalCol.Min("age", "tempAge"));
+
+            Assert.IsType<DataFrame>(relationalGroupedDataset.Sum("age"));
+            Assert.IsType<DataFrame>(relationalGroupedDatasetAdditionalCol.Sum("age", "tempAge"));
 
             Assert.IsType<RelationalGroupedDataset>(_df.Rollup("age"));
             Assert.IsType<RelationalGroupedDataset>(_df.Rollup("age", "name"));
