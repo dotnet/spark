@@ -204,8 +204,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(Map(col, col));
 
             DataFrame df = _spark
-               .Read()
-               .Json($"{TestEnvironment.ResourceDirectory}people.json");
+                .Read()
+                .Json($"{TestEnvironment.ResourceDirectory}people.json");
 
             Assert.IsType<DataFrame>(Broadcast(df));
 
