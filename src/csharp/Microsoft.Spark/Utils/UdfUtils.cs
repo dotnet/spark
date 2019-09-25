@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Apache.Arrow;
+using Microsoft.Spark.Internal.Java.Util;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
@@ -17,7 +18,7 @@ namespace Microsoft.Spark.Utils
     using PicklingDelegate = PicklingWorkerFunction.ExecuteDelegate;
 
     /// <summary>
-    /// UdfTypeUtils provides fuctions related to UDF types.
+    /// UdfTypeUtils provides functions related to UDF types.
     /// </summary>
     internal static class UdfTypeUtils
     {
@@ -149,23 +150,23 @@ namespace Microsoft.Spark.Utils
         /// <returns>JvmObjectReference object to the PythonFunction object</returns>
         internal static JvmObjectReference CreatePythonFunction(IJvmBridge jvm, byte[] command)
         {
-            JvmObjectReference arrayListReference = jvm.CallConstructor("java.util.ArrayList");
+            var arrayList = new ArrayList(jvm);
 
             return (JvmObjectReference)jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.SQLUtils",
                 "createPythonFunction",
                 command,
                 CreateEnvVarsForPythonFunction(jvm),
-                arrayListReference, // Python includes
+                arrayList, // Python includes
                 SparkEnvironment.ConfigurationService.GetWorkerExePath(),
                 Versions.CurrentVersion,
-                arrayListReference, // Broadcast variables
+                arrayList, // Broadcast variables
                 null); // Accumulator
         }
 
-        private static JvmObjectReference CreateEnvVarsForPythonFunction(IJvmBridge jvm)
+        private static IJvmObjectReferenceProvider CreateEnvVarsForPythonFunction(IJvmBridge jvm)
         {
-            JvmObjectReference environmentVars = jvm.CallConstructor("java.util.Hashtable");
+            var environmentVars = new Hashtable(jvm);
             string assemblySearchPath = string.Join(",",
                 new[]
                 {
@@ -176,9 +177,7 @@ namespace Microsoft.Spark.Utils
 
             if (!string.IsNullOrEmpty(assemblySearchPath))
             {
-                jvm.CallNonStaticJavaMethod(
-                    environmentVars,
-                    "put",
+                environmentVars.Put(
                     AssemblySearchPathResolver.AssemblySearchPathsEnvVarName,
                     assemblySearchPath);
             }
