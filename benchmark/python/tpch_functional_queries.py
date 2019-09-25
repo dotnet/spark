@@ -161,6 +161,7 @@ class TpchFunctionalQueries(TpchBase):
     def q8Common(self, decrease):
         getYear = udf(lambda x: x[0:4], StringType())
         isBrazil = udf(lambda x, y: (y if (x == "BRAZIL") else 0), FloatType())
+
         filteredRegions = self.region.filter(col("r_name") == "AMERICA")
         filteredOrders = self.orders.filter((col("o_orderdate") <= "1996-12-31") & (col("o_orderdate") >= "1995-01-01"))
         filteredParts = self.part.filter(col("p_type") == "ECONOMY ANODIZED STEEL")
