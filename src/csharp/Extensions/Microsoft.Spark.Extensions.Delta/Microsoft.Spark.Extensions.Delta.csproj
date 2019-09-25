@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Microsoft.Spark.Extensions.Delta</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IsPackable>true</IsPackable>
+
+    <Description>Delta Extension for .NET for Apache Spark</Description>
+    <PackageReleaseNotes>https://github.com/dotnet/spark/tree/master/docs/release-notes</PackageReleaseNotes>
+    <PackageTags>spark;dotnet;csharp;delta;delta lake</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Microsoft.Spark\Microsoft.Spark.csproj" />
+  </ItemGroup>
+
+</Project>
