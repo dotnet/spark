@@ -3,7 +3,7 @@
 ### New Features and Improvements
 
 * Support for `DeltaTable` APIs in [Delta Lake](https://github.com/delta-io/delta) ([#236](https://github.com/dotnet/spark/pull/236))
-* Support for Spark 2.3.4/2.3.4 ([#232](https://github.com/dotnet/spark/pull/232), [#240](https://github.com/dotnet/spark/pull/240))
+* Support for Spark 2.3.4/2.4.4 ([#232](https://github.com/dotnet/spark/pull/232), [#240](https://github.com/dotnet/spark/pull/240))
 * Support for UDF taking a `Row` object as input ([#214](https://github.com/dotnet/spark/pull/214))
 * Exposing new APIs:
    * `SparkSession.Catalog` ([#231](https://github.com/dotnet/spark/pull/231))
