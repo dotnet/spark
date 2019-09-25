@@ -17,7 +17,7 @@ namespace Microsoft.Spark.Utils
     using PicklingDelegate = PicklingWorkerFunction.ExecuteDelegate;
 
     /// <summary>
-    /// UdfTypeUtils provides fuctions related to UDF types.
+    /// UdfTypeUtils provides functions related to UDF types.
     /// </summary>
     internal static class UdfTypeUtils
     {
