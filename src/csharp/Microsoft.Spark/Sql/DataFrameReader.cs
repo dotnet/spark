@@ -4,8 +4,8 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Spark.Internal.Java.Util;
 using Microsoft.Spark.Interop.Ipc;
-using static Microsoft.Spark.Utils.JvmObjectUtils;
 
 namespace Microsoft.Spark.Sql
 {
@@ -147,7 +147,7 @@ namespace Microsoft.Spark.Sql
                 "jdbc",
                 url,
                 table,
-                CreateProperties(properties)));
+                new Properties(_jvmObject.Jvm, properties)));
 
         /// <summary>
         /// Construct a DataFrame representing the database table accessible via JDBC URL
@@ -186,7 +186,7 @@ namespace Microsoft.Spark.Sql
                 lowerBound,
                 upperBound,
                 numPartitions,
-                CreateProperties(properties)));
+                new Properties(_jvmObject.Jvm, properties)));
 
         /// <summary>
         /// Construct a DataFrame representing the database table accessible via JDBC URL
@@ -209,7 +209,7 @@ namespace Microsoft.Spark.Sql
                 url,
                 table,
                 predicates,
-                CreateProperties(properties)));
+                new Properties(_jvmObject.Jvm, properties)));
 
         /// <summary>
         /// Loads a JSON file (one object per line) and returns the result as a DataFrame.
