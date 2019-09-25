@@ -2,11 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Catalog;
+using Microsoft.Spark.Sql.Streaming;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
@@ -29,13 +28,37 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestSignaturesV2_3_X()
         {
+            Assert.IsType<SparkContext>(_spark.SparkContext);
+
+            Assert.IsType<Builder>(SparkSession.Builder());
+
+            SparkSession.ClearActiveSession();
             SparkSession.SetActiveSession(_spark);
-
-            SparkSession.SetDefaultSession(_spark);
-
             Assert.IsType<SparkSession>(SparkSession.GetActiveSession());
 
+            SparkSession.ClearDefaultSession();
+            SparkSession.SetDefaultSession(_spark);
             Assert.IsType<SparkSession>(SparkSession.GetDefaultSession());
+
+            Assert.IsType<RuntimeConfig>(_spark.Conf());
+
+            Assert.IsType<SparkSession>(_spark.NewSession());
+
+            Assert.IsType<DataFrameReader>(_spark.Read());
+
+            Assert.IsType<DataFrame>(_spark.Range(10));
+            Assert.IsType<DataFrame>(_spark.Range(10, 100));
+            Assert.IsType<DataFrame>(_spark.Range(10, 100, 10));
+            Assert.IsType<DataFrame>(_spark.Range(10, 100, 10, 5));
+
+            _spark.Range(10).CreateOrReplaceTempView("testView");
+            Assert.IsType<DataFrame>(_spark.Table("testView"));
+
+            Assert.IsType<DataStreamReader>(_spark.ReadStream());
+
+            Assert.IsType<UdfRegistration>(_spark.Udf());
+
+            Assert.IsType<Catalog>(_spark.Catalog());
         }
 
         /// <summary>

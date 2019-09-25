@@ -49,7 +49,7 @@ namespace Microsoft.Spark.Sql
 
         /// <summary>
         /// Changes the SparkSession that will be returned in this thread and its children when
-        /// SparkSession.GetOrCreate() is called.This can be used to ensure that a given thread
+        /// SparkSession.GetOrCreate() is called. This can be used to ensure that a given thread
         /// receives a SparkSession with an isolated session, instead of the global(first created)
         /// context.
         /// </summary>
@@ -90,7 +90,7 @@ namespace Microsoft.Spark.Sql
         {
             var optionalSession = new Option(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    "org.apache.spark.sql.SparkSession", "getActiveSession"));
+                    s_sparkSessionClassName, "getActiveSession"));
 
             return optionalSession.IsDefined()
                 ? new SparkSession((JvmObjectReference)optionalSession.Get())
@@ -105,7 +105,7 @@ namespace Microsoft.Spark.Sql
         {
             var optionalSession = new Option(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    "org.apache.spark.sql.SparkSession", "getDefaultSession"));
+                    s_sparkSessionClassName, "getDefaultSession"));
 
             return optionalSession.IsDefined()
                 ? new SparkSession((JvmObjectReference)optionalSession.Get())
@@ -121,7 +121,7 @@ namespace Microsoft.Spark.Sql
         public static SparkSession Active() =>
             new SparkSession(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    "org.apache.spark.sql.SparkSession", "active"));
+                    s_sparkSessionClassName, "active"));
 
         /// <summary>
         /// Synonym for Stop().
