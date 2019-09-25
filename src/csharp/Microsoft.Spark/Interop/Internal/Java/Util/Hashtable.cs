@@ -4,7 +4,7 @@
 
 using Microsoft.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Internal.Java.Util
+namespace Microsoft.Spark.Interop.Internal.Java.Util
 {
     /// <summary>
     /// Hashtable class represents a <c>java.util.Hashtable</c> object.

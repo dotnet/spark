@@ -4,7 +4,7 @@
 
 using Microsoft.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Interop.Scala
+namespace Microsoft.Spark.Interop.Internal.Scala
 {
     /// <summary>
     /// Exposes subset of scala.Option[T] APIs.

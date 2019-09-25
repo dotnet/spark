@@ -4,8 +4,8 @@
 
 using System;
 using Microsoft.Spark.Interop;
+using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Interop.Scala;
 using Microsoft.Spark.Sql.Streaming;
 
 namespace Microsoft.Spark.Sql
