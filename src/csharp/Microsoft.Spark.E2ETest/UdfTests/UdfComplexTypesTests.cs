@@ -61,7 +61,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         /// UDF that returns Array type.
         /// </summary>
         [Fact]
-        public void TestUdfWithReturnTypeAsArray()
+        public void TestUdfWithReturnAsArrayType()
         {
             // UDF with return type as array throws a following exception:
             // Unhandled Exception: System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation. 
@@ -101,7 +101,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         /// UDF that returns Map type.
         /// </summary>
         [Fact]
-        public void TestUdfWithReturnTypeAsMap()
+        public void TestUdfWithReturnAsMapType()
         {
             // UDF with return type as map throws a following exception:
             // Unhandled Exception: System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation. 
@@ -150,7 +150,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         /// UDF that returns Row type.
         /// </summary>
         [Fact]
-        public void TestUdfWithReturnTypeAsRow()
+        public void TestUdfWithReturnAsRowType()
         {
             // UDF with return type as row throws a following exception:
             // Unhandled Exception: System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation. 
