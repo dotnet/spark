@@ -25,7 +25,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestSignaturesV2_3_X()
         {
-            DataFrame df= _spark
+            DataFrame df = _spark
                 .ReadStream()
                 .Format("rate")
                 .Option("rowsPerSecond", 1)
@@ -48,8 +48,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 dsw.Options(
                     new Dictionary<string, string>
                     {
-                            { "option1", "value1" },
-                            { "option2", "value2" }
+                        { "option1", "value1" },
+                        { "option2", "value2" }
                     }));
 
             Assert.IsType<DataStreamWriter>(dsw.PartitionBy("age"));
