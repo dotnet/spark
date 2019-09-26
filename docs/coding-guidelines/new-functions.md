@@ -22,9 +22,9 @@ The approach for unit testing is to check whether the functions have been implem
 
 The typical approach is to use `Assert.IsType<>` and call a function:
 
- 
-    ```C#
-    Assert.IsType<Column>(Col("col2"));
-    ```
+
+```C#
+Assert.IsType<Column>(Col("col2"));
+```
 
 For these unit tests see [the IPC Functions Tests](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark.E2ETest/IpcTests/Sql/FunctionsTests.cs#L41).
