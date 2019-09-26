@@ -60,14 +60,8 @@ namespace Tpch
               .Show();
         }
 
-        internal void Q1a()
-        {
-            Func<Column, Column, Column> discPrice = VectorUdf<DoubleArray, DoubleArray, DoubleArray>(
-                (price, discount) => VectorFunctions.ComputeDiscountPrice(price, discount));
-
-            Func<Column, Column, Column, Column> total = VectorUdf<DoubleArray, DoubleArray, DoubleArray, DoubleArray>(
-                (price, discount, tax) => VectorFunctions.ComputeTotal(price, discount, tax));
-
+        internal void Q1aCommon(Func<Column, Column, Column> discPrice, Func<Column, Column, Column, Column> total)
+        {            
             _lineitem.Filter(Col("l_shipdate") <= "1998-09-02")
               .GroupBy(Col("l_returnflag"), Col("l_linestatus"))
               .Agg(Sum(Col("l_quantity")).As("sum_qty"), Sum(Col("l_extendedprice")).As("sum_base_price"),
@@ -82,6 +76,17 @@ namespace Tpch
               .Show();
         }
 
+        internal void Q1a()
+        {
+            Func<Column, Column, Column> discPrice = VectorUdf<DoubleArray, DoubleArray, DoubleArray>(
+                (price, discount) => VectorFunctions.ComputeDiscountPrice(price, discount));
+
+            Func<Column, Column, Column, Column> total = VectorUdf<DoubleArray, DoubleArray, DoubleArray, DoubleArray>(
+                (price, discount, tax) => VectorFunctions.ComputeTotal(price, discount, tax));
+
+            Q1aCommon(discPrice, total);
+        }
+
         internal void Q1ha()
         {
             Func<Column, Column, Column> discPrice = VectorUdf<DoubleArray, DoubleArray, DoubleArray>(
@@ -90,18 +95,7 @@ namespace Tpch
             Func<Column, Column, Column, Column> total = VectorUdf<DoubleArray, DoubleArray, DoubleArray, DoubleArray>(
                 (price, discount, tax) => VectorFunctionsIntrinsics.ComputeTotal(price, discount, tax));
 
-            _lineitem.Filter(Col("l_shipdate") <= "1998-09-02")
-              .GroupBy(Col("l_returnflag"), Col("l_linestatus"))
-              .Agg(Sum(Col("l_quantity")).As("sum_qty"), Sum(Col("l_extendedprice")).As("sum_base_price"),
-                Sum(discPrice(Col("l_extendedprice"), Col("l_discount"))).As("sum_disc_price"),
-                Sum(total(Col("l_extendedprice"), Col("l_discount"), Col("l_tax"))).As("sum_charge"),
-                Avg(Col("l_quantity")).As("avg_qty"),
-                Avg(Col("l_extendedprice")).As("avg_price"),
-                Avg(Col("l_discount")).As("avg_disc"),
-                Count(Col("l_quantity")).As("count_order")
-               )
-              .Sort(Col("l_returnflag"), Col("l_linestatus"))
-              .Show();
+            Q1aCommon(discPrice, total);
         }
 
         internal void Q2()
@@ -249,12 +243,9 @@ namespace Tpch
               .Show();
         }
 
-        internal void Q8a()
+        internal void Q8aCommon(Func<Column, Column, Column> discPrice)
         {
-            Func<Column, Column> getYear = Udf<string, string>(x => x.Substring(0, 4));
-            Func<Column, Column, Column> discPrice = VectorUdf<DoubleArray, DoubleArray, DoubleArray>(
-                (price, discount) => VectorFunctions.ComputeDiscountPrice(price, discount));
-
+            Func<Column, Column> getYear = Udf<string, string>(x => x.Substring(0, 4));            
             Func<Column, Column, Column> isBrazil = Udf<string, double, double>((x, y) => x == "BRAZIL" ? y : 0);
 
             DataFrame fregion = _region.Filter(Col("r_name") == "AMERICA");
@@ -283,38 +274,18 @@ namespace Tpch
               .Show();
         }
 
+        internal void Q8a()
+        {            
+            Func<Column, Column, Column> discPrice = VectorUdf<DoubleArray, DoubleArray, DoubleArray>(
+                (price, discount) => VectorFunctions.ComputeDiscountPrice(price, discount));
+            Q8aCommon(discPrice);
+        }
+
         internal void Q8ha()
-        {
-            Func<Column, Column> getYear = Udf<string, string>(x => x.Substring(0, 4));
+        {            
             Func<Column, Column, Column> discPrice = VectorUdf<DoubleArray, DoubleArray, DoubleArray>(
                 (price, discount) => VectorFunctionsIntrinsics.ComputeDiscountPrice(price, discount));
-
-            Func<Column, Column, Column> isBrazil = Udf<string, double, double>((x, y) => x == "BRAZIL" ? y : 0);
-
-            DataFrame fregion = _region.Filter(Col("r_name") == "AMERICA");
-            DataFrame forder = _orders.Filter(Col("o_orderdate") <= "1996-12-31" & Col("o_orderdate") >= "1995-01-01");
-            DataFrame fpart = _part.Filter(Col("p_type") == "ECONOMY ANODIZED STEEL");
-
-            DataFrame nat = _nation.Join(_supplier, Col("n_nationkey") == _supplier["s_nationkey"]);
-
-            DataFrame line = _lineitem.Select(Col("l_partkey"), Col("l_suppkey"), Col("l_orderkey"),
-              discPrice(Col("l_extendedprice"), Col("l_discount")).As("volume"))
-              .Join(fpart, Col("l_partkey") == fpart["p_partkey"])
-              .Join(nat, Col("l_suppkey") == nat["s_suppkey"]);
-
-            _nation.Join(fregion, Col("n_regionkey") == fregion["r_regionkey"])
-              .Select(Col("n_nationkey"))
-              .Join(_customer, Col("n_nationkey") == _customer["c_nationkey"])
-              .Select(Col("c_custkey"))
-              .Join(forder, Col("c_custkey") == forder["o_custkey"])
-              .Select(Col("o_orderkey"), Col("o_orderdate"))
-              .Join(line, Col("o_orderkey") == line["l_orderkey"])
-              .Select(getYear(Col("o_orderdate")).As("o_year"), Col("volume"),
-                isBrazil(Col("n_name"), Col("volume")).As("case_volume"))
-              .GroupBy(Col("o_year"))
-              .Agg((Sum(Col("case_volume")) / Sum("volume")).As("mkt_share"))
-              .Sort(Col("o_year"))
-              .Show();
+            Q8aCommon(discPrice);
         }
 
         internal void Q9()
