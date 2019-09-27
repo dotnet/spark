@@ -49,13 +49,9 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Row[] rows = _df.Select(workingUdf(_df["ids"])).Collect().ToArray();
             Assert.Equal(3, rows.Length);
             
-            var expected = new[] { "1", "3,5", "2,4" }; 
-            for (int i = 0; i < rows.Length; ++i)
-            {
-                Row row = rows[i];
-                Assert.Equal(1, row.Size());
-                Assert.Equal(expected[i], row.GetAs<string>(0));               
-            }
+            var expected = new[] { "1", "3,5", "2,4" };
+            string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
+            Assert.Equal(expected, rowsToArray);
         }
 
         /// <summary>
@@ -93,7 +89,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             // at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.SingleCommandRunner.Run(Int32 splitId, Object input) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 239
             // at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.ExecuteCore(Stream inputStream, Stream outputStream, SqlCommand[] commands) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 139
             Func<Column, Column> udf = Udf<IDictionary<string, int[]>, string>(
-                    dict => dict.Count.ToString());
+                dict => dict.Count.ToString());
 
             DataFrame df = _df.WithColumn("NameIdsMap", Map(_df["name"], _df["ids"]));
             Assert.Throws<Exception>(() => df.Select(udf(df["NameIdsMap"])).Show());
@@ -106,12 +102,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Assert.Equal(3, rows.Length);
 
             var expected = new[] { "1", "1", "1" };
-            for (int i = 0; i < rows.Length; ++i)
-            {
-                Row row = rows[i];
-                Assert.Equal(1, row.Size());
-                Assert.Equal(expected[i], row.GetAs<string>(0));
-            }
+            string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
+            Assert.Equal(expected, rowsToArray);
         }
 
         /// <summary>
@@ -156,12 +148,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Assert.Equal(3, rows.Length);
 
             var expected = new[] { "Burdwan,Paschimbanga", "Los Angeles,California", "Seattle," };
-            for (int i = 0; i < rows.Length; ++i)
-            {
-                Row row = rows[i];
-                Assert.Equal(1, row.Size());
-                Assert.Equal(expected[i], row.GetAs<string>(0));
-            }
+            string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
+            Assert.Equal(expected, rowsToArray);
         }
 
         /// <summary>
