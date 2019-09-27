@@ -42,18 +42,20 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Func<Column, Column> udf = Udf<int[], string>(array => string.Join(',', array));
             Assert.Throws<Exception>(() => _df.Select(udf(_df["ids"])).Show());
 
-            // Currently, there is a workaround to support ArrayType using ArrayList. See the example below.
-            Func<Column, Column> workingUdf = Udf<ArrayList, string>(array => string.Join(',', array.ToArray()));
+            // Currently, there is a workaround to support ArrayType using ArrayList. 
+            // See the example below.
+            Func<Column, Column> workingUdf = Udf<ArrayList, string>(
+                array => string.Join(',', array.ToArray()));
 
             Row[] rows = _df.Select(workingUdf(_df["ids"])).Collect().ToArray();
             Assert.Equal(3, rows.Length);
             
-            var expected = new[] { "1", "3,5", "2,4" };
+            var expected = new[] { "1", "3,5", "2,4" }; 
             for (int i = 0; i < rows.Length; ++i)
             {
                 Row row = rows[i];
                 Assert.Equal(1, row.Size());
-                Assert.Equal(expected[i], row.GetAs<string>(0));
+                Assert.Equal(expected[i], row.GetAs<string>(0));               
             }
         }
 
@@ -73,7 +75,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             // at Microsoft.Spark.Sql.DataFrame.GetRows(String funcName) + MoveNext() in Microsoft.Spark\Sql\DataFrame.cs:line 891
             Func<Column, Column> udf = Udf<string, string[]>(
                 str => new string[] { str, str + str });
-            Assert.Throws<NotImplementedException>(() => _df.Select(udf(_df["name"])).Collect().ToArray());
+            Assert.Throws<NotImplementedException>(
+                () => _df.Select(udf(_df["name"])).Collect().ToArray());
 
             //Show() works here. See the example below.
             _df.Select(udf(_df["name"])).Show();
@@ -86,21 +89,22 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         public void TestUdfWithMapType()
         {
             // UDF with MapType throws a following exception:
-            // [] [] [Error] [TaskRunner] [0] ProcessStream() failed with exception: System.InvalidCastException: Unable to cast object of type 'System.Collections.Hashtable' to type 'System.Collections.Generic.IDictionary`2[System.String,System.String]'.
+            // [] [] [Error] [TaskRunner] [0] ProcessStream() failed with exception: System.InvalidCastException: Unable to cast object of type 'System.Collections.Hashtable' to type 'System.Collections.Generic.IDictionary`2[System.String,System.Int32[]]'.
             // at Microsoft.Spark.Sql.PicklingUdfWrapper`2.Execute(Int32 splitIndex, Object[] input, Int32[] argOffsets) in Microsoft.Spark\Sql\PicklingUdfWrapper.cs:line 44
             // at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.SingleCommandRunner.Run(Int32 splitId, Object input) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 239
             // at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.ExecuteCore(Stream inputStream, Stream outputStream, SqlCommand[] commands) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 139
-            Func<Column, Column> udf = Udf<IDictionary<string, string>, string>(
+            Func<Column, Column> udf = Udf<IDictionary<string, int[]>, string>(
                     dict => dict.Count.ToString());
 
-            DataFrame df = _df.WithColumn("tempName", Map(_df["name"], _df["name"]));
-            Assert.Throws<Exception>(() => df.Select(udf(df["tempName"])).Show());
+            DataFrame df = _df.WithColumn("NameIdsMap", Map(_df["name"], _df["ids"]));
+            Assert.Throws<Exception>(() => df.Select(udf(df["NameIdsMap"])).Show());
 
-            // Currently, there is a workaround to support MapType using Hashtable. See the example below.
+            // Currently, there is a workaround to support MapType using Hashtable. 
+            // See the example below.
             Func<Column, Column> workingUdf = Udf<Hashtable, string>(
                 dict => dict.Count.ToString());
 
-            Row[] rows = df.Select(workingUdf(df["tempName"])).Collect().ToArray();
+            Row[] rows = df.Select(workingUdf(df["NameIdsMap"])).Collect().ToArray();
             Assert.Equal(3, rows.Length);
 
             var expected = new[] { "1", "1", "1" };
@@ -129,7 +133,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             // at Microsoft.Spark.Sql.DataFrame.GetRows(String funcName) + MoveNext() in Microsoft.Spark\Sql\DataFrame.cs:line 891
             Func<Column, Column> udf = Udf<string, IDictionary<string, string>>(
                 str => new Dictionary<string, string> { { str, str } });
-            Assert.Throws<NotImplementedException>(() => _df.Select(udf(_df["name"])).Collect().ToArray());
+            Assert.Throws<NotImplementedException>(
+                () => _df.Select(udf(_df["name"])).Collect().ToArray());
 
             //Show() works here. See the example below.
             _df.Select(udf(_df["name"])).Show();

@@ -4,7 +4,6 @@
 
 using System.Collections.Generic;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
@@ -28,14 +27,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             DataFrameReader dfr = _spark.Read();
 
             Assert.IsType<DataFrameReader>(dfr.Format("json"));
-            
-            Assert.IsType<DataFrameReader>(
-                dfr.Schema(
-                    new StructType(new[]
-                    {
-                        new StructField("age", new IntegerType()),
-                        new StructField("name", new StringType())
-                    })));
+
             Assert.IsType<DataFrameReader>(dfr.Schema("age INT, name STRING"));
 
             Assert.IsType<DataFrameReader>(dfr.Option("stringOption", "value"));
