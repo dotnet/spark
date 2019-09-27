@@ -7,8 +7,9 @@
     <!--
     Uncomment the following line to build for netcoreapp3.0.
     Don't build for netcoreapp3.0, by default, because it requires VS 16.3.
-    -->
+    
     <TargetFrameworks>$(TargetFrameworks);netcoreapp3.0</TargetFrameworks>
+    -->
     <RootNamespace>Tpch</RootNamespace>
     <AssemblyName>Tpch</AssemblyName>
   </PropertyGroup>
