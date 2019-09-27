@@ -39,16 +39,16 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             //  at Microsoft.Spark.Sql.PicklingUdfWrapper`2.Execute(Int32 splitIndex, Object[] input, Int32[] argOffsets) in Microsoft.Spark\Sql\PicklingUdfWrapper.cs:line 44
             //  at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.SingleCommandRunner.Run(Int32 splitId, Object input) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 239
             //  at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.ExecuteCore(Stream inputStream, Stream outputStream, SqlCommand[] commands) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 139
-            Func<Column, Column> udfInt = Udf<int[], string>(array => string.Join(',', array));
-            Assert.Throws<Exception>(() => _df.Select(udfInt(_df["ids"])).Show());
+            Func<Column, Column> udf = Udf<int[], string>(array => string.Join(',', array));
+            Assert.Throws<Exception>(() => _df.Select(udf(_df["ids"])).Show());
 
-            // Currently, there is a workaround to support array type using ArrayList. See the example below.
+            // Currently, there is a workaround to support ArrayType using ArrayList. See the example below.
             Func<Column, Column> workingUdf = Udf<ArrayList, string>(array => string.Join(',', array.ToArray()));
 
             Row[] rows = _df.Select(workingUdf(_df["ids"])).Collect().ToArray();
             Assert.Equal(3, rows.Length);
             
-            var expected = new[] { "1", "3,5", "2,4" };
+            var expected = new[] { "1", "3,5","2,4" };
             for (int i = 0; i < rows.Length; ++i)
             {
                 Row row = rows[i];
@@ -63,7 +63,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithReturnAsArrayType()
         {
-            // UDF with return type as array throws a following exception:
+            // UDF with return as ArrayType throws a following exception:
             // Unhandled Exception: System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation. 
             // ---> System.NotImplementedException: The method or operation is not implemented.
             // at Microsoft.Spark.Sql.Row.Convert() in Microsoft.Spark\Sql\Row.cs:line 169
@@ -86,15 +86,30 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         public void TestUdfWithMapType()
         {
             // UDF with MapType throws a following exception:
-            // [] [] [Error] [TaskRunner] [0] ProcessStream() failed with exception: System.InvalidCastException: 
-            // Unable to cast object of type 'Microsoft.Spark.Sql.Row' to type 'System.Collections.Generic.IDictionary`2[System.String,System.String]'.
+            // [] [] [Error] [TaskRunner] [0] ProcessStream() failed with exception: System.InvalidCastException: Unable to cast object of type 'System.Collections.Hashtable' to type 'System.Collections.Generic.IDictionary`2[System.String,System.String]'.
             // at Microsoft.Spark.Sql.PicklingUdfWrapper`2.Execute(Int32 splitIndex, Object[] input, Int32[] argOffsets) in Microsoft.Spark\Sql\PicklingUdfWrapper.cs:line 44
             // at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.SingleCommandRunner.Run(Int32 splitId, Object input) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 239
             // at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.ExecuteCore(Stream inputStream, Stream outputStream, SqlCommand[] commands) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 139
             Func<Column, Column> udf = Udf<IDictionary<string, string>, string>(
                     dict => dict.Count.ToString());
-            Assert.Throws<Exception>(() => _df.Select(udf(_df["info"])).Collect().ToArray());
-            Assert.Throws<Exception>(() => _df.Select(udf(_df["info"])).Show());
+
+            DataFrame df = _df.WithColumn("tempName", Map(_df["name"], _df["name"]));
+            Assert.Throws<Exception>(() => df.Select(udf(df["tempName"])).Show());
+
+            // Currently, there is a workaround to support MapType using Hashtable. See the example below.
+            Func<Column, Column> workingUdf = Udf<Hashtable, string>(
+                dict => dict.Count.ToString());
+
+            Row[] rows = df.Select(workingUdf(df["tempName"])).Collect().ToArray();
+            Assert.Equal(3, rows.Length);
+
+            var expected = new[] { "1", "1", "1" };
+            for (int i = 0; i < rows.Length; ++i)
+            {
+                Row row = rows[i];
+                Assert.Equal(1, row.Size());
+                Assert.Equal(expected[i], row.GetAs<string>(0));
+            }
         }
 
         /// <summary>
@@ -103,7 +118,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithReturnAsMapType()
         {
-            // UDF with return type as map throws a following exception:
+            // UDF with return as MapType throws a following exception:
             // Unhandled Exception: System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation. 
             // ---> System.NotImplementedException: The method or operation is not implemented.
             // System.NotImplementedException: The method or operation is not implemented.
@@ -152,7 +167,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithReturnAsRowType()
         {
-            // UDF with return type as row throws a following exception:
+            // UDF with return as RowType throws a following exception:
             // Unhandled Exception: System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation. 
             // --->System.ArgumentException: System.Object is not supported.
             // at Microsoft.Spark.Utils.UdfUtils.GetReturnType(Type type) in Microsoft.Spark\Utils\UdfUtils.cs:line 142
