@@ -48,7 +48,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Row[] rows = _df.Select(workingUdf(_df["ids"])).Collect().ToArray();
             Assert.Equal(3, rows.Length);
             
-            var expected = new[] { "1", "3,5","2,4" };
+            var expected = new[] { "1", "3,5", "2,4" };
             for (int i = 0; i < rows.Length; ++i)
             {
                 Row row = rows[i];
