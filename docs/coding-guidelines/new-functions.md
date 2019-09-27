@@ -1,7 +1,7 @@
 Minimum Requirements for Implementing Spark API Functions
 ======================================================
 
-This document describes the minimum requirements for contributing new Spark API functions to dotnet/spark.
+This document describes the minimum requirements for contributing new Spark API functions to [dotnet/spark](https://github.com/dotnet/spark).
 
 Comments
 --------
