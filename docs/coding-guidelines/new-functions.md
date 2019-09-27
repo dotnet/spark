@@ -13,7 +13,7 @@ To find the original Apache Spark's comment for an API, you can either go direct
 Unit Tests
 ----------
 
-The approach for unit testing is to check whether the functions have been implemented correctly in dotnet and not to verify that the actual Apache Spark implementation is correct. This approach means that each function should have a unit test that verifies that the:
+The approach for unit testing is to check whether the functions have been implemented correctly in .NET and not to verify that the actual Apache Spark implementation is correct (since this would have been tested in Apache Spark Core already). This approach means that each function should have a unit test that verifies that the following is satisfied:
 
 * Function name is correct
 * Number of parameters are correct
