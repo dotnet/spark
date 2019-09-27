@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
@@ -208,11 +207,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 .Json($"{TestEnvironment.ResourceDirectory}people.json");
 
             Assert.IsType<DataFrame>(Broadcast(df));
-
-            Assert.IsType<DataFrame>(_spark.Range(10));
-            Assert.IsType<DataFrame>(_spark.Range(10, 100));
-            Assert.IsType<DataFrame>(_spark.Range(10, 100, 10));
-            Assert.IsType<DataFrame>(_spark.Range(10, 100, 10, 5));
 
             Assert.IsType<Column>(Coalesce());
             Assert.IsType<Column>(Coalesce(col));
@@ -666,13 +660,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// Tests for the Catclog Functions - returned from SparkSession.Catalog
         public void CatalogFunctions()
         {
-           var catalog = _spark.Catalog();
+            Catalog catalog = _spark.Catalog();
 
             Assert.IsType<DataFrame>(catalog.ListDatabases());
             Assert.IsType<DataFrame>(catalog.ListFunctions());
             Assert.IsType<DataFrame>(catalog.ListFunctions("default"));
 
-            var table = catalog.CreateTable("users", 
+            DataFrame table = catalog.CreateTable("users",
                 Path.Combine(TestEnvironment.ResourceDirectory, "users.parquet"));
             Assert.IsType<DataFrame>(table);
 

@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Spark.Internal.Java.Util;
+using Microsoft.Spark.Interop.Internal.Java.Util;
 using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark.Sql

@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Apache.Arrow;
-using Microsoft.Spark.Internal.Java.Util;
 using Microsoft.Spark.Interop;
+using Microsoft.Spark.Interop.Internal.Java.Util;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 
