@@ -6,7 +6,7 @@ This document describes the minimum requirements for contributing new Spark API 
 Comments
 --------
 
-Each Spark API has a comment that is used to generate the documentation on the [.NET API Browser](https://docs.microsoft.com/en-gb/dotnet/api/?view=spark-dotnet). The recommended approach is to start with the comments that are used by the Apache Spark comments for each function and then expand when required.
+Each Spark API has a comment that is used to generate the documentation on the [.NET API Browser](https://docs.microsoft.com/en-gb/dotnet/api/?view=spark-dotnet). The recommended approach is to start with comments that are used by the respective API you are attempting to expose from the Apache Spark code and then improvise when required. For instance, see the comments for the original implementation of `agg` in [Scala](https://github.com/apache/spark/blob/master/sql/core/src/main/scala/org/apache/spark/sql/RelationalGroupedDataset.scala#L223) and compare against [C#](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Sql/RelationalGroupedDataset.cs#L37).
 
 To find the original Apache Spark function's comment you can either go directly to the source code such as [Column Apache Spark implementation](https://github.com/apache/spark/blob/master/sql/core/src/main/scala/org/apache/spark/sql/Column.scala) or you can view the [Apache Spark API documentation](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.Column).
 
