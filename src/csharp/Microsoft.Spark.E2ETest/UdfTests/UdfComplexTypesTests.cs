@@ -42,8 +42,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Func<Column, Column> udf = Udf<int[], string>(array => string.Join(',', array));
             Assert.Throws<Exception>(() => _df.Select(udf(_df["ids"])).Show());
 
-            // Currently, there is a workaround to support ArrayType using ArrayList. 
-            // See the example below.
+            // Currently, there is a workaround to support ArrayType using ArrayList.
             Func<Column, Column> workingUdf = Udf<ArrayList, string>(
                 array => string.Join(',', array.ToArray()));
 
@@ -99,8 +98,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             DataFrame df = _df.WithColumn("NameIdsMap", Map(_df["name"], _df["ids"]));
             Assert.Throws<Exception>(() => df.Select(udf(df["NameIdsMap"])).Show());
 
-            // Currently, there is a workaround to support MapType using Hashtable. 
-            // See the example below.
+            // Currently, there is a workaround to support MapType using Hashtable.
             Func<Column, Column> workingUdf = Udf<Hashtable, string>(
                 dict => dict.Count.ToString());
 
