@@ -22,11 +22,10 @@ namespace Microsoft.Spark
         private static string s_rootDirectory;
 
         [ThreadStatic]
-        private static bool s_isWorker;
+        private static bool s_isRunningOnWorker;
 
         /// <summary>
-        /// Get the absolute path of a file added through
-        /// <c>SparkContext.addFile()</c>.
+        /// Get the absolute path of a file added through <c>SparkContext.addFile()</c>.
         /// </summary>
         /// <param name="fileName">The name of the file added
         /// through <c>SparkContext.addFile()</c>
@@ -35,18 +34,16 @@ namespace Microsoft.Spark
         public static string Get(string fileName) => Path.Combine(GetRootDirectory(), fileName);
 
         /// <summary>
-        /// Get the root directory that contains files added
-        /// through <c>SparkContext.addFile()</c>.
+        /// Get the root directory that contains files added through <c>SparkContext.addFile()</c>.
         /// </summary>
         /// <returns>The root directory that contains the files.</returns>
         public static string GetRootDirectory() =>
-            s_isWorker ?
+            s_isRunningOnWorker ?
             s_rootDirectory :
             (string)Jvm.CallStaticJavaMethod(s_sparkFilesClassName, "getRootDirectory");
 
         /// <summary>
-        /// Set the root directory that contains files added
-        /// through <c>SparkContext.addFile()</c>
+        /// Set the root directory that contains files added through <c>SparkContext.addFile()</c>.
         /// <remarks>
         /// This should only be called from the Microsoft.Spark.Worker.
         /// </remarks>
@@ -56,7 +53,7 @@ namespace Microsoft.Spark
         /// </param>
         internal static void SetRootDirectory(string path)
         {
-            s_isWorker = true;
+            s_isRunningOnWorker = true;
             s_rootDirectory = path;
         }
     }
