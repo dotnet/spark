@@ -15,6 +15,11 @@ namespace Microsoft.Spark.UnitTest
 {
     public class CommandSerDeTests
     {
+        public CommandSerDeTests()
+        {
+            SparkFiles.SetRootDirectory(string.Empty);
+        }
+
         [Fact]
         public void TestCommandSerDeForSqlPickling()
         {
