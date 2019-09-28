@@ -20,7 +20,7 @@ namespace Microsoft.Spark.Utils
         /// precedence:
         /// 1) Comma-separated paths specified in DOTNET_ASSEMBLY_SEARCH_PATHS environment
         /// variable. Note that if a path starts with ".", the working directory will be prepended.
-        /// 2) The path of the files added through SparkContext.AddFile().
+        /// 2) The path of the files added through <c>SparkContext.AddFile()</c>.
         /// 3) The working directory.
         /// 4) The directory of the application.
         /// </summary>
