@@ -167,14 +167,8 @@ namespace Microsoft.Spark.Utils
         private static IJvmObjectReferenceProvider CreateEnvVarsForPythonFunction(IJvmBridge jvm)
         {
             var environmentVars = new Hashtable(jvm);
-            string assemblySearchPath = string.Join(",",
-                new[]
-                {
-                    Environment.GetEnvironmentVariable(
-                        AssemblySearchPathResolver.AssemblySearchPathsEnvVarName),
-                    SparkFiles.GetRootDirectory()
-                }.Where(s => !string.IsNullOrWhiteSpace(s)));
-
+            string assemblySearchPath = Environment.GetEnvironmentVariable(
+                AssemblySearchPathResolver.AssemblySearchPathsEnvVarName);
             if (!string.IsNullOrEmpty(assemblySearchPath))
             {
                 environmentVars.Put(

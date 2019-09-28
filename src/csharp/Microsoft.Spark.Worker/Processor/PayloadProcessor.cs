@@ -56,6 +56,7 @@ namespace Microsoft.Spark.Worker.Processor
             payload.Version = SerDe.ReadString(stream);
             payload.TaskContext = new TaskContextProcessor(_version).Process(stream);
             payload.SparkFilesDir = SerDe.ReadString(stream);
+            SparkFiles.SetRootDirectory(payload.SparkFilesDir);
 
             if (Utils.SettingUtils.IsDatabricks)
             {
