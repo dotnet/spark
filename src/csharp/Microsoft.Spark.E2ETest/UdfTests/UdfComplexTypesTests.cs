@@ -73,7 +73,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Assert.Throws<NotImplementedException>(
                 () => _df.Select(udf(_df["name"])).Collect().ToArray());
 
-            //Show() works here. See the example below.
+            // Show() works here. See the example below.
             _df.Select(udf(_df["name"])).Show();
         }
 
@@ -102,8 +102,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Assert.Equal(3, rows.Length);
 
             var expected = new[] { "1", "1", "1" };
-            string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
-            Assert.Equal(expected, rowsToArray);
+            string[] actual = rows.Select(x => x[0].ToString()).ToArray();
+            Assert.Equal(expected, actual);
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Assert.Throws<NotImplementedException>(
                 () => _df.Select(udf(_df["name"])).Collect().ToArray());
 
-            //Show() works here. See the example below.
+            // Show() works here. See the example below.
             _df.Select(udf(_df["name"])).Show();
         }
 
@@ -148,8 +148,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Assert.Equal(3, rows.Length);
 
             var expected = new[] { "Burdwan,Paschimbanga", "Los Angeles,California", "Seattle," };
-            string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
-            Assert.Equal(expected, rowsToArray);
+            string[] actual = rows.Select(x => x[0].ToString()).ToArray();
+            Assert.Equal(expected, actual);
         }
 
         /// <summary>
