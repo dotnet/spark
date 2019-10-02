@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Interop.Internal.Java.Util;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql
 {
@@ -24,7 +23,7 @@ namespace Microsoft.Spark.Sql
         }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-        
+
         /// <summary>
         /// Specifies the input data source format.
         /// </summary>
@@ -35,23 +34,7 @@ namespace Microsoft.Spark.Sql
             _jvmObject.Invoke("format", source);
             return this;
         }
-        
-        /// <summary>
-        /// Specifies the input schema.
-        /// </summary>
-        /// <remarks>
-        /// Some data sources (e.g. JSON) can infer the input schema automatically
-        /// from data. By specifying the schema here, the underlying data source can
-        /// skip the schema inference step, and thus speed up data loading.
-        /// </remarks>
-        /// <param name="schema">Input schema</param>
-        /// <returns>This DataFrameReader object</returns>
-        public DataFrameReader Schema(StructType schema)
-        {
-            _jvmObject.Invoke("schema", schema);
-            return this;
-        }
-        
+
         /// <summary>
         /// Specifies the schema by using the given DDL-formatted string.
         /// </summary>
