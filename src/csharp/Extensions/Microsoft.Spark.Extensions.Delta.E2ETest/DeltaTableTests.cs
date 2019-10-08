@@ -170,6 +170,9 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 table.Delete("id > 10");
                 table.Delete(Functions.Expr("id > 5"));
                 table.Delete();
+
+                // Load the table as a streaming source.
+                Assert.IsType<DataFrame>(_spark.ReadStream().Format("delta").Load(path));
             }
         }
 

@@ -113,6 +113,15 @@ namespace Microsoft.Spark.Sql.Streaming
         public DataFrame Load() => new DataFrame((JvmObjectReference)_jvmObject.Invoke("load"));
 
         /// <summary>
+        /// Loads input in as a <see cref="DataFrame"/>, for data streams that read
+        /// from some path. 
+        /// </summary>
+        /// <param name="path">File path for streaming</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Load(string path) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("load", path));
+
+        /// <summary>
         /// Loads a JSON file stream and returns the results as a <see cref="DataFrame"/>.
         /// </summary>
         /// <param name="path">File path for streaming</param>
