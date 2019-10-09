@@ -80,18 +80,13 @@ namespace Microsoft.Spark.Examples.Sql
 
             return new RecordBatch(
                 new Schema.Builder()
-                    .Field(f => f.Name(groupField.Name).DataType(groupField.DataType))
+                    .Field(groupField)
                     .Field(f => f.Name(stringFieldName + "_CharCount").DataType(Int32Type.Default))
                     .Build(),
                 new IArrowArray[]
                 {
                     records.Column(groupFieldIndex),
-                    new Int32Array(
-                        new ArrowBuffer.Builder<int>().Append(characterCount).Build(),
-                        ArrowBuffer.Empty,
-                        length: 1,
-                        nullCount: 0,
-                        offset: 0)
+                    new Int32Array.Builder().Append(characterCount).Build()
                 },
                 returnLength);
         }

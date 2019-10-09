@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using Apache.Arrow;
 using Microsoft.Spark.Interop;
+using Microsoft.Spark.Interop.Internal.Java.Util;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 
@@ -17,7 +18,7 @@ namespace Microsoft.Spark.Utils
     using PicklingDelegate = PicklingWorkerFunction.ExecuteDelegate;
 
     /// <summary>
-    /// UdfTypeUtils provides fuctions related to UDF types.
+    /// UdfTypeUtils provides functions related to UDF types.
     /// </summary>
     internal static class UdfTypeUtils
     {
@@ -125,7 +126,7 @@ namespace Microsoft.Spark.Utils
                 Type valueType = typeArguments[1];
                 return @"{""type"":""map"", " +
                     $@"""keyType"":{GetReturnType(keyType)}, " +
-                    $@"""valueType"":{GetReturnType(valueType)}, " + 
+                    $@"""valueType"":{GetReturnType(valueType)}, " +
                     $@"""valueContainsNull"":{valueType.CanBeNull()}}}";
             }
 
@@ -134,7 +135,7 @@ namespace Microsoft.Spark.Utils
             {
                 Type elementType = enumerableType.GenericTypeArguments[0];
                 return @"{""type"":""array"", " +
-                    $@"""elementType"":{GetReturnType(elementType)}, " + 
+                    $@"""elementType"":{GetReturnType(elementType)}, " +
                     $@"""containsNull"":{elementType.CanBeNull()}}}";
             }
 
@@ -149,19 +150,39 @@ namespace Microsoft.Spark.Utils
         /// <returns>JvmObjectReference object to the PythonFunction object</returns>
         internal static JvmObjectReference CreatePythonFunction(IJvmBridge jvm, byte[] command)
         {
-            JvmObjectReference hashTableReference = jvm.CallConstructor("java.util.Hashtable");
-            JvmObjectReference arrayListReference = jvm.CallConstructor("java.util.ArrayList");
+            var arrayList = new ArrayList(jvm);
 
             return (JvmObjectReference)jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.SQLUtils",
                 "createPythonFunction",
                 command,
-                hashTableReference, // Environment variables
-                arrayListReference, // Python includes
+                CreateEnvVarsForPythonFunction(jvm),
+                arrayList, // Python includes
                 SparkEnvironment.ConfigurationService.GetWorkerExePath(),
-                "1.0",
-                arrayListReference, // Broadcast variables
+                Versions.CurrentVersion,
+                arrayList, // Broadcast variables
                 null); // Accumulator
+        }
+
+        private static IJvmObjectReferenceProvider CreateEnvVarsForPythonFunction(IJvmBridge jvm)
+        {
+            var environmentVars = new Hashtable(jvm);
+            string assemblySearchPath = string.Join(",",
+                new[]
+                {
+                    Environment.GetEnvironmentVariable(
+                        AssemblySearchPathResolver.AssemblySearchPathsEnvVarName),
+                    SparkFiles.GetRootDirectory()
+                }.Where(s => !string.IsNullOrWhiteSpace(s)));
+
+            if (!string.IsNullOrEmpty(assemblySearchPath))
+            {
+                environmentVars.Put(
+                    AssemblySearchPathResolver.AssemblySearchPathsEnvVarName,
+                    assemblySearchPath);
+            }
+
+            return environmentVars;
         }
 
         internal static Delegate CreateUdfWrapper<TResult>(Func<TResult> udf)

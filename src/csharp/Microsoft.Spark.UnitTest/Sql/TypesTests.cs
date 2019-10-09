@@ -33,23 +33,41 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestArrayType()
         {
-            var schemaJson =
+            string schemaJson =
                 @"{
                     ""type"":""array"",
                     ""elementType"":""integer"",
-                    ""containsNull"":true
+                    ""containsNull"":false
                 }";
             var arrayType = (ArrayType)DataType.ParseDataType(schemaJson);
             Assert.Equal("array", arrayType.TypeName);
             Assert.Equal("array<integer>", arrayType.SimpleString);
             Assert.Equal("integer", arrayType.ElementType.TypeName);
-            Assert.True(arrayType.ContainsNull);
+            Assert.False(arrayType.ContainsNull);
         }
-
+        
+        [Fact]
+        public void TestMapType()
+        {
+            string schemaJson =
+                @"{
+                    ""type"":""map"",
+                    ""keyType"":""integer"",
+                    ""valueType"":""double"",
+                    ""valueContainsNull"":false
+                }";
+            var mapType = (MapType)DataType.ParseDataType(schemaJson);
+            Assert.Equal("map", mapType.TypeName);
+            Assert.Equal("map<integer,double>", mapType.SimpleString);
+            Assert.Equal("integer", mapType.KeyType.TypeName);
+            Assert.Equal("double", mapType.ValueType.TypeName);
+            Assert.False(mapType.ValueContainsNull);
+        }
+        
         [Fact]
         public void TestStructTypeAndStructFieldTypes()
         {
-            var schemaJson =
+            string schemaJson =
                 @"{
                     ""type"":""struct"",
                     ""fields"":[

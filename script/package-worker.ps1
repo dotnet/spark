@@ -1,3 +1,6 @@
+Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
+Install-Module -Name Microsoft.PowerShell.Archive -Scope CurrentUser -Force -AllowClobber -Verbose -MinimumVersion 1.2.3.0
+
 $version = $args[0]
 $worker_dir = $args[1]
 $output_dir = $args[2]
@@ -14,14 +17,13 @@ foreach ($framework in $frameworks)
         Copy-Item "$($runtime.FullName)\*" -Destination $worker_version_dir -Recurse
         $filename = "Microsoft.Spark.Worker.$framework.$runtime-$version"
 
+        # Generate additional tar.gz worker files only for linux-x64.
         if ($runtime.Name.ToLower().Equals("linux-x64"))
         {
             tar czf "$output_dir/$filename.tar.gz" $worker_version_dir
         }
-        else
-        {
-            Compress-Archive -DestinationPath "$output_dir/$filename.zip" -Path $worker_version_dir -CompressionLevel Optimal
-        }
+        
+        Compress-Archive -DestinationPath "$output_dir/$filename.zip" -Path $worker_version_dir -CompressionLevel Optimal
 
         Remove-Item -Path $worker_version_dir -Recurse -Force
     }

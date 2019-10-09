@@ -3,8 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Catalog;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
 
@@ -33,568 +35,564 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             //////////////////////////////
 
             Column col = Column("col1");
+            Assert.IsType<Column>(col);
 
-            col = Col("col2");
-
-            col = Lit(1);
-            col = Lit("some column");
-            col = Lit(col);
+            Assert.IsType<Column>(Col("col2"));
+            Assert.IsType<Column>(Lit(1));
+            Assert.IsType<Column>(Lit("some column"));
+            Assert.IsType<Column>(Lit(col));
 
             //////////////////////////////
             // Sort Functions
             //////////////////////////////
-            col = Asc("col");
-
-            col = AscNullsFirst("col");
-
-            col = AscNullsLast("col");
-
-            col = Desc("col");
-
-            col = DescNullsFirst("col");
-
-            col = DescNullsLast("col");
+            Assert.IsType<Column>(Asc("col"));
+            Assert.IsType<Column>(AscNullsFirst("col"));
+            Assert.IsType<Column>(AscNullsLast("col"));
+            Assert.IsType<Column>(Desc("col"));
+            Assert.IsType<Column>(DescNullsFirst("col"));
+            Assert.IsType<Column>(DescNullsLast("col"));
 
             //////////////////////////////
             // Aggregate Functions
             //////////////////////////////
-            col = Column("col");
+            Assert.IsType<Column>(Column("col"));
 
-            col = ApproxCountDistinct(col);
-            col = ApproxCountDistinct("col");
-            col = ApproxCountDistinct(col, 0.05);
-            col = ApproxCountDistinct("col", 0.05);
+            Assert.IsType<Column>(ApproxCountDistinct(col));
+            Assert.IsType<Column>(ApproxCountDistinct("col"));
+            Assert.IsType<Column>(ApproxCountDistinct(col, 0.05));
+            Assert.IsType<Column>(ApproxCountDistinct("col", 0.05));
 
-            col = Avg(col);
-            col = Avg("col");
+            Assert.IsType<Column>(Avg(col));
+            Assert.IsType<Column>(Avg("col"));
 
-            col = CollectList(col);
-            col = CollectList("col");
+            Assert.IsType<Column>(CollectList(col));
+            Assert.IsType<Column>(CollectList("col"));
 
-            col = CollectSet(col);
-            col = CollectSet("col");
+            Assert.IsType<Column>(CollectSet(col));
+            Assert.IsType<Column>(CollectSet("col"));
 
-            col = Corr(col, col);
-            col = Corr("col1", "col2");
+            Assert.IsType<Column>(Corr(col, col));
+            Assert.IsType<Column>(Corr("col1", "col2"));
 
-            col = Count(col);
-            col = Count("col");
+            Assert.IsType<Column>(Count(col));
+            Assert.IsType<Column>(Count("col"));
 
-            col = CountDistinct(col);
-            col = CountDistinct(col, col);
-            col = CountDistinct(col, col, col);
-            col = CountDistinct("col1");
-            col = CountDistinct("col1", "col2");
-            col = CountDistinct("col1", "col2", "col3");
+            Assert.IsType<Column>(CountDistinct(col));
+            Assert.IsType<Column>(CountDistinct(col, col));
+            Assert.IsType<Column>(CountDistinct(col, col, col));
+            Assert.IsType<Column>(CountDistinct("col1"));
+            Assert.IsType<Column>(CountDistinct("col1", "col2"));
+            Assert.IsType<Column>(CountDistinct("col1", "col2", "col3"));
 
-            col = CovarPop(col, col);
-            col = CovarPop("col1", "col2");
+            Assert.IsType<Column>(CovarPop(col, col));
+            Assert.IsType<Column>(CovarPop("col1", "col2"));
 
-            col = CovarSamp(col, col);
-            col = CovarSamp("col1", "col2");
+            Assert.IsType<Column>(CovarSamp(col, col));
+            Assert.IsType<Column>(CovarSamp("col1", "col2"));
 
-            col = First(col);
-            col = First(col, true);
-            col = First(col, false);
-            col = First("col");
-            col = First("col", true);
-            col = First("col", false);
+            Assert.IsType<Column>(First(col));
+            Assert.IsType<Column>(First(col, true));
+            Assert.IsType<Column>(First(col, false));
+            Assert.IsType<Column>(First("col"));
+            Assert.IsType<Column>(First("col", true));
+            Assert.IsType<Column>(First("col", false));
 
-            col = Grouping(col);
-            col = Grouping("col");
+            Assert.IsType<Column>(Grouping(col));
+            Assert.IsType<Column>(Grouping("col"));
 
-            col = GroupingId();
-            col = GroupingId(col);
-            col = GroupingId(col, col);
-            col = GroupingId("col1");
-            col = GroupingId("col1", "col2");
-            col = GroupingId("col1", "col2", "col3");
+            Assert.IsType<Column>(GroupingId());
+            Assert.IsType<Column>(GroupingId(col));
+            Assert.IsType<Column>(GroupingId(col, col));
+            Assert.IsType<Column>(GroupingId("col1"));
+            Assert.IsType<Column>(GroupingId("col1", "col2"));
+            Assert.IsType<Column>(GroupingId("col1", "col2", "col3"));
 
-            col = Kurtosis(col);
-            col = Kurtosis("col");
+            Assert.IsType<Column>(Kurtosis(col));
+            Assert.IsType<Column>(Kurtosis("col"));
 
-            col = Last(col);
-            col = Last(col, true);
-            col = Last(col, false);
-            col = Last("col");
-            col = Last("col", true);
-            col = Last("col", false);
+            Assert.IsType<Column>(Last(col));
+            Assert.IsType<Column>(Last(col, true));
+            Assert.IsType<Column>(Last(col, false));
+            Assert.IsType<Column>(Last("col"));
+            Assert.IsType<Column>(Last("col", true));
+            Assert.IsType<Column>(Last("col", false));
 
-            col = Max(col);
-            col = Max("col");
+            Assert.IsType<Column>(Max(col));
+            Assert.IsType<Column>(Max("col"));
 
-            col = Mean(col);
-            col = Mean("col");
+            Assert.IsType<Column>(Mean(col));
+            Assert.IsType<Column>(Mean("col"));
 
-            col = Min(col);
-            col = Min("col");
+            Assert.IsType<Column>(Min(col));
+            Assert.IsType<Column>(Min("col"));
 
-            col = Skewness(col);
-            col = Skewness("col");
+            Assert.IsType<Column>(Skewness(col));
+            Assert.IsType<Column>(Skewness("col"));
 
-            col = Stddev(col);
-            col = Stddev("col");
+            Assert.IsType<Column>(Stddev(col));
+            Assert.IsType<Column>(Stddev("col"));
 
-            col = StddevSamp(col);
-            col = StddevSamp("col");
+            Assert.IsType<Column>(StddevSamp(col));
+            Assert.IsType<Column>(StddevSamp("col"));
 
-            col = StddevPop(col);
-            col = StddevPop("col");
+            Assert.IsType<Column>(StddevPop(col));
+            Assert.IsType<Column>(StddevPop("col"));
 
-            col = Sum(col);
-            col = Sum("col");
+            Assert.IsType<Column>(Sum(col));
+            Assert.IsType<Column>(Sum("col"));
 
-            col = SumDistinct(col);
-            col = SumDistinct("col");
+            Assert.IsType<Column>(SumDistinct(col));
+            Assert.IsType<Column>(SumDistinct("col"));
 
-            col = Variance(col);
-            col = Variance("col");
+            Assert.IsType<Column>(Variance(col));
+            Assert.IsType<Column>(Variance("col"));
 
-            col = VarSamp(col);
-            col = VarSamp("col");
+            Assert.IsType<Column>(VarSamp(col));
+            Assert.IsType<Column>(VarSamp("col"));
 
-            col = VarPop(col);
-            col = VarPop("col");
+            Assert.IsType<Column>(VarPop(col));
+            Assert.IsType<Column>(VarPop("col"));
 
             //////////////////////////////
             // Window Functions
             //////////////////////////////
-            col = UnboundedPreceding();
+            Assert.IsType<Column>(UnboundedPreceding());
 
-            col = UnboundedFollowing();
+            Assert.IsType<Column>(UnboundedFollowing());
 
-            col = CurrentRow();
+            Assert.IsType<Column>(CurrentRow());
 
-            col = CumeDist();
+            Assert.IsType<Column>(CumeDist());
 
-            col = DenseRank();
+            Assert.IsType<Column>(DenseRank());
 
-            col = Lag(col, 0);
-            col = Lag(col, 2, "col2");
-            col = Lag("col", 0);
-            col = Lag("col", 2, "col2");
+            Assert.IsType<Column>(Lag(col, 0));
+            Assert.IsType<Column>(Lag(col, 2, "col2"));
+            Assert.IsType<Column>(Lag("col", 0));
+            Assert.IsType<Column>(Lag("col", 2, "col2"));
 
-            col = Lead(col, 0);
-            col = Lead(col, 2, "col2");
-            col = Lead("col", 0);
-            col = Lead("col", 2, "col2");
+            Assert.IsType<Column>(Lead(col, 0));
+            Assert.IsType<Column>(Lead(col, 2, "col2"));
+            Assert.IsType<Column>(Lead("col", 0));
+            Assert.IsType<Column>(Lead("col", 2, "col2"));
 
-            col = Ntile(100);
+            Assert.IsType<Column>(Ntile(100));
 
-            col = PercentRank();
+            Assert.IsType<Column>(PercentRank());
 
-            col = Rank();
+            Assert.IsType<Column>(Rank());
 
-            col = RowNumber();
+            Assert.IsType<Column>(RowNumber());
 
             //////////////////////////////
             // Non-Aggregate Functions
             //////////////////////////////
-            col = Column("col");
+            Assert.IsType<Column>(Column("col"));
 
-            col = Abs(col);
+            Assert.IsType<Column>(Abs(col));
 
-            col = Array();
-            col = Array(col);
-            col = Array(col, col);
-            col = Array("col1");
-            col = Array("col1", "col2");
-            col = Array("col1", "col2", "col3");
+            Assert.IsType<Column>(Array());
+            Assert.IsType<Column>(Array(col));
+            Assert.IsType<Column>(Array(col, col));
+            Assert.IsType<Column>(Array("col1"));
+            Assert.IsType<Column>(Array("col1", "col2"));
+            Assert.IsType<Column>(Array("col1", "col2", "col3"));
 
-            col = Map();
-            col = Map(col);
-            col = Map(col, col);
+            Assert.IsType<Column>(Map());
+            Assert.IsType<Column>(Map(col));
+            Assert.IsType<Column>(Map(col, col));
 
             DataFrame df = _spark
-               .Read()
-               .Json($"{TestEnvironment.ResourceDirectory}people.json");
-            df = Broadcast(df);
+                .Read()
+                .Json($"{TestEnvironment.ResourceDirectory}people.json");
 
-            col = Coalesce();
-            col = Coalesce(col);
-            col = Coalesce(col, col);
+            Assert.IsType<DataFrame>(Broadcast(df));
 
-            col = InputFileName();
+            Assert.IsType<Column>(Coalesce());
+            Assert.IsType<Column>(Coalesce(col));
+            Assert.IsType<Column>(Coalesce(col, col));
 
-            col = IsNaN(col);
+            Assert.IsType<Column>(InputFileName());
 
-            col = IsNull(col);
+            Assert.IsType<Column>(IsNaN(col));
 
-            col = MonotonicallyIncreasingId();
+            Assert.IsType<Column>(IsNull(col));
 
-            col = NaNvl(col, col);
+            Assert.IsType<Column>(MonotonicallyIncreasingId());
 
-            col = Negate(col);
+            Assert.IsType<Column>(NaNvl(col, col));
 
-            col = Not(col);
+            Assert.IsType<Column>(Negate(col));
 
-            col = Rand(12345);
-            col = Rand();
+            Assert.IsType<Column>(Not(col));
 
-            col = Randn(12345);
-            col = Randn();
+            Assert.IsType<Column>(Rand(12345));
+            Assert.IsType<Column>(Rand());
 
-            col = SparkPartitionId();
+            Assert.IsType<Column>(Randn(12345));
+            Assert.IsType<Column>(Randn());
 
-            col = Sqrt(col);
-            col = Sqrt("col");
+            Assert.IsType<Column>(SparkPartitionId());
 
-            col = Struct();
-            col = Struct(col);
-            col = Struct(col, col);
-            col = Struct("col1");
-            col = Struct("col1", "col2");
-            col = Struct("col1", "col2", "col3");
+            Assert.IsType<Column>(Sqrt(col));
+            Assert.IsType<Column>(Sqrt("col"));
 
-            col = When(col, col);
-            col = When(col, "col");
-            col = When(col, 12345);
+            Assert.IsType<Column>(Struct());
+            Assert.IsType<Column>(Struct(col));
+            Assert.IsType<Column>(Struct(col, col));
+            Assert.IsType<Column>(Struct("col1"));
+            Assert.IsType<Column>(Struct("col1", "col2"));
+            Assert.IsType<Column>(Struct("col1", "col2", "col3"));
 
-            col = BitwiseNOT(col);
+            Assert.IsType<Column>(When(col, col));
+            Assert.IsType<Column>(When(col, "col"));
+            Assert.IsType<Column>(When(col, 12345));
 
-            col = Expr("expr");
+            Assert.IsType<Column>(BitwiseNOT(col));
+
+            Assert.IsType<Column>(Expr("expr"));
 
             //////////////////////////////
             // Math Functions
             //////////////////////////////
-            col = Column("col");
+            Assert.IsType<Column>(Column("col"));
 
-            col = Acos(col);
-            col = Acos("col");
+            Assert.IsType<Column>(Acos(col));
+            Assert.IsType<Column>(Acos("col"));
 
-            col = Asin(col);
-            col = Asin("col");
+            Assert.IsType<Column>(Asin(col));
+            Assert.IsType<Column>(Asin("col"));
 
-            col = Atan(col);
-            col = Atan("col");
+            Assert.IsType<Column>(Atan(col));
+            Assert.IsType<Column>(Atan("col"));
 
-            col = Atan2(col, col);
-            col = Atan2(col, "x");
-            col = Atan2("y", col);
-            col = Atan2("y", "x");
-            col = Atan2(col, 0.5);
-            col = Atan2("y", 0.5);
-            col = Atan2(0.5, col);
-            col = Atan2(0.5, "x");
+            Assert.IsType<Column>(Atan2(col, col));
+            Assert.IsType<Column>(Atan2(col, "x"));
+            Assert.IsType<Column>(Atan2("y", col));
+            Assert.IsType<Column>(Atan2("y", "x"));
+            Assert.IsType<Column>(Atan2(col, 0.5));
+            Assert.IsType<Column>(Atan2("y", 0.5));
+            Assert.IsType<Column>(Atan2(0.5, col));
+            Assert.IsType<Column>(Atan2(0.5, "x"));
 
-            col = Bin(col);
-            col = Bin("col");
+            Assert.IsType<Column>(Bin(col));
+            Assert.IsType<Column>(Bin("col"));
 
-            col = Cbrt(col);
-            col = Cbrt("col");
+            Assert.IsType<Column>(Cbrt(col));
+            Assert.IsType<Column>(Cbrt("col"));
 
-            col = Ceil(col);
-            col = Ceil("col");
+            Assert.IsType<Column>(Ceil(col));
+            Assert.IsType<Column>(Ceil("col"));
 
-            col = Conv(col, 2, 10);
+            Assert.IsType<Column>(Conv(col, 2, 10));
 
-            col = Cos(col);
-            col = Cos("col");
+            Assert.IsType<Column>(Cos(col));
+            Assert.IsType<Column>(Cos("col"));
 
-            col = Cosh(col);
-            col = Cosh("col");
+            Assert.IsType<Column>(Cosh(col));
+            Assert.IsType<Column>(Cosh("col"));
 
-            col = Exp(col);
-            col = Exp("col");
+            Assert.IsType<Column>(Exp(col));
+            Assert.IsType<Column>(Exp("col"));
 
-            col = Expm1(col);
-            col = Expm1("col");
+            Assert.IsType<Column>(Expm1(col));
+            Assert.IsType<Column>(Expm1("col"));
 
-            col = Factorial(col);
+            Assert.IsType<Column>(Factorial(col));
 
-            col = Floor(col);
-            col = Floor("col");
+            Assert.IsType<Column>(Floor(col));
+            Assert.IsType<Column>(Floor("col"));
 
-            col = Greatest();
-            col = Greatest(col);
-            col = Greatest(col, col);
-            col = Greatest("col1");
-            col = Greatest("col1", "col2");
-            col = Greatest("col1", "col2", "col3");
+            Assert.IsType<Column>(Greatest());
+            Assert.IsType<Column>(Greatest(col));
+            Assert.IsType<Column>(Greatest(col, col));
+            Assert.IsType<Column>(Greatest("col1"));
+            Assert.IsType<Column>(Greatest("col1", "col2"));
+            Assert.IsType<Column>(Greatest("col1", "col2", "col3"));
 
-            col = Hex(col);
+            Assert.IsType<Column>(Hex(col));
 
-            col = Unhex(col);
+            Assert.IsType<Column>(Unhex(col));
 
-            col = Hypot(col, col);
-            col = Hypot(col, "right");
-            col = Hypot("left", col);
-            col = Hypot("left", "right");
-            col = Hypot(col, 0.5);
-            col = Hypot("left", 0.5);
-            col = Hypot(0.5, col);
-            col = Hypot(0.5, "right");
+            Assert.IsType<Column>(Hypot(col, col));
+            Assert.IsType<Column>(Hypot(col, "right"));
+            Assert.IsType<Column>(Hypot("left", col));
+            Assert.IsType<Column>(Hypot("left", "right"));
+            Assert.IsType<Column>(Hypot(col, 0.5));
+            Assert.IsType<Column>(Hypot("left", 0.5));
+            Assert.IsType<Column>(Hypot(0.5, col));
+            Assert.IsType<Column>(Hypot(0.5, "right"));
 
-            col = Least();
-            col = Least(col);
-            col = Least(col, col);
-            col = Least("col1");
-            col = Least("col1", "col2");
-            col = Least("col1", "col2", "col3");
+            Assert.IsType<Column>(Least());
+            Assert.IsType<Column>(Least(col));
+            Assert.IsType<Column>(Least(col, col));
+            Assert.IsType<Column>(Least("col1"));
+            Assert.IsType<Column>(Least("col1", "col2"));
+            Assert.IsType<Column>(Least("col1", "col2", "col3"));
 
-            col = Log(col);
-            col = Log("col");
-            col = Log(2.0, col);
-            col = Log(2.0, "col");
+            Assert.IsType<Column>(Log(col));
+            Assert.IsType<Column>(Log("col"));
+            Assert.IsType<Column>(Log(2.0, col));
+            Assert.IsType<Column>(Log(2.0, "col"));
 
-            col = Log10(col);
-            col = Log10("col");
+            Assert.IsType<Column>(Log10(col));
+            Assert.IsType<Column>(Log10("col"));
 
-            col = Log1p(col);
-            col = Log1p("col");
+            Assert.IsType<Column>(Log1p(col));
+            Assert.IsType<Column>(Log1p("col"));
 
-            col = Log2(col);
-            col = Log2("col");
+            Assert.IsType<Column>(Log2(col));
+            Assert.IsType<Column>(Log2("col"));
 
-            col = Pow(col, col);
-            col = Pow(col, "right");
-            col = Pow("left", col);
-            col = Pow("left", "right");
-            col = Pow(col, 0.5);
-            col = Pow("left", 0.5);
-            col = Pow(0.5, col);
-            col = Pow(0.5, "right");
+            Assert.IsType<Column>(Pow(col, col));
+            Assert.IsType<Column>(Pow(col, "right"));
+            Assert.IsType<Column>(Pow("left", col));
+            Assert.IsType<Column>(Pow("left", "right"));
+            Assert.IsType<Column>(Pow(col, 0.5));
+            Assert.IsType<Column>(Pow("left", 0.5));
+            Assert.IsType<Column>(Pow(0.5, col));
+            Assert.IsType<Column>(Pow(0.5, "right"));
 
-            col = Pmod(col, col);
+            Assert.IsType<Column>(Pmod(col, col));
 
-            col = Rint(col);
-            col = Rint("col");
+            Assert.IsType<Column>(Rint(col));
+            Assert.IsType<Column>(Rint("col"));
 
-            col = Round(col);
-            col = Round(col, 10);
+            Assert.IsType<Column>(Round(col));
+            Assert.IsType<Column>(Round(col, 10));
 
-            col = Bround(col);
-            col = Bround(col, 10);
+            Assert.IsType<Column>(Bround(col));
+            Assert.IsType<Column>(Bround(col, 10));
 
-            col = ShiftLeft(col, 4);
+            Assert.IsType<Column>(ShiftLeft(col, 4));
 
-            col = ShiftRight(col, 4);
+            Assert.IsType<Column>(ShiftRight(col, 4));
 
-            col = ShiftRightUnsigned(col, 4);
+            Assert.IsType<Column>(ShiftRightUnsigned(col, 4));
 
-            col = Signum(col);
-            col = Signum("col");
+            Assert.IsType<Column>(Signum(col));
+            Assert.IsType<Column>(Signum("col"));
 
-            col = Sin(col);
-            col = Sin("col");
+            Assert.IsType<Column>(Sin(col));
+            Assert.IsType<Column>(Sin("col"));
 
-            col = Sinh(col);
-            col = Sinh("col");
+            Assert.IsType<Column>(Sinh(col));
+            Assert.IsType<Column>(Sinh("col"));
 
-            col = Tan(col);
-            col = Tan("col");
+            Assert.IsType<Column>(Tan(col));
+            Assert.IsType<Column>(Tan("col"));
 
-            col = Tanh(col);
-            col = Tanh("col");
+            Assert.IsType<Column>(Tanh(col));
+            Assert.IsType<Column>(Tanh("col"));
 
-            col = Degrees(col);
-            col = Degrees("col");
+            Assert.IsType<Column>(Degrees(col));
+            Assert.IsType<Column>(Degrees("col"));
 
-            col = Radians(col);
-            col = Radians("col");
+            Assert.IsType<Column>(Radians(col));
+            Assert.IsType<Column>(Radians("col"));
 
             //////////////////////////////
             // Miscellaneous Functions
             //////////////////////////////
-            col = Md5(col);
+            Assert.IsType<Column>(Md5(col));
 
-            col = Sha1(col);
+            Assert.IsType<Column>(Sha1(col));
 
-            col = Sha2(col, 224);
+            Assert.IsType<Column>(Sha2(col, 224));
 
-            col = Crc32(col);
+            Assert.IsType<Column>(Crc32(col));
 
-            col = Hash();
-            col = Hash(col);
-            col = Hash(col, col);
+            Assert.IsType<Column>(Hash());
+            Assert.IsType<Column>(Hash(col));
+            Assert.IsType<Column>(Hash(col, col));
 
             //////////////////////////////
             // String Functions
             //////////////////////////////
-            col = Ascii(col);
+            Assert.IsType<Column>(Ascii(col));
 
-            col = Base64(col);
+            Assert.IsType<Column>(Base64(col));
 
-            col = ConcatWs(";");
-            col = ConcatWs(";", col);
-            col = ConcatWs(";", col, col);
+            Assert.IsType<Column>(ConcatWs(";"));
+            Assert.IsType<Column>(ConcatWs(";", col));
+            Assert.IsType<Column>(ConcatWs(";", col, col));
 
-            col = Decode(col, "UTF-8");
+            Assert.IsType<Column>(Decode(col, "UTF-8"));
 
-            col = Encode(col, "UTF-8");
+            Assert.IsType<Column>(Encode(col, "UTF-8"));
 
-            col = FormatNumber(col, 2);
+            Assert.IsType<Column>(FormatNumber(col, 2));
 
-            col = FormatString("%s %d");
-            col = FormatString("%s %d", col);
-            col = FormatString("%s %d", col, col);
+            Assert.IsType<Column>(FormatString("%s %d"));
+            Assert.IsType<Column>(FormatString("%s %d", col));
+            Assert.IsType<Column>(FormatString("%s %d", col, col));
 
-            col = InitCap(col);
+            Assert.IsType<Column>(InitCap(col));
 
-            col = Instr(col, "abc");
+            Assert.IsType<Column>(Instr(col, "abc"));
 
-            col = Length(col);
+            Assert.IsType<Column>(Length(col));
 
-            col = Lower(col);
+            Assert.IsType<Column>(Lower(col));
 
-            col = Levenshtein(col, col);
+            Assert.IsType<Column>(Levenshtein(col, col));
 
-            col = Locate("abc", col);
-            col = Locate("abc", col, 3);
+            Assert.IsType<Column>(Locate("abc", col));
+            Assert.IsType<Column>(Locate("abc", col, 3));
 
-            col = Lpad(col, 3, "pad");
+            Assert.IsType<Column>(Lpad(col, 3, "pad"));
 
-            col = Ltrim(col);
-            col = Ltrim(col, "\n");
+            Assert.IsType<Column>(Ltrim(col));
+            Assert.IsType<Column>(Ltrim(col, "\n"));
 
-            col = RegexpExtract(col, "[a-z]", 0);
+            Assert.IsType<Column>(RegexpExtract(col, "[a-z]", 0));
 
-            col = RegexpReplace(col, "[a-z]", "hello");
-            col = RegexpReplace(col, col, col);
+            Assert.IsType<Column>(RegexpReplace(col, "[a-z]", "hello"));
+            Assert.IsType<Column>(RegexpReplace(col, col, col));
 
-            col = Unbase64(col);
+            Assert.IsType<Column>(Unbase64(col));
 
-            col = Rpad(col, 3, "pad");
+            Assert.IsType<Column>(Rpad(col, 3, "pad"));
 
-            col = Repeat(col, 3);
+            Assert.IsType<Column>(Repeat(col, 3));
 
-            col = Rtrim(col);
-            col = Rtrim(col, "\n");
+            Assert.IsType<Column>(Rtrim(col));
+            Assert.IsType<Column>(Rtrim(col, "\n"));
 
-            col = Soundex(col);
+            Assert.IsType<Column>(Soundex(col));
 
-            col = Split(col, "\t");
+            Assert.IsType<Column>(Split(col, "\t"));
 
-            col = Substring(col, 0, 5);
+            Assert.IsType<Column>(Substring(col, 0, 5));
 
-            col = SubstringIndex(col, ";", 5);
+            Assert.IsType<Column>(SubstringIndex(col, ";", 5));
 
-            col = Translate(col, "abc", "edf");
+            Assert.IsType<Column>(Translate(col, "abc", "edf"));
 
-            col = Trim(col);
-            col = Trim(col, "\n");
+            Assert.IsType<Column>(Trim(col));
+            Assert.IsType<Column>(Trim(col, "\n"));
 
-            col = Upper(col);
+            Assert.IsType<Column>(Upper(col));
 
             //////////////////////////////
             // DateTime Functions
             //////////////////////////////
-            col = AddMonths(col, 3);
+            Assert.IsType<Column>(AddMonths(col, 3));
 
-            col = CurrentDate();
+            Assert.IsType<Column>(CurrentDate());
 
-            col = CurrentTimestamp();
+            Assert.IsType<Column>(CurrentTimestamp());
 
-            col = DateFormat(col, "format");
+            Assert.IsType<Column>(DateFormat(col, "format"));
 
-            col = DateAdd(col, 5);
+            Assert.IsType<Column>(DateAdd(col, 5));
 
-            col = DateSub(col, 5);
+            Assert.IsType<Column>(DateSub(col, 5));
 
-            col = DateDiff(col, col);
+            Assert.IsType<Column>(DateDiff(col, col));
 
-            col = Year(col);
+            Assert.IsType<Column>(Year(col));
 
-            col = Quarter(col);
+            Assert.IsType<Column>(Quarter(col));
 
-            col = Month(col);
+            Assert.IsType<Column>(Month(col));
 
-            col = DayOfWeek(col);
+            Assert.IsType<Column>(DayOfWeek(col));
 
-            col = DayOfMonth(col);
+            Assert.IsType<Column>(DayOfMonth(col));
 
-            col = DayOfYear(col);
+            Assert.IsType<Column>(DayOfYear(col));
 
-            col = Hour(col);
+            Assert.IsType<Column>(Hour(col));
 
-            col = LastDay(col);
+            Assert.IsType<Column>(LastDay(col));
 
-            col = Minute(col);
+            Assert.IsType<Column>(Minute(col));
 
-            col = MonthsBetween(col, col);
+            Assert.IsType<Column>(MonthsBetween(col, col));
 
-            col = NextDay(col, "Mon");
+            Assert.IsType<Column>(NextDay(col, "Mon"));
 
-            col = Second(col);
+            Assert.IsType<Column>(Second(col));
 
-            col = WeekOfYear(col);
+            Assert.IsType<Column>(WeekOfYear(col));
 
-            col = FromUnixTime(col);
-            col = FromUnixTime(col, "yyyy-MM-dd HH:mm:ss");
+            Assert.IsType<Column>(FromUnixTime(col));
+            Assert.IsType<Column>(FromUnixTime(col, "yyyy-MM-dd HH:mm:ss"));
 
-            col = UnixTimestamp();
-            col = UnixTimestamp(col);
-            col = UnixTimestamp(col, "yyyy-MM-dd HH:mm:ss");
+            Assert.IsType<Column>(UnixTimestamp());
+            Assert.IsType<Column>(UnixTimestamp(col));
+            Assert.IsType<Column>(UnixTimestamp(col, "yyyy-MM-dd HH:mm:ss"));
 
-            col = ToTimestamp(col);
-            col = ToTimestamp(col, "yyyy-MM-dd HH:mm:ss");
+            Assert.IsType<Column>(ToTimestamp(col));
+            Assert.IsType<Column>(ToTimestamp(col, "yyyy-MM-dd HH:mm:ss"));
 
-            col = ToDate(col);
-            col = ToDate(col, "yyyy-MM-dd HH:mm:ss");
+            Assert.IsType<Column>(ToDate(col));
+            Assert.IsType<Column>(ToDate(col, "yyyy-MM-dd HH:mm:ss"));
 
-            col = Trunc(col, "yyyy");
+            Assert.IsType<Column>(Trunc(col, "yyyy"));
 
-            col = DateTrunc("mon", col);
+            Assert.IsType<Column>(DateTrunc("mon", col));
 
-            col = FromUtcTimestamp(col, "GMT+1");
+            Assert.IsType<Column>(FromUtcTimestamp(col, "GMT+1"));
 
-            col = ToUtcTimestamp(col, "GMT+1");
+            Assert.IsType<Column>(ToUtcTimestamp(col, "GMT+1"));
 
-            col = Window(col, "1 minute", "10 seconds");
-            col = Window(col, "1 minute", "10 seconds", "5 seconds");
-            col = Window(col, "1 minute");
+            Assert.IsType<Column>(Window(col, "1 minute", "10 seconds", "5 seconds"));
+            Assert.IsType<Column>(Window(col, "1 minute", "10 seconds"));
+            Assert.IsType<Column>(Window(col, "1 minute"));
 
             //////////////////////////////
             // Collection Functions
             //////////////////////////////
-            col = ArrayContains(col, 12345);
-            col = ArrayContains(col, "str");
+            Assert.IsType<Column>(ArrayContains(col, 12345));
+            Assert.IsType<Column>(ArrayContains(col, "str"));
 
-            col = Concat();
-            col = Concat(col);
-            col = Concat(col, col);
+            Assert.IsType<Column>(Concat());
+            Assert.IsType<Column>(Concat(col));
+            Assert.IsType<Column>(Concat(col, col));
 
-            col = Explode(col);
+            Assert.IsType<Column>(Explode(col));
 
-            col = ExplodeOuter(col);
+            Assert.IsType<Column>(ExplodeOuter(col));
 
-            col = PosExplode(col);
+            Assert.IsType<Column>(PosExplode(col));
 
-            col = PosExplodeOuter(col);
+            Assert.IsType<Column>(PosExplodeOuter(col));
 
-            col = GetJsonObject(col, "abc.json");
+            Assert.IsType<Column>(GetJsonObject(col, "abc.json"));
 
-            col = JsonTuple(col, "a");
-            col = JsonTuple(col, "a", "b");
+            Assert.IsType<Column>(JsonTuple(col, "a"));
+            Assert.IsType<Column>(JsonTuple(col, "a", "b"));
 
             var options = new Dictionary<string, string>() { { "hello", "world" } };
 
-            col = FromJson(col, "a Int");
-            col = FromJson(col, "a Int", options);
+            Assert.IsType<Column>(FromJson(col, "a Int"));
+            Assert.IsType<Column>(FromJson(col, "a Int", options));
 
-            col = ToJson(col);
-            col = ToJson(col, options);
+            Assert.IsType<Column>(ToJson(col));
+            Assert.IsType<Column>(ToJson(col, options));
 
-            col = Size(col);
+            Assert.IsType<Column>(Size(col));
 
-            col = SortArray(col);
-            col = SortArray(col, true);
-            col = SortArray(col, false);
+            Assert.IsType<Column>(SortArray(col));
+            Assert.IsType<Column>(SortArray(col, true));
+            Assert.IsType<Column>(SortArray(col, false));
 
-            col = Reverse(col);
+            Assert.IsType<Column>(Reverse(col));
 
-            col = MapKeys(col);
+            Assert.IsType<Column>(MapKeys(col));
 
-            col = MapValues(col);
+            Assert.IsType<Column>(MapValues(col));
 
             //////////////////////////////
             // Udf Functions
             //////////////////////////////
             TestUdf();
 
-            col = CallUDF("udf");
-            col = CallUDF("udf", col);
-            col = CallUDF("udf", col, col);
+            Assert.IsType<Column>(CallUDF("udf"));
+            Assert.IsType<Column>(CallUDF("udf", col));
+            Assert.IsType<Column>(CallUDF("udf", col, col));
         }
 
         private void TestUdf()
@@ -643,9 +641,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Udf<int, int>((arg) => arg);
             Udf<long, long>((arg) => arg);
             Udf<short, short>((arg) => arg);
-            
+
             // Test array type.
-            Udf<string, string[]>((arg) => new[] { arg } );
+            Udf<string, string[]>((arg) => new[] { arg });
             Udf<string, IEnumerable<string>>((arg) => new[] { arg });
             Udf<string, IEnumerable<IEnumerable<string>>>((arg) => new[] { new[] { arg } });
 
@@ -656,6 +654,56 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 (arg) => new Dictionary<string, string> { { arg, arg } });
             Udf<string, IDictionary<string, string[]>>(
                 (arg) => new Dictionary<string, string[]> { { arg, new[] { arg } } });
+        }
+
+        [Fact]
+        /// Tests for the Catclog Functions - returned from SparkSession.Catalog
+        public void CatalogFunctions()
+        {
+            Catalog catalog = _spark.Catalog();
+
+            Assert.IsType<DataFrame>(catalog.ListDatabases());
+            Assert.IsType<DataFrame>(catalog.ListFunctions());
+            Assert.IsType<DataFrame>(catalog.ListFunctions("default"));
+
+            DataFrame table = catalog.CreateTable("users",
+                Path.Combine(TestEnvironment.ResourceDirectory, "users.parquet"));
+            Assert.IsType<DataFrame>(table);
+
+            Assert.IsType<string>(catalog.CurrentDatabase());
+            Assert.IsType<bool>(catalog.DatabaseExists("default"));
+
+            Assert.IsType<bool>(catalog.DropGlobalTempView("no-view"));
+            Assert.IsType<bool>(catalog.DropTempView("no-view"));
+            Assert.IsType<bool>(catalog.FunctionExists("default", "functionname"));
+            Assert.IsType<bool>(catalog.FunctionExists("functionname"));
+            Assert.IsType<Database>(catalog.GetDatabase("default"));
+            Assert.IsType<Function>(catalog.GetFunction("abs"));
+            Assert.IsType<Function>(catalog.GetFunction(null, "abs"));
+            Assert.IsType<Table>(catalog.GetTable("users"));
+            Assert.IsType<Table>(catalog.GetTable("default", "users"));
+            Assert.IsType<bool>(catalog.IsCached("users"));
+            Assert.IsType<DataFrame>(catalog.ListColumns("users"));
+            Assert.IsType<DataFrame>(catalog.ListColumns("default", "users"));
+            Assert.IsType<DataFrame>(catalog.ListDatabases());
+            Assert.IsType<DataFrame>(catalog.ListFunctions());
+            Assert.IsType<DataFrame>(catalog.ListFunctions("default"));
+            Assert.IsType<DataFrame>(catalog.ListTables());
+            Assert.IsType<DataFrame>(catalog.ListTables("default"));
+
+            catalog.RefreshByPath("/");
+            catalog.RefreshTable("users");
+            catalog.SetCurrentDatabase("default");
+            catalog.CacheTable("users");
+            catalog.UncacheTable("users");
+            catalog.ClearCache();
+
+            Assert.IsType<bool>(catalog.TableExists("users"));
+            Assert.IsType<bool>(catalog.TableExists("default", "users"));
+
+            _spark.Sql(@"CREATE TABLE IF NOT EXISTS usersp USING PARQUET PARTITIONED BY (name)  
+                            AS SELECT * FROM users");
+            catalog.RecoverPartitions("usersp");
         }
 
         /// <summary>

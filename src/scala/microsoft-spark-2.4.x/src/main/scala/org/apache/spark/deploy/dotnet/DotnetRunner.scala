@@ -4,7 +4,7 @@
  * See the LICENSE file in the project root for more information.
  */
 
-package org.apache.spark.deploy
+package org.apache.spark.deploy.dotnet
 
 import java.io.File
 import java.net.URI
@@ -17,6 +17,7 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.hadoop.fs.Path
 import org.apache.spark
 import org.apache.spark.api.dotnet.DotnetBackend
+import org.apache.spark.deploy.{PythonRunner, SparkHadoopUtil}
 import org.apache.spark.internal.Logging
 import org.apache.spark.util.dotnet.{Utils => DotnetUtils}
 import org.apache.spark.util.{RedirectThread, Utils}
@@ -33,7 +34,7 @@ import scala.util.Try
  */
 object DotnetRunner extends Logging {
   private val DEBUG_PORT = 5567
-  private val supportedSparkVersions = Set[String]("2.4.0", "2.4.1", "2.4.3")
+  private val supportedSparkVersions = Set[String]("2.4.0", "2.4.1", "2.4.3", "2.4.4")
 
   val SPARK_VERSION = DotnetUtils.normalizeSparkVersion(spark.SPARK_VERSION)
 
