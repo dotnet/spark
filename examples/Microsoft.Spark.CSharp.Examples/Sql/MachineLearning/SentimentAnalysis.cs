@@ -5,10 +5,10 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Sql;
-using Microsoft.ML;
-using Microsoft.ML.Data;
+//using Microsoft.ML;
+//using Microsoft.ML.Data;
 
-namespace Microsoft.Spark.Examples.MachineLearning
+namespace Microsoft.Spark.Examples.Sql.MachineLearning
 {
     /// <summary>
     /// Example of using ML.NET + .NET for Apache Spark
@@ -33,7 +33,7 @@ namespace Microsoft.Spark.Examples.MachineLearning
             if (dependenciesDone == 0)
             {
                 Console.Error.WriteLine(
-                    "Complete setting ML.NET dependencies");
+                    "You need to complete setting ML.NET dependencies");
 
                 Environment.Exit(1);
             }
@@ -51,7 +51,7 @@ namespace Microsoft.Spark.Examples.MachineLearning
             df.Show();
 
             // Use ML.NET to evaluate each review 
-            spark.Udf().Register<string, bool>(
+            /*spark.Udf().Register<string, bool>(
                 "MLudf", 
                 (text) => Sentiment(text));
 
@@ -114,6 +114,7 @@ namespace Microsoft.Spark.Examples.MachineLearning
             public float Probability { get; set; }
 
             public float Score { get; set; }
+        }*/
         }
     }
 }
