@@ -8,7 +8,7 @@ using System.IO;
 using System.Security.Policy;
 using Microsoft.Spark.Sql;
 
-namespace Microsoft.Spark.Examples.Sql
+namespace Microsoft.Spark.Examples.Sql.Batch
 {
     /// <summary>
     /// The example is taken/modified from spark/examples/src/main/python/sql/datasource.py
