@@ -43,25 +43,33 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             cleanedProjects = cleanedProjects.Drop("id", "url", "owner_id");
             cleanedProjects.Show();
 
-            // Get the average number of times each language has been forked
-            DataFrame groupedDF = cleanedProjects.GroupBy("language").Agg(Avg(cleanedProjects["forked_from"]));
+            // Average number of times each language has been forked
+            DataFrame groupedDF = cleanedProjects
+                .GroupBy("language")
+                .Agg(Avg(cleanedProjects["forked_from"]));
 
             // Sort by most forked languages first
             groupedDF.OrderBy(Desc("avg(forked_from)")).Show();
 
             // Find projects updated since 10/20/15
-            spark.Udf().Register<string, bool>("MyUDF", (date) => DateTest(date));
+            spark.Udf().Register<string, bool>(
+                "MyUDF", (date) => DateTest(date));
             cleanedProjects.CreateOrReplaceTempView("dateView");
-            DataFrame dateDf = spark.Sql("SELECT *, MyUDF(dateView.updated_at) AS datebefore FROM dateView");
+            DataFrame dateDf = spark.Sql(
+                "SELECT *, MyUDF(dateView.updated_at) AS datebefore FROM dateView");
 
             spark.Stop();
         }
 
         public static bool DateTest(string date)
         {
-            //  Remove invalid dates to avoid: System.FormatException: String '0000-00-00 00:00:00' was not recognized as a valid DateTime
+            // Remove invalid dates to avoid: 
+            // System.FormatException: String '0000-00-00 00:00:00' 
+            // was not recognized as a valid DateTime
             if (date.Equals("0000-00-00 00:00:00"))
+            {
                 return false;
+            }
 
             DateTime convertedDate = Convert.ToDateTime(date);
 
@@ -70,10 +78,13 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             // > 0 means convertedDate (input from file) is later than 10/20/15
             if (DateTime.Compare(convertedDate, referenceDate) > 0)
+            {
                 return true;
+            }
             else
+            {
                 return false;
+            }
         }
-
     }
 }
