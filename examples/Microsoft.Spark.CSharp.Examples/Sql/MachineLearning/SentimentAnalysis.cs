@@ -4,9 +4,9 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Spark.Sql;
 //using Microsoft.ML;
 //using Microsoft.ML.Data;
+using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.Examples.Sql.MachineLearning
 {
@@ -25,7 +25,7 @@ namespace Microsoft.Spark.Examples.Sql.MachineLearning
             if (args.Length != 1)
             {
                 Console.Error.WriteLine(
-                    "Usage: Datasource <path to review dataset>");
+                    "Usage: SentimentAnalysis <path to review dataset>");
 
                 Environment.Exit(1);
             }
