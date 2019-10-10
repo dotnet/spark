@@ -53,10 +53,14 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             // Find projects updated since 10/20/15
             spark.Udf().Register<string, bool>(
-                "MyUDF", (date) => DateTest(date));
+                "MyUDF", 
+                (date) => DateTest(date));
+
             cleanedProjects.CreateOrReplaceTempView("dateView");
+
             DataFrame dateDf = spark.Sql(
                 "SELECT *, MyUDF(dateView.updated_at) AS datebefore FROM dateView");
+            dateDf.Show();
 
             spark.Stop();
         }
