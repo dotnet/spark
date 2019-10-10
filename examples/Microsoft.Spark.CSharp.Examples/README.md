@@ -2,7 +2,7 @@
 
 [.NET for Apache Spark](https://dot.net/spark) is a free, open-source, and cross-platform big data analytics framework.
 
-In the **Microsoft.Spark.CSharp.Examples** folder, we provide samples which will help you get started with .NET for Apache Spark
+In the **Microsoft.Spark.CSharp.Examples** folder, we provide C# samples which will help you get started with .NET for Apache Spark
 and demonstrate how to infuse big data analytics into existing and new .NET apps. 
 
 There are three main types of samples/apps in the repo:
@@ -59,3 +59,16 @@ an open source and cross-platform machine learning framework.
     <td align="middle"><a href="Sql/MachineLearning/SentimentAnalysisStream.cs"><b>SentimentAnalysisStream.cs</a></b><br>Determine if statements being produced live are positive or negative, using ML.NET.<br></td>
   </tr>
 </table>
+
+### Other Files in the Folder
+
+Beyond the sample apps, there are a few other files in the **Microsoft.Spark.CSharp.Examples** folder:
+
+* **IExample.cs:** A common interface each sample implements to help provide consistency when creating/running sample apps.
+
+* **Microsoft.Spark.CSharp.Examples.csproj:** The C# project file necessary for building/running all sample apps. It includes target
+frameworks, assembly information, and references to other C# project files references in the sample apps.
+
+* **Program.cs:** A common entry-point when running our sample apps (it contains the Main method). Helps us print error messages in cases such as a project lacking the necessary arguments.
+
+* **README.md:** The doc you are currently reading.
