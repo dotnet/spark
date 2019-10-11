@@ -51,6 +51,19 @@ rows of our DataFrame.
 We can specifically call `spark.Sql` to mimic standard SQL calls seen in other types of apps, and we can also call methods like 
 `GroupBy` and `Agg` to specifically combine, filter, and perform calculations on our data.
 
+### 5. Running Your App
+
+Checkout the directions for building and running this app on [Windows](../../../../docs/building/windows-instructions.md) or [Ubuntu](../../../../docs/building/ubuntu-instructions.md).
+
+#### Windows Example:
+
+```CSharp
+spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local C:\GitHub\spark\src\scala\microsoft-spark-2.4.x\target\microsoft-spark-2.4.x-0.5.0.jar Microsoft.Spark.CSharp.Examples.exe Batch.GitHubProjects %SPARK_HOME%\examples\src\main\resources\projects_smaller.csv
+```
+
+**Note:** The above command assumes your GitHub projects data is stored in **projects_smaller.csv** and you have moved this file
+to the `%SPARK_HOME%\examples\src\main\resources` directory.
+
 ## Next Steps
 
-View the full coding example to see an example of prepping and analyzing GitHub data.
+View the [full coding example](../GitHubProjects.cs) to see an example of prepping and analyzing GitHub data.
