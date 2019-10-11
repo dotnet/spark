@@ -109,7 +109,19 @@ Now that you've read in your data and incorporated ML, use Spark SQL to call the
 DataFrame sqlDf = spark.Sql("SELECT _c0, MLudf(_c0) FROM Reviews");
 ```
 
-Run your code, and you'll be performing sentiment analysis with ML.NET and Spark.NET!
+Once you run your code, you'll be performing sentiment analysis with ML.NET and Spark.NET!
+
+## How to Run
+
+Checkout the [full coding example](../SentimentAnalysis.cs).
+
+Since there are several distinct steps of setup for building and running a .NET for Apache Spark + ML.NET app, it's recommended
+to create a new console app and complete the Model Builder and ML.NET reference steps (from above) in that app. 
+
+You can then add the code from the SentimentAnalysis.cs app to your console app. You can then `spark-submit` your new console app.
+
+**Note:** In order to `spark-submit` an app that includes an additional Nuget (like the ML.NET nuget), you'll need to copy the ML.NET
+dll's into your app's main directory.
 
 ## Alternative Approach: Real-Time Sentiment Analysis
 
