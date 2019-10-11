@@ -63,8 +63,23 @@ rows of our DataFrame.
 ```CSharp
 DataFrame generalDf = spark.Sql("SELECT logs.value, GeneralReg(logs.value, 'genfilter') FROM Logs");
 ```
+
+### 5. Running Your App
+
+Checkout the directions for building and running this app on [Windows](../../../../docs/building/windows-instructions.md) or [Ubuntu](../../../../docs/building/ubuntu-instructions.md).
+
+#### Windows Example:
+
+```CSharp
+spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local C:\GitHub\spark\src\scala\microsoft-spark-2.4.x\target\microsoft-spark-2.4.x-0.5.0.jar Microsoft.Spark.CSharp.Examples.exe Batch.Logging %SPARK_HOME%\examples\src\main\resources\access_log.txt
+```
+
+**Note:** The above command assumes your GitHub projects data is stored in **access_log.txt** and you have moved this file
+to the `%SPARK_HOME%\examples\src\main\resources` directory.
+
+
 ## Next Steps
 
-View the full coding example to see an example of reading and analyzing log data. While this example is tailored specifically for the
-Apache access logs, try modifying the regular expressions and reading in the Apache error log files to gain further practice with
-log processing in .NET for Apache Spark.
+View the [full coding example](../Logging.cs) to see an example of reading and analyzing log data. 
+
+While this example is tailored specifically for the Apache access logs, you can try modifying the regular expressions and reading in the Apache error log files to gain further practice with log processing in .NET for Apache Spark.
