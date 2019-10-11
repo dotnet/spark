@@ -27,7 +27,7 @@ For each sample, we have a C# app and a README.md explaining the sample.
   A simple example demonstrating basic Spark SQL features.
   </td>
     <td>
-      <h4><a href="readmes/BasicReadme.cs">ReadMe</a> &nbsp;&nbsp;&nbsp;
+      <h4><a href="readmes/BasicReadme.md">ReadMe</a> &nbsp;&nbsp;&nbsp;
       <a href="Basic.cs">Basic.cs</a> &nbsp; &nbsp;</h4>
   </td>
  </tr>
@@ -39,7 +39,7 @@ For each sample, we have a C# app and a README.md explaining the sample.
   Example demonstrating reading from various data sources.
   </td>
     <td>
-      <h4><a href="readmes/DatasourceReadme.cs">ReadMe</a> &nbsp;&nbsp;&nbsp;
+      <h4><a href="readmes/DatasourceReadme.md">ReadMe</a> &nbsp;&nbsp;&nbsp;
       <a href="Datasource.cs">Datasource.cs</a> &nbsp; &nbsp;</h4>
   </td>
  </tr>
@@ -51,7 +51,7 @@ For each sample, we have a C# app and a README.md explaining the sample.
   Example analyzing GitHub projects data.
   </td>
     <td>
-      <h4><a href="readmes/GitHubProjectsReadme.cs">ReadMe</a> &nbsp;&nbsp;&nbsp;
+      <h4><a href="readmes/GitHubProjectsReadme.md">ReadMe</a> &nbsp;&nbsp;&nbsp;
       <a href="GitHubProjects.cs">GitHubProjects.cs</a> &nbsp; &nbsp;</h4>
   </td>
  </tr>
@@ -63,7 +63,7 @@ For each sample, we have a C# app and a README.md explaining the sample.
   Example demonstrating log processing.
   </td>
     <td>
-      <h4><a href="readmes/LoggingReadme.cs">ReadMe</a> &nbsp;&nbsp;&nbsp;
+      <h4><a href="readmes/LoggingReadme.md">ReadMe</a> &nbsp;&nbsp;&nbsp;
       <a href="Logging.cs">Logging.cs</a> &nbsp; &nbsp;</h4>
   </td>
  </tr>
@@ -75,7 +75,7 @@ For each sample, we have a C# app and a README.md explaining the sample.
   Example using vectorized UDFs to improve query performance.
   </td>
     <td>
-      <h4><a href="readmes/VectorUdfsReadme.cs">ReadMe</a> &nbsp;&nbsp;&nbsp;
+      <h4><a href="readmes/VectorUdfsReadme.md">ReadMe</a> &nbsp;&nbsp;&nbsp;
       <a href="VectorUdfs.cs">VectorUdfs.cs</a> &nbsp; &nbsp;</h4>
   </td>
  </tr>
