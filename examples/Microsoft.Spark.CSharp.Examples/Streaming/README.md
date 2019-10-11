@@ -98,3 +98,7 @@ When you run your program, the command prompt where we established the netcat wi
 In our example, when you hit *enter* after entering data in the command prompt, Spark will consider that a batch and run the UDF. 
 
 ![StreamingOutput](https://github.com/bamurtaugh/spark/blob/StreamingLog/examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/streamingnc.PNG)
+
+## Additional Resources
+
+To learn more about structured streaming with .NET for Apache Spark, check out [this video](https://channel9.msdn.com/Series/NET-for-Apache-Spark-101/Structured-Streaming-with-NET-for-Apache-Spark) from the .NET for Apache Spark 101 video series to see a streaming demo coded and ran live.
