@@ -5,7 +5,7 @@
 In the **Batch** folder, we provide C# samples which will help you get started with one of the fundamental big data analytics scenarios:
 **batch processing.** Batch processing means we're analyzing data that has already been stored (such as in a database, csv, text file).
 
-For each sample, we have a C# app and a README.md explaining the sample.
+For each sample, we have a C# app and, for more complex apps, a README.md explaining the sample.
 
 <table>
  <tr>
@@ -27,8 +27,7 @@ For each sample, we have a C# app and a README.md explaining the sample.
   A simple example demonstrating basic Spark SQL features.
   </td>
     <td>
-      <h4><a href="readmes/BasicReadme.md">ReadMe</a> &nbsp;&nbsp;&nbsp;
-      <a href="Basic.cs">Basic.cs</a> &nbsp; &nbsp;</h4>
+      <h4><a href="Basic.cs">Basic.cs</a> &nbsp; &nbsp;</h4>
   </td>
  </tr>
   <tr>
@@ -39,8 +38,18 @@ For each sample, we have a C# app and a README.md explaining the sample.
   Example demonstrating reading from various data sources.
   </td>
     <td>
-      <h4><a href="readmes/DatasourceReadme.md">ReadMe</a> &nbsp;&nbsp;&nbsp;
-      <a href="Datasource.cs">Datasource.cs</a> &nbsp; &nbsp;</h4>
+      <h4><a href="Datasource.cs">Datasource.cs</a> &nbsp; &nbsp;</h4>
+  </td>
+ </tr>
+ <tr>
+   <td width="25%">
+      <h4>VectorUdfs.cs</h4>
+  </td>
+  <td width="35%">
+  Example using vectorized UDFs to improve query performance.
+  </td>
+    <td>
+      <h4><a href="VectorUdfs.cs">VectorUdfs.cs</a> &nbsp; &nbsp;</h4>
   </td>
  </tr>
  <tr>
@@ -65,18 +74,6 @@ For each sample, we have a C# app and a README.md explaining the sample.
     <td>
       <h4><a href="readmes/LoggingReadme.md">ReadMe</a> &nbsp;&nbsp;&nbsp;
       <a href="Logging.cs">Logging.cs</a> &nbsp; &nbsp;</h4>
-  </td>
- </tr>
- <tr>
-   <td width="25%">
-      <h4>VectorUdfs.cs</h4>
-  </td>
-  <td width="35%">
-  Example using vectorized UDFs to improve query performance.
-  </td>
-    <td>
-      <h4><a href="readmes/VectorUdfsReadme.md">ReadMe</a> &nbsp;&nbsp;&nbsp;
-      <a href="VectorUdfs.cs">VectorUdfs.cs</a> &nbsp; &nbsp;</h4>
   </td>
  </tr>
  </table>
