@@ -74,7 +74,7 @@ Checkout the directions for building and running this app on [Windows](../../../
 spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local C:\GitHub\spark\src\scala\microsoft-spark-2.4.x\target\microsoft-spark-2.4.x-0.5.0.jar Microsoft.Spark.CSharp.Examples.exe Batch.Logging %SPARK_HOME%\examples\src\main\resources\access_log.txt
 ```
 
-**Note:** The above command assumes your GitHub projects data is stored in **access_log.txt** and you have moved this file
+**Note:** The above command assumes your logging data is stored in **access_log.txt** and you have moved this file
 to the `%SPARK_HOME%\examples\src\main\resources` directory.
 
 
