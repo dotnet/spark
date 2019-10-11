@@ -1,4 +1,4 @@
-# .NET for Apache Spark C# Samples
+# .NET for Apache Spark C# Samples: Batch
 
 [.NET for Apache Spark](https://dot.net/spark) is a free, open-source, and cross-platform big data analytics framework.
 
