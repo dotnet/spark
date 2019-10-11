@@ -6,7 +6,7 @@ statements are positive or negative, a task known as **sentiment analysis**.
 
 ## Problem
 
-Our goal here is to determine if online reviews are positive or negative. We'll be using .NET for Apache Spark to read in a dataset of reviews and ML.NET to perform **binary classification** since categorizing reviews involves choosing one of two groups: positive or negative. You can read more about the problem through the [ML.NET documentation](https://docs.microsoft.com/en-us/dotnet/machine-learning/tutorials/sentiment-analysis).
+Our goal here is to determine if statements typed into a console are positive or negative. We'll be using .NET for Apache Spark to process statements in real-time and ML.NET to perform **binary classification** since categorizing text involves choosing one of two groups: positive or negative. You can read more about the problem through the [ML.NET documentation](https://docs.microsoft.com/en-us/dotnet/machine-learning/tutorials/sentiment-analysis).
 
 ## Solution
 
@@ -14,9 +14,9 @@ We'll first train an ML model using ML.NET, and then we'll create a new applicat
 
 ## ML.NET
 
-### 1. Download Datasets
+### 1. Download Dataset
 
-We'll be using a set of amazon reviews to train our model and a set of yelp reviews for testing in our Spark app. These can be found in the Datasets folder, and they come from the [UCI Sentiment Labeled Sentences](https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip). 
+We'll be using a set of amazon reviews to train our model. It comes from the [UCI Sentiment Labeled Sentences](https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip). 
 
 ### 2. Build and Train Your Model
 
@@ -48,21 +48,43 @@ DataFrame API.
 ```CSharp
 SparkSession spark = SparkSession
        .Builder()
-       .AppName("Apache User Log Processing")
+       .AppName("Sentiment Analysis Streaming")
        .GetOrCreate();
 ```
 
-### 2. Read Input File into a DataFrame
+### 2. Establish and Connect to Data Stream
 
-We trained our model with the amazon data, so let's test how well the model performs by testing it with the yelp dataset. 
+#### Establish Stream: Netcat
+
+netcat (also known as *nc*) allows you to read from and write to network connections. We'll establish a network
+connection with netcat through a terminal window.
+
+[Download netcat](https://sourceforge.net/projects/nc110/files/), extract the file from the zip download, and append the 
+directory you extracted to your "PATH" environment variable.
+
+To start a new connection, open a command prompt. For Linux users, run ```nc -lk 9999``` to connect to localhost on port 9999.
+
+Windows users can run ```nc -vvv -l -p 9999``` to connect to localhost port 9999. The result should look something like this:
+
+![NetcatConnect](https://github.com/bamurtaugh/spark/blob/StreamingLog/examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/netconnect.PNG)
+
+Our Spark program will be listening for input we type into this command prompt.
+
+#### Connect to Stream: ReadStream()
+
+The ```ReadStream()``` method returns a DataStreamReader that can be used to read streaming data in as a DataFrame. We'll include the host and port information so that our Spark app knows where to expect its streaming data.
 
 ```CSharp
-DataFrame df = spark.Read().Csv(<Path to yelp data set>);
+DataFrame words = spark
+      .ReadStream()
+      .Format("socket")
+      .Option("host", hostname)
+      .Option("port", port)
+      .Load();
 ```
-
 ### 3. Use UDF to Access ML.NET
 
-We create a User Defined Function (UDF) that calls the *Sentiment* method on each yelp review.
+A UDF is a *user-defined function.* We can use UDFs in Spark applications to perform calculations and analysis on our data. We create a User Defined Function (UDF) that calls the *Sentiment* method on each yelp review.
 
 ```CSharp
 spark.Udf().Register<string, bool>("MLudf", (text) => Sentiment(text));
@@ -101,7 +123,7 @@ public class ReviewPrediction : Review
 } 
 ```
 
-### 4. Spark SQL and Running Your Code
+### 4. Spark SQL
 
 Now that you've read in your data and incorporated ML, use Spark SQL to call the UDF that will run sentiment analysis on each row of your DataFrame:
 
@@ -109,16 +131,33 @@ Now that you've read in your data and incorporated ML, use Spark SQL to call the
 DataFrame sqlDf = spark.Sql("SELECT _c0, MLudf(_c0) FROM Reviews");
 ```
 
-Once you run your code, you'll be performing sentiment analysis with ML.NET and Spark.NET!
+### 5. Display Your Stream
+
+We can use ```DataFrame.WriteStream()``` to establish characteristics of our output, such as printing our results to the console and only displaying the most recent output and not all of our previous output as well. 
+
+```CSharp
+var query = sqlDf
+      .WriteStream()
+      .Format("console")
+      .Start();
+```
 
 ## How to Run
 
-Checkout the [full coding example](../SentimentAnalysis.cs).
+Checkout the [full coding example](../SentimentAnalysisStream.cs).
 
 Since there are several distinct steps of setup for building and running a .NET for Apache Spark + ML.NET app, it's recommended
 to create a new console app and complete the Model Builder and ML.NET reference steps (from above) in that app. 
 
-You can then add the code from the SentimentAnalysis.cs app to your console app. You can then `spark-submit` your new console app.
+You can then add the code from the SentimentAnalysis.cs app to your console app. You can finally `spark-submit` your new console app.
+
+In a separate terminal, you'll need to establish a netcat terminal (as described earlier in this doc).
+
+Structured streaming in Spark processes data through a series of small **batches**. When you run your program, the command prompt where we established the netcat will allow you to start typing.
+
+In our example, when you hit *enter* after entering data in the command prompt, Spark will consider that a batch and run the UDF. 
+
+![StreamingOutput](https://github.com/bamurtaugh/spark/blob/StreamingLog/examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/streamingnc.PNG)
 
 **Note:** In order to `spark-submit` an app that includes an additional Nuget (like the ML.NET nuget), you'll need to copy the ML.NET
 dll's into your app's main directory.
