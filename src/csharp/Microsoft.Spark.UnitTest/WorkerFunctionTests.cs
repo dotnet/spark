@@ -213,10 +213,7 @@ namespace Microsoft.Spark.UnitTest
 
             string[] inputString = { "name" };
             StringArray column = (StringArray)ToArrowArray(inputString);
-            ArrowStringColumn arrowStringColumn = new ArrowStringColumn("String", column.ValueBuffer.Memory,
-                                                                        column.ValueOffsetsBuffer.Memory,
-                                                                        column.NullBitmapBuffer.Memory, column.Length,
-                                                                        column.NullCount);
+            ArrowStringColumn arrowStringColumn = ToArrowStringColumn(column);
             BaseColumn[] input = new BaseColumn[]
             {
                 new PrimitiveColumn<int>("Int", new List<int>() {100 }),
