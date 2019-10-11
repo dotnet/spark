@@ -5,6 +5,7 @@
 using System;
 using Apache.Arrow;
 using Microsoft.Spark.Sql.Types;
+using FxDataFrame = Microsoft.Data.DataFrame;
 
 namespace Microsoft.Spark.Sql
 {
@@ -36,7 +37,7 @@ namespace Microsoft.Spark.Sql
         public static DataFrame Apply(
             this RelationalGroupedDataset dataset,
             StructType returnType, 
-            Func<RecordBatch, RecordBatch> func)
+            Func<FxDataFrame, FxDataFrame> func)
         {
             return dataset.Apply(returnType, func);
         }

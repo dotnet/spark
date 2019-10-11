@@ -3,49 +3,70 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using Apache.Arrow;
+using System.Collections.Generic;
+using Microsoft.Data;
 
 namespace Tpch
 {
     internal static class VectorFunctions
     {
-        internal static DoubleArray ComputeTotal(DoubleArray price, DoubleArray discount, DoubleArray tax)
+        internal static PrimitiveColumn<double> ComputeTotal(PrimitiveColumn<double> price, PrimitiveColumn<double> discount, PrimitiveColumn<double> tax)
         {
             if ((price.Length != discount.Length) || (price.Length != tax.Length))
             {
                 throw new ArgumentException("Arrays need to be the same length");
             }
 
-            int length = price.Length;
-            var builder = new DoubleArray.Builder().Reserve(length);
-            ReadOnlySpan<double> prices = price.Values;
-            ReadOnlySpan<double> discounts = discount.Values;
-            ReadOnlySpan<double> taxes = tax.Values;
-            for (int i = 0; i < length; ++i)
+            PrimitiveColumn<double> ret = new PrimitiveColumn<double>("Prices", price.Length);
+
+            IEnumerable<ReadOnlyMemory<double>> readOnlyTaxes = tax.GetReadOnlyDataBuffers();
+            IEnumerable<ReadOnlyMemory<double>> readOnlyPrices = price.GetReadOnlyDataBuffers();
+            IEnumerable<ReadOnlyMemory<double>> readOnlyDiscounts = discount.GetReadOnlyDataBuffers();
+
+            IEnumerator<ReadOnlyMemory<double>> taxesEnumerator = readOnlyTaxes.GetEnumerator();
+            IEnumerator<ReadOnlyMemory<double>> pricesEnumerator = readOnlyPrices.GetEnumerator();
+            IEnumerator<ReadOnlyMemory<double>> discountsEnumerator = readOnlyDiscounts.GetEnumerator();
+
+            while (taxesEnumerator.MoveNext() && pricesEnumerator.MoveNext() && discountsEnumerator.MoveNext())
             {
-                builder.Append(prices[i] * (1 - discounts[i]) * (1 + taxes[i]));
+                ReadOnlySpan<double> taxes = taxesEnumerator.Current.Span;
+                ReadOnlySpan<double> prices = pricesEnumerator.Current.Span;
+                ReadOnlySpan<double> discounts = discountsEnumerator.Current.Span;
+                for (int i = 0; i < prices.Length; ++i)
+                {
+                    ret[i] = (prices[i] * (1 - discounts[i]) * (1 + taxes[i]));
+                }
             }
 
-            return builder.Build();
+            return ret;
         }
 
-        internal static DoubleArray ComputeDiscountPrice(DoubleArray price, DoubleArray discount)
+        internal static PrimitiveColumn<double> ComputeDiscountPrice(PrimitiveColumn<double> price, PrimitiveColumn<double> discount)
         {
             if (price.Length != discount.Length)
             {
                 throw new ArgumentException("Arrays need to be the same length");
             }
 
-            int length = price.Length;
-            var builder = new DoubleArray.Builder().Reserve(length);
-            ReadOnlySpan<double> prices = price.Values;
-            ReadOnlySpan<double> discounts = discount.Values;
-            for (int i = 0; i < length; ++i)
+            PrimitiveColumn<double> ret = new PrimitiveColumn<double>("Prices", price.Length);
+
+            IEnumerable<ReadOnlyMemory<double>> readOnlyPrices = price.GetReadOnlyDataBuffers();
+            IEnumerable<ReadOnlyMemory<double>> readOnlyDiscounts = discount.GetReadOnlyDataBuffers();
+
+            IEnumerator<ReadOnlyMemory<double>> pricesEnumerator = readOnlyPrices.GetEnumerator();
+            IEnumerator<ReadOnlyMemory<double>> discountsEnumerator = readOnlyDiscounts.GetEnumerator();
+
+            while (pricesEnumerator.MoveNext() && discountsEnumerator.MoveNext())
             {
-                builder.Append(prices[i] * (1 - discounts[i]));
+                ReadOnlySpan<double> prices = pricesEnumerator.Current.Span;
+                ReadOnlySpan<double> discounts = discountsEnumerator.Current.Span;
+                for (int i = 0; i < prices.Length; ++i)
+                {
+                    ret[i] = (prices[i] * (1 - discounts[i]));
+                }
             }
 
-            return builder.Build();
+            return ret;
         }
     }
 }

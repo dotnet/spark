@@ -3,11 +3,13 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using Apache.Arrow;
-using Apache.Arrow.Types;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using StructType = Microsoft.Spark.Sql.Types.StructType;
+using FxDataFrame = Microsoft.Data.DataFrame;
+using DataFrame = Microsoft.Spark.Sql.DataFrame;
+using Microsoft.Data;
+using System.Collections.Generic;
 
 namespace Microsoft.Spark.Examples.Sql.Batch
 {
@@ -56,39 +58,27 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             spark.Stop();
         }
 
-        private static RecordBatch CountCharacters(
-            RecordBatch records,
+        private static FxDataFrame CountCharacters(
+            FxDataFrame dataFrame,
             string groupFieldName,
             string stringFieldName)
         {
-            int stringFieldIndex = records.Schema.GetFieldIndex(stringFieldName);
-            StringArray stringValues = records.Column(stringFieldIndex) as StringArray;
-
             int characterCount = 0;
 
-            for (int i = 0; i < stringValues.Length; ++i)
+            PrimitiveColumn<int> characterCountColumn = new PrimitiveColumn<int>(stringFieldName + "CharCount");
+            PrimitiveColumn<int> ageColumn = new PrimitiveColumn<int>(groupFieldName);
+            for (long i = 0; i < dataFrame.RowCount; i++)
             {
-                string current = stringValues.GetString(i);
-                characterCount += current.Length;
+                characterCount += ((string)dataFrame[stringFieldName][i]).Length;
+            }
+            if (dataFrame.RowCount > 0)
+            {
+                characterCountColumn.Append(characterCount);
+                ageColumn.Append((int?)dataFrame[groupFieldName][0]);
             }
 
-            int groupFieldIndex = records.Schema.GetFieldIndex(groupFieldName);
-            Field groupField = records.Schema.GetFieldByIndex(groupFieldIndex);
-
-            // Return 1 record, if we were given any. 0, otherwise.
-            int returnLength = records.Length > 0 ? 1 : 0;
-
-            return new RecordBatch(
-                new Schema.Builder()
-                    .Field(groupField)
-                    .Field(f => f.Name(stringFieldName + "_CharCount").DataType(Int32Type.Default))
-                    .Build(),
-                new IArrowArray[]
-                {
-                    records.Column(groupFieldIndex),
-                    new Int32Array.Builder().Append(characterCount).Build()
-                },
-                returnLength);
+            FxDataFrame ret = new FxDataFrame(new List<BaseColumn> { ageColumn, characterCountColumn });
+            return ret;
         }
     }
 }

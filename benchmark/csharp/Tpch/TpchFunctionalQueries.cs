@@ -6,11 +6,12 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Apache.Arrow;
+using Microsoft.Data;
 using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.ExperimentalFunctions;
 using static Microsoft.Spark.Sql.Functions;
 using Column = Microsoft.Spark.Sql.Column;
+using DataFrame = Microsoft.Spark.Sql.DataFrame;
 
 namespace Tpch
 {
@@ -62,10 +63,10 @@ namespace Tpch
 
         internal void Q1v()
         {
-            Func<Column, Column, Column> discPrice = VectorUdf<DoubleArray, DoubleArray, DoubleArray>(
+            Func<Column, Column, Column> discPrice = VectorUdf<PrimitiveColumn<double>, PrimitiveColumn<double>, PrimitiveColumn<double>>(
                 (price, discount) => VectorFunctions.ComputeDiscountPrice(price, discount));
 
-            Func<Column, Column, Column, Column> total = VectorUdf<DoubleArray, DoubleArray, DoubleArray, DoubleArray>(
+            Func<Column, Column, Column, Column> total = VectorUdf<PrimitiveColumn<double>, PrimitiveColumn<double>, PrimitiveColumn<double>, PrimitiveColumn<double>>(
                 (price, discount, tax) => VectorFunctions.ComputeTotal(price, discount, tax));
 
             _lineitem.Filter(Col("l_shipdate") <= "1998-09-02")
@@ -230,7 +231,7 @@ namespace Tpch
         internal void Q8v()
         {
             Func<Column, Column> getYear = Udf<string, string>(x => x.Substring(0, 4));
-            Func<Column, Column, Column> discPrice = VectorUdf<DoubleArray, DoubleArray, DoubleArray>(
+            Func<Column, Column, Column> discPrice = VectorUdf<PrimitiveColumn<double>, PrimitiveColumn<double>, PrimitiveColumn<double>>(
                 (price, discount) => VectorFunctions.ComputeDiscountPrice(price, discount));
 
             Func<Column, Column, Column> isBrazil = Udf<string, double, double>((x, y) => x == "BRAZIL" ? y : 0);

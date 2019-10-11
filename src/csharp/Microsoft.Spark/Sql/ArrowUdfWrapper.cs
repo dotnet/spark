@@ -4,6 +4,7 @@
 
 using System;
 using Apache.Arrow;
+using Microsoft.Data;
 using static Microsoft.Spark.Sql.ArrowArrayHelpers;
 
 namespace Microsoft.Spark.Sql
@@ -14,8 +15,8 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T">Specifies the type of the first argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T, TResult>
-        where T : IArrowArray
-        where TResult : IArrowArray
+        where T : BaseColumn
+        where TResult : BaseColumn
     {
         private readonly Func<T, TResult> _func;
 
@@ -24,10 +25,10 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal IArrowArray Execute(ReadOnlyMemory<IArrowArray> input, int[] argOffsets)
+        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<IArrowArray> columns = input.Span;
-            int length = columns[0]?.Length ?? 0;
+            ReadOnlySpan<BaseColumn> columns = input.Span;
+            long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
             {
@@ -35,7 +36,7 @@ namespace Microsoft.Spark.Sql
                     (T)columns[argOffsets[0]]);
             }
 
-            return CreateEmptyArray<TResult>();
+            return CreateEmptyColumn<TResult>();
         }
     }
 
@@ -46,9 +47,9 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, TResult>
-        where T1 : IArrowArray
-        where T2 : IArrowArray
-        where TResult : IArrowArray
+        where T1 : BaseColumn
+        where T2 : BaseColumn
+        where TResult : BaseColumn
     {
         private readonly Func<T1, T2, TResult> _func;
 
@@ -57,10 +58,10 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal IArrowArray Execute(ReadOnlyMemory<IArrowArray> input, int[] argOffsets)
+        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<IArrowArray> columns = input.Span;
-            int length = columns[0]?.Length ?? 0;
+            ReadOnlySpan<BaseColumn> columns = input.Span;
+            long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
             {
@@ -68,8 +69,7 @@ namespace Microsoft.Spark.Sql
                     (T1)columns[argOffsets[0]],
                     (T2)columns[argOffsets[1]]);
             }
-
-            return CreateEmptyArray<TResult>();
+            return CreateEmptyColumn<TResult>();
         }
     }
 
@@ -81,10 +81,10 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, TResult>
-        where T1 : IArrowArray
-        where T2 : IArrowArray
-        where T3 : IArrowArray
-        where TResult : IArrowArray
+        where T1 : BaseColumn
+        where T2 : BaseColumn
+        where T3 : BaseColumn
+        where TResult : BaseColumn
     {
         private readonly Func<T1, T2, T3, TResult> _func;
 
@@ -93,10 +93,10 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal IArrowArray Execute(ReadOnlyMemory<IArrowArray> input, int[] argOffsets)
+        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<IArrowArray> columns = input.Span;
-            int length = columns[0]?.Length ?? 0;
+            ReadOnlySpan<BaseColumn> columns = input.Span;
+            long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
             {
@@ -106,7 +106,7 @@ namespace Microsoft.Spark.Sql
                     (T3)columns[argOffsets[2]]);
             }
 
-            return CreateEmptyArray<TResult>();
+            return CreateEmptyColumn<TResult>();
         }
     }
 
@@ -119,11 +119,11 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, TResult>
-        where T1 : IArrowArray
-        where T2 : IArrowArray
-        where T3 : IArrowArray
-        where T4 : IArrowArray
-        where TResult : IArrowArray
+        where T1 : BaseColumn
+        where T2 : BaseColumn
+        where T3 : BaseColumn
+        where T4 : BaseColumn
+        where TResult : BaseColumn
     {
         private readonly Func<T1, T2, T3, T4, TResult> _func;
 
@@ -132,10 +132,10 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal IArrowArray Execute(ReadOnlyMemory<IArrowArray> input, int[] argOffsets)
+        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<IArrowArray> columns = input.Span;
-            int length = columns[0]?.Length ?? 0;
+            ReadOnlySpan<BaseColumn> columns = input.Span;
+            long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
             {
@@ -146,7 +146,7 @@ namespace Microsoft.Spark.Sql
                     (T4)columns[argOffsets[3]]);
             }
 
-            return CreateEmptyArray<TResult>();
+            return CreateEmptyColumn<TResult>();
         }
     }
 
@@ -160,12 +160,12 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, TResult>
-        where T1 : IArrowArray
-        where T2 : IArrowArray
-        where T3 : IArrowArray
-        where T4 : IArrowArray
-        where T5 : IArrowArray
-        where TResult : IArrowArray
+        where T1 : BaseColumn
+        where T2 : BaseColumn
+        where T3 : BaseColumn
+        where T4 : BaseColumn
+        where T5 : BaseColumn
+        where TResult : BaseColumn
     {
         private readonly Func<T1, T2, T3, T4, T5, TResult> _func;
 
@@ -174,10 +174,10 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal IArrowArray Execute(ReadOnlyMemory<IArrowArray> input, int[] argOffsets)
+        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<IArrowArray> columns = input.Span;
-            int length = columns[0]?.Length ?? 0;
+            ReadOnlySpan<BaseColumn> columns = input.Span;
+            long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
             {
@@ -189,7 +189,7 @@ namespace Microsoft.Spark.Sql
                     (T5)columns[argOffsets[4]]);
             }
 
-            return CreateEmptyArray<TResult>();
+            return CreateEmptyColumn<TResult>();
         }
     }
 
@@ -204,13 +204,13 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, TResult>
-        where T1 : IArrowArray
-        where T2 : IArrowArray
-        where T3 : IArrowArray
-        where T4 : IArrowArray
-        where T5 : IArrowArray
-        where T6 : IArrowArray
-        where TResult : IArrowArray
+        where T1 : BaseColumn
+        where T2 : BaseColumn
+        where T3 : BaseColumn
+        where T4 : BaseColumn
+        where T5 : BaseColumn
+        where T6 : BaseColumn
+        where TResult : BaseColumn
     {
         private readonly Func<T1, T2, T3, T4, T5, T6, TResult> _func;
 
@@ -219,10 +219,10 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal IArrowArray Execute(ReadOnlyMemory<IArrowArray> input, int[] argOffsets)
+        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<IArrowArray> columns = input.Span;
-            int length = columns[0]?.Length ?? 0;
+            ReadOnlySpan<BaseColumn> columns = input.Span;
+            long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
             {
@@ -235,7 +235,7 @@ namespace Microsoft.Spark.Sql
                     (T6)columns[argOffsets[5]]);
             }
 
-            return CreateEmptyArray<TResult>();
+            return CreateEmptyColumn<TResult>();
         }
     }
 
@@ -251,14 +251,14 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, TResult>
-        where T1 : IArrowArray
-        where T2 : IArrowArray
-        where T3 : IArrowArray
-        where T4 : IArrowArray
-        where T5 : IArrowArray
-        where T6 : IArrowArray
-        where T7 : IArrowArray
-        where TResult : IArrowArray
+        where T1 : BaseColumn
+        where T2 : BaseColumn
+        where T3 : BaseColumn
+        where T4 : BaseColumn
+        where T5 : BaseColumn
+        where T6 : BaseColumn
+        where T7 : BaseColumn
+        where TResult : BaseColumn
     {
         private readonly Func<T1, T2, T3, T4, T5, T6, T7, TResult> _func;
 
@@ -267,10 +267,10 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal IArrowArray Execute(ReadOnlyMemory<IArrowArray> input, int[] argOffsets)
+        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<IArrowArray> columns = input.Span;
-            int length = columns[0]?.Length ?? 0;
+            ReadOnlySpan<BaseColumn> columns = input.Span;
+            long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
             {
@@ -284,7 +284,7 @@ namespace Microsoft.Spark.Sql
                     (T7)columns[argOffsets[6]]);
             }
 
-            return CreateEmptyArray<TResult>();
+            return CreateEmptyColumn<TResult>();
         }
     }
 
@@ -301,15 +301,15 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, TResult>
-        where T1 : IArrowArray
-        where T2 : IArrowArray
-        where T3 : IArrowArray
-        where T4 : IArrowArray
-        where T5 : IArrowArray
-        where T6 : IArrowArray
-        where T7 : IArrowArray
-        where T8 : IArrowArray
-        where TResult : IArrowArray
+        where T1 : BaseColumn
+        where T2 : BaseColumn
+        where T3 : BaseColumn
+        where T4 : BaseColumn
+        where T5 : BaseColumn
+        where T6 : BaseColumn
+        where T7 : BaseColumn
+        where T8 : BaseColumn
+        where TResult : BaseColumn
     {
         private readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> _func;
 
@@ -318,10 +318,10 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal IArrowArray Execute(ReadOnlyMemory<IArrowArray> input, int[] argOffsets)
+        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<IArrowArray> columns = input.Span;
-            int length = columns[0]?.Length ?? 0;
+            ReadOnlySpan<BaseColumn> columns = input.Span;
+            long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
             {
@@ -336,7 +336,7 @@ namespace Microsoft.Spark.Sql
                     (T8)columns[argOffsets[7]]);
             }
 
-            return CreateEmptyArray<TResult>();
+            return CreateEmptyColumn<TResult>();
         }
     }
 
@@ -354,16 +354,16 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>
-        where T1 : IArrowArray
-        where T2 : IArrowArray
-        where T3 : IArrowArray
-        where T4 : IArrowArray
-        where T5 : IArrowArray
-        where T6 : IArrowArray
-        where T7 : IArrowArray
-        where T8 : IArrowArray
-        where T9 : IArrowArray
-        where TResult : IArrowArray
+        where T1 : BaseColumn
+        where T2 : BaseColumn
+        where T3 : BaseColumn
+        where T4 : BaseColumn
+        where T5 : BaseColumn
+        where T6 : BaseColumn
+        where T7 : BaseColumn
+        where T8 : BaseColumn
+        where T9 : BaseColumn
+        where TResult : BaseColumn
     {
         private readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> _func;
 
@@ -372,10 +372,10 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal IArrowArray Execute(ReadOnlyMemory<IArrowArray> input, int[] argOffsets)
+        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<IArrowArray> columns = input.Span;
-            int length = columns[0]?.Length ?? 0;
+            ReadOnlySpan<BaseColumn> columns = input.Span;
+            long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
             {
@@ -391,7 +391,7 @@ namespace Microsoft.Spark.Sql
                     (T9)columns[argOffsets[8]]);
             }
 
-            return CreateEmptyArray<TResult>();
+            return CreateEmptyColumn<TResult>();
         }
     }
 
@@ -410,17 +410,17 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T10">Specifies the type of the tenth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>
-        where T1 : IArrowArray
-        where T2 : IArrowArray
-        where T3 : IArrowArray
-        where T4 : IArrowArray
-        where T5 : IArrowArray
-        where T6 : IArrowArray
-        where T7 : IArrowArray
-        where T8 : IArrowArray
-        where T9 : IArrowArray
-        where T10 : IArrowArray
-        where TResult : IArrowArray
+        where T1 : BaseColumn
+        where T2 : BaseColumn
+        where T3 : BaseColumn
+        where T4 : BaseColumn
+        where T5 : BaseColumn
+        where T6 : BaseColumn
+        where T7 : BaseColumn
+        where T8 : BaseColumn
+        where T9 : BaseColumn
+        where T10 : BaseColumn
+        where TResult : BaseColumn
     {
         private readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> _func;
 
@@ -429,10 +429,10 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal IArrowArray Execute(ReadOnlyMemory<IArrowArray> input, int[] argOffsets)
+        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<IArrowArray> columns = input.Span;
-            int length = columns[0]?.Length ?? 0;
+            ReadOnlySpan<BaseColumn> columns = input.Span;
+            long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
             {
@@ -449,7 +449,7 @@ namespace Microsoft.Spark.Sql
                     (T10)columns[argOffsets[9]]);
             }
 
-            return CreateEmptyArray<TResult>();
+            return CreateEmptyColumn<TResult>();
         }
     }
 }

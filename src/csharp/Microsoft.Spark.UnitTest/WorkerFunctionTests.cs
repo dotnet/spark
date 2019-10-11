@@ -3,12 +3,17 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Apache.Arrow;
+using Apache.Arrow.Types;
+using Castle.DynamicProxy.Contributors;
+using Microsoft.Data;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
+using FxDataFrame = Microsoft.Data.DataFrame;
 
 namespace Microsoft.Spark.UnitTest
 {
@@ -73,13 +78,16 @@ namespace Microsoft.Spark.UnitTest
         public void TestArrowWorkerFunction()
         {
             var func = new ArrowWorkerFunction(
-                new ArrowUdfWrapper<StringArray, StringArray>(
+                new ArrowUdfWrapper<ArrowStringColumn, ArrowStringColumn>(
                     (str) => str).Execute);
 
             string[] input = { "arg1" };
+            StringArray column = (StringArray)ToArrowArray(input);
+            ArrowStringColumn arrowStringColumn = ToArrowStringColumn(column);
             ArrowTestUtils.AssertEquals(
                 input[0],
-                func.Func(new[] { ToArrowArray(input) }, new[] { 0 }));
+                func.Func(new[] { arrowStringColumn }, new[] { 0 }));
+
         }
 
         /// <summary>
@@ -90,53 +98,78 @@ namespace Microsoft.Spark.UnitTest
         public void TestArrowWorkerFunctionForBool()
         {
             var func = new ArrowWorkerFunction(
-                new ArrowUdfWrapper<StringArray, BooleanArray, BooleanArray>(
-                    (strings, flags) => (BooleanArray)ToArrowArray(
-                        Enumerable.Range(0, strings.Length)
-                            .Select(i => flags.GetBoolean(i) || strings.GetString(i).Contains("true"))
-                            .ToArray())).Execute);
+                new ArrowUdfWrapper<ArrowStringColumn, PrimitiveColumn<bool>, PrimitiveColumn<bool>>(
+                    (strings, flags) =>
+                    {
+                        for (long i = 0; i < strings.Length; i++)
+                        {
+                            flags[i] = flags[i].Value || strings[i].Contains("true");
+                        }
+                        return flags;
+                    }).Execute);
 
-            IArrowArray[] input = new[]
+            StringArray stringColumn = (StringArray)ToArrowArray(new[] { "arg1_true", "arg1_true", "arg1_false", "arg1_false" });
+
+            ArrowStringColumn arrowStringColumn = ToArrowStringColumn(stringColumn);
+            PrimitiveColumn<bool> boolColumn = new PrimitiveColumn<bool>("Bool", Enumerable.Range(0, 4).Select(x => x % 2 == 0 ? true : false));
+            BaseColumn[] input = new BaseColumn[]
             {
-                ToArrowArray(new[] { "arg1_true", "arg1_true", "arg1_false", "arg1_false" }),
-                ToArrowArray(new[] { true, false, true, false }),
+                arrowStringColumn,
+                boolColumn
             };
-            var results = (BooleanArray)func.Func(input, new[] { 0, 1 });
+            var results = (PrimitiveColumn<bool>)func.Func(input, new[] { 0, 1 });
             Assert.Equal(4, results.Length);
-            Assert.True(results.GetBoolean(0));
-            Assert.True(results.GetBoolean(1));
-            Assert.True(results.GetBoolean(2));
-            Assert.False(results.GetBoolean(3));
+            Assert.True(results[0]);
+            Assert.True(results[1]);
+            Assert.True(results[2]);
+            Assert.False(results[3]);
+
         }
 
         [Fact]
         public void TestChainingArrowWorkerFunction()
         {
             var func1 = new ArrowWorkerFunction(
-                new ArrowUdfWrapper<Int32Array, StringArray, StringArray>(
-                    (numbers, strings) => (StringArray)ToArrowArray(
-                        Enumerable.Range(0, strings.Length)
-                            .Select(i => $"{strings.GetString(i)}:{numbers.Values[i]}")
-                            .ToArray())).Execute);
+                new ArrowUdfWrapper<PrimitiveColumn<int>, ArrowStringColumn, ArrowStringColumn>(
+                    (numbers, strings) =>
+                    {
+                        StringArray stringColumn = (StringArray)ToArrowArray(
+                         Enumerable.Range(0, (int)strings.Length)
+                             .Select(i => $"{strings[i]}:{numbers[i]}")
+                             .ToArray());
+                        return ToArrowStringColumn(stringColumn);
+                    }).Execute);
 
             var func2 = new ArrowWorkerFunction(
-                new ArrowUdfWrapper<StringArray, StringArray>(
-                    (strings) => (StringArray)ToArrowArray(
-                        Enumerable.Range(0, strings.Length)
-                            .Select(i => $"outer1:{strings.GetString(i)}")
-                            .ToArray())).Execute);
+                new ArrowUdfWrapper<ArrowStringColumn, ArrowStringColumn>(
+                    (strings) =>
+                    {
+                        StringArray stringColumn = (StringArray)ToArrowArray(
+                        Enumerable.Range(0, (int)strings.Length)
+                            .Select(i => $"outer1:{strings[i]}")
+                            .ToArray());
+                        return ToArrowStringColumn(stringColumn);
+                    }).Execute);
+
 
             var func3 = new ArrowWorkerFunction(
-                new ArrowUdfWrapper<StringArray, StringArray>(
-                    (strings) => (StringArray)ToArrowArray(
-                        Enumerable.Range(0, strings.Length)
-                            .Select(i => $"outer2:{strings.GetString(i)}")
-                            .ToArray())).Execute);
+                new ArrowUdfWrapper<ArrowStringColumn, ArrowStringColumn>(
+                    (strings) =>
+                    {
+                        StringArray stringColumn = (StringArray)ToArrowArray(
+                         Enumerable.Range(0, (int)strings.Length)
+                             .Select(i => $"outer2:{strings[(i)]}")
+                             .ToArray());
+                        return ToArrowStringColumn(stringColumn);
+                    }).Execute);
 
-            Apache.Arrow.IArrowArray[] input = new[]
+            string[] inputString = { "name" };
+            StringArray column = (StringArray)ToArrowArray(inputString);
+            ArrowStringColumn arrowStringColumn = ToArrowStringColumn(column);
+            BaseColumn[] input = new BaseColumn[]
             {
-                ToArrowArray(new[] { 100 }),
-                ToArrowArray(new[] { "name" })
+                new PrimitiveColumn<int>("Int", new List<int>() {100 }),
+                arrowStringColumn
             };
 
             // Validate one-level chaining.
@@ -150,29 +183,44 @@ namespace Microsoft.Spark.UnitTest
             ArrowTestUtils.AssertEquals(
                 "outer2:outer1:name:100",
                 chainedFunc2.Func(input, new[] { 0, 1 }));
+
         }
 
         [Fact]
         public void TestInvalidChainingArrow()
         {
             var func1 = new ArrowWorkerFunction(
-                new ArrowUdfWrapper<Int32Array, StringArray, StringArray>(
-                    (numbers, strings) => (StringArray)ToArrowArray(
-                        Enumerable.Range(0, strings.Length)
-                            .Select(i => $"{strings.GetString(i)}:{numbers.Values[i]}")
-                            .ToArray())).Execute);
+                new ArrowUdfWrapper<PrimitiveColumn<int>, ArrowStringColumn, ArrowStringColumn>(
+                    (numbers, strings) =>
+                    {
+                        StringArray stringArray = (StringArray)ToArrowArray(
+                            Enumerable.Range(0, (int)strings.Length)
+                                .Select(i => $"{strings[i]}:{numbers[i]}")
+                                .ToArray());
+                        return ToArrowStringColumn(stringArray);
+                    }).Execute);
 
             var func2 = new ArrowWorkerFunction(
-                new ArrowUdfWrapper<StringArray, StringArray>(
-                    (strings) => (StringArray)ToArrowArray(
-                        Enumerable.Range(0, strings.Length)
-                            .Select(i => $"outer1:{strings.GetString(i)}")
-                            .ToArray())).Execute);
+                new ArrowUdfWrapper<ArrowStringColumn, ArrowStringColumn>(
+                    (strings) =>
+                    {
+                        StringArray stringArray = (StringArray)ToArrowArray(
+                         Enumerable.Range(0, (int)strings.Length)
+                             .Select(i => $"outer1:{strings[i]}")
+                             .ToArray());
+                        return ToArrowStringColumn(stringArray);
+                    }).Execute);
 
-            Apache.Arrow.IArrowArray[] input = new[]
+            string[] inputString = { "name" };
+            StringArray column = (StringArray)ToArrowArray(inputString);
+            ArrowStringColumn arrowStringColumn = new ArrowStringColumn("String", column.ValueBuffer.Memory,
+                                                                        column.ValueOffsetsBuffer.Memory,
+                                                                        column.NullBitmapBuffer.Memory, column.Length,
+                                                                        column.NullCount);
+            BaseColumn[] input = new BaseColumn[]
             {
-                ToArrowArray(new[] { 100 }),
-                ToArrowArray(new[] { "name" })
+                new PrimitiveColumn<int>("Int", new List<int>() {100 }),
+                arrowStringColumn
             };
 
             // The order does not align since workerFunction2 is executed first.

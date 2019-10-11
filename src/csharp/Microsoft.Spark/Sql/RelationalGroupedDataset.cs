@@ -9,6 +9,7 @@ using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Expressions;
 using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.Utils;
+using FxDataFrame = Microsoft.Data.DataFrame;
 
 namespace Microsoft.Spark.Sql
 {
@@ -84,7 +85,7 @@ namespace Microsoft.Spark.Sql
         public DataFrame Sum(params string[] colNames) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("sum", (object)colNames));
 
-        internal DataFrame Apply(StructType returnType, Func<RecordBatch, RecordBatch> func)
+        internal DataFrame Apply(StructType returnType, Func<FxDataFrame, FxDataFrame> func)
         {
             ArrowGroupedMapWorkerFunction.ExecuteDelegate wrapper =
                 new ArrowGroupedMapUdfWrapper(func).Execute;

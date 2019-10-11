@@ -4,6 +4,8 @@
 
 using System;
 using Apache.Arrow;
+using Microsoft.Data;
+using FxDataFrame = Microsoft.Data.DataFrame;
 
 namespace Microsoft.Spark.Sql
 {
@@ -25,8 +27,8 @@ namespace Microsoft.Spark.Sql
         /// <param name="input">unpickled data, representing a row</param>
         /// <param name="argOffsets">offsets to access input</param>
         /// <returns></returns>
-        internal delegate IArrowArray ExecuteDelegate(
-            ReadOnlyMemory<IArrowArray> input,
+        internal delegate BaseColumn ExecuteDelegate(
+            ReadOnlyMemory<BaseColumn> input,
             int[] argOffsets);
 
         internal ArrowWorkerFunction(ExecuteDelegate func)
@@ -66,8 +68,8 @@ namespace Microsoft.Spark.Sql
                 _outerFunc = outer;
             }
 
-            internal IArrowArray Execute(
-                ReadOnlyMemory<IArrowArray> input,
+            internal BaseColumn Execute(
+                ReadOnlyMemory<BaseColumn> input,
                 int[] argOffsets)
             {
                 // For chaining, create an array with one element, which is a result from the inner
@@ -75,8 +77,8 @@ namespace Microsoft.Spark.Sql
                 // function will always take 0 as an offset since there is only one value in the
                 // input.
                 return _outerFunc(
-                    new[] { _innerFunc(input, argOffsets) },
-                    s_outerFuncArgOffsets);
+                   new[] { _innerFunc(input, argOffsets) },
+                   s_outerFuncArgOffsets);
             }
         }
     }
@@ -91,7 +93,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="input">The input data frame.</param>
         /// <returns>The resultant data frame.</returns>
-        internal delegate RecordBatch ExecuteDelegate(RecordBatch input);
+        internal delegate FxDataFrame ExecuteDelegate(FxDataFrame input);
 
         internal ArrowGroupedMapWorkerFunction(ExecuteDelegate func)
         {

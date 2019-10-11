@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using Apache.Arrow;
+using Microsoft.Data;
 
 namespace Microsoft.Spark.Sql
 {
@@ -23,8 +23,8 @@ namespace Microsoft.Spark.Sql
         /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
         /// </returns>
         public static Func<Column, Column> VectorUdf<T, TResult>(Func<T, TResult> udf)
-            where T : IArrowArray
-            where TResult : IArrowArray
+            where T : BaseColumn
+            where TResult : BaseColumn
         {
             return Functions.VectorUdf(udf);
         }
@@ -38,9 +38,9 @@ namespace Microsoft.Spark.Sql
         /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
         /// </returns>
         public static Func<Column, Column, Column> VectorUdf<T1, T2, TResult>(Func<T1, T2, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : BaseColumn
+            where T2 : BaseColumn
+            where TResult : BaseColumn
         {
             return Functions.VectorUdf(udf);
         }
@@ -56,10 +56,10 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public static Func<Column, Column, Column, Column> VectorUdf<T1, T2, T3, TResult>(
             Func<T1, T2, T3, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : BaseColumn
+            where T2 : BaseColumn
+            where T3 : BaseColumn
+            where TResult : BaseColumn
         {
             return Functions.VectorUdf(udf);
         }
@@ -76,11 +76,11 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public static Func<Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, TResult>(
             Func<T1, T2, T3, T4, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : BaseColumn
+            where T2 : BaseColumn
+            where T3 : BaseColumn
+            where T4 : BaseColumn
+            where TResult : BaseColumn
         {
             return Functions.VectorUdf(udf);
         }
@@ -98,12 +98,12 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public static Func<Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, TResult>(
             Func<T1, T2, T3, T4, T5, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : BaseColumn
+            where T2 : BaseColumn
+            where T3 : BaseColumn
+            where T4 : BaseColumn
+            where T5 : BaseColumn
+            where TResult : BaseColumn
         {
             return Functions.VectorUdf(udf);
         }
@@ -122,13 +122,13 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public static Func<Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, TResult>(
             Func<T1, T2, T3, T4, T5, T6, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where T6 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : BaseColumn
+            where T2 : BaseColumn
+            where T3 : BaseColumn
+            where T4 : BaseColumn
+            where T5 : BaseColumn
+            where T6 : BaseColumn
+            where TResult : BaseColumn
         {
             return Functions.VectorUdf(udf);
         }
@@ -148,14 +148,14 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public static Func<Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, TResult>(
             Func<T1, T2, T3, T4, T5, T6, T7, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where T6 : IArrowArray
-            where T7 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : BaseColumn
+            where T2 : BaseColumn
+            where T3 : BaseColumn
+            where T4 : BaseColumn
+            where T5 : BaseColumn
+            where T6 : BaseColumn
+            where T7 : BaseColumn
+            where TResult : BaseColumn
         {
             return Functions.VectorUdf(udf);
         }
@@ -176,15 +176,15 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where T6 : IArrowArray
-            where T7 : IArrowArray
-            where T8 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : BaseColumn
+            where T2 : BaseColumn
+            where T3 : BaseColumn
+            where T4 : BaseColumn
+            where T5 : BaseColumn
+            where T6 : BaseColumn
+            where T7 : BaseColumn
+            where T8 : BaseColumn
+            where TResult : BaseColumn
         {
             return Functions.VectorUdf(udf);
         }
@@ -206,16 +206,16 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where T6 : IArrowArray
-            where T7 : IArrowArray
-            where T8 : IArrowArray
-            where T9 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : BaseColumn
+            where T2 : BaseColumn
+            where T3 : BaseColumn
+            where T4 : BaseColumn
+            where T5 : BaseColumn
+            where T6 : BaseColumn
+            where T7 : BaseColumn
+            where T8 : BaseColumn
+            where T9 : BaseColumn
+            where TResult : BaseColumn
         {
             return Functions.VectorUdf(udf);
         }
@@ -238,17 +238,17 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where T6 : IArrowArray
-            where T7 : IArrowArray
-            where T8 : IArrowArray
-            where T9 : IArrowArray
-            where T10 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : BaseColumn
+            where T2 : BaseColumn
+            where T3 : BaseColumn
+            where T4 : BaseColumn
+            where T5 : BaseColumn
+            where T6 : BaseColumn
+            where T7 : BaseColumn
+            where T8 : BaseColumn
+            where T9 : BaseColumn
+            where T10 : BaseColumn
+            where TResult : BaseColumn
         {
             return Functions.VectorUdf(udf);
         }

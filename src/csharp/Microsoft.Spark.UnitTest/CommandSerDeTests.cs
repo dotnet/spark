@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Apache.Arrow;
+using Microsoft.Data;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
@@ -47,11 +48,15 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestCommandSerDeForSqlArrow()
         {
-            var udfWrapper = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
-                (strings) => (StringArray)ToArrowArray(
-                    Enumerable.Range(0, strings.Length)
-                        .Select(i => $"hello {strings.GetString(i)}")
-                        .ToArray()));
+            var udfWrapper = new Sql.ArrowUdfWrapper<ArrowStringColumn, ArrowStringColumn>(
+                (strings) =>
+                {
+                    StringArray stringColumn = (StringArray)ToArrowArray(
+                    Enumerable.Range(0, (int)strings.Length)
+                        .Select(i => $"hello {strings[i]}")
+                        .ToArray());
+                    return ToArrowStringColumn(stringColumn);
+                });
 
             var workerFunction = new ArrowWorkerFunction(udfWrapper.Execute);
 
@@ -73,9 +78,12 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, deserializerMode);
                 Assert.Equal("N", runMode);
 
-                Apache.Arrow.IArrowArray input = ToArrowArray(new[] { "spark" });
-                Apache.Arrow.IArrowArray result =
-                    deserializedWorkerFunction.Func(new[] { input }, new[] { 0 });
+                string[] inputString = { "spark" };
+                StringArray column = (StringArray)ToArrowArray(inputString);
+
+                ArrowStringColumn arrowStringColumn = ToArrowStringColumn(column);
+                BaseColumn result =
+                deserializedWorkerFunction.Func(new[] { arrowStringColumn }, new[] { 0 });
                 ArrowTestUtils.AssertEquals("hello spark", result);
             }
         }

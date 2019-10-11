@@ -12,7 +12,10 @@ using Xunit;
 using static Microsoft.Spark.Sql.Functions;
 using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
 using Column = Microsoft.Spark.Sql.Column;
-using Int32Type = Apache.Arrow.Types.Int32Type;
+using FxDataFrame = Microsoft.Data.DataFrame;
+using DataFrame = Microsoft.Spark.Sql.DataFrame;
+using Microsoft.Data;
+using System.Collections.Generic;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
@@ -154,11 +157,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestVectorUdf()
         {
-            Func<Int32Array, StringArray, StringArray> udf1Func =
-                (ages, names) => (StringArray)ToArrowArray(
-                    Enumerable.Range(0, names.Length)
-                        .Select(i => $"{names.GetString(i)} is {ages.GetValue(i) ?? 0}")
+            Func<PrimitiveColumn<int>, ArrowStringColumn, ArrowStringColumn> udf1Func =
+                (ages, names) =>
+                {
+                    StringArray stringArray = (StringArray)ToArrowArray(
+                    Enumerable.Range(0, (int)names.Length)
+                        .Select(i => $"{names[i]} is {ages[i] ?? 0}")
                         .ToArray());
+                    return ToArrowStringColumn(stringArray);
+                };
 
             // Single UDF.
             Func<Column, Column, Column> udf1 =
@@ -172,11 +179,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
 
             // Chained UDFs.
-            Func<Column, Column> udf2 = ExperimentalFunctions.VectorUdf<StringArray, StringArray>(
-                (strings) => (StringArray)ToArrowArray(
-                    Enumerable.Range(0, strings.Length)
-                        .Select(i => $"hello {strings.GetString(i)}!")
-                        .ToArray()));
+            Func<Column, Column> udf2 = ExperimentalFunctions.VectorUdf<ArrowStringColumn, ArrowStringColumn>(
+                (strings) =>
+                {
+                    StringArray stringArray = (StringArray)ToArrowArray(
+                        Enumerable.Range(0, (int)strings.Length)
+                            .Select(i => $"hello {strings[i]}!")
+                            .ToArray());
+                    return ToArrowStringColumn(stringArray);
+                });
             {
                 Row[] rows = _df
                     .Select(udf2(udf1(_df["age"], _df["name"])))
@@ -240,7 +251,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                         new StructField("age", new IntegerType()),
                         new StructField("nameCharCount", new IntegerType())
                     }),
-                    batch => CountCharacters(batch))
+                    batch => CountCharacters(batch, "age", "name"))
                 .Collect()
                 .ToArray();
 
@@ -266,36 +277,24 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        private static RecordBatch CountCharacters(RecordBatch records)
+        private static FxDataFrame CountCharacters(FxDataFrame dataFrame, string groupFieldName, string stringFieldName)
         {
-            int stringFieldIndex = records.Schema.GetFieldIndex("name");
-            StringArray stringValues = records.Column(stringFieldIndex) as StringArray;
-
             int characterCount = 0;
 
-            for (int i = 0; i < stringValues.Length; ++i)
+            PrimitiveColumn<int> characterCountColumn = new PrimitiveColumn<int>(stringFieldName + "CharCount");
+            PrimitiveColumn<int> ageColumn = new PrimitiveColumn<int>(groupFieldName);
+            for (long i = 0; i < dataFrame.RowCount; i++)
             {
-                string current = stringValues.GetString(i);
-                characterCount += current.Length;
+                characterCount += ((string)dataFrame[stringFieldName][i]).Length;
+            }
+            if (dataFrame.RowCount > 0)
+            {
+                characterCountColumn.Append(characterCount);
+                ageColumn.Append((int?)dataFrame[groupFieldName][0]);
             }
 
-            int groupFieldIndex = records.Schema.GetFieldIndex("age");
-            Field groupField = records.Schema.GetFieldByIndex(groupFieldIndex);
-
-            // Return 1 record, if we were given any. 0, otherwise.
-            int returnLength = records.Length > 0 ? 1 : 0;
-
-            return new RecordBatch(
-                new Schema.Builder()
-                    .Field(groupField)
-                    .Field(f => f.Name("name_CharCount").DataType(Int32Type.Default))
-                    .Build(),
-                new IArrowArray[]
-                {
-                    records.Column(groupFieldIndex),
-                    new Int32Array.Builder().Append(characterCount).Build()
-                },
-                returnLength);
+            FxDataFrame ret = new FxDataFrame(new List<BaseColumn> { ageColumn, characterCountColumn });
+            return ret;
         }
 
         /// <summary>
@@ -405,7 +404,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<RelationalGroupedDataset>(_df.GroupBy(_df["age"], _df["name"]));
 
             {
-                RelationalGroupedDataset df = 
+                RelationalGroupedDataset df =
                     _df.WithColumn("tempAge", _df["age"]).GroupBy("name");
 
                 Assert.IsType<DataFrame>(df.Mean("age"));

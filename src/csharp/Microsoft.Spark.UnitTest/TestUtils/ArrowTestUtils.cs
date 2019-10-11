@@ -6,18 +6,18 @@ using System;
 using System.Text;
 using Apache.Arrow;
 using Apache.Arrow.Types;
+using Microsoft.Data;
 using Xunit;
 
 namespace Microsoft.Spark.UnitTest.TestUtils
 {
     public static class ArrowTestUtils
     {
-        public static void AssertEquals(string expectedValue, IArrowArray arrowArray)
+        public static void AssertEquals(string expectedValue, BaseColumn arrowArray)
         {
-            Assert.IsType<StringArray>(arrowArray);
-            var stringArray = (StringArray)arrowArray;
+            var stringArray = (ArrowStringColumn)arrowArray;
             Assert.Equal(1, stringArray.Length);
-            Assert.Equal(expectedValue, stringArray.GetString(0));
+            Assert.Equal(expectedValue, stringArray[0]);
         }
 
         public static IArrowType GetArrowType<T>()
@@ -98,6 +98,16 @@ namespace Microsoft.Spark.UnitTest.TestUtils
             }
 
             throw new NotSupportedException($"Unknown type: {typeof(T)}");
+        }
+
+        public static ArrowStringColumn ToArrowStringColumn(StringArray array)
+        {
+            return new ArrowStringColumn("String",
+                                         array.ValueBuffer.Memory,
+                                         array.ValueOffsetsBuffer.Memory,
+                                         array.NullBitmapBuffer.Memory,
+                                         array.Length,
+                                         array.NullCount);
         }
 
         public static IArrowArray ToArrowArray<T>(T[] array)

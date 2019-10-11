@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 using Apache.Arrow;
 using Apache.Arrow.Ipc;
 using Apache.Arrow.Types;
+using Microsoft.Data;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Utils;
 using Microsoft.Spark.Worker.Command;
@@ -224,11 +226,15 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public async Task TestArrowSqlCommandExecutorWithSingleCommand()
         {
-            var udfWrapper = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
-                (strings) => (StringArray)ToArrowArray(
-                    Enumerable.Range(0, strings.Length)
-                        .Select(i => $"udf: {strings.GetString(i)}")
-                        .ToArray()));
+            var udfWrapper = new Sql.ArrowUdfWrapper<ArrowStringColumn, ArrowStringColumn>(
+                (strings) =>
+                {
+                    StringArray stringArray = (StringArray)ToArrowArray(
+                    Enumerable.Range(0, (int)strings.Length)
+                        .Select(i => $"udf: {strings[i]}")
+                        .ToArray());
+                    return ToArrowStringColumn(stringArray);
+                });
 
             var command = new SqlCommand()
             {
@@ -304,16 +310,17 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public async Task TestArrowSqlCommandExecutorWithMultiCommands()
         {
-            var udfWrapper1 = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
-                (strings) => (StringArray)ToArrowArray(
-                    Enumerable.Range(0, strings.Length)
-                        .Select(i => $"udf: {strings.GetString(i)}")
-                        .ToArray()));
-            var udfWrapper2 = new Sql.ArrowUdfWrapper<Int32Array, Int32Array, Int32Array>(
-                (arg1, arg2) => (Int32Array)ToArrowArray(
-                    Enumerable.Range(0, arg1.Length)
-                        .Select(i => arg1.Values[i] * arg2.Values[i])
-                        .ToArray()));
+            var udfWrapper1 = new Sql.ArrowUdfWrapper<ArrowStringColumn, ArrowStringColumn>(
+                (strings) =>
+                {
+                    StringArray stringArray = (StringArray)ToArrowArray(
+                    Enumerable.Range(0, (int)strings.Length)
+                        .Select(i => $"udf: {strings[i]}")
+                        .ToArray());
+                    return ToArrowStringColumn(stringArray);
+                });
+            var udfWrapper2 = new Sql.ArrowUdfWrapper<PrimitiveColumn<int>, PrimitiveColumn<int>, PrimitiveColumn<int>>(
+                (arg1, arg2) => (PrimitiveColumn<int>)(arg1 * arg2));
 
             var command1 = new SqlCommand()
             {
@@ -408,11 +415,15 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public void TestArrowSqlCommandExecutorWithEmptyInput()
         {
-            var udfWrapper = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
-                (strings) => (StringArray)ToArrowArray(
-                    Enumerable.Range(0, strings.Length)
-                        .Select(i => $"udf: {strings.GetString(i)}")
-                        .ToArray()));
+            var udfWrapper = new Sql.ArrowUdfWrapper<ArrowStringColumn, ArrowStringColumn>(
+                (strings) =>
+                {
+                    StringArray stringArray = (StringArray)ToArrowArray(
+                     Enumerable.Range(0, (int)strings.Length)
+                         .Select(i => $"udf: {strings[i]}")
+                         .ToArray());
+                    return ToArrowStringColumn(stringArray);
+                });
 
             var command = new SqlCommand()
             {
@@ -488,19 +499,11 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public async Task TestArrowGroupedMapCommandExecutor()
         {
-            StringArray ConvertStrings(StringArray strings)
+            StringArray ConvertStrings(BaseColumn strings)
             {
                 return (StringArray)ToArrowArray(
-                    Enumerable.Range(0, strings.Length)
-                        .Select(i => $"udf: {strings.GetString(i)}")
-                        .ToArray());
-            }
-
-            Int64Array ConvertInt64s(Int64Array int64s)
-            {
-                return (Int64Array)ToArrowArray(
-                    Enumerable.Range(0, int64s.Length)
-                        .Select(i => int64s.Values[i] + 100)
+                    Enumerable.Range(0, (int)strings.Length)
+                        .Select(i => $"udf: {strings[i]}")
                         .ToArray());
             }
 
@@ -510,14 +513,13 @@ namespace Microsoft.Spark.Worker.UnitTest
                 .Build();
 
             var udfWrapper = new Sql.ArrowGroupedMapUdfWrapper(
-                (batch) => new RecordBatch(
-                    resultSchema,
-                    new IArrowArray[]
-                    {
-                        ConvertStrings((StringArray)batch.Column(0)),
-                        ConvertInt64s((Int64Array)batch.Column(1)),
-                    },
-                    batch.Length));
+                (dataFrame) =>
+                {
+                    StringArray strings = ConvertStrings(dataFrame.Column(0));
+                    ArrowStringColumn stringColumn = new ArrowStringColumn(dataFrame.Column(0).Name, strings.ValueBuffer.Memory, strings.ValueOffsetsBuffer.Memory, strings.NullBitmapBuffer.Memory, strings.Length, strings.NullCount);
+                    BaseColumn doubles = dataFrame.Column(1) + 100;
+                    return new DataFrame(new List<BaseColumn>() { stringColumn, doubles });
+                });
 
             var command = new SqlCommand()
             {
@@ -588,11 +590,11 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Assert.Equal($"udf: {i}", stringArray.GetString(i));
             }
 
-            var longArray = (Int64Array)outputBatch.Column(1);
-            for (int i = 0; i < numRows; ++i)
-            {
-                Assert.Equal(100 + i, longArray.Values[i]);
-            }
+                var doubleArray = (DoubleArray)outputBatch.Column(1);
+                for (int i = 0; i < numRows; ++i)
+                {
+                    Assert.Equal(100 + i, doubleArray.Values[i]);
+                }
 
             int end = SerDe.ReadInt32(outputStream);
             Assert.Equal(0, end);

@@ -4,6 +4,7 @@
 
 using System;
 using Apache.Arrow;
+using FxDataFrame = Microsoft.Data.DataFrame;
 
 namespace Microsoft.Spark.Sql
 {
@@ -15,14 +16,14 @@ namespace Microsoft.Spark.Sql
     /// </remarks>
     internal sealed class ArrowGroupedMapUdfWrapper
     {
-        private readonly Func<RecordBatch, RecordBatch> _func;
+        private readonly Func<FxDataFrame, FxDataFrame> _func;
 
-        internal ArrowGroupedMapUdfWrapper(Func<RecordBatch, RecordBatch> func)
+        internal ArrowGroupedMapUdfWrapper(Func<FxDataFrame, FxDataFrame> func)
         {
             _func = func;
         }
 
-        internal RecordBatch Execute(RecordBatch input)
+        internal FxDataFrame Execute(FxDataFrame input)
         {
             return _func(input);
         }
