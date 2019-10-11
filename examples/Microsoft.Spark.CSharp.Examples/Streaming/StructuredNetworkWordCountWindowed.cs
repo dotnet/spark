@@ -6,7 +6,7 @@ using System;
 using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.Functions;
 
-namespace Microsoft.Spark.Examples.Sql.Streaming
+namespace Microsoft.Spark.Examples.Streaming
 {
     /// <summary>
     /// The example is taken/modified from

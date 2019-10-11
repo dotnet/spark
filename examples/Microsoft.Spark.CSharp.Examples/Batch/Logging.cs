@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
 
-namespace Microsoft.Spark.Examples.Sql.Batch
+namespace Microsoft.Spark.Examples.Batch
 {
     /// <summary>
     /// An example demonstrating log processing.

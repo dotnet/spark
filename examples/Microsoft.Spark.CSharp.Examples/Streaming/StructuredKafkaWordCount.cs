@@ -6,41 +6,40 @@ using System;
 using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.Functions;
 
-namespace Microsoft.Spark.Examples.Sql.Streaming
+namespace Microsoft.Spark.Examples.Streaming
 {
     /// <summary>
     /// The example is taken/modified from
-    /// spark/examples/src/main/python/sql/streaming/structured_network_wordcount.py
-    ///
-    /// You can set up the data source as follow in a separated terminal:
-    /// `$ nc -lk 9999`
-    /// to start writing standard input to port 9999.
+    /// spark/examples/src/main/python/sql/streaming/structured_kafka_wordcount.py
     /// </summary>
-    internal sealed class StructuredNetworkWordCount : IExample
+    internal sealed class StructuredKafkaWordCount : IExample
     {
         public void Run(string[] args)
         {
-            if (args.Length != 2)
+            if (args.Length != 3)
             {
                 Console.Error.WriteLine(
-                    "Usage: StructuredNetworkWordCount <hostname> <port>");
+                    "Usage: StructuredKafkaWordCount " +
+                    "<bootstrap-servers> <subscribe-type> <topics>");
                 Environment.Exit(1);
             }
 
-            string hostname = args[0];
-            var port = int.Parse(args[1]);
+            string bootstrapServers = args[0];
+            string subscribeType = args[1];
+            string topics = args[2];
 
             SparkSession spark = SparkSession
                 .Builder()
-                .AppName("StructuredNetworkWordCount")
+                .AppName("StructuredKafkaWordCount")
                 .GetOrCreate();
 
             DataFrame lines = spark
                 .ReadStream()
-                .Format("socket")
-                .Option("host", hostname)
-                .Option("port", port)
-                .Load();
+                .Format("kafka")
+                .Option("kafka.bootstrap.servers", bootstrapServers)
+                .Option(subscribeType, topics)
+                .Load()
+                .SelectExpr("CAST(value AS STRING)");
 
             DataFrame words = lines
                 .Select(Explode(Split(lines["value"], " "))

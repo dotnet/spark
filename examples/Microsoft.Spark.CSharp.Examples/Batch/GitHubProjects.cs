@@ -6,7 +6,7 @@ using System;
 using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.Functions;
 
-namespace Microsoft.Spark.Examples.Sql.Batch
+namespace Microsoft.Spark.Examples.Batch
 {
     /// <summary>
     /// An example analyzing GitHub projects

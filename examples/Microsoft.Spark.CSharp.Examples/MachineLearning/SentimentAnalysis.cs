@@ -8,7 +8,7 @@ using System.Collections.Generic;
 //using Microsoft.ML.Data;
 using Microsoft.Spark.Sql;
 
-namespace Microsoft.Spark.Examples.Sql.MachineLearning
+namespace Microsoft.Spark.Examples.MachineLearning
 {
     /// <summary>
     /// Example of using ML.NET + .NET for Apache Spark
