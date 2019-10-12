@@ -28,6 +28,22 @@ jobs:
     DOTNET_WORKER_DIR: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp3.0\win-x64
 
   steps:
+  - task: Maven@3
+    displayName: 'Maven build src'
+    inputs:
+      mavenPomFile: src/scala/pom.xml
+
+  - task: Maven@3
+    displayName: 'Maven build benchmark'
+    inputs:
+      mavenPomFile: benchmark/scala/pom.xml
+
+  - task: BatchScript@1
+    displayName: Download Spark Distros & Winutils.exe
+    inputs:
+      filename: script\download-spark-distros.cmd
+      arguments: $(Build.BinariesDirectory)
+
   - script: build.cmd -pack
               -c $(buildConfiguration)
               -ci
