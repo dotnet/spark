@@ -82,8 +82,8 @@ Building from source is very easy and the whole process (from cloning to being a
 
 | |  | Instructions |
 | :---: | :---         |      :--- |
-| ![Windows icon](docs/img/windows-icon-32.png) | **Windows**    | <ul><li>Local - [.NET Framework 4.6.1](docs/building/windows-instructions.md#using-visual-studio-for-net-framework-461)</li><li>Local - [.NET Core 2.1.x](docs/building/windows-instructions.md#using-net-core-cli-for-net-core-21x)</li><ul>    |
-| ![Ubuntu icon](docs/img/ubuntu-icon-32.png) | **Ubuntu**     | <ul><li>Local - [.NET Core 2.1.x](docs/building/ubuntu-instructions.md)</li><li>[Azure HDInsight Spark - .NET Core 2.1.x](deployment/README.md)</li></ul>      |
+| ![Windows icon](docs/img/windows-icon-32.png) | **Windows**    | <ul><li>Local - [.NET Framework 4.6.1](docs/building/windows-instructions.md#using-visual-studio-for-net-framework-461)</li><li>Local - [.NET Core 3.0](docs/building/windows-instructions.md#using-net-core-cli-for-net-core)</li><ul>    |
+| ![Ubuntu icon](docs/img/ubuntu-icon-32.png) | **Ubuntu**     | <ul><li>Local - [.NET Core 3.0](docs/building/ubuntu-instructions.md)</li><li>[Azure HDInsight Spark - .NET Core 3.0](deployment/README.md)</li></ul>      |
 
 <a name="samples"></a>
 ## Samples
