@@ -28,7 +28,7 @@ Now you can run your .NET application with any debugger to debug your applicatio
 
 ### Debugging UDF
 
-**Note that this is currenlty supported only on Windows.**
+**Note that this is currently supported only on Windows.**
 
 Before running `spark-submit`, set the following environment variable:
 ```shell
