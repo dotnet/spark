@@ -36,7 +36,7 @@ set DOTNET_WORKER_DEBUG=1
 ```
 Now, when you run your Spark application, a `Choose Just-In-Time Debugger` window will pop up. Choose a debugger.
 
-The debugger will break at the following location in `TaskRunner.cs`:
+The debugger will break at the following location in [TaskRunner.cs](../src/csharp/Microsoft.Spark.Worker/TaskRunner.cs):
 ```C#
 if (EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_WORKER_DEBUG"))
 {
