@@ -31,7 +31,7 @@ Now you can run your .NET application with any debugger to debug your applicatio
 **Note that this is currently supported only on Windows.**
 
 Before running `spark-submit`, set the following environment variable:
-```shell
+```bat
 set DOTNET_WORKER_DEBUG=1
 ```
 Now, when you run your Spark application, a `Choose Just-In-Time Debugger` window will pop up. Choose a debugger.
