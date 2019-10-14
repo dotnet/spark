@@ -26,6 +26,30 @@ In this debug mode, `DotnetRunner` does not launch the .NET application, but wai
 
 Now you can run your .NET application with any debugger to debug your application.
 
+### Debugging UDF
+
+**Note that this is currenlty supported only on Windows.**
+
+Before running `spark-submit`, set the following environment variable:
+```shell
+set DOTNET_WORKER_DEBUG=1
+```
+Now, when you run your Spark application, a `Choose Just-In-Time Debugger` window will pop up. Choose a debugger.
+
+The debugger will break at the following location in `TaskRunner.cs`:
+```C#
+if (EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_WORKER_DEBUG"))
+{
+    Debugger.Launch(); // <-- The debugger will break here.
+}
+```
+
+Now, navigate to the `cs` file that contains the UDF that you plan to debug, and set a breakpoint. (The breakpoint will say `The breakpoint will not currently be hit` because the worker hasn't loaded the assembly that contains UDF yet.)
+
+Hit `F5` to continue your application and the breakpoint will eventually be hit.
+
+**Note that the `Choose Just-In-Time Debugger` window will pop-up for each task. Therefore, make sure to set the number of exectuors to a low number. For example, you can use `--master local[1]` option for `spark-submit`.**
+
 ### Debugging Scala code
 
 If you need to debug the Scala side code (`DotnetRunner`, `DotnetBackendHandler`, etc.), you can use the following command, and attach a debugger to the running process using [Intellij](https://www.jetbrains.com/help/idea/attaching-to-local-process.html):
