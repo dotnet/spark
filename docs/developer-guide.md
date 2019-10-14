@@ -44,7 +44,7 @@ if (EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_WORKER_DEBUG"))
 }
 ```
 
-Now, navigate to the `cs` file that contains the UDF that you plan to debug, and set a breakpoint. (The breakpoint will say `The breakpoint will not currently be hit` because the worker hasn't loaded the assembly that contains UDF yet.)
+Now, navigate to the `.cs` file that contains the UDF that you plan to debug, and set a breakpoint. (The breakpoint will say `The breakpoint will not currently be hit` because the worker hasn't loaded the assembly that contains UDF yet.)
 
 Hit `F5` to continue your application and the breakpoint will eventually be hit.
 
