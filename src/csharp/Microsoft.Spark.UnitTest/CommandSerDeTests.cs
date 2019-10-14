@@ -13,13 +13,9 @@ using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
 
 namespace Microsoft.Spark.UnitTest
 {
+    [Collection("Spark Unit Tests")]
     public class CommandSerDeTests
     {
-        public CommandSerDeTests()
-        {
-            SparkFiles.SetRootDirectory(string.Empty);
-        }
-
         [Fact]
         public void TestCommandSerDeForSqlPickling()
         {

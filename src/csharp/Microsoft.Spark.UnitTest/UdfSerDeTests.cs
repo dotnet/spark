@@ -11,13 +11,9 @@ using Xunit;
 
 namespace Microsoft.Spark.UnitTest
 {
+    [Collection("Spark Unit Tests")]
     public class UdfSerDeTests
     {
-        public UdfSerDeTests()
-        {
-            SparkFiles.SetRootDirectory(string.Empty);
-        }
-
         [Serializable]
         private class TestClass
         {

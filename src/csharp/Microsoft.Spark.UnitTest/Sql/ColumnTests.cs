@@ -12,71 +12,12 @@ using Xunit;
 
 namespace Microsoft.Spark.UnitTest
 {
-    public class ColumnTestsFixture : IDisposable
-    {
-        internal Mock<IJvmBridge> MockJvm { get; }
-
-        public ColumnTestsFixture()
-        {
-            MockJvm = new Mock<IJvmBridge>();
-
-            MockJvm
-                .Setup(m => m.CallStaticJavaMethod(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-            MockJvm
-                .Setup(m => m.CallStaticJavaMethod(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object>(),
-                    It.IsAny<object>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-            MockJvm
-                .Setup(m => m.CallStaticJavaMethod(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object[]>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-
-            MockJvm
-                .Setup(m => m.CallNonStaticJavaMethod(
-                    It.IsAny<JvmObjectReference>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-            MockJvm
-                .Setup(m => m.CallNonStaticJavaMethod(
-                    It.IsAny<JvmObjectReference>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object>(),
-                    It.IsAny<object>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-            MockJvm
-                .Setup(m => m.CallNonStaticJavaMethod(
-                    It.IsAny<JvmObjectReference>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object[]>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-        }
-
-        public void Dispose()
-        {
-        }
-    }
-
-    public class ColumnTests : IClassFixture<ColumnTestsFixture>
+    [Collection("Spark Unit Tests")]
+    public class ColumnTests
     {
         private readonly Mock<IJvmBridge> _mockJvm;
 
-        public ColumnTests(ColumnTestsFixture fixture)
+        public ColumnTests(SparkFixture fixture)
         {
             _mockJvm = fixture.MockJvm;
         }

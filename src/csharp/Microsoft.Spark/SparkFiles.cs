@@ -14,7 +14,9 @@ namespace Microsoft.Spark
     /// </summary>
     public static class SparkFiles
     {
-        private static IJvmBridge Jvm { get; } = SparkEnvironment.JvmBridge;
+        private static IJvmBridge s_jvm;
+        private static IJvmBridge Jvm => s_jvm ?? SparkEnvironment.JvmBridge;
+
         private static readonly string s_sparkFilesClassName = "org.apache.spark.SparkFiles";
 
         [ThreadStatic]
@@ -22,6 +24,11 @@ namespace Microsoft.Spark
 
         [ThreadStatic]
         private static bool s_isRunningOnWorker;
+
+        internal static void Init(IJvmBridge jvm)
+        {
+            s_jvm = jvm;
+        }
 
         /// <summary>
         /// Get the absolute path of a file added through <c>SparkContext.AddFile()</c>.
