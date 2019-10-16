@@ -69,6 +69,15 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
             new DeltaTable((JvmObjectReference)_jvmObject.Invoke("as", alias));
 
         /// <summary>
+        /// Apply an alias to the DeltaTable. This is similar to <c>Dataset.as(alias)</c>
+        /// or SQL <c>tableName AS alias</c>.
+        /// </summary>
+        /// <param name="alias">The table alias.</param>
+        /// <returns>Aliased DeltaTable.</returns>
+        public DeltaTable Alias(string alias) =>
+            new DeltaTable((JvmObjectReference)_jvmObject.Invoke("alias", alias));
+
+        /// <summary>
         /// Get a DataFrame (that is, Dataset[Row]) representation of this Delta table.
         /// </summary>
         /// <returns>DataFrame representation of Delta table.</returns>
