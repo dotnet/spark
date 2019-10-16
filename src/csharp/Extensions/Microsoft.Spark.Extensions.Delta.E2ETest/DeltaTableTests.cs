@@ -117,33 +117,30 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 _spark.Range(0, 5).Write().Format("delta").Save(sourcePath);
 
                 // Create a stream from the source DeltaTable to the sink DeltaTable.
+                // To make the test synchronous and deterministic, we will use a series of 
+                // "one-time micro-batch" triggers.
                 string sinkPath = Path.Combine(tempDirectory.Path, "sink-delta-table");
-                StreamingQuery stream = _spark
+                DataStreamWriter dataStreamWriter = _spark
                     .ReadStream()
                     .Format("delta")
                     .Load(sourcePath)
                     .WriteStream()
                     .Format("delta")
                     .OutputMode("append")
-                    .Option("checkpointLocation", Path.Combine(tempDirectory.Path, "checkpoints"))
-                    .Start(sinkPath);
+                    .Option("checkpointLocation", Path.Combine(tempDirectory.Path, "checkpoints"));
 
-                // Take a short pause so that the stream has time to write to the sink.
-                Thread.Sleep(TimeSpan.FromSeconds(5));
-                if (!Directory.Exists(sinkPath))
-                {
-                    throw new Exception("Spark did not write to the sink table in time.");
-                }
+                // Trigger the first stream batch
+                dataStreamWriter.Trigger(Trigger.Once()).Start(sinkPath).AwaitTermination();
 
                 // Now read the sink DeltaTable and validate its content.
                 DeltaTable sink = DeltaTable.ForPath(sinkPath);
                 ValidateDataFrame(Enumerable.Range(0, 5), sink.ToDF());
 
-                // Write [5,6,7,8,9] to the source.
+                // Write [5,6,7,8,9] to the source and trigger another stream batch.
                 _spark.Range(5, 10).Write().Format("delta").Mode("append").Save(sourcePath);
+                dataStreamWriter.Trigger(Trigger.Once()).Start(sinkPath).AwaitTermination();
 
                 // Finally, validate that the new data made its way to the sink.
-                stream.Stop();
                 ValidateDataFrame(Enumerable.Range(0, 10), sink.ToDF());
             }
         }
