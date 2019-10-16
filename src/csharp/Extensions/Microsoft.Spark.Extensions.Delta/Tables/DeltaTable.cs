@@ -100,7 +100,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// for maintaining older versions up to the given retention threshold. This method will
         /// return an empty DataFrame on successful completion.
         /// 
-        /// Note: This will use the default retention period of 7 hours.
+        /// Note: This will use the default retention period of 7 days.
         /// </summary>
         /// <returns>Vacuumed DataFrame.</returns>
         public DataFrame Vacuum() =>
