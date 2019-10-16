@@ -141,9 +141,9 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
 
                 // Write [5,6,7,8,9] to the source.
                 _spark.Range(5, 10).Write().Format("delta").Mode("append").Save(sourcePath);
-                Thread.Sleep(TimeSpan.FromSeconds(5));
 
                 // Finally, validate that the new data made its way to the sink.
+                stream.Stop();
                 ValidateDataFrame(Enumerable.Range(0, 10), sink.ToDF());
             }
         }
