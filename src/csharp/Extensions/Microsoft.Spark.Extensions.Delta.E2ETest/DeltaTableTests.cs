@@ -116,11 +116,12 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 string sourcePath = Path.Combine(tempDirectory.Path, "source-delta-table");
                 _spark.Range(0, 5).Write().Format("delta").Save(sourcePath);
 
-                DataFrame source = _spark.ReadStream().Format("delta").Load(sourcePath);
-
                 // Create a stream from the source DeltaTable to the sink DeltaTable.
                 string sinkPath = Path.Combine(tempDirectory.Path, "sink-delta-table");
-                StreamingQuery stream = source
+                StreamingQuery stream = _spark
+                    .ReadStream()
+                    .Format("delta")
+                    .Load(sourcePath)
                     .WriteStream()
                     .Format("delta")
                     .OutputMode("append")
@@ -134,14 +135,12 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                     throw new Exception("Spark did not write to the sink table in time.");
                 }
 
-                DeltaTable sink = DeltaTable.ForPath(sinkPath);
-
                 // Now read the sink DeltaTable and validate its content.
+                DeltaTable sink = DeltaTable.ForPath(sinkPath);
                 ValidateDataFrame(Enumerable.Range(0, 5), sink.ToDF());
 
                 // Write [5,6,7,8,9] to the source.
                 _spark.Range(5, 10).Write().Format("delta").Mode("append").Save(sourcePath);
-
                 Thread.Sleep(TimeSpan.FromSeconds(5));
 
                 // Finally, validate that the new data made its way to the sink.
