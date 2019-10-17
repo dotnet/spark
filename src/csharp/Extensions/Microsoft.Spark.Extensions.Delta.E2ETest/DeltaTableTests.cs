@@ -215,7 +215,11 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 table.Delete();
 
                 // Load the table as a streaming source.
-                Assert.IsType<DataFrame>(_spark.ReadStream().Format("delta").Option("path", path).Load());
+                Assert.IsType<DataFrame>(_spark
+                    .ReadStream()
+                    .Format("delta")
+                    .Option("path", path)
+                    .Load());
                 Assert.IsType<DataFrame>(_spark.ReadStream().Format("delta").Load(path));
             }
         }
