@@ -35,21 +35,21 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// of that table.
         /// 
         /// Note: Any changes to the table during the conversion process may not result in a
-        /// consistent state at the end of the conversion.Users should stop any changes to the
+        /// consistent state at the end of the conversion. Users should stop any changes to the
         /// table before the conversion is started.
         /// 
         /// An example usage would be
         /// <code>
-        /// io.delta.tables.DeltaTable.convertToDelta(
+        /// DeltaTable.ConvertToDelta(
         ///     spark,
         ///     "parquet.`/path`",
-        ///     new StructType().add(StructField("key1", LongType)).add(StructField("key2", StringType)))
+        ///     new StructType(new List&lt;StructField&gt;(){new StructField("key1", LongType), new StructField("key2", StringType)}))
         /// </code>
         /// </summary>
-        /// <param name="spark"></param>
-        /// <param name="identifier"></param>
-        /// <param name="partitionSchema"></param>
-        /// <returns></returns>
+        /// <param name="spark">The relevant session.</param>
+        /// <param name="identifier">String used to identify the parquet table.</param>
+        /// <param name="partitionSchema">Struct representing the partition schema.</param>
+        /// <returns>The converted DeltaTable.</returns>
         public static DeltaTable ConvertToDelta(SparkSession spark, string identifier, StructType partitionSchema) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
@@ -59,6 +59,24 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
                 identifier,
                 partitionSchema));
 
+        /// <summary>
+        /// Create a DeltaTable from the given parquet table and partition schema.
+        /// Takes an existing parquet table and constructs a delta transaction log in the base path of
+        /// that table.
+        ///
+        /// Note: Any changes to the table during the conversion process may not result in a consistent
+        /// state at the end of the conversion. Users should stop any changes to the table before the
+        /// conversion is started.
+        ///
+        /// An example usage would be
+        /// <code>
+        /// DeltaTable.ConvertToDelta(spark, "parquet.`/path`", "key1 long, key2 string")
+        /// </code>
+        /// </summary>
+        /// <param name="spark">The relevant session.</param>
+        /// <param name="identifier">String used to identify the parquet table.</param>
+        /// <param name="partitionSchema">String representing the partition schema.</param>
+        /// <returns>The converted DeltaTable.</returns>
         public static DeltaTable ConvertToDelta(SparkSession spark, string identifier, string partitionSchema) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
@@ -68,6 +86,22 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
                 identifier,
                 partitionSchema));
 
+        /// <summary>
+        /// Create a DeltaTable from the given parquet table. Takes an existing parquet table and
+        /// constructs a delta transaction log in the base path of the table.
+        ///
+        /// Note: Any changes to the table during the conversion process may not result in a consistent
+        /// state at the end of the conversion. Users should stop any changes to the table before the
+        /// conversion is started.
+        ///
+        /// An example would be
+        /// <code>
+        /// DeltaTable.ConvertToDelta(spark, "parquet.`/path`")
+        /// </code>
+        /// </summary>
+        /// <param name="spark">The relevant session.</param>
+        /// <param name="identifier">String used to identify the parquet table.</param>
+        /// <returns>The converted DeltaTable.</returns>
         public static DeltaTable ConvertToDelta(SparkSession spark, string identifier) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
@@ -108,11 +142,17 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
                 path));
 
         /// <summary>
-        /// 
+        /// Check if the provided <c>identifier</c> string, in this case a file path,
+        /// is the root of a Delta table using the given SparkSession.
+        ///
+        /// An example would be
+        /// <code>
+        ///   DeltaTable.IsDeltaTable(spark, "path/to/table")
+        /// </code>
         /// </summary>
-        /// <param name="sparkSession"></param>
-        /// <param name="identifier"></param>
-        /// <returns></returns>
+        /// <param name="sparkSession">The relevant session.</param>
+        /// <param name="identifier">String that identifies the table, e.g. path to table.</param>
+        /// <returns>True if the table is a DeltaTable.</returns>
         public static bool IsDeltaTable(SparkSession sparkSession, string identifier) =>
             (bool)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 "io.delta.tables.DeltaTable",
@@ -121,10 +161,20 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
                 identifier);
 
         /// <summary>
-        /// 
+        /// Check if the provided <c>identifier</c> string, in this case a file path,
+        /// is the root of a Delta table.
+        ///
+        /// Note: This uses the active SparkSession in the current thread to search for the table. Hence,
+        /// this throws error if active SparkSession has not been set, that is,
+        /// <c>SparkSession.GetActiveSession()</c> is empty.
+        ///
+        /// An example would be
+        /// <code>
+        ///   DeltaTable.IsDeltaTable(spark, "/path/to/table")
+        /// </code>
         /// </summary>
-        /// <param name="identifier"></param>
-        /// <returns></returns>
+        /// <param name="identifier">String that identifies the table, e.g. path to table.</param>
+        /// <returns>True if the table is a DeltaTable.</returns>
         public static bool IsDeltaTable(string identifier) =>
             (bool)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 "io.delta.tables.DeltaTable",
