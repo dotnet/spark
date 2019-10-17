@@ -169,7 +169,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         }
 
         /// <summary>
-        /// 
+        /// Test <c>DeltaTable.ConvertToDelta()</c> API.
         /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
         public void TestConvertToDelta()
