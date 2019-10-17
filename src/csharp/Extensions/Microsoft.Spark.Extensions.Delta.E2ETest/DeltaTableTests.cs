@@ -9,7 +9,6 @@ using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Extensions.Delta.Tables;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
 using Xunit;
 
 namespace Microsoft.Spark.Extensions.Delta.E2ETest
@@ -142,7 +141,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
             {
                 using (var tempDirectory = new TemporaryDirectory())
                 {
-                    string parquetPath = Path.Combine(tempDirectory.Path, "parquet-data");
+                    string path = Path.Combine(tempDirectory.Path, "parquet-data");
                     DataFrameWriter dataWriter = data.Write();
 
                     if (!string.IsNullOrEmpty(partitionColumn))
@@ -150,15 +149,15 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                         dataWriter = dataWriter.PartitionBy(partitionColumn);
                     }
 
-                    dataWriter.Parquet(parquetPath);
+                    dataWriter.Parquet(path);
 
-                    Assert.False(DeltaTable.IsDeltaTable(parquetPath));
+                    Assert.False(DeltaTable.IsDeltaTable(path));
 
-                    string identifier = $"parquet.`{parquetPath}`";
+                    string identifier = $"parquet.`{path}`";
                     DeltaTable convertedDeltaTable = convertToDelta(identifier);
 
                     ValidateDataFrame(Enumerable.Range(0, 5), convertedDeltaTable.ToDF());
-                    Assert.True(DeltaTable.IsDeltaTable(parquetPath));
+                    Assert.True(DeltaTable.IsDeltaTable(path));
                 }
             }
 
@@ -242,6 +241,18 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 table.Delete("id > 10");
                 table.Delete(Functions.Expr("id > 5"));
                 table.Delete();
+
+                // Create Parquet data and convert it to DeltaTables.
+                string parquetIdentifier = $"parquet.`{path}`";
+                rangeRate.Write().Mode(SaveMode.Overwrite).Parquet(path);
+                Assert.IsType<DeltaTable>(DeltaTable.ConvertToDelta(_spark, parquetIdentifier));
+                rangeRate
+                    .Select(Functions.Col("id"), Functions.Expr($"(`id` + 1) AS `id_plus_one`"))
+                    .Write()
+                    .PartitionBy("id")
+                    .Mode(SaveMode.Overwrite)
+                    .Parquet(path);
+                Assert.IsType<DeltaTable>(DeltaTable.ConvertToDelta(_spark, parquetIdentifier, "id bigint"));
             }
         }
 
