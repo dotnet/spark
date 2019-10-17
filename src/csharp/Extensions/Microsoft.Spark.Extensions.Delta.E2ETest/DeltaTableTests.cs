@@ -103,6 +103,29 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         }
 
         /// <summary>
+        /// Test <c>DeltaTable.IsDeltaTable()</c> API.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
+        public void TestIsDeltaTable()
+        {
+            using (var tempDirectory = new TemporaryDirectory())
+            {
+                // Save the same data to a DeltaTable and to Parquet.
+                DataFrame data = _spark.Range(0, 5);
+                string parquetPath = Path.Combine(tempDirectory.Path, "parquet-data");
+                data.Write().Parquet(parquetPath);
+                string deltaTablePath = Path.Combine(tempDirectory.Path, "delta-table");
+                data.Write().Format("delta").Save(deltaTablePath);
+
+                Assert.False(DeltaTable.IsDeltaTable(parquetPath));
+                Assert.False(DeltaTable.IsDeltaTable(_spark, parquetPath));
+
+                Assert.True(DeltaTable.IsDeltaTable(deltaTablePath));
+                Assert.True(DeltaTable.IsDeltaTable(_spark, deltaTablePath));
+            }
+        }
+
+        /// <summary>
         /// Test that methods return the expected signature.
         /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
