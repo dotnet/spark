@@ -6,9 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Extensions.Delta.Tables;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Streaming;
 using Xunit;
 
 namespace Microsoft.Spark.Extensions.Delta.E2ETest
@@ -99,6 +101,47 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
 
                 // Validate that the resulTable contains the the sequence [0 ... 19].
                 ValidateDataFrame(Enumerable.Range(0, 20), deltaTable.ToDF());
+            }
+        }
+
+        /// <summary>
+        /// Run an end-to-end streaming scenario.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
+        public void TestStreamingScenario()
+        {
+            using (var tempDirectory = new TemporaryDirectory())
+            {
+                // Write [0, 1, 2, 3, 4] to a Delta table.
+                string sourcePath = Path.Combine(tempDirectory.Path, "source-delta-table");
+                _spark.Range(0, 5).Write().Format("delta").Save(sourcePath);
+
+                // Create a stream from the source DeltaTable to the sink DeltaTable.
+                // To make the test synchronous and deterministic, we will use a series of 
+                // "one-time micro-batch" triggers.
+                string sinkPath = Path.Combine(tempDirectory.Path, "sink-delta-table");
+                DataStreamWriter dataStreamWriter = _spark
+                    .ReadStream()
+                    .Format("delta")
+                    .Load(sourcePath)
+                    .WriteStream()
+                    .Format("delta")
+                    .OutputMode("append")
+                    .Option("checkpointLocation", Path.Combine(tempDirectory.Path, "checkpoints"));
+
+                // Trigger the first stream batch
+                dataStreamWriter.Trigger(Trigger.Once()).Start(sinkPath).AwaitTermination();
+
+                // Now read the sink DeltaTable and validate its content.
+                DeltaTable sink = DeltaTable.ForPath(sinkPath);
+                ValidateDataFrame(Enumerable.Range(0, 5), sink.ToDF());
+
+                // Write [5,6,7,8,9] to the source and trigger another stream batch.
+                _spark.Range(5, 10).Write().Format("delta").Mode("append").Save(sourcePath);
+                dataStreamWriter.Trigger(Trigger.Once()).Start(sinkPath).AwaitTermination();
+
+                // Finally, validate that the new data made its way to the sink.
+                ValidateDataFrame(Enumerable.Range(0, 10), sink.ToDF());
             }
         }
 
@@ -241,6 +284,14 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 table.Delete("id > 10");
                 table.Delete(Functions.Expr("id > 5"));
                 table.Delete();
+
+                // Load the table as a streaming source.
+                Assert.IsType<DataFrame>(_spark
+                    .ReadStream()
+                    .Format("delta")
+                    .Option("path", path)
+                    .Load());
+                Assert.IsType<DataFrame>(_spark.ReadStream().Format("delta").Load(path));
 
                 // Create Parquet data and convert it to DeltaTables.
                 string parquetIdentifier = $"parquet.`{path}`";
