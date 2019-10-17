@@ -179,7 +179,10 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 Functions.Expr($"(`id` + 1) AS `{partitionColumnName}`"));
 
             // Run the same test on the different overloads of DeltaTable.ConvertToDelta().
-            void testWrapper(DataFrame dataFrame, Func<string, DeltaTable> convertToDelta, string partitionColumn = null)
+            void testWrapper(
+                DataFrame dataFrame,
+                Func<string, DeltaTable> convertToDelta,
+                string partitionColumn = null)
             {
                 using (var tempDirectory = new TemporaryDirectory())
                 {
@@ -206,7 +209,10 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
             testWrapper(data, identifier => DeltaTable.ConvertToDelta(_spark, identifier));
             testWrapper(
                 data.Repartition(Functions.Col(partitionColumnName)),
-                identifier => DeltaTable.ConvertToDelta(_spark, identifier, $"{partitionColumnName} bigint"),
+                identifier => DeltaTable.ConvertToDelta(
+                    _spark,
+                    identifier,
+                    $"{partitionColumnName} bigint"),
                 partitionColumnName);
             // TODO: Test with StructType partition schema once StructType is supported.
         }
@@ -302,7 +308,10 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                     .PartitionBy("id")
                     .Mode(SaveMode.Overwrite)
                     .Parquet(path);
-                Assert.IsType<DeltaTable>(DeltaTable.ConvertToDelta(_spark, parquetIdentifier, "id bigint"));
+                Assert.IsType<DeltaTable>(DeltaTable.ConvertToDelta(
+                    _spark,
+                    parquetIdentifier,
+                    "id bigint"));
                 // TODO: Test with StructType partition schema once StructType is supported.
             }
         }
