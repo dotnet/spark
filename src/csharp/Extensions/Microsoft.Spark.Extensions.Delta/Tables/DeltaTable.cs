@@ -20,6 +20,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     /// </summary>
     public class DeltaTable : IJvmObjectReferenceProvider
     {
+        private const string JvmClassName = "io.delta.tables.DeltaTable";
         private readonly JvmObjectReference _jvmObject;
 
         internal DeltaTable(JvmObjectReference jvmObject)
@@ -56,7 +57,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         public static DeltaTable ConvertToDelta(SparkSession spark, string identifier, StructType partitionSchema) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "io.delta.tables.DeltaTable",
+                JvmClassName,
                 "convertToDelta",
                 spark,
                 identifier,
@@ -83,7 +84,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         public static DeltaTable ConvertToDelta(SparkSession spark, string identifier, string partitionSchema) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "io.delta.tables.DeltaTable",
+                JvmClassName,
                 "convertToDelta",
                 spark,
                 identifier,
@@ -108,7 +109,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         public static DeltaTable ConvertToDelta(SparkSession spark, string identifier) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "io.delta.tables.DeltaTable",
+                JvmClassName,
                 "convertToDelta",
                 spark,
                 identifier));
@@ -125,7 +126,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         public static DeltaTable ForPath(string path) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "io.delta.tables.DeltaTable",
+                JvmClassName,
                 "forPath",
                 path));
 
@@ -139,7 +140,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         public static DeltaTable ForPath(SparkSession sparkSession, string path) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "io.delta.tables.DeltaTable",
+                JvmClassName,
                 "forPath",
                 sparkSession,
                 path));
@@ -158,7 +159,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <returns>True if the table is a DeltaTable.</returns>
         public static bool IsDeltaTable(SparkSession sparkSession, string identifier) =>
             (bool)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "io.delta.tables.DeltaTable",
+                JvmClassName,
                 "isDeltaTable",
                 sparkSession,
                 identifier);
@@ -180,7 +181,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <returns>True if the table is a DeltaTable.</returns>
         public static bool IsDeltaTable(string identifier) =>
             (bool)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "io.delta.tables.DeltaTable",
+                JvmClassName,
                 "isDeltaTable",
                 identifier);
 
