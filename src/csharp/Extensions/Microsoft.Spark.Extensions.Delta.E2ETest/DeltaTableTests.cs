@@ -9,6 +9,7 @@ using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Extensions.Delta.Tables;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using Xunit;
 
 namespace Microsoft.Spark.Extensions.Delta.E2ETest
@@ -123,6 +124,50 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 Assert.True(DeltaTable.IsDeltaTable(deltaTablePath));
                 Assert.True(DeltaTable.IsDeltaTable(_spark, deltaTablePath));
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
+        public void TestConvertToDelta()
+        {
+            string partitionColumnName = "id_plus_one";
+            DataFrame data = _spark.Range(0, 5).Select(
+                Functions.Col("id"),
+                Functions.Expr($"(`id` + 1) AS `{partitionColumnName}`"));
+
+            // Run the same test on the different overloads of DeltaTable.ConvertToDelta().
+            void testWrapper(DataFrame data, Func<string, DeltaTable> convertToDelta, string partitionColumn = null)
+            {
+                using (var tempDirectory = new TemporaryDirectory())
+                {
+                    string parquetPath = Path.Combine(tempDirectory.Path, "parquet-data");
+                    DataFrameWriter dataWriter = data.Write();
+
+                    if (!string.IsNullOrEmpty(partitionColumn))
+                    {
+                        dataWriter = dataWriter.PartitionBy(partitionColumn);
+                    }
+
+                    dataWriter.Parquet(parquetPath);
+
+                    Assert.False(DeltaTable.IsDeltaTable(parquetPath));
+
+                    string identifier = $"parquet.`{parquetPath}`";
+                    DeltaTable convertedDeltaTable = convertToDelta(identifier);
+
+                    ValidateDataFrame(Enumerable.Range(0, 5), convertedDeltaTable.ToDF());
+                    Assert.True(DeltaTable.IsDeltaTable(parquetPath));
+                }
+            }
+
+            testWrapper(data, identifier => DeltaTable.ConvertToDelta(_spark, identifier));
+            testWrapper(
+                data.Repartition(Functions.Col(partitionColumnName)),
+                identifier => DeltaTable.ConvertToDelta(_spark, identifier, $"{partitionColumnName} bigint"),
+                partitionColumnName);
+            // TODO: Test with StructType partition schema once StructType is supported.
         }
 
         /// <summary>

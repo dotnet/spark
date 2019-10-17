@@ -3,10 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
-using Apache.Arrow.Types;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Extensions.Delta.Tables
 {
@@ -43,7 +43,10 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// DeltaTable.ConvertToDelta(
         ///     spark,
         ///     "parquet.`/path`",
-        ///     new StructType(new List&lt;StructField&gt;(){new StructField("key1", LongType), new StructField("key2", StringType)}))
+        ///     var partitionSchema = new StructType(new List&lt;StructField&gt;() {
+        ///         new StructField("key1", new LongType()),
+        ///         new StructField("key2", new StringType())
+        ///     });
         /// </code>
         /// </summary>
         /// <param name="spark">The relevant session.</param>
