@@ -141,6 +141,9 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 DeltaTable table = Assert.IsType<DeltaTable>(DeltaTable.ForPath(path));
                 table = Assert.IsType<DeltaTable>(DeltaTable.ForPath(_spark, path));
 
+                Assert.IsType<bool>(DeltaTable.IsDeltaTable(_spark, path));
+                Assert.IsType<bool>(DeltaTable.IsDeltaTable(path));
+
                 Assert.IsType<DeltaTable>(table.As("oldTable"));
                 Assert.IsType<DeltaTable>(table.Alias("oldTable"));
                 Assert.IsType<DataFrame>(table.History());
