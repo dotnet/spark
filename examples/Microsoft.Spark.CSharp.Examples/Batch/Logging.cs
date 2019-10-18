@@ -134,7 +134,7 @@ namespace Microsoft.Spark.Examples.Batch
 
             else
             {
-                return Regex.IsMatch(logLine, <the default regex defined above>);
+                return Regex.IsMatch(logLine, useRx);
             }
         }
 
