@@ -157,7 +157,17 @@ namespace Microsoft.Spark.Examples.Batch
                 "endpt",
                 "protocol",
                 "response",
-                "size"};
+                {
+                    "ip",
+                    "client",
+                    "user",
+                    "date",
+                    "method",
+                    "endpt",
+                    "protocol",
+                    "response",
+                    "size"
+                };
 
             // Print out the full log line and then divide based on column
             foreach (Group group in match.Groups)
