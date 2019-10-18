@@ -132,7 +132,10 @@ namespace Microsoft.Spark.Examples.Batch
                 return Regex.IsMatch(logLine, "\\b(?=spam)\\b");
             }
 
-            return Regex.IsMatch(logLine, useRx);
+            else
+            {
+                return Regex.IsMatch(logLine, <the default regex defined above>);
+            }
         }
 
         public static int ParseLog(string logLine)
