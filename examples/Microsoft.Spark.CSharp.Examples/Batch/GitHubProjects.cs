@@ -80,15 +80,8 @@ namespace Microsoft.Spark.Examples.Batch
             // 10/20/2015 
             DateTime referenceDate = new DateTime(2015, 10, 20);
 
-            // > 0 means convertedDate (input from file) is later than 10/20/15
-            if (DateTime.Compare(convertedDate, referenceDate) > 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            // Determine if convertedDate (from file) later than 10/20/15
+            return convertedDate > referenceDate;
         }
     }
 }
