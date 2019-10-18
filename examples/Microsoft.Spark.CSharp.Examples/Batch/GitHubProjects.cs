@@ -77,9 +77,6 @@ namespace Microsoft.Spark.Examples.Batch
             // Use TryParse to avoid invalid dates
             if (DateTime.TryParse(date, out convertedDate))
             {
-                // 10/20/2015 
-                //public static DateTime referenceDate = new DateTime(2015, 10, 20);
-
                 // Determine if convertedDate (from file) later than 10/20/15
                 return convertedDate > referenceDate;
             }
