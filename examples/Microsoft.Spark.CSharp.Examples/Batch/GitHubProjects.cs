@@ -14,6 +14,9 @@ namespace Microsoft.Spark.Examples.Batch
     /// </summary>
     internal sealed class GitHubProjects : IExample
     {
+        // For later use when filtering based on date
+        static DateTime referenceDate = new DateTime(2015, 10, 20);
+
         public void Run(string[] args)
         {
             if (args.Length != 1)
@@ -54,7 +57,6 @@ namespace Microsoft.Spark.Examples.Batch
             // Sort by most forked languages first
             groupedDF.OrderBy(Desc("avg(forked_from)")).Show();
 
-            // Find projects updated since 10/20/15
             spark.Udf().Register<string, bool>(
                 "MyUDF", 
                 (date) => DateTest(date));
@@ -70,21 +72,21 @@ namespace Microsoft.Spark.Examples.Batch
 
         public static bool DateTest(string date)
         {
-            // Remove invalid dates to avoid: 
-            // System.FormatException: String '0000-00-00 00:00:00' 
-            // was not recognized as a valid DateTime
-            if (date.Equals("0000-00-00 00:00:00"))
+            DateTime convertedDate;
+
+            // Use TryParse to avoid invalid dates
+            if (DateTime.TryParse(date, out convertedDate))
+            {
+                // 10/20/2015 
+                //public static DateTime referenceDate = new DateTime(2015, 10, 20);
+
+                // Determine if convertedDate (from file) later than 10/20/15
+                return convertedDate > referenceDate;
+            }
+            else
             {
                 return false;
             }
-
-            DateTime convertedDate = Convert.ToDateTime(date);
-
-            // 10/20/2015 
-            DateTime referenceDate = new DateTime(2015, 10, 20);
-
-            // Determine if convertedDate (from file) later than 10/20/15
-            return convertedDate > referenceDate;
         }
     }
 }
