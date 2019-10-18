@@ -125,7 +125,7 @@ namespace Microsoft.Spark.Examples.Batch
             // Which regex to use based on what we're filtering for
             if (regexType == "ipfilter")
             {
-                useRx = "^(?=10)";
+                return Regex.IsMatch(logLine, "^(?=10)");
             }
             else if (regexType == "spamfilter")
             {
