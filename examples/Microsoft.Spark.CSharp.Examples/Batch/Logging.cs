@@ -149,14 +149,6 @@ namespace Microsoft.Spark.Examples.Batch
             int numGets = 0;
 
             string[] colNames =
-                {"ip",
-                "client",
-                "user",
-                "date",
-                "method",
-                "endpt",
-                "protocol",
-                "response",
                 {
                     "ip",
                     "client",
