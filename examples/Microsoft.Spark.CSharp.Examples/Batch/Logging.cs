@@ -129,7 +129,7 @@ namespace Microsoft.Spark.Examples.Batch
             }
             else if (regexType == "spamfilter")
             {
-                useRx = "\\b(?=spam)\\b";
+                return Regex.IsMatch(logLine, "\\b(?=spam)\\b");
             }
 
             return Regex.IsMatch(logLine, useRx);
