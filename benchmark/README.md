@@ -42,6 +42,7 @@ TPCH timing results is written to stdout in the following form: `TPCH_Result,<la
 
 ## CSharp
 1. Ensure that the Microsoft.Spark.Worker is properly [installed](../deployment/README.md#cloud-deployment) in your cluster.
+2. Ensure that you build the worker and application with .NET Core 3.0 in order to run hardware acceleration queries.
 2. Build `microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar` and the [CSharp Tpch benchmark](csharp/Tpch) application by following the [build instructions](../README.md#building-from-source).
 3. Upload [run_csharp_benchmark.sh](run_csharp_benchmark.sh), the Tpch benchmark application, and `microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar` to the cluster.
 4. Run the benchmark by invoking:
@@ -62,7 +63,8 @@ TPCH timing results is written to stdout in the following form: `TPCH_Result,<la
 
 ## Python
 1. Upload [run_python_benchmark.sh](run_python_benchmark.sh) and all [python tpch benchmark](python/) files to the cluster.
-2. Run the benchmark by invoking:
+2. Install pyarrow and pandas on the cluster including head and worker nodes. Use Conda to install these packages.
+3. Run the benchmark by invoking:
     ```shell
     run_python_benchmark.sh \
     <number of cold iterations> \
@@ -75,6 +77,9 @@ TPCH timing results is written to stdout in the following form: `TPCH_Result,<la
     <number of iterations> \
     <true for sql tests, false for functional tests>
     ```
+In order to run with Python 3.5 (the default is 2.7) you will need to do the following on all the nodes in the cluster:
+1. Activate the Python 3.5 environment.
+2. Use Conda to install pyarrow and pandas on all the nodes.
 
 ## Scala
 1. `mvn package` to build the [scala tpch benchmark](scala/) application.

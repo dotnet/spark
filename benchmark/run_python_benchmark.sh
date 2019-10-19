@@ -10,7 +10,7 @@ DATA_PATH=$7
 NUM_ITERATION=$8
 IS_SQL=$9
 
-for i in {1..22}
+for i in {1..22} 1a 8a
 do
   for j in $(seq 1 $COLD_ITERATION)
   do
