@@ -140,49 +140,26 @@ namespace Microsoft.Spark.Examples.Batch
 
         public static int ParseLog(string logLine)
         {
+            // Use regex matching to group data
+            // Each group matches a column in our log schema
+            // i.e. first group = first column =  IP
             Match match = Regex.Match(
                 logLine,
                 apacheRx);
 
-            int groupCtr = 0;
-            int entryCtr = 0;
-            int numGets = 0;
-
-            string[] colNames =
-                {
-                    "ip",
-                    "client",
-                    "user",
-                    "date",
-                    "method",
-                    "endpt",
-                    "protocol",
-                    "response",
-                    "size"
-                };
-
-            // Print out the full log line and then divide based on column
-            foreach (Group group in match.Groups)
+            // Determine if valid log entry is a GET request
+            if (match.Success)
             {
-                if (groupCtr == 0)
-                {
-                    Console.WriteLine("Full log entry: '{0}'", group.Value);
-                    ++groupCtr;
-                    continue;
-                }
-                Console.WriteLine("    {0}: '{1}'", colNames[entryCtr], group.Value);
+                Console.WriteLine("Full log entry: '{0}'", match.Groups[0].Value);
 
-                // Determine if it's a GET request
-                if (colNames[entryCtr] == "method")
+                // 5th column/group in schema is "method"
+                if (match.Groups[5].Value == "GET")
                 {
-                    if (group.Value == "GET")
-                    {
-                        ++numGets;
-                    }
+                    return 1;
                 }
-                ++entryCtr;
             }
-            return numGets;
+
+            return 0;
         }
     }
 }
