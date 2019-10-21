@@ -35,42 +35,6 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// Create a DeltaTable from the given parquet table and partition schema.
         /// Takes an existing parquet table and constructs a delta transaction log in the base path
         /// of that table.
-        /// 
-        /// Note: Any changes to the table during the conversion process may not result in a
-        /// consistent state at the end of the conversion. Users should stop any changes to the
-        /// table before the conversion is started.
-        /// 
-        /// An example usage would be
-        /// <code>
-        /// DeltaTable.ConvertToDelta(
-        ///     spark,
-        ///     "parquet.`/path`",
-        ///     var partitionSchema = new StructType(new List&lt;StructField&gt;() {
-        ///         new StructField("key1", new LongType()),
-        ///         new StructField("key2", new StringType())
-        ///     });
-        /// </code>
-        /// </summary>
-        /// <param name="spark">The relevant session.</param>
-        /// <param name="identifier">String used to identify the parquet table.</param>
-        /// <param name="partitionSchema">Struct representing the partition schema.</param>
-        /// <returns>The converted DeltaTable.</returns>
-        public static DeltaTable ConvertToDelta(
-            SparkSession spark,
-            string identifier,
-            StructType partitionSchema) =>
-            new DeltaTable(
-                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                s_deltaTableClassName,
-                "convertToDelta",
-                spark,
-                identifier,
-                partitionSchema));
-
-        /// <summary>
-        /// Create a DeltaTable from the given parquet table and partition schema.
-        /// Takes an existing parquet table and constructs a delta transaction log in the base path
-        /// of that table.
         ///
         /// Note: Any changes to the table during the conversion process may not result in a
         /// consistent state at the end of the conversion. Users should stop any changes to the
