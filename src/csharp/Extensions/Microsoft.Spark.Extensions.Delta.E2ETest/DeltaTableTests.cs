@@ -321,9 +321,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// </summary>
         /// <param name="expectedValues"></param>
         /// <param name="dataFrame"></param>
-        private void ValidateRangeDataFrame(
-            IEnumerable<int> expectedValues,
-            DataFrame dataFrame)
+        private void ValidateRangeDataFrame(IEnumerable<int> expectedValues, DataFrame dataFrame)
         {
             Assert.Equal(expectedValues.Count(), dataFrame.Count());
 
