@@ -40,7 +40,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 data.Write().Format("delta").Save(path);
 
                 // Validate that data contains the the sequence [0 ... 4].
-                ValidateDataFrame(Enumerable.Range(0, 5), data);
+                ValidateRangeDataFrame(Enumerable.Range(0, 5), data);
 
                 // Create a second iteration of the table.
                 data = _spark.Range(5, 10);
@@ -50,7 +50,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 var deltaTable = DeltaTable.ForPath(path);
 
                 // Validate that deltaTable contains the the sequence [5 ... 9].
-                ValidateDataFrame(Enumerable.Range(5, 5), deltaTable.ToDF());
+                ValidateRangeDataFrame(Enumerable.Range(5, 5), deltaTable.ToDF());
 
                 // Update every even value by adding 100 to it.
                 deltaTable.Update(
@@ -69,7 +69,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 // |106|
                 // |108|
                 // +---+
-                ValidateDataFrame(
+                ValidateRangeDataFrame(
                     new List<int>() { 5, 7, 9, 106, 108 },
                     deltaTable.ToDF());
 
@@ -84,7 +84,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 // |  7|
                 // |  9|
                 // +---+
-                ValidateDataFrame(new List<int>() { 5, 7, 9 }, deltaTable.ToDF());
+                ValidateRangeDataFrame(new List<int>() { 5, 7, 9 }, deltaTable.ToDF());
 
                 // Upsert (merge) new data.
                 DataFrame newData = _spark.Range(0, 20).As("newData").ToDF();
@@ -99,7 +99,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                     .Execute();
 
                 // Validate that the resulTable contains the the sequence [0 ... 19].
-                ValidateDataFrame(Enumerable.Range(0, 20), deltaTable.ToDF());
+                ValidateRangeDataFrame(Enumerable.Range(0, 20), deltaTable.ToDF());
             }
         }
 
@@ -133,14 +133,14 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
 
                 // Now read the sink DeltaTable and validate its content.
                 DeltaTable sink = DeltaTable.ForPath(sinkPath);
-                ValidateDataFrame(Enumerable.Range(0, 5), sink.ToDF());
+                ValidateRangeDataFrame(Enumerable.Range(0, 5), sink.ToDF());
 
                 // Write [5,6,7,8,9] to the source and trigger another stream batch.
                 _spark.Range(5, 10).Write().Format("delta").Mode("append").Save(sourcePath);
                 dataStreamWriter.Trigger(Trigger.Once()).Start(sinkPath).AwaitTermination();
 
                 // Finally, validate that the new data made its way to the sink.
-                ValidateDataFrame(Enumerable.Range(0, 10), sink.ToDF());
+                ValidateRangeDataFrame(Enumerable.Range(0, 10), sink.ToDF());
             }
         }
 
@@ -201,7 +201,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                     string identifier = $"parquet.`{path}`";
                     DeltaTable convertedDeltaTable = convertToDelta(identifier);
 
-                    ValidateDataFrame(Enumerable.Range(0, 5), convertedDeltaTable.ToDF());
+                    ValidateRangeDataFrame(Enumerable.Range(0, 5), convertedDeltaTable.ToDF());
                     Assert.True(DeltaTable.IsDeltaTable(path));
                 }
             }
@@ -317,11 +317,11 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         }
 
         /// <summary>
-        /// Validate that a tutorial DataFrame contains only the expected values.
+        /// Validate that a range DataFrame contains only the expected values.
         /// </summary>
         /// <param name="expectedValues"></param>
         /// <param name="dataFrame"></param>
-        private void ValidateDataFrame(
+        private void ValidateRangeDataFrame(
             IEnumerable<int> expectedValues,
             DataFrame dataFrame)
         {
