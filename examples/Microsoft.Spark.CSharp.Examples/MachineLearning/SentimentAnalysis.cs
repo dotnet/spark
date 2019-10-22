@@ -4,8 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-//using Microsoft.ML;
-//using Microsoft.ML.Data;
+using Microsoft.ML;
+using Microsoft.ML.Data;
 using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.Examples.MachineLearning
@@ -19,7 +19,9 @@ namespace Microsoft.Spark.Examples.MachineLearning
         public void Run(string[] args)
         {
             // Change this flag once you've set up
-            // the ML.NET dependencies described in the README
+            // the ML.NET dependencies described in the README:
+            // Update url to location of MLModel.zip (line 90)
+            // Copy ML.NET dlls to your project's folder
             int dependenciesDone = 0;
 
             if (args.Length != 1)
@@ -51,7 +53,7 @@ namespace Microsoft.Spark.Examples.MachineLearning
             df.Show();
 
             // Use ML.NET to evaluate each review 
-            /*spark.Udf().Register<string, bool>(
+            spark.Udf().Register<string, bool>(
                 "MLudf", 
                 (text) => Sentiment(text));
 
@@ -82,11 +84,12 @@ namespace Microsoft.Spark.Examples.MachineLearning
         {
             MLContext mlContext = new MLContext();
 
+            // Remember to change "MLModel.zip" to accurate model location
             ITransformer mlModel = mlContext
                 .Model
-                .Load("MLModel.zip", out var modelInputSchema);
+                .Load("MLModel.zip", out var modelInputSchema); 
 
-            var predEngine = mlContext
+             var predEngine = mlContext
                 .Model
                 .CreatePredictionEngine<Review, ReviewPrediction>(mlModel);
 
@@ -114,7 +117,6 @@ namespace Microsoft.Spark.Examples.MachineLearning
             public float Probability { get; set; }
 
             public float Score { get; set; }
-        }*/
         }
     }
 }
