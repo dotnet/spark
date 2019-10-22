@@ -9,6 +9,7 @@ using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Extensions.Delta.Tables;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Streaming;
 using Xunit;
 
 namespace Microsoft.Spark.Extensions.Delta.E2ETest
@@ -39,7 +40,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 data.Write().Format("delta").Save(path);
 
                 // Validate that data contains the the sequence [0 ... 4].
-                ValidateDataFrame(Enumerable.Range(0, 5), data);
+                ValidateRangeDataFrame(Enumerable.Range(0, 5), data);
 
                 // Create a second iteration of the table.
                 data = _spark.Range(5, 10);
@@ -49,7 +50,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 var deltaTable = DeltaTable.ForPath(path);
 
                 // Validate that deltaTable contains the the sequence [5 ... 9].
-                ValidateDataFrame(Enumerable.Range(5, 5), deltaTable.ToDF());
+                ValidateRangeDataFrame(Enumerable.Range(5, 5), deltaTable.ToDF());
 
                 // Update every even value by adding 100 to it.
                 deltaTable.Update(
@@ -68,7 +69,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 // |106|
                 // |108|
                 // +---+
-                ValidateDataFrame(
+                ValidateRangeDataFrame(
                     new List<int>() { 5, 7, 9, 106, 108 },
                     deltaTable.ToDF());
 
@@ -83,7 +84,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 // |  7|
                 // |  9|
                 // +---+
-                ValidateDataFrame(new List<int>() { 5, 7, 9 }, deltaTable.ToDF());
+                ValidateRangeDataFrame(new List<int>() { 5, 7, 9 }, deltaTable.ToDF());
 
                 // Upsert (merge) new data.
                 DataFrame newData = _spark.Range(0, 20).As("newData").ToDF();
@@ -98,8 +99,122 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                     .Execute();
 
                 // Validate that the resulTable contains the the sequence [0 ... 19].
-                ValidateDataFrame(Enumerable.Range(0, 20), deltaTable.ToDF());
+                ValidateRangeDataFrame(Enumerable.Range(0, 20), deltaTable.ToDF());
             }
+        }
+
+        /// <summary>
+        /// Run an end-to-end streaming scenario.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
+        public void TestStreamingScenario()
+        {
+            using (var tempDirectory = new TemporaryDirectory())
+            {
+                // Write [0, 1, 2, 3, 4] to a Delta table.
+                string sourcePath = Path.Combine(tempDirectory.Path, "source-delta-table");
+                _spark.Range(0, 5).Write().Format("delta").Save(sourcePath);
+
+                // Create a stream from the source DeltaTable to the sink DeltaTable.
+                // To make the test synchronous and deterministic, we will use a series of 
+                // "one-time micro-batch" triggers.
+                string sinkPath = Path.Combine(tempDirectory.Path, "sink-delta-table");
+                DataStreamWriter dataStreamWriter = _spark
+                    .ReadStream()
+                    .Format("delta")
+                    .Load(sourcePath)
+                    .WriteStream()
+                    .Format("delta")
+                    .OutputMode("append")
+                    .Option("checkpointLocation", Path.Combine(tempDirectory.Path, "checkpoints"));
+
+                // Trigger the first stream batch
+                dataStreamWriter.Trigger(Trigger.Once()).Start(sinkPath).AwaitTermination();
+
+                // Now read the sink DeltaTable and validate its content.
+                DeltaTable sink = DeltaTable.ForPath(sinkPath);
+                ValidateRangeDataFrame(Enumerable.Range(0, 5), sink.ToDF());
+
+                // Write [5,6,7,8,9] to the source and trigger another stream batch.
+                _spark.Range(5, 10).Write().Format("delta").Mode("append").Save(sourcePath);
+                dataStreamWriter.Trigger(Trigger.Once()).Start(sinkPath).AwaitTermination();
+
+                // Finally, validate that the new data made its way to the sink.
+                ValidateRangeDataFrame(Enumerable.Range(0, 10), sink.ToDF());
+            }
+        }
+
+        /// <summary>
+        /// Test <c>DeltaTable.IsDeltaTable()</c> API.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
+        public void TestIsDeltaTable()
+        {
+            using (var tempDirectory = new TemporaryDirectory())
+            {
+                // Save the same data to a DeltaTable and to Parquet.
+                DataFrame data = _spark.Range(0, 5);
+                string parquetPath = Path.Combine(tempDirectory.Path, "parquet-data");
+                data.Write().Parquet(parquetPath);
+                string deltaTablePath = Path.Combine(tempDirectory.Path, "delta-table");
+                data.Write().Format("delta").Save(deltaTablePath);
+
+                Assert.False(DeltaTable.IsDeltaTable(parquetPath));
+                Assert.False(DeltaTable.IsDeltaTable(_spark, parquetPath));
+
+                Assert.True(DeltaTable.IsDeltaTable(deltaTablePath));
+                Assert.True(DeltaTable.IsDeltaTable(_spark, deltaTablePath));
+            }
+        }
+
+        /// <summary>
+        /// Test <c>DeltaTable.ConvertToDelta()</c> API.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
+        public void TestConvertToDelta()
+        {
+            string partitionColumnName = "id_plus_one";
+            DataFrame data = _spark.Range(0, 5).Select(
+                Functions.Col("id"),
+                Functions.Expr($"(`id` + 1) AS `{partitionColumnName}`"));
+
+            // Run the same test on the different overloads of DeltaTable.ConvertToDelta().
+            void testWrapper(
+                DataFrame dataFrame,
+                Func<string, DeltaTable> convertToDelta,
+                string partitionColumn = null)
+            {
+                using (var tempDirectory = new TemporaryDirectory())
+                {
+                    string path = Path.Combine(tempDirectory.Path, "parquet-data");
+                    DataFrameWriter dataWriter = dataFrame.Write();
+
+                    if (!string.IsNullOrEmpty(partitionColumn))
+                    {
+                        dataWriter = dataWriter.PartitionBy(partitionColumn);
+                    }
+
+                    dataWriter.Parquet(path);
+
+                    Assert.False(DeltaTable.IsDeltaTable(path));
+
+                    string identifier = $"parquet.`{path}`";
+                    DeltaTable convertedDeltaTable = convertToDelta(identifier);
+
+                    ValidateRangeDataFrame(Enumerable.Range(0, 5), convertedDeltaTable.ToDF());
+                    Assert.True(DeltaTable.IsDeltaTable(path));
+                }
+            }
+
+            testWrapper(data, identifier => DeltaTable.ConvertToDelta(_spark, identifier));
+            testWrapper(
+                data.Repartition(Functions.Col(partitionColumnName)),
+                identifier => DeltaTable.ConvertToDelta(
+                    _spark,
+                    identifier,
+                    $"{partitionColumnName} bigint"),
+                partitionColumnName);
+            // TODO: Test with StructType partition schema once StructType is supported.
         }
 
         /// <summary>
@@ -118,7 +233,11 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 DeltaTable table = Assert.IsType<DeltaTable>(DeltaTable.ForPath(path));
                 table = Assert.IsType<DeltaTable>(DeltaTable.ForPath(_spark, path));
 
+                Assert.IsType<bool>(DeltaTable.IsDeltaTable(_spark, path));
+                Assert.IsType<bool>(DeltaTable.IsDeltaTable(path));
+
                 Assert.IsType<DeltaTable>(table.As("oldTable"));
+                Assert.IsType<DeltaTable>(table.Alias("oldTable"));
                 Assert.IsType<DataFrame>(table.History());
                 Assert.IsType<DataFrame>(table.History(200));
                 Assert.IsType<DataFrame>(table.ToDF());
@@ -170,17 +289,39 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 table.Delete("id > 10");
                 table.Delete(Functions.Expr("id > 5"));
                 table.Delete();
+
+                // Load the table as a streaming source.
+                Assert.IsType<DataFrame>(_spark
+                    .ReadStream()
+                    .Format("delta")
+                    .Option("path", path)
+                    .Load());
+                Assert.IsType<DataFrame>(_spark.ReadStream().Format("delta").Load(path));
+
+                // Create Parquet data and convert it to DeltaTables.
+                string parquetIdentifier = $"parquet.`{path}`";
+                rangeRate.Write().Mode(SaveMode.Overwrite).Parquet(path);
+                Assert.IsType<DeltaTable>(DeltaTable.ConvertToDelta(_spark, parquetIdentifier));
+                rangeRate
+                    .Select(Functions.Col("id"), Functions.Expr($"(`id` + 1) AS `id_plus_one`"))
+                    .Write()
+                    .PartitionBy("id")
+                    .Mode(SaveMode.Overwrite)
+                    .Parquet(path);
+                Assert.IsType<DeltaTable>(DeltaTable.ConvertToDelta(
+                    _spark,
+                    parquetIdentifier,
+                    "id bigint"));
+                // TODO: Test with StructType partition schema once StructType is supported.
             }
         }
 
         /// <summary>
-        /// Validate that a tutorial DataFrame contains only the expected values.
+        /// Validate that a range DataFrame contains only the expected values.
         /// </summary>
         /// <param name="expectedValues"></param>
         /// <param name="dataFrame"></param>
-        private void ValidateDataFrame(
-            IEnumerable<int> expectedValues,
-            DataFrame dataFrame)
+        private void ValidateRangeDataFrame(IEnumerable<int> expectedValues, DataFrame dataFrame)
         {
             Assert.Equal(expectedValues.Count(), dataFrame.Count());
 
