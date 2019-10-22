@@ -3,8 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-//using Microsoft.ML;
-//using Microsoft.ML.Data;
+using Microsoft.ML;
+using Microsoft.ML.Data;
 using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.Examples.MachineLearning
@@ -18,7 +18,9 @@ namespace Microsoft.Spark.Examples.MachineLearning
         public void Run(string[] args)
         {
             // Change this flag once you've set up
-            // the ML.NET dependencies described in the README
+            // the ML.NET dependencies described in the README:
+            // Update url to location of MLModel.zip (line 90)
+            // Copy ML.NET dlls to your project's folder
             int dependenciesDone = 0;
 
             if (args.Length != 2)
@@ -43,7 +45,7 @@ namespace Microsoft.Spark.Examples.MachineLearning
                 .AppName("Streaming Sentiment Analysis")
                 .GetOrCreate();
 
-            /*// Setup stream connection info
+            // Setup stream connection info
             // string hostname = "localhost";
             string hostname = args[0];
 
@@ -59,12 +61,14 @@ namespace Microsoft.Spark.Examples.MachineLearning
                .Load();
 
             // Use ML.NET in a UDF to evaluate each incoming entry
-            spark.Udf().Register<string, bool>("MyUDF", input => Sentiment(input));
+            spark.Udf().Register<string, bool>(
+                "MyUDF", 
+                input => Sentiment(input));
 
             // Call ML.NET code and display sentiment analysis results
             words.CreateOrReplaceTempView("WordsEdit");
-            DataFrame sqlDf = spark.Sql("SELECT WordsEdit.value, MyUDF(WordsEdit.value) FROM WordsEdit");
-            // 
+            DataFrame sqlDf = spark
+                .Sql("SELECT WordsEdit.value, MyUDF(WordsEdit.value) FROM WordsEdit");
 
             // Handle data continuously as it arrives
             Microsoft.Spark.Sql.Streaming.StreamingQuery query = sqlDf
@@ -79,10 +83,19 @@ namespace Microsoft.Spark.Examples.MachineLearning
         public static bool Sentiment(string text)
         {
             MLContext mlContext = new MLContext();
-            ITransformer mlModel = mlContext.Model.Load("MLModel.zip", out var modelInputSchema);
-            var predEngine = mlContext.Model.CreatePredictionEngine<Review, ReviewPrediction>(mlModel);
 
-            var result = predEngine.Predict(new Review { Column1 = text });
+            // Remember to change "MLModel.zip" to accurate model location
+            ITransformer mlModel = mlContext
+                .Model
+                .Load("MLModel.zip", out var modelInputSchema);
+
+            var predEngine = mlContext
+                .Model
+                .CreatePredictionEngine<Review, ReviewPrediction>(mlModel);
+
+            var result = predEngine.Predict(
+                new Review { Column1 = text });
+
             return result.Prediction;
         }
 
@@ -105,7 +118,6 @@ namespace Microsoft.Spark.Examples.MachineLearning
             public float Probability { get; set; }
 
             public float Score { get; set; }
-        }*/
         }
     }
 }
