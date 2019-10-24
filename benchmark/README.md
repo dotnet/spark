@@ -42,7 +42,6 @@ TPCH timing results is written to stdout in the following form: `TPCH_Result,<la
 
 ## CSharp
 1. Ensure that the Microsoft.Spark.Worker is properly [installed](../deployment/README.md#cloud-deployment) in your cluster.
-2. Ensure that you build the worker and application with .NET Core 3.0 in order to run hardware acceleration queries.
 2. Build `microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar` and the [CSharp Tpch benchmark](csharp/Tpch) application by following the [build instructions](../README.md#building-from-source).
 3. Upload [run_csharp_benchmark.sh](run_csharp_benchmark.sh), the Tpch benchmark application, and `microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar` to the cluster.
 4. Run the benchmark by invoking:
@@ -61,9 +60,19 @@ TPCH timing results is written to stdout in the following form: `TPCH_Result,<la
     <true for sql tests, false for functional tests>
     ```
 
+    **Note**: Ensure that you build the worker and application with .NET Core 3.0 in order to run hardware acceleration queries.
+
+
 ## Python
 1. Upload [run_python_benchmark.sh](run_python_benchmark.sh) and all [python tpch benchmark](python/) files to the cluster.
-2. Install pyarrow and pandas on the cluster including head and worker nodes. Use Conda to install these packages.
+2. Install pyarrow and pandas on the cluster including head and worker nodes. Use Conda to install these packages. You can create a bash script with the following commands and run that bash script on all the nodes in the cluster.
+    ```shell
+    export PATH=$PATH:/usr/bin/anaconda/bin
+    sudo chown -R sshuser /usr/bin/anaconda
+    conda update --all
+    conda install pandas
+    conda install pyarrow
+    ```
 3. Run the benchmark by invoking:
     ```shell
     run_python_benchmark.sh \
@@ -77,9 +86,11 @@ TPCH timing results is written to stdout in the following form: `TPCH_Result,<la
     <number of iterations> \
     <true for sql tests, false for functional tests>
     ```
-In order to run with Python 3.5 (the default is 2.7) you will need to do the following on all the nodes in the cluster:
-1. Activate the Python 3.5 environment.
-2. Use Conda to install pyarrow and pandas on all the nodes.
+In order to run with Python 3.x (the default is 2.7) you will need to do the following on the driver node.
+1. Activate the Python 3.x environment, by changing the value of PYSPARK_PYTHON environment variable to point to the Python3 binary. This change can be made in the spark-env.sh conf file.
+    ```shell
+    export PYSPARK_PYTHON=${PYSPARK_PYTHON:-/path/to/python3}
+    ```
 
 ## Scala
 1. `mvn package` to build the [scala tpch benchmark](scala/) application.
