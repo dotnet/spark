@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.microsoft.scala</groupId>
     <artifactId>microsoft-spark</artifactId>
-    <version>0.4.0</version>
+    <version>0.6.0</version>
   </parent>
   <artifactId>microsoft-spark-2.4.x</artifactId>
   <inceptionYear>2019</inceptionYear>

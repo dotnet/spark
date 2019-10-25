@@ -60,6 +60,18 @@ namespace Microsoft.Spark.Sql.Streaming
         }
 
         /// <summary>
+        /// Partitions the output by the given columns on the file system. If specified,
+        /// the output is laid out on the file system similar to Hive's partitioning scheme.
+        /// </summary>
+        /// <param name="colNames">Column names to partition by</param>
+        /// <returns>This DataStreamWriter object</returns>
+        public DataStreamWriter PartitionBy(params string[] colNames)
+        {
+            _jvmObject.Invoke("partitionBy", (object)colNames);
+            return this;
+        }
+
+        /// <summary>
         /// Adds an output option for the underlying data source.
         /// </summary>
         /// <param name="key">Name of the option</param>
