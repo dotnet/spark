@@ -24,17 +24,17 @@ and you will see the followng output:
 ```
 In this debug mode, `DotnetRunner` does not launch the .NET application, but waits for it to connect. Leave this command prompt window open.
 
-Now you can run your .NET application with any debugger to debug your application.
+Now you can start your .NET application with a C# debugger ([Visual Studio Debugger for Windows/macOS](https://visualstudio.microsoft.com/vs/) or [C# Debugger Extension in Visual Code](https://code.visualstudio.com/Docs/editor/debugging)) to debug your application.
 
-### Debugging UDF
+### Debugging User Defined Function (UDF)
 
-**Note that this is currently supported only on Windows.**
+**Note that this is currently supported only on Windows with Visual Studio Debugger.**
 
 Before running `spark-submit`, set the following environment variable:
 ```bat
 set DOTNET_WORKER_DEBUG=1
 ```
-Now, when you run your Spark application, a `Choose Just-In-Time Debugger` window will pop up. Choose a debugger.
+Now, when you run your Spark application, a `Choose Just-In-Time Debugger` window will pop up. Choose a Visual Studio debugger.
 
 The debugger will break at the following location in [TaskRunner.cs](../src/csharp/Microsoft.Spark.Worker/TaskRunner.cs):
 ```C#
