@@ -48,7 +48,7 @@ Now, navigate to the `.cs` file that contains the UDF that you plan to debug, an
 
 Hit `F5` to continue your application and the breakpoint will eventually be hit.
 
-**Note that the `Choose Just-In-Time Debugger` window will pop-up for each task. Therefore, make sure to set the number of exectuors to a low number. For example, you can use `--master local[1]` option for `spark-submit`.**
+**Note that the `Choose Just-In-Time Debugger` window will pop-up for each task. Therefore, make sure to set the number of executors to a low number. For example, you can use `--master local[1]` option for `spark-submit` to set the number of tasks to 1, and hence launching a single debugger instance.**
 
 ### Debugging Scala code
 
