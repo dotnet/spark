@@ -12,7 +12,7 @@ DATA_PATH=$9
 NUM_ITERATION=${10}
 IS_SQL=${11}
 
-for i in {1..22} 1a 8a 1ha 8ha
+for i in {1..22} #1a 8a 1ha 8ha ----> Remove the comment to run Arrow and hardware acceleration based queries
 do
   for j in $(seq 1 $COLD_ITERATION)
   do
