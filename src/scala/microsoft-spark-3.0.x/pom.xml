@@ -6,13 +6,13 @@
     <artifactId>microsoft-spark</artifactId>
     <version>0.6.0</version>
   </parent>
-  <artifactId>microsoft-spark-2.3.x</artifactId>
+  <artifactId>microsoft-spark-3.0.x</artifactId>
   <inceptionYear>2019</inceptionYear>
   <properties>
     <encoding>UTF-8</encoding>
-    <scala.version>2.11.8</scala.version>
-    <scala.binary.version>2.11</scala.binary.version>
-    <spark.version>2.3.4</spark.version>
+    <scala.version>2.12.8</scala.version>
+    <scala.binary.version>2.12</scala.binary.version>
+    <spark.version>3.0.0-SNAPSHOT</spark.version>
   </properties>
 
   <dependencies>
@@ -74,4 +74,14 @@
       </plugin>
     </plugins>
   </build>
+
+  <repositories>
+    <repository>
+      <id>Apache Spark snapshot repository</id>
+      <url>https://repository.apache.org/content/repositories/snapshots</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 </project>

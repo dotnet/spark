@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Extensions.Delta.Tables
 {
@@ -21,12 +22,68 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     {
         private readonly JvmObjectReference _jvmObject;
 
+        private static readonly string s_deltaTableClassName = "io.delta.tables.DeltaTable";
+
         internal DeltaTable(JvmObjectReference jvmObject)
         {
             _jvmObject = jvmObject;
         }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+
+        /// <summary>
+        /// Create a DeltaTable from the given parquet table and partition schema.
+        /// Takes an existing parquet table and constructs a delta transaction log in the base path
+        /// of that table.
+        ///
+        /// Note: Any changes to the table during the conversion process may not result in a
+        /// consistent state at the end of the conversion. Users should stop any changes to the
+        /// table before the conversion is started.
+        ///
+        /// An example usage would be
+        /// <code>
+        /// DeltaTable.ConvertToDelta(spark, "parquet.`/path`", "key1 long, key2 string")
+        /// </code>
+        /// </summary>
+        /// <param name="spark">The relevant session.</param>
+        /// <param name="identifier">String used to identify the parquet table.</param>
+        /// <param name="partitionSchema">String representing the partition schema.</param>
+        /// <returns>The converted DeltaTable.</returns>
+        public static DeltaTable ConvertToDelta(
+            SparkSession spark,
+            string identifier,
+            string partitionSchema) =>
+            new DeltaTable(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                s_deltaTableClassName,
+                "convertToDelta",
+                spark,
+                identifier,
+                partitionSchema));
+
+        /// <summary>
+        /// Create a DeltaTable from the given parquet table. Takes an existing parquet table and
+        /// constructs a delta transaction log in the base path of the table.
+        ///
+        /// Note: Any changes to the table during the conversion process may not result in a
+        /// consistent state at the end of the conversion. Users should stop any changes to the
+        /// table before the conversion is started.
+        ///
+        /// An example would be
+        /// <code>
+        /// DeltaTable.ConvertToDelta(spark, "parquet.`/path`")
+        /// </code>
+        /// </summary>
+        /// <param name="spark">The relevant session.</param>
+        /// <param name="identifier">String used to identify the parquet table.</param>
+        /// <returns>The converted DeltaTable.</returns>
+        public static DeltaTable ConvertToDelta(SparkSession spark, string identifier) =>
+            new DeltaTable(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                s_deltaTableClassName,
+                "convertToDelta",
+                spark,
+                identifier));
 
         /// <summary>
         /// Create a DeltaTable for the data at the given <c>path</c>.
@@ -40,7 +97,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         public static DeltaTable ForPath(string path) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "io.delta.tables.DeltaTable",
+                s_deltaTableClassName,
                 "forPath",
                 path));
 
@@ -54,10 +111,50 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         public static DeltaTable ForPath(SparkSession sparkSession, string path) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "io.delta.tables.DeltaTable",
+                s_deltaTableClassName,
                 "forPath",
                 sparkSession,
                 path));
+
+        /// <summary>
+        /// Check if the provided <c>identifier</c> string, in this case a file path,
+        /// is the root of a Delta table using the given SparkSession.
+        ///
+        /// An example would be
+        /// <code>
+        ///   DeltaTable.IsDeltaTable(spark, "path/to/table")
+        /// </code>
+        /// </summary>
+        /// <param name="sparkSession">The relevant session.</param>
+        /// <param name="identifier">String that identifies the table, e.g. path to table.</param>
+        /// <returns>True if the table is a DeltaTable.</returns>
+        public static bool IsDeltaTable(SparkSession sparkSession, string identifier) =>
+            (bool)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                s_deltaTableClassName,
+                "isDeltaTable",
+                sparkSession,
+                identifier);
+
+        /// <summary>
+        /// Check if the provided <c>identifier</c> string, in this case a file path,
+        /// is the root of a Delta table.
+        ///
+        /// Note: This uses the active SparkSession in the current thread to search for the table.
+        /// Hence, this throws error if active SparkSession has not been set, that is,
+        /// <c>SparkSession.GetActiveSession()</c> is empty.
+        ///
+        /// An example would be
+        /// <code>
+        ///   DeltaTable.IsDeltaTable(spark, "/path/to/table")
+        /// </code>
+        /// </summary>
+        /// <param name="identifier">String that identifies the table, e.g. path to table.</param>
+        /// <returns>True if the table is a DeltaTable.</returns>
+        public static bool IsDeltaTable(string identifier) =>
+            (bool)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                s_deltaTableClassName,
+                "isDeltaTable",
+                identifier);
 
         /// <summary>
         /// Apply an alias to the DeltaTable. This is similar to <c>Dataset.As(alias)</c> or SQL
@@ -67,6 +164,15 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <returns>Aliased DeltaTable.</returns>
         public DeltaTable As(string alias) =>
             new DeltaTable((JvmObjectReference)_jvmObject.Invoke("as", alias));
+
+        /// <summary>
+        /// Apply an alias to the DeltaTable. This is similar to <c>Dataset.as(alias)</c>
+        /// or SQL <c>tableName AS alias</c>.
+        /// </summary>
+        /// <param name="alias">The table alias.</param>
+        /// <returns>Aliased DeltaTable.</returns>
+        public DeltaTable Alias(string alias) =>
+            new DeltaTable((JvmObjectReference)_jvmObject.Invoke("alias", alias));
 
         /// <summary>
         /// Get a DataFrame (that is, Dataset[Row]) representation of this Delta table.
@@ -91,7 +197,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// for maintaining older versions up to the given retention threshold. This method will
         /// return an empty DataFrame on successful completion.
         /// 
-        /// Note: This will use the default retention period of 7 hours.
+        /// Note: This will use the default retention period of 7 days.
         /// </summary>
         /// <returns>Vacuumed DataFrame.</returns>
         public DataFrame Vacuum() =>
@@ -207,16 +313,16 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
 
         /// <summary>
         /// Merge data from the <c>source</c> DataFrame based on the given merge <c>condition</c>.
-        /// This class returns a <c>DeltaMergeBuilder</c> object that can be used to specify the
+        /// This returns a <c>DeltaMergeBuilder</c> object that can be used to specify the
         /// update, delete, or insert actions to be performed on rows based on whether the rows
         /// matched the condition or not.
         ///
         /// See the <see cref="DeltaMergeBuilder"/> for a full description of this operation and
-        /// what combination update, delete and insert operations are allowed.
+        /// what combinations of update, delete and insert operations are allowed.
         /// </summary>
         /// <example>
-        /// See the <c>DeltaMergeBuilder</c> for a full description of this operation and what combination
-        /// update, delete and insert operations are allowed.
+        /// See the <c>DeltaMergeBuilder</c> for a full description of this operation and what
+        /// combinations of update, delete and insert operations are allowed.
         ///
         /// Example to update a key-value Delta table with new key-values from a source DataFrame:
         /// <code>
@@ -256,7 +362,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// matched the condition or not.
         ///
         /// See the <see cref="DeltaMergeBuilder"/> for a full description of this operation and
-        /// what combination update, delete and insert operations are allowed.
+        /// what combinations of update, delete and insert operations are allowed.
         /// </summary>
         /// <example>
         /// Example to update a key-value Delta table with new key-values from a source DataFrame:
