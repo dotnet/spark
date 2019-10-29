@@ -211,7 +211,7 @@ Once you build the samples, running them will be through `spark-submit` regardle
      ```
 
      Here are some examples you can run:
-     - **[Microsoft.Spark.Examples.Sql.Basic](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Basic.cs)**
+     - **[Microsoft.Spark.Examples.Sql.Batch.Basic](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Basic.cs)**
          ```powershell
          spark-submit.cmd `
          --class org.apache.spark.deploy.dotnet.DotnetRunner `
