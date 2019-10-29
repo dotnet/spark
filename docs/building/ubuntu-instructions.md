@@ -179,7 +179,7 @@ Once you build the samples, you can use `spark-submit` to submit your .NET Core 
      ```
 
      Here are some examples you can run:
-     - **[Microsoft.Spark.Examples.Sql.Batch.Basic](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Basic.cs)**
+     - **[Microsoft.Spark.Examples.Sql.Batch.Basic](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Batch/Basic.cs)**
          ```bash
          spark-submit \
          --class org.apache.spark.deploy.dotnet.DotnetRunner \
