@@ -19,15 +19,15 @@ an open source and cross-platform machine learning framework.
     <td align="middle" colspan="2"><b>Batch Processing</td>
   </tr>
   <tr>
-  <td align="middle"><a href="Sql/Basic.cs"><b>Basic.cs</a></b><br>A simple example demonstrating basic Spark SQL features.<br></td>
-  <td align="middle"><a href="Sql/Datasource.cs"><b>Datasource.cs</a></b><br>Example demonstrating reading from various data sources.<br></td>
+  <td align="middle"><a href="Sql/Batch/Basic.cs"><b>Basic.cs</a></b><br>A simple example demonstrating basic Spark SQL features.<br></td>
+  <td align="middle"><a href="Sql/Batch/Datasource.cs"><b>Datasource.cs</a></b><br>Example demonstrating reading from various data sources.<br></td>
   </tr>
   <tr>
     <td align="middle"><a href="Sql/Batch/GitHubProjects.cs"><b>GitHubProjects.cs</a></b><br>Example analyzing GitHub projects data.<br></td>
     <td align="middle"><a href="Sql/Batch/Logging.cs"><b>Logging.cs</a></b><br>Example demonstrating log processing.<br></td>
   </tr>
   <tr>
-    <td align="middle"><a href="Sql/VectorUdfs.cs"><b>VectorUdfs.cs</a></b><br>Example using vectorized UDFs to improve query performance.<br></td>
+    <td align="middle"><a href="Sql/Batch/VectorUdfs.cs"><b>VectorUdfs.cs</a></b><br>Example using vectorized UDFs to improve query performance.<br></td>
   </tr>
 </table>
 
