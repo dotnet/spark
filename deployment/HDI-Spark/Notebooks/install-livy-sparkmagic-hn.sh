@@ -24,11 +24,10 @@ sudo cp livy_jar/rsc-jars/* /usr/hdp/current/livy2-server/rsc-jars/
 # Update SparkMagic
 #
 
-sudo wget https://ruinliureplhdistorage.blob.core.windows.net/ruinliurepl/config.json -O config.json
-sudo cp config.json /home/spark/.sparkmagic/
-
 sudo wget https://ruinliureplhdistorage.blob.core.windows.net/ruinliurepl/sparkmagic.zip -O sparkmagic.zip
 sudo unzip sparkmagic.zip
+
+sudo cp sparkmagic/config.json /home/spark/.sparkmagic/
 
 sudo cp sparkmagic/livyclientlib/command.py /usr/bin/anaconda/lib/python2.7/site-packages/sparkmagic/livyclientlib/command.py
 sudo cp sparkmagic/livyclientlib/livysession.py /usr/bin/anaconda/lib/python2.7/site-packages/sparkmagic/livyclientlib/livysession.py
