@@ -58,7 +58,7 @@ Checkout the directions for building and running this app on [Windows](../../../
 #### Windows Example:
 
 ```CSharp
-spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local C:\GitHub\spark\src\scala\microsoft-spark-2.4.x\target\microsoft-spark-2.4.x-0.5.0.jar Microsoft.Spark.CSharp.Examples.exe Batch.GitHubProjects %SPARK_HOME%\examples\src\main\resources\projects_smaller.csv
+spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local C:\GitHub\spark\src\scala\microsoft-spark-2.4.x\target\microsoft-spark-2.4.x-0.6.0.jar Microsoft.Spark.CSharp.Examples.exe Sql.Batch.GitHubProjects %SPARK_HOME%\examples\src\main\resources\projects_smaller.csv
 ```
 
 **Note:** The above command assumes your GitHub projects data is stored in **projects_smaller.csv** and you have moved this file
