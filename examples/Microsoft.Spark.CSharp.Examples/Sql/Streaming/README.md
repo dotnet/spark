@@ -7,10 +7,7 @@ In the **Streaming** folder, we provide C# samples which will help you get start
 
 ## Problem
 
-In StructuredLogProcessing.cs specifically, the goal is to determine if incoming content is a valid log entry. We'll be using the access log format found in the [Apache Unix Log Samples](http://www.monitorware.com/en/logsamples/apache.php). 
-
-This sample is an example of **stream processing** since we're processing data in real time, and **log processing** as it
-involves gaining insights from a file of log entries.
+These samples are examples of **stream processing** since we're processing data in real time.
 
 ## Solution
 
@@ -22,7 +19,7 @@ DataFrame API.
 ```CSharp
 SparkSession spark = SparkSession
        .Builder()
-       .AppName("StructuredLogProcessing")
+       .AppName("My Streaming App")
        .GetOrCreate();
 ```
 
@@ -69,8 +66,6 @@ spark.Udf().Register<string, bool>("MyUDF", input => ValidLogTest(input));
 
 In the above code snippet, we register a UDF that will pass each log entry it receives to the method *ValidLogTest.*
 
-ValidLogTest compares the log entry to a [regular expression](https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference) (commonly known as a "regex"). We use regular expressions in our UDFs in log processing to gain meaningful insights and patterns from our log data. 
-
 ### 4. Use Spark SQL
 
 Next, we'll use Spark SQL to make SQL calls on our data. It's common to combine UDFs and Spark SQL so that we can apply a UDF to each 
@@ -98,6 +93,18 @@ When you run your program, the command prompt where we established the netcat wi
 In our example, when you hit *enter* after entering data in the command prompt, Spark will consider that a batch and run the UDF. 
 
 ![StreamingOutput](https://github.com/bamurtaugh/spark/blob/StreamingLog/examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/streamingnc.PNG)
+
+Checkout the directions for building and running this app on [Windows](../../../../../docs/building/windows-instructions.md) or [Ubuntu](../../../../../docs/building/ubuntu-instructions.md).
+
+#### Windows Example:
+
+After starting a new netcat session, open a new terminal and run your spark-submit command, similar to the following:
+
+```CSharp
+spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local C:\GitHub\spark\src\scala\microsoft-spark-2.4.x\target\microsoft-spark-2.4.x-0.6.0.jar Microsoft.Spark.CSharp.Examples.exe Sql.Streaming.StructuredNetworkWordCount localhost 9999
+```
+
+**Note:** The above command assumes your netcat server is running on localhost port 9999.
 
 ## Additional Resources
 
