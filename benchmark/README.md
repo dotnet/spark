@@ -67,11 +67,10 @@ TPCH timing results is written to stdout in the following form: `TPCH_Result,<la
 1. Upload [run_python_benchmark.sh](run_python_benchmark.sh) and all [python tpch benchmark](python/) files to the cluster.
 2. Install pyarrow and pandas on all nodes in the cluster. For example, if you are using Conda, you can use the following commands to install them.
     ```shell
-    export PATH=$PATH:/usr/bin/anaconda/bin
-    sudo chown -R sshuser /usr/bin/anaconda
-    conda update --all
-    conda install pandas
-    conda install pyarrow
+    export PATH=$PATH:/usr/bin/anaconda/bin    
+    sudo conda update --all
+    sudo conda install pandas
+    sudo conda install pyarrow
     ```
 3. Run the benchmark by invoking:
     ```shell
