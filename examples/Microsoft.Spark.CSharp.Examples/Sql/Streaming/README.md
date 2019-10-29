@@ -94,7 +94,7 @@ In our example, when you hit *enter* after entering data in the command prompt, 
 
 ![StreamingOutput](https://github.com/bamurtaugh/spark/blob/StreamingLog/examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/streamingnc.PNG)
 
-Checkout the directions for building and running this app on [Windows](../../../../../docs/building/windows-instructions.md) or [Ubuntu](../../../../../docs/building/ubuntu-instructions.md).
+Checkout the directions for building and running this app on [Windows](../../../../../../docs/building/windows-instructions.md) or [Ubuntu](../../../../../../docs/building/ubuntu-instructions.md).
 
 #### Windows Example:
 
