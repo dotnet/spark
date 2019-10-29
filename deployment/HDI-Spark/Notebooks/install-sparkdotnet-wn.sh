@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# SparkDotNet 0.5.0 installation script for HDI Spark Clusters.
+# SparkDotNet installation script for HDI Spark Clusters.
 #
 
 set +e
@@ -11,6 +11,9 @@ set +e
 #
 # Install SparkDotNet
 #
+
+SPARK_DOTNET_VERSION=$1
+
 sudo dpkg --purge --force-all packages-microsoft-prod
 sudo wget -q https://packages.microsoft.com/config/ubuntu/`lsb_release -rs`/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
@@ -24,21 +27,21 @@ sudo dotnet tool install dotnet-script --tool-path /usr/share/dotnet-tools --ver
 sudo dotnet tool install dotnet-try --add-source https://dotnet.myget.org/F/dotnet-try/api/v3/index.json --tool-path /usr/share/dotnet-tools --version 1.0.19473.13
 
 # copy .NET for Apache Spark jar to SPARK's jar folder
-sudo wget https://ruinliureplhdistorage.blob.core.windows.net/ruinliurepl/microsoft-spark-2.4.x-0.5.0.jar -O microsoft-spark-2.4.x-0.5.0.jar
-sudo install --verbose --mode 644 microsoft-spark-2.4.x-0.5.0.jar /usr/hdp/current/spark2-client/jars/microsoft-spark-2.4.x-0.5.0.jar
+sudo wget "https://ruinliureplhdistorage.blob.core.windows.net/ruinliurepl/microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar" -O "microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar"
+sudo install --verbose --mode 644 "microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar" "/usr/hdp/current/spark2-client/jars/microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar"
 
 # cleanup unneeded packages
 sudo apt-get autoremove -yq
 
 # Remove the prod deb file and temporary jar file.
 sudo rm packages-microsoft-prod.deb
-sudo rm microsoft-spark-2.4.x-0.5.0.jar
+sudo rm "microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar"
 
 #
 # Install Microsoft.Spark.Worker
 #
 # Path where packaged worker file (tgz) exists.
-SRC_WORKER_PATH_OR_URI=https://github.com/dotnet/spark/releases/download/v0.5.0/Microsoft.Spark.Worker.netcoreapp2.1.linux-x64-0.5.0.tar.gz
+SRC_WORKER_PATH_OR_URI="https://github.com/dotnet/spark/releases/download/v${SPARK_DOTNET_VERSION}/Microsoft.Spark.Worker.netcoreapp2.1.linux-x64-${SPARK_DOTNET_VERSION}.tar.gz"
 
 # The path on the executor nodes where Microsoft.Spark.Worker executable is installed.
 WORKER_INSTALLATION_PATH=/usr/local/bin
