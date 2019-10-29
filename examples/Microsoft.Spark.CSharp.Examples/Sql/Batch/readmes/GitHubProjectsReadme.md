@@ -53,7 +53,7 @@ We can specifically call `spark.Sql` to mimic standard SQL calls seen in other t
 
 ### 5. Running Your App
 
-Checkout the directions for building and running this app on [Windows](../../../../docs/building/windows-instructions.md) or [Ubuntu](../../../../docs/building/ubuntu-instructions.md).
+Checkout the directions for building and running this app on [Windows](../../../../../docs/building/windows-instructions.md) or [Ubuntu](../../../../../docs/building/ubuntu-instructions.md).
 
 #### Windows Example:
 
