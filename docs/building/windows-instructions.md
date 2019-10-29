@@ -211,13 +211,13 @@ Once you build the samples, running them will be through `spark-submit` regardle
      ```
 
      Here are some examples you can run:
-     - **[Microsoft.Spark.Examples.Sql.Batch.Basic](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Basic.cs)**
+     - **[Microsoft.Spark.Examples.Sql.Batch.Basic](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Batch/Basic.cs)**
          ```powershell
          spark-submit.cmd `
          --class org.apache.spark.deploy.dotnet.DotnetRunner `
          --master local `
          C:\github\dotnet-spark\src\scala\microsoft-spark-2.3.x\target\microsoft-spark-2.3.x-0.6.0.jar `
-         Microsoft.Spark.CSharp.Examples.exe Sql.Basic %SPARK_HOME%\examples\src\main\resources\people.json
+         Microsoft.Spark.CSharp.Examples.exe Sql.Batch.Basic %SPARK_HOME%\examples\src\main\resources\people.json
          ```
      - **[Microsoft.Spark.Examples.Sql.Streaming.StructuredNetworkWordCount](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.cs)**
          ```powershell
