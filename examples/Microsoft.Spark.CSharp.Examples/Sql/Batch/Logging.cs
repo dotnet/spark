@@ -128,7 +128,6 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             {
                 return Regex.IsMatch(logLine, "\\b(?=spam)\\b");
             }
-
             else
             {
                 return Regex.IsMatch(logLine, s_apacheRx);
