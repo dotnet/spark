@@ -593,6 +593,16 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Returns a column with the....?.
+        /// </summary>
+        /// <param name="colObject">Column object to apply</param>
+        /// <returns>Column object</returns>
+        public Column Apply(object colObject)
+        {
+            return Apply("apply", colObject);
+        }
+
+        /// <summary>
         /// Gives the column a name (alias).
         /// </summary>
         /// <param name="alias">Alias column name</param>
