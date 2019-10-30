@@ -71,12 +71,11 @@ Checkout the directions for building and running this app on [Windows](../../../
 #### Windows Example:
 
 ```CSharp
-spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local C:\GitHub\spark\src\scala\microsoft-spark-2.4.x\target\microsoft-spark-2.4.x-0.6.0.jar Microsoft.Spark.CSharp.Examples.exe Sql.Batch.Logging %SPARK_HOME%\examples\src\main\resources\access_log.txt
+spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local C:\GitHub\spark\src\scala\microsoft-spark-2.4.x\target\microsoft-spark-2.4.x-0.6.0.jar Microsoft.Spark.CSharp.Examples.exe Sql.Batch.Logging C:\Users\MyUserName\Documents\access_log.txt
 ```
 
-**Note:** The above command assumes your logging data is stored in **access_log.txt** and you have moved this file
-to the `%SPARK_HOME%\examples\src\main\resources` directory.
-
+**Note:** The above command assumes your logging data is stored in **access_log.txt** and you have this file
+located in the path `C:\Users\MyUserName\Documents`.
 
 ## Next Steps
 
