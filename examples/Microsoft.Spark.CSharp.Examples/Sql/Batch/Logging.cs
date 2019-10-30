@@ -120,7 +120,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
         public static bool RegTest(string logLine, string regexType)
         {
             // Start off with Apache regex
-            string useRx = apacheRx;
+            string useRx = s_apacheRx;
 
             // Which regex to use based on what we're filtering for
             if (regexType == "ipfilter")
@@ -145,7 +145,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             // i.e. first group = first column =  IP
             Match match = Regex.Match(
                 logLine,
-                apacheRx);
+                s_apacheRx);
 
             // Determine if valid log entry is a GET request
             if (match.Success)
