@@ -119,9 +119,6 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
         public static bool RegTest(string logLine, string regexType)
         {
-            // Start off with Apache regex
-            string useRx = s_apacheRx;
-
             // Which regex to use based on what we're filtering for
             if (regexType == "ipfilter")
             {
@@ -134,7 +131,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             else
             {
-                return Regex.IsMatch(logLine, useRx);
+                return Regex.IsMatch(logLine, s_apacheRx);
             }
         }
 
