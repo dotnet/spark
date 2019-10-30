@@ -20,7 +20,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
            64.242.88.10 - - [07/Mar/2004:16:47:12 -0800] "GET /robots.txt HTTP/1.1" 200 68
            1:IP   2:client   3:user   4:date time   5:method   
            6:req   7:proto   8:respcode   9:size */
-        static string apacheRx =
+        static readonly string s_apacheRx =
                 "^(\\S+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(\\S+) (\\S+) (\\S+)\" (\\d{3}) (\\d+)";
 
         public void Run(string[] args)
