@@ -68,7 +68,7 @@ TPCH timing results is written to stdout in the following form: `TPCH_Result,<la
 2. Install pyarrow and pandas on all nodes in the cluster. For example, if you are using Conda, you can use the following commands to install them.
     ```shell
     export PATH=$PATH:/path/to/conda    
-    sudo env "PATH=$PATH" conda update --all
+    sudo /path/to/conda update --all
     sudo env "PATH=$PATH" conda install pandas
     sudo env "PATH=$PATH" conda install pyarrow
     ```
