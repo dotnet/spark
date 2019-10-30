@@ -71,7 +71,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
         }
 
         public static bool DateTest(string date) =>
-            ((DateTime.TryParse(date, out DateTime convertedDate)) 
-            && (convertedDate > s_referenceDate));
+            (DateTime.TryParse(date, out DateTime convertedDate)) 
+            && (convertedDate > s_referenceDate);
     }
 }
