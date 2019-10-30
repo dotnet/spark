@@ -139,9 +139,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             // Use regex matching to group data
             // Each group matches a column in our log schema
             // i.e. first group = first column =  IP
-            Match match = Regex.Match(
-                logLine,
-                s_apacheRx);
+            Match match = Regex.Match(logLine, s_apacheRx);
 
             // Determine if valid log entry is a GET request
             if (match.Success)
