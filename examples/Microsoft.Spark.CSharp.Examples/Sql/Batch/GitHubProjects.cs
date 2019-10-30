@@ -32,12 +32,12 @@ namespace Microsoft.Spark.Examples.Sql.Batch
                 .GetOrCreate();
 
             DataFrame projectsDf = spark
-              .Read()
-              .Schema("id INT, url STRING, owner_id INT, " +
-              "name STRING, descriptor STRING, language STRING, " +
-              "created_at STRING, forked_from INT, deleted STRING, " +
-              "updated_at STRING")
-              .Csv(args[0]);
+                .Read()
+                .Schema("id INT, url STRING, owner_id INT, " +
+                "name STRING, descriptor STRING, language STRING, " +
+                "created_at STRING, forked_from INT, deleted STRING, " +
+                "updated_at STRING")
+                .Csv(args[0]);
 
             projectsDf.Show();
 
