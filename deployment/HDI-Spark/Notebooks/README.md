@@ -1,18 +1,21 @@
-# Deploy SparkDotnet REPL to HDI Spark Cluster with Notebook Experience
+# Deploy SparkDotnet REPL to HDInsight Spark cluster with Notebook Experience
 
 ## Goal
-
 This documentation will elaborate the steps on how to deploy SparkDotnet REPL to HDI Spark Cluster and submit jobs through Jupyter Notebook using SparkDotnet.
 
 ## Background
+We are currently using [dotnet-try](https://github.com/dotnet/try) as our dotnet REPL. ``` dotnet-try ``` can be used as a jupyter kernel and we implement it through [sparkmagic](https://github.com/jupyter-incubator/sparkmagic) and [livy](https://github.com/apache/incubator-livy). To enable Jupyter Notebook Experience using SparkDotnet, this will include simple manual steps through [Ambari](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-manage-ambari) and run [script actions](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-customize-cluster-linux) in HDI Spark Cluster.
 
-We are currently using [dotnet-try](https://github.com/dotnet/try) as our dotnet REPL. ``` dotnet-try ``` can be used as a jupyter kernel and we implement it through [sparkmagic](https://github.com/jupyter-incubator/sparkmagic) and livy. To enable Jupyter Notebook Experience using SparkDotnet, this will include simple manual steps through [Ambari](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-manage-ambari) and [script actions](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-customize-cluster-linux) in HDI Spark Cluster.
-
+## Pre-requisites:
+[Create an HDInsight Spark cluster](https://docs.microsoft.com/en-us/azure/hdinsight/spark/apache-spark-jupyter-spark-sql-use-portal#create-an-hdinsight-spark-cluster).  
+Version: Spark 2.4(HDI 4.0)
+ 
 ## Step
-
+Open the [Azure portal](https://ms.portal.azure.com/#home). Select **HDInsight Spark cluster** you created in the previous step.
 ### 1. Go to Ambari, manually stop Livy Server on head node.
+From the portal, select **Overview**, and then select **Ambari home**. If prompted, enter the cluster login credentials for the cluster.
+Pics to be added here.
 
-Details to be added.
 
 ### 2. Run Script Actions on head node and worker node.
 
