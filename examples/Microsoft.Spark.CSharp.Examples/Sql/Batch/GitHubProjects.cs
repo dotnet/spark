@@ -59,7 +59,8 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             spark.Udf().Register<string, bool>(
                 "MyUDF",
-                (date) => DateTest(date));
+                (date) => DateTime.TryParse(date, out DateTime convertedDate) &&
+                    (convertedDate > s_referenceDate));
 
             cleanedProjects.CreateOrReplaceTempView("dateView");
 
@@ -69,9 +70,5 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             spark.Stop();
         }
-
-        public static bool DateTest(string date) =>
-            (DateTime.TryParse(date, out DateTime convertedDate)) 
-            && (convertedDate > s_referenceDate);
     }
 }
