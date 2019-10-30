@@ -15,7 +15,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
     internal sealed class GitHubProjects : IExample
     {
         // For later use when filtering based on date
-        static DateTime referenceDate = new DateTime(2015, 10, 20);
+        static readonly DateTime s_referenceDate = new DateTime(2015, 10, 20);
 
         public void Run(string[] args)
         {
