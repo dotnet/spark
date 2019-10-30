@@ -12,6 +12,12 @@ have been updated.
 This sample is an example of **batch processing** since we're analyzing data that has already been stored and is not actively growing 
 or changing.
 
+## Dataset
+
+The data used in this example was generated from (GHTorrent)[http://ghtorrent.org/], which monitors all public GitHub events (such as info about projects, commits, and watchers), stores the events and their structure in databases, and then releases data collected over different time periods as downloadable archives. 
+
+The dataset used when creating this sample was (downloaded from the GHTorrent archives)[http://ghtorrent.org/downloads.html]. Specifically, the "projects.csv" file was extracted from one of the latest MySQL dumps. For analysis that only takes a few seconds in demos, projects.csv was shortened to only a few GB, and thus the dataset is called "projects_smaller.csv" throughout this sample.
+
 ## Solution
 
 Let's explore how we can use Spark to tackle this problem.
