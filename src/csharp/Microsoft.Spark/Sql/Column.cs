@@ -593,7 +593,7 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
-        /// Returns a column with the....?.
+        /// Returns a column with values modified as per input object.
         /// </summary>
         /// <param name="colObject">Column object to apply</param>
         /// <returns>Column object</returns>
