@@ -70,20 +70,8 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             spark.Stop();
         }
 
-        public static bool DateTest(string date)
-        {
-            DateTime convertedDate;
-
-            // Use TryParse to avoid invalid dates
-            if (DateTime.TryParse(date, out convertedDate))
-            {
-                // Determine if convertedDate (from file) later than 10/20/15
-                return convertedDate > referenceDate;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        public static bool DateTest(string date) =>
+            ((DateTime.TryParse(date, out DateTime convertedDate)) 
+            && (convertedDate > s_referenceDate));
     }
 }
