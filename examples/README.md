@@ -5,7 +5,7 @@
 In the **examples** folder, we provide samples which will help you get started with .NET for Apache Spark
 and demonstrate how to infuse big data analytics into existing and new .NET apps. 
 
-There are two broader categories of .NET for Apache Spark samples:
+There are two broad categories of .NET for Apache Spark samples:
 
 * **[Microsoft.Spark.CSharp.Examples](Microsoft.Spark.CSharp.Examples):** Sample C# .NET for Apache Spark apps.
 
