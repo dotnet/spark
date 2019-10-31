@@ -13,8 +13,7 @@ These samples are examples of **stream processing** since we're processing data 
 
 ### 1. Create a Spark Session
 
-In any Spark application, we need to establish a new SparkSession, which is the entry point to programming Spark with the Dataset and 
-DataFrame API.
+In any Spark application, we need to establish a new `SparkSession`, which is the entry point to programming Spark with the Dataset and DataFrame API.
 
 ```CSharp
 SparkSession spark = SparkSession
@@ -45,7 +44,7 @@ Our Spark program will be listening for input we type into this command prompt.
 
 #### Connect to Stream: ReadStream()
 
-The ```ReadStream()``` method returns a DataStreamReader that can be used to read streaming data in as a DataFrame. We'll include the host and port information so that our Spark app knows where to expect its streaming data.
+The `ReadStream()` method returns a `DataStreamReader` that can be used to read streaming data in as a `DataFrame`. We'll include the host and port information so that our Spark app knows where to expect its streaming data.
 
 ```CSharp
 DataFrame words = spark
@@ -77,7 +76,7 @@ DataFrame sqlDf = spark.Sql("SELECT WordsEdit.value, MyUDF(WordsEdit.value) FROM
 
 ### 5. Display Your Stream
 
-We can use ```DataFrame.WriteStream()``` to establish characteristics of our output, such as printing our results to the console and only displaying the most recent output and not all of our previous output as well. 
+We can use `DataFrame.WriteStream()` to establish characteristics of our output, such as printing our results to the console and only displaying the most recent output and not all of our previous output as well. 
 
 ```CSharp
 var query = sqlDf
@@ -98,7 +97,7 @@ Checkout the directions for building and running this app on [Windows](../../../
 
 #### Windows Example:
 
-After starting a new netcat session, open a new terminal and run your spark-submit command, similar to the following:
+After starting a new netcat session, open a new terminal and run your `spark-submit` command, similar to the following:
 
 ```CSharp
 spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local C:\GitHub\spark\src\scala\microsoft-spark-2.4.x\target\microsoft-spark-2.4.x-0.6.0.jar Microsoft.Spark.CSharp.Examples.exe Sql.Streaming.StructuredNetworkWordCount localhost 9999
