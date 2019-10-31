@@ -83,7 +83,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             // with 10 and deal with spam
             spark.Udf().Register<string, string, bool>(
                 "SpamRegEx",
-                (log, type) => RegTest(log, type));
+                (log, type) => Regex.IsMatch(log, "\\b(?=spam)\\b"));
 
             ipDf.CreateOrReplaceTempView("SpamLogs");
 
