@@ -109,7 +109,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             foreach (Row row in rows)
             {
                 string rowstring = row.ToString();
-                numGetRequests += ParseLog(rowstring);
+                numGetRequests += ContainsGet(rowstring) ? 1 : 0;
             }
 
             Console.WriteLine("Number of GET requests: " + numGetRequests);
@@ -132,11 +132,11 @@ namespace Microsoft.Spark.Examples.Sql.Batch
                 // 5th column/group in schema is "method"
                 if (match.Groups[5].Value == "GET")
                 {
-                    return 1;
+                    return true;
                 }
             }
 
-            return 0;
+            return false;
         }
     }
 }
