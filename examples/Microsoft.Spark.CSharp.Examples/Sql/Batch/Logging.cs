@@ -65,7 +65,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             // Step 2: Choose valid log entries that start with 10
             spark.Udf().Register<string, string, bool>(
                 "IPReg",
-                (log, type) => RegTest(log, type));
+                (log, type) => Regex.IsMatch(log, "^(?=10)"));
 
             generalDf.CreateOrReplaceTempView("IPLogs");
 
