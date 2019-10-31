@@ -64,7 +64,7 @@ Checkout the directions for building and running this app on [Windows](../../../
 #### Windows Example:
 
 ```powershell
-spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local <path/to/microsoft-spark-<version>.jar> Microsoft.Spark.CSharp.Examples.exe Sql.Batch.GitHubProjects </path/to/projects_smaller.csv>
+spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local /path/to/microsoft-spark-<version>.jar Microsoft.Spark.CSharp.Examples.exe Sql.Batch.GitHubProjects /path/to/projects_smaller.csv
 ```
 
 **Note:** Be sure to update the above command with the actual paths to your Microsoft Spark jar file and **projects_smaller.csv**.
