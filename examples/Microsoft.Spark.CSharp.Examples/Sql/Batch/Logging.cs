@@ -117,7 +117,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             spark.Stop();
         }
 
-        public static int ParseLog(string logLine)
+        public static bool ContainsGet(string logLine)
         {
             // Use regex matching to group data
             // Each group matches a column in our log schema
