@@ -87,7 +87,7 @@ Spark.Sql.Streaming.StreamingQuery query = sqlDf
 
 ### 6. Running Your Code
 
-Structured streaming in Spark processes data through a series of small **batches**. 
+Structured streaming in Spark processes data through a series of small **batches.** 
 When you run your program, the command prompt where we established the netcat will allow you to start typing.
 In our example, when you hit *enter* after entering data in the command prompt, Spark will consider that a batch and run the UDF. 
 
