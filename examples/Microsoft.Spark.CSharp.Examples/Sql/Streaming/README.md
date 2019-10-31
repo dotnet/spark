@@ -79,7 +79,7 @@ DataFrame sqlDf = spark.Sql("SELECT WordsEdit.value, MyUDF(WordsEdit.value) FROM
 We can use `DataFrame.WriteStream()` to establish characteristics of our output, such as printing our results to the console and only displaying the most recent output and not all of our previous output as well. 
 
 ```CSharp
-var query = sqlDf
+Spark.Sql.Streaming.StreamingQuery query = sqlDf
       .WriteStream()
       .Format("console")
       .Start();
