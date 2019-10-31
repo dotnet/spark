@@ -63,7 +63,7 @@ Checkout the directions for building and running this app on [Windows](../../../
 
 #### Windows Example:
 
-```CSharp
+```powershell
 spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local <path/to/microsoft-spark-<version>.jar> Microsoft.Spark.CSharp.Examples.exe Sql.Batch.GitHubProjects </path/to/projects_smaller.csv>
 ```
 
