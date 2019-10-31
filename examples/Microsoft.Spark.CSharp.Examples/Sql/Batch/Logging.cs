@@ -117,23 +117,6 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             spark.Stop();
         }
 
-        public static bool RegTest(string logLine, string regexType)
-        {
-            // Which regex to use based on what we're filtering for
-            if (regexType == "ipfilter")
-            {
-                return Regex.IsMatch(logLine, "^(?=10)");
-            }
-            else if (regexType == "spamfilter")
-            {
-                return Regex.IsMatch(logLine, "\\b(?=spam)\\b");
-            }
-            else
-            {
-                return Regex.IsMatch(logLine, s_apacheRx);
-            }
-        }
-
         public static int ParseLog(string logLine)
         {
             // Use regex matching to group data
