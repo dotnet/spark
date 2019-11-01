@@ -50,7 +50,6 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             df.CreateOrReplaceTempView("Logs");
 
             // Apply the UDF to get valid log entries
-            // We end up creating a new column "GeneralReg(value)"
             DataFrame generalDf = spark.Sql(
                 "SELECT logs.value, GeneralReg(logs.value) FROM Logs");
 
@@ -59,6 +58,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             generalDf.Show();
 
             // View the resulting schema
+            // Notice we created a new column "GeneralReg(value)"
             generalDf.PrintSchema();
 
             // Step 2: Choose valid log entries that start with 10
@@ -68,12 +68,11 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             generalDf.CreateOrReplaceTempView("IPLogs");
 
-            // Apply UDF to get valid log entries start with 10
+            // Apply UDF to get valid log entries starting with 10
+            // Used SQL "WHERE" rather than doing ipDf.Filter(),
+            // which avoided creating an extra column "IPReg(value)"
             DataFrame ipDf = spark.Sql(
-                "SELECT iplogs.value, IPReg(iplogs.value) FROM IPLogs");
-
-            // Only keep log entries that matched both reg ex
-            ipDf = ipDf.Filter(ipDf["IPReg(value)"]);
+                "SELECT iplogs.value FROM IPLogs WHERE IPReg(iplogs.value)");
             ipDf.Show();
 
             // Step 3: Choose valid log entries that start 
