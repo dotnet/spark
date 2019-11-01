@@ -29,8 +29,8 @@ DataFrame API.
 ```CSharp
 SparkSession spark = SparkSession
     .Builder()
-                .AppName("Apache User Log Processing")
-                .GetOrCreate();
+    .AppName("Apache User Log Processing")
+    .GetOrCreate();
 ```
 
 By calling on the *spark* object created above, we can access Spark and DataFrame functionality throughout our program.
