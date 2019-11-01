@@ -43,7 +43,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             // Step 1: UDF to determine if each line is a valid log entry
             // Remove any invalid entries before further filtering
-            spark.Udf().Register<string, string, bool>(
+            spark.Udf().Register<string, bool>(
                 "GeneralReg",
                 log => Regex.IsMatch(log, s_apacheRx));
 
