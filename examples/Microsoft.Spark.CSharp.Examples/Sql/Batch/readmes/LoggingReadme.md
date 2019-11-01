@@ -5,12 +5,17 @@ to analyze a log file. In the world of big data, this is known as **log processi
 
 ## Problem
 
-Our goal here is to determine if strings in a file are complete log entries and to then analyze their contents. We'll be analyzing the 
-[Apache Unix Log Samples](http://www.monitorware.com/en/logsamples/apache.php). The zip file contains both access logs and error logs, 
-and this sample is tailored for the access logs.
+Our goal here is to determine if strings in a file are complete log entries and to then analyze their contents.
 
 This sample is an example of **batch processing** since we're analyzing data that has already been stored and is not actively growing 
 or changing.
+
+## Dataset
+
+We'll be analyzing 
+[Apache Log Samples](https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/apache_logs/apache_logs). Logs give us information about how users are interacting with various content on a server. Logs are divided into two categories: access logs and error logs, and this coding example is tailored for the access logs.
+
+You can read more about Apache log files [here](https://httpd.apache.org/docs/1.3/logs.html).
 
 ## Solution
 
