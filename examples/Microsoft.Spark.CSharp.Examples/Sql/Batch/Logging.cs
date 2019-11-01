@@ -50,6 +50,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             df.CreateOrReplaceTempView("Logs");
 
             // Apply the UDF to get valid log entries
+            // We end up creating a new column "GeneralReg(value)"
             DataFrame generalDf = spark.Sql(
                 "SELECT logs.value, GeneralReg(logs.value) FROM Logs");
 
