@@ -603,11 +603,11 @@ namespace Microsoft.Spark.Sql
         /// of every struct in that array, and return an Array of fields.
         ///
         /// </summary>
-        /// <param name="mappingObject">Object to use to map the values on returning Column object </param>
+        /// <param name="extraction">Object used to extract value(s) from the column</param>
         /// <returns>Column object</returns>
-        public Column Apply(object mappingObject)
+        public Column Apply(object extraction)
         {
-            return ApplyMethod("apply", mappingObject);
+            return ApplyMethod("apply", extraction);
         }
 
         /// <summary>
