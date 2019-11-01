@@ -60,7 +60,7 @@ We use regular expressions to gain meaningful insights from patterns in our log 
 
 ```CSharp
 static readonly string s_apacheRx =
-                "^(\\S+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(\\S+) (\\S+) (\\S+)\" (\\d{3}) (\\d+)";
+    "^(\\S+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(\\S+) (\\S+) (\\S+)\" (\\d{3}) (\\d+)";
 ```
 
 ### 4. Use Spark SQL
