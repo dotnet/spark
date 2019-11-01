@@ -71,8 +71,6 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             DataFrame ipDf = spark.Sql(
                 "SELECT iplogs.value, IPReg(iplogs.value, 'ipfilter') FROM IPLogs");
 
-            ipDf.Show();
-
             // Only keep log entries that matched both reg ex
             ipDf = ipDf.Filter(ipDf["IPReg(value, ipfilter)"] == true);
             ipDf.Show();
