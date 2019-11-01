@@ -20,10 +20,8 @@ sudo dpkg -i packages-microsoft-prod.deb
 sudo add-apt-repository universe
 sudo apt-get -yq install apt-transport-https
 sudo apt-get -yq update
-sudo apt-get -yq install dotnet-sdk-2.2
 sudo apt-get -yq install dotnet-sdk-3.0
 
-sudo dotnet tool install dotnet-script --tool-path /usr/share/dotnet-tools --version 0.29.1
 sudo dotnet tool install dotnet-try --add-source https://dotnet.myget.org/F/dotnet-try/api/v3/index.json --tool-path /usr/share/dotnet-tools --version 1.0.19473.13
 
 # copy .NET for Apache Spark jar to SPARK's jar folder
