@@ -45,7 +45,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             // Remove any invalid entries before further filtering
             spark.Udf().Register<string, string, bool>(
                 "GeneralReg",
-                (log, type) => Regex.IsMatch(log, s_apacheRx));
+                log => Regex.IsMatch(log, s_apacheRx));
 
             df.CreateOrReplaceTempView("Logs");
 
