@@ -37,7 +37,7 @@ By calling on the *spark* object created above, we can access Spark and DataFram
 
 ### 2. Read Input File into a DataFrame
 
-Now that we have an entry point to the Spark API, let's read in our log file. We'll store it in a DataFrame, while is a distributed collection of data organized into named columns.
+Now that we have an entry point to the Spark API, let's read in our log file. We'll store it in a `DataFrame`, which is a distributed collection of data organized into named columns.
 
 ```CSharp
 DataFrame df = spark.Read().Text("Path to input data set");
