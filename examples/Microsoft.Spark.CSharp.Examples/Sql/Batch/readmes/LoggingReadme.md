@@ -72,6 +72,10 @@ rows of our DataFrame.
 DataFrame generalDf = spark.Sql("SELECT logs.value, GeneralReg(logs.value) FROM Logs");
 ```
 
+In the above example, we use Spark SQL to call our *GeneralReg* UDF. This allows us to apply that function to each row of our DataFrame, which means each log entry will be tested.
+
+We can continue on in our app to create additional UDFs and call them through additional SQL commands to continue filtering and determining patterns in our log data.
+
 ### 5. Running Your App
 
 Checkout the directions for building and running this app on [Windows](../../../../../docs/building/windows-instructions.md) or [Ubuntu](../../../../../docs/building/ubuntu-instructions.md).
