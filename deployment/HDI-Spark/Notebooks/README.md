@@ -94,6 +94,7 @@ You will add a total of 4 individual properties. Add them 1 one at a time, all u
 - Property 4:
     - Key:&ensp;&ensp;`spark.dotnet.interpreter`
     - Value: `try`
+
 For example, the following captures the setting for adding property 1:
 
 <img src="../../../docs/img/HDI-Spark-Notebooks/add-sparkconfig.png" alt="SetConfigsImage" width="800"/>
