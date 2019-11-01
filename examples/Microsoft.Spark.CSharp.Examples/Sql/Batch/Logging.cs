@@ -69,8 +69,8 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             generalDf.CreateOrReplaceTempView("IPLogs");
 
             // Apply UDF to get valid log entries starting with 10
-            // Used SQL "WHERE" rather than doing ipDf.Filter(),
-            // which avoided creating an extra column "IPReg(value)"
+            // Use SQL "WHERE" rather than doing ipDf.Filter(),
+            // which avoids creating an extra column "IPReg(value)"
             DataFrame ipDf = spark.Sql(
                 "SELECT iplogs.value FROM IPLogs WHERE IPReg(iplogs.value)");
             ipDf.Show();
