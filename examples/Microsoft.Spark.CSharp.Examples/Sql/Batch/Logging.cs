@@ -93,7 +93,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             int numGetRequests = 0;
             foreach (Row row in rows)
             {
-                string rowstring = row.ToString();
+                string rowstring = row.GetAs<string>("value");
                 numGetRequests += ContainsGet(rowstring) ? 1 : 0;
             }
 
