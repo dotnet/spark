@@ -12,8 +12,8 @@ or changing.
 
 ## Dataset
 
-We'll be analyzing 
-[Apache Log Samples](https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/apache_logs/apache_logs). Logs give us information about how users are interacting with various content on a server. Logs are divided into two categories: access logs and error logs, and this coding example is tailored for the access logs.
+We'll be analyzing a set of
+[Apache log entries](https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/apache_logs/apache_logs). Apache log files give us information about how users are interacting with various content on a server. Logs are divided into two categories: access logs and error logs, and this coding example is tailored for access log files.
 
 You can read more about Apache log files [here](https://httpd.apache.org/docs/1.3/logs.html).
 
