@@ -85,14 +85,11 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             // Apply UDF to get valid, start with 10, spam entries
             DataFrame spamDF = spark.Sql(
-                "SELECT spamlogs.value, SpamRegEx(spamlogs.value) FROM SpamLogs");
-
-            // Only keep log entries that matched all 3 reg ex
-            DataFrame trueSpam = spamDF.Filter(spamDF["SpamRegEx(value)"]);
+                "SELECT spamlogs.value FROM SpamLogs WHERE SpamRegEx(spamlogs.value)");
 
             // Formatting cleanup
             // Use SQL to select just the entries, not boolean about reg ex
-            trueSpam.CreateOrReplaceTempView("TrueSpamLogs");
+            spamDF.CreateOrReplaceTempView("TrueSpamLogs");
             DataFrame trueSpamSql = spark.Sql(
                 "SELECT truespamlogs.value FROM truespamlogs");
 
