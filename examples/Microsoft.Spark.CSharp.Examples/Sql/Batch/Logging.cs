@@ -92,7 +92,8 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             // Use LINQ to count the number of GET requests
             int numGetRequests = spamDF
                 .Collect()
-                .Where(r => ContainsGet(r.GetAs<string>("value"))).Count();
+                .Where(r => ContainsGet(r.GetAs<string>("value")))
+                .Count();
 
             Console.WriteLine("Number of GET requests: " + numGetRequests);
 
