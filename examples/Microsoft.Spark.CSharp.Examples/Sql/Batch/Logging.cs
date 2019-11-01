@@ -87,15 +87,9 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             DataFrame spamDF = spark.Sql(
                 "SELECT spamlogs.value FROM SpamLogs WHERE SpamRegEx(spamlogs.value)");
 
-            // Formatting cleanup
-            // Use SQL to select just the entries, not boolean about reg ex
-            spamDF.CreateOrReplaceTempView("TrueSpamLogs");
-            DataFrame trueSpamSql = spark.Sql(
-                "SELECT truespamlogs.value FROM truespamlogs");
-
             // Explore the columns in the data we have filtered
             // Let's try getting the number of GET requests
-            IEnumerable<Row> rows = trueSpamSql.Collect();
+            IEnumerable<Row> rows = spamDF.Collect();
             int numGetRequests = 0;
             foreach (Row row in rows)
             {
