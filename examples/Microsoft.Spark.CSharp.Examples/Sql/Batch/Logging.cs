@@ -53,8 +53,6 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             DataFrame generalDf = spark.Sql(
                 "SELECT logs.value, GeneralReg(logs.value, 'genfilter') FROM Logs");
 
-            generalDf.Show();
-
             // Only keep log entries that matched the reg ex
             generalDf = generalDf.Filter(generalDf["GeneralReg(value, genfilter)"] == true);
             generalDf.Show();
