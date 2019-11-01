@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
 
@@ -87,15 +88,11 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             DataFrame spamDF = spark.Sql(
                 "SELECT spamlogs.value FROM SpamLogs WHERE SpamRegEx(spamlogs.value)");
 
-            // Explore the columns in the data we have filtered
-            // Let's try getting the number of GET requests
-            IEnumerable<Row> rows = spamDF.Collect();
-            int numGetRequests = 0;
-            foreach (Row row in rows)
-            {
-                string rowstring = row.GetAs<string>("value");
-                numGetRequests += ContainsGet(rowstring) ? 1 : 0;
-            }
+            // Let's explore the columns in the data we have filtered
+            // Use LINQ to count the number of GET requests
+            int numGetRequests = spamDF
+                .Collect()
+                .Where(r => ContainsGet(r.GetAs<string>("value"))).Count();
 
             Console.WriteLine("Number of GET requests: " + numGetRequests);
 
