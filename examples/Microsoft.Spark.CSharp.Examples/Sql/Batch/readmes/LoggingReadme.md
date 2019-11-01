@@ -90,6 +90,4 @@ spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local 
 
 ## Next Steps
 
-View the [full coding example](../Logging.cs) to see an example of reading and analyzing log data. 
-
-While this example is tailored specifically for the Apache access logs, you can try modifying the regular expressions and reading in the Apache error log files to gain further practice with log processing in .NET for Apache Spark.
+View the [full coding example](../Logging.cs) to see an example of reading and analyzing log data.
