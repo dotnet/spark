@@ -87,8 +87,6 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             DataFrame spamDF = spark.Sql(
                 "SELECT spamlogs.value, SpamRegEx(spamlogs.value, 'spamfilter') FROM SpamLogs");
 
-            spamDF.Show();
-
             // Only keep log entries that matched all 3 reg ex
             DataFrame trueSpam = spamDF.Filter(spamDF["SpamRegEx(value, spamfilter)"] == true);
 
