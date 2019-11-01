@@ -128,7 +128,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(col1.AscNullsFirst());
             Assert.IsType<Column>(col1.AscNullsLast());
 
-            //col.Explain(true); -> Do I want to do this on col1 or col2? Or remove this line.
+            col1.Explain(true);
 
             Assert.IsType<Column>(col1.BitwiseOR(col2));
 

@@ -594,20 +594,20 @@ namespace Microsoft.Spark.Sql
 
         /// <summary>
         /// Extracts a value or values from a complex type.
-        ///The following types of extraction are supported:
+        /// The following types of extraction are supported:
         ///
-        ///1. Given an Array, an integer ordinal can be used to retrieve a single value.
-        ///2. Given a Map, a key of the correct type can be used to retrieve an individual value.
-        ///3. Given a Struct, a string fieldName can be used to extract that field.
-        ///4. Given an Array of Structs, a string fieldName can be used to extract field
-        ///of every struct in that array, and return an Array of fields.
+        /// 1. Given an Array, an integer ordinal can be used to retrieve a single value.
+        /// 2. Given a Map, a key of the correct type can be used to retrieve an individual value.
+        /// 3. Given a Struct, a string fieldName can be used to extract that field.
+        /// 4. Given an Array of Structs, a string fieldName can be used to extract field
+        /// of every struct in that array, and return an Array of fields.
         ///
         /// </summary>
-        /// <param name="Obj">object to apply</param>
+        /// <param name="mappingObject">Object to use to map the values on returning Column object </param>
         /// <returns>Column object</returns>
-        public Column Apply(object Obj)
+        public Column Apply(object mappingObject)
         {
-            return ApplyMethod("apply", Obj);
+            return ApplyMethod("apply", mappingObject);
         }
 
         /// <summary>
