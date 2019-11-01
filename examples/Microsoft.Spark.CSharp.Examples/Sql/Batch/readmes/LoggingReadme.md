@@ -28,7 +28,7 @@ DataFrame API.
 
 ```CSharp
 SparkSession spark = SparkSession
-                .Builder()
+    .Builder()
                 .AppName("Apache User Log Processing")
                 .GetOrCreate();
 ```
