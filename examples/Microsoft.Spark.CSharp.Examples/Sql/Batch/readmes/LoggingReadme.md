@@ -48,16 +48,19 @@ DataFrame df = spark.Read().Text("Path to input data set");
 A UDF is a *user-defined function,* which we can use in Spark applications to process our data.
 
 ```CSharp
-spark.Udf().Register<string, string, bool>("GeneralReg", (log, type) => RegTest(log, type));
+spark.Udf().Register<string, bool>("GeneralReg", log => Regex.IsMatch(log, s_apacheRx));
 ```
 
-In the above example, we are registering a new UDF called *GeneralReg.* It takes in two strings (which we have named
-*log* and *type*) and produces a boolean output.
+In the above example, we are registering a new UDF called *GeneralReg.* It takes in a string (which we have named
+*log*) and produces a boolean output.
 
-The *RegTest* method will compare each log entry to a [regular expression](https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference) (AKA regex), which is a sequence of characters that defines a pattern. We use regular expressions to gain meaningful insights from patterns in our log data, such as whether or not an entry relates to spam:
+This UDF will compare each log entry to a [regular expression](https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference) (AKA regex), which is a sequence of characters that defines a pattern. 
+
+We use regular expressions to gain meaningful insights from patterns in our log data. In the above UDF, our regex *s_apacheRX* defines the pattern all valid log entries should follow:
 
 ```CSharp
-Regex myRegex = new Regex("\\b(?=spam)\\b");
+static readonly string s_apacheRx =
+                "^(\\S+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(\\S+) (\\S+) (\\S+)\" (\\d{3}) (\\d+)";
 ```
 
 ### 4. Use Spark SQL
