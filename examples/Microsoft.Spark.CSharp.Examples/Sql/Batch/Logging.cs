@@ -63,9 +63,9 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             generalDf.PrintSchema();
 
             // Step 2: Choose valid log entries that start with 10
-            spark.Udf().Register<string, string, bool>(
+            spark.Udf().Register<string, bool>(
                 "IPReg",
-                (log, type) => Regex.IsMatch(log, "^(?=10)"));
+                log => Regex.IsMatch(log, "^(?=10)"));
 
             generalDf.CreateOrReplaceTempView("IPLogs");
 
@@ -81,9 +81,9 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             // Step 3: Choose valid log entries that start 
             // with 10 and deal with spam
-            spark.Udf().Register<string, string, bool>(
+            spark.Udf().Register<string, bool>(
                 "SpamRegEx",
-                (log, type) => Regex.IsMatch(log, "\\b(?=spam)\\b"));
+                log => Regex.IsMatch(log, "\\b(?=spam)\\b"));
 
             ipDf.CreateOrReplaceTempView("SpamLogs");
 
