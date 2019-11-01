@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.Functions;
 
-namespace Microsoft.Spark.Examples.Sql
+namespace Microsoft.Spark.Examples.Sql.Batch
 {
     /// <summary>
     /// A simple example demonstrating basic Spark SQL features.
