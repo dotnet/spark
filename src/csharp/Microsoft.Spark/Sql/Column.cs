@@ -64,7 +64,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the equal to operator</returns>
         public Column EqualTo(object rhs)
         {
-            return Apply("equalTo", rhs);
+            return ApplyMethod("equalTo", rhs);
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying not equal operator</returns>
         public Column NotEqual(object rhs)
         {
-            return Apply("notEqual", rhs);
+            return ApplyMethod("notEqual", rhs);
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the greater than operator</returns>
         public Column Gt(object rhs)
         {
-            return Apply("gt", rhs);
+            return ApplyMethod("gt", rhs);
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the less than operator</returns>
         public Column Lt(object rhs)
         {
-            return Apply("lt", rhs);
+            return ApplyMethod("lt", rhs);
         }
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the less than or equal to operator</returns>
         public Column Leq(object rhs)
         {
-            return Apply("leq", rhs);
+            return ApplyMethod("leq", rhs);
         }
 
         /// <summary>
@@ -179,7 +179,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the greater or equal to operator</returns>
         public Column Geq(object rhs)
         {
-            return Apply("geq", rhs);
+            return ApplyMethod("geq", rhs);
         }
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the equality test</returns>
         public Column EqNullSafe(object obj)
         {
-            return Apply("eqNullSafe", obj);
+            return ApplyMethod("eqNullSafe", obj);
         }
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the when method</returns>
         public Column When(Column condition, object value)
         {
-            return Apply("when", condition, value);
+            return ApplyMethod("when", condition, value);
         }
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying otherwise method</returns>
         public Column Otherwise(object value)
         {
-            return Apply("otherwise", value);
+            return ApplyMethod("otherwise", value);
         }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the between method</returns>
         public Column Between(object lowerBound, object upperBound)
         {
-            return Apply("between", lowerBound, upperBound);
+            return ApplyMethod("between", lowerBound, upperBound);
         }
 
         /// <summary>
@@ -238,7 +238,7 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public Column IsNaN()
         {
-            return Apply("isNaN");
+            return ApplyMethod("isNaN");
         }
 
         /// <summary>
@@ -250,7 +250,7 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public Column IsNull()
         {
-            return Apply("isNull");
+            return ApplyMethod("isNull");
         }
 
         /// <summary>
@@ -262,7 +262,7 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public Column IsNotNull()
         {
-            return Apply("isNotNull");
+            return ApplyMethod("isNotNull");
         }
 
         /// <summary>
@@ -284,7 +284,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the operator</returns>
         public Column Or(Column other)
         {
-            return Apply("or", other);
+            return ApplyMethod("or", other);
         }
 
         /// <summary>
@@ -308,7 +308,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the operator</returns>
         public Column And(Column other)
         {
-            return Apply("and", other);
+            return ApplyMethod("and", other);
         }
 
         /// <summary>
@@ -329,7 +329,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the plus operator</returns>
         public Column Plus(object rhs)
         {
-            return Apply("plus", rhs);
+            return ApplyMethod("plus", rhs);
         }
 
         /// <summary>
@@ -350,7 +350,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the minus operator</returns>
         public Column Minus(object rhs)
         {
-            return Apply("minus", rhs);
+            return ApplyMethod("minus", rhs);
         }
 
         /// <summary>
@@ -371,7 +371,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the multiply operator</returns>
         public Column Multiply(object rhs)
         {
-            return Apply("multiply", rhs);
+            return ApplyMethod("multiply", rhs);
         }
 
         /// <summary>
@@ -392,7 +392,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the divide operator</returns>
         public Column Divide(object rhs)
         {
-            return Apply("divide", rhs);
+            return ApplyMethod("divide", rhs);
         }
 
         /// <summary>
@@ -415,7 +415,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the mod operator</returns>
         public Column Mod(object rhs)
         {
-            return Apply("mod", rhs);
+            return ApplyMethod("mod", rhs);
         }
 
         /// <summary>
@@ -425,7 +425,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the SQL LIKE match</returns>
         public Column Like(string literal)
         {
-            return Apply("like", literal);
+            return ApplyMethod("like", literal);
         }
 
         /// <summary>
@@ -436,7 +436,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the regex LIKE method</returns>
         public Column RLike(string literal)
         {
-            return Apply("rlike", literal);
+            return ApplyMethod("rlike", literal);
         }
 
         /// <summary>
@@ -447,7 +447,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after getting an item given a specific key</returns>
         public Column GetItem(object key)
         {
-            return Apply("getItem", key);
+            return ApplyMethod("getItem", key);
         }
 
         /// <summary>
@@ -457,7 +457,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after getting a field for a specific key</returns>
         public Column GetField(string fieldName)
         {
-            return Apply("getField", fieldName);
+            return ApplyMethod("getField", fieldName);
         }
 
         /// <summary>
@@ -470,7 +470,7 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public Column SubStr(Column startPos, Column len)
         {
-            return Apply("substr", startPos, len);
+            return ApplyMethod("substr", startPos, len);
         }
 
         /// <summary>
@@ -483,7 +483,7 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public Column SubStr(int startPos, int len)
         {
-            return Apply("substr", startPos, len);
+            return ApplyMethod("substr", startPos, len);
         }
 
         /// <summary>
@@ -495,7 +495,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after checking if the column contains object other</returns>
         public Column Contains(object other)
         {
-            return Apply("contains", other);
+            return ApplyMethod("contains", other);
         }
 
         /// <summary>
@@ -511,7 +511,7 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public Column StartsWith(Column other)
         {
-            return Apply("startsWith", other);
+            return ApplyMethod("startsWith", other);
         }
 
         /// <summary>
@@ -527,7 +527,7 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public Column StartsWith(string literal)
         {
-            return Apply("startsWith", literal);
+            return ApplyMethod("startsWith", literal);
         }
 
         /// <summary>
@@ -543,7 +543,7 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public Column EndsWith(Column other)
         {
-            return Apply("endsWith", other);
+            return ApplyMethod("endsWith", other);
         }
 
         /// <summary>
@@ -559,7 +559,7 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public Column EndsWith(string literal)
         {
-            return Apply("endsWith", literal);
+            return ApplyMethod("endsWith", literal);
         }
 
         /// <summary>
@@ -569,7 +569,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying an alias</returns>
         public Column Alias(string alias)
         {
-            return Apply("alias", alias);
+            return ApplyMethod("alias", alias);
         }
 
         /// <summary>
@@ -589,17 +589,25 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         public Column As(IEnumerable<string> alias)
         {
-            return Apply("as", alias);
+            return ApplyMethod("as", alias);
         }
 
         /// <summary>
-        /// Returns a column with values modified as per input object.
+        /// Extracts a value or values from a complex type.
+        ///The following types of extraction are supported:
+        ///
+        ///1. Given an Array, an integer ordinal can be used to retrieve a single value.
+        ///2. Given a Map, a key of the correct type can be used to retrieve an individual value.
+        ///3. Given a Struct, a string fieldName can be used to extract that field.
+        ///4. Given an Array of Structs, a string fieldName can be used to extract field
+        ///of every struct in that array, and return an Array of fields.
+        ///
         /// </summary>
-        /// <param name="colObject">Column object to apply</param>
+        /// <param name="Obj">object to apply</param>
         /// <returns>Column object</returns>
-        public Column Apply(object colObject)
+        public Column Apply(object Obj)
         {
-            return Apply("apply", colObject);
+            return ApplyMethod("apply", Obj);
         }
 
         /// <summary>
@@ -609,7 +617,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         public Column Name(string alias)
         {
-            return Apply("name", alias);
+            return ApplyMethod("name", alias);
         }
 
         /// <summary>
@@ -624,7 +632,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         public Column Cast(string to)
         {
-            return Apply("cast", to);
+            return ApplyMethod("cast", to);
         }
 
         /// <summary>
@@ -634,7 +642,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the descending order operator</returns>
         public Column Desc()
         {
-            return Apply("desc");
+            return ApplyMethod("desc");
         }
 
         /// <summary>
@@ -644,7 +652,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         public Column DescNullsFirst()
         {
-            return Apply("desc_nulls_first");
+            return ApplyMethod("desc_nulls_first");
         }
 
         /// <summary>
@@ -654,7 +662,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         public Column DescNullsLast()
         {
-            return Apply("desc_nulls_last");
+            return ApplyMethod("desc_nulls_last");
         }
 
         /// <summary>
@@ -663,7 +671,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the ascending order operator</returns>
         public Column Asc()
         {
-            return Apply("asc");
+            return ApplyMethod("asc");
         }
 
         /// <summary>
@@ -673,7 +681,7 @@ namespace Microsoft.Spark.Sql
         /// <returns></returns>
         public Column AscNullsFirst()
         {
-            return Apply("asc_nulls_first");
+            return ApplyMethod("asc_nulls_first");
         }
 
         /// <summary>
@@ -683,7 +691,7 @@ namespace Microsoft.Spark.Sql
         /// <returns></returns>
         public Column AscNullsLast()
         {
-            return Apply("asc_nulls_last");
+            return ApplyMethod("asc_nulls_last");
         }
 
         /// <summary>
@@ -692,7 +700,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="extended">To print extended version or not</param>
         public void Explain(bool extended)
         {
-            Apply("explain", extended);
+            ApplyMethod("explain", extended);
         }
 
         /// <summary>
@@ -704,7 +712,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying bitwise OR operator</returns>
         public Column BitwiseOR(object other)
         {
-            return Apply("bitwiseOR", other);
+            return ApplyMethod("bitwiseOR", other);
         }
 
         /// <summary>
@@ -716,7 +724,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the bitwise AND operator</returns>
         public Column BitwiseAND(object other)
         {
-            return Apply("bitwiseAND", other);
+            return ApplyMethod("bitwiseAND", other);
         }
 
         /// <summary>
@@ -728,7 +736,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying bitwise XOR operator</returns>
         public Column BitwiseXOR(object other)
         {
-            return Apply("bitwiseXOR", other);
+            return ApplyMethod("bitwiseXOR", other);
         }
 
         /// <summary>
@@ -740,7 +748,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         public Column Over(WindowSpec window)
         {
-            return Apply("over", window);
+            return ApplyMethod("over", window);
         }
 
         /// <summary>
@@ -750,7 +758,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         public Column Over()
         {
-            return Apply("over");
+            return ApplyMethod("over");
         }
 
         /// <summary>
@@ -761,9 +769,9 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         public Column IsIn(params string[] list)
         {
-            return Apply("isin", list);
+            return ApplyMethod("isin", list);
         }
-        
+
         /// <summary>
         ///  A boolean expression that is evaluated to true if the value of this expression 
         ///  is contained by the evaluated values of the arguments.  
@@ -772,7 +780,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         public Column IsIn(params int[] list)
         {
-            return Apply("isin", list);
+            return ApplyMethod("isin", list);
         }
 
         /// <summary>
@@ -783,7 +791,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         public Column IsIn(params long[] list)
         {
-            return Apply("isin", list);
+            return ApplyMethod("isin", list);
         }
 
         /// <summary>
@@ -794,9 +802,9 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         public Column IsIn(params bool[] list)
         {
-            return Apply("isin", list);
+            return ApplyMethod("isin", list);
         }
-        
+
         /// <summary>
         ///  A boolean expression that is evaluated to true if the value of this expression 
         ///  is contained by the evaluated values of the arguments.  
@@ -805,9 +813,9 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         public Column IsIn(params short[] list)
         {
-            return Apply("isin", list);
+            return ApplyMethod("isin", list);
         }
-        
+
         /// <summary>
         ///  A boolean expression that is evaluated to true if the value of this expression 
         ///  is contained by the evaluated values of the arguments.  
@@ -816,9 +824,9 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         public Column IsIn(params float[] list)
         {
-            return Apply("isin", list);
+            return ApplyMethod("isin", list);
         }
-        
+
         /// <summary>
         ///  A boolean expression that is evaluated to true if the value of this expression 
         ///  is contained by the evaluated values of the arguments.  
@@ -827,9 +835,9 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         public Column IsIn(params double[] list)
         {
-            return Apply("isin", list);
+            return ApplyMethod("isin", list);
         }
-        
+
         /// <summary>
         ///  A boolean expression that is evaluated to true if the value of this expression 
         ///  is contained by the evaluated values of the arguments.  
@@ -838,8 +846,8 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         public Column IsIn(params decimal[] list)
         {
-            return Apply("isin", list);
-        }        
+            return ApplyMethod("isin", list);
+        }
 
         /// <summary>
         /// Gets the underlying Expression object of the <see cref="Column"/>.
@@ -898,7 +906,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="op">Operator to invoke</param>
         /// <returns>New column after applying the operator</returns>
-        private Column Apply(string op)
+        private Column ApplyMethod(string op)
         {
             return new Column((JvmObjectReference)_jvmObject.Invoke(op));
         }
@@ -909,7 +917,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="op">Operator to invoke</param>
         /// <param name="other">Object to apply the operator with</param>
         /// <returns>New column after applying the operator</returns>
-        private Column Apply(string op, object other)
+        private Column ApplyMethod(string op, object other)
         {
             return new Column((JvmObjectReference)_jvmObject.Invoke(op, other));
         }
@@ -921,7 +929,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="other1">Object to apply the method with</param>
         /// <param name="other2">Object to apply the method with</param>
         /// <returns>New column after applying the operator</returns>
-        private Column Apply(string op, object other1, object other2)
+        private Column ApplyMethod(string op, object other1, object other2)
         {
             return new Column((JvmObjectReference)_jvmObject.Invoke(op, other1, other2));
         }
