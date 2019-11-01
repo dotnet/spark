@@ -69,7 +69,7 @@ Spark SQL allows us to make SQL calls on our data. It is common to combine UDFs 
 rows of our DataFrame.
 
 ```CSharp
-DataFrame generalDf = spark.Sql("SELECT logs.value, GeneralReg(logs.value, 'genfilter') FROM Logs");
+DataFrame generalDf = spark.Sql("SELECT logs.value, GeneralReg(logs.value) FROM Logs");
 ```
 
 ### 5. Running Your App
