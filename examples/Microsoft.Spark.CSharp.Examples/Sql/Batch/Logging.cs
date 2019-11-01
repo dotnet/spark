@@ -51,10 +51,10 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             // Apply the UDF to get valid log entries
             DataFrame generalDf = spark.Sql(
-                "SELECT logs.value, GeneralReg(logs.value, 'genfilter') FROM Logs");
+                "SELECT logs.value, GeneralReg(logs.value) FROM Logs");
 
             // Only keep log entries that matched the reg ex
-            generalDf = generalDf.Filter(generalDf["GeneralReg(value, genfilter)"] == true);
+            generalDf = generalDf.Filter(generalDf["GeneralReg(value)"] == true);
             generalDf.Show();
 
             // View the resulting schema
@@ -69,10 +69,10 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             // Apply UDF to get valid log entries start with 10
             DataFrame ipDf = spark.Sql(
-                "SELECT iplogs.value, IPReg(iplogs.value, 'ipfilter') FROM IPLogs");
+                "SELECT iplogs.value, IPReg(iplogs.value) FROM IPLogs");
 
             // Only keep log entries that matched both reg ex
-            ipDf = ipDf.Filter(ipDf["IPReg(value, ipfilter)"] == true);
+            ipDf = ipDf.Filter(ipDf["IPReg(value)"] == true);
             ipDf.Show();
 
             // Step 3: Choose valid log entries that start 
@@ -85,10 +85,10 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             // Apply UDF to get valid, start with 10, spam entries
             DataFrame spamDF = spark.Sql(
-                "SELECT spamlogs.value, SpamRegEx(spamlogs.value, 'spamfilter') FROM SpamLogs");
+                "SELECT spamlogs.value, SpamRegEx(spamlogs.value) FROM SpamLogs");
 
             // Only keep log entries that matched all 3 reg ex
-            DataFrame trueSpam = spamDF.Filter(spamDF["SpamRegEx(value, spamfilter)"] == true);
+            DataFrame trueSpam = spamDF.Filter(spamDF["SpamRegEx(value)"] == true);
 
             // Formatting cleanup
             // Use SQL to select just the entries, not boolean about reg ex
