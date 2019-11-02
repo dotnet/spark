@@ -40,35 +40,22 @@ Open the [Azure portal](https://ms.portal.azure.com/#home). Select **HDInsight S
 1.4 Please follow the same step for hn1... host.
 
 ## Step 2. Submit HDInsight Script Action
-Return to your HDI cluster in the Azure Portal, and select **Script actions** from the options on the left. You'll submit 2 script actions: one to install Livy and Spark Magic, and another to install sparkdotnet and worker.
+Return to your HDI cluster in the Azure Portal, and select **Script actions** from the options on the left. You'll submit one script action to deploy SparkDotnet REPL on HDInsight Spark cluster.
 
-2.1 Submit Script Action on Head node.
-Run `install-livy-sparkmagic-hn.sh` on the cluster using [HDInsight Script Actions](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-customize-cluster-linux):
+Submit Script Action on both Head node and Worker node.
+Run `deploy-sparkdotnet-repl.sh` on the cluster using [HDInsight Script Actions](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-customize-cluster-linux):
 
 * Script type: Custom
-* Name: Install Livy and SparkMagic (or anything that is descriptive)
-* Bash script URI: The URI to which you uploaded `install-livy-sparkmagic-hn.sh` (e.g. https://<my storage account>.blob.core.windows.net/<my container>/<some dir>/install-livy-sparkmagic-hn.sh)
-* Node type(s): Head
-* Parameters: None
+* Name: Deploy Sparkdotnet REPL (or anything that is descriptive)
+* Bash script URI: The URI to which you uploaded `deploy-sparkdotnet-repl.sh` (e.g. https://<my storage account>.blob.core.windows.net/<my container>/<some dir>/deploy-sparkdotnet-repl.sh)
+* Node type(s): Head and Worker
+* Parameters: Sparkdotnet version. For example, if you want to install Sparkdotnet version 0.6.0 then it would be `0.6.0`.
 
 The following captures the setting for a HDInsight Script Action on Head node:
 
-<img src="../../../docs/img/HDI-Spark-Notebooks/install-hn-scriptaction.png" alt="ScriptActionImage" width="500"/>
+<img src="../../../docs/img/HDI-Spark-Notebooks/deploy-sparkdotnet-repl-scriptaction.png" alt="ScriptActionImage" width="500"/>
 
-2.2 Submit Script Action on Worker node.
-Run `install-sparkdotnet-wn.sh` on the cluster using [HDInsight Script Actions](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-customize-cluster-linux):
-
-* Script type: Custom
-* Name: Install SparkDotnet (or anything that is descriptive)
-* Bash script URI: The URI to which you uploaded `install-sparkdotnet-wn.sh` (e.g. https://<my storage account>.blob.core.windows.net/<my container>/<some dir>/install-sparkdotnet-wn.sh)
-* Node type(s): Worker
-* Parameters: Sparkdotnet version. For example, if you want to install Sparkdotnet version 0.5.0 then it would be `0.5.0`.
-
-The following captures the setting for a HDInsight Script Action on Head node:
-
-<img src="../../../docs/img/HDI-Spark-Notebooks/install-wn-scriptaction.png" alt="ScriptActionImage" width="500"/>
-
-> **Note**: The second script action will likely take longer to run than the first. After you see green check-marks next to the status of both script actions, you can move to the next step.
+After you see green check-marks next to the status of both script actions, you can move to the next step.
 
 ## Step 3. Start Livy Server
 Please follow the above [Step 1](#step-1-stop-livy-server) to **Start** Livy for Spark2 Server.
