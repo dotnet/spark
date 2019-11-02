@@ -3,6 +3,11 @@
 # Install Livy and SparkMagic on Head node
 #
 
+set +e
+
+# Uncomment if you want full tracing (for debugging purposes)
+#set -o xtrace
+
 if  [[ $HOSTNAME == hn* ]] ;
 then
     # Update Livy Jars
@@ -31,19 +36,12 @@ then
     sudo rm -rf livy_jar
     sudo rm sparkmagic.zip
     sudo rm -rf sparkmagic
-fi
 
 #
 # Install SparkDotnet and Worker on Worker node
 #
 
-if  [[ $HOSTNAME == wn* ]] ;
-then
-    set +e
-
-    # Uncomment if you want full tracing (for debugging purposes)
-    #set -o xtrace
-
+else
     # Install SparkDotNet
     SPARK_DOTNET_VERSION=$1
 
