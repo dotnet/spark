@@ -13,15 +13,11 @@ then
     # Update Livy Jars
     sudo wget https://sparkdotnetrepl.blob.core.windows.net/notebooks/livy_jar.zip
     sudo unzip livy_jar.zip
-
     sudo cp -rf livy_jar/* /usr/hdp/current/livy2-server/
 
     # Update SparkMagic
     sudo wget https://sparkdotnetrepl.blob.core.windows.net/notebooks/sparkmagic.zip
     sudo unzip sparkmagic.zip
-    
-    sudo mkdir -p /usr/bin/anaconda/lib/python2.7/site-packages/sparkmagic/kernels/sparkdotnetkernel
-
     sudo cp -f sparkmagic/config.json /home/spark/.sparkmagic/
     sudo cp -rf sparkmagic/* /usr/bin/anaconda/lib/python2.7/site-packages/sparkmagic/
 
