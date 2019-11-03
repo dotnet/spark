@@ -53,8 +53,10 @@ else
     sudo dotnet tool install dotnet-try --add-source https://dotnet.myget.org/F/dotnet-try/api/v3/index.json --tool-path /usr/share/dotnet-tools --version 1.0.19473.13
 
     # copy .NET for Apache Spark jar to SPARK's jar folder
-    sudo wget "https://ruinliureplhdistorage.blob.core.windows.net/ruinliurepl/microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar" -O "microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar"
-    sudo install --verbose --mode 644 "microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar" "/usr/hdp/current/spark2-client/jars/microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar"
+    sudo mkdir -p tmp
+    sudo wget "https://www.nuget.org/api/v2/package/Microsoft.Spark/${SPARK_DOTNET_VERSION}" -O tmp/"microsoft.spark.${SPARK_DOTNET_VERSION}.nupkg"
+    sudo unzip tmp/"microsoft.spark.${SPARK_DOTNET_VERSION}.nupkg" -d tmp
+    sudo install --verbose --mode 644 tmp/jars/"microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar" "/usr/hdp/current/spark2-client/jars/microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar"
 
     # cleanup unneeded packages
     sudo apt-get autoremove -yq
@@ -106,6 +108,7 @@ else
     # Create a symlink.
     sudo ln -sf $DEST_WORKER_BINARY $WORKER_INSTALLATION_PATH/Microsoft.Spark.Worker
 
-    # Remove the temporary worker file.
+    # Remove the temporary nuget and worker file.
     sudo rm $TEMP_WORKER_FILENAME
+    sudo rm -rf tmp
 fi
