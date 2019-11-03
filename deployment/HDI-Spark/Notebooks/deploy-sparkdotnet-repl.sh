@@ -20,10 +20,7 @@ then
     sudo wget https://ruinliureplhdistorage.blob.core.windows.net/ruinliurepl/sparkmagic.zip
     sudo unzip sparkmagic.zip
     
-    if [ ! -d "/usr/bin/anaconda/lib/python2.7/site-packages/sparkmagic/kernels/sparkdotnetkernel" ]
-    then
-        sudo mkdir /usr/bin/anaconda/lib/python2.7/site-packages/sparkmagic/kernels/sparkdotnetkernel
-    fi
+    sudo mkdir -p /usr/bin/anaconda/lib/python2.7/site-packages/sparkmagic/kernels/sparkdotnetkernel
 
     sudo cp -f sparkmagic/config.json /home/spark/.sparkmagic/
     sudo cp -rf sparkmagic/* /usr/bin/anaconda/lib/python2.7/site-packages/sparkmagic/
