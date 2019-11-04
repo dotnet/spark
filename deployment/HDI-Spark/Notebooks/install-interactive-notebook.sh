@@ -37,7 +37,9 @@ then
 else
     # Install SparkDotNet
     SPARK_DOTNET_VERSION=$1
-
+    # Check if parameter exists, otherwise error out
+    [ -z "$SPARK_DOTNET_VERSION"] && { echo "Error: Sparkdotnet version parameter is missing..."; exit 1; }
+    
     sudo dpkg --purge --force-all packages-microsoft-prod
     sudo wget -q https://packages.microsoft.com/config/ubuntu/`lsb_release -rs`/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
     sudo dpkg -i packages-microsoft-prod.deb
@@ -59,7 +61,6 @@ else
 
     # Remove the prod deb file and temporary jar file.
     sudo rm packages-microsoft-prod.deb
-    sudo rm "microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar"
 
     # Install Microsoft.Spark.Worker
     # Path where packaged worker file (tgz) exists.
