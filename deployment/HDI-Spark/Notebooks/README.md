@@ -55,7 +55,7 @@ Run `install-interactive-notebook.sh` on the cluster using [HDInsight Script Act
 * Node type(s): Head and Worker
 * Parameters: Sparkdotnet version. For example, if you want to install Sparkdotnet version 0.6.0 then it would be `0.6.0`.
 
-The following captures the setting for a HDInsight Script Action on Head node:
+The following captures the setting for a HDInsight Script Action on Head node and Worker node:
 
 <img src="../../../docs/img/HDI-Spark-Notebooks/install-notebook-scriptaction.png" alt="ScriptActionImage" width="500"/>
 
