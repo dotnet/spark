@@ -23,6 +23,7 @@ namespace Microsoft.Spark.Examples
                 .AppName(".NET for Apache Spark Sentiment Analysis")
                 .GetOrCreate();
 
+            // Read in and display Yelp reviews
             DataFrame df = spark
                 .Read()
                 .Option("header", true)
@@ -30,11 +31,13 @@ namespace Microsoft.Spark.Examples
                 .Csv(@"Resources\yelp.csv");
             df.Show();
 
-            // Use ML.NET to evaluate each review 
+            // Use ML.NET in a UDF to evaluate each review 
             spark.Udf().Register<string, bool>(
                 "MLudf",
                 (text) => Sentiment(text));
 
+            // Use Spark SQL to call ML.NET UDF
+            // Display results of sentiment analysis on reviews
             df.CreateOrReplaceTempView("Reviews");
             DataFrame sqlDf = spark.Sql("SELECT Column1, MLudf(Column1) FROM Reviews");
             sqlDf.Show();
@@ -55,11 +58,12 @@ namespace Microsoft.Spark.Examples
             spark.Stop();
         }
 
+        // Method to call ML.NET code for sentiment analysis
+        // Code primarily comes from ML.NET Model Builder
         public static bool Sentiment(string text)
         {
             MLContext mlContext = new MLContext();
 
-            // Remember to change "MLModel.zip" to accurate model location
             ITransformer mlModel = mlContext
                 .Model
                 .Load(@"Resources\MLModel.zip", out var modelInputSchema);
@@ -71,6 +75,7 @@ namespace Microsoft.Spark.Examples
             var result = predEngine.Predict(
                 new Review { Column1 = text });
 
+            // Returns true for positive review, false for negative
             return result.Prediction;
         }
 
