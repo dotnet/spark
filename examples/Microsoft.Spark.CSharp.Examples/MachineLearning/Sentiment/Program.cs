@@ -43,16 +43,12 @@ namespace Microsoft.Spark.Examples
             sqlDf.Show();
 
             // Print out first 20 rows of data
-            // Prevents data getting cut off (as it is when we print a DF)
-            IEnumerable<Row> rows = sqlDf.Collect();
-            int counter = 0;
+            // Prevents rows getting cut off (as it is when we print a DF)
+            DataFrame smallerDf = sqlDf.Limit(20);
+            IEnumerable<Row> rows = smallerDf.Collect();
             foreach (Row row in rows)
             {
-                counter++;
-                if (counter < 20)
-                    Console.WriteLine(row);
-                else
-                    break;
+                Console.WriteLine(row);
             }
 
             spark.Stop();
