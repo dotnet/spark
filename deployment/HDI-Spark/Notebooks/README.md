@@ -100,7 +100,7 @@ When prompted, select **CONFIRM RESTART ALL** to continue, then click **OK** to 
 After finishing previous steps, now you can submit your jobs through Jupyter Notebook!
 1. Create a new Spark .NET notebook
 
-[Launch Jupyter notebook](https://docs.microsoft.com/en-us/azure/hdinsight/spark/apache-spark-jupyter-spark-sql-use-portal#create-a-jupyter-notebook) from your HDI cluster in the Azure Portal, then select **New** > **Spark .Net** to create a notebook.
+[Launch Jupyter notebook](https://docs.microsoft.com/en-us/azure/hdinsight/spark/apache-spark-jupyter-spark-sql-use-portal#create-a-jupyter-notebook) from your HDI cluster in the Azure Portal, then select **New** > **.NET Spark (C#)** to create a notebook.
 
 <img src="../../../docs/img/HDI-Spark-Notebooks/create-sparkdotnet-notebook.png" alt="JupyterNotebookImage" width="800"/>
 
