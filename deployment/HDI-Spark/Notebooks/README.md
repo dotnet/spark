@@ -5,7 +5,7 @@ Install Spark .NET Interactive Notebook Experiences on your HDInsight Spark Clus
 This documentation will describe how to use Spark .NET within Jupyter Notebooks available on your HDInsight Spark Clusters.
 - [Background](#background)
 - [Pre-requisites](#pre-requisites)
-- [Installation Procedure](#steps-to-deploy-spark-net-repl-to-hdinsight-spark-cluster)
+- [Installation Procedure](#installation-procedure)
   - [Step 1. Stop Livy Server](#step-1-stop-livy-server)
   - [Step 2. Submit HDInsight Script Action](#step-2-submit-hdinsight-script-action)
   - [Step 3. Start Livy Server](#step-3-start-livy-server)
@@ -22,7 +22,7 @@ To enable Spark .NET through the Jupyter Notebook Experience, you would have to 
 # Pre-requisites:
 Create an [Azure HDInsight Spark](https://docs.microsoft.com/en-us/azure/hdinsight/spark/apache-spark-jupyter-spark-sql-use-portal#create-an-hdinsight-spark-cluster) cluster (by visiting the **[Azure Portal](https;//portal.azure.com)**, selecting **+ Create a Resource**, and creating a new Azure HDInsight cluster resource), select the **Overview** tab on your cluster. Ensure you have created a cluster with **Spark 2.4** and **HDI 4.0**.
 
-# Steps to deploy Spark .Net REPL to HDInsight Spark cluster
+# Installation Procedure
 Open the [Azure portal](https://ms.portal.azure.com/#home). Select **HDInsight Spark cluster** you created in the previous step.
 ## Step 1. Stop Livy Server
 1.1 From the portal, select **Overview**, and then select **Ambari home**. If prompted, enter the cluster login credentials for the cluster.
