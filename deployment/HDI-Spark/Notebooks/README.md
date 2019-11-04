@@ -51,7 +51,7 @@ Run `install-interactive-notebook.sh` on the cluster using [HDInsight Script Act
 
 * Script type: Custom
 * Name: Install Sparkdotnet Interactive Notebook Experience (or anything that is descriptive)
-* Bash script URI: The URI to which you uploaded `install-interactive-notebook.sh`. You can download `install-interactive-notebook.sh` [here](https://github.com/dotnet/spark/blob/master/deployment/HDI-Spark/install-interactive-notebook.sh), and then upload the script to a [URI](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-customize-cluster-linux#understand-script-actions) that's accessible from the HDInsight cluster. (e.g. `https://<my storage account>.blob.core.windows.net/<my container>/<some dir>/install-interactive-notebook.sh`)
+* Bash script URI: The URI to which you uploaded `install-interactive-notebook.sh`. You can download [install-interactive-notebook.sh](install-interactive-notebook.sh), and then upload the script to a [URI](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-customize-cluster-linux#understand-script-actions) that's accessible from the HDInsight cluster. (e.g. `https://<my storage account>.blob.core.windows.net/<my container>/<some dir>/install-interactive-notebook.sh`)
 * Node type(s): Head and Worker
 * Parameters: Sparkdotnet version. For example, if you want to install Sparkdotnet version 0.6.0 then it would be `0.6.0`.
 
