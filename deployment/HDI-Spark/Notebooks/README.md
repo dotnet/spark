@@ -51,7 +51,7 @@ Run `deploy-sparkdotnet-repl.sh` on the cluster using [HDInsight Script Actions]
 
 * Script type: Custom
 * Name: Deploy Sparkdotnet REPL (or anything that is descriptive)
-* Bash script URI: The URI to which you uploaded `deploy-sparkdotnet-repl.sh` (e.g. `https://<my storage account>.blob.core.windows.net/<my container>/<some dir>/deploy-sparkdotnet-repl.sh`)
+* Bash script URI: The URI to which you uploaded `deploy-sparkdotnet-repl.sh`. You can download `deploy-sparkdotnet-repl.sh` [here](https://github.com/dotnet/spark/blob/master/deployment/HDI-Spark/deploy-sparkdotnet-repl.sh), and then upload the script to a [URI](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-customize-cluster-linux#understand-script-actions) that's accessible from the HDInsight cluster. (e.g. `https://<my storage account>.blob.core.windows.net/<my container>/<some dir>/deploy-sparkdotnet-repl.sh`)
 * Node type(s): Head and Worker
 * Parameters: Sparkdotnet version. For example, if you want to install Sparkdotnet version 0.6.0 then it would be `0.6.0`.
 
