@@ -18,28 +18,6 @@ namespace Microsoft.Spark.Examples
     {
         public static void Main(string[] args)
         {
-            // Change this flag once you've set up
-            // the ML.NET dependencies described in the README:
-            // Update url to location of MLModel.zip (line 90)
-            // Copy ML.NET dlls to your project's folder
-            int dependenciesDone = 1;
-
-            /*if (args.Length != 1)
-            {
-                Console.Error.WriteLine(
-                    "Usage: SentimentAnalysis <path to review dataset>");
-
-                Environment.Exit(1);
-            }*/
-
-            if (dependenciesDone == 0)
-            {
-                Console.Error.WriteLine(
-                    "You need to complete setting ML.NET dependencies");
-
-                Environment.Exit(1);
-            }
-
             SparkSession spark = SparkSession
                 .Builder()
                 .AppName(".NET for Apache Spark Sentiment Analysis")
@@ -77,9 +55,6 @@ namespace Microsoft.Spark.Examples
             spark.Stop();
         }
 
-        // To use ML.NET sure have ProjectReference in .csproj file:
-        // Include="<path to sentimentML.Model.csproj>"
-        // See project's README to learn more
         public static bool Sentiment(string text)
         {
             MLContext mlContext = new MLContext();
