@@ -47,17 +47,17 @@ Open the [Azure portal](https://ms.portal.azure.com/#home). Select **HDInsight S
 Return to your HDI cluster in the Azure Portal, and select **Script actions** from the options on the left. You'll submit one script action to deploy SparkDotnet REPL on HDInsight Spark cluster.
 
 Submit Script Action on both Head node and Worker node.
-Run `deploy-sparkdotnet-repl.sh` on the cluster using [HDInsight Script Actions](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-customize-cluster-linux):
+Run `install-interactive-notebook.sh` on the cluster using [HDInsight Script Actions](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-customize-cluster-linux):
 
 * Script type: Custom
-* Name: Deploy Sparkdotnet REPL (or anything that is descriptive)
-* Bash script URI: The URI to which you uploaded `deploy-sparkdotnet-repl.sh`. You can download `deploy-sparkdotnet-repl.sh` [here](https://github.com/dotnet/spark/blob/master/deployment/HDI-Spark/deploy-sparkdotnet-repl.sh), and then upload the script to a [URI](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-customize-cluster-linux#understand-script-actions) that's accessible from the HDInsight cluster. (e.g. `https://<my storage account>.blob.core.windows.net/<my container>/<some dir>/deploy-sparkdotnet-repl.sh`)
+* Name: Install Sparkdotnet Interactive Notebook Experience (or anything that is descriptive)
+* Bash script URI: The URI to which you uploaded `install-interactive-notebook.sh`. You can download `install-interactive-notebook.sh` [here](https://github.com/dotnet/spark/blob/master/deployment/HDI-Spark/install-interactive-notebook.sh), and then upload the script to a [URI](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-customize-cluster-linux#understand-script-actions) that's accessible from the HDInsight cluster. (e.g. `https://<my storage account>.blob.core.windows.net/<my container>/<some dir>/install-interactive-notebook.sh`)
 * Node type(s): Head and Worker
 * Parameters: Sparkdotnet version. For example, if you want to install Sparkdotnet version 0.6.0 then it would be `0.6.0`.
 
 The following captures the setting for a HDInsight Script Action on Head node:
 
-<img src="../../../docs/img/HDI-Spark-Notebooks/deploy-sparkdotnet-repl-scriptaction.png" alt="ScriptActionImage" width="500"/>
+<img src="../../../docs/img/HDI-Spark-Notebooks/install-notebook-scriptaction.png" alt="ScriptActionImage" width="500"/>
 
 After you see green checkmarks next to the status of both script actions, you can move to the next step.
 
