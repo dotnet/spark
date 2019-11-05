@@ -12,7 +12,7 @@ Our goal here is to determine if online reviews are positive or negative. We'll 
 
 We'll be using a set of Amazon reviews to train our model and a set of Yelp reviews for testing in our Spark + ML app. You can [download the original data](https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip) from the [UCI Sentiment Labeled Sentences Dataset]( https://archive.ics.uci.edu/ml/datasets/Sentiment+Labelled+Sentences).
 
-For the specific ML training/predictions in this app, it helps to have a header for the data. Versions of the Amazon and Yelp datasets with headers can be found in the [Resources](./Resources) folder.
+For the specific ML training/predictions in this app (i.e. when using Model Builder), it helps to have a header for the data. Versions of the Amazon and Yelp datasets with headers can be found in the [Resources](./Resources) folder.
 
 ## Solution
 
@@ -78,6 +78,8 @@ As we create the logic for our Spark app, we'll paste in the code generated from
 
 ## Spark.NET
 
+Now that we've trained an ML.NET model for sentiment analysis, we can begin writing the .NET for Spark code that will read in our Yelp data, pass each review to our ML.NET model, and predict whether reviews are positive or negative.
+
 ### 1. Create a Spark Session
 
 In any Spark application, we need to establish a new SparkSession, which is the entry point to programming Spark with the Dataset and 
@@ -86,43 +88,52 @@ DataFrame API.
 ```CSharp
 SparkSession spark = SparkSession
        .Builder()
-       .AppName("Apache User Log Processing")
+       .AppName(".NET for Apache Spark Sentiment Analysis")
        .GetOrCreate();
 ```
 
 ### 2. Read Input File into a DataFrame
 
-We trained our model with the amazon data, so let's test how well the model performs by testing it with the yelp dataset. 
+We trained our model with the Amazon data, so let's test how well the model performs by testing it with the Yelp dataset. 
 
 ```CSharp
 DataFrame df = spark.Read().Csv(<Path to yelp data set>);
 ```
 
-### 3. Use UDF to Access ML.NET
+If we want to specify some other aspects of our data, such as whether it has a header and how we want to deal with its schema, we can set some other options when reading in our data:
 
-We create a User Defined Function (UDF) that calls the *Sentiment* method on each yelp review.
+```CSharp
+DataFrame df = spark
+    .Read()
+    .Option("header", true)
+    .Option("inferSchema", true)
+    .Csv(<Path to yelp data set>);
+```
+
+### 3. Use a UDF to Access ML.NET
+
+We create a User Defined Function (UDF) that calls the *Sentiment* method on each Yelp review.
 
 ```CSharp
 spark.Udf().Register<string, bool>("MLudf", (text) => Sentiment(text));
 ```
 
-The Sentiment method is where we'll call our ML.NET code that was generated from the final step of Model Builder.
+*Sentiment* is where we'll call our ML.NET code that was generated from the final step of Model Builder.
 
 ```CSharp
 MLContext mlContext = new MLContext();
-ITransformer mlModel = mlContext.Model.Load("MLModel.zip", out var modelInputSchema);
+ITransformer mlModel = mlContext.Model.Load(@"Resources\MLModel.zip", out var modelInputSchema);
 var predEngine = mlContext.Model.CreatePredictionEngine<Review, ReviewPrediction>(mlModel);
 ```
+
 You may notice the use of *Review* and *ReviewPrediction.* These are classes we define in our project to represent the review data we're evaluating. 
 
 ```CSharp
 public class Review
 {
+      // Represents the input review text
       [LoadColumn(0)]
       public string Column1;
-
-      [LoadColumn(1), ColumnName("Column2")]
-      public bool Column2;
 }
 ```
 
