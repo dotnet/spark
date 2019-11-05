@@ -3,7 +3,7 @@
 # Install Livy and SparkMagic on Head node
 #
 
-set +e
+set -e
 
 # Uncomment if you want full tracing (for debugging purposes)
 #set -o xtrace
