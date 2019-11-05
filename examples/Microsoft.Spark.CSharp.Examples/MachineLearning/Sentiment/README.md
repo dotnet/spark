@@ -129,4 +129,4 @@ dll's into your app's main directory.
 
 Rather than performing batch processing (analyzing data that's already been stored), we can adapt our Spark + ML.NET app to instead perform real-time processing with structured streaming.
 
-Checkout [SentimentAnalysisStream.cs](../SentimentAnalysisStream.cs) to see the adapted version of the sentiment analysis program that will determine the sentiment of text live as it's typed into a terminal.
+Checkout SentimentAnalysisStream.cs to see the adapted version of the sentiment analysis program that will determine the sentiment of text live as it's typed into a terminal.
