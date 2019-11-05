@@ -22,9 +22,15 @@ We'll first train an ML model using ML.NET, and then we'll create a new applicat
 
 ### 1. Build and Train Your Model
 
-Use ML.NET to build and train a model. You can use Model Builder to easily train and use ML models in Visual Studio. Follow the [Model Builder Getting Started Guide](https://dotnet.microsoft.com/learn/machinelearning-ai/ml-dotnet-get-started-tutorial/intro) to train your model using the sentiment analysis scenario.
+[ML.NET](dot.net/ml) is an open source and cross-platform machine learning framework that allows .NET developers to easily integrate ML into .NET apps without any prior ML experience. 
 
-In the last step, you'll produce a zip file containing the trained ML.NET model.
+We'll use ML.NET to build and train a model through [Model Builder](https://dotnet.microsoft.com/apps/machinelearning-ai/ml-dotnet/model-builder), a Visual Studio extension that provides an easy to understand visual interface to build, train, and deploy machine learning models. 
+
+Model Builder can be downloaded [here](https://marketplace.visualstudio.com/items?itemName=MLNET.07). 
+
+Follow the [Model Builder Getting Started Guide](https://dotnet.microsoft.com/learn/machinelearning-ai/ml-dotnet-get-started-tutorial/intro) to train your model using the sentiment analysis scenario.
+
+In the last step of using Model Builder, you'll produce a zip file containing the trained ML.NET model.
 
 ![ML.NET Zip and Files](https://github.com/bamurtaugh/spark/blob/SparkMLNet/examples/Microsoft.Spark.CSharp.Examples/MachineLearning/images/modelbuilder5proj.PNG)
 
