@@ -8,17 +8,17 @@ statements are positive or negative, a task known as **sentiment analysis**.
 
 Our goal here is to determine if online reviews are positive or negative. We'll be using .NET for Apache Spark to read in a dataset of reviews and ML.NET to perform **binary classification** since categorizing reviews involves choosing one of two groups: positive or negative. You can read more about the problem through the [ML.NET documentation](https://docs.microsoft.com/en-us/dotnet/machine-learning/tutorials/sentiment-analysis).
 
+## Dataset
+
+We'll be using a set of Amazon reviews to train our model and a set of Yelp reviews for testing in our Spark + ML app. These can be found in the [Resources](/Resources) folder, and they come from the [UCI Sentiment Labeled Sentences](https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip). 
+
 ## Solution
 
 We'll first train an ML model using ML.NET, and then we'll create a new application that uses both .NET for Apache Spark and ML.NET.
 
 ## ML.NET
 
-### 1. Download Datasets
-
-We'll be using a set of amazon reviews to train our model and a set of yelp reviews for testing in our Spark app. These can be found in the Datasets folder, and they come from the [UCI Sentiment Labeled Sentences](https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip). 
-
-### 2. Build and Train Your Model
+### 1. Build and Train Your Model
 
 Use ML.NET to build and train a model. You can use Model Builder to easily train and use ML models in Visual Studio. Follow the [Model Builder Getting Started Guide](https://dotnet.microsoft.com/learn/machinelearning-ai/ml-dotnet-get-started-tutorial/intro) to train your model using the sentiment analysis scenario.
 
@@ -30,7 +30,7 @@ You'll also generate C# code you can use to consume your model in other .NET app
 
 ![Generated Code](https://github.com/bamurtaugh/spark/blob/SparkMLNet/examples/Microsoft.Spark.CSharp.Examples/MachineLearning/images/modelbuilder5code.PNG)
 
-### 3. Add ML.NET to .NET for Apache Spark App
+### 2. Add ML.NET to .NET for Apache Spark App
 
 Make sure you've downloaded the [Microsoft.ML NuGet Package](https://www.nuget.org/packages/Microsoft.ML). Either use Model Builder's "Add Projects" feature, or in a new C# console app, add a reference the Microsoft.ML API and the .csproj file of your trained ML.NET model.
 
