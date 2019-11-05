@@ -56,7 +56,7 @@ You'll also generate C# code you can use to consume your model in other .NET app
 
 ### 4. Add ML.NET to .NET for Apache Spark App
 
-You have a few options to start creating a .NET for Apache Spark app that uses this ML.NET code and trained model. Make sure that in any app you develop, you've downloaded the [Microsoft.ML NuGet Package](https://www.nuget.org/packages/Microsoft.ML)
+You have a few options to start creating a .NET for Apache Spark app that uses this ML.NET code and trained model. Make sure that in any app you develop, you've downloaded the [Microsoft.ML NuGet Package](https://www.nuget.org/packages/Microsoft.ML).
 
 #### Option 1: Add Projects
 
@@ -65,6 +65,8 @@ One option is to use Model Builder's *Add Projects* feature, which will result i
 * Your original app (**myMLApp**)
 * A console app that allows you to build/train/test the model (**myMLAppML.ConsoleApp**)
 * A .NET Standard class library that contains model input/output and your trained model in a zip file (**myMLAppML.Model**)
+
+You would begin writing your .NET for Apache Spark code (and paste in the code generated from Model Builder, shown in step 3 above) in the original app **myMLApp.**
 
 ![Model Builder Result](https://dotnet.microsoft.com/static/images/model-builder-generated-code.png?v=iC-r8k3zpKUwQVoNOH34D903IhXhIb4CsX003484s7c)
 
