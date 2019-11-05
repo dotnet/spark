@@ -18,6 +18,8 @@ For the specific ML training/predictions in this app, it helps to have a header 
 
 We'll first train an ML model using ML.NET, and then we'll create a new application that uses both .NET for Apache Spark and ML.NET.
 
+> **Note:** All of the necessary files (trained ML model, .NET for Spark + ML.NET application code, training and testing datasets) have been included in this project. You can follow the steps below to understand how the project/files were developed, recreate them yourself, and then adapt the steps to future applications.
+
 ## ML.NET
 
 [ML.NET](dot.net/ml) is an open source and cross-platform machine learning framework that allows .NET developers to easily integrate ML into .NET apps without any prior ML experience. 
