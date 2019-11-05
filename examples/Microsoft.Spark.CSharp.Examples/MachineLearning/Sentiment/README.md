@@ -76,7 +76,7 @@ Rather than working with the projects/files produced by Model Builder's Add Proj
 
 As we create the logic for our Spark app, we'll paste in the code generated from Model Builder and include some other class definitions.
 
-## Spark.NET
+## .NET for Spark
 
 Now that we've trained an ML.NET model for sentiment analysis, we can begin writing the .NET for Spark code that will read in our Yelp data, pass each review to our ML.NET model, and predict whether reviews are positive or negative.
 
@@ -158,21 +158,33 @@ Now that you've read in your data and incorporated ML, use Spark SQL to call the
 DataFrame sqlDf = spark.Sql("SELECT _c0, MLudf(_c0) FROM Reviews");
 ```
 
-Once you run your code, you'll be performing sentiment analysis with ML.NET and Spark.NET!
+Once you run your code, you'll be performing sentiment analysis with ML.NET and .NET for Spark!
 
-## How to Run
+## Running Your App
 
-Checkout the [full coding example](../SentimentAnalysis.cs).
+There are a few steps you'll need to follow to build and run your app:
 
-Since there are several distinct steps of setup for building and running a .NET for Apache Spark + ML.NET app, it's recommended
-to create a new console app and complete the Model Builder and ML.NET reference steps (from above) in that app. 
+* Move to your app's root folder (i.e. *Sentiment*)
+* Clean and publish your app
+* Move to your app's `publish` folder
+* `spark-submit` your app from within the `publish` folder
 
-You can then add the code from the SentimentAnalysis.cs app to your console app. You can then `spark-submit` your new console app.
+#### Windows Example:
 
-**Note:** In order to `spark-submit` an app that includes an additional Nuget (like the ML.NET nuget), you'll need to copy the ML.NET
-dll's into your app's main directory.
+```powershell
+cd path/to/spark/examples/Microsoft.Spark.CSharp.Examples/MachineLearning/Sentiment
+dotnet clean -r win-x64 -c Release -f netcoreapp2.2
+dotnet publish -r win-x64 -c Release -f netcoreapp2.2
 
-## Alternative Approach: Real-Time Sentiment Analysis
+cd path/to/spark/artifacts/bin/Sentiment/Release/netcoreapp2.2/win-x64/publish
+spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local /path/to/microsoft-spark-<version>.jar dotnet Sentiment.dll
+```
+
+> **Note:** Be sure to update the above commands with the actual paths to your Sentiment folder, publish folder, and Microsoft Spark jar file.
+
+## Next Steps
+
+Checkout the [full coding example](../Program.cs).
 
 Rather than performing batch processing (analyzing data that's already been stored), we can adapt our Spark + ML.NET app to instead perform real-time processing with structured streaming.
 
