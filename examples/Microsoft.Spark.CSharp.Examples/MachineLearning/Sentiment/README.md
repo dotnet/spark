@@ -10,7 +10,9 @@ Our goal here is to determine if online reviews are positive or negative. We'll 
 
 ## Dataset
 
-We'll be using a set of Amazon reviews to train our model and a set of Yelp reviews for testing in our Spark + ML app. These can be found in the [Resources](./Resources) folder, and they come from the [UCI Sentiment Labeled Sentences](https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip). 
+We'll be using a set of Amazon reviews to train our model and a set of Yelp reviews for testing in our Spark + ML app. You can [download the original data](https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip) from the [UCI Sentiment Labeled Sentences Dataset]( https://archive.ics.uci.edu/ml/datasets/Sentiment+Labelled+Sentences).
+
+For the specific ML training/predictions in this app, it helps to have a header for the data. Versions of the Amazon and Yelp datasets with headers can be found in the [Resources](./Resources) folder.
 
 ## Solution
 
