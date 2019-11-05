@@ -8,7 +8,7 @@ using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.Spark.Sql;
 
-namespace Microsoft.Spark.Examples
+namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
 {
     /// <summary>
     /// Example of using ML.NET + .NET for Apache Spark
