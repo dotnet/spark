@@ -14,6 +14,8 @@ We'll be using a set of Amazon reviews to train our model and a set of Yelp revi
 
 For the specific ML training/predictions in this app (i.e. when using Model Builder), it helps to have a header for the data. Versions of the Amazon and Yelp datasets with headers can be found in the [Resources](./Resources) folder.
 
+Each dataset has two columns: Column 1 holds the review text, and Column 2 holds a 0 or 1 (0 representing a negative review/sentiment and 1 representing positive).
+
 ## Solution
 
 We'll first train an ML model using ML.NET, and then we'll create a new application that uses both .NET for Apache Spark and ML.NET.
