@@ -59,7 +59,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
 
             // Text is a special case because we can't use Range() data.
-            string textFilePath = Path.GetFullPath("Resources/people.txt");
+            string textFilePath = Path.Combine(TestEnvironment.ResourceDirectory, "people.txt");
             Assert.IsType<DataFrame>(dsr.Text(textFilePath));
         }
     }
