@@ -41,21 +41,21 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             DataFrame data = _spark.Range(0, 5);
             using (var tempDirectory = new TemporaryDirectory())
             {
-                string path = Path.Combine(tempDirectory.Path, Guid.NewGuid().ToString());
+                string filePath = Path.Combine(tempDirectory.Path, Guid.NewGuid().ToString());
 
-                data.Write().Json(path);
-                Assert.IsType<DataFrame>(dsr.Format("json").Option("path", path).Load());
-                Assert.IsType<DataFrame>(dsr.Format("json").Load(path));
-                Assert.IsType<DataFrame>(dsr.Json(path));
+                data.Write().Json(filePath);
+                Assert.IsType<DataFrame>(dsr.Format("json").Option("path", filePath).Load());
+                Assert.IsType<DataFrame>(dsr.Format("json").Load(filePath));
+                Assert.IsType<DataFrame>(dsr.Json(filePath));
 
-                data.Write().Mode("overwrite").Csv(path);
-                Assert.IsType<DataFrame>(dsr.Csv(path));
+                data.Write().Mode("overwrite").Csv(filePath);
+                Assert.IsType<DataFrame>(dsr.Csv(filePath));
 
-                data.Write().Mode("overwrite").Orc(path);
-                Assert.IsType<DataFrame>(dsr.Orc(path));
+                data.Write().Mode("overwrite").Orc(filePath);
+                Assert.IsType<DataFrame>(dsr.Orc(filePath));
 
-                data.Write().Mode("overwrite").Parquet(path);
-                Assert.IsType<DataFrame>(dsr.Parquet(path));
+                data.Write().Mode("overwrite").Parquet(filePath);
+                Assert.IsType<DataFrame>(dsr.Parquet(filePath));
             }
 
             // Text is a special case because we can't use Range() data.
