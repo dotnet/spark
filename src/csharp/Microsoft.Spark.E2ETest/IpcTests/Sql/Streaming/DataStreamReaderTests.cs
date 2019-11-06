@@ -33,7 +33,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<DataStreamReader>(dsr.Format("parquet"));
             Assert.IsType<DataStreamReader>(dsr.Schema("columnName bigint"));
             Assert.IsType<DataStreamReader>(dsr.Option("key", "value"));
-            Assert.IsType<DataStreamReader>(dsr.Option("key", false));
+            Assert.IsType<DataStreamReader>(dsr.Option("key", true));
             Assert.IsType<DataStreamReader>(dsr.Option("key", long.MaxValue));
             Assert.IsType<DataStreamReader>(dsr.Option("key", double.MaxValue));
             Assert.IsType<DataStreamReader>(dsr.Options(new Dictionary<string, string>()));
@@ -58,7 +58,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 Assert.IsType<DataFrame>(dsr.Parquet(path));
             }
 
-            // Text is a special case, because we can't use Range() data.
+            // Text is a special case because we can't use Range() data.
             string textFilePath = Path.GetFullPath("Resources/people.txt");
             Assert.IsType<DataFrame>(dsr.Text(textFilePath));
         }
