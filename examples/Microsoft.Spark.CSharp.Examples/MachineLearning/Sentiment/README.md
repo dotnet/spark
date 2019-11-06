@@ -186,7 +186,7 @@ spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local 
 
 ## Next Steps
 
-Checkout the [full coding example](./Program.cs).
+Checkout the [full coding example](./Program.cs). You can also view a live video explanation of this app and combining ML.NET + .NET for Spark in the [.NET for Apache Spark 101 video series](https://www.youtube.com/watch?v=i1AaZXzZsFY&list=PLdo4fOcmZ0oXklB5hhg1G1ZwOJTEjcQ5z&index=6&t=2s).
 
 Rather than performing batch processing (analyzing data that's already been stored), we can adapt our Spark + ML.NET app to instead perform real-time processing with structured streaming.
 
