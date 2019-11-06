@@ -15,7 +15,7 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
     /// for sentiment analysis.
     /// </summary>
     //public class Program
-    internal sealed class SentimentBatch : IExample
+    internal sealed class Program : IExample
     {
         //public static void Main(string[] args)
         public void Run(string[] args)
