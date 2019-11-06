@@ -14,10 +14,19 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
     /// Example of using ML.NET + .NET for Apache Spark
     /// for sentiment analysis.
     /// </summary>
-    public class Program
+    //public class Program
+    internal sealed class SentimentBatch : IExample
     {
-        public static void Main(string[] args)
+        //public static void Main(string[] args)
+        public void Run(string[] args)
         {
+            if (args.Length != 1)
+            {
+                Console.Error.WriteLine(
+                    "Usage: <path to Resources folder with yelp.csv and MLModel.zip>");
+                Environment.Exit(1);
+            }
+
             SparkSession spark = SparkSession
                 .Builder()
                 .AppName(".NET for Apache Spark Sentiment Analysis")
@@ -28,13 +37,14 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
                 .Read()
                 .Option("header", true)
                 .Option("inferSchema", true)
-                .Csv(@"Resources\yelp.csv");
+                .Csv(args[0] + "yelp.csv");
+                //.Csv(@"Resources\yelp.csv");
             df.Show();
 
             // Use ML.NET in a UDF to evaluate each review 
             spark.Udf().Register<string, bool>(
                 "MLudf",
-                (text) => Sentiment(text));
+                (text) => Sentiment(text, args[0] + "MLModel.zip"));
 
             // Use Spark SQL to call ML.NET UDF
             // Display results of sentiment analysis on reviews
@@ -55,13 +65,14 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
 
         // Method to call ML.NET code for sentiment analysis
         // Code primarily comes from ML.NET Model Builder
-        public static bool Sentiment(string text)
+        public static bool Sentiment(string text, string modelPath)
         {
             MLContext mlContext = new MLContext();
 
             ITransformer mlModel = mlContext
                 .Model
-                .Load(@"Resources\MLModel.zip", out var modelInputSchema);
+                .Load(modelPath, out var modelInputSchema);
+                //.Load(@"Resources\MLModel.zip", out var modelInputSchema);
 
             var predEngine = mlContext
                .Model
