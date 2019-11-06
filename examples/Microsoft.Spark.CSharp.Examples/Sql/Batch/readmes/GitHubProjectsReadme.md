@@ -72,3 +72,5 @@ spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local 
 ## Next Steps
 
 View the [full coding example](../GitHubProjects.cs) to see an example of prepping and analyzing GitHub data.
+
+You can also view a live video explanation of this app and batch processing overall in the [.NET for Apache Spark 101 video series](https://www.youtube.com/watch?v=i_NvL8p_KZg&list=PLdo4fOcmZ0oXklB5hhg1G1ZwOJTEjcQ5z&index=4&t=3s).
