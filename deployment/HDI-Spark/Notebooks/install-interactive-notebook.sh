@@ -12,12 +12,12 @@ if  [[ $HOSTNAME == hn* ]] ;
 then
     # Update Livy Jars
     sudo wget https://sparkdotnetrepl.blob.core.windows.net/notebooks/livy_jar.zip
-    sudo unzip livy_jar.zip
+    sudo unzip -o livy_jar.zip
     sudo cp -rf livy_jar/* /usr/hdp/current/livy2-server/
 
     # Update SparkMagic
     sudo wget https://sparkdotnetrepl.blob.core.windows.net/notebooks/sparkmagic.zip
-    sudo unzip sparkmagic.zip
+    sudo unzip -o sparkmagic.zip
     sudo cp -f sparkmagic/config.json /home/spark/.sparkmagic/
     sudo cp -rf sparkmagic/* /usr/bin/anaconda/lib/python2.7/site-packages/sparkmagic/
 
@@ -38,7 +38,7 @@ else
     # Install SparkDotNet
     SPARK_DOTNET_VERSION=$1
     # Check if parameter exists, otherwise error out
-    [ -z "$SPARK_DOTNET_VERSION"] && { echo "Error: Sparkdotnet version parameter is missing..."; exit 1; }
+    [ -z "$SPARK_DOTNET_VERSION" ] && { echo "Error: Sparkdotnet version parameter is missing..."; exit 1; }
     
     sudo dpkg --purge --force-all packages-microsoft-prod
     sudo wget -q https://packages.microsoft.com/config/ubuntu/`lsb_release -rs`/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
@@ -48,13 +48,14 @@ else
     sudo apt-get -yq update
     sudo apt-get -yq install dotnet-sdk-3.0
 
+    sudo dotnet tool uninstall dotnet-try --tool-path /usr/share/dotnet-tools || true
     sudo dotnet tool install dotnet-try --add-source https://dotnet.myget.org/F/dotnet-try/api/v3/index.json --tool-path /usr/share/dotnet-tools --version 1.0.19473.13
 
     # copy .NET for Apache Spark jar to SPARK's jar folder
-    sudo mkdir -p tmp
-    sudo wget "https://www.nuget.org/api/v2/package/Microsoft.Spark/${SPARK_DOTNET_VERSION}" -O tmp/"microsoft.spark.${SPARK_DOTNET_VERSION}.nupkg"
-    sudo unzip tmp/"microsoft.spark.${SPARK_DOTNET_VERSION}.nupkg" -d tmp
-    sudo install --verbose --mode 644 tmp/jars/"microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar" "/usr/hdp/current/spark2-client/jars/microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar"
+    sudo mkdir -p /tmp/temp_jar
+    sudo wget "https://www.nuget.org/api/v2/package/Microsoft.Spark/${SPARK_DOTNET_VERSION}" -O /tmp/temp_jar/"microsoft.spark.${SPARK_DOTNET_VERSION}.nupkg"
+    sudo unzip -o /tmp/temp_jar/"microsoft.spark.${SPARK_DOTNET_VERSION}.nupkg" -d /tmp/temp_jar
+    sudo install --verbose --mode 644 /tmp/temp_jar/jars/"microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar" "/usr/hdp/current/spark2-client/jars/microsoft-spark-2.4.x-${SPARK_DOTNET_VERSION}.jar"
 
     # cleanup unneeded packages
     sudo apt-get autoremove -yq
@@ -93,7 +94,7 @@ else
     sudo rm -rf $SPARKDOTNET_ROOT
 
     # Copy the worker file to a local temporary file.
-    wget $SRC_WORKER_PATH_OR_URI -O $TEMP_WORKER_FILENAME
+    sudo wget $SRC_WORKER_PATH_OR_URI -O $TEMP_WORKER_FILENAME
 
     # Untar the file.
     sudo mkdir -p $SPARKDOTNET_ROOT
@@ -107,5 +108,5 @@ else
 
     # Remove the temporary nuget and worker file.
     sudo rm $TEMP_WORKER_FILENAME
-    sudo rm -rf tmp
+    sudo rm -rf /tmp/temp_jar
 fi
