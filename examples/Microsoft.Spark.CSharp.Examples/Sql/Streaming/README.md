@@ -97,7 +97,7 @@ In the above code snippet from [StructuredNetworkCharacterCount.cs](StructuredNe
 We can use `DataFrame.WriteStream()` to establish characteristics of our output, such as printing our results to the console and only displaying the most recent output and not all of our previous output as well. 
 
 ```CSharp
-Spark.Sql.Streaming.StreamingQuery query = arrayDf
+StreamingQuery query = arrayDf
     .WriteStream()
     .Format("console")
     .Start();
