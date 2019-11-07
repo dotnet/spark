@@ -71,7 +71,7 @@ A UDF is a *user-defined function.* We can use UDFs in Spark applications to per
 
 ```CSharp
 Func<Column, Column> udfArray =
-                Udf<string, string[]>((str) => new string[] { str, str + " " + (str.Length).ToString() });
+    Udf<string, string[]>((str) => new string[] { str, $"{str} {str.Length}");
 ```
 
 In the above code snippet from [StructuredNetworkCharacterCount.cs](StructuredNetworkCharacterCount.cs), we register a UDF called `udfArray`. This UDF will process each string it receives from the netcat terminal to produce an array that includes: the original string (contained in *str*), the original string concatenated with the length of that original string. 
