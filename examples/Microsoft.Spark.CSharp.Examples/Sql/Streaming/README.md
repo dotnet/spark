@@ -17,6 +17,8 @@ You'll see there are four different samples included in the *Streaming* folder:
 * **[StructuredKafkaWordCount.cs](StructuredKafkaWordCount.cs)** - word count on data streamed from Kafka
 * **[StructuredNetworkWordCountUDF.cs](StructuredNetworkWordCountUDF.cs)** - word count sample demonstrating power of UDFs + stream processing
 
+While the steps below apply to most stream processing apps, some of the specific code snippets or submission instructions pertain specifically to the [StructuredNetworkWordCountUDF.cs](StructuredNetworkWordCountUDF.cs) example.
+
 ### 1. Create a Spark Session
 
 In any Spark application, we need to establish a new `SparkSession`, which is the entry point to programming Spark with the Dataset and DataFrame API.
@@ -24,7 +26,7 @@ In any Spark application, we need to establish a new `SparkSession`, which is th
 ```CSharp
 SparkSession spark = SparkSession
     .Builder()
-    .AppName("My Streaming App")
+    .AppName("Streaming example with a UDF")
     .GetOrCreate();
 ```
 
@@ -55,7 +57,7 @@ Our Spark program will be listening for input we type into this command prompt.
 The `ReadStream()` method returns a `DataStreamReader` that can be used to read streaming data in as a `DataFrame`. We'll include the host and port information so that our Spark app knows where to expect its streaming data.
 
 ```CSharp
-DataFrame words = spark
+DataFrame lines = spark
     .ReadStream()
     .Format("socket")
     .Option("host", hostname)
