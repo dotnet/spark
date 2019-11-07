@@ -4,8 +4,8 @@
 
 using System;
 using Microsoft.Spark.Sql;
-using static Microsoft.Spark.Sql.Functions;
 using Microsoft.Spark.Sql.Streaming;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace Microsoft.Spark.Examples.Sql.Streaming
 {
@@ -46,7 +46,7 @@ namespace Microsoft.Spark.Examples.Sql.Streaming
             // UDF to produce an array
             // Array includes: original string, length of original string
             Func<Column, Column> udfArray =
-                Udf<string, string[]>((str) => new string[] { str, $"{str} {str.Length}");
+                Udf<string, string[]>((str) => new string[] { str, $"{str} {str.Length}" });
             DataFrame arrayDF = lines.Select(Explode(udfArray(lines["value"])));
 
             // Process and display each incoming line
