@@ -17,7 +17,7 @@ In any Spark application, we need to establish a new `SparkSession`, which is th
 
 ```CSharp
 SparkSession spark = SparkSession
-       .Builder()
+    .Builder()
        .AppName("My Streaming App")
        .GetOrCreate();
 ```
