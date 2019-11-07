@@ -125,4 +125,4 @@ spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local 
 
 To learn more about structured streaming with .NET for Apache Spark, check out [this video](https://channel9.msdn.com/Series/NET-for-Apache-Spark-101/Structured-Streaming-with-NET-for-Apache-Spark) from the .NET for Apache Spark 101 video series to see a streaming demo coded and ran live.
 
-You can also [checkout the demos and explanation](https://youtu.be/ZWsYMQ0Sw1o) from the .NET for Apache Spark session at .NET Conf 2019!
+You can also [check out the demos and explanation](https://youtu.be/ZWsYMQ0Sw1o) from the .NET for Apache Spark session at .NET Conf 2019!
