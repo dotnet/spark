@@ -29,15 +29,20 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             DataStreamReader dsr = _spark.ReadStream();
 
             Assert.IsType<DataStreamReader>(dsr.Format("parquet"));
+
             Assert.IsType<DataStreamReader>(dsr.Schema("columnName bigint"));
+
             Assert.IsType<DataStreamReader>(dsr.Option("key", "value"));
             Assert.IsType<DataStreamReader>(dsr.Option("key", true));
             Assert.IsType<DataStreamReader>(dsr.Option("key", long.MaxValue));
             Assert.IsType<DataStreamReader>(dsr.Option("key", double.MaxValue));
             Assert.IsType<DataStreamReader>(dsr.Options(new Dictionary<string, string>()));
-            Assert.IsType<DataStreamReader>(dsr.Options(new Dictionary<string, string>() {
-                { "key", "value" }
-            }));
+            Assert.IsType<DataStreamReader>(
+                dsr.Options(
+                    new Dictionary<string, string>
+                    {
+                        { "key", "value" }
+                    }));
 
             string jsonFilePath = Path.Combine(TestEnvironment.ResourceDirectory, "people.json");
             Assert.IsType<DataFrame>(dsr.Format("json").Option("path", jsonFilePath).Load());
