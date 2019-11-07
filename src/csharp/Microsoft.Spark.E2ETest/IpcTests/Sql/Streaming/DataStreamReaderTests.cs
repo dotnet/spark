@@ -2,10 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Streaming;
 using Xunit;
@@ -37,30 +35,26 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<DataStreamReader>(dsr.Option("key", long.MaxValue));
             Assert.IsType<DataStreamReader>(dsr.Option("key", double.MaxValue));
             Assert.IsType<DataStreamReader>(dsr.Options(new Dictionary<string, string>()));
+            Assert.IsType<DataStreamReader>(dsr.Options(new Dictionary<string, string>() {
+                { "key", "value" }
+            }));
 
-            DataFrame data = _spark.Range(0, 5);
-            using (var tempDirectory = new TemporaryDirectory())
-            {
-                string filePath = Path.Combine(tempDirectory.Path, Guid.NewGuid().ToString());
+            string jsonFilePath = Path.Combine(TestEnvironment.ResourceDirectory, "people.json");
+            Assert.IsType<DataFrame>(dsr.Format("json").Option("path", jsonFilePath).Load());
+            Assert.IsType<DataFrame>(dsr.Format("json").Load(jsonFilePath));
+            Assert.IsType<DataFrame>(dsr.Json(jsonFilePath));
 
-                data.Write().Json(filePath);
-                Assert.IsType<DataFrame>(dsr.Format("json").Option("path", filePath).Load());
-                Assert.IsType<DataFrame>(dsr.Format("json").Load(filePath));
-                Assert.IsType<DataFrame>(dsr.Json(filePath));
+            Assert.IsType<DataFrame>(
+                dsr.Csv(Path.Combine(TestEnvironment.ResourceDirectory, "people.csv")));
 
-                data.Write().Mode("overwrite").Csv(filePath);
-                Assert.IsType<DataFrame>(dsr.Csv(filePath));
+            Assert.IsType<DataFrame>(
+                dsr.Orc(Path.Combine(TestEnvironment.ResourceDirectory, "users.orc")));
 
-                data.Write().Mode("overwrite").Orc(filePath);
-                Assert.IsType<DataFrame>(dsr.Orc(filePath));
+            Assert.IsType<DataFrame>(
+                dsr.Parquet(Path.Combine(TestEnvironment.ResourceDirectory, "users.parquet")));
 
-                data.Write().Mode("overwrite").Parquet(filePath);
-                Assert.IsType<DataFrame>(dsr.Parquet(filePath));
-            }
-
-            // Text is a special case because we can't use Range() data.
-            string textFilePath = Path.Combine(TestEnvironment.ResourceDirectory, "people.txt");
-            Assert.IsType<DataFrame>(dsr.Text(textFilePath));
+            Assert.IsType<DataFrame>
+                (dsr.Text(Path.Combine(TestEnvironment.ResourceDirectory, "people.txt")));
         }
     }
 }
