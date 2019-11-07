@@ -44,7 +44,7 @@ namespace Microsoft.Spark.Examples.Sql.Streaming
                 .Load();
 
             // UDF to produce an array
-            // Array includes: original string, length of original string
+            // Array includes: 1) original string 2) original string + length of original string
             Func<Column, Column> udfArray =
                 Udf<string, string[]>((str) => new string[] { str, $"{str} {str.Length}" });
             DataFrame arrayDF = lines.Select(Explode(udfArray(lines["value"])));
