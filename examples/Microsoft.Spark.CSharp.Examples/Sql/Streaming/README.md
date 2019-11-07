@@ -11,6 +11,12 @@ These samples are examples of **stream processing** since we're processing data 
 
 ## Solution
 
+You'll see there are four different samples included in the *Streaming* folder:
+* **[StructuredNetworkWordCount.cs](StructuredNetworkWordCount.cs)** - word count on data streamed from any source (i.e. netcat)
+* **[StructuredNetworkWordCountWindowed.cs](StructuredNetworkWordCountWindowed.cs)** - word count on data with windowing logic
+* **[StructuredKafkaWordCount.cs](StructuredKafkaWordCount.cs)** - word count on data streamed from Kafka
+* **[StructuredNetworkWordCountUDF.cs](StructuredNetworkWordCountUDF.cs)** - word count sample demonstrating power of UDFs + stream processing
+
 ### 1. Create a Spark Session
 
 In any Spark application, we need to establish a new `SparkSession`, which is the entry point to programming Spark with the Dataset and DataFrame API.
@@ -64,7 +70,7 @@ Func<Column, Column> udfArray =
                 Udf<string, string[]>((str) => new string[] { str, str + " " + (str.Length).ToString() });
 ```
 
-In the above code snippet, we register a UDF called `udfArray`. This UDF will process each string it receives from the netcat terminal to produce an array that includes: the original string (contained in *str*), the original string concatenated with the length of that original string. 
+In the above code snippet from [StructuredNetworkWordCountUDF.cs](StructuredNetworkWordCountUDF.cs), we register a UDF called `udfArray`. This UDF will process each string it receives from the netcat terminal to produce an array that includes: the original string (contained in *str*), the original string concatenated with the length of that original string. 
 
 For example, entering *Hello world* in the terminal would produce an array where:
 * array[0] = Hello world
