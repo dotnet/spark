@@ -80,7 +80,7 @@ We can use `DataFrame.WriteStream()` to establish characteristics of our output,
 
 ```CSharp
 Spark.Sql.Streaming.StreamingQuery query = sqlDf
-      .WriteStream()
+    .WriteStream()
       .Format("console")
       .Start();
 ```
