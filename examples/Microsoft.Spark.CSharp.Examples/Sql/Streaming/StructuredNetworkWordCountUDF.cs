@@ -32,9 +32,9 @@ namespace Microsoft.Spark.Examples.Sql.Streaming
             }
 
             SparkSession spark = SparkSession
-                    .Builder()
-                    .AppName("Streaming example with a UDF")
-                    .GetOrCreate();
+                .Builder()
+                .AppName("Streaming example with a UDF")
+                .GetOrCreate();
 
             DataFrame lines = spark
                 .ReadStream()
@@ -51,9 +51,10 @@ namespace Microsoft.Spark.Examples.Sql.Streaming
 
             // Process and display each incoming line
             Microsoft.Spark.Sql.Streaming.StreamingQuery query = arrayDF
-                                                                .WriteStream()
-                                                                .Format("console")
-                                                                .Start();
+                .WriteStream()
+                .Format("console")
+                .Start();
+                
             query.AwaitTermination();
         }
     }
