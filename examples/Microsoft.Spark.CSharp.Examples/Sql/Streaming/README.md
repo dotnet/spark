@@ -60,10 +60,17 @@ DataFrame words = spark
 A UDF is a *user-defined function.* We can use UDFs in Spark applications to perform calculations and analysis on our data.
 
 ```CSharp
-spark.Udf().Register<string, bool>("MyUDF", input => ValidLogTest(input));
+Func<Column, Column> udfArray =
+                Udf<string, string[]>((str) => new string[] { str, str + " " + (str.Length).ToString() });
 ```
 
-In the above code snippet, we register a UDF that will pass each log entry it receives to the method *ValidLogTest.*
+In the above code snippet, we register a UDF called `udfArray`. This UDF will process each string it receives from the netcat terminal to produce an array that includes: the original string (contained in *str*), the original string concatenated with the length of that original string. 
+
+For example, entering *Hello world* in the terminal would produce an array where:
+* array[0] = Hello world
+* array[1] = Hello world 11
+    
+This is just an example of how you can use UDFs to further modify and analyze your data, even live as it's being streamed in!
 
 ### 4. Use Spark SQL
 
