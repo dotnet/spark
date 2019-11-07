@@ -5,6 +5,7 @@
 using System;
 using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.Functions;
+using Microsoft.Spark.Sql.Streaming;
 
 namespace Microsoft.Spark.Examples.Sql.Streaming
 {
@@ -49,7 +50,7 @@ namespace Microsoft.Spark.Examples.Sql.Streaming
             DataFrame arrayDF = lines.Select(Explode(udfArray(lines["value"])));
 
             // Process and display each incoming line
-            Microsoft.Spark.Sql.Streaming.StreamingQuery query = arrayDF
+            StreamingQuery query = arrayDF
                 .WriteStream()
                 .Format("console")
                 .Start();
