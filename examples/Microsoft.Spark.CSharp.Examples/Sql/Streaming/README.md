@@ -80,21 +80,22 @@ For example, entering *Hello world* in the terminal would produce an array where
     
 This is just an example of how you can use UDFs to further modify and analyze your data, even live as it's being streamed in!
 
-### 4. Use Spark SQL
+### 4. Use SparkSQL
 
-Next, we'll use Spark SQL to make SQL calls on our data. It's common to combine UDFs and Spark SQL so that we can apply a UDF to each 
-row of our DataFrame.
+Next, we'll use SparkSQL to perform various functions on the data stored in our DataFrame. It's common to combine UDFs and SparkSQL so that we can apply a UDF to each row of our DataFrame.
 
 ```CSharp
-DataFrame sqlDf = spark.Sql("SELECT WordsEdit.value, MyUDF(WordsEdit.value) FROM WordsEdit"); 
+DataFrame arrayDF = lines.Select(Explode(udfArray(lines["value"])));
 ```
+
+In the above code snippet from [StructuredNetworkWordCountUDF.cs](StructuredNetworkWordCountUDF.cs), we apply *udfArray* to each value in our DataFrame (which represents each string read in from our netcat terminal). We then apply the SparkSQL method `Explode` to put each entry of our array in its own row. Finally, we use `Select` to place the columns we've produced in the new DataFrame *arrayDF.*
 
 ### 5. Display Your Stream
 
 We can use `DataFrame.WriteStream()` to establish characteristics of our output, such as printing our results to the console and only displaying the most recent output and not all of our previous output as well. 
 
 ```CSharp
-Spark.Sql.Streaming.StreamingQuery query = sqlDf
+Spark.Sql.Streaming.StreamingQuery query = arrayDf
     .WriteStream()
     .Format("console")
     .Start();
