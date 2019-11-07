@@ -48,7 +48,7 @@ The `ReadStream()` method returns a `DataStreamReader` that can be used to read 
 
 ```CSharp
 DataFrame words = spark
-      .ReadStream()
+    .ReadStream()
       .Format("socket")
       .Option("host", hostname)
       .Option("port", port)
