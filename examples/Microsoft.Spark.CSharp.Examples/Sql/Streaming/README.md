@@ -117,7 +117,7 @@ Check out the directions for building and running this app on [Windows](../../..
 
 After starting a new netcat session, open a new terminal and run your `spark-submit` command, similar to the following:
 
-```CSharp
+```powershell
 spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local C:\GitHub\spark\src\scala\microsoft-spark-2.4.x\target\microsoft-spark-2.4.x-0.6.0.jar Microsoft.Spark.CSharp.Examples.exe Sql.Streaming.StructuredNetworkCharacterCount localhost 9999
 ```
 
