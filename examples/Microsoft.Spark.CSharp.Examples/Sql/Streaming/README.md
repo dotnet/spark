@@ -18,8 +18,8 @@ In any Spark application, we need to establish a new `SparkSession`, which is th
 ```CSharp
 SparkSession spark = SparkSession
     .Builder()
-       .AppName("My Streaming App")
-       .GetOrCreate();
+    .AppName("My Streaming App")
+    .GetOrCreate();
 ```
 
 By calling on the *spark* object created above, we can access Spark and DataFrame functionality throughout our program.
@@ -49,10 +49,10 @@ The `ReadStream()` method returns a `DataStreamReader` that can be used to read 
 ```CSharp
 DataFrame words = spark
     .ReadStream()
-      .Format("socket")
-      .Option("host", hostname)
-      .Option("port", port)
-      .Load();
+    .Format("socket")
+    .Option("host", hostname)
+    .Option("port", port)
+    .Load();
 ```
 
 ### 3. Register a UDF
@@ -81,8 +81,8 @@ We can use `DataFrame.WriteStream()` to establish characteristics of our output,
 ```CSharp
 Spark.Sql.Streaming.StreamingQuery query = sqlDf
     .WriteStream()
-      .Format("console")
-      .Start();
+    .Format("console")
+    .Start();
 ```
 
 ### 6. Running Your Code
