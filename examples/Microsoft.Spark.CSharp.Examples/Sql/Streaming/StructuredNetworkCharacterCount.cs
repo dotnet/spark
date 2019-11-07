@@ -9,14 +9,13 @@ using static Microsoft.Spark.Sql.Functions;
 namespace Microsoft.Spark.Examples.Sql.Streaming
 {
     /// <summary>
-    /// The example is modified from
-    /// spark/examples/src/main/python/sql/streaming/structured_network_wordcount.py
+    /// This an example of using a UDF with streaming processing.
     ///
     /// You can set up the data source as follow in a separated terminal:
     /// `$ nc -lk 9999`
     /// to start writing standard input to port 9999.
     /// </summary>
-    internal sealed class StructuredNetworkWordCountUDF : IExample
+    internal sealed class StructuredNetworkCharacterCount : IExample
     {
         public void Run(string[] args)
         {
