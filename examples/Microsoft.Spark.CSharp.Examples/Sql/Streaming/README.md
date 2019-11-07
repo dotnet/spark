@@ -32,6 +32,8 @@ By calling on the *spark* object created above, we can access Spark and DataFram
 
 ### 2. Establish and Connect to Data Stream
 
+Depending upon which sample you choose to run, you need to setup a connection to a data stream. One popular way to test out stream processing is through **netcat.**
+
 #### Establish Stream: Netcat
 
 netcat (also known as *nc*) allows you to read from and write to network connections. We'll establish a network
