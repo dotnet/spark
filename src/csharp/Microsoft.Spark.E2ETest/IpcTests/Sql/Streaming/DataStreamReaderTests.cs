@@ -43,16 +43,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<DataFrame>(dsr.Format("json").Option("path", jsonFilePath).Load());
             Assert.IsType<DataFrame>(dsr.Format("json").Load(jsonFilePath));
             Assert.IsType<DataFrame>(dsr.Json(jsonFilePath));
-
             Assert.IsType<DataFrame>(
                 dsr.Csv(Path.Combine(TestEnvironment.ResourceDirectory, "people.csv")));
-
             Assert.IsType<DataFrame>(
                 dsr.Orc(Path.Combine(TestEnvironment.ResourceDirectory, "users.orc")));
-
             Assert.IsType<DataFrame>(
                 dsr.Parquet(Path.Combine(TestEnvironment.ResourceDirectory, "users.parquet")));
-
             Assert.IsType<DataFrame>
                 (dsr.Text(Path.Combine(TestEnvironment.ResourceDirectory, "people.txt")));
         }
