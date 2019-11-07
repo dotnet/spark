@@ -15,9 +15,9 @@ You'll see there are four different samples included in the *Streaming* folder:
 * **[StructuredNetworkWordCount.cs](StructuredNetworkWordCount.cs)** - word count on data streamed from any source (i.e. netcat)
 * **[StructuredNetworkWordCountWindowed.cs](StructuredNetworkWordCountWindowed.cs)** - word count on data with windowing logic
 * **[StructuredKafkaWordCount.cs](StructuredKafkaWordCount.cs)** - word count on data streamed from Kafka
-* **[StructuredNetworkWordCountUDF.cs](StructuredNetworkWordCountUDF.cs)** - word count sample demonstrating power of UDFs + stream processing
+* **[StructuredNetworkCharacterCount.cs](StructuredNetworkCharacterCount.cs)** - sample counting number of characters in each string read from a stream; demonstrating power of UDFs + stream processing
 
-While the steps below apply to most stream processing apps, some of the specific code snippets or submission instructions pertain specifically to the [StructuredNetworkWordCountUDF.cs](StructuredNetworkWordCountUDF.cs) example.
+While the steps below apply to most stream processing apps, some of the specific code snippets or submission instructions pertain specifically to the [StructuredNetworkCharacterCount.cs](StructuredNetworkCharacterCount.cs) example.
 
 ### 1. Create a Spark Session
 
@@ -74,7 +74,7 @@ Func<Column, Column> udfArray =
                 Udf<string, string[]>((str) => new string[] { str, str + " " + (str.Length).ToString() });
 ```
 
-In the above code snippet from [StructuredNetworkWordCountUDF.cs](StructuredNetworkWordCountUDF.cs), we register a UDF called `udfArray`. This UDF will process each string it receives from the netcat terminal to produce an array that includes: the original string (contained in *str*), the original string concatenated with the length of that original string. 
+In the above code snippet from [StructuredNetworkCharacterCount.cs](StructuredNetworkCharacterCount.cs), we register a UDF called `udfArray`. This UDF will process each string it receives from the netcat terminal to produce an array that includes: the original string (contained in *str*), the original string concatenated with the length of that original string. 
 
 For example, entering *Hello world* in the terminal would produce an array where:
 * array[0] = Hello world
@@ -90,7 +90,7 @@ Next, we'll use SparkSQL to perform various functions on the data stored in our 
 DataFrame arrayDF = lines.Select(Explode(udfArray(lines["value"])));
 ```
 
-In the above code snippet from [StructuredNetworkWordCountUDF.cs](StructuredNetworkWordCountUDF.cs), we apply *udfArray* to each value in our DataFrame (which represents each string read in from our netcat terminal). We then apply the SparkSQL method `Explode` to put each entry of our array in its own row. Finally, we use `Select` to place the columns we've produced in the new DataFrame *arrayDF.*
+In the above code snippet from [StructuredNetworkCharacterCount.cs](StructuredNetworkCharacterCount.cs), we apply *udfArray* to each value in our DataFrame (which represents each string read in from our netcat terminal). We then apply the SparkSQL method `Explode` to put each entry of our array in its own row. Finally, we use `Select` to place the columns we've produced in the new DataFrame *arrayDF.*
 
 ### 5. Display Your Stream
 
@@ -118,7 +118,7 @@ Check out the directions for building and running this app on [Windows](../../..
 After starting a new netcat session, open a new terminal and run your `spark-submit` command, similar to the following:
 
 ```CSharp
-spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local C:\GitHub\spark\src\scala\microsoft-spark-2.4.x\target\microsoft-spark-2.4.x-0.6.0.jar Microsoft.Spark.CSharp.Examples.exe Sql.Streaming.StructuredNetworkWordCountUDF localhost 9999
+spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local C:\GitHub\spark\src\scala\microsoft-spark-2.4.x\target\microsoft-spark-2.4.x-0.6.0.jar Microsoft.Spark.CSharp.Examples.exe Sql.Streaming.StructuredNetworkCharacterCount localhost 9999
 ```
 
 **Note:** The above command assumes your netcat server is running on localhost port 9999.
