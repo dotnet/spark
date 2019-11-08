@@ -17,7 +17,6 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
     //public class Program
     internal sealed class Program : IExample
     {
-        //public static void Main(string[] args)
         public void Run(string[] args)
         {
             if (args.Length != 1)
@@ -38,7 +37,6 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
                 .Option("header", true)
                 .Option("inferSchema", true)
                 .Csv(args[0] + "yelp.csv");
-                //.Csv(@"Resources\yelp.csv");
             df.Show();
 
             // Use ML.NET in a UDF to evaluate each review 
@@ -72,7 +70,6 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
             ITransformer mlModel = mlContext
                 .Model
                 .Load(modelPath, out var modelInputSchema);
-                //.Load(@"Resources\MLModel.zip", out var modelInputSchema);
 
             var predEngine = mlContext
                .Model
