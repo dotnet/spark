@@ -90,8 +90,8 @@ DataFrame API.
 ```CSharp
 SparkSession spark = SparkSession
     .Builder()
-       .AppName(".NET for Apache Spark Sentiment Analysis")
-       .GetOrCreate();
+    .AppName(".NET for Apache Spark Sentiment Analysis")
+    .GetOrCreate();
 ```
 
 ### 2. Read Input File into a DataFrame
