@@ -120,15 +120,21 @@ We create a User Defined Function (UDF) that calls the *Sentiment* method on eac
 spark.Udf().Register<string, bool>("MLudf", (text) => Sentiment(text));
 ```
 
-*Sentiment* is where we'll call our ML.NET code that was generated from the final step of Model Builder.
+*Sentiment* is where we'll call our ML.NET code that was generated from the final step of Model Builder. The initial code in *Sentiment* sets up the necessary context for ML.NET to perform its prediction:
 
 ```CSharp
 MLContext mlContext = new MLContext();
-ITransformer mlModel = mlContext.Model.Load(@"Resources\MLModel.zip", out var modelInputSchema);
-var predEngine = mlContext.Model.CreatePredictionEngine<Review, ReviewPrediction>(mlModel);
+
+ITransformer mlModel = mlContext
+    .Model
+    .Load(modelPath, out var modelInputSchema);
+
+PredictionEngine<Review, ReviewPrediction> predEngine = mlContext
+    .Model
+    .CreatePredictionEngine<Review, ReviewPrediction>(mlModel);
 ```
 
-You may notice the use of *Review* and *ReviewPrediction.* These are classes we define in our project to represent the review data we're evaluating. 
+You may notice the use of *Review* and *ReviewPrediction.* These are classes we define in our project to represent the review data we're evaluating:
 
 ```CSharp
 public class Review
@@ -149,6 +155,13 @@ public class ReviewPrediction : Review
 
        public float Score { get; set; }
 } 
+```
+
+The latter part of *Sentiment* passes the review from **yelp.csv** to the ML model and returns a prediction (either *true* for positive sentiment or *false* for negative):
+
+```CSharp
+ReviewPrediction result = predEngine.Predict(new Review { ReviewText = text });
+return result.Prediction;
 ```
 
 ### 4. Spark SQL and Running Your Code
