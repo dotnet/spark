@@ -74,7 +74,7 @@ You would begin writing your .NET for Apache Spark code (and paste in the code g
 
 #### Option 2: Create a new console app (shown in this repo)
 
-Rather than working with the projects/files produced by Model Builder's Add Projects, you can create a new, separate C# console app. You just need to copy over your model's zip file to a directory your new console app can access. In this repo, a trained model **MLModel.zip** has already been included for you in the *Resources* folder.
+Rather than working with the projects/files produced by Model Builder's Add Projects, you can create a new, separate C# console app. You just need to copy over your model's zip file to a directory your new console app can access. In this repo, a trained model **MLModel.zip** has already been included for you in the [Resources](./Resources) folder.
 
 As we create the logic for our Spark app, we'll paste in the code generated from Model Builder and include some other class definitions.
 
