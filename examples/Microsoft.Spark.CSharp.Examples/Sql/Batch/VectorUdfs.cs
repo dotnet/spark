@@ -9,7 +9,7 @@ using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using StructType = Microsoft.Spark.Sql.Types.StructType;
 
-namespace Microsoft.Spark.Examples.Sql
+namespace Microsoft.Spark.Examples.Sql.Batch
 {
     /// <summary>
     /// An example demonstrating basic Spark SQL features.
