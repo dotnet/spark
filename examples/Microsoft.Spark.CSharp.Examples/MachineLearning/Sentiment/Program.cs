@@ -36,7 +36,7 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
                 .Read()
                 .Option("header", true)
                 .Option("inferSchema", true)
-                .Csv(args[0] + "yelp.csv");
+                .Csv(args[0] + "yelpcol.csv");
             df.Show();
 
             // Use ML.NET in a UDF to evaluate each review 
@@ -47,7 +47,7 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
             // Use Spark SQL to call ML.NET UDF
             // Display results of sentiment analysis on reviews
             df.CreateOrReplaceTempView("Reviews");
-            DataFrame sqlDf = spark.Sql("SELECT Column1, MLudf(Column1) FROM Reviews");
+            DataFrame sqlDf = spark.Sql("SELECT ReviewText, MLudf(ReviewText) FROM Reviews");
             sqlDf.Show();
 
             // Print out first 20 rows of data
@@ -72,7 +72,7 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
                .CreatePredictionEngine<Review, ReviewPrediction>(mlModel);
 
             ReviewPrediction result = predEngine.Predict(
-                new Review { Column1 = text });
+                new Review { ReviewText = text });
 
             // Returns true for positive review, false for negative
             return result.Prediction;
@@ -81,10 +81,9 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
         // Class to represent each review
         public class Review
         {
-            // Column names must match input file
-            // Column1 is review
+            // Column name must match input file
             [LoadColumn(0)]
-            public string Column1;
+            public string ReviewText;
         }
 
         // Class resulting from ML.NET code including predictions about review

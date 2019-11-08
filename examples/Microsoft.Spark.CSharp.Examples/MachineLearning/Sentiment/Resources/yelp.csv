@@ -1,4 +1,4 @@
-Column1,Column2
+ReviewText,Sentiment
 Wow... Loved this place.,1
 Crust is not good.,0
 Not tasty and the texture was just nasty.,0
@@ -25,7 +25,7 @@ Service is also cute.,1
 I could care less... The interior is just beautiful.,1
 So they performed.,1
 That's right....the red velvet cake.....ohhh this stuff is so good.,1
-- They never brought a salad we asked for.,0
+#NAME?,0
 "This hole in the wall has great Mexican street tacos, and friendly staff.",1
 "Took an hour to get our food only 4 tables in restaurant my food was Luke warm, Our sever was running around like he was totally overwhelmed.",0
 The worst was the salmon sashimi.,0
@@ -70,7 +70,7 @@ Update.....went back for a second time and it was still just as amazing,1
 We got the food and apparently they have never heard of salt and the batter on the fish was chewy.,0
 A great way to finish a great.,1
 "The deal included 5 tastings and 2 drinks, and Jeff went above and beyond what we expected.",1
-"- Really, really good rice, all the time.",1
+#NAME?,1
 The service was meh.,0
 "It took over 30 min to get their milkshake, which was nothing more than chocolate milk.",0
 "I guess I should have known that this place would suck, because it is inside of the Excalibur, but I didn't use my common sense.",0
@@ -218,7 +218,7 @@ Waitress was good though!,1
 Soggy and not good.,0
 The Jamaican mojitos are delicious.,1
 Which are small and not worth the price.,0
-- the food is rich so order accordingly.,1
+#NAME?,1
 "The shower area is outside so you can only rinse, not take a full shower, unless you don't mind being nude for everyone to see!",0
 The service was a bit lacking.,0
 "Lobster Bisque, Bussell Sprouts, Risotto, Filet ALL needed salt and pepper..and of course there is none at the tables.",0
@@ -903,7 +903,7 @@ Spend your money elsewhere.,0
 Their regular toasted bread was equally satisfying with the occasional pats of butter... Mmmm...!,1
 The Buffet at Bellagio was far from what I anticipated.,0
 "And the drinks are WEAK, people!",0
--My order was not correct.,0
+#NAME?,0
 "Also, I feel like the chips are bought, not made in house.",0
 After the disappointing dinner we went elsewhere for dessert.,0
 The chips and sals a here is amazing!!!!!!!!!!!!!!!!!!!,1
