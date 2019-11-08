@@ -67,11 +67,11 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
                 .Model
                 .Load(modelPath, out var modelInputSchema);
 
-            var predEngine = mlContext
+            PredictionEngine<Review, ReviewPrediction> predEngine = mlContext
                .Model
                .CreatePredictionEngine<Review, ReviewPrediction>(mlModel);
 
-            var result = predEngine.Predict(
+            ReviewPrediction result = predEngine.Predict(
                 new Review { Column1 = text });
 
             // Returns true for positive review, false for negative
