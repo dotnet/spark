@@ -51,12 +51,8 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
             sqlDf.Show();
 
             // Print out first 20 rows of data
-            // Prevents data getting cut off (as it is when we print a DF)
-            IEnumerable<Row> rows = sqlDf.Take(20);
-            foreach (Row row in rows)
-            {
-                Console.WriteLine(row);
-            }
+            // Prevent data getting cut off by setting truncate = 0
+            sqlDf.Show(20, 0, false);
 
             spark.Stop();
         }
