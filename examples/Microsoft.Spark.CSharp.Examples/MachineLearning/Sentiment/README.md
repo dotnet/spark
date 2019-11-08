@@ -58,7 +58,11 @@ You'll also generate C# code you can use to consume your model in other .NET app
 
 ### 4. Add ML.NET to .NET for Apache Spark App
 
-You have a few options to start creating a .NET for Apache Spark app that uses this ML.NET code and trained model. Make sure that in any app you develop, you've downloaded the [Microsoft.ML NuGet Package](https://www.nuget.org/packages/Microsoft.ML).
+You have a few options to start creating a .NET for Apache Spark app that uses this ML.NET code and trained model. Make sure that in any app you develop, you've added the [Microsoft.ML NuGet Package](https://www.nuget.org/packages/Microsoft.ML).
+
+Depending upon the algorithm Model Builder chooses for your ML model, you may need to add an additional nuget reference in [Microsoft.Spark.CSharp.Examples.csproj](../../Microsoft.Spark.CSharp.Examples.csproj). For instance, if you get an error message that Microsoft.ML.FastTree cannot be found when running your Spark app, you need to add that nuget to your csproj file:
+
+`<PackageReference Include="Microsoft.ML.FastTree" Version="1.3.1" />`
 
 #### Option 1: Add Projects
 
