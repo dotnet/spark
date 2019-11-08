@@ -156,7 +156,7 @@ public class ReviewPrediction : Review
 Now that you've read in your data and incorporated ML, use Spark SQL to call the UDF that will run sentiment analysis on each row of your DataFrame:
 
 ```CSharp
-DataFrame sqlDf = spark.Sql("SELECT _c0, MLudf(_c0) FROM Reviews");
+DataFrame sqlDf = spark.Sql("SELECT ReviewText, MLudf(ReviewText) FROM Reviews");
 ```
 
 Once you run your code, you'll be performing sentiment analysis with ML.NET and .NET for Spark!
