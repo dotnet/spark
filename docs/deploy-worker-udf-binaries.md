@@ -11,7 +11,7 @@ This documentation will describe how to deploy Worker and UDF (User Defined Func
 ## Configurations
 
 ### 1. Environment Variables
-Please see the commonly used environment variables as below when deploying worker and writing udfs. 
+When deploying workers and writing UDFs, there are a few commonly used environment variables that you may need to set: 
 
 <table>
   <tr>
