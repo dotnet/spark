@@ -89,7 +89,7 @@ DataFrame API.
 
 ```CSharp
 SparkSession spark = SparkSession
-       .Builder()
+    .Builder()
        .AppName(".NET for Apache Spark Sentiment Analysis")
        .GetOrCreate();
 ```
