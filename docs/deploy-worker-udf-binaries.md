@@ -28,7 +28,7 @@ When deploying workers and writing UDFs, there are a few commonly used environme
   </tr>
   <tr>
     <td><b>DOTNET_WORKER_DEBUG</b></td>
-    <td>If you want to <a href="https://github.com/dotnet/spark/blob/master/docs/developer-guide.md#debugging-user-defined-function-udf">debug UDF</a>, then set this environmnet variable to <code>1</code> before running <code>spark-submit</code>.</td>
+    <td>If you want to <a href="https://github.com/dotnet/spark/blob/master/docs/developer-guide.md#debugging-user-defined-function-udf">debug a UDF</a>, then set this environment variable to <code>1</code> before running <code>spark-submit</code>.</td>
   </tr>
 </table>
 
