@@ -174,15 +174,10 @@ There are a few steps you'll need to follow to build and run your app:
 #### Windows Example:
 
 ```powershell
-cd path/to/spark/examples/Microsoft.Spark.CSharp.Examples/MachineLearning/Sentiment
-dotnet clean -r win-x64 -c Release -f netcoreapp2.2
-dotnet publish -r win-x64 -c Release -f netcoreapp2.2
-
-cd path/to/spark/artifacts/bin/Sentiment/Release/netcoreapp2.2/win-x64/publish
-spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local /path/to/microsoft-spark-<version>.jar dotnet Sentiment.dll
+spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local /path/to/microsoft-spark-<version>.jar Microsoft.Spark.CSharp.Examples.exe MachineLearning.Sentiment.Program localhost 9999 /path/to/Microsoft.Spark.CSharp.Examples/MachineLearning/Sentiment/Resources
 ```
 
-> **Note:** Be sure to update the above commands with the actual paths to your Sentiment folder, publish folder, and Microsoft Spark jar file.
+> **Note:** Be sure to update the above command with the actual paths to your Microsoft Spark jar file and the Resources folder containing your MLModel.zip and yelp.csv.
 
 ## Next Steps
 
