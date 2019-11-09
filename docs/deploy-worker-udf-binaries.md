@@ -1,12 +1,6 @@
 # Deploy Worker and UDF Binaries General Instruction
 
-This documentation will describe how to deploy Worker and UDF (User Defined Function) binaries, which Environment Variable to set up and some commonly used options when launching applications with `spark-submit`.
-
-## Table of Contents
-- [Configurations](#configurations)
-  - [Environment Variables](#1-environment-variables)
-  - [Parameter Options](#2-parameter-options)
-- [Frequently Asked Questions](#faq)
+This how-to provides general instructions on how to deploy Worker and UDF (User-Defined Function) binaries, including which Environment Variables to set up and some commonly used parameters when launching applications with `spark-submit`.
 
 ## Configurations
 
@@ -46,7 +40,7 @@ Once the Spark application is [bundled](https://spark.apache.org/docs/latest/sub
   </tr>
   <tr>
     <td><b>--master</b></td>
-    <td>The <a href="https://spark.apache.org/docs/latest/submitting-applications.html#master-urls">master URL</a> for the cluster. <i>e.g. yarn</i></td>
+    <td>The <a href="https://spark.apache.org/docs/latest/submitting-applications.html#master-urls">master URL</a> for the cluster.</br><i>e.g. yarn</i></td>
   </tr>
   <tr>
     <td><b>--deploy-mode</b></td>
