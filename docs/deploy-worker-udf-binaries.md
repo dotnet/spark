@@ -33,7 +33,7 @@ When deploying workers and writing UDFs, there are a few commonly used environme
 </table>
 
 ### 2. Parameter Options
-Once the spark application is bundled, you can launch it using `spark-submit`. The following table shows some of the commonly used options. 
+Once the Spark application is [bundled](https://spark.apache.org/docs/latest/submitting-applications.html#bundling-your-applications-dependencies), you can launch it using `spark-submit`. The following table shows some of the commonly used options: 
 
 <table>
   <tr>
@@ -42,15 +42,15 @@ Once the spark application is bundled, you can launch it using `spark-submit`. T
   </tr>
   <tr>
     <td><b>--class</b></td>
-      <td>The entry point for your application <i>e.g. org.apache.spark.deploy.dotnet.DotnetRunner</i></td>
+      <td>The entry point for your application.</br><i>e.g. org.apache.spark.deploy.dotnet.DotnetRunner</i></td>
   </tr>
   <tr>
     <td><b>--master</b></td>
-    <td>The <a href="https://spark.apache.org/docs/latest/submitting-applications.html#master-urls">master URL</a> for the cluster <i>e.g. yarn</i></td>
+    <td>The <a href="https://spark.apache.org/docs/latest/submitting-applications.html#master-urls">master URL</a> for the cluster. <i>e.g. yarn</i></td>
   </tr>
   <tr>
     <td><b>--deploy-mode</b></td>
-    <td>Whether to deploy your driver on the worker nodes (<code>cluster</code>) or locally as an external client (<code>client</code>). Default: <code>client</code></td>
+    <td>Whether to deploy your driver on the worker nodes (<code>cluster</code>) or locally as an external client (<code>client</code>).</br>Default: <code>client</code></td>
   </tr>
   <tr>
     <td><b>--conf</b></td>
@@ -65,7 +65,7 @@ Once the spark application is bundled, you can launch it using `spark-submit`. T
   </tr>
   <tr>
     <td><b>--archives</b></td>
-    <td>Comma separated list of archives to be extracted into the working directory of each executor.</br>
+    <td>Comma-separated list of archives to be extracted into the working directory of each executor.</br>
       <li>Please note that this option is only applicable for yarn mode.</li>
       <li>It supports specifying file names with # similar to Hadoop.</br>
       <i>e.g. <code>hdfs://&lt;path to your worker file&gt;/Microsoft.Spark.Worker.net461.win-x64-0.6.0.zip#worker</code>. This will copy and extract the zip file to <code>worker</code> folder.</i></li></td>
@@ -77,19 +77,19 @@ Once the spark application is bundled, you can launch it using `spark-submit`. T
   </tr>
   <tr>
     <td><b>application-arguments</b></td>
-    <td>Arguments passed to the main method of your main class if any</td>
+    <td>Arguments passed to the main method of your main class, if any.</td>
   </tr>
 </table>
 
-> Note: Please specify all the `--options` before `application-jar` when launching applications with `spark-submit` otherwise they will be ignored. Please see more `spark-submit` options [here](https://spark.apache.org/docs/latest/submitting-applications.html) and running spark on YARN details [here](https://spark.apache.org/docs/latest/running-on-yarn.html).
+> Note: Please specify all the `--options` before `application-jar` when launching applications with `spark-submit`, otherwise they will be ignored. Please see more `spark-submit` options [here](https://spark.apache.org/docs/latest/submitting-applications.html) and running spark on YARN details [here](https://spark.apache.org/docs/latest/running-on-yarn.html).
 
 ## FAQ
 #### 1. Question: When I run a spark app with UDFs, I get the following error. What should I do?
 > **Error:** [ ] [ ] [Error] [TaskRunner] [0] ProcessStream() failed with exception: System.IO.FileNotFoundException: Assembly 'mySparkApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' file not found: 'mySparkApp.dll'
 
-**Answer:** Please check if the `DOTNET_ASSEMBLY_SEARCH_PATHS` environment variable is set correctly. It should be the path where contains your 'mySparkApp.dll'.
+**Answer:** Please check if the `DOTNET_ASSEMBLY_SEARCH_PATHS` environment variable is set correctly. It should be the path that contains your `mySparkApp.dll`.
 
-#### 2. Question: After I upgrade my Spark Dotnet version, and reset `DOTNET_WORKER_DIR` environment variable. Why I still get the following error?
+#### 2. Question: After I upgraded my Spark Dotnet version and reset the `DOTNET_WORKER_DIR` environment variable, why do I still get the following error?
 > **Error:** Lost task 0.0 in stage 11.0 (TID 24, localhost, executor driver): java.io.IOException: Cannot run program "Microsoft.Spark.Worker.exe": CreateProcess error=2, The system cannot find the file specified.
 
 **Answer:** Please try to restart your powershell window (or other command windows) first to take the latest environment variable values. And then start your program.
