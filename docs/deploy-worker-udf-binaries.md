@@ -94,7 +94,7 @@ Once the Spark application is [bundled](https://spark.apache.org/docs/latest/sub
 
 **Answer:** Please try restarting your PowerShell window (or other command windows) first so that it can take the latest environment variable values. Then start your program.
 
-#### 3. Question: After submitting my spark application, I got the error of `System.TypeLoadException: Could not load type 'System.Runtime.Remoting.Contexts.Context'`.
+#### 3. Question: After submitting my Spark application, I get the error `System.TypeLoadException: Could not load type 'System.Runtime.Remoting.Contexts.Context'`.
 > **Command:** %SPARK_HOME%\bin\spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local microsoft-spark-2.4.x-0.6.0.jar  mySparkApp.exe</br>
 **Error:** [ ] [ ] [Error] [TaskRunner] [0] ProcessStream() failed with exception: System.TypeLoadException: Could not load type 'System.Runtime.Remoting.Contexts.Context' from assembly 'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=...'.
 
