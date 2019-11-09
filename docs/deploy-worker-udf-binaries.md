@@ -71,7 +71,7 @@ Once the Spark application is [bundled](https://spark.apache.org/docs/latest/sub
   </tr>
   <tr>
     <td><b>application-arguments</b></td>
-    <td>Arguments passed to the main method of your main class, if any.</td>
+    <td>Arguments passed to the main method of your main class, if any.</br><i>e.g. hdfs://&lt;path to your app&gt;/&lt;your app&gt;.zip &lt;your app name&gt; &lt;app args&gt;</i></td>
   </tr>
 </table>
 
