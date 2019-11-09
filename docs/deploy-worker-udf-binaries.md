@@ -92,7 +92,7 @@ Once the Spark application is [bundled](https://spark.apache.org/docs/latest/sub
 #### 2. Question: After I upgraded my Spark Dotnet version and reset the `DOTNET_WORKER_DIR` environment variable, why do I still get the following error?
 > **Error:** Lost task 0.0 in stage 11.0 (TID 24, localhost, executor driver): java.io.IOException: Cannot run program "Microsoft.Spark.Worker.exe": CreateProcess error=2, The system cannot find the file specified.
 
-**Answer:** Please try to restart your powershell window (or other command windows) first to take the latest environment variable values. And then start your program.
+**Answer:** Please try restarting your PowerShell window (or other command windows) first so that it can take the latest environment variable values. Then start your program.
 
 #### 3. Question: After submitting my spark application, I got the error of `System.TypeLoadException: Could not load type 'System.Runtime.Remoting.Contexts.Context'`.
 > **Command:** %SPARK_HOME%\bin\spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local microsoft-spark-2.4.x-0.6.0.jar  mySparkApp.exe</br>
