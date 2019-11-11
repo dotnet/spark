@@ -196,21 +196,29 @@ StreamingQuery query = sqlDf
 
 ## Running Your App
 
-Since there are several distinct steps of setup for building and running a .NET for Apache Spark + ML.NET app, it's recommended
-to create a new console app and complete the Model Builder and ML.NET reference steps (from above) in that app. 
+There are a few steps you'll need to follow to build and run your app:
 
-You can then add the code from the SentimentAnalysis.cs app to your console app. You can finally `spark-submit` your new console app.
+* Start a new netcat server
+* Open a new terminal (separate from the netcat server), move to your app's root folder (i.e. *SentimentStream*)
+* Clean and publish your app
+* Move to your app's `publish` folder
+* `spark-submit` your app from within the `publish` folder
 
-In a separate terminal, you'll need to establish a netcat terminal (as described earlier in this doc).
-
-Structured streaming in Spark processes data through a series of small **batches**. When you run your program, the command prompt where we established the netcat will allow you to start typing.
-
+Structured streaming in Spark processes data through a series of small **batches.** 
+When you run your program, the command prompt where we established the netcat will allow you to start typing.
 In our example, when you hit *enter* after entering data in the command prompt, Spark will consider that a batch and run the UDF. 
 
-![StreamingOutput](https://github.com/bamurtaugh/spark/blob/StreamingLog/examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/streamingnc.PNG)
+![StreamingOutput](https://github.com/bamurtaugh/spark/blob/StreamingLog/examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/stream2.png)
 
-**Note:** In order to `spark-submit` an app that includes an additional Nuget (like the ML.NET nuget), you'll need to copy the ML.NET
-dll's into your app's main directory.
+#### Windows Example:
+
+After starting a new netcat connection in one command prompt, open a new one and run a command similar to the following: 
+
+```powershell
+spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local /path/to/microsoft-spark-<version>.jar Microsoft.Spark.CSharp.Examples.exe MachineLearning.SentimentStream.Program localhost 9999 /path/to/Microsoft.Spark.CSharp.Examples/MachineLearning/Sentiment/Resources
+```
+
+> **Note:** Be sure to update the above command with the actual paths to your Microsoft Spark jar file and the Resources folder containing your MLModel.zip.
 
 ## Next Steps
 
