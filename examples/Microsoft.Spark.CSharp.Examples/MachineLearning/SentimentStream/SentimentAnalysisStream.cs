@@ -7,7 +7,7 @@ using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.Spark.Sql;
 
-namespace Microsoft.Spark.Examples.Sql.MachineLearning
+namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
 {
     /// <summary>
     /// Example of using ML.NET + .NET for Apache Spark
@@ -17,24 +17,10 @@ namespace Microsoft.Spark.Examples.Sql.MachineLearning
     {
         public void Run(string[] args)
         {
-            // Change this flag once you've set up
-            // the ML.NET dependencies described in the README:
-            // Update url to location of MLModel.zip (line 90)
-            // Copy ML.NET dlls to your project's folder
-            int dependenciesDone = 0;
-
             if (args.Length != 2)
             {
                 Console.Error.WriteLine(
                     "Usage: SentimentAnalysisStream <host> <port>");
-
-                Environment.Exit(1);
-            }
-
-            if (dependenciesDone == 0)
-            {
-                Console.Error.WriteLine(
-                    "You need to complete setting ML.NET dependencies");
 
                 Environment.Exit(1);
             }
