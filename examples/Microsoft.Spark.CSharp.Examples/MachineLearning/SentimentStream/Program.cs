@@ -14,14 +14,14 @@ namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
     /// Example of using ML.NET + .NET for Apache Spark
     /// for sentiment analysis of streaming data.
     /// </summary>
-    internal sealed class SentimentAnalysisStream : IExample
+    internal sealed class Program : IExample
     {
         public void Run(string[] args)
         {
-            if (args.Length != 2)
+            if (args.Length != 3)
             {
                 Console.Error.WriteLine(
-                    "Usage: SentimentAnalysisStream <host> <port>");
+                    "Usage: SentimentAnalysisStream <host> <port> <model path>");
 
                 Environment.Exit(1);
             }
@@ -47,7 +47,7 @@ namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
             // Use ML.NET in a UDF to evaluate each incoming entry
             spark.Udf().Register<string, bool>(
                 "MyUDF",
-                input => Sentiment(input));
+                input => Sentiment(input, args[2]));
 
             // Call ML.NET code and display sentiment analysis results
             words.CreateOrReplaceTempView("WordsEdit");
@@ -65,13 +65,13 @@ namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
 
         // Method to call ML.NET code for sentiment analysis
         // Code primarily comes from ML.NET Model Builder
-        public static bool Sentiment(string text)
+        public static bool Sentiment(string text, string modelPath)
         {
             MLContext mlContext = new MLContext();
 
             ITransformer mlModel = mlContext
                 .Model
-                .Load(@"./Resources/MLModel.zip", out var modelInputSchema);
+                .Load(modelPath, out var modelInputSchema);
 
             PredictionEngine<Review, ReviewPrediction> predEngine = mlContext
                 .Model
