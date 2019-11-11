@@ -141,8 +141,14 @@ spark.Udf().Register<string, bool>("MyUDF", input => Sentiment(input));
 
 ```CSharp
 MLContext mlContext = new MLContext();
-ITransformer mlModel = mlContext.Model.Load("MLModel.zip", out var modelInputSchema);
-var predEngine = mlContext.Model.CreatePredictionEngine<Review, ReviewPrediction>(mlModel);
+
+ITransformer mlModel = mlContext
+    .Model
+    .Load(modelPath, out var modelInputSchema);
+
+PredictionEngine<Review, ReviewPrediction> predEngine = mlContext
+    .Model
+    .CreatePredictionEngine<Review, ReviewPrediction>(mlModel);
 ```
 
 You may notice the use of *Review* and *ReviewPrediction.* These are classes we define in our project to represent the review data we're evaluating. 
@@ -150,11 +156,9 @@ You may notice the use of *Review* and *ReviewPrediction.* These are classes we 
 ```CSharp
 public class Review
 {
+      // Represents the input review text
       [LoadColumn(0)]
       public string Column1;
-
-      [LoadColumn(1), ColumnName("Column2")]
-      public bool Column2;
 }
 ```
 
@@ -176,21 +180,21 @@ public class ReviewPrediction : Review
 Now that you've read in your data and incorporated ML, use Spark SQL to call the UDF that will run sentiment analysis on each row of your DataFrame:
 
 ```CSharp
-DataFrame sqlDf = spark.Sql("SELECT _c0, MLudf(_c0) FROM Reviews");
+DataFrame sqlDf = spark.Sql("SELECT WordsEdit.value, MyUDF(WordsEdit.value) FROM WordsEdit");
 ```
 
 ### 5. Display Your Stream
 
-We can use ```DataFrame.WriteStream()``` to establish characteristics of our output, such as printing our results to the console and only displaying the most recent output and not all of our previous output as well. 
+We can use `DataFrame.WriteStream()` to establish characteristics of our output, such as printing our results to the console and only displaying the most recent output and not all of our previous output as well. 
 
 ```CSharp
-var query = sqlDf
-      .WriteStream()
-      .Format("console")
-      .Start();
+StreamingQuery query = sqlDf
+    .WriteStream()
+    .Format("console")
+    .Start();
 ```
 
-## How to Run
+## Running Your App
 
 Checkout the [full coding example](../SentimentAnalysisStream.cs).
 
