@@ -8,6 +8,14 @@ statements are positive or negative, a task known as **sentiment analysis**.
 
 Our goal here is to determine if statements typed into a console are positive or negative. We'll be using .NET for Apache Spark to process statements in real-time and ML.NET to perform **binary classification** since categorizing text involves choosing one of two groups: positive or negative. You can read more about the problem through the [ML.NET documentation](https://docs.microsoft.com/en-us/dotnet/machine-learning/tutorials/sentiment-analysis).
 
+## Dataset
+
+We'll be using a set of **Yelp reviews** as the input training data for this example. 
+
+For the specific ML training/predictions in this app (i.e. when using Model Builder), it helps to have a header for the data. We introduced the column header **ReviewText,** which holds the review itself, and **Sentiment,** which holds either a 0 to indicate negative sentiment or a 1 to indicate positive sentiment. You can view the resulting data set in [yelptrain.csv](./Resources/yelptrain.csv).
+
+You can [download the original Yelp data](https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip) from the [UCI Sentiment Labeled Sentences Dataset]( https://archive.ics.uci.edu/ml/datasets/Sentiment+Labelled+Sentences). 
+
 ## Solution
 
 We'll first train an ML model using ML.NET, and then we'll create a new application that uses both .NET for Apache Spark and ML.NET.
