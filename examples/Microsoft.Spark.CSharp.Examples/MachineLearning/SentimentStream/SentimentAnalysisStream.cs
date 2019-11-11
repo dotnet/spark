@@ -78,7 +78,7 @@ namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
                 .CreatePredictionEngine<Review, ReviewPrediction>(mlModel);
 
             ReviewPrediction result = predEngine.Predict(
-                new Review { Column1 = text });
+                new Review { ReviewText = text });
 
             // Returns true for positive, false for negative
             return result.Prediction;
