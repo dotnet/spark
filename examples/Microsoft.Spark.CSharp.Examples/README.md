@@ -43,6 +43,7 @@ an open source and cross-platform machine learning framework.
   </tr>
   <tr>
     <td align="middle"><a href="Sql/Streaming/StructuredKafkaWordCount.cs"><b>StructuredKafkaWordCount.cs</a></b><br>Word count on data from Kafka.<br></td>
+      <td align="middle"><a href="Sql/Streaming/StructuredNetworkCharacterCount.cs"><b>StructuredNetworkCharacterCount.cs</a></b><br>Count number of characters in each string read from a stream, demonstrating the power of UDFs + stream processing.<br></td>
   </tr>
 </table>
 
