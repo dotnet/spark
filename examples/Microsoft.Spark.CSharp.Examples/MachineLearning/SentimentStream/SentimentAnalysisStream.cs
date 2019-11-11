@@ -6,6 +6,7 @@ using System;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Streaming;
 
 namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
 {
@@ -32,10 +33,7 @@ namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
                 .GetOrCreate();
 
             // Setup stream connection info
-            // string hostname = "localhost";
             string hostname = args[0];
-
-            // var port = 9999;
             var port = args[1];
 
             // Read streaming data into DataFrame
@@ -57,10 +55,10 @@ namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
                 .Sql("SELECT WordsEdit.value, MyUDF(WordsEdit.value) FROM WordsEdit");
 
             // Handle data continuously as it arrives
-            Microsoft.Spark.Sql.Streaming.StreamingQuery query = sqlDf
-                                                                .WriteStream()
-                                                                .Format("console")
-                                                                .Start();
+            StreamingQuery query = sqlDf
+                .WriteStream()
+                .Format("console")
+                .Start();
 
             query.AwaitTermination();
         }
