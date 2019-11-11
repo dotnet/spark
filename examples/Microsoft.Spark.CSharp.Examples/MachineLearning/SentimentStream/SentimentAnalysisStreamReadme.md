@@ -20,17 +20,35 @@ You can [download the original Yelp data](https://archive.ics.uci.edu/ml/machine
 
 We'll first train an ML model using ML.NET, and then we'll create a new application that uses both .NET for Apache Spark and ML.NET.
 
+> **Note:** All of the necessary files (trained ML model, .NET for Spark + ML.NET application code, training and testing datasets) have been included in this project. You can follow the steps below to understand how the project/files were developed, recreate them yourself, and then adapt the steps to future applications.
+
 ## ML.NET
 
-### 1. Download Dataset
+[ML.NET](dot.net/ml) is an open source and cross-platform machine learning framework that allows .NET developers to easily integrate ML into .NET apps without any prior ML experience. 
 
-We'll be using a set of amazon reviews to train our model. It comes from the [UCI Sentiment Labeled Sentences](https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip). 
+### 1. Download Model Builder
+
+We'll use ML.NET to build and train a model through [Model Builder](https://dotnet.microsoft.com/apps/machinelearning-ai/ml-dotnet/model-builder), a Visual Studio extension that provides an easy to understand visual interface to build, train, and deploy machine learning models. Model Builder can be downloaded [here](https://marketplace.visualstudio.com/items?itemName=MLNET.07). 
+
+![Model Builder](https://mlnet.gallerycdn.vsassets.io/extensions/mlnet/07/16.0.1909.2101/1569301315962/add-machine-learning.gif)
+
+> **Note:** You can also develop a model without Model Builder. Model Builder just provides an easier way to develop a model that doesn't require prior ML experience. 
 
 ### 2. Build and Train Your Model
 
-Use ML.NET to build and train a model. You can use Model Builder to easily train and use ML models in Visual Studio. Follow the [Model Builder Getting Started Guide](https://dotnet.microsoft.com/learn/machinelearning-ai/ml-dotnet-get-started-tutorial/intro) to train your model using the sentiment analysis scenario.
+Follow the [Model Builder Getting Started Guide](https://dotnet.microsoft.com/learn/machinelearning-ai/ml-dotnet-get-started-tutorial/intro) to train your model using the sentiment analysis scenario. 
 
-In the last step, you'll produce a zip file containing the trained ML.NET model.
+Follow the steps to:
+
+* Create a new C# Console App
+* Pick the **Sentiment Analysis** scenario
+* Train using the **yelptrain.csv** dataset
+
+![Sentiment Analysis Model Builder](https://dotnet.microsoft.com/static/images/model-builder-vs.png?v=9On8qwmGIXdAyX_-zAmATwYU7fd7tzem-_ojnv1G7XI)
+
+### 3. Generate Model and Code
+
+In the last step of using Model Builder, you'll produce a zip file containing the trained ML.NET model. In the image below, you can see it's contained in **MLModel.zip.**
 
 ![ML.NET Zip and Files](https://github.com/bamurtaugh/spark/blob/SparkMLNet/examples/Microsoft.Spark.CSharp.Examples/MachineLearning/images/modelbuilder5proj.PNG)
 
@@ -38,11 +56,29 @@ You'll also generate C# code you can use to consume your model in other .NET app
 
 ![Generated Code](https://github.com/bamurtaugh/spark/blob/SparkMLNet/examples/Microsoft.Spark.CSharp.Examples/MachineLearning/images/modelbuilder5code.PNG)
 
-### 3. Add ML.NET to .NET for Apache Spark App
+### 4. Add ML.NET to .NET for Apache Spark App
 
-Make sure you've downloaded the [Microsoft.ML NuGet Package](https://www.nuget.org/packages/Microsoft.ML). Either use Model Builder's "Add Projects" feature, or in a new C# console app, add a reference the Microsoft.ML API and the .csproj file of your trained ML.NET model.
+You have a few options to start creating a .NET for Apache Spark app that uses this ML.NET code and trained model. Make sure that in any app you develop, you've added the [Microsoft.ML NuGet Package](https://www.nuget.org/packages/Microsoft.ML).
 
-![CSProject](https://github.com/bamurtaugh/spark/blob/SparkMLNet/examples/Microsoft.Spark.CSharp.Examples/MachineLearning/images/SparkMLPic.PNG)
+Depending upon the algorithm Model Builder chooses for your ML model, you may need to add an additional nuget reference in [Microsoft.Spark.CSharp.Examples.csproj](../../Microsoft.Spark.CSharp.Examples.csproj). For instance, if you get an error message that Microsoft.ML.FastTree cannot be found when running your Spark app, you need to add that nuget to your csproj file:
+
+`<PackageReference Include="Microsoft.ML.FastTree" Version="1.3.1" />`
+
+#### Option 1: Add Projects
+
+One option is to use Model Builder's *Add Projects* feature, which will result in 3 projects:
+
+* Your original app (**myMLApp**)
+* A console app that allows you to build/train/test the model (**myMLAppML.ConsoleApp**)
+* A .NET Standard class library that contains model input/output and your trained model in a zip file (**myMLAppML.Model**)
+
+You would begin writing your .NET for Apache Spark code (and paste in the code generated from Model Builder, shown in step 3 above) in the original app **myMLApp.**
+
+![Model Builder Result](https://dotnet.microsoft.com/static/images/model-builder-generated-code.png?v=iC-r8k3zpKUwQVoNOH34D903IhXhIb4CsX003484s7c)
+
+#### Option 2: Create a new console app (shown in this repo)
+
+Rather than working with the projects/files produced by Model Builder's Add Projects, you can create a new, separate C# console app. You just need to copy over your model's zip file to a directory your new console app can access. In this repo, a trained model **MLModel.zip** has already been included for you in the [Resources](./Resources) folder.
 
 As we create the logic for our Spark app, we'll paste in the code generated from Model Builder and include some other class definitions.
 
