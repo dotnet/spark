@@ -196,8 +196,6 @@ StreamingQuery query = sqlDf
 
 ## Running Your App
 
-Checkout the [full coding example](../SentimentAnalysisStream.cs).
-
 Since there are several distinct steps of setup for building and running a .NET for Apache Spark + ML.NET app, it's recommended
 to create a new console app and complete the Model Builder and ML.NET reference steps (from above) in that app. 
 
@@ -214,8 +212,10 @@ In our example, when you hit *enter* after entering data in the command prompt, 
 **Note:** In order to `spark-submit` an app that includes an additional Nuget (like the ML.NET nuget), you'll need to copy the ML.NET
 dll's into your app's main directory.
 
-## Alternative Approach: Batch Sentiment Analysis
+## Next Steps
+
+Checkout the [full coding example](./Program.cs). You can also view a live video explanation of ML.NET + .NET for Spark in the [*Bringing Big Data Analytics through Apache Spark to .NET*](https://youtu.be/ZWsYMQ0Sw1o?t=1358) .NET Conf 2019 session.
 
 Rather than performing real-time processing, we can adapt our Spark + ML.NET app to instead perform batch processing (analyzing data that's already been stored).
 
-Checkout [SentimentAnalysis.cs](../SentimentAnalysis.cs) to see the adapted version of the sentiment analysis program that will determine the sentiment of text from a set of online reviews.
+Checkout [Sentiment](../Sentiment) to see the adapted version of the sentiment analysis program that will determine the sentiment of text from a batch of online reviews.
