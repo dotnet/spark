@@ -32,7 +32,7 @@ We'll use ML.NET to build and train a model through [Model Builder](https://dotn
 
 ![Model Builder](https://mlnet.gallerycdn.vsassets.io/extensions/mlnet/07/16.0.1909.2101/1569301315962/add-machine-learning.gif)
 
-**Note:** You can also develop a model without Model Builder. Model Builder just provides an easier way to develop a model that doesn't require prior ML experience. 
+> **Note:** You can also develop a model without Model Builder. Model Builder just provides an easier way to develop a model that doesn't require prior ML experience. 
 
 ### 2. Build and Train Your Model
 
