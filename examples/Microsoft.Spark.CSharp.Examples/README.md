@@ -54,8 +54,8 @@ an open source and cross-platform machine learning framework.
     <td align="middle" colspan="2"><b>Machine Learning</td>
   </tr>
   <tr>
-    <td align="middle"><a href="Sql/MachineLearning/SentimentAnalysis.cs"><b>SentimentAnalysis.cs</a></b><br>Determine if a batch of online reviews are positive or negative, using ML.NET.<br></td>
-    <td align="middle"><a href="Sql/MachineLearning/SentimentAnalysisStream.cs"><b>SentimentAnalysisStream.cs</a></b><br>Determine if statements being produced live are positive or negative, using ML.NET.<br></td>
+    <td align="middle"><a href="MachineLearning/Sentiment/Program.cs"><b>Batch Sentiment Analysis</a></b><br>Determine if a batch of online reviews are positive or negative, using ML.NET.<br></td>
+    <td align="middle"><a href="MachineLearning/SentimentStream/Program.cs"><b>Streaming Sentiment Analysis</a></b><br>Determine if statements being produced live are positive or negative, using ML.NET.<br></td>
   </tr>
 </table>
 
