@@ -47,25 +47,10 @@ namespace Microsoft.Spark.Sql
         /// <returns>Builder object</returns>
         public static Builder Builder() => new Builder();
 
-        /// <summary>
-        /// Changes the SparkSession that will be returned in this thread and its children when
-        /// SparkSession.GetOrCreate() is called. This can be used to ensure that a given thread
-        /// receives a SparkSession with an isolated session, instead of the global(first created)
-        /// context.
-        /// </summary>
-        /// <param name="session">SparkSession object</param>
-        public static void SetActiveSession(SparkSession session) =>
-            session._jvmObject.Jvm.CallStaticJavaMethod(
-                s_sparkSessionClassName, "setActiveSession", session);
-
-        /// <summary>
-        /// Clears the active SparkSession for current thread. Subsequent calls to
-        /// SparkSession.GetOrCreate() will return the first created context instead of
-        /// a thread-local override.
-        /// </summary>
-        public static void ClearActiveSession() =>
-            SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                s_sparkSessionClassName, "clearActiveSession");
+        /// Note that *ActiveSession() APIs are not exposed because these APIs work with a
+        /// thread-local variable, which stores the session variable. Since the Netty server
+        /// that handles the requests is multi-threaded, any thread can invoke these APIs,
+        /// resulting in unexpected behaviors if different threads are used.
 
         /// <summary>
         /// Sets the default SparkSession that is returned by the builder.
@@ -81,21 +66,6 @@ namespace Microsoft.Spark.Sql
         public static void ClearDefaultSession() =>
             SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 s_sparkSessionClassName, "clearDefaultSession");
-
-        /// <summary>
-        /// Returns the active SparkSession for the current thread, returned by the builder.
-        /// </summary>
-        /// <returns>SparkSession object or null if called on executors</returns>
-        public static SparkSession GetActiveSession()
-        {
-            var optionalSession = new Option(
-                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_sparkSessionClassName, "getActiveSession"));
-
-            return optionalSession.IsDefined()
-                ? new SparkSession((JvmObjectReference)optionalSession.Get())
-                : null;
-        }
 
         /// <summary>
         /// Returns the default SparkSession that is returned by the builder.
