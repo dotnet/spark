@@ -11,7 +11,7 @@ There are three main types of samples/apps in the repo:
 
 * **[Streaming](Sql/Streaming):** .NET for Apache Spark apps that analyze structured streaming data, or data that is currently being produced live.
 
-* **[Machine Learning](Sql/MachineLearning):** .NET for Apache Spark apps infused with Machine Learning models based on [ML.NET](http://dot.net/ml),
+* **[Machine Learning](MachineLearning):** .NET for Apache Spark apps infused with Machine Learning models based on [ML.NET](http://dot.net/ml),
 an open source and cross-platform machine learning framework.
 
 <table >
