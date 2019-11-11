@@ -82,7 +82,9 @@ Rather than working with the projects/files produced by Model Builder's Add Proj
 
 As we create the logic for our Spark app, we'll paste in the code generated from Model Builder and include some other class definitions.
 
-## Spark.NET
+## .NET for Spark
+
+Now that we've trained an ML.NET model for sentiment analysis, we can begin writing the .NET for Spark code that will read in a stream of data typed into a console, pass each piece of text from the stream to our ML.NET model, and predict whether statements are positive or negative.
 
 ### 1. Create a Spark Session
 
@@ -91,9 +93,9 @@ DataFrame API.
 
 ```CSharp
 SparkSession spark = SparkSession
-       .Builder()
-       .AppName("Sentiment Analysis Streaming")
-       .GetOrCreate();
+    .Builder()
+    .AppName("Streaming Sentiment Analysis")
+    .GetOrCreate();
 ```
 
 ### 2. Establish and Connect to Data Stream
@@ -116,31 +118,33 @@ Our Spark program will be listening for input we type into this command prompt.
 
 #### Connect to Stream: ReadStream()
 
-The ```ReadStream()``` method returns a DataStreamReader that can be used to read streaming data in as a DataFrame. We'll include the host and port information so that our Spark app knows where to expect its streaming data.
+The `ReadStream()` method returns a `DataStreamReader` that can be used to read streaming data in as a `DataFrame`. We'll include the host and port information so that our Spark app knows where to expect its streaming data.
 
 ```CSharp
 DataFrame words = spark
-      .ReadStream()
-      .Format("socket")
-      .Option("host", hostname)
-      .Option("port", port)
-      .Load();
+    .ReadStream()
+    .Format("socket")
+    .Option("host", hostname)
+    .Option("port", port)
+    .Load();
 ```
-### 3. Use UDF to Access ML.NET
 
-A UDF is a *user-defined function.* We can use UDFs in Spark applications to perform calculations and analysis on our data. We create a User Defined Function (UDF) that calls the *Sentiment* method on each yelp review.
+### 3. Register a UDF to Access ML.NET
+
+A UDF is a *user-defined function.* We can use UDFs in Spark applications to perform calculations and analysis on our data. We create a User Defined Function (UDF) that calls the *Sentiment* method on each piece of text from our stream.
 
 ```CSharp
-spark.Udf().Register<string, bool>("MLudf", (text) => Sentiment(text));
+spark.Udf().Register<string, bool>("MyUDF", input => Sentiment(input));
 ```
 
-The Sentiment method is where we'll call our ML.NET code that was generated from the final step of Model Builder.
+*Sentiment* is the method where we'll call our ML.NET code that was generated from the final step of Model Builder.
 
 ```CSharp
 MLContext mlContext = new MLContext();
 ITransformer mlModel = mlContext.Model.Load("MLModel.zip", out var modelInputSchema);
 var predEngine = mlContext.Model.CreatePredictionEngine<Review, ReviewPrediction>(mlModel);
 ```
+
 You may notice the use of *Review* and *ReviewPrediction.* These are classes we define in our project to represent the review data we're evaluating. 
 
 ```CSharp
