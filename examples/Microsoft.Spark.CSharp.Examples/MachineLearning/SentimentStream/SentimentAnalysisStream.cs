@@ -63,36 +63,36 @@ namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
             query.AwaitTermination();
         }
 
-        // Method to call ML.NET sentiment analysis model
+        // Method to call ML.NET code for sentiment analysis
+        // Code primarily comes from ML.NET Model Builder
         public static bool Sentiment(string text)
         {
             MLContext mlContext = new MLContext();
 
-            // Remember to change "MLModel.zip" to accurate model location
             ITransformer mlModel = mlContext
                 .Model
-                .Load("MLModel.zip", out var modelInputSchema);
+                .Load(@"./Resources/MLModel.zip", out var modelInputSchema);
 
-            var predEngine = mlContext
+            PredictionEngine<Review, ReviewPrediction> predEngine = mlContext
                 .Model
                 .CreatePredictionEngine<Review, ReviewPrediction>(mlModel);
 
-            var result = predEngine.Predict(
+            ReviewPrediction result = predEngine.Predict(
                 new Review { Column1 = text });
 
+            // Returns true for positive, false for negative
             return result.Prediction;
         }
 
         // Class to represent each review
         public class Review
         {
-            // Column names must match input file
-            // Column1 is review
+            // Column name must match input file
             [LoadColumn(0)]
-            public string Column1;
+            public string ReviewText;
         }
 
-        // Class resulting including predictions about review
+        // Class resulting from ML.NET code including predictions about review
         public class ReviewPrediction : Review
         {
 
