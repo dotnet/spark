@@ -36,7 +36,7 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
                 .Read()
                 .Option("header", true)
                 .Option("inferSchema", true)
-                .Csv(args[0] + "yelp.csv");
+                .Csv(args[0] + "yelptest.csv");
             df.Show();
 
             // Use ML.NET in a UDF to evaluate each review 
