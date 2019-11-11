@@ -9,7 +9,7 @@ using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Expressions;
 using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.Utils;
-using FxDataFrame = Microsoft.Data.DataFrame;
+using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 
 namespace Microsoft.Spark.Sql
 {

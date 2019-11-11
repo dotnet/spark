@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using Apache.Arrow;
 using Apache.Arrow.Types;
-using Microsoft.Data;
+using Microsoft.Data.Analysis;
 
 namespace Microsoft.Spark.Sql
 {
@@ -39,56 +39,56 @@ namespace Microsoft.Spark.Sql
             ArrowTypeId.Binary,
         };
 
-        public static BaseColumn CreateEmptyColumn<T>()
+        public static DataFrameColumn CreateEmptyColumn<T>()
         {
-            BaseColumn ret;
-            if (typeof(T) == typeof(PrimitiveColumn<bool>))
+            DataFrameColumn ret;
+            if (typeof(T) == typeof(PrimitiveDataFrameColumn<bool>))
             {
-                ret = new PrimitiveColumn<bool>("Empty");
+                ret = new PrimitiveDataFrameColumn<bool>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveColumn<sbyte>))
+            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<sbyte>))
             {
-                ret = new PrimitiveColumn<sbyte>("Empty");
+                ret = new PrimitiveDataFrameColumn<sbyte>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveColumn<byte>))
+            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<byte>))
             {
-                ret = new PrimitiveColumn<byte>("Empty");
+                ret = new PrimitiveDataFrameColumn<byte>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveColumn<short>))
+            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<short>))
             {
-                ret = new PrimitiveColumn<short>("Empty");
+                ret = new PrimitiveDataFrameColumn<short>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveColumn<ushort>))
+            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<ushort>))
             {
-                ret = new PrimitiveColumn<ushort>("Empty");
+                ret = new PrimitiveDataFrameColumn<ushort>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveColumn<int>))
+            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<int>))
             {
-                ret = new PrimitiveColumn<int>("Empty");
+                ret = new PrimitiveDataFrameColumn<int>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveColumn<uint>))
+            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<uint>))
             {
-                ret = new PrimitiveColumn<uint>("Empty");
+                ret = new PrimitiveDataFrameColumn<uint>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveColumn<long>))
+            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<long>))
             {
-                ret = new PrimitiveColumn<long>("Empty");
+                ret = new PrimitiveDataFrameColumn<long>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveColumn<ulong>))
+            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<ulong>))
             {
-                ret = new PrimitiveColumn<ulong>("Empty");
+                ret = new PrimitiveDataFrameColumn<ulong>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveColumn<float>))
+            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<float>))
             {
-                ret = new PrimitiveColumn<float>("Empty");
+                ret = new PrimitiveDataFrameColumn<float>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveColumn<double>))
+            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<double>))
             {
-                ret = new PrimitiveColumn<double>("Empty");
+                ret = new PrimitiveDataFrameColumn<double>("Empty");
             }
-            else if (typeof(T) == typeof(ArrowStringColumn))
+            else if (typeof(T) == typeof(ArrowStringDataFrameColumn))
             {
-                ret = new ArrowStringColumn("Empty");
+                ret = new ArrowStringDataFrameColumn("Empty");
             }
             else
                 throw new NotSupportedException($"Unknown type: {typeof(T)}");

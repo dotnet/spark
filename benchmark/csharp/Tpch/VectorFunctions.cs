@@ -4,69 +4,30 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data;
+using Microsoft.Data.Analysis;
 
 namespace Tpch
 {
     internal static class VectorFunctions
     {
-        internal static PrimitiveColumn<double> ComputeTotal(PrimitiveColumn<double> price, PrimitiveColumn<double> discount, PrimitiveColumn<double> tax)
+        internal static PrimitiveDataFrameColumn<double> ComputeTotal(PrimitiveDataFrameColumn<double> price, PrimitiveDataFrameColumn<double> discount, PrimitiveDataFrameColumn<double> tax)
         {
             if ((price.Length != discount.Length) || (price.Length != tax.Length))
             {
                 throw new ArgumentException("Arrays need to be the same length");
             }
 
-            PrimitiveColumn<double> ret = new PrimitiveColumn<double>("Prices", price.Length);
-
-            IEnumerable<ReadOnlyMemory<double>> readOnlyTaxes = tax.GetReadOnlyDataBuffers();
-            IEnumerable<ReadOnlyMemory<double>> readOnlyPrices = price.GetReadOnlyDataBuffers();
-            IEnumerable<ReadOnlyMemory<double>> readOnlyDiscounts = discount.GetReadOnlyDataBuffers();
-
-            IEnumerator<ReadOnlyMemory<double>> taxesEnumerator = readOnlyTaxes.GetEnumerator();
-            IEnumerator<ReadOnlyMemory<double>> pricesEnumerator = readOnlyPrices.GetEnumerator();
-            IEnumerator<ReadOnlyMemory<double>> discountsEnumerator = readOnlyDiscounts.GetEnumerator();
-
-            while (taxesEnumerator.MoveNext() && pricesEnumerator.MoveNext() && discountsEnumerator.MoveNext())
-            {
-                ReadOnlySpan<double> taxes = taxesEnumerator.Current.Span;
-                ReadOnlySpan<double> prices = pricesEnumerator.Current.Span;
-                ReadOnlySpan<double> discounts = discountsEnumerator.Current.Span;
-                for (int i = 0; i < prices.Length; ++i)
-                {
-                    ret[i] = (prices[i] * (1 - discounts[i]) * (1 + taxes[i]));
-                }
-            }
-
-            return ret;
+            return (PrimitiveDataFrameColumn<double>)(price * (1 - discount) * (1 + tax));
         }
 
-        internal static PrimitiveColumn<double> ComputeDiscountPrice(PrimitiveColumn<double> price, PrimitiveColumn<double> discount)
+        internal static PrimitiveDataFrameColumn<double> ComputeDiscountPrice(PrimitiveDataFrameColumn<double> price, PrimitiveDataFrameColumn<double> discount)
         {
             if (price.Length != discount.Length)
             {
                 throw new ArgumentException("Arrays need to be the same length");
             }
 
-            PrimitiveColumn<double> ret = new PrimitiveColumn<double>("Prices", price.Length);
-
-            IEnumerable<ReadOnlyMemory<double>> readOnlyPrices = price.GetReadOnlyDataBuffers();
-            IEnumerable<ReadOnlyMemory<double>> readOnlyDiscounts = discount.GetReadOnlyDataBuffers();
-
-            IEnumerator<ReadOnlyMemory<double>> pricesEnumerator = readOnlyPrices.GetEnumerator();
-            IEnumerator<ReadOnlyMemory<double>> discountsEnumerator = readOnlyDiscounts.GetEnumerator();
-
-            while (pricesEnumerator.MoveNext() && discountsEnumerator.MoveNext())
-            {
-                ReadOnlySpan<double> prices = pricesEnumerator.Current.Span;
-                ReadOnlySpan<double> discounts = discountsEnumerator.Current.Span;
-                for (int i = 0; i < prices.Length; ++i)
-                {
-                    ret[i] = (prices[i] * (1 - discounts[i]));
-                }
-            }
-
-            return ret;
+            return (PrimitiveDataFrameColumn<double>)(price * (1 - discount));
         }
     }
 }

@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using Apache.Arrow;
-using Microsoft.Data;
+using Microsoft.Data.Analysis;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Expressions;
@@ -3806,8 +3806,8 @@ namespace Microsoft.Spark.Sql
         /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
         /// </returns>
         internal static Func<Column, Column> VectorUdf<T, TResult>(Func<T, TResult> udf)
-            where T : BaseColumn
-            where TResult : BaseColumn
+            where T : DataFrameColumn
+            where TResult : DataFrameColumn
         {
             return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
@@ -3823,9 +3823,9 @@ namespace Microsoft.Spark.Sql
         /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
         /// </returns>
         internal static Func<Column, Column, Column> VectorUdf<T1, T2, TResult>(Func<T1, T2, TResult> udf)
-            where T1 : BaseColumn
-            where T2 : BaseColumn
-            where TResult : BaseColumn
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
             return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
@@ -3843,10 +3843,10 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         internal static Func<Column, Column, Column, Column> VectorUdf<T1, T2, T3, TResult>(
             Func<T1, T2, T3, TResult> udf)
-            where T1 : BaseColumn
-            where T2 : BaseColumn
-            where T3 : BaseColumn
-            where TResult : BaseColumn
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
             return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
@@ -3865,11 +3865,11 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         internal static Func<Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, TResult>(
             Func<T1, T2, T3, T4, TResult> udf)
-            where T1 : BaseColumn
-            where T2 : BaseColumn
-            where T3 : BaseColumn
-            where T4 : BaseColumn
-            where TResult : BaseColumn
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where T4 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
             return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
@@ -3889,12 +3889,12 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         internal static Func<Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, TResult>(
             Func<T1, T2, T3, T4, T5, TResult> udf)
-            where T1 : BaseColumn
-            where T2 : BaseColumn
-            where T3 : BaseColumn
-            where T4 : BaseColumn
-            where T5 : BaseColumn
-            where TResult : BaseColumn
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where T4 : DataFrameColumn
+            where T5 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
             return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
@@ -3915,13 +3915,13 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         internal static Func<Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, TResult>(
             Func<T1, T2, T3, T4, T5, T6, TResult> udf)
-            where T1 : BaseColumn
-            where T2 : BaseColumn
-            where T3 : BaseColumn
-            where T4 : BaseColumn
-            where T5 : BaseColumn
-            where T6 : BaseColumn
-            where TResult : BaseColumn
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where T4 : DataFrameColumn
+            where T5 : DataFrameColumn
+            where T6 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
             return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
@@ -3943,14 +3943,14 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         internal static Func<Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, TResult>(
             Func<T1, T2, T3, T4, T5, T6, T7, TResult> udf)
-            where T1 : BaseColumn
-            where T2 : BaseColumn
-            where T3 : BaseColumn
-            where T4 : BaseColumn
-            where T5 : BaseColumn
-            where T6 : BaseColumn
-            where T7 : BaseColumn
-            where TResult : BaseColumn
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where T4 : DataFrameColumn
+            where T5 : DataFrameColumn
+            where T6 : DataFrameColumn
+            where T7 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
             return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
@@ -3973,15 +3973,15 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         internal static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> udf)
-            where T1 : BaseColumn
-            where T2 : BaseColumn
-            where T3 : BaseColumn
-            where T4 : BaseColumn
-            where T5 : BaseColumn
-            where T6 : BaseColumn
-            where T7 : BaseColumn
-            where T8 : BaseColumn
-            where TResult : BaseColumn
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where T4 : DataFrameColumn
+            where T5 : DataFrameColumn
+            where T6 : DataFrameColumn
+            where T7 : DataFrameColumn
+            where T8 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
             return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
@@ -4005,16 +4005,16 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         internal static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> udf)
-            where T1 : BaseColumn
-            where T2 : BaseColumn
-            where T3 : BaseColumn
-            where T4 : BaseColumn
-            where T5 : BaseColumn
-            where T6 : BaseColumn
-            where T7 : BaseColumn
-            where T8 : BaseColumn
-            where T9 : BaseColumn
-            where TResult : BaseColumn
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where T4 : DataFrameColumn
+            where T5 : DataFrameColumn
+            where T6 : DataFrameColumn
+            where T7 : DataFrameColumn
+            where T8 : DataFrameColumn
+            where T9 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
             return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),
@@ -4039,17 +4039,17 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         internal static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> udf)
-            where T1 : BaseColumn
-            where T2 : BaseColumn
-            where T3 : BaseColumn
-            where T4 : BaseColumn
-            where T5 : BaseColumn
-            where T6 : BaseColumn
-            where T7 : BaseColumn
-            where T8 : BaseColumn
-            where T9 : BaseColumn
-            where T10 : BaseColumn
-            where TResult : BaseColumn
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where T4 : DataFrameColumn
+            where T5 : DataFrameColumn
+            where T6 : DataFrameColumn
+            where T7 : DataFrameColumn
+            where T8 : DataFrameColumn
+            where T9 : DataFrameColumn
+            where T10 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
             return CreateVectorUdf<TResult>(
                 udf.Method.ToString(),

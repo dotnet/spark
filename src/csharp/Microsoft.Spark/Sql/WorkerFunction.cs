@@ -4,8 +4,8 @@
 
 using System;
 using Apache.Arrow;
-using Microsoft.Data;
-using FxDataFrame = Microsoft.Data.DataFrame;
+using Microsoft.Data.Analysis;
+using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 
 namespace Microsoft.Spark.Sql
 {
@@ -27,8 +27,8 @@ namespace Microsoft.Spark.Sql
         /// <param name="input">unpickled data, representing a row</param>
         /// <param name="argOffsets">offsets to access input</param>
         /// <returns></returns>
-        internal delegate BaseColumn ExecuteDelegate(
-            ReadOnlyMemory<BaseColumn> input,
+        internal delegate DataFrameColumn ExecuteDelegate(
+            ReadOnlyMemory<DataFrameColumn> input,
             int[] argOffsets);
 
         internal ArrowWorkerFunction(ExecuteDelegate func)
@@ -68,8 +68,8 @@ namespace Microsoft.Spark.Sql
                 _outerFunc = outer;
             }
 
-            internal BaseColumn Execute(
-                ReadOnlyMemory<BaseColumn> input,
+            internal DataFrameColumn Execute(
+                ReadOnlyMemory<DataFrameColumn> input,
                 int[] argOffsets)
             {
                 // For chaining, create an array with one element, which is a result from the inner

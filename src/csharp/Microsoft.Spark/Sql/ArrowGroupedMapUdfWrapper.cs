@@ -4,7 +4,7 @@
 
 using System;
 using Apache.Arrow;
-using FxDataFrame = Microsoft.Data.DataFrame;
+using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 
 namespace Microsoft.Spark.Sql
 {

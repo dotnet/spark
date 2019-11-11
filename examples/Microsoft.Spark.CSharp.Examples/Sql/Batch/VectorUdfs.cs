@@ -6,9 +6,9 @@ using System;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using StructType = Microsoft.Spark.Sql.Types.StructType;
-using FxDataFrame = Microsoft.Data.DataFrame;
+using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 using DataFrame = Microsoft.Spark.Sql.DataFrame;
-using Microsoft.Data;
+using Microsoft.Data.Analysis;
 using System.Collections.Generic;
 
 namespace Microsoft.Spark.Examples.Sql.Batch
@@ -65,19 +65,20 @@ namespace Microsoft.Spark.Examples.Sql.Batch
         {
             int characterCount = 0;
 
-            PrimitiveColumn<int> characterCountColumn = new PrimitiveColumn<int>(stringFieldName + "CharCount");
-            PrimitiveColumn<int> ageColumn = new PrimitiveColumn<int>(groupFieldName);
+            PrimitiveDataFrameColumn<int> characterCountColumn = new PrimitiveDataFrameColumn<int>(stringFieldName + "CharCount");
+            PrimitiveDataFrameColumn<int> ageColumn = new PrimitiveDataFrameColumn<int>(groupFieldName);
             for (long i = 0; i < dataFrame.RowCount; i++)
             {
                 characterCount += ((string)dataFrame[stringFieldName][i]).Length;
             }
+
             if (dataFrame.RowCount > 0)
             {
                 characterCountColumn.Append(characterCount);
                 ageColumn.Append((int?)dataFrame[groupFieldName][0]);
             }
 
-            FxDataFrame ret = new FxDataFrame(new List<BaseColumn> { ageColumn, characterCountColumn });
+            FxDataFrame ret = new FxDataFrame(new List<DataFrameColumn> { ageColumn, characterCountColumn });
             return ret;
         }
     }

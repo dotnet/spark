@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using Apache.Arrow;
 using Apache.Arrow.Ipc;
 using Apache.Arrow.Types;
-using Microsoft.Data;
+using Microsoft.Data.Analysis;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Utils;
 using Microsoft.Spark.Worker.Command;
@@ -226,14 +226,14 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public async Task TestArrowSqlCommandExecutorWithSingleCommand()
         {
-            var udfWrapper = new Sql.ArrowUdfWrapper<ArrowStringColumn, ArrowStringColumn>(
+            var udfWrapper = new Sql.ArrowUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) =>
                 {
                     StringArray stringArray = (StringArray)ToArrowArray(
                     Enumerable.Range(0, (int)strings.Length)
                         .Select(i => $"udf: {strings[i]}")
                         .ToArray());
-                    return ToArrowStringColumn(stringArray);
+                    return ToArrowStringDataFrameColumn(stringArray);
                 });
 
             var command = new SqlCommand()
@@ -310,17 +310,17 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public async Task TestArrowSqlCommandExecutorWithMultiCommands()
         {
-            var udfWrapper1 = new Sql.ArrowUdfWrapper<ArrowStringColumn, ArrowStringColumn>(
+            var udfWrapper1 = new Sql.ArrowUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) =>
                 {
                     StringArray stringArray = (StringArray)ToArrowArray(
                     Enumerable.Range(0, (int)strings.Length)
                         .Select(i => $"udf: {strings[i]}")
                         .ToArray());
-                    return ToArrowStringColumn(stringArray);
+                    return ToArrowStringDataFrameColumn(stringArray);
                 });
-            var udfWrapper2 = new Sql.ArrowUdfWrapper<PrimitiveColumn<int>, PrimitiveColumn<int>, PrimitiveColumn<int>>(
-                (arg1, arg2) => (PrimitiveColumn<int>)(arg1 * arg2));
+            var udfWrapper2 = new Sql.ArrowUdfWrapper<PrimitiveDataFrameColumn<int>, PrimitiveDataFrameColumn<int>, PrimitiveDataFrameColumn<int>>(
+                (arg1, arg2) => (PrimitiveDataFrameColumn<int>)(arg1 * arg2));
 
             var command1 = new SqlCommand()
             {
@@ -415,14 +415,14 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public void TestArrowSqlCommandExecutorWithEmptyInput()
         {
-            var udfWrapper = new Sql.ArrowUdfWrapper<ArrowStringColumn, ArrowStringColumn>(
+            var udfWrapper = new Sql.ArrowUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) =>
                 {
                     StringArray stringArray = (StringArray)ToArrowArray(
                      Enumerable.Range(0, (int)strings.Length)
                          .Select(i => $"udf: {strings[i]}")
                          .ToArray());
-                    return ToArrowStringColumn(stringArray);
+                    return ToArrowStringDataFrameColumn(stringArray);
                 });
 
             var command = new SqlCommand()
@@ -499,7 +499,7 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public async Task TestArrowGroupedMapCommandExecutor()
         {
-            StringArray ConvertStrings(BaseColumn strings)
+            StringArray ConvertStrings(DataFrameColumn strings)
             {
                 return (StringArray)ToArrowArray(
                     Enumerable.Range(0, (int)strings.Length)
@@ -515,10 +515,10 @@ namespace Microsoft.Spark.Worker.UnitTest
             var udfWrapper = new Sql.ArrowGroupedMapUdfWrapper(
                 (dataFrame) =>
                 {
-                    StringArray strings = ConvertStrings(dataFrame.Column(0));
-                    ArrowStringColumn stringColumn = new ArrowStringColumn(dataFrame.Column(0).Name, strings.ValueBuffer.Memory, strings.ValueOffsetsBuffer.Memory, strings.NullBitmapBuffer.Memory, strings.Length, strings.NullCount);
-                    BaseColumn doubles = dataFrame.Column(1) + 100;
-                    return new DataFrame(new List<BaseColumn>() { stringColumn, doubles });
+                    StringArray strings = ConvertStrings(dataFrame.Columns[0]);
+                    ArrowStringDataFrameColumn stringColumn = new ArrowStringDataFrameColumn(dataFrame.Columns[0].Name, strings.ValueBuffer.Memory, strings.ValueOffsetsBuffer.Memory, strings.NullBitmapBuffer.Memory, strings.Length, strings.NullCount);
+                    DataFrameColumn doubles = dataFrame.Columns[1] + 100;
+                    return new DataFrame(new List<DataFrameColumn>() { stringColumn, doubles });
                 });
 
             var command = new SqlCommand()

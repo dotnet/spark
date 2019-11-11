@@ -11,12 +11,12 @@ using System.Linq;
 using Apache.Arrow;
 using Apache.Arrow.Ipc;
 using Apache.Arrow.Types;
-using Microsoft.Data;
+using Microsoft.Data.Analysis;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
 using Razorvine.Pickle;
-using FxDataFrame = Microsoft.Data.DataFrame;
+using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 
 namespace Microsoft.Spark.Worker.Command
 {
@@ -98,6 +98,7 @@ namespace Microsoft.Spark.Worker.Command
                         IArrowType type = reader.Schema.GetFieldByIndex(i).DataType;
                         arrays[i] = ArrowArrayHelpers.CreateEmptyArray(type);
                     }
+
                     yield return new RecordBatch(reader.Schema, arrays, 0);
                 }
             }
@@ -335,17 +336,17 @@ namespace Microsoft.Spark.Worker.Command
             ArrowStreamWriter writer = null;
             foreach (RecordBatch input in GetInputIterator(inputStream))
             {
-                FxDataFrame dataFrame = new FxDataFrame(input);
-                BaseColumn[] inputColumns = new BaseColumn[input.ColumnCount];
-                for (int i = 0; i < dataFrame.ColumnCount; i++)
+                FxDataFrame dataFrame = FxDataFrame.FromArrowRecordBatch(input);
+                DataFrameColumn[] inputColumns = new DataFrameColumn[input.ColumnCount];
+                for (int i = 0; i < dataFrame.Columns.Count; i++)
                 {
-                    inputColumns[i] = dataFrame.Column(i);
+                    inputColumns[i] = dataFrame.Columns[i];
                 }
 
-                BaseColumn[] results = commandRunner.Run(inputColumns);
+                DataFrameColumn[] results = commandRunner.Run(inputColumns);
 
                 FxDataFrame resultDataFrame = new FxDataFrame(results);
-                IEnumerable<RecordBatch> recordBatches = resultDataFrame.AsArrowRecordBatches();
+                IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToArrowRecordBatches();
 
                 foreach (RecordBatch result in recordBatches)
                 {
@@ -400,7 +401,7 @@ namespace Microsoft.Spark.Worker.Command
             /// </summary>
             /// <param name="input">Input data for the commands to run</param>
             /// <returns>Value returned by running the commands</returns>
-            BaseColumn[] Run(ReadOnlyMemory<BaseColumn> input);
+            DataFrameColumn[] Run(ReadOnlyMemory<DataFrameColumn> input);
         }
 
         /// <summary>
@@ -427,7 +428,7 @@ namespace Microsoft.Spark.Worker.Command
             /// </summary>
             /// <param name="input">Input data for the command to run</param>
             /// <returns>Value returned by running the command</returns>
-            public BaseColumn[] Run(ReadOnlyMemory<BaseColumn> input)
+            public DataFrameColumn[] Run(ReadOnlyMemory<DataFrameColumn> input)
             {
                 return new[] { ((ArrowWorkerFunction)_command.WorkerFunction).Func(
                     input,
@@ -459,13 +460,13 @@ namespace Microsoft.Spark.Worker.Command
             /// </summary>
             /// <param name="input">Input data for the commands to run</param>
             /// <returns>An array of values returned by running the commands</returns>
-            public BaseColumn[] Run(ReadOnlyMemory<BaseColumn> input)
+            public DataFrameColumn[] Run(ReadOnlyMemory<DataFrameColumn> input)
             {
-                var resultColumns = new BaseColumn[_commands.Length];
+                var resultColumns = new DataFrameColumn[_commands.Length];
                 for (int i = 0; i < resultColumns.Length; ++i)
                 {
                     SqlCommand command = _commands[i];
-                    BaseColumn column = ((ArrowWorkerFunction)command.WorkerFunction).Func(
+                    DataFrameColumn column = ((ArrowWorkerFunction)command.WorkerFunction).Func(
                         input,
                         command.ArgOffsets);
                     column.SetName(column.Name + i);
@@ -494,9 +495,9 @@ namespace Microsoft.Spark.Worker.Command
             ArrowStreamWriter writer = null;
             foreach (RecordBatch input in GetInputIterator(inputStream))
             {
-                FxDataFrame dataFrame = new FxDataFrame(input);
+                FxDataFrame dataFrame = FxDataFrame.FromArrowRecordBatch(input);
                 FxDataFrame resultDataFrame = worker.Func(dataFrame);
-                IEnumerable<RecordBatch> recordBatches = resultDataFrame.AsArrowRecordBatches();
+                IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToArrowRecordBatches();
 
                 foreach (RecordBatch result in recordBatches)
                 {

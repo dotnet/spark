@@ -4,7 +4,7 @@
 
 using System;
 using Apache.Arrow;
-using Microsoft.Data;
+using Microsoft.Data.Analysis;
 using static Microsoft.Spark.Sql.ArrowArrayHelpers;
 
 namespace Microsoft.Spark.Sql
@@ -15,8 +15,8 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T">Specifies the type of the first argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T, TResult>
-        where T : BaseColumn
-        where TResult : BaseColumn
+        where T : DataFrameColumn
+        where TResult : DataFrameColumn
     {
         private readonly Func<T, TResult> _func;
 
@@ -25,9 +25,9 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
+        internal DataFrameColumn Execute(ReadOnlyMemory<DataFrameColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<BaseColumn> columns = input.Span;
+            ReadOnlySpan<DataFrameColumn> columns = input.Span;
             long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
@@ -47,9 +47,9 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, TResult>
-        where T1 : BaseColumn
-        where T2 : BaseColumn
-        where TResult : BaseColumn
+        where T1 : DataFrameColumn
+        where T2 : DataFrameColumn
+        where TResult : DataFrameColumn
     {
         private readonly Func<T1, T2, TResult> _func;
 
@@ -58,9 +58,9 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
+        internal DataFrameColumn Execute(ReadOnlyMemory<DataFrameColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<BaseColumn> columns = input.Span;
+            ReadOnlySpan<DataFrameColumn> columns = input.Span;
             long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
@@ -81,10 +81,10 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, TResult>
-        where T1 : BaseColumn
-        where T2 : BaseColumn
-        where T3 : BaseColumn
-        where TResult : BaseColumn
+        where T1 : DataFrameColumn
+        where T2 : DataFrameColumn
+        where T3 : DataFrameColumn
+        where TResult : DataFrameColumn
     {
         private readonly Func<T1, T2, T3, TResult> _func;
 
@@ -93,9 +93,9 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
+        internal DataFrameColumn Execute(ReadOnlyMemory<DataFrameColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<BaseColumn> columns = input.Span;
+            ReadOnlySpan<DataFrameColumn> columns = input.Span;
             long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
@@ -119,11 +119,11 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, TResult>
-        where T1 : BaseColumn
-        where T2 : BaseColumn
-        where T3 : BaseColumn
-        where T4 : BaseColumn
-        where TResult : BaseColumn
+        where T1 : DataFrameColumn
+        where T2 : DataFrameColumn
+        where T3 : DataFrameColumn
+        where T4 : DataFrameColumn
+        where TResult : DataFrameColumn
     {
         private readonly Func<T1, T2, T3, T4, TResult> _func;
 
@@ -132,9 +132,9 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
+        internal DataFrameColumn Execute(ReadOnlyMemory<DataFrameColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<BaseColumn> columns = input.Span;
+            ReadOnlySpan<DataFrameColumn> columns = input.Span;
             long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
@@ -160,12 +160,12 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, TResult>
-        where T1 : BaseColumn
-        where T2 : BaseColumn
-        where T3 : BaseColumn
-        where T4 : BaseColumn
-        where T5 : BaseColumn
-        where TResult : BaseColumn
+        where T1 : DataFrameColumn
+        where T2 : DataFrameColumn
+        where T3 : DataFrameColumn
+        where T4 : DataFrameColumn
+        where T5 : DataFrameColumn
+        where TResult : DataFrameColumn
     {
         private readonly Func<T1, T2, T3, T4, T5, TResult> _func;
 
@@ -174,9 +174,9 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
+        internal DataFrameColumn Execute(ReadOnlyMemory<DataFrameColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<BaseColumn> columns = input.Span;
+            ReadOnlySpan<DataFrameColumn> columns = input.Span;
             long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
@@ -204,13 +204,13 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, TResult>
-        where T1 : BaseColumn
-        where T2 : BaseColumn
-        where T3 : BaseColumn
-        where T4 : BaseColumn
-        where T5 : BaseColumn
-        where T6 : BaseColumn
-        where TResult : BaseColumn
+        where T1 : DataFrameColumn
+        where T2 : DataFrameColumn
+        where T3 : DataFrameColumn
+        where T4 : DataFrameColumn
+        where T5 : DataFrameColumn
+        where T6 : DataFrameColumn
+        where TResult : DataFrameColumn
     {
         private readonly Func<T1, T2, T3, T4, T5, T6, TResult> _func;
 
@@ -219,9 +219,9 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
+        internal DataFrameColumn Execute(ReadOnlyMemory<DataFrameColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<BaseColumn> columns = input.Span;
+            ReadOnlySpan<DataFrameColumn> columns = input.Span;
             long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
@@ -251,14 +251,14 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, TResult>
-        where T1 : BaseColumn
-        where T2 : BaseColumn
-        where T3 : BaseColumn
-        where T4 : BaseColumn
-        where T5 : BaseColumn
-        where T6 : BaseColumn
-        where T7 : BaseColumn
-        where TResult : BaseColumn
+        where T1 : DataFrameColumn
+        where T2 : DataFrameColumn
+        where T3 : DataFrameColumn
+        where T4 : DataFrameColumn
+        where T5 : DataFrameColumn
+        where T6 : DataFrameColumn
+        where T7 : DataFrameColumn
+        where TResult : DataFrameColumn
     {
         private readonly Func<T1, T2, T3, T4, T5, T6, T7, TResult> _func;
 
@@ -267,9 +267,9 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
+        internal DataFrameColumn Execute(ReadOnlyMemory<DataFrameColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<BaseColumn> columns = input.Span;
+            ReadOnlySpan<DataFrameColumn> columns = input.Span;
             long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
@@ -301,15 +301,15 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, TResult>
-        where T1 : BaseColumn
-        where T2 : BaseColumn
-        where T3 : BaseColumn
-        where T4 : BaseColumn
-        where T5 : BaseColumn
-        where T6 : BaseColumn
-        where T7 : BaseColumn
-        where T8 : BaseColumn
-        where TResult : BaseColumn
+        where T1 : DataFrameColumn
+        where T2 : DataFrameColumn
+        where T3 : DataFrameColumn
+        where T4 : DataFrameColumn
+        where T5 : DataFrameColumn
+        where T6 : DataFrameColumn
+        where T7 : DataFrameColumn
+        where T8 : DataFrameColumn
+        where TResult : DataFrameColumn
     {
         private readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> _func;
 
@@ -318,9 +318,9 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
+        internal DataFrameColumn Execute(ReadOnlyMemory<DataFrameColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<BaseColumn> columns = input.Span;
+            ReadOnlySpan<DataFrameColumn> columns = input.Span;
             long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
@@ -354,16 +354,16 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>
-        where T1 : BaseColumn
-        where T2 : BaseColumn
-        where T3 : BaseColumn
-        where T4 : BaseColumn
-        where T5 : BaseColumn
-        where T6 : BaseColumn
-        where T7 : BaseColumn
-        where T8 : BaseColumn
-        where T9 : BaseColumn
-        where TResult : BaseColumn
+        where T1 : DataFrameColumn
+        where T2 : DataFrameColumn
+        where T3 : DataFrameColumn
+        where T4 : DataFrameColumn
+        where T5 : DataFrameColumn
+        where T6 : DataFrameColumn
+        where T7 : DataFrameColumn
+        where T8 : DataFrameColumn
+        where T9 : DataFrameColumn
+        where TResult : DataFrameColumn
     {
         private readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> _func;
 
@@ -372,9 +372,9 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
+        internal DataFrameColumn Execute(ReadOnlyMemory<DataFrameColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<BaseColumn> columns = input.Span;
+            ReadOnlySpan<DataFrameColumn> columns = input.Span;
             long length = columns[0]?.Length ?? 0;
 
             if (length > 0)
@@ -410,17 +410,17 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T10">Specifies the type of the tenth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
     internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>
-        where T1 : BaseColumn
-        where T2 : BaseColumn
-        where T3 : BaseColumn
-        where T4 : BaseColumn
-        where T5 : BaseColumn
-        where T6 : BaseColumn
-        where T7 : BaseColumn
-        where T8 : BaseColumn
-        where T9 : BaseColumn
-        where T10 : BaseColumn
-        where TResult : BaseColumn
+        where T1 : DataFrameColumn
+        where T2 : DataFrameColumn
+        where T3 : DataFrameColumn
+        where T4 : DataFrameColumn
+        where T5 : DataFrameColumn
+        where T6 : DataFrameColumn
+        where T7 : DataFrameColumn
+        where T8 : DataFrameColumn
+        where T9 : DataFrameColumn
+        where T10 : DataFrameColumn
+        where TResult : DataFrameColumn
     {
         private readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> _func;
 
@@ -429,9 +429,9 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal BaseColumn Execute(ReadOnlyMemory<BaseColumn> input, int[] argOffsets)
+        internal DataFrameColumn Execute(ReadOnlyMemory<DataFrameColumn> input, int[] argOffsets)
         {
-            ReadOnlySpan<BaseColumn> columns = input.Span;
+            ReadOnlySpan<DataFrameColumn> columns = input.Span;
             long length = columns[0]?.Length ?? 0;
 
             if (length > 0)

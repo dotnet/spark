@@ -6,16 +6,16 @@ using System;
 using System.Text;
 using Apache.Arrow;
 using Apache.Arrow.Types;
-using Microsoft.Data;
+using Microsoft.Data.Analysis;
 using Xunit;
 
 namespace Microsoft.Spark.UnitTest.TestUtils
 {
     public static class ArrowTestUtils
     {
-        public static void AssertEquals(string expectedValue, BaseColumn arrowArray)
+        public static void AssertEquals(string expectedValue, DataFrameColumn arrowArray)
         {
-            var stringArray = (ArrowStringColumn)arrowArray;
+            var stringArray = (ArrowStringDataFrameColumn)arrowArray;
             Assert.Equal(1, stringArray.Length);
             Assert.Equal(expectedValue, stringArray[0]);
         }
@@ -100,9 +100,9 @@ namespace Microsoft.Spark.UnitTest.TestUtils
             throw new NotSupportedException($"Unknown type: {typeof(T)}");
         }
 
-        public static ArrowStringColumn ToArrowStringColumn(StringArray array)
+        public static ArrowStringDataFrameColumn ToArrowStringDataFrameColumn(StringArray array)
         {
-            return new ArrowStringColumn("String",
+            return new ArrowStringDataFrameColumn("String",
                                          array.ValueBuffer.Memory,
                                          array.ValueOffsetsBuffer.Memory,
                                          array.NullBitmapBuffer.Memory,
