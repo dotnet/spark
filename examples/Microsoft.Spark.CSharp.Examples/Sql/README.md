@@ -1,4 +1,4 @@
-# .NET for Apache Spark Samples
+# .NET for Apache Spark Samples: SQL
 
 [.NET for Apache Spark](https://dot.net/spark) is a free, open-source, and cross-platform big data analytics framework.
 
