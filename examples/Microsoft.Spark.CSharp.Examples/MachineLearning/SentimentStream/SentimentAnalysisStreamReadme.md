@@ -222,7 +222,7 @@ spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local 
 
 ## Next Steps
 
-Checkout the [full coding example](./Program.cs). You can also view a live video explanation of ML.NET + .NET for Spark in the [*Bringing Big Data Analytics through Apache Spark to .NET*](https://youtu.be/ZWsYMQ0Sw1o?t=1358) .NET Conf 2019 session.
+Checkout the [full coding example](./Program.cs). You can also view a live video explanation of ML.NET + .NET for Spark in the [Bringing Big Data Analytics through Apache Spark to .NET](https://youtu.be/ZWsYMQ0Sw1o?t=1358) session from **.NET Conf 2019.**
 
 Rather than performing real-time processing, we can adapt our Spark + ML.NET app to instead perform batch processing (analyzing data that's already been stored).
 
