@@ -10,11 +10,11 @@ Our goal here is to determine if online reviews are positive or negative. We'll 
 
 ## Dataset
 
-We'll be using a set of Amazon reviews to train our model and a set of Yelp reviews for testing in our Spark + ML app. You can [download the original data](https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip) from the [UCI Sentiment Labeled Sentences Dataset]( https://archive.ics.uci.edu/ml/datasets/Sentiment+Labelled+Sentences).
+We'll be using a set of **Yelp reviews** as the input data for this example. We've divided the set of reviews into two smaller datasets: [yelptrain.csv](./Resources/yelptrain.csv) for training the sentiment analysis model, and [yelptest.csv](./Resources/yelptest.csv) for testing in our Spark + ML app. 
 
-For the specific ML training/predictions in this app (i.e. when using Model Builder), it helps to have a header for the data. Versions of the Amazon and Yelp datasets with headers can be found in the [Resources](./Resources) folder.
+For the specific ML training/predictions in this app (i.e. when using Model Builder), it helps to have a header for the data, and we thus also introduced headers into the Yelp training and testing datasets. **ReviewText** holds the review itself, and **Sentiment** holds either a 0 to indicate negative sentiment or a 1 to indicate positive sentiment.
 
-Each dataset has two columns: Column 1 holds the review text, and Column 2 holds a 0 or 1 (0 representing a negative review/sentiment and 1 representing positive).
+You can [download the original Yelp data](https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip) from the [UCI Sentiment Labeled Sentences Dataset]( https://archive.ics.uci.edu/ml/datasets/Sentiment+Labelled+Sentences). 
 
 ## Solution
 
@@ -42,7 +42,7 @@ Follow the steps to:
 
 * Create a new C# Console App
 * Pick the **Sentiment Analysis** scenario
-* Train using the **Amazon.csv** dataset
+* Train using the **yelptrain.csv** dataset
 
 ![Sentiment Analysis Model Builder](https://dotnet.microsoft.com/static/images/model-builder-vs.png?v=9On8qwmGIXdAyX_-zAmATwYU7fd7tzem-_ojnv1G7XI)
 
@@ -84,7 +84,7 @@ As we create the logic for our Spark app, we'll paste in the code generated from
 
 ## .NET for Spark
 
-Now that we've trained an ML.NET model for sentiment analysis, we can begin writing the .NET for Spark code that will read in our Yelp data, pass each review to our ML.NET model, and predict whether reviews are positive or negative.
+Now that we've trained an ML.NET model for sentiment analysis, we can begin writing the .NET for Spark code that will read in our Yelp test data, pass each review to our ML.NET model, and predict whether reviews are positive or negative.
 
 ### 1. Create a Spark Session
 
@@ -100,10 +100,10 @@ SparkSession spark = SparkSession
 
 ### 2. Read Input File into a DataFrame
 
-We trained our model with the Amazon data, so let's test how well the model performs by testing it with the Yelp dataset. 
+We trained our model with the yelptrain.csv data, so let's test how well the model performs by testing it with the yelptest.csv dataset. 
 
 ```CSharp
-DataFrame df = spark.Read().Csv(<Path to yelp data set>);
+DataFrame df = spark.Read().Csv(<Path to yelp testing data set>);
 ```
 
 If we want to specify some other aspects of our data, such as whether it has a header and how we want to deal with its schema, we can set some other options when reading in our data:
@@ -113,7 +113,7 @@ DataFrame df = spark
     .Read()
     .Option("header", true)
     .Option("inferSchema", true)
-    .Csv(<Path to yelp data set>);
+    .Csv(<Path to yelp testing data set>);
 ```
 
 ### 3. Use a UDF to Access ML.NET
@@ -161,7 +161,7 @@ public class ReviewPrediction : Review
 } 
 ```
 
-The latter part of *Sentiment* passes the review from **yelp.csv** to the ML model and returns a prediction (either *true* for positive sentiment or *false* for negative):
+The latter part of *Sentiment* passes the review from **yelptest.csv** to the ML model and returns a prediction (either *true* for positive sentiment or *false* for negative):
 
 ```CSharp
 ReviewPrediction result = predEngine.Predict(new Review { ReviewText = text });
@@ -193,7 +193,7 @@ There are a few steps you'll need to follow to build and run your app:
 spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local /path/to/microsoft-spark-<version>.jar Microsoft.Spark.CSharp.Examples.exe MachineLearning.Sentiment.Program localhost 9999 /path/to/Microsoft.Spark.CSharp.Examples/MachineLearning/Sentiment/Resources
 ```
 
-> **Note:** Be sure to update the above command with the actual paths to your Microsoft Spark jar file and the Resources folder containing your MLModel.zip and yelp.csv.
+> **Note:** Be sure to update the above command with the actual paths to your Microsoft Spark jar file and the Resources folder containing your MLModel.zip and yelptest.csv.
 
 ## Next Steps
 
