@@ -1,6 +1,8 @@
 # Deploy Worker and UDF Binaries General Instruction
 
-This how-to provides general instructions on how to deploy Worker and UDF (User-Defined Function) binaries, including which Environment Variables to set up and some commonly used parameters when launching applications with `spark-submit`.
+This how-to provides general instructions on how to deploy Worker and UDF (User-Defined Function) binaries, 
+including which Environment Variables to set up and some commonly used parameters 
+when launching applications with `spark-submit`.
 
 ## Configurations
 
@@ -53,15 +55,19 @@ Once the Spark application is [bundled](https://spark.apache.org/docs/latest/sub
   <tr>
     <td><b>--files</b></td>
     <td>Comma-separated list of files to be placed in the working directory of each executor.</br>
-      <li>Please note that this option is only applicable for yarn mode.</li>
-      <li>It supports specifying file names with # similar to Hadoop.</br>
+      <ul>
+        <li>Please note that this option is only applicable for yarn mode.</li>
+        <li>It supports specifying file names with # similar to Hadoop.</br>
+      </ul>
       <i>e.g. <code>myLocalSparkApp.dll#appSeen.dll</code>. Your application should use the name as <code>appSeen.dll</code> to reference <code>myLocalSparkApp.dll</code> when running on YARN.</i></li></td>
   </tr>
   <tr>
     <td><b>--archives</b></td>
     <td>Comma-separated list of archives to be extracted into the working directory of each executor.</br>
-      <li>Please note that this option is only applicable for yarn mode.</li>
-      <li>It supports specifying file names with # similar to Hadoop.</br>
+      <ul>
+        <li>Please note that this option is only applicable for yarn mode.</li>
+        <li>It supports specifying file names with # similar to Hadoop.</br>
+      </ul>
       <i>e.g. <code>hdfs://&lt;path to your worker file&gt;/Microsoft.Spark.Worker.net461.win-x64-0.6.0.zip#worker</code>. This will copy and extract the zip file to <code>worker</code> folder.</i></li></td>
   </tr>
   <tr>
