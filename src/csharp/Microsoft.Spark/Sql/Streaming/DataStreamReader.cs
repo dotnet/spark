@@ -32,14 +32,14 @@ namespace Microsoft.Spark.Sql.Streaming
         }
 
         /// <summary>
-        /// Specifies the schema by using StructType object.
+        /// Specifies the schema by using <see cref="StructType"/>.
         /// </summary>
         /// <remarks>
         /// Some data sources (e.g. JSON) can infer the input schema automatically
         /// from data. By specifying the schema here, the underlying data source can
         /// skip the schema inference step, and thus speed up data loading.
         /// </remarks>
-        /// <param name="schema">class:`Microsoft.Spark.Sql.Types.StructType` object</param>
+        /// <param name="schema">The input schema</param>
         /// <returns>This DataStreamReader object</returns>
         public DataStreamReader Schema(StructType schema)
         {
