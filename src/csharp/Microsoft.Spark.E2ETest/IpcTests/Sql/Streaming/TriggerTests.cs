@@ -11,13 +11,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
     [Collection("Spark E2E Tests")]
     public class TriggerTests
     {
-        private readonly SparkSession _spark;
-
-        public TriggerTests(SparkFixture fixture)
-        {
-            _spark = fixture.Spark;
-        }
-
         /// <summary>
         /// Test Trigger's static functions
         /// </summary>

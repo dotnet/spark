@@ -60,9 +60,18 @@ TPCH timing results is written to stdout in the following form: `TPCH_Result,<la
     <true for sql tests, false for functional tests>
     ```
 
+    **Note**: Ensure that you build the worker and application with .NET Core 3.0 in order to run hardware acceleration queries.
+
+
 ## Python
 1. Upload [run_python_benchmark.sh](run_python_benchmark.sh) and all [python tpch benchmark](python/) files to the cluster.
-2. Run the benchmark by invoking:
+2. Install pyarrow and pandas on all nodes in the cluster. For example, if you are using Conda, you can use the following commands to install them.
+    ```shell
+    sudo /path/to/conda update --all
+    sudo /path/to/conda install pandas
+    sudo /path/to/conda install pyarrow
+    ```
+3. Run the benchmark by invoking:
     ```shell
     run_python_benchmark.sh \
     <number of cold iterations> \
@@ -74,6 +83,11 @@ TPCH timing results is written to stdout in the following form: `TPCH_Result,<la
     </path/to/dataset> \
     <number of iterations> \
     <true for sql tests, false for functional tests>
+    ```
+In order to run with Python 3.x (the default is 2.7) you will need to do the following on the driver node.
+1. Activate the Python 3.x environment, by changing the value of PYSPARK_PYTHON environment variable to point to the Python3 binary. This change can be made in the spark-env.sh conf file.
+    ```shell
+    export PYSPARK_PYTHON=${PYSPARK_PYTHON:-/path/to/python3}
     ```
 
 ## Scala

@@ -170,10 +170,6 @@ namespace Microsoft.Spark.Sql
                 {
                     throw new NotImplementedException();
                 }
-                else if (field.DataType is StructType)
-                {
-                    throw new NotImplementedException();
-                }
                 else if (field.DataType is DecimalType)
                 {
                     throw new NotImplementedException();

@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Spark.Interop.Internal.Java.Util;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Types;
 
@@ -151,6 +152,83 @@ namespace Microsoft.Spark.Sql
         /// <returns>DataFrame object</returns>
         public DataFrame Load(params string[] paths) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("load", (object)paths));
+
+        /// <summary>
+        /// Construct a DataFrame representing the database table accessible via JDBC URL
+        /// url named table and connection properties.
+        /// </summary>
+        /// <param name="url">JDBC database url of the form "jdbc:subprotocol:subname"</param>
+        /// <param name="table">Name of the table in the external database</param>
+        /// <param name="properties">JDBC database connection arguments</param>
+        /// <returns>DataFrame representing the database table accessible via JDBC</returns>
+        public DataFrame Jdbc(string url, string table, Dictionary<string, string> properties) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+                "jdbc",
+                url,
+                table,
+                new Properties(_jvmObject.Jvm, properties)));
+
+        /// <summary>
+        /// Construct a DataFrame representing the database table accessible via JDBC URL
+        /// url named table. Partitions of the table will be retrieved in parallel based
+        /// on the parameters passed to this function.
+        /// </summary>
+        /// <param name="url">JDBC database url of the form "jdbc:subprotocol:subname"</param>
+        /// <param name="table">Name of the table in the external database</param>
+        /// <param name="columnName">The name of a column of integral type that will be used
+        /// for partitioning</param>
+        /// <param name="lowerBound">The minimum value of columnName used to decide partition
+        /// stride.</param>
+        /// <param name="upperBound">The maximum value of columnName used to decide partition
+        /// stride</param>
+        /// <param name="numPartitions">
+        /// The number of partitions. This, along with lowerBound (inclusive),
+        /// upperBound(exclusive), form partition strides for generated WHERE
+        /// clause expressions used to split the column columnName evenly.When
+        /// the input is less than 1, the number is set to 1.
+        /// </param>
+        /// <param name="properties">JDBC database connection arguments</param>
+        /// <returns>DataFrame representing the database table accessible via JDBC</returns>
+        public DataFrame Jdbc(
+            string url,
+            string table,
+            string columnName,
+            long lowerBound,
+            long upperBound,
+            int numPartitions,
+            Dictionary<string, string> properties) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+                "jdbc",
+                url,
+                table,
+                columnName,
+                lowerBound,
+                upperBound,
+                numPartitions,
+                new Properties(_jvmObject.Jvm, properties)));
+
+        /// <summary>
+        /// Construct a DataFrame representing the database table accessible via JDBC URL
+        /// url named table and connection properties. The predicates parameter gives a list
+        /// expressions suitable for inclusion in WHERE clauses; each one defines one partition
+        /// of the DataFrame.
+        /// </summary>
+        /// <param name="url">JDBC database url of the form "jdbc:subprotocol:subname"</param>
+        /// <param name="table">Name of the table in the external database</param>
+        /// <param name="predicates">Condition in the WHERE clause for each partition</param>
+        /// <param name="properties">JDBC database connection arguments</param>
+        /// <returns>DataFrame representing the database table accessible via JDBC</returns>
+        public DataFrame Jdbc(
+            string url,
+            string table,
+            IEnumerable<string> predicates,
+            Dictionary<string, string> properties) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+                "jdbc",
+                url,
+                table,
+                predicates,
+                new Properties(_jvmObject.Jvm, properties)));
 
         /// <summary>
         /// Loads a JSON file (one object per line) and returns the result as a DataFrame.

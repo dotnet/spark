@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using Microsoft.Spark.Interop;
+using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Streaming;
 
@@ -16,6 +18,9 @@ namespace Microsoft.Spark.Sql
         private readonly JvmObjectReference _jvmObject;
 
         private readonly Lazy<SparkContext> _sparkContext;
+
+        private static readonly string s_sparkSessionClassName =
+            "org.apache.spark.sql.SparkSession";
 
         /// <summary>
         /// Constructor for SparkSession.
@@ -41,6 +46,52 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <returns>Builder object</returns>
         public static Builder Builder() => new Builder();
+
+        /// Note that *ActiveSession() APIs are not exposed because these APIs work with a
+        /// thread-local variable, which stores the session variable. Since the Netty server
+        /// that handles the requests is multi-threaded, any thread can invoke these APIs,
+        /// resulting in unexpected behaviors if different threads are used.
+
+        /// <summary>
+        /// Sets the default SparkSession that is returned by the builder.
+        /// </summary>
+        /// <param name="session">SparkSession object</param>
+        public static void SetDefaultSession(SparkSession session) =>
+            session._jvmObject.Jvm.CallStaticJavaMethod(
+                s_sparkSessionClassName, "setDefaultSession", session);
+
+        /// <summary>
+        /// Clears the default SparkSession that is returned by the builder.
+        /// </summary>
+        public static void ClearDefaultSession() =>
+            SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                s_sparkSessionClassName, "clearDefaultSession");
+
+        /// <summary>
+        /// Returns the default SparkSession that is returned by the builder.
+        /// </summary>
+        /// <returns>SparkSession object or null if called on executors</returns>
+        public static SparkSession GetDefaultSession()
+        {
+            var optionalSession = new Option(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_sparkSessionClassName, "getDefaultSession"));
+
+            return optionalSession.IsDefined()
+                ? new SparkSession((JvmObjectReference)optionalSession.Get())
+                : null;
+        }
+
+        /// <summary>
+        /// Returns the currently active SparkSession, otherwise the default one.
+        /// If there is no default SparkSession, throws an exception.
+        /// </summary>
+        /// <returns>SparkSession object</returns>
+        [Since(Versions.V2_4_0)]
+        public static SparkSession Active() =>
+            new SparkSession(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_sparkSessionClassName, "active"));
 
         /// <summary>
         /// Synonym for Stop().
@@ -159,6 +210,14 @@ namespace Microsoft.Spark.Sql
         /// <returns>UDFRegistration object</returns>
         public UdfRegistration Udf() =>
             new UdfRegistration((JvmObjectReference)_jvmObject.Invoke("udf"));
+
+        /// <summary>
+        /// Interface through which the user may create, drop, alter or query underlying databases,
+        /// tables, functions etc.
+        /// </summary>
+        /// <returns>Catalog object</returns>
+        public Catalog.Catalog Catalog() =>
+            new Catalog.Catalog((JvmObjectReference)_jvmObject.Invoke("catalog"));
 
         /// <summary>
         /// Stops the underlying SparkContext.
