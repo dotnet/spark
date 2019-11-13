@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql.Streaming
 {
@@ -27,6 +28,24 @@ namespace Microsoft.Spark.Sql.Streaming
         public DataStreamReader Format(string source)
         {
             _jvmObject.Invoke("format", source);
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies the schema by using StructType object.
+        /// </summary>
+        /// <remarks>
+        /// Some data sources (e.g. JSON) can infer the input schema automatically
+        /// from data. By specifying the schema here, the underlying data source can
+        /// skip the schema inference step, and thus speed up data loading.
+        /// </remarks>
+        /// <param name="schema">class:`Microsoft.Spark.Sql.Types.StructType` object</param>
+        /// <returns>This DataStreamReader object</returns>
+        public DataStreamReader Schema(StructType schema)
+        {
+            var jvmSchema = (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
+                "org.apache.spark.sql.types.DataType", "fromJson", schema.Json);
+            _jvmObject.Invoke("schema", jvmSchema);
             return this;
         }
 
