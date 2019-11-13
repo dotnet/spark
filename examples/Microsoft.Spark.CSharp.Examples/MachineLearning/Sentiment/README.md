@@ -190,10 +190,10 @@ There are a few steps you'll need to follow to build and run your app:
 #### Windows Example:
 
 ```powershell
-spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local /path/to/microsoft-spark-<version>.jar Microsoft.Spark.CSharp.Examples.exe MachineLearning.Sentiment.Program /path/to/Microsoft.Spark.CSharp.Examples/MachineLearning/Sentiment/Resources
+spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local /path/to/microsoft-spark-<version>.jar Microsoft.Spark.CSharp.Examples.exe MachineLearning.Sentiment.Program /path/to/yelptest.csv /path/to/MLModel.zip
 ```
 
-> **Note:** Be sure to update the above command with the actual paths to your Microsoft Spark jar file and the Resources folder containing your MLModel.zip and yelptest.csv.
+> **Note:** Be sure to update the above command with the actual paths to your Microsoft Spark jar file, yelptest.csv, and MLModel.zip. yelptest.csv and MLModel.zip are included in this sample app in the [Resources folder](./Resources).
 
 ## Next Steps
 
