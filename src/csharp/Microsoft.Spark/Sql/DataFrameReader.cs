@@ -23,7 +23,7 @@ namespace Microsoft.Spark.Sql
         }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-        
+
         /// <summary>
         /// Specifies the input data source format.
         /// </summary>
