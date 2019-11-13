@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Streaming;
+using Microsoft.Spark.Sql.Types;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
@@ -30,6 +31,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<DataStreamReader>(dsr.Format("parquet"));
 
+            Assert.IsType<DataStreamReader>(
+                dsr.Schema(
+                    new StructType(new[]
+                    {
+                        new StructField("columnName", new IntegerType())
+                    })));
             Assert.IsType<DataStreamReader>(dsr.Schema("columnName bigint"));
 
             Assert.IsType<DataStreamReader>(dsr.Option("key", "value"));
