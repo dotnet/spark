@@ -36,18 +36,20 @@ namespace Microsoft.Spark.Sql
         }
         
         /// <summary>
-        /// Specifies the input schema.
+        /// Specifies the schema by using StructType object.
         /// </summary>
         /// <remarks>
         /// Some data sources (e.g. JSON) can infer the input schema automatically
         /// from data. By specifying the schema here, the underlying data source can
         /// skip the schema inference step, and thus speed up data loading.
         /// </remarks>
-        /// <param name="schema">Input schema</param>
+        /// <param name="schema">class:`Microsoft.Spark.Sql.Types.StructType` object</param>
         /// <returns>This DataFrameReader object</returns>
         public DataFrameReader Schema(StructType schema)
         {
-            _jvmObject.Invoke("schema", schema);
+            var jvmSchema = (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
+                "org.apache.spark.sql.types.DataType", "fromJson", schema.Json);
+            _jvmObject.Invoke("schema", jvmSchema);
             return this;
         }
         
