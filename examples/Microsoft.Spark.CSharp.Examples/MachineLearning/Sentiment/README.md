@@ -145,7 +145,7 @@ public class Review
 {
       // Represents the input review text
       [LoadColumn(0)]
-      public string Column1;
+      public string ReviewText;
 }
 ```
 
