@@ -19,10 +19,10 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
     {
         public void Run(string[] args)
         {
-            if (args.Length != 1)
+            if (args.Length != 2)
             {
                 Console.Error.WriteLine(
-                    "Usage: <path to Resources folder with yelp.csv and MLModel.zip>");
+                    "Usage: <path to yelptest.csv> <path to MLModel.zip>");
                 Environment.Exit(1);
             }
 
@@ -36,13 +36,13 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
                 .Read()
                 .Option("header", true)
                 .Option("inferSchema", true)
-                .Csv(args[0] + "yelptest.csv");
+                .Csv(args[0]);
             df.Show();
 
             // Use ML.NET in a UDF to evaluate each review 
             spark.Udf().Register<string, bool>(
                 "MLudf",
-                (text) => Sentiment(text, args[0] + "MLModel.zip"));
+                (text) => Sentiment(text, args[1]));
 
             // Use Spark SQL to call ML.NET UDF
             // Display results of sentiment analysis on reviews
