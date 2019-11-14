@@ -4,6 +4,7 @@
 
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Sql.Expressions
@@ -32,19 +33,12 @@ namespace Microsoft.Spark.Sql.Expressions
             UdfUtils.PythonEvalType evalType,
             string returnType)
         {
-            var pythonFunction = UdfUtils.CreatePythonFunction(jvm, command);
-
-            var dataType = (JvmObjectReference)jvm.CallStaticJavaMethod(
-                "org.apache.spark.sql.types.DataType",
-                "fromJson",
-                $"{returnType}");
-
             return new UserDefinedFunction(
                 jvm.CallConstructor(
                     "org.apache.spark.sql.execution.python.UserDefinedPythonFunction",
                     name,
-                    pythonFunction,
-                    dataType,
+                    UdfUtils.CreatePythonFunction(jvm, command),
+                    DataType.FromJson(jvm, returnType),
                     (int)evalType,
                     true // udfDeterministic
                     ));
