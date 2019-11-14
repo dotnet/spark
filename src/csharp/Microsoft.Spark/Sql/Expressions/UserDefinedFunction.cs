@@ -35,7 +35,7 @@ namespace Microsoft.Spark.Sql.Expressions
         {
             JvmObjectReference pythonFunction = UdfUtils.CreatePythonFunction(jvm, command);
 
-            JvmObjectReference dataType = DataType.FromJson(jvm, {returnType});
+            JvmObjectReference dataType = DataType.FromJson(jvm, returnType);
 
             return new UserDefinedFunction(
                 jvm.CallConstructor(
