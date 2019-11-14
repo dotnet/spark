@@ -31,7 +31,12 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             // Need to explicitly specify the schema since pickling vs. arrow formatting
             // will return different types. Pickling will turn longs into ints if the values fit.
-            DataFrame df = spark.Read().Schema("age INT, name STRING").Json(args[0]);
+            var dfSchema = new StructType(new[]
+            {
+                new StructField("age", new IntegerType()),
+                new StructField("name", new StringType())
+            });
+            DataFrame df = spark.Read().Schema(dfSchema).Json(args[0]);
 
             Spark.Sql.Types.StructType schema = df.Schema();
             Console.WriteLine(schema.SimpleString);
