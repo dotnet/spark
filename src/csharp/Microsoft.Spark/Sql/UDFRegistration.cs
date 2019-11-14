@@ -270,7 +270,7 @@ namespace Microsoft.Spark.Sql
 
         private JvmObjectReference GetDataType<T>()
         {
-            return DataType.FromJson(_jvmObject.Jvm, {UdfUtils.GetReturnType(typeof(T))});
+            return DataType.FromJson(_jvmObject.Jvm, UdfUtils.GetReturnType(typeof(T)));
         }
     }
 }
