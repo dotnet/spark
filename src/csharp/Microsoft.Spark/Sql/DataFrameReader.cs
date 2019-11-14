@@ -48,7 +48,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameReader object</returns>
         public DataFrameReader Schema(StructType schema)
         {
-            _jvmObject.Invoke("schema", DataType.FromJson(_jvmObject.Jvm, schema.Json);
+            _jvmObject.Invoke("schema", DataType.FromJson(_jvmObject.Jvm, schema.Json));
             return this;
         }
         
