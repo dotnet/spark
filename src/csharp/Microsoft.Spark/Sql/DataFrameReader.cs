@@ -48,8 +48,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameReader object</returns>
         public DataFrameReader Schema(StructType schema)
         {
-            var jvmSchema = (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.sql.types.DataType", "fromJson", schema.Json);
+            JvmObjectReference jvmSchema = DataType.FromJson(_jvmObject.Jvm, schema.Json);
             _jvmObject.Invoke("schema", jvmSchema);
             return this;
         }
