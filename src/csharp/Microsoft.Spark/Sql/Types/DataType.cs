@@ -69,7 +69,7 @@ namespace Microsoft.Spark.Sql.Types
         internal virtual object JsonValue => TypeName;
         
         /// <summary>
-        /// Parses a JSON string to create a JvmObjectReference object.
+        /// Parses a JSON string to create a JvmObjectReference object, which references a StructType object on the JVM side.
         /// </summary>
         /// <param name="jvm">JVM bridge to use</param>
         /// <param name="json">JSON string to parse</param>
