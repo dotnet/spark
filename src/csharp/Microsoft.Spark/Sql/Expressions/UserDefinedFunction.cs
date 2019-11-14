@@ -34,10 +34,7 @@ namespace Microsoft.Spark.Sql.Expressions
         {
             var pythonFunction = UdfUtils.CreatePythonFunction(jvm, command);
 
-            var dataType = (JvmObjectReference)jvm.CallStaticJavaMethod(
-                "org.apache.spark.sql.types.DataType",
-                "fromJson",
-                $"{returnType}");
+            var dataType = DataType.FromJson(jvm, returnType);
 
             return new UserDefinedFunction(
                 jvm.CallConstructor(
