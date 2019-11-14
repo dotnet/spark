@@ -241,7 +241,7 @@ namespace Microsoft.Spark.Sql.Types
         /// <param name="fields">A collection of StructFieldType objects</param>
         public StructType(IEnumerable<StructField> fields)
         {
-            Fields = fields.ToList();
+            Fields = new List<StructField>(fields);
         }
 
         /// <summary>
