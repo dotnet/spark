@@ -269,10 +269,7 @@ namespace Microsoft.Spark.Sql
 
         private JvmObjectReference GetDataType<T>()
         {
-            return (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.sql.types.DataType",
-                "fromJson",
-                $"{UdfUtils.GetReturnType(typeof(T))}");
+            return DataType.FromJson(_jvmObject.Jvm, UdfUtils.GetReturnType(typeof(T)));
         }
     }
 }
