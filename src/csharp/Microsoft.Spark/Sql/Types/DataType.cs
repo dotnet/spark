@@ -67,7 +67,15 @@ namespace Microsoft.Spark.Sql.Types
         /// JSON value of this data type.
         /// </summary>
         internal virtual object JsonValue => TypeName;
-
+        
+        internal static JvmObjectReference FromJson(IJvmBridge jvm, string json)
+        {
+            return (JvmObjectReference)jvm.CallStaticJavaMethod(
+                "org.apache.spark.sql.types.DataType",
+                "fromJson",
+                json);
+        }
+        
         /// <summary>
         /// Parses a JSON string to construct a DataType.
         /// </summary>
