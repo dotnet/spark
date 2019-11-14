@@ -4,6 +4,7 @@
 
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Sql.Expressions
