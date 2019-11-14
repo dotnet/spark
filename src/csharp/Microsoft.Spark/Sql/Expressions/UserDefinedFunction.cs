@@ -33,16 +33,12 @@ namespace Microsoft.Spark.Sql.Expressions
             UdfUtils.PythonEvalType evalType,
             string returnType)
         {
-            JvmObjectReference pythonFunction = UdfUtils.CreatePythonFunction(jvm, command);
-
-            JvmObjectReference dataType = DataType.FromJson(jvm, returnType);
-
             return new UserDefinedFunction(
                 jvm.CallConstructor(
                     "org.apache.spark.sql.execution.python.UserDefinedPythonFunction",
                     name,
-                    pythonFunction,
-                    dataType,
+                    UdfUtils.CreatePythonFunction(jvm, command),
+                    DataType.FromJson(jvm, returnType),
                     (int)evalType,
                     true // udfDeterministic
                     ));
