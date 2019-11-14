@@ -33,9 +33,9 @@ namespace Microsoft.Spark.Sql.Expressions
             UdfUtils.PythonEvalType evalType,
             string returnType)
         {
-            var pythonFunction = UdfUtils.CreatePythonFunction(jvm, command);
+            JvmObjectReference pythonFunction = UdfUtils.CreatePythonFunction(jvm, command);
 
-            var dataType = DataType.FromJson(jvm, returnType);
+            JvmObjectReference dataType = DataType.FromJson(jvm, {returnType});
 
             return new UserDefinedFunction(
                 jvm.CallConstructor(
