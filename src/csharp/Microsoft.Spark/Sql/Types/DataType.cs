@@ -68,6 +68,12 @@ namespace Microsoft.Spark.Sql.Types
         /// </summary>
         internal virtual object JsonValue => TypeName;
         
+        /// <summary>
+        /// Parses a JSON string to create a JvmObjectReference object.
+        /// </summary>
+        /// <param name="jvm">JVM bridge to use</param>
+        /// <param name="json">JSON string to parse</param>
+        /// <returns>The new JvmObjectReference created from the JSON string</returns>
         internal static JvmObjectReference FromJson(IJvmBridge jvm, string json)
         {
             return (JvmObjectReference)jvm.CallStaticJavaMethod(
