@@ -43,8 +43,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <returns>This DataStreamReader object</returns>
         public DataStreamReader Schema(StructType schema)
         {
-            var jvmSchema = (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.sql.types.DataType", "fromJson", schema.Json);
+            JvmObjectReference jvmSchema = DataType.FromJson(_jvmObject.Jvm, schema.Json);
             _jvmObject.Invoke("schema", jvmSchema);
             return this;
         }
