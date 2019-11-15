@@ -14,7 +14,6 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
     /// Example of using ML.NET + .NET for Apache Spark
     /// for sentiment analysis.
     /// </summary>
-    //public class Program
     internal sealed class Program : IExample
     {
         public void Run(string[] args)
