@@ -67,8 +67,8 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
                 .Load(modelPath, out var modelInputSchema);
 
             PredictionEngine<Review, ReviewPrediction> predEngine = mlContext
-               .Model
-               .CreatePredictionEngine<Review, ReviewPrediction>(mlModel);
+                .Model
+                .CreatePredictionEngine<Review, ReviewPrediction>(mlModel);
 
             ReviewPrediction result = predEngine.Predict(
                 new Review { ReviewText = text });
