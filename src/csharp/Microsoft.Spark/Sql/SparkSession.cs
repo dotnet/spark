@@ -145,9 +145,11 @@ namespace Microsoft.Spark.Sql
         /// <param name="schema">Schema as StructType</param>
         /// <returns>DataFrame object</returns>
         public DataFrame CreateDataFrame(List<Row> data, StructType schema) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("createDataFrame", data, (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.sql.types.DataType", "fromJson", schema.Json)));
-        //***************** multiple definitions here for list of other objects, and schema as list of column names etc...?????      
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("createDataFrame", data, DataType.FromJson(_jvmObject.Jvm, schema.Json)));
+
+        // To-Do: Add definitions for CreateDataFrame with other arguments such as:
+        // 1. IEnumerable<string> rows
+        // 2. DDL-formatted schema string
 
         /// <summary>
         /// Executes a SQL query using Spark, returning the result as a DataFrame.
