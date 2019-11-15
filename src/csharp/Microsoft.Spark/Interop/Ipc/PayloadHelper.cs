@@ -47,7 +47,7 @@ namespace Microsoft.Spark.Interop.Ipc
             SerDe.Write(destination, classNameOrJvmObjectReference.ToString());
             SerDe.Write(destination, methodName);
             SerDe.Write(destination, args.Length);
-            ConvertArgsToBytes(destination, args);          
+            ConvertArgsToBytes(destination, args);
 
             // Write the length now that we've written out everything else.
             var afterPosition = destination.Position;
@@ -78,7 +78,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 if (addTypeIdPrefix)
                 {
                     SerDe.Write(destination, GetTypeId(argType));
-                }                
+                }
 
                 switch (Type.GetTypeCode(argType))
                 {
@@ -271,8 +271,6 @@ namespace Microsoft.Spark.Interop.Ipc
                     {
                         return s_jvmObjectTypeId;
                     }
-
-                    //Suggestion: Returning s_arrayTypeId for every <T>[]. Adding additional char for specific <T>
 
                     if (type == typeof(byte[]))
                     {
