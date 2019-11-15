@@ -104,7 +104,6 @@ object SerDe {
             rowValues += readTypedObject(in, elemType)
         }
         Row.fromSeq(rowValues.toList)
-        //new GenericRow(rowValues)
     }
 
   def readBytesArr(in: DataInputStream): Array[Array[Byte]] = {
@@ -143,7 +142,6 @@ object SerDe {
     for ( i <- 0 until arrLen) {
         arr(i) = readRow(in)
     }
-    //arr
     ListBuffer(arr: _*)
   }
 
