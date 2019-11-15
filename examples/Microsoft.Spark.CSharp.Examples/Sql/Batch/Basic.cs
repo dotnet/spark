@@ -5,8 +5,8 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Sql;
-using static Microsoft.Spark.Sql.Functions;
 using Microsoft.Spark.Sql.Types;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace Microsoft.Spark.Examples.Sql.Batch
 {
@@ -17,6 +17,13 @@ namespace Microsoft.Spark.Examples.Sql.Batch
     {
         public void Run(string[] args)
         {
+            if (args.Length != 1)
+            {
+                Console.Error.WriteLine(
+                    "Usage: Basic <path to SPARK_HOME/examples/src/main/resources/people.json>");
+                Environment.Exit(1);
+            }
+
             SparkSession spark = SparkSession
                 .Builder()
                 .AppName(".NET Spark SQL basic example")
@@ -24,9 +31,14 @@ namespace Microsoft.Spark.Examples.Sql.Batch
                 .GetOrCreate();
 
             // Need to explicitly specify the schema since pickling vs. arrow formatting
-            // will return different types. Pickling will turn longs into ints if the values fit.                            
-
-            DataFrame df = spark.Read().Schema("age INT, name STRING").Json(args[0]);
+            // will return different types. Pickling will turn longs into ints if the values fit.
+            // Same as the "age INT, name STRING" DDL-format string.
+            var inputSchema = new StructType(new[]
+            {
+                new StructField("age", new IntegerType()),
+                new StructField("name", new StringType())
+            });
+            DataFrame df = spark.Read().Schema(inputSchema).Json(args[0]);
 
             Spark.Sql.Types.StructType schema = df.Schema();
             Console.WriteLine(schema.SimpleString);
@@ -96,28 +108,6 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             DataFrame joinedDf3 = df.Join(df, df["name"] == df["name"], "outer");
             joinedDf3.Show();
-
-            // CreateDataFrame returning a dataframe given a list of Rows and a StructType schema
-
-            var structFields = new List<StructField>()
-            {
-                new StructField("Name", new StringType()),
-                new StructField("Role", new StringType()),
-                new StructField("Id", new IntegerType()),
-                new StructField("Age", new LongType()),
-            };
-
-            var inputSchema = new StructType(structFields);
-
-            var row1 = new Row(new object[] { "Alice", "SWE", 1, 30L }, inputSchema);
-            var row2 = new Row(new object[] { "Bob", "PM", 2, 32L }, inputSchema);
-
-            List<Row> data = new List<Row>();
-            data.Add(row1);
-            data.Add(row2);
-
-            DataFrame df2 = spark.CreateDataFrame(data, inputSchema);
-            df2.Show();
 
             spark.Stop();
         }
