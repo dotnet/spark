@@ -3,10 +3,12 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Streaming;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql
 {
@@ -165,6 +167,17 @@ namespace Microsoft.Spark.Sql
         /// <returns>DataFrame object</returns>
         public DataFrame Table(string tableName) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("table", tableName));
+
+        /// <summary>
+        /// Returns a dataframe as per the schema and data.
+        /// </summary>
+        /// <param name="data">List of Row objects</param>
+        /// <param name="schema">Schema as StructType</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame CreateDataFrame(List<Row> data, StructType schema) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("createDataFrame", data, (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
+                "org.apache.spark.sql.types.DataType", "fromJson", schema.Json)));
+        //***************** multiple definitions here for list of other objects, and schema as list of column names etc...?????      
 
         /// <summary>
         /// Executes a SQL query using Spark, returning the result as a DataFrame.

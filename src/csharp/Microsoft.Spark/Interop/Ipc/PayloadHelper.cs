@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.Interop.Ipc
 {
@@ -23,8 +24,10 @@ namespace Microsoft.Spark.Interop.Ipc
         private static readonly byte[] s_doubleTypeId = new[] { (byte)'d' };
         private static readonly byte[] s_jvmObjectTypeId = new[] { (byte)'j' };
         private static readonly byte[] s_byteArrayTypeId = new[] { (byte)'r' };
-        private static readonly byte[] s_intArrayTypeId = new[] { (byte)'l' };
+        //private static readonly byte[] s_intArrayTypeId = new[] { (byte)'l' };   //'l' signifying List<int> here, but in SerDe.scala it means List<T>
+        private static readonly byte[] s_arrayTypeId = new[] { (byte)'l' };        // Suggestion: All list types start with 'l' and then the char for datatype of elements eg: 'li' for Int Array
         private static readonly byte[] s_dictionaryTypeId = new[] { (byte)'e' };
+        private static readonly byte[] s_rowArrTypeId = new[] { (byte)'R' };
 
         private static readonly ConcurrentDictionary<Type, bool> s_isDictionaryTable =
             new ConcurrentDictionary<Type, bool>();
@@ -44,7 +47,7 @@ namespace Microsoft.Spark.Interop.Ipc
             SerDe.Write(destination, classNameOrJvmObjectReference.ToString());
             SerDe.Write(destination, methodName);
             SerDe.Write(destination, args.Length);
-            ConvertArgsToBytes(destination, args);
+            ConvertArgsToBytes(destination, args);          
 
             // Write the length now that we've written out everything else.
             var afterPosition = destination.Position;
@@ -53,15 +56,197 @@ namespace Microsoft.Spark.Interop.Ipc
             destination.Position = afterPosition;
         }
 
+        internal static void ConvertElementsToBytes(
+            MemoryStream destination,
+            Type elementType,            
+            object element            
+            )
+        {
+            long posBeforeEnumerable, posAfterEnumerable;
+            int itemCount;
+            object[] convertElems = null;
+
+            switch (Type.GetTypeCode(elementType))
+            {
+                case TypeCode.Int32:
+                    SerDe.Write(destination, (int)element);
+                    break;
+
+                case TypeCode.Int64:
+                    SerDe.Write(destination, (long)element);
+                    break;
+
+                case TypeCode.String:
+                    SerDe.Write(destination, (string)element);
+                    break;
+
+                case TypeCode.Boolean:
+                    SerDe.Write(destination, (bool)element);
+                    break;
+
+                case TypeCode.Double:
+                    SerDe.Write(destination, (double)element);
+                    break;
+
+                case TypeCode.Object:
+                    switch (element)
+                    {
+                        case byte[] argByteArray:
+                            //SerDe.Write(destination, s_byteArrayTypeId);   -> why do we not need this here?
+                            SerDe.Write(destination, argByteArray.Length);
+                            SerDe.Write(destination, argByteArray);
+                            break;
+
+                        case int[] argInt32Array:
+                            SerDe.Write(destination, s_int32TypeId);
+                            SerDe.Write(destination, argInt32Array.Length);
+                            foreach (int i in argInt32Array)
+                            {
+                                SerDe.Write(destination, i);
+                            }
+                            break;
+
+                        case long[] argInt64Array:
+                            SerDe.Write(destination, s_int64TypeId);
+                            SerDe.Write(destination, argInt64Array.Length);
+                            foreach (long i in argInt64Array)
+                            {
+                                SerDe.Write(destination, i);
+                            }
+                            break;
+
+                        case double[] argDoubleArray:
+                            SerDe.Write(destination, s_doubleTypeId);
+                            SerDe.Write(destination, argDoubleArray.Length);
+                            foreach (double d in argDoubleArray)
+                            {
+                                SerDe.Write(destination, d);
+                            }
+                            break;
+
+                        case IEnumerable<byte[]> argByteArrayEnumerable:
+                            SerDe.Write(destination, s_byteArrayTypeId);
+                            posBeforeEnumerable = destination.Position;
+                            destination.Position += sizeof(int);
+                            itemCount = 0;
+                            foreach (byte[] b in argByteArrayEnumerable)
+                            {
+                                ++itemCount;
+                                SerDe.Write(destination, b.Length);
+                                destination.Write(b, 0, b.Length);
+                            }
+                            posAfterEnumerable = destination.Position;
+                            destination.Position = posBeforeEnumerable;
+                            SerDe.Write(destination, itemCount);
+                            destination.Position = posAfterEnumerable;
+                            break;
+
+                        case IEnumerable<string> argStringEnumerable:
+                            SerDe.Write(destination, s_stringTypeId);
+                            posBeforeEnumerable = destination.Position;
+                            destination.Position += sizeof(int);
+                            itemCount = 0;
+                            foreach (string s in argStringEnumerable)
+                            {
+                                ++itemCount;
+                                SerDe.Write(destination, s);
+                            }
+                            posAfterEnumerable = destination.Position;
+                            destination.Position = posBeforeEnumerable;
+                            SerDe.Write(destination, itemCount);
+                            destination.Position = posAfterEnumerable;
+                            break;
+
+                        case IEnumerable<IJvmObjectReferenceProvider> argJvmEnumerable:
+                            SerDe.Write(destination, s_jvmObjectTypeId);
+                            posBeforeEnumerable = destination.Position;
+                            destination.Position += sizeof(int);
+                            itemCount = 0;
+                            foreach (IJvmObjectReferenceProvider jvmObject in argJvmEnumerable)
+                            {
+                                ++itemCount;
+                                SerDe.Write(destination, jvmObject.Reference.Id);
+                            }
+                            posAfterEnumerable = destination.Position;
+                            destination.Position = posBeforeEnumerable;
+                            SerDe.Write(destination, itemCount);
+                            destination.Position = posAfterEnumerable;
+                            break;
+
+                        case var _ when IsDictionary(element.GetType()):
+                            // Generic dictionary, but we don't have it strongly typed as
+                            // Dictionary<T,U>
+                            var dictInterface = (IDictionary)element;
+                            var dict = new Dictionary<object, object>(dictInterface.Count);
+                            IDictionaryEnumerator iter = dictInterface.GetEnumerator();
+                            while (iter.MoveNext())
+                            {
+                                dict[iter.Key] = iter.Value;
+                            }
+
+                            // Below serialization is corresponding to deserialization method
+                            // ReadMap() of SerDe.scala.
+
+                            // dictionary's length
+                            SerDe.Write(destination, dict.Count);
+
+                            // keys' data type
+                            SerDe.Write(
+                                destination,
+                                GetTypeId(element.GetType().GetGenericArguments()[0]));
+                            // keys' length, same as dictionary's length
+                            SerDe.Write(destination, dict.Count);
+                            if (convertElems == null)
+                            {
+                                convertElems = new object[1];
+                            }
+                            foreach (KeyValuePair<object, object> kv in dict)
+                            {
+                                convertElems[0] = kv.Key;
+                                // keys, do not need type prefix.
+                                ConvertArgsToBytes(destination, convertElems, false);
+                            }
+
+                            // values' length, same as dictionary's length
+                            SerDe.Write(destination, dict.Count);
+                            foreach (KeyValuePair<object, object> kv in dict)
+                            {
+                                convertElems[0] = kv.Value;
+                                // values, need type prefix.
+                                ConvertArgsToBytes(destination, convertElems, true);
+                            }
+                            break;
+
+                        case IJvmObjectReferenceProvider argProvider:
+                            SerDe.Write(destination, argProvider.Reference.Id);
+                            break;
+
+                        case List<Row> argRowArray:                            
+                            SerDe.Write(destination, (int)argRowArray.Count);                            
+                            foreach (Row r in argRowArray)
+                            {
+                                SerDe.Write(destination, (int)r.Values.Length);
+                                foreach (object elem in r.Values)
+                                {
+                                    SerDe.Write(destination, GetTypeId(elem.GetType()));
+                                    ConvertElementsToBytes(destination, elem.GetType(), elem);
+                                }
+                            }
+                            break;
+
+                        default:
+                            throw new NotSupportedException(
+                                string.Format($"Type {element.GetType()} is not supported"));
+                    }
+                    break;
+            }
+        }
+
         internal static void ConvertArgsToBytes(
             MemoryStream destination,
             object[] args,
             bool addTypeIdPrefix = true)
-        {
-            long posBeforeEnumerable, posAfterEnumerable;
-            int itemCount;
-            object[] convertArgs = null;
-
+        {            
             foreach (object arg in args)
             {
                 if (arg == null)
@@ -77,166 +262,7 @@ namespace Microsoft.Spark.Interop.Ipc
                     SerDe.Write(destination, GetTypeId(argType));
                 }
 
-                switch (Type.GetTypeCode(argType))
-                {
-                    case TypeCode.Int32:
-                        SerDe.Write(destination, (int)arg);
-                        break;
-
-                    case TypeCode.Int64:
-                        SerDe.Write(destination, (long)arg);
-                        break;
-
-                    case TypeCode.String:
-                        SerDe.Write(destination, (string)arg);
-                        break;
-
-                    case TypeCode.Boolean:
-                        SerDe.Write(destination, (bool)arg);
-                        break;
-
-                    case TypeCode.Double:
-                        SerDe.Write(destination, (double)arg);
-                        break;
-
-                    case TypeCode.Object:
-                        switch (arg)
-                        {
-                            case byte[] argByteArray:
-                                SerDe.Write(destination, argByteArray.Length);
-                                SerDe.Write(destination, argByteArray);
-                                break;
-
-                            case int[] argInt32Array:
-                                SerDe.Write(destination, s_int32TypeId);
-                                SerDe.Write(destination, argInt32Array.Length);
-                                foreach (int i in argInt32Array)
-                                {
-                                    SerDe.Write(destination, i);
-                                }
-                                break;
-
-                            case long[] argInt64Array:
-                                SerDe.Write(destination, s_int64TypeId);
-                                SerDe.Write(destination, argInt64Array.Length);
-                                foreach (long i in argInt64Array)
-                                {
-                                    SerDe.Write(destination, i);
-                                }
-                                break;
-
-                            case double[] argDoubleArray:
-                                SerDe.Write(destination, s_doubleTypeId);
-                                SerDe.Write(destination, argDoubleArray.Length);
-                                foreach (double d in argDoubleArray)
-                                {
-                                    SerDe.Write(destination, d);
-                                }
-                                break;
-
-                            case IEnumerable<byte[]> argByteArrayEnumerable:
-                                SerDe.Write(destination, s_byteArrayTypeId);
-                                posBeforeEnumerable = destination.Position;
-                                destination.Position += sizeof(int);
-                                itemCount = 0;
-                                foreach (byte[] b in argByteArrayEnumerable)
-                                {
-                                    ++itemCount;
-                                    SerDe.Write(destination, b.Length);
-                                    destination.Write(b, 0, b.Length);
-                                }
-                                posAfterEnumerable = destination.Position;
-                                destination.Position = posBeforeEnumerable;
-                                SerDe.Write(destination, itemCount);
-                                destination.Position = posAfterEnumerable;
-                                break;
-
-                            case IEnumerable<string> argStringEnumerable:
-                                SerDe.Write(destination, s_stringTypeId);
-                                posBeforeEnumerable = destination.Position;
-                                destination.Position += sizeof(int);
-                                itemCount = 0;
-                                foreach (string s in argStringEnumerable)
-                                {
-                                    ++itemCount;
-                                    SerDe.Write(destination, s);
-                                }
-                                posAfterEnumerable = destination.Position;
-                                destination.Position = posBeforeEnumerable;
-                                SerDe.Write(destination, itemCount);
-                                destination.Position = posAfterEnumerable;
-                                break;
-
-                            case IEnumerable<IJvmObjectReferenceProvider> argJvmEnumerable:
-                                SerDe.Write(destination, s_jvmObjectTypeId);
-                                posBeforeEnumerable = destination.Position;
-                                destination.Position += sizeof(int);
-                                itemCount = 0;
-                                foreach (IJvmObjectReferenceProvider jvmObject in argJvmEnumerable)
-                                {
-                                    ++itemCount;
-                                    SerDe.Write(destination, jvmObject.Reference.Id);
-                                }
-                                posAfterEnumerable = destination.Position;
-                                destination.Position = posBeforeEnumerable;
-                                SerDe.Write(destination, itemCount);
-                                destination.Position = posAfterEnumerable;
-                                break;
-
-                            case var _ when IsDictionary(arg.GetType()):
-                                // Generic dictionary, but we don't have it strongly typed as
-                                // Dictionary<T,U>
-                                var dictInterface = (IDictionary)arg;
-                                var dict = new Dictionary<object, object>(dictInterface.Count);
-                                IDictionaryEnumerator iter = dictInterface.GetEnumerator();
-                                while (iter.MoveNext())
-                                {
-                                    dict[iter.Key] = iter.Value;
-                                }
-
-                                // Below serialization is corresponding to deserialization method
-                                // ReadMap() of SerDe.scala.
-
-                                // dictionary's length
-                                SerDe.Write(destination, dict.Count);
-
-                                // keys' data type
-                                SerDe.Write(
-                                    destination,
-                                    GetTypeId(arg.GetType().GetGenericArguments()[0]));
-                                // keys' length, same as dictionary's length
-                                SerDe.Write(destination, dict.Count);
-                                if (convertArgs == null)
-                                {
-                                    convertArgs = new object[1];
-                                }
-                                foreach (KeyValuePair<object, object> kv in dict)
-                                {
-                                    convertArgs[0] = kv.Key;
-                                    // keys, do not need type prefix.
-                                    ConvertArgsToBytes(destination, convertArgs, false);
-                                }
-
-                                // values' length, same as dictionary's length
-                                SerDe.Write(destination, dict.Count);
-                                foreach (KeyValuePair<object, object> kv in dict)
-                                {
-                                    convertArgs[0] = kv.Value;
-                                    // values, need type prefix.
-                                    ConvertArgsToBytes(destination, convertArgs, true);
-                                }
-                                break;
-
-                            case IJvmObjectReferenceProvider argProvider:
-                                SerDe.Write(destination, argProvider.Reference.Id);
-                                break;
-
-                            default:
-                                throw new NotSupportedException(
-                                    string.Format($"Type {arg.GetType()} is not supported"));
-                        }
-                        break;
-                }
+                ConvertElementsToBytes(destination, argType, arg);
             }
         }
 
@@ -260,9 +286,11 @@ namespace Microsoft.Spark.Interop.Ipc
                         return s_jvmObjectTypeId;
                     }
 
+                    //Suggestion: Returning s_arrayTypeId for every <T>[]. Adding additional char for specific <T>
+
                     if (type == typeof(byte[]))
                     {
-                        return s_byteArrayTypeId;
+                        return s_arrayTypeId;
                     }
 
                     if (type == typeof(int[]) ||
@@ -271,7 +299,7 @@ namespace Microsoft.Spark.Interop.Ipc
                         typeof(IEnumerable<byte[]>).IsAssignableFrom(type) ||
                         typeof(IEnumerable<string>).IsAssignableFrom(type))
                     {
-                        return s_intArrayTypeId;
+                        return s_arrayTypeId;
                     }
 
                     if (IsDictionary(type))
@@ -281,7 +309,12 @@ namespace Microsoft.Spark.Interop.Ipc
 
                     if (typeof(IEnumerable<IJvmObjectReferenceProvider>).IsAssignableFrom(type))
                     {
-                        return s_intArrayTypeId;
+                        return s_arrayTypeId;
+                    }
+
+                    if (type == typeof(List<Row>))                        
+                    {
+                        return s_rowArrTypeId;
                     }
                     break;
             }

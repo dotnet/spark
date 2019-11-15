@@ -19,11 +19,10 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="values">Column values for a row</param>
         /// <param name="schema">Schema associated with a row</param>
-        internal Row(object[] values, StructType schema)
+        public Row(object[] values, StructType schema)
         {
             Values = values;
             Schema = schema;
-
             var schemaColumnCount = Schema.Fields.Count;
             if (Size() != schemaColumnCount)
             {
@@ -31,7 +30,7 @@ namespace Microsoft.Spark.Sql
                     $"Column count mismatches: data:{Size()}, schema:{schemaColumnCount}");
             }
 
-            Convert();
+            Convert();                      
         }
 
         /// <summary>
