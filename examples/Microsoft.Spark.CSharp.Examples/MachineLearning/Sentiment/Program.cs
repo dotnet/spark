@@ -60,7 +60,7 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
         // Code primarily comes from ML.NET Model Builder
         public static bool Sentiment(string text, string modelPath)
         {
-            MLContext mlContext = new MLContext();
+            var mlContext = new MLContext();
 
             ITransformer mlModel = mlContext
                 .Model
