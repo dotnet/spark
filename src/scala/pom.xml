@@ -4,7 +4,7 @@
   <groupId>com.microsoft.scala</groupId>
   <artifactId>microsoft-spark</artifactId>
   <packaging>pom</packaging>
-  <version>0.4.0</version>
+  <version>0.6.0</version>
   <properties>
     <encoding>UTF-8</encoding>
   </properties>
@@ -12,6 +12,7 @@
   <modules>
     <module>microsoft-spark-2.3.x</module>
     <module>microsoft-spark-2.4.x</module>
+    <module>microsoft-spark-3.0.x</module>
   </modules>
 
   <pluginRepositories>
