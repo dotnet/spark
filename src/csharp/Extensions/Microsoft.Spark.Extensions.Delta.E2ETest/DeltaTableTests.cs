@@ -303,6 +303,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 _spark,
                 parquetIdentifier,
                 "id bigint"));
+            // TODO: Test with StructType partition schema once StructType is supported.
         }
 
         /// <summary>
