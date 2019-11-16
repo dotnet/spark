@@ -40,7 +40,7 @@ object SerDe {
       case 'c' => readString(dis)
       case 'e' => readMap(dis)
       case 'r' => readBytes(dis)
-      case 'l' => readList(dis)   //A/c to csharp code 'l' corresponds to intArraytype, but ReadList() internally looks for elem type eg 'i' for intArrayType
+      case 'l' => readList(dis)
       case 'D' => readDate(dis)
       case 't' => readTime(dis)
       case 'j' => JVMObjectTracker.getObject(readString(dis))

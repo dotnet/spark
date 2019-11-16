@@ -10,34 +10,21 @@ using Microsoft.Spark.Sql.Types;
 namespace Microsoft.Spark.Sql
 {
     /// <summary>
-    /// Represents a row object in RDD, equivalent to GenericRowWithSchema in Spark.
+    /// Represents a row object in RDD, equivalent to GenericRow in Spark.
     /// </summary>
-    public sealed class Row
+    public sealed class GenericRow
     {
         /// <summary>
         /// Constructor for the Row class.
         /// </summary>
-        /// <param name="values">Column values for a row</param>
-        /// <param name="schema">Schema associated with a row</param>
-        internal Row(object[] values, StructType schema)
+        /// <param name="values">Column values for a row</param>        
+        public GenericRow(object[] values)
         {
-            Values = values;
-            Schema = schema;
-            var schemaColumnCount = Schema.Fields.Count;
-            if (Size() != schemaColumnCount)
-            {
-                throw new Exception(
-                    $"Column count mismatches: data:{Size()}, schema:{schemaColumnCount}");
-            }
-
-            Convert();
+            Values = values;   
+            //TODO:
+            //Convert() -> implement type checking for not implemented exception
         }
-
-        /// <summary>
-        /// Schema associated with this row.
-        /// </summary>
-        public StructType Schema { get; }
-
+       
         /// <summary>
         /// Values representing this row.
         /// </summary>
@@ -75,13 +62,13 @@ namespace Microsoft.Spark.Sql
             return Values[index];
         }
 
-        /// <summary>
-        /// Returns the column value whose column name is given.
-        /// </summary>
-        /// <param name="columnName">Column name to look up</param>
-        /// <returns>A column value</returns>
-        public object Get(string columnName) =>
-            Get(Schema.Fields.FindIndex(f => f.Name == columnName));
+        ///// <summary>
+        ///// Returns the column value whose column name is given.
+        ///// </summary>
+        ///// <param name="columnName">Column name to look up</param>
+        ///// <returns>A column value</returns>
+        //public object Get(string columnName) =>
+        //    Get(Schema.Fields.FindIndex(f => f.Name == columnName));
 
         /// <summary>
         /// Returns the string version of this row.
@@ -109,16 +96,16 @@ namespace Microsoft.Spark.Sql
         /// <returns>A column value as a type T</returns>
         public T GetAs<T>(int index) => (T)Get(index);
 
-        /// <summary>
-        /// Returns the column value whose column name is given, as a type T.
-        /// TODO: If the original type is "long" and its value can be
-        /// fit into the "int", Pickler will serialize the value as int.
-        /// Since the value is boxed, <see cref="GetAs{T}(string)"/> will throw an exception.
-        /// </summary>
-        /// <typeparam name="T">Type to convert to</typeparam>
-        /// <param name="columnName">Column name to look up</param>
-        /// <returns>A column value as a type T</returns>
-        public T GetAs<T>(string columnName) => (T)Get(columnName);
+        ///// <summary>
+        ///// Returns the column value whose column name is given, as a type T.
+        ///// TODO: If the original type is "long" and its value can be
+        ///// fit into the "int", Pickler will serialize the value as int.
+        ///// Since the value is boxed, <see cref="GetAs{T}(string)"/> will throw an exception.
+        ///// </summary>
+        ///// <typeparam name="T">Type to convert to</typeparam>
+        ///// <param name="columnName">Column name to look up</param>
+        ///// <returns>A column value as a type T</returns>
+        //public T GetAs<T>(string columnName) => (T)Get(columnName);
 
         /// <summary>
         /// Checks if the given object is same as the current object.
@@ -139,8 +126,7 @@ namespace Microsoft.Spark.Sql
 
             if (obj is Row otherRow)
             {
-                return Values.SequenceEqual(otherRow.Values) &&
-                    Schema.Equals(otherRow.Schema);
+                return Values.SequenceEqual(otherRow.Values);
             }
 
             return false;
@@ -152,32 +138,31 @@ namespace Microsoft.Spark.Sql
         /// <returns>The hash code of the current object</returns>
         public override int GetHashCode() => base.GetHashCode();
 
-        /// <summary>
-        /// Converts the values to .NET values. Currently, only the simple types such as
-        /// int, string, etc. are supported (which are already converted correctly by
-        /// the Pickler). Note that explicit type checks against the schema are not performed.
-        /// </summary>
-        private void Convert()
-        {
-            foreach (StructField field in Schema.Fields)
-            {
-                if (field.DataType is ArrayType)
-                {
-                    throw new NotImplementedException();
-                }
-                else if (field.DataType is MapType)
-                {
-                    throw new NotImplementedException();
-                }
-                else if (field.DataType is DecimalType)
-                {
-                    throw new NotImplementedException();
-                }
-                else if (field.DataType is DateType)
-                {
-                    throw new NotImplementedException();
-                }
-            }
-        }
+        //TODO:
+        ///// <summary>
+        ///// Converts the values to .NET values. Currently, only the simple types such as
+        ///// int, string, etc. are supported (which are already converted correctly by
+        ///// the Pickler). Note that explicit type checks against the schema are not performed.
+        ///// </summary>
+        //private void Convert()
+        //{
+        //    foreach (object val in Values)
+        //    {
+        //        TypeCode valType = Type.GetTypeCode(val.GetType());
+        //        if (valType == TypeCode.Object)
+        //        {
+        //            switch (valType)
+        //            {
+        //                case object[]:
+        //                    SerDe.Write(destination, (int)arg);
+        //                    break;
+
+        //                case TypeCode.Int64:
+        //                    SerDe.Write(destination, (long)arg);
+        //                    break;
+        //            }
+        //        }
+        //    }
+        //}
     }
 }

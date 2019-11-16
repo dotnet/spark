@@ -24,8 +24,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private static readonly byte[] s_doubleTypeId = new[] { (byte)'d' };
         private static readonly byte[] s_jvmObjectTypeId = new[] { (byte)'j' };
         private static readonly byte[] s_byteArrayTypeId = new[] { (byte)'r' };
-        private static readonly byte[] s_intArrayTypeId = new[] { (byte)'l' };   //'l' signifying List<int> here, but in SerDe.scala it means List<T>. Should change name to s_arrayTypeId?
-        //private static readonly byte[] s_arrayTypeId = new[] { (byte)'l' };        // Suggestion: All list types start with 'l' and then the char for datatype of elements eg: 'li' for Int Array
+        private static readonly byte[] s_intArrayTypeId = new[] { (byte)'l' };
         private static readonly byte[] s_dictionaryTypeId = new[] { (byte)'e' };
         private static readonly byte[] s_rowArrTypeId = new[] { (byte)'R' };
 
@@ -234,9 +233,9 @@ namespace Microsoft.Spark.Interop.Ipc
                                 SerDe.Write(destination, argProvider.Reference.Id);
                                 break;
 
-                            case List<Row> argRowArray:
-                                SerDe.Write(destination, (int)argRowArray.Count);
-                                foreach (Row r in argRowArray)
+                            case IEnumerable<GenericRow> argRowArray:
+                                SerDe.Write(destination, (int)argRowArray.Count());
+                                foreach (GenericRow r in argRowArray)
                                 {
                                     SerDe.Write(destination, (int)r.Values.Length);
                                     ConvertArgsToBytes(destination, r.Values, true);                                    
@@ -296,7 +295,7 @@ namespace Microsoft.Spark.Interop.Ipc
                         return s_intArrayTypeId;
                     }
 
-                    if (type == typeof(List<Row>))                        
+                    if (type == typeof(IEnumerable<GenericRow>))                        
                     {
                         return s_rowArrTypeId;
                     }

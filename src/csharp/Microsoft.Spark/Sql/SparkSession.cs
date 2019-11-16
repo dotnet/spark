@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
@@ -144,8 +145,25 @@ namespace Microsoft.Spark.Sql
         /// <param name="data">List of Row objects</param>
         /// <param name="schema">Schema as StructType</param>
         /// <returns>DataFrame object</returns>
-        public DataFrame CreateDataFrame(List<Row> data, StructType schema) =>
+        public DataFrame CreateDataFrame(IEnumerable<GenericRow> data, StructType schema) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("createDataFrame", data, DataType.FromJson(_jvmObject.Jvm, schema.Json)));
+
+        /// <summary>
+        /// Returns a dataframe as per the schema and data.
+        /// </summary>
+        /// <param name="data">IEnumerable of strings representing rows</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<string> data)
+        {
+            var dataAsGenericRows = new List<GenericRow>();
+            foreach (string rowStr in data)
+            {
+                var row = new GenericRow(new object[] { rowStr });
+                dataAsGenericRows.Add(row);
+            }
+            return new DataFrame((JvmObjectReference)_jvmObject.Invoke("createDataFrame", dataAsGenericRows));
+        }
+
 
         // To-Do: Add definitions for CreateDataFrame with other arguments such as:
         // 1. IEnumerable<string> rows
