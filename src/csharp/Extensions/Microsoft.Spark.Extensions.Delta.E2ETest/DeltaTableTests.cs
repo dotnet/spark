@@ -31,76 +31,74 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
         public void TestTutorialScenario()
         {
-            using (var tempDirectory = new TemporaryDirectory())
-            {
-                string path = Path.Combine(tempDirectory.Path, "delta-table");
+            using var tempDirectory = new TemporaryDirectory();
+            string path = Path.Combine(tempDirectory.Path, "delta-table");
 
-                // Write data to a Delta table.
-                DataFrame data = _spark.Range(0, 5);
-                data.Write().Format("delta").Save(path);
+            // Write data to a Delta table.
+            DataFrame data = _spark.Range(0, 5);
+            data.Write().Format("delta").Save(path);
 
-                // Validate that data contains the the sequence [0 ... 4].
-                ValidateRangeDataFrame(Enumerable.Range(0, 5), data);
+            // Validate that data contains the the sequence [0 ... 4].
+            ValidateRangeDataFrame(Enumerable.Range(0, 5), data);
 
-                // Create a second iteration of the table.
-                data = _spark.Range(5, 10);
-                data.Write().Format("delta").Mode("overwrite").Save(path);
+            // Create a second iteration of the table.
+            data = _spark.Range(5, 10);
+            data.Write().Format("delta").Mode("overwrite").Save(path);
 
-                // Load the data into a DeltaTable object.
-                var deltaTable = DeltaTable.ForPath(path);
+            // Load the data into a DeltaTable object.
+            var deltaTable = DeltaTable.ForPath(path);
 
-                // Validate that deltaTable contains the the sequence [5 ... 9].
-                ValidateRangeDataFrame(Enumerable.Range(5, 5), deltaTable.ToDF());
+            // Validate that deltaTable contains the the sequence [5 ... 9].
+            ValidateRangeDataFrame(Enumerable.Range(5, 5), deltaTable.ToDF());
 
-                // Update every even value by adding 100 to it.
-                deltaTable.Update(
-                    condition: Functions.Expr("id % 2 == 0"),
-                    set: new Dictionary<string, Column>() {
+            // Update every even value by adding 100 to it.
+            deltaTable.Update(
+                condition: Functions.Expr("id % 2 == 0"),
+                set: new Dictionary<string, Column>() {
                         { "id", Functions.Expr("id + 100") }
-                    });
+                });
 
-                // Validate that deltaTable contains the the data:
-                // +---+
-                // | id|
-                // +---+
-                // |  5|
-                // |  7|
-                // |  9|
-                // |106|
-                // |108|
-                // +---+
-                ValidateRangeDataFrame(
-                    new List<int>() { 5, 7, 9, 106, 108 },
-                    deltaTable.ToDF());
+            // Validate that deltaTable contains the the data:
+            // +---+
+            // | id|
+            // +---+
+            // |  5|
+            // |  7|
+            // |  9|
+            // |106|
+            // |108|
+            // +---+
+            ValidateRangeDataFrame(
+                new List<int>() { 5, 7, 9, 106, 108 },
+                deltaTable.ToDF());
 
-                // Delete every even value.
-                deltaTable.Delete(condition: Functions.Expr("id % 2 == 0"));
+            // Delete every even value.
+            deltaTable.Delete(condition: Functions.Expr("id % 2 == 0"));
 
-                // Validate that deltaTable contains:
-                // +---+
-                // | id|
-                // +---+
-                // |  5|
-                // |  7|
-                // |  9|
-                // +---+
-                ValidateRangeDataFrame(new List<int>() { 5, 7, 9 }, deltaTable.ToDF());
+            // Validate that deltaTable contains:
+            // +---+
+            // | id|
+            // +---+
+            // |  5|
+            // |  7|
+            // |  9|
+            // +---+
+            ValidateRangeDataFrame(new List<int>() { 5, 7, 9 }, deltaTable.ToDF());
 
-                // Upsert (merge) new data.
-                DataFrame newData = _spark.Range(0, 20).As("newData").ToDF();
+            // Upsert (merge) new data.
+            DataFrame newData = _spark.Range(0, 20).As("newData").ToDF();
 
-                deltaTable.As("oldData")
-                    .Merge(newData, "oldData.id = newData.id")
-                    .WhenMatched()
-                    .Update(
-                        new Dictionary<string, Column>() { { "id", Functions.Col("newData.id") } })
-                    .WhenNotMatched()
-                    .InsertExpr(new Dictionary<string, string>() { { "id", "newData.id" } })
-                    .Execute();
+            deltaTable.As("oldData")
+                .Merge(newData, "oldData.id = newData.id")
+                .WhenMatched()
+                .Update(
+                    new Dictionary<string, Column>() { { "id", Functions.Col("newData.id") } })
+                .WhenNotMatched()
+                .InsertExpr(new Dictionary<string, string>() { { "id", "newData.id" } })
+                .Execute();
 
-                // Validate that the resulTable contains the the sequence [0 ... 19].
-                ValidateRangeDataFrame(Enumerable.Range(0, 20), deltaTable.ToDF());
-            }
+            // Validate that the resulTable contains the the sequence [0 ... 19].
+            ValidateRangeDataFrame(Enumerable.Range(0, 20), deltaTable.ToDF());
         }
 
         /// <summary>
@@ -109,39 +107,37 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
         public void TestStreamingScenario()
         {
-            using (var tempDirectory = new TemporaryDirectory())
-            {
-                // Write [0, 1, 2, 3, 4] to a Delta table.
-                string sourcePath = Path.Combine(tempDirectory.Path, "source-delta-table");
-                _spark.Range(0, 5).Write().Format("delta").Save(sourcePath);
+            using var tempDirectory = new TemporaryDirectory();
+            // Write [0, 1, 2, 3, 4] to a Delta table.
+            string sourcePath = Path.Combine(tempDirectory.Path, "source-delta-table");
+            _spark.Range(0, 5).Write().Format("delta").Save(sourcePath);
 
-                // Create a stream from the source DeltaTable to the sink DeltaTable.
-                // To make the test synchronous and deterministic, we will use a series of 
-                // "one-time micro-batch" triggers.
-                string sinkPath = Path.Combine(tempDirectory.Path, "sink-delta-table");
-                DataStreamWriter dataStreamWriter = _spark
-                    .ReadStream()
-                    .Format("delta")
-                    .Load(sourcePath)
-                    .WriteStream()
-                    .Format("delta")
-                    .OutputMode("append")
-                    .Option("checkpointLocation", Path.Combine(tempDirectory.Path, "checkpoints"));
+            // Create a stream from the source DeltaTable to the sink DeltaTable.
+            // To make the test synchronous and deterministic, we will use a series of 
+            // "one-time micro-batch" triggers.
+            string sinkPath = Path.Combine(tempDirectory.Path, "sink-delta-table");
+            DataStreamWriter dataStreamWriter = _spark
+                .ReadStream()
+                .Format("delta")
+                .Load(sourcePath)
+                .WriteStream()
+                .Format("delta")
+                .OutputMode("append")
+                .Option("checkpointLocation", Path.Combine(tempDirectory.Path, "checkpoints"));
 
-                // Trigger the first stream batch
-                dataStreamWriter.Trigger(Trigger.Once()).Start(sinkPath).AwaitTermination();
+            // Trigger the first stream batch
+            dataStreamWriter.Trigger(Trigger.Once()).Start(sinkPath).AwaitTermination();
 
-                // Now read the sink DeltaTable and validate its content.
-                DeltaTable sink = DeltaTable.ForPath(sinkPath);
-                ValidateRangeDataFrame(Enumerable.Range(0, 5), sink.ToDF());
+            // Now read the sink DeltaTable and validate its content.
+            DeltaTable sink = DeltaTable.ForPath(sinkPath);
+            ValidateRangeDataFrame(Enumerable.Range(0, 5), sink.ToDF());
 
-                // Write [5,6,7,8,9] to the source and trigger another stream batch.
-                _spark.Range(5, 10).Write().Format("delta").Mode("append").Save(sourcePath);
-                dataStreamWriter.Trigger(Trigger.Once()).Start(sinkPath).AwaitTermination();
+            // Write [5,6,7,8,9] to the source and trigger another stream batch.
+            _spark.Range(5, 10).Write().Format("delta").Mode("append").Save(sourcePath);
+            dataStreamWriter.Trigger(Trigger.Once()).Start(sinkPath).AwaitTermination();
 
-                // Finally, validate that the new data made its way to the sink.
-                ValidateRangeDataFrame(Enumerable.Range(0, 10), sink.ToDF());
-            }
+            // Finally, validate that the new data made its way to the sink.
+            ValidateRangeDataFrame(Enumerable.Range(0, 10), sink.ToDF());
         }
 
         /// <summary>
@@ -150,21 +146,19 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
         public void TestIsDeltaTable()
         {
-            using (var tempDirectory = new TemporaryDirectory())
-            {
-                // Save the same data to a DeltaTable and to Parquet.
-                DataFrame data = _spark.Range(0, 5);
-                string parquetPath = Path.Combine(tempDirectory.Path, "parquet-data");
-                data.Write().Parquet(parquetPath);
-                string deltaTablePath = Path.Combine(tempDirectory.Path, "delta-table");
-                data.Write().Format("delta").Save(deltaTablePath);
+            using var tempDirectory = new TemporaryDirectory();
+            // Save the same data to a DeltaTable and to Parquet.
+            DataFrame data = _spark.Range(0, 5);
+            string parquetPath = Path.Combine(tempDirectory.Path, "parquet-data");
+            data.Write().Parquet(parquetPath);
+            string deltaTablePath = Path.Combine(tempDirectory.Path, "delta-table");
+            data.Write().Format("delta").Save(deltaTablePath);
 
-                Assert.False(DeltaTable.IsDeltaTable(parquetPath));
-                Assert.False(DeltaTable.IsDeltaTable(_spark, parquetPath));
+            Assert.False(DeltaTable.IsDeltaTable(parquetPath));
+            Assert.False(DeltaTable.IsDeltaTable(_spark, parquetPath));
 
-                Assert.True(DeltaTable.IsDeltaTable(deltaTablePath));
-                Assert.True(DeltaTable.IsDeltaTable(_spark, deltaTablePath));
-            }
+            Assert.True(DeltaTable.IsDeltaTable(deltaTablePath));
+            Assert.True(DeltaTable.IsDeltaTable(_spark, deltaTablePath));
         }
 
         /// <summary>
@@ -184,26 +178,24 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 Func<string, DeltaTable> convertToDelta,
                 string partitionColumn = null)
             {
-                using (var tempDirectory = new TemporaryDirectory())
+                using var tempDirectory = new TemporaryDirectory();
+                string path = Path.Combine(tempDirectory.Path, "parquet-data");
+                DataFrameWriter dataWriter = dataFrame.Write();
+
+                if (!string.IsNullOrEmpty(partitionColumn))
                 {
-                    string path = Path.Combine(tempDirectory.Path, "parquet-data");
-                    DataFrameWriter dataWriter = dataFrame.Write();
-
-                    if (!string.IsNullOrEmpty(partitionColumn))
-                    {
-                        dataWriter = dataWriter.PartitionBy(partitionColumn);
-                    }
-
-                    dataWriter.Parquet(path);
-
-                    Assert.False(DeltaTable.IsDeltaTable(path));
-
-                    string identifier = $"parquet.`{path}`";
-                    DeltaTable convertedDeltaTable = convertToDelta(identifier);
-
-                    ValidateRangeDataFrame(Enumerable.Range(0, 5), convertedDeltaTable.ToDF());
-                    Assert.True(DeltaTable.IsDeltaTable(path));
+                    dataWriter = dataWriter.PartitionBy(partitionColumn);
                 }
+
+                dataWriter.Parquet(path);
+
+                Assert.False(DeltaTable.IsDeltaTable(path));
+
+                string identifier = $"parquet.`{path}`";
+                DeltaTable convertedDeltaTable = convertToDelta(identifier);
+
+                ValidateRangeDataFrame(Enumerable.Range(0, 5), convertedDeltaTable.ToDF());
+                Assert.True(DeltaTable.IsDeltaTable(path));
             }
 
             testWrapper(data, identifier => DeltaTable.ConvertToDelta(_spark, identifier));
@@ -223,97 +215,94 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
         public void TestSignatures()
         {
-            using (var tempDirectory = new TemporaryDirectory())
-            {
-                string path = Path.Combine(tempDirectory.Path, "delta-table");
+            using var tempDirectory = new TemporaryDirectory();
+            string path = Path.Combine(tempDirectory.Path, "delta-table");
 
-                DataFrame rangeRate = _spark.Range(15);
-                rangeRate.Write().Format("delta").Save(path);
+            DataFrame rangeRate = _spark.Range(15);
+            rangeRate.Write().Format("delta").Save(path);
 
-                DeltaTable table = Assert.IsType<DeltaTable>(DeltaTable.ForPath(path));
-                table = Assert.IsType<DeltaTable>(DeltaTable.ForPath(_spark, path));
+            DeltaTable table = Assert.IsType<DeltaTable>(DeltaTable.ForPath(path));
+            table = Assert.IsType<DeltaTable>(DeltaTable.ForPath(_spark, path));
 
-                Assert.IsType<bool>(DeltaTable.IsDeltaTable(_spark, path));
-                Assert.IsType<bool>(DeltaTable.IsDeltaTable(path));
+            Assert.IsType<bool>(DeltaTable.IsDeltaTable(_spark, path));
+            Assert.IsType<bool>(DeltaTable.IsDeltaTable(path));
 
-                Assert.IsType<DeltaTable>(table.As("oldTable"));
-                Assert.IsType<DeltaTable>(table.Alias("oldTable"));
-                Assert.IsType<DataFrame>(table.History());
-                Assert.IsType<DataFrame>(table.History(200));
-                Assert.IsType<DataFrame>(table.ToDF());
+            Assert.IsType<DeltaTable>(table.As("oldTable"));
+            Assert.IsType<DeltaTable>(table.Alias("oldTable"));
+            Assert.IsType<DataFrame>(table.History());
+            Assert.IsType<DataFrame>(table.History(200));
+            Assert.IsType<DataFrame>(table.ToDF());
 
-                DataFrame newTable = _spark.Range(10, 15).As("newTable");
-                Assert.IsType<DeltaMergeBuilder>(
-                    table.Merge(newTable, Functions.Exp("oldTable.id == newTable.id")));
-                DeltaMergeBuilder mergeBuilder = Assert.IsType<DeltaMergeBuilder>(
-                    table.Merge(newTable, "oldTable.id == newTable.id"));
+            DataFrame newTable = _spark.Range(10, 15).As("newTable");
+            Assert.IsType<DeltaMergeBuilder>(
+                table.Merge(newTable, Functions.Exp("oldTable.id == newTable.id")));
+            DeltaMergeBuilder mergeBuilder = Assert.IsType<DeltaMergeBuilder>(
+                table.Merge(newTable, "oldTable.id == newTable.id"));
 
-                // Validate the MergeBuilder matched signatures.
-                Assert.IsType<DeltaMergeMatchedActionBuilder>(mergeBuilder.WhenMatched());
-                Assert.IsType<DeltaMergeMatchedActionBuilder>(mergeBuilder.WhenMatched("id = 5"));
-                DeltaMergeMatchedActionBuilder matchedActionBuilder =
-                    Assert.IsType<DeltaMergeMatchedActionBuilder>(
-                        mergeBuilder.WhenMatched(Functions.Expr("id = 5")));
+            // Validate the MergeBuilder matched signatures.
+            Assert.IsType<DeltaMergeMatchedActionBuilder>(mergeBuilder.WhenMatched());
+            Assert.IsType<DeltaMergeMatchedActionBuilder>(mergeBuilder.WhenMatched("id = 5"));
+            DeltaMergeMatchedActionBuilder matchedActionBuilder =
+                Assert.IsType<DeltaMergeMatchedActionBuilder>(
+                    mergeBuilder.WhenMatched(Functions.Expr("id = 5")));
 
-                Assert.IsType<DeltaMergeBuilder>(
-                    matchedActionBuilder.Update(new Dictionary<string, Column>()));
-                Assert.IsType<DeltaMergeBuilder>(
-                    matchedActionBuilder.UpdateExpr(new Dictionary<string, string>()));
-                Assert.IsType<DeltaMergeBuilder>(matchedActionBuilder.UpdateAll());
-                Assert.IsType<DeltaMergeBuilder>(matchedActionBuilder.Delete());
+            Assert.IsType<DeltaMergeBuilder>(
+                matchedActionBuilder.Update(new Dictionary<string, Column>()));
+            Assert.IsType<DeltaMergeBuilder>(
+                matchedActionBuilder.UpdateExpr(new Dictionary<string, string>()));
+            Assert.IsType<DeltaMergeBuilder>(matchedActionBuilder.UpdateAll());
+            Assert.IsType<DeltaMergeBuilder>(matchedActionBuilder.Delete());
 
-                // Validate the MergeBuilder not-matched signatures.
-                Assert.IsType<DeltaMergeNotMatchedActionBuilder>(mergeBuilder.WhenNotMatched());
+            // Validate the MergeBuilder not-matched signatures.
+            Assert.IsType<DeltaMergeNotMatchedActionBuilder>(mergeBuilder.WhenNotMatched());
+            Assert.IsType<DeltaMergeNotMatchedActionBuilder>(
+                mergeBuilder.WhenNotMatched("id = 5"));
+            DeltaMergeNotMatchedActionBuilder notMatchedActionBuilder =
                 Assert.IsType<DeltaMergeNotMatchedActionBuilder>(
-                    mergeBuilder.WhenNotMatched("id = 5"));
-                DeltaMergeNotMatchedActionBuilder notMatchedActionBuilder =
-                    Assert.IsType<DeltaMergeNotMatchedActionBuilder>(
-                        mergeBuilder.WhenNotMatched(Functions.Expr("id = 5")));
+                    mergeBuilder.WhenNotMatched(Functions.Expr("id = 5")));
 
-                Assert.IsType<DeltaMergeBuilder>(
-                    notMatchedActionBuilder.Insert(new Dictionary<string, Column>()));
-                Assert.IsType<DeltaMergeBuilder>(
-                    notMatchedActionBuilder.InsertExpr(new Dictionary<string, string>()));
-                Assert.IsType<DeltaMergeBuilder>(notMatchedActionBuilder.InsertAll());
+            Assert.IsType<DeltaMergeBuilder>(
+                notMatchedActionBuilder.Insert(new Dictionary<string, Column>()));
+            Assert.IsType<DeltaMergeBuilder>(
+                notMatchedActionBuilder.InsertExpr(new Dictionary<string, string>()));
+            Assert.IsType<DeltaMergeBuilder>(notMatchedActionBuilder.InsertAll());
 
-                // Update and UpdateExpr should return void.
-                table.Update(new Dictionary<string, Column>() { });
-                table.Update(Functions.Expr("id % 2 == 0"), new Dictionary<string, Column>() { });
-                table.UpdateExpr(new Dictionary<string, string>() { });
-                table.UpdateExpr("id % 2 == 1", new Dictionary<string, string>() { });
+            // Update and UpdateExpr should return void.
+            table.Update(new Dictionary<string, Column>() { });
+            table.Update(Functions.Expr("id % 2 == 0"), new Dictionary<string, Column>() { });
+            table.UpdateExpr(new Dictionary<string, string>() { });
+            table.UpdateExpr("id % 2 == 1", new Dictionary<string, string>() { });
 
-                Assert.IsType<DataFrame>(table.Vacuum());
-                Assert.IsType<DataFrame>(table.Vacuum(168));
+            Assert.IsType<DataFrame>(table.Vacuum());
+            Assert.IsType<DataFrame>(table.Vacuum(168));
 
-                // Delete should return void.
-                table.Delete("id > 10");
-                table.Delete(Functions.Expr("id > 5"));
-                table.Delete();
+            // Delete should return void.
+            table.Delete("id > 10");
+            table.Delete(Functions.Expr("id > 5"));
+            table.Delete();
 
-                // Load the table as a streaming source.
-                Assert.IsType<DataFrame>(_spark
-                    .ReadStream()
-                    .Format("delta")
-                    .Option("path", path)
-                    .Load());
-                Assert.IsType<DataFrame>(_spark.ReadStream().Format("delta").Load(path));
+            // Load the table as a streaming source.
+            Assert.IsType<DataFrame>(_spark
+                .ReadStream()
+                .Format("delta")
+                .Option("path", path)
+                .Load());
+            Assert.IsType<DataFrame>(_spark.ReadStream().Format("delta").Load(path));
 
-                // Create Parquet data and convert it to DeltaTables.
-                string parquetIdentifier = $"parquet.`{path}`";
-                rangeRate.Write().Mode(SaveMode.Overwrite).Parquet(path);
-                Assert.IsType<DeltaTable>(DeltaTable.ConvertToDelta(_spark, parquetIdentifier));
-                rangeRate
-                    .Select(Functions.Col("id"), Functions.Expr($"(`id` + 1) AS `id_plus_one`"))
-                    .Write()
-                    .PartitionBy("id")
-                    .Mode(SaveMode.Overwrite)
-                    .Parquet(path);
-                Assert.IsType<DeltaTable>(DeltaTable.ConvertToDelta(
-                    _spark,
-                    parquetIdentifier,
-                    "id bigint"));
-                // TODO: Test with StructType partition schema once StructType is supported.
-            }
+            // Create Parquet data and convert it to DeltaTables.
+            string parquetIdentifier = $"parquet.`{path}`";
+            rangeRate.Write().Mode(SaveMode.Overwrite).Parquet(path);
+            Assert.IsType<DeltaTable>(DeltaTable.ConvertToDelta(_spark, parquetIdentifier));
+            rangeRate
+                .Select(Functions.Col("id"), Functions.Expr($"(`id` + 1) AS `id_plus_one`"))
+                .Write()
+                .PartitionBy("id")
+                .Mode(SaveMode.Overwrite)
+                .Parquet(path);
+            Assert.IsType<DeltaTable>(DeltaTable.ConvertToDelta(
+                _spark,
+                parquetIdentifier,
+                "id bigint"));
         }
 
         /// <summary>
