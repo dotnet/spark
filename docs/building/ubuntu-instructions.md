@@ -179,13 +179,13 @@ Once you build the samples, you can use `spark-submit` to submit your .NET Core 
      ```
 
      Here are some examples you can run:
-     - **[Microsoft.Spark.Examples.Sql.Basic](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Basic.cs)**
+     - **[Microsoft.Spark.Examples.Sql.Batch.Basic](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Batch/Basic.cs)**
          ```bash
          spark-submit \
          --class org.apache.spark.deploy.dotnet.DotnetRunner \
          --master local \
          ~/dotnet.spark/src/scala/microsoft-spark-2.3.x/target/microsoft-spark-2.3.x-0.6.0.jar \
-         Microsoft.Spark.CSharp.Examples Sql.Basic $SPARK_HOME/examples/src/main/resources/people.json
+         Microsoft.Spark.CSharp.Examples Sql.Batch.Basic $SPARK_HOME/examples/src/main/resources/people.json
          ```
      - **[Microsoft.Spark.Examples.Sql.Streaming.StructuredNetworkWordCount](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.cs)**
          ```bash
