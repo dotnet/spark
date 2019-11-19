@@ -22,7 +22,6 @@ namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
             {
                 Console.Error.WriteLine(
                     "Usage: SentimentAnalysisStream <host> <port> <model path>");
-
                 Environment.Exit(1);
             }
 
@@ -49,7 +48,8 @@ namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
                 "MyUDF",
                 input => Sentiment(input, args[2]));
 
-            // Call ML.NET code and display sentiment analysis results
+            // Use Spark SQL to call ML.NET UDF
+            // Display results of sentiment analysis on each entry
             words.CreateOrReplaceTempView("WordsEdit");
             DataFrame sqlDf = spark
                 .Sql("SELECT WordsEdit.value, MyUDF(WordsEdit.value) FROM WordsEdit");
@@ -67,7 +67,7 @@ namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
         // Code primarily comes from ML.NET Model Builder
         public static bool Sentiment(string text, string modelPath)
         {
-            MLContext mlContext = new MLContext();
+            var mlContext = new MLContext();
 
             ITransformer mlModel = mlContext
                 .Model
