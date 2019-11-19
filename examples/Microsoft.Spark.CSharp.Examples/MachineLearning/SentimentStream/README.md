@@ -156,7 +156,7 @@ You may notice the use of *Review* and *ReviewPrediction.* These are classes we 
 ```CSharp
 public class Review
 {
-      // Represents the input review text
+      // Represents the streamed input text
       [LoadColumn(0)]
       public string ReviewText;
 }
