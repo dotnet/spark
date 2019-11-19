@@ -226,4 +226,4 @@ Checkout the [full coding example](./Program.cs). You can also view a live video
 
 Rather than performing real-time processing, we can adapt our Spark + ML.NET app to instead perform batch processing (analyzing data that's already been stored).
 
-Checkout [Sentiment](../Sentiment) to see the adapted version of the sentiment analysis program that will determine the sentiment of text from a batch of online reviews.
+Check out [Sentiment](../Sentiment) to see the adapted version of the sentiment analysis program that will determine the sentiment of text from a batch of online reviews.
