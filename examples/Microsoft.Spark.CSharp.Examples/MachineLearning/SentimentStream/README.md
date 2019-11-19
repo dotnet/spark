@@ -20,7 +20,7 @@ You can [download the original Yelp data](https://archive.ics.uci.edu/ml/machine
 
 We'll first train an ML model using ML.NET, and then we'll create a new application that uses both .NET for Apache Spark and ML.NET.
 
-> **Note:** All of the necessary files (trained ML model, .NET for Spark + ML.NET application code, training and testing datasets) have been included in this project. You can follow the steps below to understand how the project/files were developed, recreate them yourself, and then adapt the steps to future applications.
+> **Note:** All of the necessary files (trained ML model, .NET for Spark + ML.NET application code, training dataset) have been included in this project. You can follow the steps below to understand how the project/files were developed, recreate them yourself, and then adapt the steps to future applications.
 
 ## ML.NET
 
