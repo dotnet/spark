@@ -71,7 +71,7 @@ namespace Microsoft.Spark.E2ETest
                 // Scala-side driver for .NET emits the following message after it is
                 // launched and ready to accept connections.
                 if (!isSparkReady &&
-                    arguments.Data.Contains("Backend running debug mode"))
+                    arguments.Data.Contains("back end running debug mode"))
                 {
                     isSparkReady = true;
                 }
