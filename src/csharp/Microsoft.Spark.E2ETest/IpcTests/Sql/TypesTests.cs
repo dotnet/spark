@@ -37,40 +37,26 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         public void TestArrayType()
         {
             var arrayType = new ArrayType(new IntegerType());
-
-            JvmObjectReference jvmArrayType = DataType.FromJson(Jvm, arrayType.Json);
-            Assert.IsType<JvmObjectReference>(jvmArrayType);
+            Assert.IsType<JvmObjectReference>(DataType.FromJson(Jvm, arrayType.Json));
         }
 
         [Fact]
         public void TestMapType()
         {
             var mapType = new MapType(new IntegerType(), new StringType());
-
-            JvmObjectReference jvmMapType = DataType.FromJson(Jvm, mapType.Json);
-            Assert.IsType<JvmObjectReference>(jvmMapType);
+            Assert.IsType<JvmObjectReference>(DataType.FromJson(Jvm, mapType.Json));
         }
 
         [Fact]
         public void TestStructType()
         {
+            // Please note that StructField is not supported.
             var structType = new StructType(new[]
             {
                 new StructField("age", new IntegerType()),
                 new StructField("name", new StringType())
             });
-
-            JvmObjectReference jvmStructType = DataType.FromJson(Jvm, structType.Json);
-            Assert.IsType<JvmObjectReference>(jvmStructType);
-
-            // The following structField test failed for DataType.FromJson.
-            // Since there is no direct match for structField from JVM side.
-            // It will match for structType and redirect to structField.
-            // <code>
-            // var structField = structType.Fields[0];
-            // JvmObjectReference jvmStructField = DataType.FromJson(Jvm, structField.JsonValue.ToString());
-            // Assert.IsType<JvmObjectReference>(jvmStructType);
-            // </code>
+            Assert.IsType<JvmObjectReference>(DataType.FromJson(Jvm, structType.Json));
         }
     }
 }
