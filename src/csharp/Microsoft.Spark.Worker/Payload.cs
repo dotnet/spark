@@ -13,29 +13,6 @@ namespace Microsoft.Spark.Worker
     /// </summary>
     internal class TaskContext
     {
-        internal class Resource
-        {
-            internal string Key { get; set; }
-            internal string Value { get; set; }
-            internal IEnumerable<string> Addresses { get; set; } = new List<string>();
-
-            public override bool Equals(object obj)
-            {
-                if (!(obj is Resource other))
-                {
-                    return false;
-                }
-
-                return (Key == other.Key) &&
-                    (Value == other.Value) &&
-                    Addresses.SequenceEqual(Addresses);
-            }
-            public override int GetHashCode()
-            {
-                return Key.GetHashCode();
-            }
-        }
-
         internal int StageId { get; set; }
 
         internal int PartitionId { get; set; }
@@ -74,6 +51,30 @@ namespace Microsoft.Spark.Worker
         public override int GetHashCode()
         {
             return StageId;
+        }
+
+        internal class Resource
+        {
+            internal string Key { get; set; }
+            internal string Value { get; set; }
+            internal IEnumerable<string> Addresses { get; set; } = new List<string>();
+
+            public override bool Equals(object obj)
+            {
+                if (!(obj is Resource other))
+                {
+                    return false;
+                }
+
+                return (Key == other.Key) &&
+                    (Value == other.Value) &&
+                    Addresses.SequenceEqual(Addresses);
+            }
+
+            public override int GetHashCode()
+            {
+                return Key.GetHashCode();
+            }
         }
     }
 
