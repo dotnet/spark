@@ -12,10 +12,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
     [Collection("Spark E2E Tests")]
     public class TypesTests
     {
-        private static IJvmBridge Jvm { get; } = SparkEnvironment.JvmBridge;
+        private readonly IJvmBridge _jvm;
+
+        public TypesTests(SparkFixture fixture) => _jvm = fixture.Jvm;
 
         private void Validate(DataType dataType) =>
-            Assert.IsType<JvmObjectReference>(DataType.FromJson(Jvm, dataType.Json));
+            Assert.IsType<JvmObjectReference>(DataType.FromJson(_jvm, dataType.Json));
 
         [Fact]
         public void TestDataTypes()
