@@ -1,4 +1,4 @@
-# Sentiment Analysis with Big Data
+# Streaming Sentiment Analysis with Big Data
 
 In this sample, you'll see how to use [.NET for Apache Spark](https://dotnet.microsoft.com/apps/data/spark) 
 and [ML.NET](https://dotnet.microsoft.com/apps/machinelearning-ai/ml-dotnet) to determine if 
