@@ -33,7 +33,7 @@ namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
 
             // Setup stream connection info
             string hostname = args[0];
-            var port = args[1];
+            string port = args[1];
 
             // Read streaming data into DataFrame
             DataFrame words = spark
