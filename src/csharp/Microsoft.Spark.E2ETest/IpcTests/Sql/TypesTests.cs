@@ -20,20 +20,19 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {
             private readonly List<object[]> _data = new List<object[]>
             {
-
-                new object[] {new NullType()},
-                new object[] {new StringType()},
-                new object[] {new BinaryType()},
-                new object[] {new BooleanType()},
-                new object[] {new DateType()},
-                new object[] {new TimestampType()},
-                new object[] {new DoubleType()},
-                new object[] {new FloatType()},
-                new object[] {new ByteType()},
-                new object[] {new IntegerType()},
-                new object[] {new LongType()},
-                new object[] {new ShortType()},
-                new object[] {new DecimalType()}
+                new object[] { new NullType() },
+                new object[] { new StringType() },
+                new object[] { new BinaryType() },
+                new object[] { new BooleanType() },
+                new object[] { new DateType() },
+                new object[] { new TimestampType() },
+                new object[] { new DoubleType() },
+                new object[] { new FloatType() },
+                new object[] { new ByteType() },
+                new object[] { new IntegerType() },
+                new object[] { new LongType() },
+                new object[] { new ShortType() },
+                new object[] { new DecimalType() }
             };
 
             public IEnumerator<object[]> GetEnumerator() => _data.GetEnumerator();
