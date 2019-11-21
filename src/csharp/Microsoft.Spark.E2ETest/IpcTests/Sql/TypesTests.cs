@@ -45,7 +45,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 new StructField("age", new IntegerType()),
                 new StructField("name", new StringType())
             }));
+
+            // StructField is not tested because it cannot be converted from JSON by itself.
         }
-        // StructField is not tested because it cannot be converted from JSON by itself.
     }
 }
