@@ -45,7 +45,7 @@ namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
 
             // Use ML.NET in a UDF to evaluate each incoming entry
             spark.Udf().Register<string, bool>(
-                "MyUDF",
+                "MLudf",
                 input => Sentiment(input, args[2]));
 
             // Use Spark SQL to call ML.NET UDF
