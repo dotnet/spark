@@ -165,7 +165,6 @@ public class Review
 ```CSharp
 public class ReviewPrediction : Review
 {
-
        [ColumnName("PredictedLabel")]
        public bool Prediction { get; set; }
 
