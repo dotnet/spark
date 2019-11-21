@@ -12,7 +12,7 @@ Our goal here is to determine if statements typed into a console are positive or
 
 We'll be using a set of **Yelp reviews** as the input training data for this example. 
 
-For the specific ML training/predictions in this app (i.e. when using Model Builder), it helps to have a header for the data. We introduced the column header **ReviewText,** which holds the review itself, and **Sentiment,** which holds either a 0 to indicate negative sentiment or a 1 to indicate positive sentiment. You can view the resulting data set in [yelptrain.csv](./Resources/yelptrain.csv).
+For the specific ML training/predictions in this app (i.e. when using Model Builder), it helps to have a header for the data. We introduced the column header **ReviewText,** which holds the review itself, and **Sentiment,** which holds either a 0 to indicate negative sentiment or a 1 to indicate positive sentiment. You can view the resulting data set in [yelptrain.csv](../Sentiment/Resources/yelptrain.csv).
 
 You can [download the original Yelp data](https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip) from the [UCI Sentiment Labeled Sentences Dataset]( https://archive.ics.uci.edu/ml/datasets/Sentiment+Labelled+Sentences). 
 
@@ -78,7 +78,7 @@ You would begin writing your .NET for Apache Spark code (and paste in the code g
 
 #### Option 2: Create a new console app (shown in this repo)
 
-Rather than working with the projects/files produced by Model Builder's Add Projects, you can create a new, separate C# console app. You just need to copy over your model's zip file to a directory your new console app can access. In this repo, a trained model **MLModel.zip** has already been included for you in the [Resources](./Resources) folder.
+Rather than working with the projects/files produced by Model Builder's Add Projects, you can create a new, separate C# console app. You just need to copy over your model's zip file to a directory your new console app can access. In this repo, a trained model **MLModel.zip** has [already been included for you](../Sentiment/Resources).
 
 As we create the logic for our Spark app, we'll paste in the code generated from Model Builder and include some other class definitions.
 
