@@ -207,8 +207,6 @@ Structured streaming in Spark processes data through a series of small **batches
 When you run your program, the command prompt where we established netcat will allow you to start typing.
 In our example, when you hit *enter* after entering data in the command prompt, Spark will consider that a batch and run the UDF. 
 
-![StreamingOutput](https://github.com/bamurtaugh/spark/blob/StreamingLog/examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/stream2.png)
-
 #### Windows Example:
 
 After starting a new netcat connection in one command prompt, open a new one and run a command similar to the following: 
