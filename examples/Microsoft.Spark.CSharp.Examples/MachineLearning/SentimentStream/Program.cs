@@ -95,7 +95,6 @@ namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
         // Class resulting from ML.NET code including predictions about review
         public class ReviewPrediction : Review
         {
-
             [ColumnName("PredictedLabel")]
             public bool Prediction { get; set; }
 
