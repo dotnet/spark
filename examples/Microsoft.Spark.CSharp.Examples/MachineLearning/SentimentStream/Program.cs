@@ -50,9 +50,9 @@ namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
 
             // Use Spark SQL to call ML.NET UDF
             // Display results of sentiment analysis on each entry
-            words.CreateOrReplaceTempView("WordsEdit");
+            words.CreateOrReplaceTempView("WordsSentiment");
             DataFrame sqlDf = spark
-                .Sql("SELECT WordsEdit.value, MLudf(WordsEdit.value) FROM WordsEdit");
+                .Sql("SELECT WordsSentiment.value, MLudf(WordsSentiment.value) FROM WordsSentiment");
 
             // Handle data continuously as it arrives
             StreamingQuery query = sqlDf
