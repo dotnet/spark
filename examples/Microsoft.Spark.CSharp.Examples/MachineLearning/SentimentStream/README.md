@@ -134,7 +134,7 @@ DataFrame words = spark
 A UDF is a *user-defined function.* We can use UDFs in Spark applications to perform calculations and analysis on our data. We create a User Defined Function (UDF) that calls the *Sentiment* method on each piece of text from our stream.
 
 ```CSharp
-spark.Udf().Register<string, bool>("MyUDF", input => Sentiment(input));
+spark.Udf().Register<string, bool>("MLudf", input => Sentiment(input));
 ```
 
 *Sentiment* is the method where we'll call our ML.NET code that was generated from the final step of Model Builder.
@@ -179,7 +179,7 @@ public class ReviewPrediction : Review
 Now that you've read in your data and incorporated ML, use Spark SQL to call the UDF that will run sentiment analysis on each row of your DataFrame:
 
 ```CSharp
-DataFrame sqlDf = spark.Sql("SELECT WordsEdit.value, MyUDF(WordsEdit.value) FROM WordsEdit");
+DataFrame sqlDf = spark.Sql("SELECT WordsSentiment.value, MLudf(WordsSentiment.value) FROM WordsSentiment");
 ```
 
 ### 5. Display Your Stream
