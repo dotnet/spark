@@ -37,11 +37,11 @@ namespace Microsoft.Spark.Examples.MachineLearning.SentimentStream
 
             // Read streaming data into DataFrame
             DataFrame words = spark
-               .ReadStream()
-               .Format("socket")
-               .Option("host", hostname)
-               .Option("port", port)
-               .Load();
+                .ReadStream()
+                .Format("socket")
+                .Option("host", hostname)
+                .Option("port", port)
+                .Load();
 
             // Use ML.NET in a UDF to evaluate each incoming entry
             spark.Udf().Register<string, bool>(
