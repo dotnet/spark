@@ -14,8 +14,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
     {
         private static IJvmBridge Jvm { get; } = SparkEnvironment.JvmBridge;
 
-        private void Validate(DataType dataType) => Assert.IsType<JvmObjectReference>(
-            DataType.FromJson(Jvm, dataType.Json));
+        private void Validate(DataType dataType) =>
+            Assert.IsType<JvmObjectReference>(DataType.FromJson(Jvm, dataType.Json));
 
         [Fact]
         public void TestDataTypes()
