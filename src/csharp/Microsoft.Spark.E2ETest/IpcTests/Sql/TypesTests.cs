@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections;
+using System.Collections.Generic;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Types;
@@ -14,23 +16,36 @@ namespace Microsoft.Spark.E2ETest.IpcTests
     {
         private static IJvmBridge Jvm { get; } = SparkEnvironment.JvmBridge;
 
-        [Theory]
-        [InlineData("null")]
-        [InlineData("string")]
-        [InlineData("binary")]
-        [InlineData("boolean")]
-        [InlineData("date")]
-        [InlineData("timestamp")]
-        [InlineData("double")]
-        [InlineData("float")]
-        [InlineData("byte")]
-        [InlineData("integer")]
-        [InlineData("long")]
-        [InlineData("short")]
-        public void TestSimpleTypes(string typeName)
+        public class SimpleTypesGenerator : IEnumerable<object[]>
         {
-            JvmObjectReference atomicType = DataType.FromJson(Jvm, $@"""{typeName}""");
-            Assert.IsType<JvmObjectReference>(atomicType);
+            private readonly List<object[]> _data = new List<object[]>
+            {
+
+                new object[] {new NullType()},
+                new object[] {new StringType()},
+                new object[] {new BinaryType()},
+                new object[] {new BooleanType()},
+                new object[] {new DateType()},
+                new object[] {new TimestampType()},
+                new object[] {new DoubleType()},
+                new object[] {new FloatType()},
+                new object[] {new ByteType()},
+                new object[] {new IntegerType()},
+                new object[] {new LongType()},
+                new object[] {new ShortType()},
+                new object[] {new DecimalType()}
+            };
+
+            public IEnumerator<object[]> GetEnumerator() => _data.GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        [Theory]
+        [ClassData(typeof(SimpleTypesGenerator))]
+        public void TestSimpleTypes(DataType simpleTypes)
+        {
+            Assert.IsType<JvmObjectReference>(DataType.FromJson(Jvm, simpleTypes.Json));
         }
 
         [Fact]
