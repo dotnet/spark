@@ -877,7 +877,7 @@ namespace Microsoft.Spark.Sql
                 return true;
             }
 
-            return obj is Column other && this._jvmObject.Equals(other._jvmObject);
+            return obj is Column other && _jvmObject.Equals(other._jvmObject);
         }
 
         /// <summary>

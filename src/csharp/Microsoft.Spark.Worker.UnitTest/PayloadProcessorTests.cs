@@ -22,6 +22,7 @@ namespace Microsoft.Spark.Worker.UnitTest
         [InlineData(Versions.V2_3_2)]
         [InlineData(Versions.V2_3_3)]
         [InlineData(Versions.V2_4_0)]
+        [InlineData(Versions.V3_0_0)]
         public void TestPayloadProcessor(string version)
         {
             CommandPayload commandPayload = TestData.GetDefaultCommandPayload();
@@ -33,11 +34,8 @@ namespace Microsoft.Spark.Worker.UnitTest
             {
                 payloadWriter.Write(outStream, payload, commandPayload);
 
-                using (var inputStream = new MemoryStream(outStream.ToArray()))
-                {
-                    actualPayload =
-                        new PayloadProcessor(payloadWriter.Version).Process(inputStream);
-                }
+                using var inputStream = new MemoryStream(outStream.ToArray());
+                actualPayload = new PayloadProcessor(payloadWriter.Version).Process(inputStream);
             }
 
             // Validate the read payload.
@@ -77,11 +75,11 @@ namespace Microsoft.Spark.Worker.UnitTest
             PayloadWriter payloadWriter = new PayloadWriterFactory().Create();
             Payload payload = TestData.GetDefaultPayload();
 
-            var serverListener = new DefaultSocketWrapper();
+            using var serverListener = new DefaultSocketWrapper();
             serverListener.Listen();
 
             var port = (serverListener.LocalEndPoint as IPEndPoint).Port;
-            var clientSocket = new DefaultSocketWrapper();
+            using var clientSocket = new DefaultSocketWrapper();
             clientSocket.Connect(IPAddress.Loopback, port, null);
 
             using (ISocketWrapper serverSocket = serverListener.Accept())
