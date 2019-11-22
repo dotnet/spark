@@ -156,7 +156,7 @@ jobs:
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
       DOTNET_WORKER_DIR: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp2.1\win-x64
 
-- task: DotNetCoreCLI@2
+  - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 3.0.0-preview'
     inputs:
       command: test
