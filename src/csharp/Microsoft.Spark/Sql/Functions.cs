@@ -718,7 +718,11 @@ namespace Microsoft.Spark.Sql
         /// Window function: returns the special frame boundary that represents the first
         /// row in the window partition.
         /// </summary>
+        /// <remarks>
+        /// This API is removed in Spark 3.0.
+        /// </remarks>
         /// <returns>Column object</returns>
+        [Removed(Versions.V3_0_0)]
         public static Column UnboundedPreceding()
         {
             return ApplyFunction("unboundedPreceding");
@@ -728,7 +732,11 @@ namespace Microsoft.Spark.Sql
         /// Window function: returns the special frame boundary that represents the last
         /// row in the window partition.
         /// </summary>
+        /// <remarks>
+        /// This API is removed in Spark 3.0.
+        /// </remarks>
         /// <returns>Column object</returns>
+        [Removed(Versions.V3_0_0)]
         public static Column UnboundedFollowing()
         {
             return ApplyFunction("unboundedFollowing");
@@ -738,7 +746,11 @@ namespace Microsoft.Spark.Sql
         /// Window function: returns the special frame boundary that represents the current
         /// row in the window partition.
         /// </summary>
+        /// <remarks>
+        /// This API is removed in Spark 3.0.
+        /// </remarks>
         /// <returns>Column object</returns>
+        [Removed(Versions.V3_0_0)]
         public static Column CurrentRow()
         {
             return ApplyFunction("currentRow");
@@ -2957,9 +2969,13 @@ namespace Microsoft.Spark.Sql
         /// and renders that time as a timestamp in the given time zone. For example, 'GMT+1'
         /// would yield '2017-07-14 03:40:00.0'.
         /// </summary>
+        /// <remarks>
+        /// This API is deprecated in Spark 3.0.
+        /// </remarks>
         /// <param name="column">Column to apply</param>
         /// <param name="tz">Timezone string</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_0_0)]
         public static Column FromUtcTimestamp(Column column, string tz)
         {
             return ApplyFunction("from_utc_timestamp", column, tz);
@@ -2970,10 +2986,14 @@ namespace Microsoft.Spark.Sql
         /// and renders that time as a timestamp in the given time zone. For example, 'GMT+1'
         /// would yield '2017-07-14 03:40:00.0'.
         /// </summary>
+        /// <remarks>
+        /// This API is deprecated in Spark 3.0.
+        /// </remarks>
         /// <param name="column">Column to apply</param>
         /// <param name="tz">Timezone expression</param>
         /// <returns>Column object</returns>
         [Since(Versions.V2_4_0)]
+        [Deprecated(Versions.V3_0_0)]
         public static Column FromUtcTimestamp(Column column, Column tz)
         {
             return ApplyFunction("from_utc_timestamp", column, tz);
@@ -2984,9 +3004,13 @@ namespace Microsoft.Spark.Sql
         /// given time zone, and renders that time as a timestamp in UTC. For example, 'GMT+1'
         /// would yield '2017-07-14 01:40:00.0'.
         /// </summary>
+        /// <remarks>
+        /// This API is deprecated in Spark 3.0.
+        /// </remarks>
         /// <param name="column">Column to apply</param>
         /// <param name="tz">Timezone string</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_0_0)]
         public static Column ToUtcTimestamp(Column column, string tz)
         {
             return ApplyFunction("to_utc_timestamp", column, tz);
@@ -2997,10 +3021,14 @@ namespace Microsoft.Spark.Sql
         /// given time zone, and renders that time as a timestamp in UTC. For example, 'GMT+1'
         /// would yield '2017-07-14 01:40:00.0'.
         /// </summary>
+        /// <remarks>
+        /// This API is deprecated in Spark 3.0.
+        /// </remarks>
         /// <param name="column">Column to apply</param>
         /// <param name="tz">Timezone expression</param>
         /// <returns>Column object</returns>
         [Since(Versions.V2_4_0)]
+        [Deprecated(Versions.V3_0_0)]
         public static Column ToUtcTimestamp(Column column, Column tz)
         {
             return ApplyFunction("to_utc_timestamp", column, tz);
