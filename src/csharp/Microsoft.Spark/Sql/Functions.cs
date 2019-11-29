@@ -719,9 +719,10 @@ namespace Microsoft.Spark.Sql
         /// row in the window partition.
         /// </summary>
         /// <remarks>
-        /// This API is removed in Spark 3.0.
+        /// This API is deprecated in Spark 2.4 and removed in Spark 3.0.
         /// </remarks>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V2_4_0)]
         [Removed(Versions.V3_0_0)]
         public static Column UnboundedPreceding()
         {
@@ -733,9 +734,10 @@ namespace Microsoft.Spark.Sql
         /// row in the window partition.
         /// </summary>
         /// <remarks>
-        /// This API is removed in Spark 3.0.
+        /// This API is deprecated in Spark 2.4 and removed in Spark 3.0.
         /// </remarks>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V2_4_0)]
         [Removed(Versions.V3_0_0)]
         public static Column UnboundedFollowing()
         {
@@ -747,9 +749,10 @@ namespace Microsoft.Spark.Sql
         /// row in the window partition.
         /// </summary>
         /// <remarks>
-        /// This API is removed in Spark 3.0.
+        /// This API is deprecated in Spark 2.4 and removed in Spark 3.0.
         /// </remarks>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V2_4_0)]
         [Removed(Versions.V3_0_0)]
         public static Column CurrentRow()
         {
