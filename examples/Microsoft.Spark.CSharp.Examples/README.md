@@ -64,6 +64,7 @@ an open source and cross-platform machine learning framework.
 Beyond the sample apps, there are a few other files in the **Microsoft.Spark.CSharp.Examples** folder:
 
 * **IExample.cs:** A common interface each sample implements to help provide consistency when creating/running sample apps.
+> Note: When you create and run sample apps beyond this repository's project, you do not need to use IExample.cs - it just provides consistency for all the apps included in this repo.
 
 * **Microsoft.Spark.CSharp.Examples.csproj:** The C# project file necessary for building/running all sample apps. It includes target
 frameworks, assembly information, and references to other C# project files references in the sample apps.
