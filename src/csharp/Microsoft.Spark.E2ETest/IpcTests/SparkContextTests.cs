@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using Microsoft.Spark.E2ETest.Utils;
 using Xunit;
 
@@ -26,14 +27,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             sc.SetJobDescription("job description");
 
-            sc.SetLogLevel(SparkContext.LogLevel.ALL);
-            sc.SetLogLevel(SparkContext.LogLevel.DEBUG);
-            sc.SetLogLevel(SparkContext.LogLevel.ERROR);
-            sc.SetLogLevel(SparkContext.LogLevel.FATAL);
-            sc.SetLogLevel(SparkContext.LogLevel.INFO);
-            sc.SetLogLevel(SparkContext.LogLevel.OFF);
-            sc.SetLogLevel(SparkContext.LogLevel.TRACE);
-            sc.SetLogLevel(SparkContext.LogLevel.WARN);
+            sc.SetLogLevel("ALL");
+            sc.SetLogLevel("debug");
+            Assert.Throws<Exception>(() => sc.SetLogLevel("INVALID"));
 
             sc.SetJobGroup("group id", "description");
             sc.SetJobGroup("group id", "description", true);

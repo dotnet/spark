@@ -94,18 +94,6 @@ namespace Microsoft.Spark
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
-        public enum LogLevel
-        {
-            ALL,
-            DEBUG,
-            ERROR,
-            FATAL,
-            INFO,
-            OFF,
-            TRACE,
-            WARN
-        }
-
         /// <summary>
         /// Returns SparkConf object associated with this SparkContext object.
         /// Note that modifying the SparkConf object will not have any impact.
@@ -136,10 +124,13 @@ namespace Microsoft.Spark
         /// <summary>
         /// Control our logLevel. This overrides any user-defined log settings.
         /// </summary>
-        /// <param name="logLevel">The desired log level.</param>
-        public void SetLogLevel(LogLevel logLevel)
+        /// <remarks>
+        /// Valid log levels include: ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
+        /// </remarks>
+        /// <param name="logLevel">The desired log level as a string.</param>
+        public void SetLogLevel(string logLevel)
         {
-            _jvmObject.Invoke("setLogLevel", logLevel.ToString());
+            _jvmObject.Invoke("setLogLevel", logLevel);
         }
 
         /// <summary>
