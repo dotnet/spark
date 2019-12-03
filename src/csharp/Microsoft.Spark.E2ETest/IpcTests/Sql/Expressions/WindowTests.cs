@@ -39,20 +39,23 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<WindowSpec>(OrderBy(col1));
             Assert.IsType<WindowSpec>(OrderBy(col1, col2));
 
-            Assert.IsType<WindowSpec>(RowsBetween(
-                Sql.Expressions.Window.UnboundedPreceding,
-                Sql.Expressions.Window.UnboundedFollowing));
+            Assert.IsType<WindowSpec>(
+                RowsBetween(
+                    Sql.Expressions.Window.UnboundedPreceding,
+                    Sql.Expressions.Window.UnboundedFollowing));
 
-            Assert.IsType<WindowSpec>(RangeBetween(
-                Sql.Expressions.Window.UnboundedPreceding,
-                Sql.Expressions.Window.UnboundedFollowing));
+            Assert.IsType<WindowSpec>(
+                RangeBetween(
+                    Sql.Expressions.Window.UnboundedPreceding,
+                    Sql.Expressions.Window.UnboundedFollowing));
 
             if (SparkSettings.Version < new Version(Versions.V3_0_0))
             {
                 // The following APIs are removed in Spark 3.0.
-                Assert.IsType<WindowSpec>(RangeBetween(
-                    UnboundedPreceding(),
-                    UnboundedFollowing()));
+                Assert.IsType<WindowSpec>(
+                    RangeBetween(
+                        UnboundedPreceding(),
+                        UnboundedFollowing()));
             }
         }
     }
