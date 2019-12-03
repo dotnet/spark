@@ -21,10 +21,19 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {
             SparkContext sc = SparkContext.GetOrCreate(new SparkConf());
 
-            _ = sc.GetConf();
-            _ = sc.DefaultParallelism;
+            Assert.IsType<SparkConf>(sc.GetConf());
+            Assert.IsType<int>(sc.DefaultParallelism);
 
             sc.SetJobDescription("job description");
+
+            sc.SetLogLevel(SparkContext.LogLevel.ALL);
+            sc.SetLogLevel(SparkContext.LogLevel.DEBUG);
+            sc.SetLogLevel(SparkContext.LogLevel.ERROR);
+            sc.SetLogLevel(SparkContext.LogLevel.FATAL);
+            sc.SetLogLevel(SparkContext.LogLevel.INFO);
+            sc.SetLogLevel(SparkContext.LogLevel.OFF);
+            sc.SetLogLevel(SparkContext.LogLevel.TRACE);
+            sc.SetLogLevel(SparkContext.LogLevel.WARN);
 
             sc.SetJobGroup("group id", "description");
             sc.SetJobGroup("group id", "description", true);
@@ -35,10 +44,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             sc.AddFile(filePath);
             sc.AddFile(filePath, true);
 
-            using (var tempDir = new TemporaryDirectory())
-            {
-                sc.SetCheckpointDir(TestEnvironment.ResourceDirectory);
-            }
+            using var tempDir = new TemporaryDirectory();
+            sc.SetCheckpointDir(TestEnvironment.ResourceDirectory);
         }
     }
 }
