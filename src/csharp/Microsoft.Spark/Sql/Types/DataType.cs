@@ -55,8 +55,8 @@ namespace Microsoft.Spark.Sql.Types
         {
             get
             {
-                object jObject = (JsonValue is JsonElement) ?
-                    ((JsonElement)JsonValue).SortProperties() :
+                object jObject = (JsonValue is JsonElement jsonElement) ?
+                    jsonElement.SortProperties() :
                     JsonValue;
                 return JsonSerializer.Serialize(jObject);
             }
@@ -122,9 +122,9 @@ namespace Microsoft.Spark.Sql.Types
         public override int GetHashCode() => SimpleString.GetHashCode();
 
         /// <summary>
-        /// Parses a JToken object to construct a DataType.
+        /// Parses a JsonElement object to construct a DataType.
         /// </summary>
-        /// <param name="json">JToken object to parse</param>
+        /// <param name="json">JsonElement object to parse</param>
         /// <returns>The new DataType instance from the JSON string</returns>
         internal static DataType ParseDataType(JsonElement json)
         {
@@ -160,9 +160,9 @@ namespace Microsoft.Spark.Sql.Types
         }
 
         /// <summary>
-        /// Parses a JToken object that represents a simple type.
+        /// Parses a JsonElement object that represents a simple type.
         /// </summary>
-        /// <param name="json">JToken object to parse</param>
+        /// <param name="json">JsonElement object to parse</param>
         /// <returns>The new DataType instance from the JSON string</returns>
         private static DataType ParseSimpleType(JsonElement json)
         {

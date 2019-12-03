@@ -51,13 +51,13 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns JSON object describing this type.
         /// </summary>
-        internal override object JsonValue =>
+        internal override object JsonValue => JsonDocument.Parse(JsonSerializer.Serialize(
             new
             {
                 type = TypeName,
                 elementType = ElementType.JsonValue,
                 containsNull = ContainsNull
-            };
+            })).RootElement;
 
         /// <summary>
         /// Constructs a ArrayType object from a JSON object.
@@ -120,14 +120,14 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns JSON object describing this type.
         /// </summary>
-        internal override object JsonValue =>
+        internal override object JsonValue => JsonDocument.Parse(JsonSerializer.Serialize(
             new
             {
                 type = TypeName,
                 keyType = KeyType.JsonValue,
                 valueType = ValueType.JsonValue,
                 valueContainsNull = ValueContainsNull
-            };
+            })).RootElement;
 
         /// <summary>
         /// Constructs a MapType object from a JSON object.
@@ -207,14 +207,14 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns JSON object describing this type.
         /// </summary>
-        internal object JsonValue =>
+        internal object JsonValue => JsonDocument.Parse(JsonSerializer.Serialize(
             new
             {
                 name = Name,
                 type = DataType.JsonValue,
                 nullable = IsNullable,
                 metadata = Metadata
-            };
+            })).RootElement;
     }
 
     /// <summary>
@@ -259,12 +259,12 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns JSON object describing this type.
         /// </summary>
-        internal override object JsonValue =>
+        internal override object JsonValue => JsonDocument.Parse(JsonSerializer.Serialize(
             new 
             {
                 type = TypeName,
                 fields = Fields.Select(f => f.JsonValue).ToArray()
-            };
+            })).RootElement;
 
         /// <summary>
         /// Constructs a StructType object from a JSON object
@@ -273,7 +273,6 @@ namespace Microsoft.Spark.Sql.Types
         /// <returns>A StuructType object</returns>
         private DataType FromJson(JsonElement json)
         {
-            // TODO: this might be incorrect, as it might need to be an object, not an array...?
             IEnumerable<JsonElement> fieldsJObjects = json.GetProperty("fields").EnumerateArray();
             Fields = fieldsJObjects.Select(
                 fieldJObject => new StructField(fieldJObject)).ToList();

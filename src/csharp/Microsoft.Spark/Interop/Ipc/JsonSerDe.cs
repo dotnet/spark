@@ -74,12 +74,7 @@ namespace Microsoft.Spark.Interop.Ipc
                         else if (item.ValueKind == JsonValueKind.Array)
                         {
                             item.SortArrayProperties().WriteTo(writer);
-                        }
-                        // TODO: is this required?
-                        // else
-                        // {
-                        //     item.WriteTo(writer);
-                        // }                        
+                        }                       
                     }
                     writer.WriteEndArray();
                     writer.Flush();
