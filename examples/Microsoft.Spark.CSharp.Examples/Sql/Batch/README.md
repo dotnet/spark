@@ -82,4 +82,4 @@ For each sample, we have a C# app and, for some of the more complex apps, a READ
 
 To learn more about batch processing with .NET for Apache Spark, check out [this video](https://channel9.msdn.com/Series/NET-for-Apache-Spark-101/Batch-Processing-with-NET-for-Apache-Spark) from the .NET for Apache Spark 101 video series to see the GitHub projects batch demo coded and ran live.
 
-You can also [check out the demos and explanation](https://youtu.be/ZWsYMQ0Sw1o) from the .NET for Apache Spark session at .NET Conf 2019!
+You can also [check out the demos and explanation](https://youtu.be/ZWsYMQ0Sw1o?t=304) from the .NET for Apache Spark session at .NET Conf 2019!
