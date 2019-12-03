@@ -184,7 +184,7 @@ Once you build the samples, you can use `spark-submit` to submit your .NET Core 
          spark-submit \
          --class org.apache.spark.deploy.dotnet.DotnetRunner \
          --master local \
-         ~/dotnet.spark/src/scala/microsoft-spark-2.3.x/target/microsoft-spark-2.3.x-0.6.0.jar \
+         ~/dotnet.spark/src/scala/microsoft-spark-2.3.x/target/microsoft-spark-2.3.x-0.7.0.jar \
          Microsoft.Spark.CSharp.Examples Sql.Batch.Basic $SPARK_HOME/examples/src/main/resources/people.json
          ```
      - **[Microsoft.Spark.Examples.Sql.Streaming.StructuredNetworkWordCount](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.cs)**
@@ -192,7 +192,7 @@ Once you build the samples, you can use `spark-submit` to submit your .NET Core 
          spark-submit \
          --class org.apache.spark.deploy.dotnet.DotnetRunner \
          --master local \
-         ~/dotnet.spark/src/scala/microsoft-spark-2.3.x/target/microsoft-spark-2.3.x-0.6.0.jar \
+         ~/dotnet.spark/src/scala/microsoft-spark-2.3.x/target/microsoft-spark-2.3.x-0.7.0.jar \
          Microsoft.Spark.CSharp.Examples Sql.Streaming.StructuredNetworkWordCount localhost 9999
          ```
      - **[Microsoft.Spark.Examples.Sql.Streaming.StructuredKafkaWordCount (maven accessible)](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.cs)**
@@ -201,7 +201,7 @@ Once you build the samples, you can use `spark-submit` to submit your .NET Core 
          --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.2 \
          --class org.apache.spark.deploy.dotnet.DotnetRunner \
          --master local \
-         ~/dotnet.spark/src/scala/microsoft-spark-2.3.x/target/microsoft-spark-2.3.x-0.6.0.jar \
+         ~/dotnet.spark/src/scala/microsoft-spark-2.3.x/target/microsoft-spark-2.3.x-0.7.0.jar \
          Microsoft.Spark.CSharp.Examples Sql.Streaming.StructuredKafkaWordCount localhost:9092 subscribe test
          ```
      - **[Microsoft.Spark.Examples.Sql.Streaming.StructuredKafkaWordCount (jars provided)](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.cs)**
@@ -210,7 +210,7 @@ Once you build the samples, you can use `spark-submit` to submit your .NET Core 
          --jars path/to/net.jpountz.lz4/lz4-1.3.0.jar,path/to/org.apache.kafka/kafka-clients-0.10.0.1.jar,path/to/org.apache.spark/spark-sql-kafka-0-10_2.11-2.3.2.jar,`path/to/org.slf4j/slf4j-api-1.7.6.jar,path/to/org.spark-project.spark/unused-1.0.0.jar,path/to/org.xerial.snappy/snappy-java-1.1.2.6.jar \
          --class org.apache.spark.deploy.dotnet.DotnetRunner \
          --master local \
-         ~/dotnet.spark/src/scala/microsoft-spark-2.3.x/target/microsoft-spark-2.3.x-0.6.0.jar \
+         ~/dotnet.spark/src/scala/microsoft-spark-2.3.x/target/microsoft-spark-2.3.x-0.7.0.jar \
          Microsoft.Spark.CSharp.Examples Sql.Streaming.StructuredKafkaWordCount localhost:9092 subscribe test
           ```
 
