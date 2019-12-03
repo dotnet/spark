@@ -8,7 +8,7 @@ We typically incorporate machine learning with big data to scale the training an
 We incorporate machine learning into our .NET for Apache Spark apps by using [ML.NET](https://dot.net/ml), 
 an open source and cross-platform machine learning framework for .NET developers.
 
-For each sample, we have a C# app and a README.md explaining the sample.
+For each sample, we have a folder than contains a C# app and a README.md explaining the sample.
 
 <table>
  <tr>
@@ -19,31 +19,29 @@ For each sample, we have a C# app and a README.md explaining the sample.
       <h4 width="35%"><b>Description</b></h4>
   </td>
   <td>
-      <h4><b>Links</b></h4>
+      <h4><b>Link</b></h4>
   </td>
  </tr>
  <tr>
    <td width="25%">
-      <h4>SentimentAnalysis.cs</h4>
+      <h4>Batch Sentiment Analysis</h4>
   </td>
   <td width="35%">
   Determine if a batch of online reviews are positive or negative, using ML.NET.
   </td>
     <td>
-      <h4><a href="readmes/SentimentAnalysisReadme.md">ReadMe</a> &nbsp;&nbsp;&nbsp;
-      <a href="SentimentAnalysis.cs">SentimentAnalysis.cs</a> &nbsp; &nbsp;</h4>
+      <h4><a href="Sentiment">Sentiment</a> &nbsp; &nbsp;</h4>
   </td>
  </tr>
   <tr>
    <td width="25%">
-      <h4>SentimentAnalysisStream.cs</h4>
+      <h4>Streaming Sentiment Analysis</h4>
   </td>
   <td width="35%">
   Determine if statements being produced live are positive or negative, using ML.NET.
   </td>
     <td>
-      <h4><a href="readmes/SentimentAnalysisStreamReadme.md">ReadMe</a> &nbsp;&nbsp;&nbsp;
-      <a href="SentimentAnalysisStream.cs">SentimentAnalysisStream.cs</a> &nbsp; &nbsp;</h4>
+      <h4><a href="SentimentStream">SentimentStream</a> &nbsp; &nbsp;</h4>
   </td>
  </tr>
  </table>
