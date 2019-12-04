@@ -13,7 +13,10 @@
   * `Functions.CurrentRow()`
 
 ### Breaking Changes
-* None
+* The following APIs have been removed due to the thread-local variable dependency (see [#332](https://github.com/dotnet/spark/pull/332) and [#333](https://github.com/dotnet/spark/issues/333) for more detail):
+  * `SparkSession.ClearActiveSession()`
+  * `SparkSession.GetActiveSession()`
+  * `SparkSession.SetActiveSession()`
 
 ### Supported Spark Versions
 
