@@ -714,7 +714,11 @@ namespace Microsoft.Spark.Sql
         /// Returns an iterator that contains all of the rows in this `DataFrame`.
         /// The iterator will consume as much memory as the largest partition in this `DataFrame`.
         /// </summary>
+        /// <remarks>
+        /// This API is removed in Spark 3.0.
+        /// </remarks>
         /// <returns>Row objects</returns>
+        [Removed(Versions.V3_0_0)]
         public IEnumerable<Row> ToLocalIterator()
         {
             return GetRows("toPythonIterator");

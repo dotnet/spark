@@ -487,7 +487,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<Row[]>(_df.Collect().ToArray());
 
-            Assert.IsType<Row[]>(_df.ToLocalIterator().ToArray());
+            if (SparkSettings.Version < new Version(Versions.V3_0_0))
+            {
+                // The following APIs are removed in Spark 3.0.
+                Assert.IsType<Row[]>(_df.ToLocalIterator().ToArray());
+             }
 
             Assert.IsType<long>(_df.Count());
 
