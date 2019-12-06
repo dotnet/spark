@@ -8,6 +8,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Spark.E2ETest.Utils;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Xunit;
 
@@ -41,6 +42,8 @@ namespace Microsoft.Spark.E2ETest
         private readonly TemporaryDirectory _tempDirectory = new TemporaryDirectory();
 
         internal SparkSession Spark { get; }
+
+        internal IJvmBridge Jvm { get; }
 
         public SparkFixture()
         {
@@ -103,6 +106,8 @@ namespace Microsoft.Spark.E2ETest
                 .Config("spark.ui.showConsoleProgress", false)
                 .AppName("Microsoft.Spark.E2ETest")
                 .GetOrCreate();
+
+            Jvm = ((IJvmObjectReferenceProvider)Spark).Reference.Jvm;
         }
 
         public void Dispose()
