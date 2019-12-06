@@ -145,7 +145,7 @@ namespace Microsoft.Spark.Sql.Types
                     if (typeIndex != -1)
                     {
                         return (DataType)Activator.CreateInstance(
-                            s_simpleTypes[typeIndex],
+                            s_complexTypes[typeIndex],
                             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
                             null,
                             new object[] { typeJObject },
@@ -232,10 +232,10 @@ namespace Microsoft.Spark.Sql.Types
         /// <returns>Normalized type name</returns>
         private static string NormalizeTypeName(string typeName)
         {
-#if NETSTANDARD2_1
-            return string.Create(typeName.Length - 4, typeName, (span, typeName) =>
+#if !NETSTANDARD2_0
+            return string.Create(typeName.Length - 4, typeName, (span, name) =>
             {
-                typeName.AsSpan(0, typeName.Length - 4).ToLower(span, CultureInfo.CurrentCulture);
+                name.AsSpan(0, name.Length - 4).ToLower(span, CultureInfo.CurrentCulture);
             });
 #else
             return typeName.Substring(0, typeName.Length - 4).ToLower();
