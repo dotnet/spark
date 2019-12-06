@@ -122,6 +122,18 @@ namespace Microsoft.Spark
         }
 
         /// <summary>
+        /// Control our logLevel. This overrides any user-defined log settings.
+        /// </summary>
+        /// <remarks>
+        /// Valid log levels include: ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
+        /// </remarks>
+        /// <param name="logLevel">The desired log level as a string.</param>
+        public void SetLogLevel(string logLevel)
+        {
+            _jvmObject.Invoke("setLogLevel", logLevel);
+        }
+
+        /// <summary>
         /// Shut down the SparkContext.
         /// </summary>
         public void Stop()
