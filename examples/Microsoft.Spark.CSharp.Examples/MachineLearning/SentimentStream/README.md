@@ -224,3 +224,9 @@ Checkout the [full coding example](./Program.cs). You can also view a live video
 Rather than performing real-time processing, we can adapt our Spark + ML.NET app to instead perform batch processing (analyzing data that's already been stored).
 
 Check out [Sentiment](../Sentiment) to see the adapted version of the sentiment analysis program that will determine the sentiment of text from a batch of online reviews.
+
+## Citations
+
+**UCI Machine Learning Repository citation:** Dua, D. and Graff, C. (2019). UCI Machine Learning Repository [http://archive.ics.uci.edu/ml]. Irvine, CA: University of California, School of Information and Computer Science.
+
+**Sentiment Labelled Sentences Data Set citation:** 'From Group to Individual Labels using Deep Features', Kotzias et. al,. KDD 2015
