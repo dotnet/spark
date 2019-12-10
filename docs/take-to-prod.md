@@ -17,9 +17,9 @@ You will also learn how to package your application and submit your application 
 ## How to deploy your application when you have a single dependency
 ### Scenarios
 #### 1. SparkSession code and business logic in the same Program.cs file
-This would be the simple use case when you have `SparkSession` code and business logic (UDFs) in the same Program.cs file and in the same project (e.g. mySparkApp.csproj).
+The `SparkSession` code and business logic (UDFs) are contained in the same `Program.cs` file.
 #### 2. SparkSession code and business logic in the same project, but different .cs files
-This would be the use case when you have `SparkSession` code and business logic (UDFs) in the different .cs files but in the same project (e.g. SparkSession in Program.cs, business logic in BusinessLogic.cs and both are in mySparkApp.csproj).
+The `SparkSession` code and business logic (UDFs) are in different `.cs` files and both contained in the same project (e.g. SparkSession in Program.cs, business logic in BusinessLogic.cs and both are in mySparkApp.csproj).
 
 ### Package your application
 Please follow [Get Started](https://github.com/dotnet/spark/#get-started) to build your application.
@@ -35,6 +35,8 @@ Please make sure you have [pre-requisites](https://github.com/dotnet/spark/blob/
 --files <some dir>\<dotnet version>\mySparkApp.dll \
 <some dir>\<dotnet version>\microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar \
 dotnet <some dir>\<dotnet version>\mySparkApp.dll <app arg 1> <app arg 2> ... <app arg n>
+or
+
 ```
 #### 2. Using Apache Livy
 ```shell
@@ -49,11 +51,11 @@ dotnet <some dir>\<dotnet version>\mySparkApp.dll <app arg 1> <app arg 2> ..
 ## How to deploy your application when you have multiple dependencies
 ### Scenarios
 #### 1. SparkSession code in one project that references another project including the business logic
-This would be the use case when you have `SparkSession` code in one project (e.g. mySparkApp.csproj) and business logic (UDFs) in another project (e.g. businessLogic.csproj).
+The `SparkSession` code in one project (e.g. mySparkApp.csproj) and business logic (UDFs) in another project (e.g. businessLogic.csproj).
 #### 2. SparkSession code references a function from a Nuget package that has been installed in the csproj
-This would be the use case when `SparkSession` code references a function from a Nuget package in the same project (e.g. mySparkApp.csproj).
+The `SparkSession` code references a function from a Nuget package.
 #### 3. SparkSession code references a function from a DLL on the user's machine
-This would be the use case when `SparkSession` code reference business logic (UDFs) on the user's machine (e.g. `SparkSession` code in the mySparkApp.csproj and businessLogic.dll on a different machine). 
+The `SparkSession` code reference business logic (UDFs) on the user's machine (e.g. `SparkSession` code in the mySparkApp.csproj and businessLogic.dll on a different machine).
 #### 4. SparkSession code references functions and business logic from multiple projects/solutions that themselves depend on multiple Nuget packages
 This would be a more complex use case when you have `SparkSession` code reference business logic (UDFs) and functions from Nuget packages in multiple projects and/or solutions.
 
