@@ -33,7 +33,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             // Need to explicitly specify the schema since pickling vs.arrow formatting
             // will return different types.Pickling will turn longs into ints if the values fit.
-            // Same as the "age INT, name STRING" DDL - format string.
+            // Same as the "age INT, name STRING" DDL-format string.
             var inputSchema = new StructType(new[]
             {
                 new StructField("age", new IntegerType()),
@@ -108,7 +108,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             joinedDf2.Show();
 
             DataFrame joinedDf3 = df.Join(df, df["name"] == df["name"], "outer");
-            joinedDf3.Show();                     
+            joinedDf3.Show();
 
             spark.Stop();
         }

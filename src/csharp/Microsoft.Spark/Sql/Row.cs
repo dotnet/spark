@@ -23,6 +23,7 @@ namespace Microsoft.Spark.Sql
         {
             Values = values;
             Schema = schema;
+
             var schemaColumnCount = Schema.Fields.Count;
             if (Size() != schemaColumnCount)
             {

@@ -15,7 +15,7 @@ namespace Microsoft.Spark.Sql
     public sealed class GenericRow
     {
         /// <summary>
-        /// Constructor for the Row class.
+        /// Constructor for the GenericRow class.
         /// </summary>
         /// <param name="values">Column values for a row</param>        
         internal GenericRow(object[] values)
@@ -60,15 +60,7 @@ namespace Microsoft.Spark.Sql
             }
 
             return Values[index];
-        }
-
-        ///// <summary>
-        ///// Returns the column value whose column name is given.
-        ///// </summary>
-        ///// <param name="columnName">Column name to look up</param>
-        ///// <returns>A column value</returns>
-        //public object Get(string columnName) =>
-        //    Get(Schema.Fields.FindIndex(f => f.Name == columnName));
+        }        
 
         /// <summary>
         /// Returns the string version of this row.
@@ -94,18 +86,7 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T">Type to convert to</typeparam>
         /// <param name="index">Index to look up</param>
         /// <returns>A column value as a type T</returns>
-        public T GetAs<T>(int index) => (T)Get(index);
-
-        ///// <summary>
-        ///// Returns the column value whose column name is given, as a type T.
-        ///// TODO: If the original type is "long" and its value can be
-        ///// fit into the "int", Pickler will serialize the value as int.
-        ///// Since the value is boxed, <see cref="GetAs{T}(string)"/> will throw an exception.
-        ///// </summary>
-        ///// <typeparam name="T">Type to convert to</typeparam>
-        ///// <param name="columnName">Column name to look up</param>
-        ///// <returns>A column value as a type T</returns>
-        //public T GetAs<T>(string columnName) => (T)Get(columnName);
+        public T GetAs<T>(int index) => (T)Get(index);        
 
         /// <summary>
         /// Checks if the given object is same as the current object.
