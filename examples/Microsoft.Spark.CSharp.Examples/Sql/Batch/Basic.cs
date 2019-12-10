@@ -31,9 +31,9 @@ namespace Microsoft.Spark.Examples.Sql.Batch
                 .Config("spark.some.config.option", "some-value")
                 .GetOrCreate();
 
-            Need to explicitly specify the schema since pickling vs.arrow formatting
-             will return different types.Pickling will turn longs into ints if the values fit.
-             Same as the "age INT, name STRING" DDL - format string.
+            // Need to explicitly specify the schema since pickling vs.arrow formatting
+            // will return different types.Pickling will turn longs into ints if the values fit.
+            // Same as the "age INT, name STRING" DDL - format string.
             var inputSchema = new StructType(new[]
             {
                 new StructField("age", new IntegerType()),
@@ -108,36 +108,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             joinedDf2.Show();
 
             DataFrame joinedDf3 = df.Join(df, df["name"] == df["name"], "outer");
-            joinedDf3.Show();
-
-            CreateDataFrame returning a dataframe given a list of Rows and a StructType schema
-
-           var structFields = new List<StructField>()
-           {
-                new StructField("Name", new StringType()),
-                new StructField("Role", new StringType()),
-                new StructField("Id", new IntegerType()),
-                new StructField("Age", new LongType()),
-           };
-
-            var schema2 = new StructType(structFields);
-
-            var row1 = new GenericRow(new object[] { "Alice", "SWE", 1, 30L });
-            var row2 = new GenericRow(new object[] { "Bob", "PM", 2, 32L });
-
-            List<GenericRow> data = new List<GenericRow>();
-            data.Add(row1);
-            data.Add(row2);
-
-            DataFrame df2 = spark.CreateDataFrame(data, schema2);
-            df2.Show();
-
-            var data2 = new List<string>();
-            data2.Add("hello");
-            data2.Add("world");
-
-            DataFrame df3 = spark.CreateDataFrame(data2);
-            df3.Show();
+            joinedDf3.Show();                     
 
             spark.Stop();
         }

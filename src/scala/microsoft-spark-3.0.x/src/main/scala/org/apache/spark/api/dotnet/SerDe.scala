@@ -9,7 +9,12 @@ package org.apache.spark.api.dotnet
 import java.io.{DataInputStream, DataOutputStream}
 import java.sql.{Date, Time, Timestamp}
 
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRow
+
 import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
+import scala.collection.mutable.ListBuffer
 
 /**
  * Functions to serialize and deserialize between CLR & JVM.
@@ -39,6 +44,7 @@ object SerDe {
       case 'D' => readDate(dis)
       case 't' => readTime(dis)
       case 'j' => JVMObjectTracker.getObject(readString(dis))
+      case 'R' => readRowArr(dis)
       case _ => throw new IllegalArgumentException(s"Invalid type $dataType")
     }
   }
@@ -90,6 +96,16 @@ object SerDe {
     t
   }
 
+    def readRow(in: DataInputStream): Row = {
+        val rowLen = readInt(in)
+        var rowValues: ListBuffer[Any] = ListBuffer()
+        for ( j <- 0 until rowLen) {
+            val elemType = readObjectType(in)
+            rowValues += readTypedObject(in, elemType)
+        }
+        Row.fromSeq(rowValues.toList)
+    }
+
   def readBytesArr(in: DataInputStream): Array[Array[Byte]] = {
     val len = readInt(in)
     (0 until len).map(_ => readBytes(in)).toArray
@@ -118,6 +134,15 @@ object SerDe {
   def readStringArr(in: DataInputStream): Array[String] = {
     val len = readInt(in)
     (0 until len).map(_ => readString(in)).toArray
+  }
+
+  def readRowArr(in: DataInputStream): java.util.List[Row] = {
+    val arrLen = readInt(in)
+    val arr = new Array[Row](arrLen)
+    for ( i <- 0 until arrLen) {
+        arr(i) = readRow(in)
+    }
+    ListBuffer(arr: _*)
   }
 
   def readList(dis: DataInputStream): Array[_] = {
