@@ -18,7 +18,7 @@ namespace Microsoft.Spark.Sql
         /// Constructor for the Row class.
         /// </summary>
         /// <param name="values">Column values for a row</param>        
-        public GenericRow(object[] values)
+        internal GenericRow(object[] values)
         {
             Values = values;   
             //TODO:
