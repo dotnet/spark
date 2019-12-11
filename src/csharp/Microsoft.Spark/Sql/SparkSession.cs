@@ -157,10 +157,8 @@ namespace Microsoft.Spark.Sql
         public DataFrame CreateDataFrame(IEnumerable<GenericRow> data)
         {
             var enumerator = data.GetEnumerator();
-            enumerator.MoveNext();
-            //var colIndex = 1;
-            var schemaFields = new List<StructField>();
-            //object[] values = data.First().Values;
+            enumerator.MoveNext();            
+            var schemaFields = new List<StructField>();            
             var values = enumerator.Current.Values;
             for (int i = 0; i < values.Length; ++i)
             {
