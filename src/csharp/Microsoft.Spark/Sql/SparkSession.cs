@@ -146,7 +146,39 @@ namespace Microsoft.Spark.Sql
         /// <param name="schema">Schema as StructType</param>
         /// <returns>DataFrame object</returns>
         public DataFrame CreateDataFrame(IEnumerable<GenericRow> data, StructType schema) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("createDataFrame", data, DataType.FromJson(_jvmObject.Jvm, schema.Json)));                
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("createDataFrame", data, DataType.FromJson(_jvmObject.Jvm, schema.Json)));
+
+        /// <summary>
+        /// Returns a dataframe when given only the data and no schema
+        /// </summary>
+        /// <param name="data">List of Row objects</param>        
+        /// <returns>DataFrame object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<GenericRow> data)
+        {
+            var enumerator = data.GetEnumerator();
+            enumerator.MoveNext();
+            var colIndex = 1;
+            var schemaFields = new List<StructField>();
+
+            foreach (object value in enumerator.Current.Values)
+            {
+                if (value.GetType() == typeof(int))
+                {
+                    var field = new StructField("_" + colIndex.ToString(), new IntegerType());
+                    schemaFields.Add(field);
+                }
+                else if (value.GetType() == typeof(string))
+                {
+                    var field = new StructField("_" + colIndex.ToString(), new StringType());
+                    schemaFields.Add(field);
+                }
+                //TODO: Add support for other types                
+                colIndex += 1;
+            }
+
+            var schema = new StructType(schemaFields);
+            return CreateDataFrame(data, schema);
+        }
 
         /// <summary>
         /// Executes a SQL query using Spark, returning the result as a DataFrame.

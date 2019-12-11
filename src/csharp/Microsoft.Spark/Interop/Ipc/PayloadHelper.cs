@@ -233,7 +233,7 @@ namespace Microsoft.Spark.Interop.Ipc
                                 SerDe.Write(destination, argProvider.Reference.Id);
                                 break;
 
-                            case IEnumerable<GenericRow> argRowArray:
+                            case List<GenericRow> argRowArray:
                                 SerDe.Write(destination, (int)argRowArray.Count());
                                 foreach (GenericRow r in argRowArray)
                                 {
@@ -295,7 +295,7 @@ namespace Microsoft.Spark.Interop.Ipc
                         return s_intArrayTypeId;
                     }
 
-                    if (type == typeof(IEnumerable<GenericRow>))                        
+                    if (type == typeof(List<GenericRow>))                        
                     {
                         return s_rowArrTypeId;
                     }

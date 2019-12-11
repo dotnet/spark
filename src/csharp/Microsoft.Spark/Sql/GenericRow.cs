@@ -18,11 +18,9 @@ namespace Microsoft.Spark.Sql
         /// Constructor for the GenericRow class.
         /// </summary>
         /// <param name="values">Column values for a row</param>        
-        internal GenericRow(object[] values)
+        public GenericRow(object[] values)
         {
-            Values = values;   
-            //TODO:
-            //Convert() -> implement type checking for not implemented exception
+            Values = values;           
         }
        
         /// <summary>
@@ -118,32 +116,6 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <returns>The hash code of the current object</returns>
         public override int GetHashCode() => base.GetHashCode();
-
-        //TODO:
-        ///// <summary>
-        ///// Converts the values to .NET values. Currently, only the simple types such as
-        ///// int, string, etc. are supported (which are already converted correctly by
-        ///// the Pickler). Note that explicit type checks against the schema are not performed.
-        ///// </summary>
-        //private void Convert()
-        //{
-        //    foreach (object val in Values)
-        //    {
-        //        TypeCode valType = Type.GetTypeCode(val.GetType());
-        //        if (valType == TypeCode.Object)
-        //        {
-        //            switch (valType)
-        //            {
-        //                case object[]:
-        //                    SerDe.Write(destination, (int)arg);
-        //                    break;
-
-        //                case TypeCode.Int64:
-        //                    SerDe.Write(destination, (long)arg);
-        //                    break;
-        //            }
-        //        }
-        //    }
-        //}
+        
     }
 }

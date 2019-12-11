@@ -110,6 +110,29 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             DataFrame joinedDf3 = df.Join(df, df["name"] == df["name"], "outer");
             joinedDf3.Show();
 
+            //CreateDataFrame returning a dataframe given a list of Rows and a StructType schema           
+
+            var structFields = new List<StructField>()
+            {
+                new StructField("Name", new StringType())  
+            };
+
+            var schema2 = new StructType(structFields);
+
+            var row1 = new GenericRow(new object[] { "Alice", "harry", "ron" });
+            var row2 = new GenericRow(new object[] { "Bob", "mary", "bla" });
+
+            List<GenericRow> data = new List<GenericRow>();
+            data.Add(row1);
+            data.Add(row2);
+
+            // with schema
+            DataFrame df2 = spark.CreateDataFrame(data, schema2);
+
+            // without schema
+            DataFrame df3 = spark.CreateDataFrame(data);
+            df2.Show();
+
             spark.Stop();
         }
     }
