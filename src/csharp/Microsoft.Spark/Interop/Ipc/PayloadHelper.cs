@@ -24,7 +24,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private static readonly byte[] s_doubleTypeId = new[] { (byte)'d' };
         private static readonly byte[] s_jvmObjectTypeId = new[] { (byte)'j' };
         private static readonly byte[] s_byteArrayTypeId = new[] { (byte)'r' };
-        private static readonly byte[] s_intArrayTypeId = new[] { (byte)'l' };
+        private static readonly byte[] s_arrayTypeId = new[] { (byte)'l' };
         private static readonly byte[] s_dictionaryTypeId = new[] { (byte)'e' };
         private static readonly byte[] s_rowArrTypeId = new[] { (byte)'R' };
 
@@ -185,6 +185,15 @@ namespace Microsoft.Spark.Interop.Ipc
                                 destination.Position = posAfterEnumerable;
                                 break;
 
+                            case IEnumerable<GenericRow> argRowEnumerable:
+                                SerDe.Write(destination, (int)argRowEnumerable.Count());
+                                foreach (GenericRow r in argRowEnumerable)
+                                {
+                                    SerDe.Write(destination, (int)r.Values.Length);
+                                    ConvertArgsToBytes(destination, r.Values, true);
+                                }
+                                break;
+
                             case var _ when IsDictionary(arg.GetType()):
                                 // Generic dictionary, but we don't have it strongly typed as
                                 // Dictionary<T,U>
@@ -233,15 +242,6 @@ namespace Microsoft.Spark.Interop.Ipc
                                 SerDe.Write(destination, argProvider.Reference.Id);
                                 break;
 
-                            case List<GenericRow> argRowArray:
-                                SerDe.Write(destination, (int)argRowArray.Count());
-                                foreach (GenericRow r in argRowArray)
-                                {
-                                    SerDe.Write(destination, (int)r.Values.Length);
-                                    ConvertArgsToBytes(destination, r.Values, true);                                    
-                                }
-                                break;
-
                             default:
                                 throw new NotSupportedException(
                                     string.Format($"Type {arg.GetType()} is not supported"));
@@ -282,7 +282,7 @@ namespace Microsoft.Spark.Interop.Ipc
                         typeof(IEnumerable<byte[]>).IsAssignableFrom(type) ||
                         typeof(IEnumerable<string>).IsAssignableFrom(type))
                     {
-                        return s_intArrayTypeId;
+                        return s_arrayTypeId;
                     }
 
                     if (IsDictionary(type))
@@ -292,10 +292,10 @@ namespace Microsoft.Spark.Interop.Ipc
 
                     if (typeof(IEnumerable<IJvmObjectReferenceProvider>).IsAssignableFrom(type))
                     {
-                        return s_intArrayTypeId;
+                        return s_arrayTypeId;
                     }
 
-                    if (type == typeof(List<GenericRow>))                        
+                    if (type == typeof(List<GenericRow>))
                     {
                         return s_rowArrTypeId;
                     }

@@ -12,7 +12,7 @@ namespace Microsoft.Spark.Sql
     /// <summary>
     /// Represents a row object in RDD, equivalent to GenericRow in Spark.
     /// </summary>
-    public sealed class GenericRow
+    public class GenericRow
     {
         /// <summary>
         /// Constructor for the GenericRow class.
@@ -84,32 +84,16 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T">Type to convert to</typeparam>
         /// <param name="index">Index to look up</param>
         /// <returns>A column value as a type T</returns>
-        public T GetAs<T>(int index) => (T)Get(index);        
+        public T GetAs<T>(int index) => (T)Get(index);
 
         /// <summary>
         /// Checks if the given object is same as the current object.
         /// </summary>
         /// <param name="obj">Other object to compare against</param>
         /// <returns>True if the other object is equal.</returns>
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (obj is Row otherRow)
-            {
-                return Values.SequenceEqual(otherRow.Values);
-            }
-
-            return false;
-        }
+        public override bool Equals(object obj) =>
+            ReferenceEquals(this, obj) ||
+            ((obj is GenericRow row) && Values.SequenceEqual(row.Values));
 
         /// <summary>
         /// Returns the hash code of the current object.
