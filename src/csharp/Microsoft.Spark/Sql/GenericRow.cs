@@ -103,7 +103,7 @@ namespace Microsoft.Spark.Sql
                 return true;
             }
 
-            if (obj is Row otherRow)
+            if (obj is GenericRow otherRow)
             {
                 return Values.SequenceEqual(otherRow.Values);
             }
