@@ -12,7 +12,7 @@ namespace Microsoft.Spark.Sql
     /// <summary>
     /// Represents a row object in RDD, equivalent to GenericRow in Spark.
     /// </summary>
-    public class GenericRow
+    public sealed class GenericRow
     {
         /// <summary>
         /// Constructor for the GenericRow class.
