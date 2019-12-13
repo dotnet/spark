@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Text.Json;
 using Microsoft.Spark.Sql.Types;
 using Xunit;
 
@@ -95,14 +94,14 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Equal("age", field.Name);
                 Assert.Equal("long", field.DataType.TypeName);
                 Assert.True(field.IsNullable);
-                Assert.Equal(JsonDocument.Parse("{}").RootElement.ToString(), field.Metadata.ToString());
+                Assert.Equal("{}", field.Metadata.ToString());
             }
             {
                 StructField field = structType.Fields[1];
                 Assert.Equal("name", field.Name);
                 Assert.Equal("string", field.DataType.TypeName);
                 Assert.False(field.IsNullable);
-                Assert.Equal(JsonDocument.Parse("{}").RootElement.ToString(), field.Metadata.ToString());
+                Assert.Equal("{}", field.Metadata.ToString());
             }
         }
     }

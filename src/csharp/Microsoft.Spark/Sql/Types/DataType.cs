@@ -58,7 +58,7 @@ namespace Microsoft.Spark.Sql.Types
                 object jObject = (JsonValue is JsonElement jsonElement) ?
                     jsonElement.SortProperties() :
                     JsonValue;
-                return JsonSerializer.Serialize(jObject);
+                return (string)jObject;
             }
         }
 
@@ -87,7 +87,11 @@ namespace Microsoft.Spark.Sql.Types
         /// </summary>
         /// <param name="json">JSON string to parse</param>
         /// <returns>The new DataType instance from the JSON string</returns>
-        public static DataType ParseDataType(string json) => ParseDataType(JsonDocument.Parse(json).RootElement);
+        public static DataType ParseDataType(string json) 
+        {
+            using (var document = JsonDocument.Parse(json))
+                return ParseDataType(document.RootElement.Clone());
+        }
 
         /// <summary>
         /// Checks if the given object is same as the current object by
@@ -156,7 +160,6 @@ namespace Microsoft.Spark.Sql.Types
             {
                 return ParseSimpleType(json);
             }
-
         }
 
         /// <summary>

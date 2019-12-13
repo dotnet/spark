@@ -15,15 +15,17 @@ namespace Microsoft.Spark.UnitTest
         {
             // Arrange
             var testJson = GetTestJson();
-            var testElement = JsonDocument.Parse(testJson).RootElement;
-            var expectedJson = GetExpectedSortedJson();
+            using (var document = JsonDocument.Parse(testJson))
+            {
+                var testElement = document.RootElement;
+                var expectedJson = GetExpectedSortedJson();
 
-            // Act
-            var resultElement = JsonSerDe.SortProperties(testElement);
+                // Act
+                var resultElement = testElement.SortProperties();
 
-            // Assert
-            var resultJson = JsonSerializer.Serialize(resultElement);
-            Assert.Equal(expectedJson, resultJson);
+                // Assert
+                Assert.Equal(expectedJson, resultElement);
+            }
         }
 
         private string GetTestJson()

@@ -51,13 +51,13 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns JSON object describing this type.
         /// </summary>
-        internal override object JsonValue => JsonDocument.Parse(JsonSerializer.Serialize(
+        internal override object JsonValue => JsonSerDe.Parse(
             new
             {
                 type = TypeName,
                 elementType = ElementType.JsonValue,
                 containsNull = ContainsNull
-            })).RootElement;
+            });
 
         /// <summary>
         /// Constructs a ArrayType object from a JSON object.
@@ -120,14 +120,14 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns JSON object describing this type.
         /// </summary>
-        internal override object JsonValue => JsonDocument.Parse(JsonSerializer.Serialize(
+        internal override object JsonValue => JsonSerDe.Parse(
             new
             {
                 type = TypeName,
                 keyType = KeyType.JsonValue,
                 valueType = ValueType.JsonValue,
                 valueContainsNull = ValueContainsNull
-            })).RootElement;
+            });
 
         /// <summary>
         /// Constructs a MapType object from a JSON object.
@@ -159,12 +159,13 @@ namespace Microsoft.Spark.Sql.Types
             string name,
             DataType dataType,
             bool isNullable = true,
-            JsonElement? metadata = null)
+            JsonElement metadata = default)
         {
             Name = name;
             DataType = dataType;
             IsNullable = isNullable;
-            Metadata = metadata ?? new JsonElement();
+            Metadata = EqualityComparer<JsonElement>.Default.Equals(metadata, default) 
+                ? JsonSerDe.Parse("{}") : metadata;
         }
 
         /// <summary>
@@ -207,14 +208,14 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns JSON object describing this type.
         /// </summary>
-        internal object JsonValue => JsonDocument.Parse(JsonSerializer.Serialize(
+        internal object JsonValue => JsonSerDe.Parse(
             new
             {
                 name = Name,
                 type = DataType.JsonValue,
                 nullable = IsNullable,
                 metadata = Metadata
-            })).RootElement;
+            });
     }
 
     /// <summary>
@@ -234,7 +235,7 @@ namespace Microsoft.Spark.Sql.Types
         /// </summary>
         /// <param name="jvmObject">StructType object on JVM</param>
         internal StructType(JvmObjectReference jvmObject) =>
-            FromJson(JsonDocument.Parse((string)jvmObject.Invoke("json")).RootElement);
+            FromJson((string)jvmObject.Invoke("json"));
 
         /// <summary>
         /// Returns a list of StructFieldType objects.
@@ -259,12 +260,12 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns JSON object describing this type.
         /// </summary>
-        internal override object JsonValue => JsonDocument.Parse(JsonSerializer.Serialize(
+        internal override object JsonValue => JsonSerDe.Parse(
             new 
             {
                 type = TypeName,
                 fields = Fields.Select(f => f.JsonValue).ToArray()
-            })).RootElement;
+            });
 
         /// <summary>
         /// Constructs a StructType object from a JSON object
@@ -278,5 +279,16 @@ namespace Microsoft.Spark.Sql.Types
                 fieldJObject => new StructField(fieldJObject)).ToList();
             return this;
         }
+
+        /// <summary>
+        /// Constructs a StructType object from a JSON string
+        /// </summary>
+        /// <param name="json">JSON object used to construct a StructType object</param>
+        /// <returns>A StuructType object</returns>
+        private DataType FromJson(string json)
+        {
+            using (var document = JsonDocument.Parse(json))
+                return FromJson(document.RootElement.Clone());
+        }        
     }
 }

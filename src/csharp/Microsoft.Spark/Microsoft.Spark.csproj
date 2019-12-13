@@ -28,7 +28,6 @@
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
     <PackageReference Include="System.Text.Json" Version="4.6.0" />
     <PackageReference Include="Razorvine.Pyrolite" Version="4.26.0" />
-    <PackageReference Include="System.Memory" Version="4.5.3" />
   </ItemGroup>
 
   <ItemGroup>

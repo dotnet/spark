@@ -9,6 +9,8 @@
     <PublicSign>false</PublicSign>
     <!-- workaround https://github.com/dotnet/fsharp/issues/4822 to support VS 2017 -->
     <NoWarn>2003;$(NoWarn)</NoWarn>
+    <!-- workaround as suggested in https://github.com/dotnet/spark/pull/358/files#r355646101 -->
+    <NoWarn>NU1605;$(NoWarn)</NoWarn>    
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,10 +20,6 @@
     <Compile Include="Sql\Streaming\StructuredKafkaWordCount.fs" />
     <Compile Include="Sql\Basic.fs" />
     <Compile Include="Program.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
