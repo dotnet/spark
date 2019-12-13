@@ -2,6 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+// Included from https://github.com/dotnet/runtime/blob/master/src/libraries/Common/src/System/Buffers/ArrayBufferWriter.cs
+// whilst TFM includes netstandard2.0
+
 using System.Diagnostics;
 
 namespace System.Buffers

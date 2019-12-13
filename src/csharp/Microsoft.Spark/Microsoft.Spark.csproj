@@ -10,6 +10,8 @@
     <Description>.NET for Apache Spark</Description>
     <PackageReleaseNotes>https://github.com/dotnet/spark/tree/master/docs/release-notes</PackageReleaseNotes>
     <PackageTags>spark;dotnet;csharp</PackageTags>
+    <!-- workaround due to including ArrayBufferWriter<T> source whilst TFM includes netstandard2.0 -->
+    <NoWarn>CS0436;$(NoWarn)</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
