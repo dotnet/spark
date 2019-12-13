@@ -4,9 +4,11 @@
 
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.Sql.Catalog;
 using Microsoft.Spark.Sql.Streaming;
 using Xunit;
+using System.Collections.Generic;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
@@ -64,6 +66,35 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         public void TestSignaturesV2_4_X()
         {
             Assert.IsType<SparkSession>(SparkSession.Active());
+        }
+
+        /// <summary>
+        /// Test CreateDataFrame API.
+        /// </summary>        
+        [Fact]
+        public void TestCreateDataFrame()
+        {                       
+            var structFields = new List<StructField>()
+            {
+                new StructField("Name", new StringType())
+            };
+
+            var schema = new StructType(structFields);
+
+            var row1 = new GenericRow(new object[] { "Alice", "harry" });
+            var row2 = new GenericRow(new object[] { "Bob", "mary" });
+
+            List<GenericRow> data = new List<GenericRow>();
+            data.Add(row1);
+            data.Add(row2);
+
+            // with schema
+            DataFrame df2 = _spark.CreateDataFrame(data, schema);
+            Assert.IsType<DataFrame>(df2);
+
+            // without schema
+            DataFrame df3 = _spark.CreateDataFrame(data);
+            Assert.IsType<DataFrame>(df3);
         }
     }
 }

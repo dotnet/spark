@@ -13,7 +13,6 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRow
 
 import scala.collection.JavaConverters._
-import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -44,7 +43,7 @@ object SerDe {
       case 'D' => readDate(dis)
       case 't' => readTime(dis)
       case 'j' => JVMObjectTracker.getObject(readString(dis))
-      case 'R' => readRowArr(dis)
+      case 'R' => readRow(dis)
       case _ => throw new IllegalArgumentException(s"Invalid type $dataType")
     }
   }
@@ -96,15 +95,15 @@ object SerDe {
     t
   }
 
-    def readRow(in: DataInputStream): Row = {
-        val rowLen = readInt(in)
-        var rowValues: ListBuffer[Any] = ListBuffer()
-        for ( j <- 0 until rowLen) {
-            val elemType = readObjectType(in)
-            rowValues += readTypedObject(in, elemType)
-        }
-        Row.fromSeq(rowValues.toList)
+  def readRow(in: DataInputStream): Row = {
+    val rowLen = readInt(in)
+    var rowValues: ListBuffer[Any] = ListBuffer()
+    for (j <- 0 until rowLen) {
+      val elemType = readObjectType(in)
+      rowValues += readTypedObject(in, elemType)
     }
+    Row.fromSeq(rowValues.toList)
+  }
 
   def readBytesArr(in: DataInputStream): Array[Array[Byte]] = {
     val len = readInt(in)
@@ -136,13 +135,13 @@ object SerDe {
     (0 until len).map(_ => readString(in)).toArray
   }
 
-  def readRowArr(in: DataInputStream): java.util.List[Row] = {
+  def readRowArr(in: DataInputStream): Array[Row] = {
     val arrLen = readInt(in)
     val arr = new Array[Row](arrLen)
-    for ( i <- 0 until arrLen) {
-        arr(i) = readRow(in)
+    for (i <- 0 until arrLen) {
+      arr(i) = readRow(in)
     }
-    ListBuffer(arr: _*)
+    arr
   }
 
   def readList(dis: DataInputStream): Array[_] = {
@@ -155,6 +154,7 @@ object SerDe {
       case 'b' => readBooleanArr(dis)
       case 'j' => readStringArr(dis).map(x => JVMObjectTracker.getObject(x))
       case 'r' => readBytesArr(dis)
+      case 'R' => readRowArr(dis)
       case _ => throw new IllegalArgumentException(s"Invalid array type $arrType")
     }
   }

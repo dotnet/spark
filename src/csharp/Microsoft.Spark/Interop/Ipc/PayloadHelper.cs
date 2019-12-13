@@ -26,7 +26,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private static readonly byte[] s_byteArrayTypeId = new[] { (byte)'r' };
         private static readonly byte[] s_arrayTypeId = new[] { (byte)'l' };
         private static readonly byte[] s_dictionaryTypeId = new[] { (byte)'e' };
-        private static readonly byte[] s_rowArrTypeId = new[] { (byte)'R' };
+        private static readonly byte[] s_rowTypeId = new[] { (byte)'R' };
 
         private static readonly ConcurrentDictionary<Type, bool> s_isDictionaryTable =
             new ConcurrentDictionary<Type, bool>();
@@ -186,6 +186,7 @@ namespace Microsoft.Spark.Interop.Ipc
                                 break;
 
                             case IEnumerable<GenericRow> argRowEnumerable:
+                                SerDe.Write(destination, s_rowTypeId);
                                 SerDe.Write(destination, (int)argRowEnumerable.Count());
                                 foreach (GenericRow r in argRowEnumerable)
                                 {
@@ -280,7 +281,8 @@ namespace Microsoft.Spark.Interop.Ipc
                         type == typeof(long[]) ||
                         type == typeof(double[]) ||
                         typeof(IEnumerable<byte[]>).IsAssignableFrom(type) ||
-                        typeof(IEnumerable<string>).IsAssignableFrom(type))
+                        typeof(IEnumerable<string>).IsAssignableFrom(type) ||
+                        typeof(IEnumerable<GenericRow>).IsAssignableFrom(type))
                     {
                         return s_arrayTypeId;
                     }
@@ -295,9 +297,9 @@ namespace Microsoft.Spark.Interop.Ipc
                         return s_arrayTypeId;
                     }
 
-                    if (type == typeof(List<GenericRow>))
+                    if (type == typeof(GenericRow))
                     {
-                        return s_rowArrTypeId;
+                        return s_rowTypeId;
                     }
                     break;
             }

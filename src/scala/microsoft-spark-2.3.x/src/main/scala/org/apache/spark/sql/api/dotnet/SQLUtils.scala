@@ -11,6 +11,12 @@ import java.util.{List => JList, Map => JMap}
 import org.apache.spark.api.python.{PythonAccumulatorV2, PythonBroadcast, PythonFunction}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.deploy.dotnet.DotnetRunner
+import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.DataFrame
+import scala.collection.JavaConverters._
+
 
 object SQLUtils {
 
@@ -18,13 +24,13 @@ object SQLUtils {
    * Exposes createPythonFunction to the .NET client to enable registering UDFs.
    */
   def createPythonFunction(
-      command: Array[Byte],
-      envVars: JMap[String, String],
-      pythonIncludes: JList[String],
-      pythonExec: String,
-      pythonVersion: String,
-      broadcastVars: JList[Broadcast[PythonBroadcast]],
-      accumulator: PythonAccumulatorV2): PythonFunction = {
+                            command: Array[Byte],
+                            envVars: JMap[String, String],
+                            pythonIncludes: JList[String],
+                            pythonExec: String,
+                            pythonVersion: String,
+                            broadcastVars: JList[Broadcast[PythonBroadcast]],
+                            accumulator: PythonAccumulatorV2): PythonFunction = {
     // DOTNET_WORKER_SPARK_VERSION is used to handle different versions of Spark on the worker.
     envVars.put("DOTNET_WORKER_SPARK_VERSION", DotnetRunner.SPARK_VERSION)
 
@@ -37,4 +43,13 @@ object SQLUtils {
       broadcastVars,
       accumulator)
   }
+
+  def createDataFrameHelper(
+                             spark: SparkSession,
+                             data: Array[Row],
+                             schema: StructType): DataFrame = {
+    val dataAsJavaList = data.toList.asJava
+    spark.createDataFrame(dataAsJavaList, schema)
+  }
+
 }

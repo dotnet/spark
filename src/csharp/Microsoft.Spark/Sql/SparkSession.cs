@@ -10,6 +10,7 @@ using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Streaming;
 using Microsoft.Spark.Sql.Types;
 using Razorvine.Pickle;
+using System.Linq;
 
 namespace Microsoft.Spark.Sql
 {
@@ -146,7 +147,11 @@ namespace Microsoft.Spark.Sql
         /// <param name="schema">Schema as StructType</param>
         /// <returns>DataFrame object</returns>
         public DataFrame CreateDataFrame(IEnumerable<GenericRow> data, StructType schema) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("createDataFrame", data, 
+            new DataFrame((JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
+                "org.apache.spark.sql.api.dotnet.SQLUtils",
+                "createDataFrameHelper",
+                this,
+                data,      
                 DataType.FromJson(_jvmObject.Jvm, schema.Json)));
 
         /// <summary>
@@ -155,11 +160,9 @@ namespace Microsoft.Spark.Sql
         /// <param name="data">List of Row objects</param>        
         /// <returns>DataFrame object</returns>
         public DataFrame CreateDataFrame(IEnumerable<GenericRow> data)
-        {
-            var enumerator = data.GetEnumerator();
-            enumerator.MoveNext();            
-            var schemaFields = new List<StructField>();            
-            var values = enumerator.Current.Values;
+        {                       
+            var schemaFields = new List<StructField>();                        
+            object[] values = data.First().Values;
             for (int i = 0; i < values.Length; ++i)
             {
                 string valueType = values[i].GetType().Name;
