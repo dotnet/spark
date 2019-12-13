@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using Microsoft.Spark.E2ETest.Utils;
 using Xunit;
 
@@ -21,10 +22,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {
             SparkContext sc = SparkContext.GetOrCreate(new SparkConf());
 
-            _ = sc.GetConf();
-            _ = sc.DefaultParallelism;
+            Assert.IsType<SparkConf>(sc.GetConf());
+            Assert.IsType<int>(sc.DefaultParallelism);
 
             sc.SetJobDescription("job description");
+
+            sc.SetLogLevel("ALL");
+            sc.SetLogLevel("debug");
+            Assert.Throws<Exception>(() => sc.SetLogLevel("INVALID"));
 
             sc.SetJobGroup("group id", "description");
             sc.SetJobGroup("group id", "description", true);
@@ -35,10 +40,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             sc.AddFile(filePath);
             sc.AddFile(filePath, true);
 
-            using (var tempDir = new TemporaryDirectory())
-            {
-                sc.SetCheckpointDir(TestEnvironment.ResourceDirectory);
-            }
+            using var tempDir = new TemporaryDirectory();
+            sc.SetCheckpointDir(TestEnvironment.ResourceDirectory);
         }
     }
 }

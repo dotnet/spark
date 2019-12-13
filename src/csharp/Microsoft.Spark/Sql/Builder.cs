@@ -14,7 +14,9 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     public sealed class Builder : IJvmObjectReferenceProvider
     {
-        private readonly Dictionary<string, string> _options = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _options =
+            new Dictionary<string, string>() { { "spark.app.kind", "sparkdotnet" } };
+
         private readonly JvmObjectReference _jvmObject;
 
         internal Builder()

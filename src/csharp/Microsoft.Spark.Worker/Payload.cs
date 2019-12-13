@@ -27,13 +27,14 @@ namespace Microsoft.Spark.Worker
 
         internal string Secret { get; set; }
 
+        internal IEnumerable<Resource> Resources { get; set; } = new List<Resource>();
+
         internal Dictionary<string, string> LocalProperties { get; set; } =
             new Dictionary<string, string>();
 
         public override bool Equals(object obj)
         {
-            var other = obj as TaskContext;
-            if (other is null)
+            if (!(obj is TaskContext other))
             {
                 return false;
             }
@@ -42,6 +43,7 @@ namespace Microsoft.Spark.Worker
                 (PartitionId == other.PartitionId) &&
                 (AttemptNumber == other.AttemptNumber) &&
                 (AttemptId == other.AttemptId) &&
+                Resources.SequenceEqual(other.Resources) &&
                 (LocalProperties.Count == other.LocalProperties.Count) &&
                 !LocalProperties.Except(other.LocalProperties).Any();
         }
@@ -49,6 +51,30 @@ namespace Microsoft.Spark.Worker
         public override int GetHashCode()
         {
             return StageId;
+        }
+
+        internal class Resource
+        {
+            internal string Key { get; set; }
+            internal string Value { get; set; }
+            internal IEnumerable<string> Addresses { get; set; } = new List<string>();
+
+            public override bool Equals(object obj)
+            {
+                if (!(obj is Resource other))
+                {
+                    return false;
+                }
+
+                return (Key == other.Key) &&
+                    (Value == other.Value) &&
+                    Addresses.SequenceEqual(Addresses);
+            }
+
+            public override int GetHashCode()
+            {
+                return Key.GetHashCode();
+            }
         }
     }
 
@@ -68,8 +94,7 @@ namespace Microsoft.Spark.Worker
 
         public override bool Equals(object obj)
         {
-            var other = obj as BroadcastVariables;
-            if (other is null)
+            if (!(obj is BroadcastVariables other))
             {
                 return false;
             }

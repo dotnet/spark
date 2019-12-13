@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
@@ -156,11 +157,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             //////////////////////////////
             // Window Functions
             //////////////////////////////
-            Assert.IsType<Column>(UnboundedPreceding());
+            if (SparkSettings.Version < new Version(Versions.V3_0_0))
+            {
+                // The following APIs are removed in Spark 3.0.
+                Assert.IsType<Column>(UnboundedPreceding());
 
-            Assert.IsType<Column>(UnboundedFollowing());
+                Assert.IsType<Column>(UnboundedFollowing());
 
-            Assert.IsType<Column>(CurrentRow());
+                Assert.IsType<Column>(CurrentRow());
+            }
 
             Assert.IsType<Column>(CumeDist());
 
@@ -534,9 +539,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<Column>(DateTrunc("mon", col));
 
-            Assert.IsType<Column>(FromUtcTimestamp(col, "GMT+1"));
+            if (SparkSettings.Version < new Version(Versions.V3_0_0))
+            {
+                // The following APIs are deprecated in Spark 3.0.
+                Assert.IsType<Column>(FromUtcTimestamp(col, "GMT+1"));
 
-            Assert.IsType<Column>(ToUtcTimestamp(col, "GMT+1"));
+                Assert.IsType<Column>(ToUtcTimestamp(col, "GMT+1"));
+            }
 
             Assert.IsType<Column>(Window(col, "1 minute", "10 seconds", "5 seconds"));
             Assert.IsType<Column>(Window(col, "1 minute", "10 seconds"));
@@ -718,9 +727,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             col = MonthsBetween(col, col, false);
 
-            col = FromUtcTimestamp(col, col);
+            if (SparkSettings.Version < new Version(Versions.V3_0_0))
+            {
+                // The following APIs are deprecated in Spark 3.0.
+                col = FromUtcTimestamp(col, col);
 
-            col = ToUtcTimestamp(col, col);
+                col = ToUtcTimestamp(col, col);
+            }
 
             col = ArraysOverlap(col, col);
 
