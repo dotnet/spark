@@ -24,13 +24,13 @@ object SQLUtils {
    * Exposes createPythonFunction to the .NET client to enable registering UDFs.
    */
   def createPythonFunction(
-                            command: Array[Byte],
-                            envVars: JMap[String, String],
-                            pythonIncludes: JList[String],
-                            pythonExec: String,
-                            pythonVersion: String,
-                            broadcastVars: JList[Broadcast[PythonBroadcast]],
-                            accumulator: PythonAccumulatorV2): PythonFunction = {
+      command: Array[Byte],
+      envVars: JMap[String, String],
+      pythonIncludes: JList[String],
+      pythonExec: String,
+      pythonVersion: String,
+      broadcastVars: JList[Broadcast[PythonBroadcast]],
+      accumulator: PythonAccumulatorV2): PythonFunction = {
     // DOTNET_WORKER_SPARK_VERSION is used to handle different versions of Spark on the worker.
     envVars.put("DOTNET_WORKER_SPARK_VERSION", DotnetRunner.SPARK_VERSION)
 
@@ -45,9 +45,9 @@ object SQLUtils {
   }
 
   def createDataFrameHelper(
-                             spark: SparkSession,
-                             data: Array[Row],
-                             schema: StructType): DataFrame = {
+      spark: SparkSession,
+      data: Array[Row],
+      schema: StructType): DataFrame = {
     val dataAsJavaList = data.toList.asJava
     spark.createDataFrame(dataAsJavaList, schema)
   }

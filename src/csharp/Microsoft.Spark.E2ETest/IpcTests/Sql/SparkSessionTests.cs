@@ -76,7 +76,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {                       
             var structFields = new List<StructField>()
             {
-                new StructField("Name", new StringType())
+                new StructField("Name1", new StringType()),
+                new StructField("Name2", new StringType())
             };
 
             var schema = new StructType(structFields);
