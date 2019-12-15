@@ -50,7 +50,16 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <returns></returns>
         public static JsonElement Parse(object obj)
         {
-            return Parse(JsonSerializer.Serialize(obj));
+            return Parse(JsonSerializer.SerializeToUtf8Bytes(obj));
+        }
+
+        /// <summary>
+        /// Helper method to Parse a byte array in UTF8 to a JsonElement.
+        /// </summary>
+        private static JsonElement Parse(byte[] utf8Json)
+        {
+        using (var document = JsonDocument.Parse(utf8Json))
+            return document.RootElement.Clone();
         }        
 
         /// <summary>
