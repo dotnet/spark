@@ -20,9 +20,12 @@ namespace Microsoft.Spark.Interop.Ipc
         /// Note: Scala side uses JSortedObject when parsing JSON, so the properties
         /// in JsonElement need to be sorted.
         /// <summary>
-        /// Extension method to sort items in a JSON object by keys. Please note that this 
-        /// method uses recursion and shouldn't be used with untrusted/unbounded input data.
+        /// Extension method to sort items in a JSON object by keys. 
         /// </summary>
+        /// <remarks>
+        /// Please note that this method uses recursion and shouldn't be used with 
+        /// non-trusted/unbounded input data.
+        /// </remarks>
         /// <param name="jsonElement"></param>
         /// <returns></returns>
         public static string SortProperties(this JsonElement jsonElement)
@@ -112,7 +115,7 @@ namespace Microsoft.Spark.Interop.Ipc
             foreach (string name in propertyNames)
             {
                 writer.WritePropertyName(name);
-                jObject.GetProperty(name).WriteElementHelper(writer);
+                jObject.GetProperty(name).WriteElementHelper(writer, true);
             }
             writer.WriteEndObject();
         }  
@@ -127,7 +130,7 @@ namespace Microsoft.Spark.Interop.Ipc
             writer.WriteStartArray();
             foreach (JsonElement item in jArray.EnumerateArray())
             {
-                item.WriteElementHelper(writer);
+                item.WriteElementHelper(writer, false);
             }
             writer.WriteEndArray();
         }
@@ -135,7 +138,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <summary>
         /// Helper to appropriately write Json types based on their kind.
         /// </summary>
-        private static void WriteElementHelper(this JsonElement item, Utf8JsonWriter writer)
+        private static void WriteElementHelper(this JsonElement item, Utf8JsonWriter writer, bool writePrimities)
         {
             Debug.Assert(item.ValueKind != JsonValueKind.Undefined);
 
@@ -147,10 +150,10 @@ namespace Microsoft.Spark.Interop.Ipc
             {
                 item.SortArrayProperties(writer);
             }
-            else
+            else if (writePrimities)
             {
                 item.WriteTo(writer);
             }
-        }
+        }      
     }
 }
