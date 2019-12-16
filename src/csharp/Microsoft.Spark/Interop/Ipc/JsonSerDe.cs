@@ -20,7 +20,8 @@ namespace Microsoft.Spark.Interop.Ipc
         /// Note: Scala side uses JSortedObject when parsing JSON, so the properties
         /// in JsonElement need to be sorted.
         /// <summary>
-        /// Extension method to sort items in a JSON object by keys.
+        /// Extension method to sort items in a JSON object by keys. Please note that this 
+        /// method uses recursion and shouldn't be used with untrusted/unbounded input data.
         /// </summary>
         /// <param name="jsonElement"></param>
         /// <returns></returns>
