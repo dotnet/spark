@@ -288,7 +288,9 @@ namespace Microsoft.Spark.Sql.Types
         private DataType FromJson(string json)
         {
             using (var document = JsonDocument.Parse(json))
+            {
                 return FromJson(document.RootElement.Clone());
+            }
         }        
     }
 }

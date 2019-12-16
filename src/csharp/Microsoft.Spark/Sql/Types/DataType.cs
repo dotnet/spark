@@ -101,7 +101,9 @@ namespace Microsoft.Spark.Sql.Types
         public static DataType ParseDataType(string json) 
         {
             using (var document = JsonDocument.Parse(json))
+            {
                 return ParseDataType(document.RootElement.Clone());
+            }
         }
 
         /// <summary>

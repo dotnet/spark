@@ -28,7 +28,9 @@ namespace Microsoft.Spark.Interop.Ipc
         {
             var output = new ArrayBufferWriter<byte>();
             using (var writer = new Utf8JsonWriter(output))
+            {
                 jsonElement.SortPropertiesCore(writer);
+            }
             return Encoding.UTF8.GetString(output.WrittenSpan.ToArray());
         }
 
@@ -40,7 +42,9 @@ namespace Microsoft.Spark.Interop.Ipc
         public static JsonElement Parse(string json)
         {
             using (var document = JsonDocument.Parse(json))
+            {
                 return document.RootElement.Clone();
+            }
         }           
 
         /// <summary>
@@ -58,8 +62,10 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         private static JsonElement Parse(byte[] utf8Json)
         {
-        using (var document = JsonDocument.Parse(utf8Json))
-            return document.RootElement.Clone();
+            using (var document = JsonDocument.Parse(utf8Json))
+            {
+                return document.RootElement.Clone();
+            }
         }        
 
         /// <summary>

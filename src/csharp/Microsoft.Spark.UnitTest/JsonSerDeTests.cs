@@ -13,24 +13,16 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestSortProperties()
         {
-            // Arrange
-            var testJson = GetTestJson();
+            var (testJson, expectedJson) = GetTestExpectedJson();
             using (var document = JsonDocument.Parse(testJson))
             {
-                var testElement = document.RootElement;
-                var expectedJson = GetExpectedSortedJson();
-
-                // Act
-                var resultElement = testElement.SortProperties();
-
-                // Assert
-                Assert.Equal(expectedJson, resultElement);
+                Assert.Equal(expectedJson, document.RootElement.SortProperties());
             }
         }
 
-        private string GetTestJson()
+        private (string TestJson, string ExpectedJson) GetTestExpectedJson()
         {
-            var obj = new
+            var testObj = new
             {
                 objC = new
                 {
@@ -102,12 +94,7 @@ namespace Microsoft.Spark.UnitTest
                     }                                        
                 }                                
             };
-            return JsonSerializer.Serialize(obj);
-        }
-
-        private string GetExpectedSortedJson()
-        {
-            var obj = new
+            var expectedJson = new
             {
                 arrayA = new[] { 
                     new {
@@ -178,8 +165,8 @@ namespace Microsoft.Spark.UnitTest
                     propB = "valueB",                                        
                     propC = "valueC"
                 }                                        
-            };
-            return JsonSerializer.Serialize(obj);
+            };            
+            return (JsonSerializer.Serialize(testObj), JsonSerializer.Serialize(expectedJson));
         }
     }
 }
