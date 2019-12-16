@@ -102,7 +102,7 @@ namespace Microsoft.Spark
             _prevSerializedMode = prevSerializedMode;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+            JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
         /// Persist this RDD with the default storage level (MEMORY_ONLY).
