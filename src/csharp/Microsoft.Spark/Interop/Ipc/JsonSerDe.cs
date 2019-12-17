@@ -130,7 +130,7 @@ namespace Microsoft.Spark.Interop.Ipc
             writer.WriteStartArray();
             foreach (JsonElement item in jArray.EnumerateArray())
             {
-                item.WriteElementHelper(writer, false);
+                item.WriteElementHelper(writer, writePrimitives: false);
             }
             writer.WriteEndArray();
         }
