@@ -65,7 +65,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
                 "convertToDelta",
                 spark,
                 identifier,
-                partitionSchema));
+                DataType.FromJson(SparkEnvironment.JvmBridge, partitionSchema.Json)));
 
         /// <summary>
         /// Create a DeltaTable from the given parquet table and partition schema.
