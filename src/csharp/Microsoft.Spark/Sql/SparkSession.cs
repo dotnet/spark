@@ -141,7 +141,9 @@ namespace Microsoft.Spark.Sql
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("table", tableName));
 
         /// <summary>
-        /// Returns a dataframe as per the schema and data.
+        /// Creates a `DataFrame` from an IEnumerable containing [[GenericRow]]s using the given schema.
+        /// It is important to make sure that the structure of every [[GenericRow]] of the provided IEnumerable matches
+        /// the provided schema. Otherwise, there will be runtime exception.
         /// </summary>
         /// <param name="data">List of Row objects</param>
         /// <param name="schema">Schema as StructType</param>
@@ -155,7 +157,7 @@ namespace Microsoft.Spark.Sql
                 DataType.FromJson(_jvmObject.Jvm, schema.Json)));
 
         /// <summary>
-        /// Returns a dataframe when given only the data and no schema
+        /// Creates a dataframe from an IEnumerable containing [[GenericRow]]s by inferring the schema from the given data.
         /// </summary>
         /// <param name="data">List of Row objects</param>        
         /// <returns>DataFrame object</returns>
@@ -164,26 +166,21 @@ namespace Microsoft.Spark.Sql
             var schemaFields = new List<StructField>();                        
             object[] values = data.First().Values;
             for (int i = 0; i < values.Length; ++i)
-            {
-                string valueType = values[i].GetType().Name;
-                StructField field;
-                switch (valueType)
+            {                             
+                switch (values[i])
                 {
-                    case "Int32":
-                        field = new StructField("_" + (i+1).ToString(), new IntegerType());
-                        schemaFields.Add(field);
+                    case int _:
+                        schemaFields.Add(new StructField("_" + (i + 1).ToString(), new IntegerType()));
                         break;
-                    case "String":
-                        field = new StructField("_" + (i+1).ToString(), new StringType());
-                        schemaFields.Add(field);
+                    case string _:                        
+                        schemaFields.Add(new StructField("_" + (i + 1).ToString(), new StringType()));
                         break;
                     default:
-                        throw new NotSupportedException(string.Format("Type {0} not supported yet", valueType));
+                        throw new NotSupportedException(string.Format("Type {0} not supported yet", values[i].GetType()));
                 }
             }
-
-            var schema = new StructType(schemaFields);
-            return CreateDataFrame(data, schema);
+            
+            return CreateDataFrame(data, new StructType(schemaFields));
         }
 
         /// <summary>
