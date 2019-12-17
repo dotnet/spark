@@ -138,7 +138,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <summary>
         /// Helper to appropriately write Json types based on their kind.
         /// </summary>
-        private static void WriteElementHelper(this JsonElement item, Utf8JsonWriter writer, bool writePrimities)
+        private static void WriteElementHelper(this JsonElement item, Utf8JsonWriter writer, bool writePrimitives)
         {
             Debug.Assert(item.ValueKind != JsonValueKind.Undefined);
 
