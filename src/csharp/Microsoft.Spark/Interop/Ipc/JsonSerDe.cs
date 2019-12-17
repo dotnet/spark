@@ -115,7 +115,7 @@ namespace Microsoft.Spark.Interop.Ipc
             foreach (string name in propertyNames)
             {
                 writer.WritePropertyName(name);
-                jObject.GetProperty(name).WriteElementHelper(writer, true);
+                jObject.GetProperty(name).WriteElementHelper(writer, writePrimitives: true);
             }
             writer.WriteEndObject();
         }  
