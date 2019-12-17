@@ -16,7 +16,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         {
             Environment.SetEnvironmentVariable(
                 SparkFixture.EnvironmentVariableNames.ExtraSparkSubmitArgs,
-                "--packages io.delta:delta-core_2.11:0.4.0 " +
+                "--packages io.delta:delta-core_2.11:0.5.0 " +
                 "--conf spark.databricks.delta.snapshotPartitions=2 " +
                 "--conf spark.sql.sources.parallelPartitionDiscovery.parallelism=5");
             SparkFixture = new SparkFixture();
