@@ -150,7 +150,7 @@ namespace Microsoft.Spark.Interop.Ipc
             {
                 item.SortArrayProperties(writer);
             }
-            else if (writePrimities)
+            else if (writePrimitives)
             {
                 item.WriteTo(writer);
             }
