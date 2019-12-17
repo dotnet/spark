@@ -61,9 +61,13 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
             StructType partitionSchema) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+
                 s_deltaTableClassName,
+
                 "convertToDelta",
+
                 spark,
+
                 identifier,
                 DataType.FromJson(SparkEnvironment.JvmBridge, partitionSchema.Json)));
 
@@ -91,11 +95,11 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
             string partitionSchema) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                s_deltaTableClassName,
-                "convertToDelta",
-                spark,
-                identifier,
-                partitionSchema));
+                    s_deltaTableClassName,
+                    "convertToDelta",
+                    spark,
+                    identifier,
+                    partitionSchema));
 
         /// <summary>
         /// Create a DeltaTable from the given parquet table. Takes an existing parquet table and
@@ -116,10 +120,10 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         public static DeltaTable ConvertToDelta(SparkSession spark, string identifier) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                s_deltaTableClassName,
-                "convertToDelta",
-                spark,
-                identifier));
+                    s_deltaTableClassName,
+                    "convertToDelta",
+                    spark,
+                    identifier));
 
         /// <summary>
         /// Create a DeltaTable for the data at the given <c>path</c>.
@@ -133,9 +137,9 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         public static DeltaTable ForPath(string path) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                s_deltaTableClassName,
-                "forPath",
-                path));
+                    s_deltaTableClassName,
+                    "forPath",
+                    path));
 
         /// <summary>
         /// Create a DeltaTable for the data at the given <c>path</c> using the given SparkSession
@@ -147,10 +151,10 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         public static DeltaTable ForPath(SparkSession sparkSession, string path) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                s_deltaTableClassName,
-                "forPath",
-                sparkSession,
-                path));
+                    s_deltaTableClassName,
+                    "forPath",
+                    sparkSession,
+                    path));
 
         /// <summary>
         /// Check if the provided <c>identifier</c> string, in this case a file path,
