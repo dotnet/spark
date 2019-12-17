@@ -214,7 +214,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                     identifier,
                     new StructType(new[]
                     {
-                        new StructField($"{partitionColumnName}", new IntegerType())
+                        new StructField(partitionColumnName, new IntegerType())
                     })),
                 partitionColumnName);
         }
