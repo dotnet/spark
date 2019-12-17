@@ -287,7 +287,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
             Assert.IsType<DataFrame>(table.Vacuum(168));
 
             // Generate should return void.
-            table.Generate("symlink_manifest_format");
+            table.Generate("symlink_format_manifest");
 
             // Delete should return void.
             table.Delete("id > 10");
