@@ -4,12 +4,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Streaming;
 using Microsoft.Spark.Sql.Types;
-using System.Linq;
 
 namespace Microsoft.Spark.Sql
 {
