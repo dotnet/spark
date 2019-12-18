@@ -2,13 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.Sql.Catalog;
 using Microsoft.Spark.Sql.Streaming;
 using Xunit;
-using System.Collections.Generic;
+using System;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
@@ -73,29 +74,49 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// </summary>        
         [Fact]
         public void TestCreateDataFrame()
-        {                       
-            var structFields = new List<StructField>()
+        {                                   
+            var schema = new StructType(new List<StructField>()
             {
                 new StructField("Name1", new StringType()),
                 new StructField("Name2", new StringType())
-            };
-
-            var schema = new StructType(structFields);
-
-            var row1 = new GenericRow(new object[] { "Alice", "harry" });
-            var row2 = new GenericRow(new object[] { "Bob", "mary" });
+            });
 
             List<GenericRow> data = new List<GenericRow>();
-            data.Add(row1);
-            data.Add(row2);
+            data.Add(new GenericRow(new object[] { "Alice", "Harry" }));
+            data.Add(new GenericRow(new object[] { "Bob", "Mary" }));
 
-            // with schema
-            DataFrame df2 = _spark.CreateDataFrame(data, schema);
+            // Calling CreateDataFrame with schema
+            DataFrame df1 = _spark.CreateDataFrame(data, schema);
+            Assert.IsType<DataFrame>(df1);
+            Assert.Equal<StructType>(schema, df1.Schema());
+            var df1Collect = df1.Collect();
+            int numRow = 0;
+            foreach (Row r in df1Collect)
+            {
+                // Checking the values from the dataFrame are same as the values in given data
+                Assert.Equal<object>(r.Values, data[numRow].Values);
+                numRow += 1;
+            }
+            Assert.Equal<int>(2, numRow);
+
+            // Calling CreateDataFrame without schema
+            DataFrame df2 = _spark.CreateDataFrame(data);            
+            var expectedSchema = new StructType(new List<StructField>()
+            {
+                new StructField("_1", new StringType()),
+                new StructField("_2", new StringType())
+            });
             Assert.IsType<DataFrame>(df2);
-
-            // without schema
-            DataFrame df3 = _spark.CreateDataFrame(data);
-            Assert.IsType<DataFrame>(df3);
+            Assert.Equal<StructType>(expectedSchema, df2.Schema());
+            var df2Collect = df2.Collect();
+            numRow = 0;
+            foreach (Row r in df2Collect)
+            {
+                // Checking the values from the dataFrame are same as the values in given data
+                Assert.Equal<object>(r.Values, data[numRow].Values);
+                numRow += 1;
+            }
+            Assert.Equal<int>(2, numRow);
         }
     }
 }
