@@ -14,7 +14,8 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     public sealed class Row
     {
-        private GenericRow _genericRow;
+        private readonly GenericRow _genericRow;
+
         /// <summary>
         /// Constructor for the Row class.
         /// </summary>
@@ -107,7 +108,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>True if the other object is equal.</returns>
         public override bool Equals(object obj) =>
             ReferenceEquals(this, obj) ||
-            ((obj is Row row) && Values.SequenceEqual(row.Values));
+            ((obj is Row row) && Values.SequenceEqual(row.Values)) && Schema.Equals(row.Schema);
 
         /// <summary>
         /// Returns the hash code of the current object.

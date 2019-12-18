@@ -9,7 +9,6 @@ using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Streaming;
 using Microsoft.Spark.Sql.Types;
-using Razorvine.Pickle;
 using System.Linq;
 
 namespace Microsoft.Spark.Sql

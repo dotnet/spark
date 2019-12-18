@@ -5,11 +5,10 @@
 using System.Collections.Generic;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.Sql.Catalog;
 using Microsoft.Spark.Sql.Streaming;
+using Microsoft.Spark.Sql.Types;
 using Xunit;
-using System;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
@@ -95,7 +94,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             {
                 // Checking the values from the dataFrame are same as the values in given data
                 Assert.Equal<object>(r.Values, data[numRow].Values);
-                numRow += 1;
+                ++numRow;
             }
             Assert.Equal<int>(2, numRow);
 
@@ -114,7 +113,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             {
                 // Checking the values from the dataFrame are same as the values in given data
                 Assert.Equal<object>(r.Values, data[numRow].Values);
-                numRow += 1;
+                ++numRow;
             }
             Assert.Equal<int>(2, numRow);
         }

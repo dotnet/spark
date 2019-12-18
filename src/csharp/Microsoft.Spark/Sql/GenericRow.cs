@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql
 {
@@ -99,7 +98,6 @@ namespace Microsoft.Spark.Sql
         /// Returns the hash code of the current object.
         /// </summary>
         /// <returns>The hash code of the current object</returns>
-        public override int GetHashCode() => base.GetHashCode();
-        
+        public override int GetHashCode() => base.GetHashCode();        
     }
 }

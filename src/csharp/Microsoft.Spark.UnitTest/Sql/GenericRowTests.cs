@@ -3,17 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Network;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
-using Microsoft.Spark.UnitTest.TestUtils;
-using Microsoft.Spark.Utils;
-using Moq;
-using Razorvine.Pickle;
 using Xunit;
 
 namespace Microsoft.Spark.UnitTest
