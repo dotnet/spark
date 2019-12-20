@@ -80,7 +80,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 new StructField("Name2", new StringType())
             });
 
-            List<GenericRow> data = new List<GenericRow>();
+            var data = new List<GenericRow>();
             data.Add(new GenericRow(new object[] { "Alice", "Harry" }));
             data.Add(new GenericRow(new object[] { "Bob", "Mary" }));
 
