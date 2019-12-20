@@ -53,7 +53,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </summary>
         /// <param name="spark">The relevant session.</param>
         /// <param name="identifier">String used to identify the parquet table.</param>
-        /// <param name="partitionSchema">Struct representing the partition schema.</param>
+        /// <param name="partitionSchema">StructType representing the partition schema.</param>
         /// <returns>The converted DeltaTable.</returns>
         public static DeltaTable ConvertToDelta(
             SparkSession spark,
@@ -61,13 +61,9 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
             StructType partitionSchema) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-
                 s_deltaTableClassName,
-
                 "convertToDelta",
-
                 spark,
-
                 identifier,
                 DataType.FromJson(SparkEnvironment.JvmBridge, partitionSchema.Json)));
 
@@ -265,7 +261,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </summary>
         /// <param name="mode">Specifies the mode for the generation of the manifest.
         /// The valid modes are as follows (not case sensitive):
-        /// - "symlink_manifest_format" : This will generate manifests in symlink format
+        /// - "symlink_format_manifest" : This will generate manifests in symlink format
         /// for Presto and Athena read support.
         /// See the online documentation for more information.</param>
         public void Generate(string mode) => _jvmObject.Invoke("generate", mode);
