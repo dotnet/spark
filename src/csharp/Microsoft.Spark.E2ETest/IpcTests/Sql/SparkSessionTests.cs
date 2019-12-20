@@ -88,7 +88,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             DataFrame df1 = _spark.CreateDataFrame(data, schema);
             Assert.IsType<DataFrame>(df1);
             Assert.Equal<StructType>(schema, df1.Schema());
-            var df1Collect = df1.Collect();
+            Row[] rows = df1.Collect().ToArray();
             int numRow = 0;
             foreach (Row r in df1Collect)
             {
