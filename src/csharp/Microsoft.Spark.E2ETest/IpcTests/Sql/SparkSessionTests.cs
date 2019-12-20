@@ -96,7 +96,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 Assert.Equal<object>(r.Values, data[numRow].Values);
                 ++numRow;
             }
-            Assert.Equal<int>(2, numRow);
+            Assert.Equal(data.Length, row.Length);
 
             // Calling CreateDataFrame without schema
             DataFrame df2 = _spark.CreateDataFrame(data);            
