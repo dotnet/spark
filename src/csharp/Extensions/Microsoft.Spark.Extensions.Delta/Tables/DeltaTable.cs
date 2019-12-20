@@ -45,7 +45,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// DeltaTable.ConvertToDelta(
         ///     spark,
         ///     "parquet.`/path`",
-        ///     var partitionSchema = new StructType(new List&lt;StructField&gt;() {
+        ///     new StructType(new List&lt;StructField&gt;() {
         ///         new StructField("key1", new LongType()),
         ///         new StructField("key2", new StringType())
         ///     });
