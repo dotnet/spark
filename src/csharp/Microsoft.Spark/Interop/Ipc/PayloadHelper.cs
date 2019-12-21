@@ -187,12 +187,19 @@ namespace Microsoft.Spark.Interop.Ipc
 
                             case IEnumerable<GenericRow> argRowEnumerable:
                                 SerDe.Write(destination, s_rowTypeId);
-                                SerDe.Write(destination, (int)argRowEnumerable.Count());
+                                posBeforeEnumerable = destination.Position;
+                                destination.Position += sizeof(int);
+                                itemCount = 0;                                
                                 foreach (GenericRow r in argRowEnumerable)
                                 {
+                                    ++itemCount;
                                     SerDe.Write(destination, (int)r.Values.Length);
                                     ConvertArgsToBytes(destination, r.Values, true);
                                 }
+                                posAfterEnumerable = destination.Position;
+                                destination.Position = posBeforeEnumerable;
+                                SerDe.Write(destination, itemCount);
+                                destination.Position = posAfterEnumerable;
                                 break;
 
                             case var _ when IsDictionary(arg.GetType()):

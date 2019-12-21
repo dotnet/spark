@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Catalog;
@@ -73,49 +75,50 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// </summary>        
         [Fact]
         public void TestCreateDataFrame()
-        {                                   
-            var schema = new StructType(new List<StructField>()
-            {
-                new StructField("Name1", new StringType()),
-                new StructField("Name2", new StringType())
-            });
-
+        {
             var data = new List<GenericRow>();
-            data.Add(new GenericRow(new object[] { "Alice", "Harry" }));
-            data.Add(new GenericRow(new object[] { "Bob", "Mary" }));
+            data.Add(new GenericRow(new object[] { "Alice", 20 }));
+            data.Add(new GenericRow(new object[] { "Bob", 30 }));
 
             // Calling CreateDataFrame with schema
-            DataFrame df1 = _spark.CreateDataFrame(data, schema);
-            Assert.IsType<DataFrame>(df1);
-            Assert.Equal(schema, df1.Schema());
-            Row[] rows = df1.Collect().ToArray();
-            int numRow = 0;
-            foreach (Row r in df1Collect)
             {
-                // Checking the values from the dataFrame are same as the values in given data
-                Assert.Equal<object>(r.Values, data[numRow].Values);
-                ++numRow;
+                var schema = new StructType(new List<StructField>()
+                {
+                    new StructField("Name", new StringType()),
+                    new StructField("Age", new IntegerType())
+                });                
+                
+                DataFrame df = _spark.CreateDataFrame(data, schema);
+                Assert.IsType<DataFrame>(df);
+                Assert.Equal(schema, df.Schema());
+                Row[] rows = df.Collect().ToArray();                
+                for (int i = 0; i < rows.Length; ++i)
+                {
+                    // Checking the values from the dataFrame are same as the values in given data
+                    Assert.Equal(data[i].Values, rows[i].Values);
+                }
+                Assert.Equal(data.Count, rows.Length);
             }
-            Assert.Equal(data.Length, row.Length);
 
             // Calling CreateDataFrame without schema
-            DataFrame df2 = _spark.CreateDataFrame(data);            
-            var expectedSchema = new StructType(new List<StructField>()
             {
-                new StructField("_1", new StringType()),
-                new StructField("_2", new StringType())
-            });
-            Assert.IsType<DataFrame>(df2);
-            Assert.Equal<StructType>(expectedSchema, df2.Schema());
-            var df2Collect = df2.Collect();
-            numRow = 0;
-            foreach (Row r in df2Collect)
-            {
-                // Checking the values from the dataFrame are same as the values in given data
-                Assert.Equal<object>(r.Values, data[numRow].Values);
-                ++numRow;
+                var schema = new StructType(new List<StructField>()
+                {
+                    new StructField("_1", new StringType()),
+                    new StructField("_2", new IntegerType())
+                });
+
+                DataFrame df = _spark.CreateDataFrame(data);                
+                Assert.IsType<DataFrame>(df);
+                Assert.Equal(schema, df.Schema());
+                Row[] rows = df.Collect().ToArray();
+                for (int i = 0; i < rows.Length; ++i)
+                {
+                    // Checking the values from the dataFrame are same as the values in given data
+                    Assert.Equal(data[i].Values, rows[i].Values);
+                }
+                Assert.Equal(data.Count, rows.Length);
             }
-            Assert.Equal<int>(2, numRow);
         }
     }
 }
