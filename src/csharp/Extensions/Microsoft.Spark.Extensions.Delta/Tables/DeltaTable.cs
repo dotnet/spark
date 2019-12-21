@@ -46,7 +46,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         ///     spark,
         ///     "parquet.`/path`",
         ///     new StructType(new[]
-        ///         {
+        ///     {
         ///         new StructField("key1", new LongType()),
         ///         new StructField("key2", new StringType())
         ///     });
