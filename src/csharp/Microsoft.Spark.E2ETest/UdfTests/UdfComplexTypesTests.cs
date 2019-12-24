@@ -158,25 +158,15 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithReturnAsRowType()
         {
-            // UDF with return as RowType throws a following exception:
-            // Unhandled Exception: System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation. 
-            // --->System.ArgumentException: System.Object is not supported.
-            // at Microsoft.Spark.Utils.UdfUtils.GetReturnType(Type type) in Microsoft.Spark\Utils\UdfUtils.cs:line 142
-            // at Microsoft.Spark.Utils.UdfUtils.GetReturnType(Type type) in Microsoft.Spark\Utils\UdfUtils.cs:line 136
-            // at Microsoft.Spark.Sql.Functions.CreateUdf[TResult](String name, Delegate execute, PythonEvalType evalType) in Microsoft.Spark\Sql\Functions.cs:line 4053
-            // at Microsoft.Spark.Sql.Functions.CreateUdf[TResult](String name, Delegate execute) in Microsoft.Spark\Sql\Functions.cs:line 4040
-            // at Microsoft.Spark.Sql.Functions.Udf[T, TResult](Func`2 udf) in Microsoft.Spark\Sql\Functions.cs:line 3607
-            Assert.Throws<ArgumentException>(() => Udf<string, Row>(
-                (str) =>
-                {
-                    var structFields = new List<StructField>()
-                    {
-                        new StructField("name", new StringType()),
-                    };
-                    var schema = new StructType(structFields);
-                    var row = new Row(new object[] { str }, schema);
-                    return row;
-                }));
+            var schema = new StructType(new[]
+            {
+                new StructField("name", new StringType())
+            });
+            Func<Column, Column> udf = Udf<string>(
+                str => new GenericRow(new object[] { "Hello" + str }), schema);
+
+            Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
+            Assert.Equal(3, rows.Length);
         }
     }
 }
