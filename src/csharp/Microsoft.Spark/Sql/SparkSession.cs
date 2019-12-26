@@ -141,7 +141,7 @@ namespace Microsoft.Spark.Sql
 
         /// <summary>
         /// Creates a <see cref="DataFrame"/> from an <see cref="IEnumerable"/> containing <see cref="GenericRow"/>s using the given schema.
-        /// It is important to make sure that the structure of every [[GenericRow]] of the provided IEnumerable matches
+        /// It is important to make sure that the structure of every <see cref="GenericRow"/> of the provided <see cref="IEnumerable"/> matches
         /// the provided schema. Otherwise, there will be runtime exception.
         /// </summary>
         /// <param name="data">List of Row objects</param>
