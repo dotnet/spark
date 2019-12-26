@@ -140,7 +140,7 @@ namespace Microsoft.Spark.Sql
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("table", tableName));
 
         /// <summary>
-        /// Creates a `DataFrame` from an IEnumerable containing [[GenericRow]]s using the given schema.
+        /// Creates a <see cref="DataFrame"/> from an <see cref="IEnumerable"/> containing <see cref="GenericRow"/>s using the given schema.
         /// It is important to make sure that the structure of every [[GenericRow]] of the provided IEnumerable matches
         /// the provided schema. Otherwise, there will be runtime exception.
         /// </summary>
