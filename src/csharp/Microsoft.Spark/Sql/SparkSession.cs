@@ -172,7 +172,7 @@ namespace Microsoft.Spark.Sql
                         schemaFields.Add(new StructField($"_{i + 1}", new IntegerType()));
                         break;
                     case string _:                        
-                        schemaFields.Add(new StructField("_" + (i + 1).ToString(), new StringType()));
+                        schemaFields.Add(new StructField($"_{i + 1}", new StringType()));
                         break;
                     default:
                         throw new NotSupportedException(string.Format("Type {0} not supported yet", values[i].GetType()));
