@@ -169,7 +169,7 @@ namespace Microsoft.Spark.Sql
                 switch (values[i])
                 {
                     case int _:
-                        schemaFields.Add(new StructField("_" + (i + 1).ToString(), new IntegerType()));
+                        schemaFields.Add(new StructField($"_{i + 1}", new IntegerType()));
                         break;
                     case string _:                        
                         schemaFields.Add(new StructField("_" + (i + 1).ToString(), new StringType()));
