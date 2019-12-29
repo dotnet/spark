@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
+using Microsoft.Spark.Interop.Internal.Java.Util;
 using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark.Sql
@@ -191,21 +192,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="properties">JDBC database connection arguments</param>
         public void Jdbc(string url, string table, Dictionary<string, string> properties)
         {
-            JvmObjectReference javaProperties =
-                _jvmObject.Jvm.CallConstructor("java.util.Properties");
-
-            if (javaProperties != null)
-            {
-                foreach (KeyValuePair<string, string> property in properties)
-                {
-                    javaProperties.Invoke(
-                        "setProperty",
-                        property.Key,
-                        property.Value);
-                }
-            }
-
-            _jvmObject.Invoke("jdbc", url, table, javaProperties);
+            _jvmObject.Invoke("jdbc", url, table, new Properties(_jvmObject.Jvm, properties));
         }
 
         /// <summary>

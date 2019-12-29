@@ -32,6 +32,28 @@ class TpchFunctionalQueries(TpchBase):
             .sort(col("l_returnflag"), col("l_linestatus")) \
             .show()
 
+    def q1a(self):        
+        def discount_price_f(x, y):
+            return x * (1 - y)
+        decrease = pandas_udf(discount_price_f, returnType=DoubleType())
+
+        def total_f(x, y, z):
+            return x * (1 - y) * (1 + z)
+        total = pandas_udf(total_f, returnType=DoubleType())
+
+        self.lineitem.filter(col("l_shipdate") <= "1998-09-02") \
+            .groupBy(col("l_returnflag"), col("l_linestatus")) \
+            .agg(F.sum(col("l_quantity")).alias("sum_qty"),
+                 F.sum(col("l_extendedprice")).alias("sum_base_price"),
+                 F.sum(decrease(col("l_extendedprice"), col("l_discount"))).alias("sum_disc_price"),
+                 F.sum(total(col("l_extendedprice"), col("l_discount"), col("l_tax"))).alias("sum_charge"),
+                 F.avg(col("l_quantity")).alias("avg_qty"),
+                 F.avg(col("l_extendedprice")).alias("avg_price"),
+                 F.avg(col("l_discount")).alias("avg_disc"),
+                 F.count(col("l_quantity")).alias("count_order")) \
+            .sort(col("l_returnflag"), col("l_linestatus")) \
+            .show()
+
     def q2(self):
         europe = self.region.filter(col("r_name") == "EUROPE") \
             .join(self.nation, col("r_regionkey") == col("n_regionkey")) \
@@ -136,9 +158,8 @@ class TpchFunctionalQueries(TpchBase):
             .sort(col("supp_nation"), col("cust_nation"), col("l_year")) \
             .show()
 
-    def q8(self):
+    def q8Common(self, decrease):
         getYear = udf(lambda x: x[0:4], StringType())
-        decrease = udf(lambda x, y: x * (1 - y), FloatType())
         isBrazil = udf(lambda x, y: (y if (x == "BRAZIL") else 0), FloatType())
 
         filteredRegions = self.region.filter(col("r_name") == "AMERICA")
@@ -165,6 +186,16 @@ class TpchFunctionalQueries(TpchBase):
             .agg((F.sum(col("case_volume")) / F.sum(col("volume"))).alias("mkt_share")) \
             .sort(col("o_year")) \
             .show()
+
+    def q8(self):     
+        decrease = udf(lambda x, y: x * (1 - y), FloatType())        
+        self.q8Common(decrease)
+        
+    def q8a(self):                       
+        def discount_price_f(x, y):
+            return x * (1 - y)
+        decrease = pandas_udf(discount_price_f, returnType=FloatType())              
+        self.q8Common(decrease)
 
     def q9(self):
         getYear = udf(lambda x: x[0:4], StringType())
