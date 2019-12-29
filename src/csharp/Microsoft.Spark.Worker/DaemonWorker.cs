@@ -51,6 +51,8 @@ namespace Microsoft.Spark.Worker
             _version = version;
         }
 
+        internal ConcurrentDictionary<int, TaskRunner> GetTaskRunners() => _taskRunners;
+
         /// <summary>
         /// Runs the DaemonWorker server.
         /// </summary>
@@ -62,15 +64,19 @@ namespace Microsoft.Spark.Worker
             // AppDomain.CurrentDomain.ProcessExit += (s, e) => {};,
             // but the above handler is not invoked. This can be investigated if more
             // graceful exit is required.
+            ISocketWrapper listener = SocketFactory.CreateSocket();
+            Run(listener);
+        }
 
+        internal void Run(ISocketWrapper listener)
+        {
             try
             {
-                ISocketWrapper listener = SocketFactory.CreateSocket();
                 listener.Listen();
 
                 // Communicate the server port back to the Spark using standard output.
                 Stream outputStream = Console.OpenStandardOutput();
-                var serverPort = ((IPEndPoint)listener.LocalEndPoint).Port;
+                var serverPort = ((IPEndPoint) listener.LocalEndPoint).Port;
                 SerDe.Write(outputStream, serverPort);
 
                 // Now the logger can be initialized after standard output's usage is done.
