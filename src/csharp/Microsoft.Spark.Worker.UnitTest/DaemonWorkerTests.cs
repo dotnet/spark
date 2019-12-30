@@ -17,21 +17,10 @@ namespace Microsoft.Spark.Worker.UnitTest
 {
     public class DaemonWorkerTests
     {
-        [Fact]
-        public void TestsDaemonWorkerSingleRunner()
-        {
-            var daemonSocket = SocketFactory.CreateSocket();
-            var typedVersion = new Version(Versions.V2_4_0);
-            var daemonWorker = new DaemonWorker(typedVersion);
-            Task.Run(() => daemonWorker.Run(daemonSocket));
-            
-            CreateAndVerifyConnection(daemonSocket);
-            Assert.Single(daemonWorker.GetTaskRunners());
-        }
-        
         [Theory]
+        [InlineData(1)]
         [InlineData(3)]
-        public void TestsDaemonWorkerMultipleRunners(int taskRunnerNumber)
+        public void TestsDaemonWorkerTaskRunners(int taskRunnerNumber)
         {
             ISocketWrapper daemonSocket = SocketFactory.CreateSocket();
             var typedVersion = new Version(Versions.V2_4_0);
@@ -41,6 +30,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             for (var i = 1; i <= taskRunnerNumber; i++)
                 CreateAndVerifyConnection(daemonSocket);
+            
             Assert.Equal(taskRunnerNumber, daemonWorker.GetTaskRunners().Count);
         }
 
