@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql.Streaming
 {
@@ -27,6 +28,22 @@ namespace Microsoft.Spark.Sql.Streaming
         public DataStreamReader Format(string source)
         {
             _jvmObject.Invoke("format", source);
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies the schema by using <see cref="StructType"/>.
+        /// </summary>
+        /// <remarks>
+        /// Some data sources (e.g. JSON) can infer the input schema automatically
+        /// from data. By specifying the schema here, the underlying data source can
+        /// skip the schema inference step, and thus speed up data loading.
+        /// </remarks>
+        /// <param name="schema">The input schema</param>
+        /// <returns>This DataStreamReader object</returns>
+        public DataStreamReader Schema(StructType schema)
+        {
+            _jvmObject.Invoke("schema", DataType.FromJson(_jvmObject.Jvm, schema.Json));
             return this;
         }
 
@@ -111,6 +128,15 @@ namespace Microsoft.Spark.Sql.Streaming
         /// </summary>
         /// <returns>DataFrame object</returns>
         public DataFrame Load() => new DataFrame((JvmObjectReference)_jvmObject.Invoke("load"));
+
+        /// <summary>
+        /// Loads input in as a <see cref="DataFrame"/>, for data streams that read
+        /// from some path. 
+        /// </summary>
+        /// <param name="path">File path for streaming</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Load(string path) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("load", path));
 
         /// <summary>
         /// Loads a JSON file stream and returns the results as a <see cref="DataFrame"/>.

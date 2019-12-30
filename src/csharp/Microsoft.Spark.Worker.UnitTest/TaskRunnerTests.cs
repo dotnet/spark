@@ -18,102 +18,100 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public void TestTaskRunner()
         {
-            using (var serverListener = new DefaultSocketWrapper())
+            using var serverListener = new DefaultSocketWrapper();
+            serverListener.Listen();
+
+            var port = (serverListener.LocalEndPoint as IPEndPoint).Port;
+            var clientSocket = new DefaultSocketWrapper();
+            clientSocket.Connect(IPAddress.Loopback, port, null);
+
+            PayloadWriter payloadWriter = new PayloadWriterFactory().Create();
+            var taskRunner = new TaskRunner(0, clientSocket, false, payloadWriter.Version);
+            var clientTask = Task.Run(() => taskRunner.Run());
+
+            using (ISocketWrapper serverSocket = serverListener.Accept())
             {
-                serverListener.Listen();
+                System.IO.Stream inputStream = serverSocket.InputStream;
+                System.IO.Stream outputStream = serverSocket.OutputStream;
 
-                var port = (serverListener.LocalEndPoint as IPEndPoint).Port;
-                var clientSocket = new DefaultSocketWrapper();
-                clientSocket.Connect(IPAddress.Loopback, port, null);
+                Payload payload = TestData.GetDefaultPayload();
+                CommandPayload commandPayload = TestData.GetDefaultCommandPayload();
 
-                PayloadWriter payloadWriter = new PayloadWriterFactory().Create();
-                var taskRunner = new TaskRunner(0, clientSocket, false, payloadWriter.Version);
-                var clientTask = Task.Run(() => taskRunner.Run());
+                payloadWriter.Write(outputStream, payload, commandPayload);
 
-                using (ISocketWrapper serverSocket = serverListener.Accept())
+                // Write 10 rows to the output stream.
+                var pickler = new Pickler();
+                for (int i = 0; i < 10; ++i)
                 {
-                    System.IO.Stream inputStream = serverSocket.InputStream;
-                    System.IO.Stream outputStream = serverSocket.OutputStream;
+                    var pickled = pickler.dumps(
+                        new[] { new object[] { i.ToString(), i, i } });
+                    SerDe.Write(outputStream, pickled.Length);
+                    SerDe.Write(outputStream, pickled);
+                }
 
-                    Payload payload = TestData.GetDefaultPayload();
-                    CommandPayload commandPayload = TestData.GetDefaultCommandPayload();
+                // Signal the end of data and stream.
+                SerDe.Write(outputStream, (int)SpecialLengths.END_OF_DATA_SECTION);
+                SerDe.Write(outputStream, (int)SpecialLengths.END_OF_STREAM);
+                outputStream.Flush();
 
-                    payloadWriter.Write(outputStream, payload, commandPayload);
+                // Now process the bytes flowing in from the client.
+                var timingDataReceived = false;
+                var exceptionThrown = false;
+                var rowsReceived = new List<object[]>();
 
-                    // Write 10 rows to the output stream.
-                    var pickler = new Pickler();
-                    for (int i = 0; i < 10; ++i)
+                while (true)
+                {
+                    var length = SerDe.ReadInt32(inputStream);
+                    if (length > 0)
                     {
-                        var pickled = pickler.dumps(
-                            new[] { new object[] { i.ToString(), i, i } });
-                        SerDe.Write(outputStream, pickled.Length);
-                        SerDe.Write(outputStream, pickled);
-                    }
-
-                    // Signal the end of data and stream.
-                    SerDe.Write(outputStream, (int)SpecialLengths.END_OF_DATA_SECTION);
-                    SerDe.Write(outputStream, (int)SpecialLengths.END_OF_STREAM);
-                    outputStream.Flush();
-
-                    // Now process the bytes flowing in from the client.
-                    var timingDataReceived = false;
-                    var exceptionThrown = false;
-                    var rowsReceived = new List<object[]>();
-
-                    while (true)
-                    {
-                        var length = SerDe.ReadInt32(inputStream);
-                        if (length > 0)
+                        var pickledBytes = SerDe.ReadBytes(inputStream, length);
+                        using var unpickler = new Unpickler();
+                        var rows = unpickler.loads(pickledBytes) as ArrayList;
+                        foreach (object row in rows)
                         {
-                            var pickledBytes = SerDe.ReadBytes(inputStream, length);
-                            var unpickler = new Unpickler();
-                            var rows = unpickler.loads(pickledBytes) as ArrayList;
-                            foreach (object row in rows)
-                            {
-                                rowsReceived.Add((object[])row);
-                            }
-                        }
-                        else if (length == (int)SpecialLengths.TIMING_DATA)
-                        {
-                            var bootTime = SerDe.ReadInt64(inputStream);
-                            var initTime = SerDe.ReadInt64(inputStream);
-                            var finishTime = SerDe.ReadInt64(inputStream);
-                            var memoryBytesSpilled = SerDe.ReadInt64(inputStream);
-                            var diskBytesSpilled = SerDe.ReadInt64(inputStream);
-                            timingDataReceived = true;
-                        }
-                        else if (length == (int)SpecialLengths.PYTHON_EXCEPTION_THROWN)
-                        {
-                            SerDe.ReadString(inputStream);
-                            exceptionThrown = true;
-                            break;
-                        }
-                        else if (length == (int)SpecialLengths.END_OF_DATA_SECTION)
-                        {
-                            var numAccumulatorUpdates = SerDe.ReadInt32(inputStream);
-                            SerDe.ReadInt32(inputStream);
-                            break;
+                            rowsReceived.Add((object[])row);
                         }
                     }
-
-                    Assert.True(timingDataReceived);
-                    Assert.False(exceptionThrown);
-
-                    // Validate rows received.
-                    Assert.Equal(10, rowsReceived.Count);
-                    for (int i = 0; i < 10; ++i)
+                    else if (length == (int)SpecialLengths.TIMING_DATA)
                     {
-                        // Two UDFs registered, thus expecting two columns.
-                        // Refer to TestData.GetDefaultCommandPayload().
-                        var row = rowsReceived[i];
-                        Assert.Equal(2, rowsReceived[i].Length);
-                        Assert.Equal($"udf2 udf1 {i}", row[0]);
-                        Assert.Equal(i + i, row[1]);
+                        var bootTime = SerDe.ReadInt64(inputStream);
+                        var initTime = SerDe.ReadInt64(inputStream);
+                        var finishTime = SerDe.ReadInt64(inputStream);
+                        var memoryBytesSpilled = SerDe.ReadInt64(inputStream);
+                        var diskBytesSpilled = SerDe.ReadInt64(inputStream);
+                        timingDataReceived = true;
+                    }
+                    else if (length == (int)SpecialLengths.PYTHON_EXCEPTION_THROWN)
+                    {
+                        SerDe.ReadString(inputStream);
+                        exceptionThrown = true;
+                        break;
+                    }
+                    else if (length == (int)SpecialLengths.END_OF_DATA_SECTION)
+                    {
+                        var numAccumulatorUpdates = SerDe.ReadInt32(inputStream);
+                        SerDe.ReadInt32(inputStream);
+                        break;
                     }
                 }
 
-                Assert.True(clientTask.Wait(5000));
+                Assert.True(timingDataReceived);
+                Assert.False(exceptionThrown);
+
+                // Validate rows received.
+                Assert.Equal(10, rowsReceived.Count);
+                for (int i = 0; i < 10; ++i)
+                {
+                    // Two UDFs registered, thus expecting two columns.
+                    // Refer to TestData.GetDefaultCommandPayload().
+                    var row = rowsReceived[i];
+                    Assert.Equal(2, rowsReceived[i].Length);
+                    Assert.Equal($"udf2 udf1 {i}", row[0]);
+                    Assert.Equal(i + i, row[1]);
+                }
             }
+
+            Assert.True(clientTask.Wait(5000));
         }
     }
 }
