@@ -5,9 +5,10 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using static Microsoft.Spark.Sql.Functions;
 
-namespace Microsoft.Spark.Examples.Sql
+namespace Microsoft.Spark.Examples.Sql.Batch
 {
     /// <summary>
     /// A simple example demonstrating basic Spark SQL features.
@@ -31,7 +32,13 @@ namespace Microsoft.Spark.Examples.Sql
 
             // Need to explicitly specify the schema since pickling vs. arrow formatting
             // will return different types. Pickling will turn longs into ints if the values fit.
-            DataFrame df = spark.Read().Schema("age INT, name STRING").Json(args[0]);
+            // Same as the "age INT, name STRING" DDL-format string.
+            var inputSchema = new StructType(new[]
+            {
+                new StructField("age", new IntegerType()),
+                new StructField("name", new StringType())
+            });
+            DataFrame df = spark.Read().Schema(inputSchema).Json(args[0]);
 
             Spark.Sql.Types.StructType schema = df.Schema();
             Console.WriteLine(schema.SimpleString);
