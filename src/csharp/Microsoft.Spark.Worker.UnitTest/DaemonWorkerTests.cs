@@ -28,17 +28,19 @@ namespace Microsoft.Spark.Worker.UnitTest
             
             Task.Run(() => daemonWorker.Run(daemonSocket));
 
-            for (var i = 1; i <= taskRunnerNumber; i++)
+            for (var i = 1; i <= taskRunnerNumber; ++i)
+            {
                 CreateAndVerifyConnection(daemonSocket);
+            }
             
-            Assert.Equal(taskRunnerNumber, daemonWorker.GetTaskRunners().Count);
+            Assert.Equal(taskRunnerNumber, daemonWorker.CurrentNumTaskRunners);
         }
 
         private static void CreateAndVerifyConnection(ISocketWrapper daemonSocket)
         {
-            var ipEndpoint = (IPEndPoint) daemonSocket.LocalEndPoint;
-            var port = ipEndpoint.Port;
-            var clientSocket = SocketFactory.CreateSocket();
+            var ipEndpoint = (IPEndPoint)daemonSocket.LocalEndPoint;
+            int port = ipEndpoint.Port;
+            ISocketWrapper clientSocket = SocketFactory.CreateSocket();
             clientSocket.Connect(ipEndpoint.Address, port);
 
             // Now process the bytes flowing in from the client.
@@ -69,7 +71,7 @@ namespace Microsoft.Spark.Worker.UnitTest
         private static void WriteTestData(ISocketWrapper clientSocket)
         {
             PayloadWriter payloadWriter = new PayloadWriterFactory().Create();
-            System.IO.Stream outputStream = clientSocket.OutputStream;
+            Stream outputStream = clientSocket.OutputStream;
 
             Payload payload = TestData.GetDefaultPayload();
             CommandPayload commandPayload = TestData.GetDefaultCommandPayload();
@@ -80,7 +82,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             var pickler = new Pickler();
             for (int i = 0; i < 10; ++i)
             {
-                var pickled = pickler.dumps(new[] {new object[] {i.ToString(), i, i}});
+                byte[] pickled = pickler.dumps(new[] {new object[] {i.ToString(), i, i}});
                 SerDe.Write(outputStream, pickled.Length);
                 SerDe.Write(outputStream, pickled);
             }
@@ -99,7 +101,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 var length = SerDe.ReadInt32(inputStream);
                 if (length > 0)
                 {
-                    var pickledBytes = SerDe.ReadBytes(inputStream, length);
+                    byte[] pickledBytes = SerDe.ReadBytes(inputStream, length);
                     var unpickler = new Unpickler();
 
                     var rows = unpickler.loads(pickledBytes) as ArrayList;
@@ -110,11 +112,11 @@ namespace Microsoft.Spark.Worker.UnitTest
                 }
                 else if (length == (int) SpecialLengths.TIMING_DATA)
                 {
-                    var bootTime = SerDe.ReadInt64(inputStream);
-                    var initTime = SerDe.ReadInt64(inputStream);
-                    var finishTime = SerDe.ReadInt64(inputStream);
-                    var memoryBytesSpilled = SerDe.ReadInt64(inputStream);
-                    var diskBytesSpilled = SerDe.ReadInt64(inputStream);
+                    long bootTime = SerDe.ReadInt64(inputStream);
+                    long initTime = SerDe.ReadInt64(inputStream);
+                    long finishTime = SerDe.ReadInt64(inputStream);
+                    long memoryBytesSpilled = SerDe.ReadInt64(inputStream);
+                    long diskBytesSpilled = SerDe.ReadInt64(inputStream);
                     timingDataReceived = true;
                 }
                 else if (length == (int) SpecialLengths.PYTHON_EXCEPTION_THROWN)
@@ -125,7 +127,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 }
                 else if (length == (int) SpecialLengths.END_OF_DATA_SECTION)
                 {
-                    var numAccumulatorUpdates = SerDe.ReadInt32(inputStream);
+                    int numAccumulatorUpdates = SerDe.ReadInt32(inputStream);
                     SerDe.ReadInt32(inputStream);
                     break;
                 }

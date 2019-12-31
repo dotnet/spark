@@ -51,7 +51,7 @@ namespace Microsoft.Spark.Worker
             _version = version;
         }
 
-        internal ConcurrentDictionary<int, TaskRunner> GetTaskRunners() => _taskRunners;
+        internal int CurrentNumTaskRunners => _taskRunners.Count();
 
         /// <summary>
         /// Runs the DaemonWorker server.
@@ -76,7 +76,7 @@ namespace Microsoft.Spark.Worker
 
                 // Communicate the server port back to the Spark using standard output.
                 Stream outputStream = Console.OpenStandardOutput();
-                var serverPort = ((IPEndPoint) listener.LocalEndPoint).Port;
+                var serverPort = ((IPEndPoint)listener.LocalEndPoint).Port;
                 SerDe.Write(outputStream, serverPort);
 
                 // Now the logger can be initialized after standard output's usage is done.
@@ -152,8 +152,7 @@ namespace Microsoft.Spark.Worker
                         // When reuseWorker is set to true, numTaskRunners will be always one
                         // greater than numWorkerThreads since TaskRunner.Run() does not return
                         // so that the task runner object is not removed from _taskRunners.
-                        var numTaskRunners = _taskRunners.Count();
-                        while (numWorkerThreads < numTaskRunners)
+                        while (numWorkerThreads < CurrentNumTaskRunners)
                         {
                             // Note that in the current implementation of RunWorkerThread() does
                             // not return. If more graceful exit is required, RunWorkerThread() can
@@ -163,7 +162,7 @@ namespace Microsoft.Spark.Worker
                         }
 
                         s_logger.LogInfo(
-                            $"Pool snapshot: [NumThreads:{numWorkerThreads}], [NumTaskRunners:{numTaskRunners}]");
+                            $"Pool snapshot: [NumThreads:{numWorkerThreads}], [NumTaskRunners:{CurrentNumTaskRunners}]");
                     }
                     else
                     {
