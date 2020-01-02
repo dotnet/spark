@@ -26,7 +26,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private static readonly byte[] s_byteArrayTypeId = new[] { (byte)'r' };
         private static readonly byte[] s_arrayTypeId = new[] { (byte)'l' };
         private static readonly byte[] s_dictionaryTypeId = new[] { (byte)'e' };
-        private static readonly byte[] s_rowTypeId = new[] { (byte)'R' };
+        private static readonly byte[] s_rowArrTypeId = new[] { (byte)'R' };
 
         private static readonly ConcurrentDictionary<Type, bool> s_isDictionaryTable =
             new ConcurrentDictionary<Type, bool>();
@@ -185,8 +185,7 @@ namespace Microsoft.Spark.Interop.Ipc
                                 destination.Position = posAfterEnumerable;
                                 break;
 
-                            case IEnumerable<GenericRow> argRowEnumerable:
-                                SerDe.Write(destination, s_rowTypeId);
+                            case IEnumerable<GenericRow> argRowEnumerable:                                
                                 posBeforeEnumerable = destination.Position;
                                 destination.Position += sizeof(int);
                                 itemCount = 0;                                
@@ -288,8 +287,7 @@ namespace Microsoft.Spark.Interop.Ipc
                         type == typeof(long[]) ||
                         type == typeof(double[]) ||
                         typeof(IEnumerable<byte[]>).IsAssignableFrom(type) ||
-                        typeof(IEnumerable<string>).IsAssignableFrom(type) ||
-                        typeof(IEnumerable<GenericRow>).IsAssignableFrom(type))
+                        typeof(IEnumerable<string>).IsAssignableFrom(type))
                     {
                         return s_arrayTypeId;
                     }
@@ -304,9 +302,9 @@ namespace Microsoft.Spark.Interop.Ipc
                         return s_arrayTypeId;
                     }
 
-                    if (type == typeof(GenericRow))
+                    if (typeof(IEnumerable<GenericRow>).IsAssignableFrom(type))
                     {
-                        return s_rowTypeId;
+                        return s_rowArrTypeId;
                     }
                     break;
             }

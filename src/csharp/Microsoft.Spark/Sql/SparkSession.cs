@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Spark.Interop;
@@ -148,38 +149,42 @@ namespace Microsoft.Spark.Sql
         /// <param name="schema">Schema as StructType</param>
         /// <returns>DataFrame object</returns>
         public DataFrame CreateDataFrame(IEnumerable<GenericRow> data, StructType schema) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.sql.api.dotnet.SQLUtils",
-                "createDataFrameHelper",
-                this,
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke( "createDataFrame",                 
                 data,      
                 DataType.FromJson(_jvmObject.Jvm, schema.Json)));
 
         /// <summary>
-        /// Creates a dataframe from an IEnumerable containing [[GenericRow]]s by inferring the schema from the given data.
+        /// Creates a dataframe from an <see cref="IEnumerable"/> containing <see cref="string"/> and no schema
         /// </summary>
-        /// <param name="data">List of Row objects</param>        
+        /// <param name="data">List of string objects</param>        
         /// <returns>DataFrame object</returns>
-        public DataFrame CreateDataFrame(IEnumerable<GenericRow> data)
+        public DataFrame CreateDataFrame(IEnumerable<string> data)
         {                       
-            var schemaFields = new List<StructField>();                        
-            object[] values = data.First().Values;
-            for (int i = 0; i < values.Length; ++i)
-            {                             
-                switch (values[i])
-                {
-                    case int _:
-                        schemaFields.Add(new StructField($"_{i + 1}", new IntegerType()));
-                        break;
-                    case string _:                        
-                        schemaFields.Add(new StructField($"_{i + 1}", new StringType()));
-                        break;
-                    default:
-                        throw new NotSupportedException(string.Format("Type {0} not supported yet", values[i].GetType()));
-                }
+            var schemaFields = new List<StructField>();
+            schemaFields.Add(new StructField("_1", new StringType()));
+            var dataAsGenericRow = new List<GenericRow>();
+            foreach (string s in data)
+            {
+                dataAsGenericRow.Add(new GenericRow(new object[] {s}));
+            }            
+            return CreateDataFrame(dataAsGenericRow, new StructType(schemaFields));
+        }
+
+        /// <summary>
+        /// Creates a dataframe from an <see cref="IEnumerable"/> containing <see cref="int"/> and no schema
+        /// </summary>
+        /// <param name="data">List of int objects</param>        
+        /// <returns>DataFrame object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<int> data)
+        {
+            var schemaFields = new List<StructField>();
+            schemaFields.Add(new StructField("_1", new IntegerType()));
+            var dataAsGenericRow = new List<GenericRow>();
+            foreach (int i in data)
+            {
+                dataAsGenericRow.Add(new GenericRow(new object[] { i }));
             }
-            
-            return CreateDataFrame(data, new StructType(schemaFields));
+            return CreateDataFrame(dataAsGenericRow, new StructType(schemaFields));
         }
 
         /// <summary>

@@ -75,13 +75,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// </summary>        
         [Fact]
         public void TestCreateDataFrame()
-        {
-            var data = new List<GenericRow>();
-            data.Add(new GenericRow(new object[] { "Alice", 20 }));
-            data.Add(new GenericRow(new object[] { "Bob", 30 }));
-
+        {            
             // Calling CreateDataFrame with schema
             {
+                var data = new List<GenericRow>();
+                data.Add(new GenericRow(new object[] { "Alice", 20 }));
+                data.Add(new GenericRow(new object[] { "Bob", 30 }));
+
                 var schema = new StructType(new List<StructField>()
                 {
                     new StructField("Name", new StringType()),
@@ -100,12 +100,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 Assert.Equal(data.Count, rows.Length);
             }
 
-            // Calling CreateDataFrame without schema
+            // Calling CreateDataFrame<string> without schema
             {
+                var data = new List<string>();
+                data.Add("Alice");
+                data.Add("Bob");
+
                 var schema = new StructType(new List<StructField>()
                 {
-                    new StructField("_1", new StringType()),
-                    new StructField("_2", new IntegerType())
+                    new StructField("_1", new StringType())                  
                 });
 
                 DataFrame df = _spark.CreateDataFrame(data);                
@@ -115,7 +118,30 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 for (int i = 0; i < rows.Length; ++i)
                 {
                     // Checking the values from the dataFrame are same as the values in given data
-                    Assert.Equal(data[i].Values, rows[i].Values);
+                    Assert.Equal(data[i], rows[i].Values[0]);
+                }
+                Assert.Equal(data.Count, rows.Length);
+            }
+
+            // Calling CreateDataFrame<int> without schema
+            {
+                var data = new List<int>();
+                data.Add(1);
+                data.Add(2);
+
+                var schema = new StructType(new List<StructField>()
+                {
+                    new StructField("_1", new IntegerType())
+                });
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                Assert.IsType<DataFrame>(df);
+                Assert.Equal(schema, df.Schema());
+                Row[] rows = df.Collect().ToArray();
+                for (int i = 0; i < rows.Length; ++i)
+                {
+                    // Checking the values from the dataFrame are same as the values in given data
+                    Assert.Equal(data[i], rows[i].Values[0]);
                 }
                 Assert.Equal(data.Count, rows.Length);
             }

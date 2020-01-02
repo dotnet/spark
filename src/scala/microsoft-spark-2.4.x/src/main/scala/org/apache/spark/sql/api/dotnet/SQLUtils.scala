@@ -43,13 +43,4 @@ object SQLUtils {
       broadcastVars,
       accumulator)
   }
-
-  def createDataFrameHelper(
-      spark: SparkSession,
-      data: Array[Row],
-      schema: StructType): DataFrame = {
-    val dataAsJavaList = data.toList.asJava
-    spark.createDataFrame(dataAsJavaList, schema)
-  }
-
 }
