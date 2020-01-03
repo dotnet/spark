@@ -165,7 +165,12 @@ namespace Microsoft.Spark.Worker.Command
             if (s_outputBuffer == null)
                 s_outputBuffer = new byte[sizeHint];
 
-            Pickler pickler = s_pickler ?? (s_pickler = PythonSerDe.CreatePickler());
+            if (rows.FirstOrDefault() is GenericRow)
+            {
+                rows = rows.Select(r => (object)(r as GenericRow).Values).AsEnumerable();
+            }
+
+            Pickler pickler = s_pickler ?? (s_pickler = new Pickler(false));
             pickler.dumps(rows, ref s_outputBuffer, out int bytesWritten);
 
             if (bytesWritten <= 0)
