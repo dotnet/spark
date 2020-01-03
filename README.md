@@ -39,7 +39,7 @@
     <tbody align="center">
         <tr>
             <td >2.3.*</td>
-            <td rowspan=5><a href="https://github.com/dotnet/spark/releases/tag/v0.5.0">v0.5.0</a></td>
+            <td rowspan=5><a href="https://github.com/dotnet/spark/releases/tag/v0.7.0">v0.7.0</a></td>
         </tr>
         <tr>
             <td>2.4.0</td>
@@ -68,6 +68,7 @@
 These instructions will show you how to run a .NET for Apache Spark app using .NET Core.
 - [Windows Instructions](docs/getting-started/windows-instructions.md)
 - [Ubuntu Instructions](docs/getting-started/ubuntu-instructions.md)
+- [MacOs Instructions](docs/getting-started/macos-instructions.md)
 
 ## Build Status
 
@@ -117,7 +118,7 @@ We welcome contributions to both categories!
   </td>
     <td>
       <h5>Basic &nbsp;&nbsp;&nbsp;
-      <a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Basic.cs">C#</a> &nbsp; &nbsp; <a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Basic.fs">F#</a>&nbsp;&nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></a></h5>
+      <a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Batch/Basic.cs">C#</a> &nbsp; &nbsp; <a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Basic.fs">F#</a>&nbsp;&nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></a></h5>
   </td>
  </tr>
  <tr>
