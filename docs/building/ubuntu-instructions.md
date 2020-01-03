@@ -16,7 +16,7 @@ Building Spark .NET on Ubuntu 18.04
 
 If you already have all the pre-requisites, skip to the [build](ubuntu-instructions.md#building) steps below.
 
-  1. Download and install **[.NET Core 3.0 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.0)** - installing the SDK will add the `dotnet` toolchain to your path.
+  1. Download and install **[.NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.1)** - installing the SDK will add the `dotnet` toolchain to your path.
   2. Install **[OpenJDK 8](https://openjdk.java.net/install/)** 
      - You can use the following command:
        ```bash

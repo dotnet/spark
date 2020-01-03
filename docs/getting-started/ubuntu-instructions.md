@@ -4,7 +4,7 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
 
 ## Pre-requisites
 
-- Download and install the following: **[.NET Core 3.0 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.0)** | **[OpenJDK 8](https://openjdk.java.net/install/)** | **[Apache Spark 2.4.1](https://archive.apache.org/dist/spark/spark-2.4.1/spark-2.4.1-bin-hadoop2.7.tgz)**
+- Download and install the following: **[.NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.1)** | **[OpenJDK 8](https://openjdk.java.net/install/)** | **[Apache Spark 2.4.1](https://archive.apache.org/dist/spark/spark-2.4.1/spark-2.4.1-bin-hadoop2.7.tgz)**
 - Download and install **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release:
     - Select a **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release from .NET for Apache Spark GitHub Releases page and download into your local machine (e.g., `~/bin/Microsoft.Spark.Worker`).
     - **IMPORTANT** Create a [new environment variable](https://help.ubuntu.com/community/EnvironmentVariables) `DOTNET_WORKER_DIR` and set it to the directory where you downloaded and extracted the Microsoft.Spark.Worker (e.g., `~/bin/Microsoft.Spark.Worker`).
