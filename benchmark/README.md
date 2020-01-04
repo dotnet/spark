@@ -60,7 +60,7 @@ TPCH timing results is written to stdout in the following form: `TPCH_Result,<la
     <true for sql tests, false for functional tests>
     ```
 
-    **Note**: Ensure that you build the worker and application with .NET Core 3.1 in order to run hardware acceleration queries.
+    **Note**: Ensure that you build the worker and application with .NET Core 3.0 in order to run hardware acceleration queries.
 
 
 ## Python
