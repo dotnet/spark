@@ -4277,7 +4277,7 @@ namespace Microsoft.Spark.Sql
                     CommandSerDe.SerializedMode.Row,
                     CommandSerDe.SerializedMode.Row),
                 evalType,
-                returnType.Json ?? UdfUtils.GetReturnType(typeof(TResult)));
+                returnType?.Json ?? UdfUtils.GetReturnType(typeof(TResult)));
         }
 
         private static Column ApplyFunction(string funcName)
