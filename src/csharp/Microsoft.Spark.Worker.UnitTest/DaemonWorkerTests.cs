@@ -17,18 +17,18 @@ namespace Microsoft.Spark.Worker.UnitTest
 {
     public class DaemonWorkerTests
     {
-        [Theory]
-        [InlineData(1)]
-        [InlineData(3)]
-        public void TestsDaemonWorkerTaskRunners(int taskRunnerNumber)
+        [Fact]
+        public void TestsDaemonWorkerTaskRunners()
         {
             ISocketWrapper daemonSocket = SocketFactory.CreateSocket();
+            
+            var taskRunnerNumber = 3;
             var typedVersion = new Version(Versions.V2_4_0);
             var daemonWorker = new DaemonWorker(typedVersion);
             
             Task.Run(() => daemonWorker.Run(daemonSocket));
 
-            for (var i = 1; i <= taskRunnerNumber; ++i)
+            for (var i = 0; i < taskRunnerNumber; ++i)
             {
                 CreateAndVerifyConnection(daemonSocket);
             }
@@ -49,7 +49,11 @@ namespace Microsoft.Spark.Worker.UnitTest
             var rowsReceived = new List<object[]>();
 
             WriteTestData(clientSocket);
-            ReadSocketResponse(clientSocket.InputStream, rowsReceived, ref timingDataReceived, ref exceptionThrown);
+            ReadSocketResponse(
+                clientSocket.InputStream, 
+                rowsReceived, 
+                ref timingDataReceived, 
+                ref exceptionThrown);
             
             Assert.True(timingDataReceived);
             Assert.False(exceptionThrown);
@@ -82,18 +86,21 @@ namespace Microsoft.Spark.Worker.UnitTest
             var pickler = new Pickler();
             for (int i = 0; i < 10; ++i)
             {
-                byte[] pickled = pickler.dumps(new[] {new object[] {i.ToString(), i, i}});
+                byte[] pickled = pickler.dumps(new[] { new object[] { i.ToString(), i, i } });
                 SerDe.Write(outputStream, pickled.Length);
                 SerDe.Write(outputStream, pickled);
             }
 
             // Signal the end of data and stream.
-            SerDe.Write(outputStream, (int) SpecialLengths.END_OF_DATA_SECTION);
-            SerDe.Write(outputStream, (int) SpecialLengths.END_OF_STREAM);
+            SerDe.Write(outputStream, (int)SpecialLengths.END_OF_DATA_SECTION);
+            SerDe.Write(outputStream, (int)SpecialLengths.END_OF_STREAM);
             outputStream.Flush();
         }
 
-        private static void ReadSocketResponse(Stream inputStream, List<object[]> rowsReceived, ref bool timingDataReceived,
+        private static void ReadSocketResponse(
+            Stream inputStream, 
+            List<object[]> rowsReceived, 
+            ref bool timingDataReceived,
             ref bool exceptionThrown)
         {
             while (true)
@@ -110,7 +117,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                         rowsReceived.Add((object[]) row);
                     }
                 }
-                else if (length == (int) SpecialLengths.TIMING_DATA)
+                else if (length == (int)SpecialLengths.TIMING_DATA)
                 {
                     long bootTime = SerDe.ReadInt64(inputStream);
                     long initTime = SerDe.ReadInt64(inputStream);
@@ -119,13 +126,13 @@ namespace Microsoft.Spark.Worker.UnitTest
                     long diskBytesSpilled = SerDe.ReadInt64(inputStream);
                     timingDataReceived = true;
                 }
-                else if (length == (int) SpecialLengths.PYTHON_EXCEPTION_THROWN)
+                else if (length == (int)SpecialLengths.PYTHON_EXCEPTION_THROWN)
                 {
                     SerDe.ReadString(inputStream);
                     exceptionThrown = true;
                     break;
                 }
-                else if (length == (int) SpecialLengths.END_OF_DATA_SECTION)
+                else if (length == (int)SpecialLengths.END_OF_DATA_SECTION)
                 {
                     int numAccumulatorUpdates = SerDe.ReadInt32(inputStream);
                     SerDe.ReadInt32(inputStream);
