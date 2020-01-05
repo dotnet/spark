@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
@@ -71,7 +70,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test CreateDataFrame API.
+        /// Test CreateDataFrame APIs.
         /// </summary>        
         [Fact]
         public void TestCreateDataFrame()
@@ -86,64 +85,75 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 {
                     new StructField("Name", new StringType()),
                     new StructField("Age", new IntegerType())
-                });                
-                
-                DataFrame df = _spark.CreateDataFrame(data, schema);
-                Assert.IsType<DataFrame>(df);
-                Assert.Equal(schema, df.Schema());
-                Row[] rows = df.Collect().ToArray();                
-                for (int i = 0; i < rows.Length; ++i)
-                {
-                    // Checking the values from the dataFrame are same as the values in given data
-                    Assert.Equal(data[i].Values, rows[i].Values);
-                }
-                Assert.Equal(data.Count, rows.Length);
+                });
+                DataFrame df = _spark.CreateDataFrame(data, schema);                
+                ValidateDataFrame<object[]>(data.ConvertAll(a => a.Values), df, schema);
             }
 
-            // Calling CreateDataFrame<string> without schema
+            // Calling CreateDataFrame(IEnumerable<string> _) without schema
             {
-                var data = new List<string>();
-                data.Add("Alice");
-                data.Add("Bob");
-
+                var data = new List<string>(new string[] { "Alice", "Bob" });
                 var schema = new StructType(new List<StructField>()
                 {
-                    new StructField("_1", new StringType())                  
+                    new StructField("_1", new StringType())
                 });
 
                 DataFrame df = _spark.CreateDataFrame(data);                
-                Assert.IsType<DataFrame>(df);
-                Assert.Equal(schema, df.Schema());
-                Row[] rows = df.Collect().ToArray();
-                for (int i = 0; i < rows.Length; ++i)
-                {
-                    // Checking the values from the dataFrame are same as the values in given data
-                    Assert.Equal(data[i], rows[i].Values[0]);
-                }
-                Assert.Equal(data.Count, rows.Length);
+                ValidateDataFrame<object[]>(data.ConvertAll(a => new object[] { a }), df, schema);
             }
 
-            // Calling CreateDataFrame<int> without schema
+            // Calling CreateDataFrame(IEnumerable<int> _) without schema
             {
-                var data = new List<int>();
-                data.Add(1);
-                data.Add(2);
-
+                var data = new List<int>(new int[] { 1, 2 });
                 var schema = new StructType(new List<StructField>()
                 {
                     new StructField("_1", new IntegerType())
                 });
 
                 DataFrame df = _spark.CreateDataFrame(data);
-                Assert.IsType<DataFrame>(df);
-                Assert.Equal(schema, df.Schema());
-                Row[] rows = df.Collect().ToArray();
-                for (int i = 0; i < rows.Length; ++i)
+                ValidateDataFrame<object[]>(data.ConvertAll(a => new object[] { a }), df, schema);
+            }
+
+            // Calling CreateDataFrame(IEnumerable<double> _) without schema
+            {
+                var data = new List<double>(new double[] { 1.2, 2.3 });
+                var schema = new StructType(new List<StructField>()
                 {
-                    // Checking the values from the dataFrame are same as the values in given data
-                    Assert.Equal(data[i], rows[i].Values[0]);
-                }
-                Assert.Equal(data.Count, rows.Length);
+                    new StructField("_1", new DoubleType())
+                });
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame<object[]>(data.ConvertAll(a => new object[] { a }), df, schema);
+            }
+
+            // Calling CreateDataFrame(IEnumerable<bool> _) without schema
+            {
+                var data = new List<bool>(new bool[] { true, false });
+                var schema = new StructType(new List<StructField>()
+                {
+                    new StructField("_1", new BooleanType())
+                });
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame<object[]>(data.ConvertAll(a => new object[] { a }), df, schema);
+            }
+        }
+
+        /// <summary>
+        /// Validates that the dataframe returned by the CreateDataFrame API is correct as per the
+        /// given data.
+        /// </summary>
+        /// <param name="data">Given data for the dataframe</param>
+        /// <param name="df">Dataframe Object to validate</param>
+        /// <param name="schema">Expected schema of the dataframe</param>
+        internal void ValidateDataFrame<T>(List<object[]> data, DataFrame df, StructType schema)
+        {
+            Assert.Equal(schema, df.Schema());
+            Row[] rows = df.Collect().ToArray();
+            Assert.Equal(data.Count, rows.Length);
+            for (int i = 0; i < rows.Length; ++i)
+            {
+                Assert.Equal(data[i], rows[i].Values);
             }
         }
     }

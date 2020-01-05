@@ -141,51 +141,79 @@ namespace Microsoft.Spark.Sql
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("table", tableName));
 
         /// <summary>
-        /// Creates a <see cref="DataFrame"/> from an <see cref="IEnumerable"/> containing <see cref="GenericRow"/>s using the given schema.
-        /// It is important to make sure that the structure of every <see cref="GenericRow"/> of the provided <see cref="IEnumerable"/> matches
+        /// Returns a schema as StructType with one column of the given datatype
+        /// </summary>
+        /// <param name="dataType">Datatype of the column</param>
+        /// <returns>Schema as StructType</returns>
+        private StructType SchemaWithSingleColumn(DataType dataType) =>
+            new StructType(new List<StructField>() { new StructField("_1", dataType) });
+
+        /// <summary>
+        /// Converts rows of type T to <see cref="GenericRow"/> to return a 
+        /// <see cref="IEnumerable"/> of type <see cref="GenericRow"/>.
+        /// </summary>
+        /// <typeparam name="T">Datatype of values in rows</typeparam>
+        /// <param name="rows">List of values of type T</param>
+        /// <returns><see cref="IEnumerable"/> of type <see cref="GenericRow"/></returns>
+        private IEnumerable<GenericRow> ToGenericRows<T>(IEnumerable<T> rows) =>
+            rows.Select(r => new GenericRow(new object[] { r }));
+
+        /// <summary>
+        /// Creates a <see cref="DataFrame"/> from an <see cref="IEnumerable"/> containing 
+        /// <see cref="GenericRow"/>s using the given schema.
+        /// It is important to make sure that the structure of every <see cref="GenericRow"/> of 
+        /// the provided <see cref="IEnumerable"/> matches
         /// the provided schema. Otherwise, there will be runtime exception.
         /// </summary>
         /// <param name="data">List of Row objects</param>
         /// <param name="schema">Schema as StructType</param>
         /// <returns>DataFrame object</returns>
         public DataFrame CreateDataFrame(IEnumerable<GenericRow> data, StructType schema) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke( "createDataFrame",                 
-                data,      
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke( "createDataFrame",
+                data,
                 DataType.FromJson(_jvmObject.Jvm, schema.Json)));
 
         /// <summary>
-        /// Creates a dataframe from an <see cref="IEnumerable"/> containing <see cref="string"/> and no schema
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="int"/>
         /// </summary>
-        /// <param name="data">List of string objects</param>        
-        /// <returns>DataFrame object</returns>
-        public DataFrame CreateDataFrame(IEnumerable<string> data)
-        {                       
-            var schemaFields = new List<StructField>();
-            schemaFields.Add(new StructField("_1", new StringType()));
-            var dataAsGenericRow = new List<GenericRow>();
-            foreach (string s in data)
-            {
-                dataAsGenericRow.Add(new GenericRow(new object[] {s}));
-            }            
-            return CreateDataFrame(dataAsGenericRow, new StructType(schemaFields));
-        }
+        /// <param name="data"><see cref="IEnumerable"/> of type <see cref="int"/></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<int> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new IntegerType()));
 
         /// <summary>
-        /// Creates a dataframe from an <see cref="IEnumerable"/> containing <see cref="int"/> and no schema
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="string"/>
         /// </summary>
-        /// <param name="data">List of int objects</param>        
-        /// <returns>DataFrame object</returns>
-        public DataFrame CreateDataFrame(IEnumerable<int> data)
-        {
-            var schemaFields = new List<StructField>();
-            schemaFields.Add(new StructField("_1", new IntegerType()));
-            var dataAsGenericRow = new List<GenericRow>();
-            foreach (int i in data)
-            {
-                dataAsGenericRow.Add(new GenericRow(new object[] { i }));
-            }
-            return CreateDataFrame(dataAsGenericRow, new StructType(schemaFields));
-        }
+        /// <param name="data"></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<string> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new StringType()));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="long"/>
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<long> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new LongType()));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="double"/>
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<double> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DoubleType()));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="bool"/>
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<bool> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new BooleanType()));
+
+        //TODO: Add support for System.Single (float)
 
         /// <summary>
         /// Executes a SQL query using Spark, returning the result as a DataFrame.

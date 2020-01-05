@@ -11,11 +11,6 @@ import java.util.{List => JList, Map => JMap}
 import org.apache.spark.api.python.{PythonAccumulatorV2, PythonBroadcast, PythonFunction}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.deploy.dotnet.DotnetRunner
-import org.apache.spark.sql.types.StructType
-import org.apache.spark.sql.Row
-import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.DataFrame
-import scala.collection.JavaConverters._
 
 
 object SQLUtils {
