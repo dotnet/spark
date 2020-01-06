@@ -73,7 +73,7 @@ namespace Microsoft.Spark.Services
                 return _workerPath;
             }
 
-            // Otherwise, the worker exectuable name is returned meaning it should be PATH.
+            // Otherwise, the worker executable name is returned meaning it should be PATH.
             _workerPath = s_procFileName;
             return _workerPath;
         }
