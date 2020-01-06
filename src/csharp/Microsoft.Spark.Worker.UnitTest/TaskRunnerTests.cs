@@ -59,41 +59,11 @@ namespace Microsoft.Spark.Worker.UnitTest
                 var exceptionThrown = false;
                 var rowsReceived = new List<object[]>();
 
-                while (true)
-                {
-                    var length = SerDe.ReadInt32(inputStream);
-                    if (length > 0)
-                    {
-                        var pickledBytes = SerDe.ReadBytes(inputStream, length);
-                        using var unpickler = new Unpickler();
-                        var rows = unpickler.loads(pickledBytes) as ArrayList;
-                        foreach (object row in rows)
-                        {
-                            rowsReceived.Add((object[])row);
-                        }
-                    }
-                    else if (length == (int)SpecialLengths.TIMING_DATA)
-                    {
-                        var bootTime = SerDe.ReadInt64(inputStream);
-                        var initTime = SerDe.ReadInt64(inputStream);
-                        var finishTime = SerDe.ReadInt64(inputStream);
-                        var memoryBytesSpilled = SerDe.ReadInt64(inputStream);
-                        var diskBytesSpilled = SerDe.ReadInt64(inputStream);
-                        timingDataReceived = true;
-                    }
-                    else if (length == (int)SpecialLengths.PYTHON_EXCEPTION_THROWN)
-                    {
-                        SerDe.ReadString(inputStream);
-                        exceptionThrown = true;
-                        break;
-                    }
-                    else if (length == (int)SpecialLengths.END_OF_DATA_SECTION)
-                    {
-                        var numAccumulatorUpdates = SerDe.ReadInt32(inputStream);
-                        SerDe.ReadInt32(inputStream);
-                        break;
-                    }
-                }
+                PayloadReader.Read(
+                    inputStream, 
+                    rowsReceived, 
+                    ref timingDataReceived, 
+                    ref exceptionThrown);
 
                 Assert.True(timingDataReceived);
                 Assert.False(exceptionThrown);
