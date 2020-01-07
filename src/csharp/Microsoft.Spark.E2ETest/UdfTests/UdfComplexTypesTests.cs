@@ -160,13 +160,17 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         {
             var schema = new StructType(new[]
             {
-                new StructField("name", new StringType())
+                new StructField("col1", new IntegerType()),
+                new StructField("col2", new StringType())
             });
             Func<Column, Column> udf = Udf<string>(
-                str => new GenericRow(new object[] { "Hello" + str }), schema);
+                str => new GenericRow(new object[] { 1, "abc" }), schema);
 
-            Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
-            Assert.Equal(3, rows.Length);
+            Assert.Throws<NullReferenceException>(
+               () => _df.Select(udf(_df["name"])).Collect().ToArray());
+
+            // Show() works here. See the example below.
+            _df.Select(udf(_df["name"])).Show();
         }
     }
 }
