@@ -11,7 +11,7 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 {
     [Collection("Spark E2E Tests")]
-    public class BucketizerTests 
+    public class BucketizerTests
     {
         private readonly SparkSession _spark;
 
@@ -19,43 +19,44 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         {
             _spark = fixture.Spark;
         }
-        
+
         [Fact]
         public void TestBucketizer()
         {
             Bucketizer bucketizer = new Bucketizer("uid")
                 .SetInputCol("input_col")
                 .SetOutputCol("output_col")
-                .SetHandleInvalid(Bucketizer.BucketizerInvalidOptions.skip)
+                .SetHandleInvalid("skip")
                 .SetSplits(new[] {Double.MinValue, 0.0, 10.0, 50.0, Double.MaxValue});
 
-            Assert.Equal(Bucketizer.BucketizerInvalidOptions.skip,
+            Assert.Equal("skip",
                 bucketizer.GetHandleInvalid());
 
             Assert.Equal("uid", bucketizer.Uid());
-            
+
             DataFrame input = _spark.Sql("SELECT ID as input_col from range(100)");
 
             DataFrame output = bucketizer.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col"));
         }
-        
+
         [Fact]
         public void TestBucketizer_MultipleColumns()
         {
             Bucketizer bucketizer = new Bucketizer()
-                .SetInputCols(new List<string>(){"input_col_a", "input_col_b"})
-                .SetOutputCols(new List<string>(){"output_col_a", "output_col_b"})
-                .SetHandleInvalid(Bucketizer.BucketizerInvalidOptions.keep)
-                .SetSplitsArray(new []{
+                .SetInputCols(new List<string>() {"input_col_a", "input_col_b"})
+                .SetOutputCols(new List<string>() {"output_col_a", "output_col_b"})
+                .SetHandleInvalid("keep")
+                .SetSplitsArray(new[]
+                {
                     new[] {Double.MinValue, 0.0, 10.0, 50.0, Double.MaxValue},
                     new[] {Double.MinValue, 0.0, 10000.0, Double.MaxValue}
                 });
 
-            Assert.Equal(Bucketizer.BucketizerInvalidOptions.keep,
+            Assert.Equal("keep",
                 bucketizer.GetHandleInvalid());
 
-            DataFrame input = 
+            DataFrame input =
                 _spark.Sql("SELECT ID as input_col_a, ID as input_col_b from range(100)");
 
             DataFrame output = bucketizer.Transform(input);
