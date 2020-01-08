@@ -4,14 +4,14 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.RDD
 {
     /// <summary>
     /// Wraps the given Func object, which represents a UDF.
     /// </summary>
-    internal class RDDUdfWrapper : IUdfWrapper
+    [UdfWrapper]
+    internal class RDDUdfWrapper
     {
         private readonly Func<int, IEnumerable<object>, IEnumerable<object>> _func;
 
