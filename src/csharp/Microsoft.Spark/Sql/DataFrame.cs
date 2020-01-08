@@ -874,7 +874,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <returns>DataStreamWriter object</returns>
         public DataStreamWriter WriteStream() =>
-            new DataStreamWriter((JvmObjectReference)_jvmObject.Invoke("writeStream"));
+            new DataStreamWriter((JvmObjectReference)_jvmObject.Invoke("writeStream"), this);
 
         /// <summary>
         /// Returns row objects based on the function (either "toPythonIterator" or

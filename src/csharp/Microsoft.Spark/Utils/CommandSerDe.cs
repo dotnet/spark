@@ -181,7 +181,8 @@ namespace Microsoft.Spark.Utils
             List<UdfSerDe.UdfData> udfs)
         {
             UdfSerDe.UdfData udfData = UdfSerDe.Serialize(func);
-            if (udfData.MethodName != UdfWrapperMethodName)
+            if (udfData.MethodName != UdfWrapperMethodName ||
+                !typeof(IUdfWrapper).IsAssignableFrom(func.Target.GetType()))
             {
                 // Found the actual UDF.
                 if (parent != null)

@@ -16,6 +16,7 @@ namespace Microsoft.Spark.Utils
 {
     using ArrowDelegate = ArrowWorkerFunction.ExecuteDelegate;
     using PicklingDelegate = PicklingWorkerFunction.ExecuteDelegate;
+    using RDDDelegate = RDD.WorkerFunction.ExecuteDelegate;
 
     /// <summary>
     /// UdfTypeUtils provides functions related to UDF types.
@@ -183,6 +184,12 @@ namespace Microsoft.Spark.Utils
             }
 
             return environmentVars;
+        }
+
+        internal static Delegate CreateRDDUdfWrapper(
+            Func<int, IEnumerable<object>, IEnumerable<object>> udf)
+        {
+            return (RDDDelegate)new RDD.RDDUdfWrapper(udf).Execute;
         }
 
         internal static Delegate CreateUdfWrapper<TResult>(Func<TResult> udf)

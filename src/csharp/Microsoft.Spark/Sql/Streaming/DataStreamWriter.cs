@@ -2,8 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Sql.Types;
+using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Sql.Streaming
 {
@@ -14,8 +17,13 @@ namespace Microsoft.Spark.Sql.Streaming
     public sealed class DataStreamWriter : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
+        private readonly DataFrame _df;
 
-        internal DataStreamWriter(JvmObjectReference jvmObject) => _jvmObject = jvmObject;
+        internal DataStreamWriter(JvmObjectReference jvmObject, DataFrame df)
+        {
+            _jvmObject = jvmObject;
+            _df = df;
+        }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
@@ -167,6 +175,24 @@ namespace Microsoft.Spark.Sql.Streaming
                 return new StreamingQuery((JvmObjectReference)_jvmObject.Invoke("start", path));
             }
             return new StreamingQuery((JvmObjectReference)_jvmObject.Invoke("start"));
+        }
+
+        [Since(Versions.V2_4_0)]
+        public DataStreamWriter Foreach(IForeachWriter writer)
+        {
+            _jvmObject.Invoke(
+                "foreach",
+                _jvmObject.Jvm.CallConstructor(
+                    "org.apache.spark.sql.execution.python.PythonForeachWriter",
+                    UdfUtils.CreatePythonFunction(
+                        _jvmObject.Jvm,
+                        CommandSerDe.Serialize(
+                            UdfUtils.CreateRDDUdfWrapper(
+                                new ForeachWriterWrapper(writer).Execute),
+                            CommandSerDe.SerializedMode.Row,
+                            CommandSerDe.SerializedMode.Row)),
+                    DataType.FromJson(_jvmObject.Jvm, _df.Schema().Json)));
+            return this;
         }
 
         /// <summary>

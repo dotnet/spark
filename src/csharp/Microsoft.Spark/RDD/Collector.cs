@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Utils;
 using static Microsoft.Spark.Utils.CommandSerDe;
 
 namespace Microsoft.Spark.RDD
@@ -47,6 +48,8 @@ namespace Microsoft.Spark.RDD
                     return new BinaryDeserializer();
                 case SerializedMode.String:
                     return new StringDeserializer();
+                case SerializedMode.Row:
+                    return new RowDeserializer();
                 default:
                     throw new ArgumentException($"Unsupported mode found {mode}");
             }
@@ -81,6 +84,17 @@ namespace Microsoft.Spark.RDD
             public object Deserialize(Stream stream, int length)
             {
                 return SerDe.ReadString(stream, length);
+            }
+        }
+
+        /// <summary>
+        /// Deserializer for Pickled Rows.
+        /// </summary>
+        private sealed class RowDeserializer : IDeserializer
+        {
+            public object Deserialize(Stream stream, int length)
+            {
+                return PythonSerDe.GetUnpickledObjects(stream, length);
             }
         }
     }
