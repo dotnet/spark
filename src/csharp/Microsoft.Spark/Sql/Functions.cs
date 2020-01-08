@@ -3829,7 +3829,8 @@ namespace Microsoft.Spark.Sql
         /// <returns>
         /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
         /// </returns>
-        public static Func<Column, Column, Column> Udf<T1, T2>(Func<T1, T2, GenericRow> udf, StructType returnType)
+        public static Func<Column, Column, Column> Udf<T1, T2>(
+            Func<T1, T2, GenericRow> udf, StructType returnType)
         {
             return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply2;
         }
@@ -4289,7 +4290,8 @@ namespace Microsoft.Spark.Sql
                     execute,
                     CommandSerDe.SerializedMode.Row,
                     CommandSerDe.SerializedMode.Row),
-                evalType, returnType);
+                evalType,
+                returnType);
         }
 
         private static Column ApplyFunction(string funcName)
