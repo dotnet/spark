@@ -3806,7 +3806,7 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public static Func<Column> Udf(Func<GenericRow> udf, StructType returnType)
         {
-            return CreateUdf<GenericRow>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply0;
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply0;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3818,7 +3818,7 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public static Func<Column, Column> Udf<T>(Func<T, GenericRow> udf, StructType returnType)
         {
-            return CreateUdf<GenericRow>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply1;
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply1;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3831,7 +3831,7 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public static Func<Column, Column, Column> Udf<T1, T2>(Func<T1, T2, GenericRow> udf, StructType returnType)
         {
-            return CreateUdf<GenericRow>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply2;
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply2;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3846,7 +3846,7 @@ namespace Microsoft.Spark.Sql
         public static Func<Column, Column, Column, Column> Udf<T1, T2, T3>(
             Func<T1, T2, T3, GenericRow> udf, StructType returnType)
         {
-            return CreateUdf<GenericRow>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply3;
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply3;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3862,7 +3862,7 @@ namespace Microsoft.Spark.Sql
         public static Func<Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4>(
             Func<T1, T2, T3, T4, GenericRow> udf, StructType returnType)
         {
-            return CreateUdf<GenericRow>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply4;
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply4;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3879,7 +3879,7 @@ namespace Microsoft.Spark.Sql
         public static Func<Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5>(
             Func<T1, T2, T3, T4, T5, GenericRow> udf, StructType returnType)
         {
-            return CreateUdf<GenericRow>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply5;
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply5;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3897,7 +3897,7 @@ namespace Microsoft.Spark.Sql
         public static Func<Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6>(
             Func<T1, T2, T3, T4, T5, T6, GenericRow> udf, StructType returnType)
         {
-            return CreateUdf<GenericRow>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply6;
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply6;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3916,7 +3916,7 @@ namespace Microsoft.Spark.Sql
         public static Func<Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7>(
             Func<T1, T2, T3, T4, T5, T6, T7, GenericRow> udf, StructType returnType)
         {
-            return CreateUdf<GenericRow>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply7;
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply7;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3936,7 +3936,7 @@ namespace Microsoft.Spark.Sql
         public static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7, T8>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, GenericRow> udf, StructType returnType)
         {
-            return CreateUdf<GenericRow>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply8;
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply8;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3955,7 +3955,7 @@ namespace Microsoft.Spark.Sql
         public static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, GenericRow> udf, StructType returnType)
         {
-            return CreateUdf<GenericRow>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply9;
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply9;
         }
 
         /// <summary>Creates a UDF from the specified delegate.</summary>
@@ -3977,7 +3977,7 @@ namespace Microsoft.Spark.Sql
         public static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, GenericRow> udf, StructType returnType)
         {
-            return CreateUdf<GenericRow>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply10;
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply10;
         }
 
         /// <summary>Creates a Vector UDF from the specified delegate.</summary>
@@ -4254,9 +4254,9 @@ namespace Microsoft.Spark.Sql
             return CreateUdf<TResult>(name, execute, UdfUtils.PythonEvalType.SQL_BATCHED_UDF);
         }
 
-        private static UserDefinedFunction CreateUdf<TResult>(string name, Delegate execute, StructType returnType)
+        private static UserDefinedFunction CreateUdf(string name, Delegate execute, StructType returnType)
         {
-            return CreateUdfWithReturnType<TResult>(name, execute, UdfUtils.PythonEvalType.SQL_BATCHED_UDF, returnType);
+            return CreateUdf(name, execute, UdfUtils.PythonEvalType.SQL_BATCHED_UDF, returnType);
         }
 
         private static UserDefinedFunction CreateVectorUdf<TResult>(string name, Delegate execute)
@@ -4267,23 +4267,21 @@ namespace Microsoft.Spark.Sql
         private static UserDefinedFunction CreateUdf<TResult>(
             string name,
             Delegate execute,
-            UdfUtils.PythonEvalType evalType)
-        {
-            return UserDefinedFunction.Create(
-                name,
-                CommandSerDe.Serialize(
-                    execute,
-                    CommandSerDe.SerializedMode.Row,
-                    CommandSerDe.SerializedMode.Row),
-                evalType,
-                UdfUtils.GetReturnType(typeof(TResult)));
-        }
+            UdfUtils.PythonEvalType evalType) =>
+            CreateUdf(name, execute, evalType, UdfUtils.GetReturnType(typeof(TResult)));
 
-        private static UserDefinedFunction CreateUdfWithReturnType<TResult>(
+        private static UserDefinedFunction CreateUdf(
             string name,
             Delegate execute,
             UdfUtils.PythonEvalType evalType,
-            StructType returnType)
+            StructType returnType) =>
+            CreateUdf(name, execute, evalType, returnType.Json);
+
+        private static UserDefinedFunction CreateUdf(
+            string name,
+            Delegate execute,
+            UdfUtils.PythonEvalType evalType,
+            string returnType)
         {
             return UserDefinedFunction.Create(
                 name,
@@ -4291,8 +4289,7 @@ namespace Microsoft.Spark.Sql
                     execute,
                     CommandSerDe.SerializedMode.Row,
                     CommandSerDe.SerializedMode.Row),
-                evalType,
-                returnType.Json);
+                evalType, returnType);
         }
 
         private static Column ApplyFunction(string funcName)
