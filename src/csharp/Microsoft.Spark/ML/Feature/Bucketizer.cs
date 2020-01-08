@@ -31,7 +31,7 @@ namespace Microsoft.Spark.ML.Feature
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
         
         /// <summary>
-        /// Create a `Bucketizer` without any parameters
+        /// Create a <see cref="Bucketizer"/> without any parameters
         /// </summary>
         public Bucketizer()
         {
@@ -104,7 +104,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">List of input columns to use as sources for buckets</param>
         /// <returns>`Bucketizer`</returns>
-        public Bucketizer SetInputCols(List<string> value)
+        public Bucketizer SetInputCols(IEnumerable<string> value)
         {
             return WrapAsBucketizer(_jvmObject.Invoke("setInputCols", value));
         }
@@ -169,7 +169,7 @@ namespace Microsoft.Spark.ML.Feature
         /// How should the `Bucketizer` handle invalid data, choices are "skip", "error" or "keep"
         /// </summary>
         /// <returns>`BucketizerInvalidOptions`</returns>
-        public BucketizerInvalidOptions GetHandleInvalid()
+        public string GetHandleInvalid()
         {
             string handleInvalid = (string)_jvmObject.Invoke("getHandleInvalid");
             if (BucketizerInvalidOptions.TryParse(handleInvalid, true, 
@@ -188,7 +188,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">`BucketizerInvalidOptions`, "skip", "error" or "keep"</param>
         /// <returns>`Bucketizer`</returns>
-        public Bucketizer SetHandleInvalid(BucketizerInvalidOptions value)
+        public Bucketizer SetHandleInvalid(string value)
         {
             return WrapAsBucketizer(_jvmObject.Invoke("setHandleInvalid", value.ToString()));
         }
