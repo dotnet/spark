@@ -172,11 +172,13 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             // at Microsoft.Spark.Sql.RowCollector.Collect(ISocketWrapper socket) + MoveNext() in Microsoft.Spark\Sql\RowCollector.cs:line 36
             // at Microsoft.Spark.Sql.DataFrame.GetRows(String funcName) + MoveNext() in Microsoft.Spark\Sql\DataFrame.cs:line 891
             // at Microsoft.Spark.Examples.Sql.Batch.Basic.Run(String[] args) in Microsoft.Spark.CSharp.Examples\Sql\Batch\Basic.cs:line 54
-            Assert.Throws<NullReferenceException>(
-               () => _df.Select(udf(_df["name"])).Collect().ToArray());
+            // Assert.Throws<NullReferenceException>(
+               // () => _df.Select(udf(_df["name"])).Collect().ToArray());
+
+            _df.Select(udf(_df["name"])).Collect().ToArray();
 
             // Show() works here. See the example below.
-            _df.Select(udf(_df["name"])).Show();
+            // _df.Select(udf(_df["name"])).Show();
         }
     }
 }
