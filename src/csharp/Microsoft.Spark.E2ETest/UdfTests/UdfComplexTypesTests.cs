@@ -166,19 +166,15 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Func<Column, Column> udf = Udf<string>(
                 str => new GenericRow(new object[] { 1, "abc" }), schema);
 
-            // UDF with return as RowType throws a following exception:
-            // Unhandled Exception: System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
-            // --->System.NullReferenceException: Object reference not set to an instance of an object.
-            // at Microsoft.Spark.Sql.RowCollector.Collect(ISocketWrapper socket) + MoveNext() in Microsoft.Spark\Sql\RowCollector.cs:line 36
-            // at Microsoft.Spark.Sql.DataFrame.GetRows(String funcName) + MoveNext() in Microsoft.Spark\Sql\DataFrame.cs:line 891
-            // at Microsoft.Spark.Examples.Sql.Batch.Basic.Run(String[] args) in Microsoft.Spark.CSharp.Examples\Sql\Batch\Basic.cs:line 54
-            // Assert.Throws<NullReferenceException>(
-               // () => _df.Select(udf(_df["name"])).Collect().ToArray());
+            Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
+            Assert.Equal(3, rows.Length);
 
-            _df.Select(udf(_df["name"])).Collect().ToArray();
-
-            // Show() works here. See the example below.
-            // _df.Select(udf(_df["name"])).Show();
+            foreach (Row row in rows)
+            {
+                Assert.Equal(2, row.Size());
+                Assert.Equal(1, row[0]);
+                Assert.Equal("abc", row[1]);
+            }
         }
     }
 }
