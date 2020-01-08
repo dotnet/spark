@@ -22,14 +22,14 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public class Bucketizer : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject = null;
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-
         internal Bucketizer(JvmObjectReference jvmObject)
         {
             _jvmObject = jvmObject;
         }
-
+        
+        private readonly JvmObjectReference _jvmObject;
+        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        
         /// <summary>
         /// Create a `Bucketizer` without any parameters
         /// </summary>
@@ -51,7 +51,7 @@ namespace Microsoft.Spark.ML.Feature
         
         /// <summary>
         /// Split points for splitting a single column into buckets. To split multiple columns use
-        /// `SetSplitsArray`. You cannot use both `SetSplits` and `SetSplitsArray` at the same time.
+        /// `SetSplitsArray`. You cannot use both `SetSplits` and `SetSplitsArray` at the same time
         /// </summary>
         /// <param name="value">
         /// Split points for mapping continuous features into buckets. With n+1 splits, there are n
@@ -135,7 +135,8 @@ namespace Microsoft.Spark.ML.Feature
         /// columns with the bucketed data.
         /// </summary>
         /// <param name="source">The DataFrame to add the bucketed data to</param>
-        /// <returns>`DataFrame` containing the original data and the new bucketed columns</returns>
+        /// <returns>`DataFrame` containing the original data and the new bucketed
+        ///             columns</returns>
         public DataFrame Transform(DataFrame source)
         {
             return new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform"
@@ -146,7 +147,8 @@ namespace Microsoft.Spark.ML.Feature
         /// The reference we get back from each call isn't usable unless we wrap it in a new dotnet
         ///  `Bucketizer`
         /// </summary>
-        /// <param name="obj">The `JvmObjectReference` to convert into a dotnet `Bucketizer`</param>
+        /// <param name="obj">The `JvmObjectReference` to convert into a dotnet
+        ///                     `Bucketizer`</param>
         /// <returns>`Bucketizer`</returns>
         private static Bucketizer WrapAsBucketizer(object obj)
         {
