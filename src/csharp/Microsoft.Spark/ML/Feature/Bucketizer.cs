@@ -31,7 +31,7 @@ namespace Microsoft.Spark.ML.Feature
         }
 
         /// <summary>
-        /// Create a `Bucketizer` without any parameters
+        /// Create a <see cref="Bucketizer"/> without any parameters
         /// </summary>
         public Bucketizer()
         {
