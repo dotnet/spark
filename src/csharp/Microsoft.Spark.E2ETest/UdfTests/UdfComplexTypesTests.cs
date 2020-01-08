@@ -40,7 +40,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             //  at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.SingleCommandRunner.Run(Int32 splitId, Object input) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 239
             //  at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.ExecuteCore(Stream inputStream, Stream outputStream, SqlCommand[] commands) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 139
             Func<Column, Column> udf = Udf<int[], string>(array => string.Join(',', array));
-            Assert.Throws<Exception>(() => _df.Select(udf(_df["ids"])).Show());
+            Assert.Throws<InvalidCastException>(() => _df.Select(udf(_df["ids"])).Show());
 
             // Currently, there is a workaround to support ArrayType using ArrayList.
             Func<Column, Column> workingUdf = Udf<ArrayList, string>(
@@ -92,7 +92,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 dict => dict.Count.ToString());
 
             DataFrame df = _df.WithColumn("NameIdsMap", Map(_df["name"], _df["ids"]));
-            Assert.Throws<Exception>(() => df.Select(udf(df["NameIdsMap"])).Show());
+            Assert.Throws<InvalidCastException>(() => df.Select(udf(df["NameIdsMap"])).Show());
 
             // Currently, there is a workaround to support MapType using Hashtable.
             Func<Column, Column> workingUdf = Udf<Hashtable, string>(
