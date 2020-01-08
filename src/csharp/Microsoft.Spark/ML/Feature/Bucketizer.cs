@@ -104,7 +104,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">List of input columns to use as sources for buckets</param>
         /// <returns>`Bucketizer`</returns>
-        public Bucketizer SetInputCols(List<string> value)
+        public Bucketizer SetInputCols(IEnumerable<string> value)
         {
             return WrapAsBucketizer(_jvmObject.Invoke("setInputCols", value));
         }
