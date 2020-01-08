@@ -167,7 +167,7 @@ namespace Microsoft.Spark.ML.Feature
         /// How should the `Bucketizer` handle invalid data, choices are "skip", "error" or "keep"
         /// </summary>
         /// <returns>`BucketizerInvalidOptions`</returns>
-        public BucketizerInvalidOptions GetHandleInvalid()
+        public string GetHandleInvalid()
         {
             string handleInvalid = (string)_jvmObject.Invoke("getHandleInvalid");
             if (BucketizerInvalidOptions.TryParse(handleInvalid, true, 
