@@ -186,7 +186,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">`BucketizerInvalidOptions`, "skip", "error" or "keep"</param>
         /// <returns>`Bucketizer`</returns>
-        public Bucketizer SetHandleInvalid(BucketizerInvalidOptions value)
+        public Bucketizer SetHandleInvalid(string value)
         {
             return WrapAsBucketizer(_jvmObject.Invoke("setHandleInvalid", value.ToString()));
         }
