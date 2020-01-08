@@ -12,7 +12,6 @@ import org.apache.spark.api.python.{PythonAccumulatorV2, PythonBroadcast, Python
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.deploy.dotnet.DotnetRunner
 
-
 object SQLUtils {
 
   /**

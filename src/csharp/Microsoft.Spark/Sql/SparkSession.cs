@@ -141,24 +141,6 @@ namespace Microsoft.Spark.Sql
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("table", tableName));
 
         /// <summary>
-        /// Returns a schema as StructType with one column of the given datatype
-        /// </summary>
-        /// <param name="dataType">Datatype of the column</param>
-        /// <returns>Schema as StructType</returns>
-        private StructType SchemaWithSingleColumn(DataType dataType) =>
-            new StructType(new List<StructField>() { new StructField("_1", dataType) });
-
-        /// <summary>
-        /// Converts rows of type T to <see cref="GenericRow"/> to return a 
-        /// <see cref="IEnumerable"/> of type <see cref="GenericRow"/>.
-        /// </summary>
-        /// <typeparam name="T">Datatype of values in rows</typeparam>
-        /// <param name="rows">List of values of type T</param>
-        /// <returns><see cref="IEnumerable"/> of type <see cref="GenericRow"/></returns>
-        private IEnumerable<GenericRow> ToGenericRows<T>(IEnumerable<T> rows) =>
-            rows.Select(r => new GenericRow(new object[] { r }));
-
-        /// <summary>
         /// Creates a <see cref="DataFrame"/> from an <see cref="IEnumerable"/> containing 
         /// <see cref="GenericRow"/>s using the given schema.
         /// It is important to make sure that the structure of every <see cref="GenericRow"/> of 
@@ -169,7 +151,8 @@ namespace Microsoft.Spark.Sql
         /// <param name="schema">Schema as StructType</param>
         /// <returns>DataFrame object</returns>
         public DataFrame CreateDataFrame(IEnumerable<GenericRow> data, StructType schema) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke( "createDataFrame",
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+                "createDataFrame",
                 data,
                 DataType.FromJson(_jvmObject.Jvm, schema.Json)));
 
@@ -302,5 +285,23 @@ namespace Microsoft.Spark.Sql
         /// Stops the underlying SparkContext.
         /// </summary>
         public void Stop() => _jvmObject.Invoke("stop");
+
+        /// <summary>
+        /// Returns a single column schema of the given datatype.
+        /// </summary>
+        /// <param name="dataType">Datatype of the column</param>
+        /// <returns>Schema as StructType</returns>
+        private StructType SchemaWithSingleColumn(DataType dataType) =>
+            new StructType(new[] { new StructField("_1", dataType) });
+
+        /// <summary>
+        /// Converts rows of type T to <see cref="GenericRow"/> to return a 
+        /// <see cref="IEnumerable"/> of type <see cref="GenericRow"/>.
+        /// </summary>
+        /// <typeparam name="T">Datatype of values in rows</typeparam>
+        /// <param name="rows">List of values of type T</param>
+        /// <returns><see cref="IEnumerable"/> of type <see cref="GenericRow"/></returns>
+        private IEnumerable<GenericRow> ToGenericRows<T>(IEnumerable<T> rows) =>
+            rows.Select(r => new GenericRow(new object[] { r }));
     }
 }

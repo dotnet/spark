@@ -185,10 +185,10 @@ namespace Microsoft.Spark.Interop.Ipc
                                 destination.Position = posAfterEnumerable;
                                 break;
 
-                            case IEnumerable<GenericRow> argRowEnumerable:                                
+                            case IEnumerable<GenericRow> argRowEnumerable:
                                 posBeforeEnumerable = destination.Position;
                                 destination.Position += sizeof(int);
-                                itemCount = 0;                                
+                                itemCount = 0;
                                 foreach (GenericRow r in argRowEnumerable)
                                 {
                                     ++itemCount;

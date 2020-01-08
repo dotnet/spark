@@ -12,8 +12,6 @@ import java.sql.{Date, Time, Timestamp}
 import org.apache.spark.sql.Row
 
 import scala.collection.JavaConverters._
-import scala.collection.JavaConversions._
-import scala.collection.mutable.ListBuffer
 
 /**
  * Functions to serialize and deserialize between CLR & JVM.
@@ -97,9 +95,7 @@ object SerDe {
 
   def readRow(in: DataInputStream): Row = {
     val len = readInt(in)
-    val rowArr = (0 until len).map(_ => readObject(in)).toArray
-    val rowValues = ListBuffer(rowArr: _ *)
-    Row.fromSeq(rowValues.toList)
+    Row.fromSeq((0 until len).map(_ => readObject(in)))
   }
 
   def readBytesArr(in: DataInputStream): Array[Array[Byte]] = {
@@ -134,8 +130,7 @@ object SerDe {
 
   def readRowArr(in: DataInputStream): java.util.List[Row] = {
     val len = readInt(in)
-    val arr = (0 until len).map(_ => readRow(in)).toArray
-    ListBuffer(arr: _*)
+    (0 until len).map(_ => readRow(in)).toList.asJava
   }
 
   def readList(dis: DataInputStream): Array[_] = {
