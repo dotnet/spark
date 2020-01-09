@@ -38,10 +38,10 @@ namespace Microsoft.Spark.Sql
     /// <example>
     /// <para/>For each partition with <c>partitionId</c>:
     /// <para/>... For each batch/epoch of streaming data(if its streaming query) with <c>epochId</c>:
-    /// <para/>....... Method <c>open(partitionId, epochId)</c> is called.
-    /// <para/>....... If <c>open</c> returns true:
-    /// <para/>........... For each row in the partition and batch/epoch, method <c>process(row)</c> is called.
-    /// <para/>....... Method <c>close(errorOrNull)</c> is called with error(if any) seen while processing rows.
+    /// <para/>....... Method <c>Open(partitionId, epochId)</c> is called.
+    /// <para/>....... If <c>Open</c> returns true:
+    /// <para/>........... For each row in the partition and batch/epoch, method <c>Process(row)</c> is called.
+    /// <para/>....... Method <c>Close(errorOrNull)</c> is called with error(if any) seen while processing rows.
     /// </example>
     /// </description>
     /// </item>
