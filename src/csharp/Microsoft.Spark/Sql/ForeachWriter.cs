@@ -123,7 +123,7 @@ namespace Microsoft.Spark.Sql
         {
             if (!TaskContext.s_taskContext.LocalProperties.TryGetValue(
                 "streaming.sql.batchId",
-                out string epochIdStr) || !int.TryParse(epochIdStr, out int epochId))
+                out string epochIdStr) || !long.TryParse(epochIdStr, out long epochId))
             {
                 throw new Exception("Could not get batch id from TaskContext");
             }
