@@ -23,19 +23,21 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestIDFModel()
         {
-            IDF idf = new IDF("uid")
-                .SetMinDocFreq(2)
-                .SetInputCol("input_col")
-                .SetOutputCol("output_col");
+            DataFrame sentenceData =
+                _spark.Sql("SELECT 0.0 as label, 'Hi I heard about Spark' as sentence");
+            Tokenizer tokenizer = new Tokenizer().SetInputCol("sentence").SetOutputCol("words");
+            DataFrame wordsData = tokenizer.Transform(sentenceData);
 
-            Assert.Equal("uid", idf.Uid());
+            HashingTF hashingTF = new HashingTF()
+                .SetInputCol("words").SetOutputCol("rawFeatures").SetNumFeatures(20);
 
-            DataFrame input = _spark.Sql("SELECT array('this', 'is', 'a', 'string', 'a', 'a')" + 
-                                            " as input_col");
+            DataFrame featurizedData = hashingTF.Transform(wordsData);
 
-            IDFModel model = idf.Fit(input);
-            model.Transform(input);
+            IDF idf = new IDF().SetInputCol("rawFeatures").SetOutputCol("features");
+            IDFModel idfModel = idf.Fit(featurizedData);
 
+            DataFrame rescaledData = idfModel.Transform(featurizedData);
+            
         }
     }
 }
