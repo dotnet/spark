@@ -179,6 +179,10 @@ namespace Microsoft.Spark.Sql.Streaming
         [Since(Versions.V2_4_0)]
         public DataStreamWriter Foreach(IForeachWriter writer)
         {
+            RDD.WorkerFunction.ExecuteDelegate wrapper =
+                new ForeachWriterWrapperUdfWrapper(
+                    new ForeachWriterWrapper(writer).Execute).Execute;
+
             _jvmObject.Invoke(
                 "foreach",
                 _jvmObject.Jvm.CallConstructor(
@@ -186,11 +190,11 @@ namespace Microsoft.Spark.Sql.Streaming
                     UdfUtils.CreatePythonFunction(
                         _jvmObject.Jvm,
                         CommandSerDe.Serialize(
-                            UdfUtils.CreateRDDUdfWrapper(
-                                new ForeachWriterWrapper(writer).Execute),
+                            wrapper,
                             CommandSerDe.SerializedMode.Row,
                             CommandSerDe.SerializedMode.Row)),
                     DataType.FromJson(_jvmObject.Jvm, _df.Schema().Json)));
+
             return this;
         }
 
