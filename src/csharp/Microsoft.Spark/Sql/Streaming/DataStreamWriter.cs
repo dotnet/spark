@@ -83,7 +83,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// </summary>
         /// <param name="key">Name of the option</param>
         /// <param name="value">Value of the option</param>
-        /// <returns>This DataStreamReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter Option(string key, string value)
         {
             OptionInternal(key, value);
@@ -95,7 +95,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// </summary>
         /// <param name="key">Name of the option</param>
         /// <param name="value">Value of the option</param>
-        /// <returns>This DataStreamReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter Option(string key, bool value)
         {
             OptionInternal(key, value);
@@ -107,7 +107,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// </summary>
         /// <param name="key">Name of the option</param>
         /// <param name="value">Value of the option</param>
-        /// <returns>This DataStreamReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter Option(string key, long value)
         {
             OptionInternal(key, value);
@@ -119,7 +119,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// </summary>
         /// <param name="key">Name of the option</param>
         /// <param name="value">Value of the option</param>
-        /// <returns>This DataStreamReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter Option(string key, double value)
         {
             OptionInternal(key, value);
@@ -130,7 +130,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// Adds output options for the underlying data source.
         /// </summary>
         /// <param name="options">Key/value options</param>
-        /// <returns>This DataStreamReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter Options(Dictionary<string, string> options)
         {
             _jvmObject.Invoke("options", options);
@@ -141,7 +141,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// Sets the trigger for the stream query.
         /// </summary>
         /// <param name="trigger">Trigger object</param>
-        /// <returns>This DataStreamReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter Trigger(Trigger trigger)
         {
             _jvmObject.Invoke("trigger", trigger);
@@ -155,7 +155,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// in the associated SQLContext.
         /// </summary>
         /// <param name="queryName">Query name</param>
-        /// <returns>This DataStreamReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter QueryName(string queryName)
         {
             _jvmObject.Invoke("queryName", queryName);
@@ -176,6 +176,13 @@ namespace Microsoft.Spark.Sql.Streaming
             return new StreamingQuery((JvmObjectReference)_jvmObject.Invoke("start"));
         }
 
+        /// <summary>
+        /// Sets the output of the streaming query to be processed using the provided
+        /// writer object. See <see cref="IForeachWriter"/> for more details on the
+        /// lifecycle and semantics.
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <returns>This DataStreamWriter object</returns>
         [Since(Versions.V2_4_0)]
         public DataStreamWriter Foreach(IForeachWriter writer)
         {
@@ -203,7 +210,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// </summary>
         /// <param name="key">Name of the option</param>
         /// <param name="value">Value of the option</param>
-        /// <returns>This DataFrameReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         private DataStreamWriter OptionInternal(string key, object value)
         {
             _jvmObject.Invoke("option", key, value);
