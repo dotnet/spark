@@ -137,18 +137,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 DataFrame df = _spark.CreateDataFrame(data);
                 ValidateDataFrame(data.Select(a => new object[] { a }), df, schema);
             }
-
-            // Calling CreateDataFrame(IEnumerable<long> _) without schema
-            {
-                var data = new List<long>(new long[] { 2L, 3L });
-                var schema = new StructType(new List<StructField>()
-                {
-                    new StructField("_1", new LongType())
-                });
-
-                DataFrame df = _spark.CreateDataFrame(data);
-                ValidateDataFrame(data.Select(a => new object[] { a }), df, schema);
-            }
         }
 
         /// <summary>
@@ -166,9 +154,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             int i = 0;
             foreach (object[] expectedValues in data)
             {
-                object[] actualValues = rows[i].Values;
-                Assert.Equal(expectedValues.Length, actualValues.Length);
-                Assert.True(actualValues.SequenceEqual(expectedValues));
+                Assert.Equal(expectedValues, rows[i].Values);
                 ++i;
             }
         }

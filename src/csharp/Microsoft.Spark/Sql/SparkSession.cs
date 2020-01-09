@@ -173,14 +173,6 @@ namespace Microsoft.Spark.Sql
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new StringType()));
 
         /// <summary>
-        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="long"/>
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns>Dataframe object</returns>
-        public DataFrame CreateDataFrame(IEnumerable<long> data) =>
-            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new LongType()));
-
-        /// <summary>
         /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="double"/>
         /// </summary>
         /// <param name="data"></param>
@@ -195,8 +187,6 @@ namespace Microsoft.Spark.Sql
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<bool> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new BooleanType()));
-
-        //TODO: Add support for System.Single (float)
 
         /// <summary>
         /// Executes a SQL query using Spark, returning the result as a DataFrame.
@@ -295,8 +285,8 @@ namespace Microsoft.Spark.Sql
             new StructType(new[] { new StructField("_1", dataType) });
 
         /// <summary>
-        /// Converts rows of type T to <see cref="GenericRow"/> to return a 
-        /// <see cref="IEnumerable"/> of type <see cref="GenericRow"/>.
+        /// This method is transforming each element of IEnumerable of type T input into a single 
+        /// columned GenericRow.
         /// </summary>
         /// <typeparam name="T">Datatype of values in rows</typeparam>
         /// <param name="rows">List of values of type T</param>
