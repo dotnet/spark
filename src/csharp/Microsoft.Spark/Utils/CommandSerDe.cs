@@ -44,7 +44,7 @@ namespace Microsoft.Spark.Utils
         ///  - RDD: * <see cref="RDD{T}.MapUdfWrapper{I, O}"/>
         ///         * <see cref="RDD{T}.FlatMapUdfWrapper{I, O}"/>
         ///         * <see cref="RDD{T}.MapPartitionsUdfWrapper{I, O}"/>
-        ///         * <see cref="RDD.WorkerFunction.WrokerFuncChainHelper"/>
+        ///         * <see cref="RDD.WorkerFunction.WorkerFuncChainHelper"/>
         /// </summary>
         [Serializable]
         private sealed class UdfWrapperNode

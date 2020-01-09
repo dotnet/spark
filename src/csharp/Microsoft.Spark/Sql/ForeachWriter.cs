@@ -119,12 +119,17 @@ namespace Microsoft.Spark.Sql
         internal ForeachWriterWrapper(IForeachWriter foreachWriter) =>
             _foreachWriter = foreachWriter;
 
-        public long EpochId { get; set; } = long.MinValue;
-
         internal IEnumerable<object> Execute(int partitionId, IEnumerable<Row> rows)
         {
+            if (!TaskContext.s_taskContext.LocalProperties.TryGetValue(
+                "streaming.sql.batchId",
+                out string epochIdStr) || !int.TryParse(epochIdStr, out int epochId))
+            {
+                throw new Exception("Could not get batch id from TaskContext");
+            }
+
             Exception error = null;
-            bool opened = _foreachWriter.Open(partitionId, EpochId);
+            bool opened = _foreachWriter.Open(partitionId, epochId);
 
             try
             {
@@ -173,8 +178,7 @@ namespace Microsoft.Spark.Sql
             return _func(
                 pid,
                 input.Cast<object[]>().SelectMany(
-                    unpickeldObjects => unpickeldObjects.Select(
-                        unpickled => (unpickled as RowConstructor).GetRow())));
+                    objs => objs.Cast<RowConstructor>().Select(rc => rc.GetRow())));
         }
     }
 }
