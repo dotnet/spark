@@ -86,8 +86,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                     new StructField("Name", new StringType()),
                     new StructField("Age", new IntegerType())
                 });
-                DataFrame df = _spark.CreateDataFrame(data, schema);                
-                ValidateDataFrame<object[]>(data.ConvertAll(a => a.Values), df, schema);
+                DataFrame df = _spark.CreateDataFrame(data, schema);
+                ValidateDataFrame(data.Select(a => a.Values), df, schema);
             }
 
             // Calling CreateDataFrame(IEnumerable<string> _) without schema
@@ -99,7 +99,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 });
 
                 DataFrame df = _spark.CreateDataFrame(data);                
-                ValidateDataFrame<object[]>(data.ConvertAll(a => new object[] { a }), df, schema);
+                ValidateDataFrame(data.Select(a => new object[] { a }), df, schema);
             }
 
             // Calling CreateDataFrame(IEnumerable<int> _) without schema
@@ -111,7 +111,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 });
 
                 DataFrame df = _spark.CreateDataFrame(data);
-                ValidateDataFrame<object[]>(data.ConvertAll(a => new object[] { a }), df, schema);
+                ValidateDataFrame(data.Select(a => new object[] { a }), df, schema);
             }
 
             // Calling CreateDataFrame(IEnumerable<double> _) without schema
@@ -123,7 +123,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 });
 
                 DataFrame df = _spark.CreateDataFrame(data);
-                ValidateDataFrame<object[]>(data.ConvertAll(a => new object[] { a }), df, schema);
+                ValidateDataFrame(data.Select(a => new object[] { a }), df, schema);
             }
 
             // Calling CreateDataFrame(IEnumerable<bool> _) without schema
@@ -135,7 +135,19 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 });
 
                 DataFrame df = _spark.CreateDataFrame(data);
-                ValidateDataFrame<object[]>(data.ConvertAll(a => new object[] { a }), df, schema);
+                ValidateDataFrame(data.Select(a => new object[] { a }), df, schema);
+            }
+
+            // Calling CreateDataFrame(IEnumerable<long> _) without schema
+            {
+                var data = new List<long>(new long[] { 2L, 3L });
+                var schema = new StructType(new List<StructField>()
+                {
+                    new StructField("_1", new LongType())
+                });
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame(data.Select(a => new object[] { a }), df, schema);
             }
         }
 
@@ -146,14 +158,18 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// <param name="data">Given data for the dataframe</param>
         /// <param name="df">Dataframe Object to validate</param>
         /// <param name="schema">Expected schema of the dataframe</param>
-        internal void ValidateDataFrame<T>(List<object[]> data, DataFrame df, StructType schema)
+        private void ValidateDataFrame(IEnumerable<object[]> data, DataFrame df, StructType schema)
         {
             Assert.Equal(schema, df.Schema());
             Row[] rows = df.Collect().ToArray();
-            Assert.Equal(data.Count, rows.Length);
-            for (int i = 0; i < rows.Length; ++i)
+            Assert.Equal(data.Count(), rows.Length);
+            int i = 0;
+            foreach (object[] expectedValues in data)
             {
-                Assert.Equal(data[i], rows[i].Values);
+                object[] actualValues = rows[i].Values;
+                Assert.Equal(expectedValues.Length, actualValues.Length);
+                Assert.True(actualValues.SequenceEqual(expectedValues));
+                ++i;
             }
         }
     }
