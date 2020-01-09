@@ -34,7 +34,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                                             " as input_col");
 
             DataFrame output = HashingTF.Transform(input);
-            Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col"));
         }
     }
 }
