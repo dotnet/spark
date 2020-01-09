@@ -34,19 +34,28 @@ namespace Microsoft.Spark.Sql
 
                 foreach (object unpickled in unpickledObjects)
                 {
+                    // yield return (unpickled as RowConstructor).GetRow();
                     switch (unpickled)
                     {
                         case RowConstructor rc:
                             yield return rc.GetRow();
                             break;
 
-                        case Row row:
+                        case object[] objs:
+                            if ((objs.Length != 1) || !(objs[0] is Row row))
+                            {
+                                throw new NotSupportedException(
+                                    string.Format("Expected single Row in unpickled type {0}",
+                                        unpickled.GetType()));
+                            }
+
                             yield return row;
                             break;
 
                         default:
                             throw new NotSupportedException(
-                                string.Format($"Unpickle type {unpickled.GetType()} is not supported"));
+                                string.Format("Unpickle type {0} is not supported",
+                                    unpickled.GetType()));
                     }
                 }
             }
