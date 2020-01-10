@@ -71,7 +71,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
         /// <summary>
         /// Test CreateDataFrame APIs.
-        /// </summary>        
+        /// </summary>
         [Fact]
         public void TestCreateDataFrame()
         {            
@@ -87,7 +87,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                     new StructField("Age", new IntegerType())
                 });
                 DataFrame df = _spark.CreateDataFrame(data, schema);
-                ValidateDataFrame(data.Select(a => a.Values), df, schema);
+                ValidateDataFrame(df, data.Select(a => a.Values), schema);
             }
 
             // Calling CreateDataFrame(IEnumerable<string> _) without schema
@@ -95,8 +95,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 var data = new List<string>(new string[] { "Alice", "Bob" });
                 var schema = SchemaWithSingleColumn(new StringType());
 
-                DataFrame df = _spark.CreateDataFrame(data);                
-                ValidateDataFrame(data.Select(a => new object[] { a }), df, schema);
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
             }
 
             // Calling CreateDataFrame(IEnumerable<int> _) without schema
@@ -105,7 +105,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 var schema = SchemaWithSingleColumn(new IntegerType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
-                ValidateDataFrame(data.Select(a => new object[] { a }), df, schema);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
             }
 
             // Calling CreateDataFrame(IEnumerable<double> _) without schema
@@ -114,7 +114,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 var schema = SchemaWithSingleColumn(new DoubleType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
-                ValidateDataFrame(data.Select(a => new object[] { a }), df, schema);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
             }
 
             // Calling CreateDataFrame(IEnumerable<bool> _) without schema
@@ -123,27 +123,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 var schema = SchemaWithSingleColumn(new BooleanType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
-                ValidateDataFrame(data.Select(a => new object[] { a }), df, schema);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
             }
         }
 
-        /// <summary>
-        /// Validates the correctness of the dataframe given the input data.
-        /// </summary>
-        /// <param name="data">Given data for the dataframe</param>
-        /// <param name="df">Dataframe Object to validate</param>
-        /// <param name="schema">Expected schema of the dataframe</param>
-        private void ValidateDataFrame(IEnumerable<object[]> data, DataFrame df, StructType schema)
+        private void ValidateDataFrame(DataFrame actual, IEnumerable<object[]> expectedRows, 
+            StructType expectedSchema)
         {
-            Assert.Equal(schema, df.Schema());
-            Row[] rows = df.Collect().ToArray();
-            Assert.Equal(data.Count(), rows.Length);
-            int i = 0;
-            foreach (object[] expectedValues in data)
-            {
-                Assert.Equal(expectedValues, rows[i].Values);
-                ++i;
-            }
+            Assert.Equal(expectedSchema, actual.Schema());
+            Assert.Equal(expectedRows, actual.Collect().Select(r => r.Values));
         }
 
         /// <summary>
