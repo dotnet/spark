@@ -14,6 +14,8 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     public sealed class Row
     {
+        private readonly GenericRow _genericRow;
+
         /// <summary>
         /// Constructor for the Row class.
         /// </summary>
@@ -21,7 +23,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="schema">Schema associated with a row</param>
         internal Row(object[] values, StructType schema)
         {
-            Values = values;
+            _genericRow = new GenericRow(values);
             Schema = schema;
 
             var schemaColumnCount = Schema.Fields.Count;
@@ -42,13 +44,13 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Values representing this row.
         /// </summary>
-        public object[] Values { get; }
+        public object[] Values => _genericRow.Values;
 
         /// <summary>
         /// Returns the number of columns in this row.
         /// </summary>
         /// <returns>Number of columns in this row</returns>
-        public int Size() => Values.Length;
+        public int Size() => _genericRow.Size();
 
         /// <summary>
         /// Returns the column value at the given index.
@@ -62,20 +64,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="index">Index to look up</param>
         /// <returns>A column value</returns>
-        public object Get(int index)
-        {
-            if (index >= Size())
-            {
-                throw new IndexOutOfRangeException($"index ({index}) >= column counts ({Size()})");
-            }
-            else if (index < 0)
-            {
-                throw new IndexOutOfRangeException($"index ({index}) < 0)");
-            }
-
-            return Values[index];
-        }
-
+        public object Get(int index) => _genericRow.Get(index);
         /// <summary>
         /// Returns the column value whose column name is given.
         /// </summary>
@@ -88,16 +77,7 @@ namespace Microsoft.Spark.Sql
         /// Returns the string version of this row.
         /// </summary>
         /// <returns>String version of this row</returns>
-        public override string ToString()
-        {
-            var cols = new List<string>();
-            foreach (object item in Values)
-            {
-                cols.Add(item?.ToString() ?? string.Empty);
-            }
-
-            return $"[{(string.Join(",", cols.ToArray()))}]";
-        }
+        public override string ToString() => _genericRow.ToString();        
 
         /// <summary>
         /// Returns the column value at the given index, as a type T.
@@ -126,26 +106,9 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="obj">Other object to compare against</param>
         /// <returns>True if the other object is equal.</returns>
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (obj is Row otherRow)
-            {
-                return Values.SequenceEqual(otherRow.Values) &&
-                    Schema.Equals(otherRow.Schema);
-            }
-
-            return false;
-        }
+        public override bool Equals(object obj) =>
+            ReferenceEquals(this, obj) ||
+            ((obj is Row row) && _genericRow.Equals(row._genericRow)) && Schema.Equals(row.Schema);
 
         /// <summary>
         /// Returns the hash code of the current object.
