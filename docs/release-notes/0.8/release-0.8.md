@@ -2,21 +2,13 @@
 
 ### New Features and Improvements
 
-* Expose `SparkContext.setLogLevel()` to change log level programmatically ([#360](https://github.com/dotnet/spark/pull/360))
-* Expose `Schema()` for `DataFrameReader` and `DataStreamReader`([#248](https://github.com/dotnet/spark/pull/248))
-* Expose `Column.Apply()` ([#323](https://github.com/dotnet/spark/pull/323))
-* "Deprecated" annotation is added to the following functions:
-  * `WindowSpec.RangeBetween(Column start, Column end)`
-  * `Window.RangeBetween(Column start, Column end)`
-  * `Functions.UnboundedPreceding()`
-  * `Functions.UnboundedFollowing()`
-  * `Functions.CurrentRow()`
+* Support for Row type Ser/De and exposing the CreateDataFrame API ([#338](https://github.com/dotnet/spark/pull/338))
+* Support .NET Core 3.1 ([#291](https://github.com/dotnet/spark/pull/291) and [#386](https://github.com/dotnet/spark/pull/386))
+* Support for new Delta v0.5.0 APIs ([#374](https://github.com/dotnet/spark/pull/374))
+* Precompute the normalized type names of DataTypes and use string.Create on NS2.1 for faster normalization ([#364](https://github.com/dotnet/spark/pull/364))
 
 ### Breaking Changes
-* The following APIs have been removed due to the thread-local variable dependency (see [#332](https://github.com/dotnet/spark/pull/332) and [#333](https://github.com/dotnet/spark/issues/333) for more detail):
-  * `SparkSession.ClearActiveSession()`
-  * `SparkSession.GetActiveSession()`
-  * `SparkSession.SetActiveSession()`
+* None
 
 ### Supported Spark Versions
 
