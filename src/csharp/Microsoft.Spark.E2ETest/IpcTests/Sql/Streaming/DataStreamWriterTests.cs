@@ -124,9 +124,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 try
                 {
                     s_streamWriter = new StreamWriter(
-                        Path.Combine(
-                            _writePath,
-                            $"sink-foreachWriter-{Guid.NewGuid().ToString()}.csv"));
+                        Path.Combine(_writePath,$"sink-foreachWriter-{Guid.NewGuid()}.csv"));
                     return true;
                 }
                 catch
