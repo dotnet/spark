@@ -127,7 +127,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        private void ValidateDataFrame(DataFrame actual, IEnumerable<object[]> expectedRows, 
+        private void ValidateDataFrame(
+            DataFrame actual,
+            IEnumerable<object[]> expectedRows,
             StructType expectedSchema)
         {
             Assert.Equal(expectedSchema, actual.Schema());
