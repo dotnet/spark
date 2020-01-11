@@ -9,6 +9,8 @@ package org.apache.spark.api.dotnet
 import java.io.{DataInputStream, DataOutputStream}
 import java.sql.{Date, Time, Timestamp}
 
+import org.apache.spark.sql.Row
+
 import scala.collection.JavaConverters._
 
 /**
@@ -39,6 +41,7 @@ object SerDe {
       case 'D' => readDate(dis)
       case 't' => readTime(dis)
       case 'j' => JVMObjectTracker.getObject(readString(dis))
+      case 'R' => readRowArr(dis)
       case _ => throw new IllegalArgumentException(s"Invalid type $dataType")
     }
   }
@@ -90,6 +93,11 @@ object SerDe {
     t
   }
 
+  def readRow(in: DataInputStream): Row = {
+    val len = readInt(in)
+    Row.fromSeq((0 until len).map(_ => readObject(in)))
+  }
+
   def readBytesArr(in: DataInputStream): Array[Array[Byte]] = {
     val len = readInt(in)
     (0 until len).map(_ => readBytes(in)).toArray
@@ -118,6 +126,11 @@ object SerDe {
   def readStringArr(in: DataInputStream): Array[String] = {
     val len = readInt(in)
     (0 until len).map(_ => readString(in)).toArray
+  }
+
+  def readRowArr(in: DataInputStream): java.util.List[Row] = {
+    val len = readInt(in)
+    (0 until len).map(_ => readRow(in)).toList.asJava
   }
 
   def readList(dis: DataInputStream): Array[_] = {
