@@ -9,7 +9,6 @@ using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Streaming;
-using Microsoft.Spark.Sql.Types;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
@@ -89,7 +88,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 .WriteStream()
                 .Foreach(new TestForeachWriter(dstTempDirectory.Path));
 
-            //// Trigger the stream batch once.
+            // Trigger the stream batch once.
             dsw.Trigger(Trigger.Once()).Start().AwaitTermination();
 
             // Verify that TestForeachWriter wrote a unique .csv for each
