@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using Apache.Arrow;
+using Microsoft.Data.Analysis;
 using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Sql
@@ -11,7 +11,7 @@ namespace Microsoft.Spark.Sql
     /// <summary>
     /// Extension methods for <see cref="UdfRegistration"/>.
     /// </summary>
-    public static class UdfRegistrationExtensions
+    public static class DataFrameUdfRegistrationExtensions
     {
         /// <summary>
         /// Registers the given delegate as a vector user-defined function with the specified name.
@@ -23,10 +23,10 @@ namespace Microsoft.Spark.Sql
         /// <param name="f">The UDF function implementation.</param>
         public static void RegisterVector<T, TResult>(
             this UdfRegistration udf, string name, Func<T, TResult> f)
-            where T : IArrowArray
-            where TResult : IArrowArray
+            where T : DataFrameColumn
+            where TResult : DataFrameColumn
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, DataFrameUdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -40,11 +40,11 @@ namespace Microsoft.Spark.Sql
         /// <param name="f">The UDF function implementation.</param>
         public static void RegisterVector<T1, T2, TResult>(
             this UdfRegistration udf, string name, Func<T1, T2, TResult> f)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, DataFrameUdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -59,12 +59,12 @@ namespace Microsoft.Spark.Sql
         /// <param name="f">The UDF function implementation.</param>
         public static void RegisterVector<T1, T2, T3, TResult>(
             this UdfRegistration udf, string name, Func<T1, T2, T3, TResult> f)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, DataFrameUdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -80,13 +80,13 @@ namespace Microsoft.Spark.Sql
         /// <param name="f">The UDF function implementation.</param>
         public static void RegisterVector<T1, T2, T3, T4, TResult>(
             this UdfRegistration udf, string name, Func<T1, T2, T3, T4, TResult> f)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where T4 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, DataFrameUdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -103,14 +103,14 @@ namespace Microsoft.Spark.Sql
         /// <param name="f">The UDF function implementation.</param>
         public static void RegisterVector<T1, T2, T3, T4, T5, TResult>(
             this UdfRegistration udf, string name, Func<T1, T2, T3, T4, T5, TResult> f)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where T4 : DataFrameColumn
+            where T5 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, DataFrameUdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -128,15 +128,15 @@ namespace Microsoft.Spark.Sql
         /// <param name="f">The UDF function implementation.</param>
         public static void RegisterVector<T1, T2, T3, T4, T5, T6, TResult>(
             this UdfRegistration udf, string name, Func<T1, T2, T3, T4, T5, T6, TResult> f)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where T6 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where T4 : DataFrameColumn
+            where T5 : DataFrameColumn
+            where T6 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, DataFrameUdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -155,16 +155,16 @@ namespace Microsoft.Spark.Sql
         /// <param name="f">The UDF function implementation.</param>
         public static void RegisterVector<T1, T2, T3, T4, T5, T6, T7, TResult>(
             this UdfRegistration udf, string name, Func<T1, T2, T3, T4, T5, T6, T7, TResult> f)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where T6 : IArrowArray
-            where T7 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where T4 : DataFrameColumn
+            where T5 : DataFrameColumn
+            where T6 : DataFrameColumn
+            where T7 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, DataFrameUdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -184,17 +184,17 @@ namespace Microsoft.Spark.Sql
         /// <param name="f">The UDF function implementation.</param>
         public static void RegisterVector<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
             this UdfRegistration udf, string name, Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> f)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where T6 : IArrowArray
-            where T7 : IArrowArray
-            where T8 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where T4 : DataFrameColumn
+            where T5 : DataFrameColumn
+            where T6 : DataFrameColumn
+            where T7 : DataFrameColumn
+            where T8 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, DataFrameUdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -215,18 +215,18 @@ namespace Microsoft.Spark.Sql
         /// <param name="f">The UDF function implementation.</param>
         public static void RegisterVector<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
             this UdfRegistration udf, string name, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> f)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where T6 : IArrowArray
-            where T7 : IArrowArray
-            where T8 : IArrowArray
-            where T9 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where T4 : DataFrameColumn
+            where T5 : DataFrameColumn
+            where T6 : DataFrameColumn
+            where T7 : DataFrameColumn
+            where T8 : DataFrameColumn
+            where T9 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, DataFrameUdfUtils.CreateVectorUdfWrapper(f));
         }
 
         /// <summary>
@@ -248,19 +248,19 @@ namespace Microsoft.Spark.Sql
         /// <param name="f">The UDF function implementation.</param>
         public static void RegisterVector<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
             this UdfRegistration udf, string name, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> f)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where T6 : IArrowArray
-            where T7 : IArrowArray
-            where T8 : IArrowArray
-            where T9 : IArrowArray
-            where T10 : IArrowArray
-            where TResult : IArrowArray
+            where T1 : DataFrameColumn
+            where T2 : DataFrameColumn
+            where T3 : DataFrameColumn
+            where T4 : DataFrameColumn
+            where T5 : DataFrameColumn
+            where T6 : DataFrameColumn
+            where T7 : DataFrameColumn
+            where T8 : DataFrameColumn
+            where T9 : DataFrameColumn
+            where T10 : DataFrameColumn
+            where TResult : DataFrameColumn
         {
-            RegisterVector<TResult>(udf, name, UdfUtils.CreateVectorUdfWrapper(f));
+            RegisterVector<TResult>(udf, name, DataFrameUdfUtils.CreateVectorUdfWrapper(f));
         }
 
         private static void RegisterVector<TResult>(UdfRegistration udf, string name, Delegate func)

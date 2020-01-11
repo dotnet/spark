@@ -430,7 +430,7 @@ namespace Microsoft.Spark.Worker.Command
             /// <returns>Value returned by running the command</returns>
             public DataFrameColumn[] Run(ReadOnlyMemory<DataFrameColumn> input)
             {
-                return new[] { ((ArrowWorkerFunction)_command.WorkerFunction).Func(
+                return new[] { ((DataFrameWorkerFunction)_command.WorkerFunction).Func(
                     input,
                     _command.ArgOffsets) };
             }
@@ -466,7 +466,7 @@ namespace Microsoft.Spark.Worker.Command
                 for (int i = 0; i < resultColumns.Length; ++i)
                 {
                     SqlCommand command = _commands[i];
-                    DataFrameColumn column = ((ArrowWorkerFunction)command.WorkerFunction).Func(
+                    DataFrameColumn column = ((DataFrameWorkerFunction)command.WorkerFunction).Func(
                         input,
                         command.ArgOffsets);
                     column.SetName(column.Name + i);
@@ -488,7 +488,7 @@ namespace Microsoft.Spark.Worker.Command
                 "Grouped Map UDFs do not support combining multiple UDFs.");
 
             var stat = new CommandExecutorStat();
-            var worker = (ArrowGroupedMapWorkerFunction)commands[0].WorkerFunction;
+            var worker = (DataFrameGroupedMapWorkerFunction)commands[0].WorkerFunction;
 
             SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
 

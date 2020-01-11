@@ -87,8 +87,8 @@ namespace Microsoft.Spark.Sql
 
         internal DataFrame Apply(StructType returnType, Func<FxDataFrame, FxDataFrame> func)
         {
-            ArrowGroupedMapWorkerFunction.ExecuteDelegate wrapper =
-                new ArrowGroupedMapUdfWrapper(func).Execute;
+            DataFrameGroupedMapWorkerFunction.ExecuteDelegate wrapper =
+                new DataFrameGroupedMapUdfWrapper(func).Execute;
 
             var udf = UserDefinedFunction.Create(
                 _jvmObject.Jvm,

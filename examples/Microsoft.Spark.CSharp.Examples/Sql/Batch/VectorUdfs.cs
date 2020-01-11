@@ -67,12 +67,12 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             PrimitiveDataFrameColumn<int> characterCountColumn = new PrimitiveDataFrameColumn<int>(stringFieldName + "CharCount");
             PrimitiveDataFrameColumn<int> ageColumn = new PrimitiveDataFrameColumn<int>(groupFieldName);
-            for (long i = 0; i < dataFrame.RowCount; i++)
+            for (long i = 0; i < dataFrame.Rows.Count; i++)
             {
                 characterCount += ((string)dataFrame[stringFieldName][i]).Length;
             }
 
-            if (dataFrame.RowCount > 0)
+            if (dataFrame.Rows.Count > 0)
             {
                 characterCountColumn.Append(characterCount);
                 ageColumn.Append((int?)dataFrame[groupFieldName][0]);

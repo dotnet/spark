@@ -9,9 +9,11 @@ using System.Text.RegularExpressions;
 using Microsoft.Data.Analysis;
 using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.ExperimentalFunctions;
+using static Microsoft.Spark.Sql.ExperimentalDataFrameFunctions;
 using static Microsoft.Spark.Sql.Functions;
 using Column = Microsoft.Spark.Sql.Column;
 using DataFrame = Microsoft.Spark.Sql.DataFrame;
+using Apache.Arrow;
 
 namespace Tpch
 {
@@ -63,11 +65,19 @@ namespace Tpch
 
         internal void Q1v()
         {
+#if NETCOREAPP
+            Func<Column, Column, Column> discPrice = VectorUdf<DoubleArray, DoubleArray, DoubleArray>(
+                (price, discount) => VectorFunctions.ComputeDiscountPrice(price, discount));
+
+            Func<Column, Column, Column, Column> total = VectorUdf<DoubleArray, DoubleArray, DoubleArray, DoubleArray>(
+                (price, discount, tax) => VectorFunctions.ComputeTotal(price, discount, tax));
+#else
             Func<Column, Column, Column> discPrice = VectorUdf<PrimitiveDataFrameColumn<double>, PrimitiveDataFrameColumn<double>, PrimitiveDataFrameColumn<double>>(
                 (price, discount) => VectorFunctions.ComputeDiscountPrice(price, discount));
 
             Func<Column, Column, Column, Column> total = VectorUdf<PrimitiveDataFrameColumn<double>, PrimitiveDataFrameColumn<double>, PrimitiveDataFrameColumn<double>, PrimitiveDataFrameColumn<double>>(
                 (price, discount, tax) => VectorFunctions.ComputeTotal(price, discount, tax));
+#endif
 
             _lineitem.Filter(Col("l_shipdate") <= "1998-09-02")
               .GroupBy(Col("l_returnflag"), Col("l_linestatus"))
@@ -231,8 +241,13 @@ namespace Tpch
         internal void Q8v()
         {
             Func<Column, Column> getYear = Udf<string, string>(x => x.Substring(0, 4));
+#if NETCOREAPP
+            Func<Column, Column, Column> discPrice = VectorUdf<DoubleArray, DoubleArray, DoubleArray>(
+                (price, discount) => VectorFunctions.ComputeDiscountPrice(price, discount));
+#else
             Func<Column, Column, Column> discPrice = VectorUdf<PrimitiveDataFrameColumn<double>, PrimitiveDataFrameColumn<double>, PrimitiveDataFrameColumn<double>>(
                 (price, discount) => VectorFunctions.ComputeDiscountPrice(price, discount));
+#endif
 
             Func<Column, Column, Column> isBrazil = Udf<string, double, double>((x, y) => x == "BRAZIL" ? y : 0);
 

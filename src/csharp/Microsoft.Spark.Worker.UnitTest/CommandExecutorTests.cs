@@ -226,7 +226,7 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public async Task TestArrowSqlCommandExecutorWithSingleCommand()
         {
-            var udfWrapper = new Sql.ArrowUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) =>
                 {
                     StringArray stringArray = (StringArray)ToArrowArray(
@@ -240,7 +240,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             {
                 ArgOffsets = new[] { 0 },
                 NumChainedFunctions = 1,
-                WorkerFunction = new Sql.ArrowWorkerFunction(udfWrapper.Execute),
+                WorkerFunction = new Sql.DataFrameWorkerFunction(udfWrapper.Execute),
                 SerializerMode = CommandSerDe.SerializedMode.Row,
                 DeserializerMode = CommandSerDe.SerializedMode.Row
             };
@@ -310,7 +310,7 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public async Task TestArrowSqlCommandExecutorWithMultiCommands()
         {
-            var udfWrapper1 = new Sql.ArrowUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            var udfWrapper1 = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) =>
                 {
                     StringArray stringArray = (StringArray)ToArrowArray(
@@ -319,14 +319,14 @@ namespace Microsoft.Spark.Worker.UnitTest
                         .ToArray());
                     return ToArrowStringDataFrameColumn(stringArray);
                 });
-            var udfWrapper2 = new Sql.ArrowUdfWrapper<PrimitiveDataFrameColumn<int>, PrimitiveDataFrameColumn<int>, PrimitiveDataFrameColumn<int>>(
+            var udfWrapper2 = new Sql.DataFrameUdfWrapper<PrimitiveDataFrameColumn<int>, PrimitiveDataFrameColumn<int>, PrimitiveDataFrameColumn<int>>(
                 (arg1, arg2) => (PrimitiveDataFrameColumn<int>)(arg1 * arg2));
 
             var command1 = new SqlCommand()
             {
                 ArgOffsets = new[] { 0 },
                 NumChainedFunctions = 1,
-                WorkerFunction = new Sql.ArrowWorkerFunction(udfWrapper1.Execute),
+                WorkerFunction = new Sql.DataFrameWorkerFunction(udfWrapper1.Execute),
                 SerializerMode = CommandSerDe.SerializedMode.Row,
                 DeserializerMode = CommandSerDe.SerializedMode.Row
             };
@@ -335,7 +335,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             {
                 ArgOffsets = new[] { 1, 2 },
                 NumChainedFunctions = 1,
-                WorkerFunction = new Sql.ArrowWorkerFunction(udfWrapper2.Execute),
+                WorkerFunction = new Sql.DataFrameWorkerFunction(udfWrapper2.Execute),
                 SerializerMode = CommandSerDe.SerializedMode.Row,
                 DeserializerMode = CommandSerDe.SerializedMode.Row
             };
@@ -415,7 +415,7 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public void TestArrowSqlCommandExecutorWithEmptyInput()
         {
-            var udfWrapper = new Sql.ArrowUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) =>
                 {
                     StringArray stringArray = (StringArray)ToArrowArray(
@@ -429,7 +429,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             {
                 ArgOffsets = new[] { 0 },
                 NumChainedFunctions = 1,
-                WorkerFunction = new Sql.ArrowWorkerFunction(udfWrapper.Execute),
+                WorkerFunction = new Sql.DataFrameWorkerFunction(udfWrapper.Execute),
                 SerializerMode = CommandSerDe.SerializedMode.Row,
                 DeserializerMode = CommandSerDe.SerializedMode.Row
             };
@@ -512,7 +512,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 .Field(b => b.Name("arg2").DataType(Int64Type.Default))
                 .Build();
 
-            var udfWrapper = new Sql.ArrowGroupedMapUdfWrapper(
+            var udfWrapper = new Sql.DataFrameGroupedMapUdfWrapper(
                 (dataFrame) =>
                 {
                     StringArray strings = ConvertStrings(dataFrame.Columns[0]);
@@ -525,7 +525,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             {
                 ArgOffsets = new[] { 0 },
                 NumChainedFunctions = 1,
-                WorkerFunction = new Sql.ArrowGroupedMapWorkerFunction(udfWrapper.Execute),
+                WorkerFunction = new Sql.DataFrameGroupedMapWorkerFunction(udfWrapper.Execute),
                 SerializerMode = CommandSerDe.SerializedMode.Row,
                 DeserializerMode = CommandSerDe.SerializedMode.Row
             };

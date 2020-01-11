@@ -48,7 +48,7 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestCommandSerDeForSqlArrow()
         {
-            var udfWrapper = new Sql.ArrowUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) =>
                 {
                     StringArray stringColumn = (StringArray)ToArrowArray(
@@ -58,7 +58,7 @@ namespace Microsoft.Spark.UnitTest
                     return ToArrowStringDataFrameColumn(stringColumn);
                 });
 
-            var workerFunction = new ArrowWorkerFunction(udfWrapper.Execute);
+            var workerFunction = new DataFrameWorkerFunction(udfWrapper.Execute);
 
             var serializedCommand = Utils.CommandSerDe.Serialize(
                 workerFunction.Func,
@@ -67,8 +67,8 @@ namespace Microsoft.Spark.UnitTest
 
             using (var ms = new MemoryStream(serializedCommand))
             {
-                var deserializedWorkerFunction = new ArrowWorkerFunction(
-                    Utils.CommandSerDe.Deserialize<ArrowWorkerFunction.ExecuteDelegate>(
+                var deserializedWorkerFunction = new DataFrameWorkerFunction(
+                    Utils.CommandSerDe.Deserialize<DataFrameWorkerFunction.ExecuteDelegate>(
                         ms,
                         out Utils.CommandSerDe.SerializedMode serializerMode,
                         out Utils.CommandSerDe.SerializedMode deserializerMode,

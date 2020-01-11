@@ -74,8 +74,8 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestArrowWorkerFunction()
         {
-            var func = new ArrowWorkerFunction(
-                new ArrowUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            var func = new DataFrameWorkerFunction(
+                new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (str) => str).Execute);
 
             string[] input = { "arg1" };
@@ -94,8 +94,8 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestArrowWorkerFunctionForBool()
         {
-            var func = new ArrowWorkerFunction(
-                new ArrowUdfWrapper<ArrowStringDataFrameColumn, PrimitiveDataFrameColumn<bool>, PrimitiveDataFrameColumn<bool>>(
+            var func = new DataFrameWorkerFunction(
+                new DataFrameUdfWrapper<ArrowStringDataFrameColumn, PrimitiveDataFrameColumn<bool>, PrimitiveDataFrameColumn<bool>>(
                     (strings, flags) =>
                     {
                         for (long i = 0; i < strings.Length; i++)
@@ -126,8 +126,8 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestChainingArrowWorkerFunction()
         {
-            var func1 = new ArrowWorkerFunction(
-                new ArrowUdfWrapper<PrimitiveDataFrameColumn<int>, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            var func1 = new DataFrameWorkerFunction(
+                new DataFrameUdfWrapper<PrimitiveDataFrameColumn<int>, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (numbers, strings) =>
                     {
                         StringArray stringColumn = (StringArray)ToArrowArray(
@@ -137,8 +137,8 @@ namespace Microsoft.Spark.UnitTest
                         return ToArrowStringDataFrameColumn(stringColumn);
                     }).Execute);
 
-            var func2 = new ArrowWorkerFunction(
-                new ArrowUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            var func2 = new DataFrameWorkerFunction(
+                new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (strings) =>
                     {
                         StringArray stringColumn = (StringArray)ToArrowArray(
@@ -149,8 +149,8 @@ namespace Microsoft.Spark.UnitTest
                     }).Execute);
 
 
-            var func3 = new ArrowWorkerFunction(
-                new ArrowUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            var func3 = new DataFrameWorkerFunction(
+                new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (strings) =>
                     {
                         StringArray stringColumn = (StringArray)ToArrowArray(
@@ -170,13 +170,13 @@ namespace Microsoft.Spark.UnitTest
             };
 
             // Validate one-level chaining.
-            var chainedFunc1 = ArrowWorkerFunction.Chain(func1, func2);
+            var chainedFunc1 = DataFrameWorkerFunction.Chain(func1, func2);
             ArrowTestUtils.AssertEquals(
                 "outer1:name:100",
                 chainedFunc1.Func(input, new[] { 0, 1 }));
 
             // Validate two-level chaining.
-            var chainedFunc2 = ArrowWorkerFunction.Chain(chainedFunc1, func3);
+            var chainedFunc2 = DataFrameWorkerFunction.Chain(chainedFunc1, func3);
             ArrowTestUtils.AssertEquals(
                 "outer2:outer1:name:100",
                 chainedFunc2.Func(input, new[] { 0, 1 }));
@@ -186,8 +186,8 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestInvalidChainingArrow()
         {
-            var func1 = new ArrowWorkerFunction(
-                new ArrowUdfWrapper<PrimitiveDataFrameColumn<int>, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            var func1 = new DataFrameWorkerFunction(
+                new DataFrameUdfWrapper<PrimitiveDataFrameColumn<int>, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (numbers, strings) =>
                     {
                         StringArray stringArray = (StringArray)ToArrowArray(
@@ -197,8 +197,8 @@ namespace Microsoft.Spark.UnitTest
                         return ToArrowStringDataFrameColumn(stringArray);
                     }).Execute);
 
-            var func2 = new ArrowWorkerFunction(
-                new ArrowUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            var func2 = new DataFrameWorkerFunction(
+                new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (strings) =>
                     {
                         StringArray stringArray = (StringArray)ToArrowArray(
@@ -218,7 +218,7 @@ namespace Microsoft.Spark.UnitTest
             };
 
             // The order does not align since workerFunction2 is executed first.
-            var chainedFunc1 = ArrowWorkerFunction.Chain(func2, func1);
+            var chainedFunc1 = DataFrameWorkerFunction.Chain(func2, func1);
             Assert.ThrowsAny<Exception>(() => chainedFunc1.Func(input, new[] { 0, 1 }));
         }
     }

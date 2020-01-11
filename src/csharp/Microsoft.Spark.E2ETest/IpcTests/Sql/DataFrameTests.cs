@@ -169,7 +169,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Single UDF.
             Func<Column, Column, Column> udf1 =
-                ExperimentalFunctions.VectorUdf(udf1Func);
+                ExperimentalDataFrameFunctions.VectorUdf(udf1Func);
             {
                 Row[] rows = _df.Select(udf1(_df["age"], _df["name"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
@@ -179,7 +179,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
 
             // Chained UDFs.
-            Func<Column, Column> udf2 = ExperimentalFunctions.VectorUdf<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            Func<Column, Column> udf2 = ExperimentalDataFrameFunctions.VectorUdf<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) =>
                 {
                     StringArray stringArray = (StringArray)ToArrowArray(
@@ -283,11 +283,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             PrimitiveDataFrameColumn<int> characterCountColumn = new PrimitiveDataFrameColumn<int>(stringFieldName + "CharCount");
             PrimitiveDataFrameColumn<int> ageColumn = new PrimitiveDataFrameColumn<int>(groupFieldName);
-            for (long i = 0; i < dataFrame.RowCount; i++)
+            for (long i = 0; i < dataFrame.Rows.Count; i++)
             {
                 characterCount += ((string)dataFrame[stringFieldName][i]).Length;
             }
-            if (dataFrame.RowCount > 0)
+            if (dataFrame.Rows.Count > 0)
             {
                 characterCountColumn.Append(characterCount);
                 ageColumn.Append((int?)dataFrame[groupFieldName][0]);
