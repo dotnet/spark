@@ -7,7 +7,7 @@
   <version>${microsoft-spark.version}</version>
   <properties>
     <encoding>UTF-8</encoding>
-    <microsoft-spark.version>${microsoft-spark.version}</microsoft-spark.version>
+    <microsoft-spark.version>0.8.0</microsoft-spark.version>
   </properties>
 
   <modules>
