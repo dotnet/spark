@@ -163,7 +163,7 @@ namespace Microsoft.Spark.Worker
                         }
 
                         s_logger.LogInfo(
-                            $"Pool snapshot: [NumThreads:{numWorkerThreads}], [NumTaskRunners:{CurrentNumTaskRunners}]");
+                            $"Pool snapshot: [NumThreads:{numWorkerThreads}], [NumTaskRunners:{numTaskRunners}]");
                     }
                     else
                     {
