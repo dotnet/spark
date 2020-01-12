@@ -22,7 +22,7 @@ namespace Microsoft.Spark.Worker.UnitTest
         {
             ISocketWrapper daemonSocket = SocketFactory.CreateSocket();
             
-            var taskRunnerNumber = 3;
+            int taskRunnerNumber = 3;
             var typedVersion = new Version(Versions.V2_4_0);
             var daemonWorker = new DaemonWorker(typedVersion);
             
