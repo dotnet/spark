@@ -13,7 +13,6 @@
   <modules>
     <module>microsoft-spark-2.3.x</module>
     <module>microsoft-spark-2.4.x</module>
-    <module>microsoft-spark-3.0.x</module>
   </modules>
 
   <pluginRepositories>
