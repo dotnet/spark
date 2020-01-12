@@ -28,7 +28,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             
             Task.Run(() => daemonWorker.Run(daemonSocket));
 
-            for (var i = 0; i < taskRunnerNumber; ++i)
+            for (int i = 0; i < taskRunnerNumber; ++i)
             {
                 CreateAndVerifyConnection(daemonSocket);
             }
