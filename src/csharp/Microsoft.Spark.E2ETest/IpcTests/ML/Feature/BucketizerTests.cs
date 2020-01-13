@@ -38,6 +38,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             DataFrame output = bucketizer.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col"));
+
+            Assert.IsType<string>(bucketizer.GetInputCol());
+            Assert.IsType<string>(bucketizer.GetOutputCol());
+            Assert.IsType<double[]>(bucketizer.GetSplits());
         }
 
         [Fact]
@@ -64,6 +68,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             DataFrame output = bucketizer.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col_a"));
             Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col_b"));
+            
+            Assert.IsType<List<string>>(bucketizer.GetInputCols());
+            Assert.IsType<List<string>>(bucketizer.GetOutputCols());
+            Assert.IsType<double[][]>(bucketizer.GetSplitsArray());
         }
     }
 }
