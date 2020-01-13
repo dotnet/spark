@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net461;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp3.1</TargetFrameworks>
     <RootNamespace>Tpch</RootNamespace>
     <AssemblyName>Tpch</AssemblyName>
@@ -11,7 +11,6 @@
   <ItemGroup>
     <!-- Workaround https://github.com/dotnet/project-system/issues/935 -->
     <None Include="**/*.cs" />
-
     <ProjectReference Include="..\..\..\src\csharp\Microsoft.Spark.Experimental\Microsoft.Spark.Experimental.csproj" />
     <ProjectReference Include="..\..\..\src\csharp\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
