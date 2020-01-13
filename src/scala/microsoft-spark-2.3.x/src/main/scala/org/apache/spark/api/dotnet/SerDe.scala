@@ -260,8 +260,8 @@ object SerDe {
           writeType(dos, "list")
           writeDoubleArr(dos, value.asInstanceOf[Array[Double]])
         case "[[D" =>
-            writeType(dos, "list")
-            writeDoubleArrArr(dos, value.asInstanceOf[Array[Array[Double]]])
+          writeType(dos, "list")
+          writeDoubleArrArr(dos, value.asInstanceOf[Array[Array[Double]]])
         case "[Z" =>
           writeType(dos, "list")
           writeBooleanArr(dos, value.asInstanceOf[Array[Boolean]])
