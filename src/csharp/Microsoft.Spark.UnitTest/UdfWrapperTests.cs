@@ -142,7 +142,7 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestArrowUdfWrapper1()
         {
-            var udfWrapper = new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            var udfWrapper = new ArrowUdfWrapper<StringArray, StringArray>(
                 (str1) => str1);
             ValidateArrowWrapper(1, udfWrapper);
         }
@@ -150,7 +150,7 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestArrowUdfWrapper2()
         {
-            var udfWrapper = new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            var udfWrapper = new ArrowUdfWrapper<StringArray, StringArray, StringArray>(
                 (str1, str2) => Concat(str1, str2));
             ValidateArrowWrapper(2, udfWrapper);
         }
@@ -158,7 +158,7 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestArrowUdfWrapper3()
         {
-            var udfWrapper = new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            var udfWrapper = new ArrowUdfWrapper<StringArray, StringArray, StringArray, StringArray>(
                 (str1, str2, str3) => Concat(str1, str2, str3));
             ValidateArrowWrapper(3, udfWrapper);
         }
@@ -166,7 +166,7 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestArrowUdfWrapper4()
         {
-            var udfWrapper = new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            var udfWrapper = new ArrowUdfWrapper<StringArray, StringArray, StringArray, StringArray, StringArray>(
                 (str1, str2, str3, str4) => Concat(str1, str2, str3, str4));
             ValidateArrowWrapper(4, udfWrapper);
         }
@@ -174,13 +174,103 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestArrowUdfWrapper5()
         {
-            var udfWrapper = new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            var udfWrapper = new ArrowUdfWrapper<StringArray, StringArray, StringArray, StringArray, StringArray, StringArray>(
                 (str1, str2, str3, str4, str5) => Concat(str1, str2, str3, str4, str5));
             ValidateArrowWrapper(5, udfWrapper);
         }
 
         [Fact]
         public void TestArrowUdfWrapper6()
+        {
+            var udfWrapper = new ArrowUdfWrapper<
+                StringArray, StringArray, StringArray, StringArray, StringArray, StringArray, StringArray>(
+                    (str1, str2, str3, str4, str5, str6)
+                        => Concat(str1, str2, str3, str4, str5, str6));
+            ValidateArrowWrapper(6, udfWrapper);
+        }
+
+        [Fact]
+        public void TestArrowUdfWrapper7()
+        {
+            var udfWrapper = new ArrowUdfWrapper<
+                StringArray, StringArray, StringArray, StringArray, StringArray, StringArray, StringArray, StringArray>(
+                    (str1, str2, str3, str4, str5, str6, str7)
+                        => Concat(str1, str2, str3, str4, str5, str6, str7));
+            ValidateArrowWrapper(7, udfWrapper);
+        }
+
+        [Fact]
+        public void TestArrowUdfWrapper8()
+        {
+            var udfWrapper = new ArrowUdfWrapper<
+                StringArray, StringArray, StringArray, StringArray, StringArray, StringArray, StringArray, StringArray, StringArray>(
+                    (str1, str2, str3, str4, str5, str6, str7, str8)
+                        => Concat(str1, str2, str3, str4, str5, str6, str7, str8));
+            ValidateArrowWrapper(8, udfWrapper);
+        }
+
+        [Fact]
+        public void TestArrowUdfWrapper9()
+        {
+            var udfWrapper = new ArrowUdfWrapper<
+                StringArray, StringArray, StringArray, StringArray, StringArray, StringArray, StringArray, StringArray, StringArray, StringArray>(
+                    (str1, str2, str3, str4, str5, str6, str7, str8, str9)
+                        => Concat(str1, str2, str3, str4, str5, str6, str7, str8, str9));
+            ValidateArrowWrapper(9, udfWrapper);
+        }
+
+        [Fact]
+        public void TestArrowUdfWrapper10()
+        {
+            var udfWrapper = new ArrowUdfWrapper<
+                StringArray, StringArray, StringArray, StringArray, StringArray, StringArray, StringArray, StringArray, StringArray, StringArray, StringArray>(
+                    (str1, str2, str3, str4, str5, str6, str7, str8, str9, str10)
+                        => Concat(str1, str2, str3, str4, str5, str6, str7, str8, str9, str10));
+            ValidateArrowWrapper(10, udfWrapper);
+        }
+
+        [Fact]
+        public void TestDataFrameUdfWrapper1()
+        {
+            var udfWrapper = new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+                (str1) => str1);
+            ValidateArrowWrapper(1, udfWrapper);
+        }
+
+        [Fact]
+        public void TestDataFrameUdfWrapper2()
+        {
+            var udfWrapper = new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+                (str1, str2) => Concat(str1, str2));
+            ValidateArrowWrapper(2, udfWrapper);
+        }
+
+        [Fact]
+        public void TestDataFrameUdfWrapper3()
+        {
+            var udfWrapper = new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+                (str1, str2, str3) => Concat(str1, str2, str3));
+            ValidateArrowWrapper(3, udfWrapper);
+        }
+
+        [Fact]
+        public void TestDataFrameUdfWrapper4()
+        {
+            var udfWrapper = new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+                (str1, str2, str3, str4) => Concat(str1, str2, str3, str4));
+            ValidateArrowWrapper(4, udfWrapper);
+        }
+
+        [Fact]
+        public void TestDataFrameUdfWrapper5()
+        {
+            var udfWrapper = new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+                (str1, str2, str3, str4, str5) => Concat(str1, str2, str3, str4, str5));
+            ValidateArrowWrapper(5, udfWrapper);
+        }
+
+        [Fact]
+        public void TestDataFrameUdfWrapper6()
         {
             var udfWrapper = new DataFrameUdfWrapper<
                 ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
@@ -190,7 +280,7 @@ namespace Microsoft.Spark.UnitTest
         }
 
         [Fact]
-        public void TestArrowUdfWrapper7()
+        public void TestDataFrameUdfWrapper7()
         {
             var udfWrapper = new DataFrameUdfWrapper<
                 ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
@@ -200,7 +290,7 @@ namespace Microsoft.Spark.UnitTest
         }
 
         [Fact]
-        public void TestArrowUdfWrapper8()
+        public void TestDataFrameUdfWrapper8()
         {
             var udfWrapper = new DataFrameUdfWrapper<
                 ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
@@ -210,7 +300,7 @@ namespace Microsoft.Spark.UnitTest
         }
 
         [Fact]
-        public void TestArrowUdfWrapper9()
+        public void TestDataFrameUdfWrapper9()
         {
             var udfWrapper = new DataFrameUdfWrapper<
                 ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
@@ -220,13 +310,33 @@ namespace Microsoft.Spark.UnitTest
         }
 
         [Fact]
-        public void TestArrowUdfWrapper10()
+        public void TestDataFrameUdfWrapper10()
         {
             var udfWrapper = new DataFrameUdfWrapper<
                 ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (str1, str2, str3, str4, str5, str6, str7, str8, str9, str10)
                         => Concat(str1, str2, str3, str4, str5, str6, str7, str8, str9, str10));
             ValidateArrowWrapper(10, udfWrapper);
+        }
+
+        private static StringArray Concat(params StringArray[] arrays)
+        {
+            var builder = new StringBuilder();
+            int length = arrays[0].Length;
+            var resultStrings = new string[length];
+
+            for (int i = 0; i < length; ++i)
+            {
+                foreach (StringArray array in arrays)
+                {
+                    builder.Append(array.GetString(i));
+                }
+
+                resultStrings[i] = builder.ToString();
+                builder.Clear();
+            }
+
+            return (StringArray)ToArrowArray(resultStrings);
         }
 
         private static ArrowStringDataFrameColumn Concat(params ArrowStringDataFrameColumn[] arrays)

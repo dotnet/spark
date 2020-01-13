@@ -41,5 +41,13 @@ namespace Microsoft.Spark.Sql
         {
             return dataset.Apply(returnType, func);
         }
+
+        public static DataFrame Apply(
+            this RelationalGroupedDataset dataset,
+            StructType returnType, 
+            Func<RecordBatch, RecordBatch> func)
+        {
+            return dataset.Apply(returnType, func);
+        }
     }
 }

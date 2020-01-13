@@ -48,6 +48,42 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestCommandSerDeForSqlArrow()
         {
+            var udfWrapper = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
+                (strings) => (StringArray)ToArrowArray(
+                    Enumerable.Range(0, strings.Length)
+                        .Select(i => $"hello {strings.GetString(i)}")
+                        .ToArray()));
+
+            var workerFunction = new ArrowWorkerFunction(udfWrapper.Execute);
+
+            var serializedCommand = Utils.CommandSerDe.Serialize(
+                workerFunction.Func,
+                Utils.CommandSerDe.SerializedMode.Row,
+                Utils.CommandSerDe.SerializedMode.Row);
+
+            using (var ms = new MemoryStream(serializedCommand))
+            {
+                var deserializedWorkerFunction = new ArrowWorkerFunction(
+                    Utils.CommandSerDe.Deserialize<ArrowWorkerFunction.ExecuteDelegate>(
+                        ms,
+                        out Utils.CommandSerDe.SerializedMode serializerMode,
+                        out Utils.CommandSerDe.SerializedMode deserializerMode,
+                        out var runMode));
+
+                Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, serializerMode);
+                Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, deserializerMode);
+                Assert.Equal("N", runMode);
+
+                Apache.Arrow.IArrowArray input = ToArrowArray(new[] { "spark" });
+                Apache.Arrow.IArrowArray result =
+                    deserializedWorkerFunction.Func(new[] { input }, new[] { 0 });
+                ArrowTestUtils.AssertEquals("hello spark", result);
+            }
+        }
+
+        [Fact]
+        public void TestCommandSerDeForSqlArrowDataFrame()
+        {
             var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) =>
                 {

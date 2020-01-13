@@ -74,6 +74,19 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestArrowWorkerFunction()
         {
+            var func = new ArrowWorkerFunction(
+                new ArrowUdfWrapper<StringArray, StringArray>(
+                    (str) => str).Execute);
+
+            string[] input = { "arg1" };
+            ArrowTestUtils.AssertEquals(
+                input[0],
+                func.Func(new[] { ToArrowArray(input) }, new[] { 0 }));
+        }
+
+        [Fact]
+        public void TestDataFrameWorkerFunction()
+        {
             var func = new DataFrameWorkerFunction(
                 new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (str) => str).Execute);
@@ -93,6 +106,33 @@ namespace Microsoft.Spark.UnitTest
         /// </summary>
         [Fact]
         public void TestArrowWorkerFunctionForBool()
+        {
+            var func = new ArrowWorkerFunction(
+                new ArrowUdfWrapper<StringArray, BooleanArray, BooleanArray>(
+                    (strings, flags) => (BooleanArray)ToArrowArray(
+                        Enumerable.Range(0, strings.Length)
+                            .Select(i => flags.GetBoolean(i) || strings.GetString(i).Contains("true"))
+                            .ToArray())).Execute);
+
+            IArrowArray[] input = new[]
+            {
+                ToArrowArray(new[] { "arg1_true", "arg1_true", "arg1_false", "arg1_false" }),
+                ToArrowArray(new[] { true, false, true, false }),
+            };
+            var results = (BooleanArray)func.Func(input, new[] { 0, 1 });
+            Assert.Equal(4, results.Length);
+            Assert.True(results.GetBoolean(0));
+            Assert.True(results.GetBoolean(1));
+            Assert.True(results.GetBoolean(2));
+            Assert.False(results.GetBoolean(3));
+        }
+
+        /// <summary>
+        /// Tests the DataFrameWorkerFunction handles boolean types correctly
+        /// for both input and output.
+        /// </summary>
+        [Fact]
+        public void TestDataFrameWorkerFunctionForBool()
         {
             var func = new DataFrameWorkerFunction(
                 new DataFrameUdfWrapper<ArrowStringDataFrameColumn, PrimitiveDataFrameColumn<bool>, PrimitiveDataFrameColumn<bool>>(
@@ -125,6 +165,49 @@ namespace Microsoft.Spark.UnitTest
 
         [Fact]
         public void TestChainingArrowWorkerFunction()
+        {
+            var func1 = new ArrowWorkerFunction(
+                new ArrowUdfWrapper<Int32Array, StringArray, StringArray>(
+                    (numbers, strings) => (StringArray)ToArrowArray(
+                        Enumerable.Range(0, strings.Length)
+                            .Select(i => $"{strings.GetString(i)}:{numbers.Values[i]}")
+                            .ToArray())).Execute);
+
+            var func2 = new ArrowWorkerFunction(
+                new ArrowUdfWrapper<StringArray, StringArray>(
+                    (strings) => (StringArray)ToArrowArray(
+                        Enumerable.Range(0, strings.Length)
+                            .Select(i => $"outer1:{strings.GetString(i)}")
+                            .ToArray())).Execute);
+
+            var func3 = new ArrowWorkerFunction(
+                new ArrowUdfWrapper<StringArray, StringArray>(
+                    (strings) => (StringArray)ToArrowArray(
+                        Enumerable.Range(0, strings.Length)
+                            .Select(i => $"outer2:{strings.GetString(i)}")
+                            .ToArray())).Execute);
+
+            Apache.Arrow.IArrowArray[] input = new[]
+            {
+                ToArrowArray(new[] { 100 }),
+                ToArrowArray(new[] { "name" })
+            };
+
+            // Validate one-level chaining.
+            var chainedFunc1 = ArrowWorkerFunction.Chain(func1, func2);
+            ArrowTestUtils.AssertEquals(
+                "outer1:name:100",
+                chainedFunc1.Func(input, new[] { 0, 1 }));
+
+            // Validate two-level chaining.
+            var chainedFunc2 = ArrowWorkerFunction.Chain(chainedFunc1, func3);
+            ArrowTestUtils.AssertEquals(
+                "outer2:outer1:name:100",
+                chainedFunc2.Func(input, new[] { 0, 1 }));
+        }
+
+        [Fact]
+        public void TestChainingDataFrameWorkerFunction()
         {
             var func1 = new DataFrameWorkerFunction(
                 new DataFrameUdfWrapper<PrimitiveDataFrameColumn<int>, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
@@ -185,6 +268,34 @@ namespace Microsoft.Spark.UnitTest
 
         [Fact]
         public void TestInvalidChainingArrow()
+        {
+            var func1 = new ArrowWorkerFunction(
+                new ArrowUdfWrapper<Int32Array, StringArray, StringArray>(
+                    (numbers, strings) => (StringArray)ToArrowArray(
+                        Enumerable.Range(0, strings.Length)
+                            .Select(i => $"{strings.GetString(i)}:{numbers.Values[i]}")
+                            .ToArray())).Execute);
+
+            var func2 = new ArrowWorkerFunction(
+                new ArrowUdfWrapper<StringArray, StringArray>(
+                    (strings) => (StringArray)ToArrowArray(
+                        Enumerable.Range(0, strings.Length)
+                            .Select(i => $"outer1:{strings.GetString(i)}")
+                            .ToArray())).Execute);
+
+            Apache.Arrow.IArrowArray[] input = new[]
+            {
+                ToArrowArray(new[] { 100 }),
+                ToArrowArray(new[] { "name" })
+            };
+
+            // The order does not align since workerFunction2 is executed first.
+            var chainedFunc1 = ArrowWorkerFunction.Chain(func2, func1);
+            Assert.ThrowsAny<Exception>(() => chainedFunc1.Func(input, new[] { 0, 1 }));
+        }
+
+        [Fact]
+        public void TestInvalidChainingDataFrame()
         {
             var func1 = new DataFrameWorkerFunction(
                 new DataFrameUdfWrapper<PrimitiveDataFrameColumn<int>, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(

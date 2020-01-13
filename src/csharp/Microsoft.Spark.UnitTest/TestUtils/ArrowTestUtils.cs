@@ -13,6 +13,14 @@ namespace Microsoft.Spark.UnitTest.TestUtils
 {
     public static class ArrowTestUtils
     {
+        public static void AssertEquals(string expectedValue, IArrowArray arrowArray)
+        {
+            Assert.IsType<StringArray>(arrowArray);
+            var stringArray = (StringArray)arrowArray;
+            Assert.Equal(1, stringArray.Length);
+            Assert.Equal(expectedValue, stringArray.GetString(0));
+        }
+
         public static void AssertEquals(string expectedValue, DataFrameColumn arrowArray)
         {
             var stringArray = (ArrowStringDataFrameColumn)arrowArray;

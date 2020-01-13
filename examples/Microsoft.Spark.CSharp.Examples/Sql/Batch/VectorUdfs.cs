@@ -67,9 +67,10 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             PrimitiveDataFrameColumn<int> characterCountColumn = new PrimitiveDataFrameColumn<int>(stringFieldName + "CharCount");
             PrimitiveDataFrameColumn<int> ageColumn = new PrimitiveDataFrameColumn<int>(groupFieldName);
+            StringDataFrameColumn fieldColumn = dataFrame[stringFieldName] as StringDataFrameColumn;
             for (long i = 0; i < dataFrame.Rows.Count; i++)
             {
-                characterCount += ((string)dataFrame[stringFieldName][i]).Length;
+                characterCount += fieldColumn[i].Length;
             }
 
             if (dataFrame.Rows.Count > 0)
