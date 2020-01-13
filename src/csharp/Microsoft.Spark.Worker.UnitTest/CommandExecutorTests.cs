@@ -223,7 +223,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             Assert.Equal(0, outputStream.Length);
         }
 
-                [Fact]
+        [Fact]
         public async Task TestArrowSqlCommandExecutorWithSingleCommand()
         {
             var udfWrapper = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
@@ -387,7 +387,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             Assert.Equal(outputStream.Length, outputStream.Position);
         }
 
-                [Fact]
+        [Fact]
         public async Task TestArrowSqlCommandExecutorWithMultiCommands()
         {
             var udfWrapper1 = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
@@ -586,7 +586,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             Assert.Equal(outputStream.Length, outputStream.Position);
         }
 
-                /// <summary>
+        /// <summary>
         /// Tests when Spark writes an input stream that only contains a
         /// Schema, and no record batches, that CommandExecutor writes the
         /// appropriate response back.
@@ -760,7 +760,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             Assert.Equal(outputStream.Length, outputStream.Position);
         }
 
-                [Fact]
+        [Fact]
         public async Task TestArrowGroupedMapCommandExecutor()
         {
             StringArray ConvertStrings(StringArray strings)
@@ -970,11 +970,11 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Assert.Equal($"udf: {i}", stringArray.GetString(i));
             }
 
-                var doubleArray = (DoubleArray)outputBatch.Column(1);
-                for (int i = 0; i < numRows; ++i)
-                {
-                    Assert.Equal(100 + i, doubleArray.Values[i]);
-                }
+            var doubleArray = (DoubleArray)outputBatch.Column(1);
+            for (int i = 0; i < numRows; ++i)
+            {
+                Assert.Equal(100 + i, doubleArray.Values[i]);
+            }
 
             int end = SerDe.ReadInt32(outputStream);
             Assert.Equal(0, end);

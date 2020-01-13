@@ -4,45 +4,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using Apache.Arrow;
 using Microsoft.Data.Analysis;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Internal.Java.Util;
-using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.Utils
 {
-    using ArrowDelegate = ArrowWorkerFunction.ExecuteDelegate;
     using DataFrameDelegate = DataFrameWorkerFunction.ExecuteDelegate;
-    using PicklingDelegate = PicklingWorkerFunction.ExecuteDelegate;
 
     /// <summary>
     /// UdfUtils provides UDF-related functions and enum.
     /// </summary>
     internal static class DataFrameUdfUtils
     {
-        /// <summary>
-        /// Enum for Python evaluation type. This determines how the data will be serialized
-        /// from Spark executor to its worker.
-        /// Since UDF is based on PySpark implementation, PythonEvalType is used. Once
-        /// generic interop layer is introduced, this will be revisited.
-        /// This mirrors values defined in python/pyspark/rdd.py.
-        /// </summary>
-        internal enum PythonEvalType
-        {
-            NON_UDF = 0,
-
-            SQL_BATCHED_UDF = 100,
-
-            SQL_SCALAR_PANDAS_UDF = 200,
-            SQL_GROUPED_MAP_PANDAS_UDF = 201,
-            SQL_GROUPED_AGG_PANDAS_UDF = 202,
-            SQL_WINDOW_AGG_PANDAS_UDF = 203
-        }
-
         /// <summary>
         /// Mapping of supported types from .NET to org.apache.spark.sql.types.DataType in Scala.
         /// Refer to spark/sql/catalyst/src/main/scala/org/apache/spark/sql/types/DataType.scala
@@ -118,121 +92,6 @@ namespace Microsoft.Spark.Utils
             }
 
             throw new ArgumentException($"{type.FullName} is not supported.");
-        }
-
-        /// <summary>
-        /// Creates the PythonFunction object on the JVM side wrapping the given command bytes.
-        /// </summary>
-        /// <param name="jvm">JVM bridge to use</param>
-        /// <param name="command">Serialized command bytes</param>
-        /// <returns>JvmObjectReference object to the PythonFunction object</returns>
-        internal static JvmObjectReference CreatePythonFunction(IJvmBridge jvm, byte[] command)
-        {
-            var arrayList = new ArrayList(jvm);
-
-            return (JvmObjectReference)jvm.CallStaticJavaMethod(
-                "org.apache.spark.sql.api.dotnet.SQLUtils",
-                "createPythonFunction",
-                command,
-                CreateEnvVarsForPythonFunction(jvm),
-                arrayList, // Python includes
-                SparkEnvironment.ConfigurationService.GetWorkerExePath(),
-                Versions.CurrentVersion,
-                arrayList, // Broadcast variables
-                null); // Accumulator
-        }
-
-        private static IJvmObjectReferenceProvider CreateEnvVarsForPythonFunction(IJvmBridge jvm)
-        {
-            var environmentVars = new Hashtable(jvm);
-            string assemblySearchPath = string.Join(",",
-                new[]
-                {
-                    Environment.GetEnvironmentVariable(
-                        AssemblySearchPathResolver.AssemblySearchPathsEnvVarName),
-                    SparkFiles.GetRootDirectory()
-                }.Where(s => !string.IsNullOrWhiteSpace(s)));
-
-            if (!string.IsNullOrEmpty(assemblySearchPath))
-            {
-                environmentVars.Put(
-                    AssemblySearchPathResolver.AssemblySearchPathsEnvVarName,
-                    assemblySearchPath);
-            }
-
-            return environmentVars;
-        }
-
-        internal static Delegate CreateUdfWrapper<TResult>(Func<TResult> udf)
-        {
-            return (PicklingDelegate)new PicklingUdfWrapper<TResult>(udf).Execute;
-        }
-
-        internal static Delegate CreateUdfWrapper<T, TResult>(Func<T, TResult> udf)
-        {
-            return (PicklingDelegate)new PicklingUdfWrapper<T, TResult>(udf).Execute;
-        }
-
-        internal static Delegate CreateUdfWrapper<T1, T2, TResult>(Func<T1, T2, TResult> udf)
-        {
-            return (PicklingDelegate)new PicklingUdfWrapper<T1, T2, TResult>(udf).Execute;
-        }
-
-        internal static Delegate CreateUdfWrapper<T1, T2, T3, TResult>(
-            Func<T1, T2, T3, TResult> udf)
-        {
-            return (PicklingDelegate)new PicklingUdfWrapper<T1, T2, T3, TResult>(udf).Execute;
-        }
-
-        internal static Delegate CreateUdfWrapper<T1, T2, T3, T4, TResult>(
-            Func<T1, T2, T3, T4, TResult> udf)
-        {
-            return (PicklingDelegate)
-                new PicklingUdfWrapper<T1, T2, T3, T4, TResult>(udf).Execute;
-        }
-
-        internal static Delegate CreateUdfWrapper<T1, T2, T3, T4, T5, TResult>(
-            Func<T1, T2, T3, T4, T5, TResult> udf)
-        {
-            return (PicklingDelegate)
-                new PicklingUdfWrapper<T1, T2, T3, T4, T5, TResult>(udf).Execute;
-        }
-
-        internal static Delegate CreateUdfWrapper<T1, T2, T3, T4, T5, T6, TResult>(
-            Func<T1, T2, T3, T4, T5, T6, TResult> udf)
-        {
-            return (PicklingDelegate)
-                new PicklingUdfWrapper<T1, T2, T3, T4, T5, T6, TResult>(udf).Execute;
-        }
-
-        internal static Delegate CreateUdfWrapper<T1, T2, T3, T4, T5, T6, T7, TResult>(
-            Func<T1, T2, T3, T4, T5, T6, T7, TResult> udf)
-        {
-            return (PicklingDelegate)
-                new PicklingUdfWrapper<T1, T2, T3, T4, T5, T6, T7, TResult>(udf).Execute;
-        }
-
-        internal static Delegate CreateUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> udf)
-        {
-            return (PicklingDelegate)
-                new PicklingUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(udf).Execute;
-        }
-
-        internal static Delegate CreateUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> udf)
-        {
-            return (PicklingDelegate)
-                new PicklingUdfWrapper<
-                    T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(udf).Execute;
-        }
-
-        internal static Delegate CreateUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> udf)
-        {
-            return (PicklingDelegate)
-                new PicklingUdfWrapper<
-                    T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(udf).Execute;
         }
 
         internal static Delegate CreateVectorUdfWrapper<T, TResult>(Func<T, TResult> udf)
