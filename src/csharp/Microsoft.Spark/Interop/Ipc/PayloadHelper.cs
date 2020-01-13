@@ -24,7 +24,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private static readonly byte[] s_doubleTypeId = new[] { (byte)'d' };
         private static readonly byte[] s_jvmObjectTypeId = new[] { (byte)'j' };
         private static readonly byte[] s_byteArrayTypeId = new[] { (byte)'r' };
-        private static readonly byte[] s_doubleArrayArrayTypeId = new[] {(byte)'A'};
+        private static readonly byte[] s_doubleArrayArrayTypeId = new[] {( byte)'A' };
         private static readonly byte[] s_arrayTypeId = new[] { (byte)'l' };
         private static readonly byte[] s_dictionaryTypeId = new[] { (byte)'e' };
         private static readonly byte[] s_rowArrTypeId = new[] { (byte)'R' };
