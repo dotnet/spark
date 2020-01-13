@@ -43,15 +43,17 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestBucketizer_MultipleColumns()
         {
+            double[][] splitsArray = new[]
+            {
+                new[] {Double.MinValue, 0.0, 10.0, 50.0, Double.MaxValue},
+                new[] {Double.MinValue, 0.0, 10000.0, Double.MaxValue}
+            };
+                
             Bucketizer bucketizer = new Bucketizer()
                 .SetInputCols(new List<string>() {"input_col_a", "input_col_b"})
                 .SetOutputCols(new List<string>() {"output_col_a", "output_col_b"})
                 .SetHandleInvalid("keep")
-                .SetSplitsArray(new[]
-                {
-                    new[] {Double.MinValue, 0.0, 10.0, 50.0, Double.MaxValue},
-                    new[] {Double.MinValue, 0.0, 10000.0, Double.MaxValue}
-                });
+                .SetSplitsArray(splitsArray);
 
             Assert.Equal("keep",
                 bucketizer.GetHandleInvalid());

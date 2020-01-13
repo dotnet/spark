@@ -27,10 +27,7 @@ namespace Microsoft.Spark.ML.Feature
         {
             _jvmObject = jvmObject;
         }
-
-        private readonly JvmObjectReference _jvmObject;
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-
+        
         /// <summary>
         /// Create a <see cref="Bucketizer"/> without any parameters
         /// </summary>
@@ -50,7 +47,10 @@ namespace Microsoft.Spark.ML.Feature
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
                 "org.apache.spark.ml.feature.Bucketizer", uid);
         }
-
+        
+        private readonly JvmObjectReference _jvmObject;
+        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        
         /// <summary>
         /// Split points for splitting a single column into buckets. To split multiple columns use
         /// SetSplitsArray. You cannot use both SetSplits and SetSplitsArray at the same time
@@ -80,12 +80,8 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns><see cref="Bucketizer"/></returns>
         public Bucketizer SetSplitsArray(double[][] value)
         {
-            DoubleArrayArrayParam doubleArrayArray = new DoubleArrayArrayParam(_jvmObject,
-                "setSplitsArray",
-                "wrapper for double[][] from csharp", value);
-
-            return WrapAsBucketizer(_jvmObject.Invoke("setSplitsArray",
-                doubleArrayArray.ReferenceValue));
+            double[][][] wrappedValue = new[] {value};
+            return WrapAsBucketizer(_jvmObject.Invoke("setSplitsArray", wrappedValue));
         }
 
         /// <summary>

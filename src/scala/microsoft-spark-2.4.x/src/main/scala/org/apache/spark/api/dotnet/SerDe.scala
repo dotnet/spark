@@ -118,6 +118,11 @@ object SerDe {
     (0 until len).map(_ => readDouble(in)).toArray
   }
 
+  def readDoubleArrArr(in: DataInputStream): Array[Array[Double]] = {
+     val len = readInt(in)
+      (0 until len).map(_ => readDoubleArr(in)).toArray
+  }
+
   def readBooleanArr(in: DataInputStream): Array[Boolean] = {
     val len = readInt(in)
     (0 until len).map(_ => readBoolean(in)).toArray
@@ -140,6 +145,7 @@ object SerDe {
       case 'g' => readLongArr(dis)
       case 'c' => readStringArr(dis)
       case 'd' => readDoubleArr(dis)
+      case 'A' => readDoubleArrArr(dis)
       case 'b' => readBooleanArr(dis)
       case 'j' => readStringArr(dis).map(x => JVMObjectTracker.getObject(x))
       case 'r' => readBytesArr(dis)
