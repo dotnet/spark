@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.ML.Param;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 
