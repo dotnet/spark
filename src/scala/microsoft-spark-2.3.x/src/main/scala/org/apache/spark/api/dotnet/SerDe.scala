@@ -195,6 +195,7 @@ object SerDe {
       case "void" => dos.writeByte('n')
       case "character" => dos.writeByte('c')
       case "double" => dos.writeByte('d')
+      case "doublearray" => dos.writeByte('A')
       case "long" => dos.writeByte('g')
       case "integer" => dos.writeByte('i')
       case "logical" => dos.writeByte('b')
@@ -258,6 +259,9 @@ object SerDe {
         case "[D" =>
           writeType(dos, "list")
           writeDoubleArr(dos, value.asInstanceOf[Array[Double]])
+        case "[[D" =>
+            writeType(dos, "list")
+            writeDoubleArrArr(dos, value.asInstanceOf[Array[Array[Double]]])
         case "[Z" =>
           writeType(dos, "list")
           writeBooleanArr(dos, value.asInstanceOf[Array[Boolean]])
@@ -341,6 +345,12 @@ object SerDe {
     writeType(out, "double")
     out.writeInt(value.length)
     value.foreach(v => out.writeDouble(v))
+  }
+
+  def writeDoubleArrArr(out: DataOutputStream, value: Array[Array[Double]]): Unit = {
+    writeType(out, "doublearray")
+    out.writeInt(value.length)
+    value.foreach(v => writeDoubleArr(out, v))
   }
 
   def writeBooleanArr(out: DataOutputStream, value: Array[Boolean]): Unit = {
