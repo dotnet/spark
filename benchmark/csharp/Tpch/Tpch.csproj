@@ -21,15 +21,6 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
       </PropertyGroup>
 
-      <ItemGroup>
-        <Compile Remove="VectorFunctions.cs" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <Compile Remove="VectorFunctions.intrinsics.cs" />
-      </ItemGroup>
-    </Otherwise>
   </Choose>
 
 </Project>
