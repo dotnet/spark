@@ -121,7 +121,7 @@ namespace Microsoft.Spark.Sql
 
         internal IEnumerable<object> Execute(int partitionId, IEnumerable<Row> rows)
         {
-            if (!TaskContext.s_taskContext.LocalProperties.TryGetValue(
+            if (!TaskContextHolder.Get().LocalProperties.TryGetValue(
                 "streaming.sql.batchId",
                 out string epochIdStr) || !long.TryParse(epochIdStr, out long epochId))
             {

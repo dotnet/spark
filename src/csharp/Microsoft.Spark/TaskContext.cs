@@ -13,12 +13,9 @@ namespace Microsoft.Spark
     /// </summary>
     internal class TaskContext
     {
-        [ThreadStatic]
-        internal static TaskContext s_taskContext;
-
         internal TaskContext()
         {
-            s_taskContext = this;
+            TaskContextHolder.Set(this);
         }
 
         internal int StageId { get; set; }
@@ -84,5 +81,16 @@ namespace Microsoft.Spark
                 return Key.GetHashCode();
             }
         }
+    }
+
+    // TaskContextHolder contains the TaskContext for the current Thread.
+    internal static class TaskContextHolder
+    {
+        [ThreadStatic]
+        internal static TaskContext s_taskContext;
+
+        internal static TaskContext Get() => s_taskContext;
+
+        internal static void Set(TaskContext tc) => s_taskContext = tc;
     }
 }
