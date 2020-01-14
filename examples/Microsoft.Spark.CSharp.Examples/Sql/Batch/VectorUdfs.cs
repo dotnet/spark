@@ -3,13 +3,13 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
+using Microsoft.Data.Analysis;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
-using StructType = Microsoft.Spark.Sql.Types.StructType;
-using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 using DataFrame = Microsoft.Spark.Sql.DataFrame;
-using Microsoft.Data.Analysis;
-using System.Collections.Generic;
+using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
+using StructType = Microsoft.Spark.Sql.Types.StructType;
 
 namespace Microsoft.Spark.Examples.Sql.Batch
 {

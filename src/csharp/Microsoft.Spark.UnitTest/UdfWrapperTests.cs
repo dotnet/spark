@@ -234,7 +234,7 @@ namespace Microsoft.Spark.UnitTest
         {
             var udfWrapper = new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (str1) => str1);
-            ValidateArrowWrapper(1, udfWrapper);
+            ValidateDataFrameWrapper(1, udfWrapper);
         }
 
         [Fact]
@@ -242,7 +242,7 @@ namespace Microsoft.Spark.UnitTest
         {
             var udfWrapper = new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (str1, str2) => Concat(str1, str2));
-            ValidateArrowWrapper(2, udfWrapper);
+            ValidateDataFrameWrapper(2, udfWrapper);
         }
 
         [Fact]
@@ -250,7 +250,7 @@ namespace Microsoft.Spark.UnitTest
         {
             var udfWrapper = new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (str1, str2, str3) => Concat(str1, str2, str3));
-            ValidateArrowWrapper(3, udfWrapper);
+            ValidateDataFrameWrapper(3, udfWrapper);
         }
 
         [Fact]
@@ -258,7 +258,7 @@ namespace Microsoft.Spark.UnitTest
         {
             var udfWrapper = new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (str1, str2, str3, str4) => Concat(str1, str2, str3, str4));
-            ValidateArrowWrapper(4, udfWrapper);
+            ValidateDataFrameWrapper(4, udfWrapper);
         }
 
         [Fact]
@@ -266,7 +266,7 @@ namespace Microsoft.Spark.UnitTest
         {
             var udfWrapper = new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (str1, str2, str3, str4, str5) => Concat(str1, str2, str3, str4, str5));
-            ValidateArrowWrapper(5, udfWrapper);
+            ValidateDataFrameWrapper(5, udfWrapper);
         }
 
         [Fact]
@@ -276,7 +276,7 @@ namespace Microsoft.Spark.UnitTest
                 ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (str1, str2, str3, str4, str5, str6)
                         => Concat(str1, str2, str3, str4, str5, str6));
-            ValidateArrowWrapper(6, udfWrapper);
+            ValidateDataFrameWrapper(6, udfWrapper);
         }
 
         [Fact]
@@ -286,7 +286,7 @@ namespace Microsoft.Spark.UnitTest
                 ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (str1, str2, str3, str4, str5, str6, str7)
                         => Concat(str1, str2, str3, str4, str5, str6, str7));
-            ValidateArrowWrapper(7, udfWrapper);
+            ValidateDataFrameWrapper(7, udfWrapper);
         }
 
         [Fact]
@@ -296,7 +296,7 @@ namespace Microsoft.Spark.UnitTest
                 ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (str1, str2, str3, str4, str5, str6, str7, str8)
                         => Concat(str1, str2, str3, str4, str5, str6, str7, str8));
-            ValidateArrowWrapper(8, udfWrapper);
+            ValidateDataFrameWrapper(8, udfWrapper);
         }
 
         [Fact]
@@ -306,7 +306,7 @@ namespace Microsoft.Spark.UnitTest
                 ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (str1, str2, str3, str4, str5, str6, str7, str8, str9)
                         => Concat(str1, str2, str3, str4, str5, str6, str7, str8, str9));
-            ValidateArrowWrapper(9, udfWrapper);
+            ValidateDataFrameWrapper(9, udfWrapper);
         }
 
         [Fact]
@@ -316,7 +316,7 @@ namespace Microsoft.Spark.UnitTest
                 ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (str1, str2, str3, str4, str5, str6, str7, str8, str9, str10)
                         => Concat(str1, str2, str3, str4, str5, str6, str7, str8, str9, str10));
-            ValidateArrowWrapper(10, udfWrapper);
+            ValidateDataFrameWrapper(10, udfWrapper);
         }
 
         private static StringArray Concat(params StringArray[] arrays)
@@ -362,6 +362,34 @@ namespace Microsoft.Spark.UnitTest
 
         // Validates the given udfWrapper, whose internal UDF concatenates all the input strings.
         private void ValidateArrowWrapper(int numArgs, dynamic udfWrapper)
+        {
+            // Create one more input data than the given numArgs to validate
+            // the indexing is working correctly inside ArrowUdfWrapper.
+            var input = new IArrowArray[numArgs + 1];
+            var inputStrings = new List<string>();
+            for (int i = 0; i < input.Length; ++i)
+            {
+                inputStrings.Add($"arg{i}");
+                input[i] = ToArrowArray(new string[] { $"arg{i}" });
+            }
+
+            // First create argOffsets from 0 to numArgs.
+            // For example, the numArgs was 3, the expected strings is "arg0arg1arg2"
+            // where the argOffsets are created with { 0, 1, 2 }.
+            ArrowTestUtils.AssertEquals(
+                string.Join("", inputStrings.GetRange(0, numArgs)),
+                udfWrapper.Execute(input, Enumerable.Range(0, numArgs).ToArray()));
+
+            // Create argOffsets from 1 to numArgs + 1.
+            // For example, the numArgs was 3, the expected strings is "arg1arg2arg3"
+            // where the argOffsets are created with { 1, 2, 3 }.
+            ArrowTestUtils.AssertEquals(
+                string.Join("", inputStrings.GetRange(1, numArgs)),
+                udfWrapper.Execute(input, Enumerable.Range(1, numArgs).ToArray()));
+        }
+
+        // Validates the given udfWrapper, whose internal UDF concatenates all the input strings.
+        private void ValidateDataFrameWrapper(int numArgs, dynamic udfWrapper)
         {
             // Create one more input data than the given numArgs to validate
             // the indexing is working correctly inside ArrowUdfWrapper.
