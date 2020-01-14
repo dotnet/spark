@@ -58,7 +58,7 @@ namespace Microsoft.Spark.Worker.Command
             {
                 WorkerFunction workerFunc = command.WorkerFunction;
                 DataFrameWorkerFunction dataFrameWorkerFunction = workerFunc as DataFrameWorkerFunction;
-                if (workerFunc != null)
+                if (dataFrameWorkerFunction != null)
                 {
                     useDataFrameCommandExecutor = true;
                     break;
