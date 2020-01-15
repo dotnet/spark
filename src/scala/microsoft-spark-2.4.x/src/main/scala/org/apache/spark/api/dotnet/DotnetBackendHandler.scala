@@ -222,7 +222,7 @@ class DotnetBackendHandler(server: DotnetBackend)
       return false
     }
 
-    for (i <- 0 to numArgs - 1) {
+    for (i <- 0 until numArgs) {
       val parameterType = parameterTypes(i)
       var parameterWrapperType = parameterType
 
