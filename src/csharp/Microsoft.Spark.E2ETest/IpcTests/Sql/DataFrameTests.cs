@@ -364,7 +364,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 ageColumn.Append((int?)dataFrame[groupFieldName][0]);
             }
 
-            FxDataFrame ret = new FxDataFrame(new List<DataFrameColumn> { ageColumn, characterCountColumn });
+            FxDataFrame ret = new FxDataFrame(ageColumn, characterCountColumn);
             return ret;
         }
 

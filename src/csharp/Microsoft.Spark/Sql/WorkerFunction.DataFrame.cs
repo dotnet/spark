@@ -9,13 +9,6 @@ using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 
 namespace Microsoft.Spark.Sql
 {
-    ///// <summary>
-    ///// Function that will be executed in the worker.
-    ///// </summary>
-    //internal abstract class WorkerFunction
-    //{
-    //}
-
     /// <summary>
     /// Function that will be executed in the worker using the Apache Arrow format.
     /// </summary>
