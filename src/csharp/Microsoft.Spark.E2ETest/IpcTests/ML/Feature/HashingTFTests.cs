@@ -4,8 +4,10 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
@@ -23,17 +25,34 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestHashingTF()
         {
-            HashingTF HashingTF = new HashingTF(100)
-                .SetNumFeatures(10)
-                .SetInputCol("input_col")
-                .SetOutputCol("output_col");
+            string expectedInputCol = "input_col";
+            string expectedOutputCol = "output_col";
+            int expectedFeatures = 10;
+            
+            HashingTF hashingTf = new HashingTF("my-unique-id")
+                .SetNumFeatures(expectedFeatures)
+                .SetInputCol(expectedInputCol)
+                .SetOutputCol(expectedOutputCol);
 
-            Assert.Equal(10, HashingTF.GetNumFeatures());
+            Assert.Equal(expectedFeatures, hashingTf.GetNumFeatures());
+            Assert.Equal(expectedInputCol, hashingTf.GetInputCol());
+            Assert.Equal(expectedOutputCol, hashingTf.GetOutputCol());
 
             DataFrame input = _spark.Sql("SELECT array('this', 'is', 'a', 'string', 'a', 'a')" + 
                                             " as input_col");
 
-            DataFrame output = HashingTF.Transform(input);
+            DataFrame output = hashingTf.Transform(input);
+            Assert.Contains(expectedOutputCol, output.Columns());
+
+            using (var tempDirectory = new TemporaryDirectory())
+            {
+                hashingTf.Save(tempDirectory.Path);
+                var loadedHashingTf = HashingTF.Load(tempDirectory.Path);
+                Assert.Equal(hashingTf.Uid(), loadedHashingTf.Uid());
+            }
+
+            hashingTf.SetBinary(true);
+            Assert.True(hashingTf.GetBinary());
         }
     }
 }

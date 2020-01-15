@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
@@ -27,18 +28,18 @@ namespace Microsoft.Spark.ML.Feature
         public HashingTF()
         {
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                "org.apache.spark.ml.feature.HashingTF");
+                _javaClassName);
         }
 
         /// <summary>
         /// Create a <see cref="HashingTF"/> with a UID that is used to give the
         /// <see cref="HashingTF"/> a unique ID
-        /// <param name="numFeatures">numFeatures number of features (default: 2^20^)</param>
+        /// <param name="uid">unique identifier</param>
         /// </summary>
-        public HashingTF(int numFeatures)
+        public HashingTF(string uid)
         {
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                "org.apache.spark.ml.feature.HashingTF", numFeatures);
+                _javaClassName, uid);
         }
         
         internal HashingTF(JvmObjectReference jvmObject)
@@ -47,8 +48,51 @@ namespace Microsoft.Spark.ML.Feature
         }
 
         private readonly JvmObjectReference _jvmObject;
+        private const string _javaClassName = "org.apache.spark.ml.feature.HashingTF";
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
+        /// <summary>
+        /// Loads the <see cref="HashingTF"/> that was previously saved using Save
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns><see cref="HashingTF"/></returns>
+        public static HashingTF Load(string path)
+        {
+            return WrapAsHashingTF(SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                _javaClassName,
+                "load", path));
+        }
+        
+        /// <summary>
+        /// Saves the <see cref="HashingTF"/> so that it can be loaded later using Load
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns><see cref="HashingTF"/></returns>
+        public HashingTF Save(string path)
+        {
+            return WrapAsHashingTF(_jvmObject.Invoke("save", path));
+        }
+        
+        /// <summary>
+        /// Gets the binary toggle that controls term frequency counts
+        /// </summary>
+        /// <returns></returns>
+        public bool GetBinary()
+        {
+            return (bool)_jvmObject.Invoke("getBinary");
+        }
+
+        /// <summary>
+        /// Binary toggle to control term frequency counts.
+        /// If true, all non-zero counts are set to 1.  This is useful for discrete probabilistic
+        /// models that model binary events rather than integer counts
+        ///</summary>
+        /// <param name="value">binary toggle, default is false</param>
+        public HashingTF SetBinary(bool value)
+        {
+            return WrapAsHashingTF(_jvmObject.Invoke("setBinary", value));
+        }
+        
         /// <summary>
         /// Gets the column that the <see cref="HashingTF"/> should read from
         /// </summary>
@@ -92,21 +136,28 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Gets the number of features that should be used
         /// </summary>
-        /// <returns></returns>
-        public int NumFeatures()
+        /// <returns>int</returns>
+        public int GetNumFeatures()
         {
-            return (int)_jvmObject.Invoke("NumFeatures");
+            return (int)_jvmObject.Invoke("getNumFeatures");
+        }
+        
+        /// <summary>
+        /// Sets the number of features that should be used
+        /// </summary>
+        /// <returns><see cref="HashingTF"/></returns>
+        public HashingTF SetNumFeatures(int value)
+        {
+            return WrapAsHashingTF(_jvmObject.Invoke("setNumFeatures", value));
         }
 
         /// <summary>
-        /// If true, term frequency vector will be binary such that non-zero term counts will be
-        /// set to 1, default: false
+        /// An immutable unique ID for the object and its derivatives.
         /// </summary>
-        /// <param name="value">Term frequency vector, default: false</param>
-        /// <returns></returns>
-        public HashingTF SetBinary(bool value)
+        /// <returns>string</returns>
+        public string Uid()
         {
-            return WrapAsHashingTF(_jvmObject.Invoke("setBinary", value));
+            return (string)_jvmObject.Invoke("uid");
         }
 
         /// <summary>
