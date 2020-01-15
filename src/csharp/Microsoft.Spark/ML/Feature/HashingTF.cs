@@ -33,12 +33,12 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Create a <see cref="HashingTF"/> with a UID that is used to give the
         /// <see cref="HashingTF"/> a unique ID
+        /// <param name="numFeatures">numFeatures number of features (default: 2^20^)</param>
         /// </summary>
-        /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public HashingTF(string uid)
+        public HashingTF(int numFeatures)
         {
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                "org.apache.spark.ml.feature.HashingTF", uid);
+                "org.apache.spark.ml.feature.HashingTF", numFeatures);
         }
         
         internal HashingTF(JvmObjectReference jvmObject)
@@ -49,6 +49,15 @@ namespace Microsoft.Spark.ML.Feature
         private readonly JvmObjectReference _jvmObject;
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
+        /// <summary>
+        /// Gets the column that the <see cref="HashingTF"/> should read from
+        /// </summary>
+        /// <returns>string, the name of the input column</returns>
+        public string GetInputCol()
+        {
+            return (string)_jvmObject.Invoke("getInputCol");
+        }
+        
         /// <summary>
         /// Sets the column that the <see cref="HashingTF"/> should read from
         /// </summary>
@@ -63,19 +72,43 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="HashingTF"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
         /// </summary>
-        /// <param name="value">The name of the new column
-        /// </param>
+        /// <returns>string, the name of the output col</returns>
+        public string GetOutputCol()
+        {
+            return (string)_jvmObject.Invoke("getOutputCol");
+        }
+        
+        /// <summary>
+        /// The <see cref="HashingTF"/> will create a new column in the DataFrame, this is the
+        /// name of the new column.
+        /// </summary>
+        /// <param name="value">The name of the new column</param>
         /// <returns><see cref="HashingTF"/></returns>
         public HashingTF SetOutputCol(string value)
         {
             return WrapAsHashingTF(_jvmObject.Invoke("setOutputCol", value));
         }
 
-        public HashingTF SetNumFeatures(int value)
+        /// <summary>
+        /// Gets the number of features that should be used
+        /// </summary>
+        /// <returns></returns>
+        public int NumFeatures()
         {
-            return WrapAsHashingTF(_jvmObject.Invoke("setNumFeatures", value));
+            return (int)_jvmObject.Invoke("NumFeatures");
         }
-        
+
+        /// <summary>
+        /// If true, term frequency vector will be binary such that non-zero term counts will be
+        /// set to 1, default: false
+        /// </summary>
+        /// <param name="value">Term frequency vector, default: false</param>
+        /// <returns></returns>
+        public HashingTF SetBinary(bool value)
+        {
+            return WrapAsHashingTF(_jvmObject.Invoke("setBinary", value));
+        }
+
         /// <summary>
         /// Executes the <see cref="HashingTF"/> and transforms the DataFrame to include the new
         /// column or columns with the tokens.
@@ -97,17 +130,6 @@ namespace Microsoft.Spark.ML.Feature
         private static HashingTF WrapAsHashingTF(object obj)
         {
             return new HashingTF((JvmObjectReference)obj);
-        }
-
-        /// <summary>
-        /// The uid that was used to create the <see cref="HashingTF"/>. If no UID is passed in
-        /// when creating the <see cref="HashingTF"/> then a random UID is created when the
-        /// <see cref="HashingTF"/> is created.
-        /// </summary>
-        /// <returns>string UID identifying the <see cref="HashingTF"/></returns>
-        public string Uid()
-        {
-            return (string)_jvmObject.Invoke("uid");
         }
     }
 }

@@ -23,12 +23,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestHashingTF()
         {
-            HashingTF HashingTF = new HashingTF("uid")
+            HashingTF HashingTF = new HashingTF(100)
                 .SetNumFeatures(10)
                 .SetInputCol("input_col")
                 .SetOutputCol("output_col");
 
-            Assert.Equal("uid", HashingTF.Uid());
+            Assert.Equal(10, HashingTF.GetNumFeatures());
 
             DataFrame input = _spark.Sql("SELECT array('this', 'is', 'a', 'string', 'a', 'a')" + 
                                             " as input_col");
