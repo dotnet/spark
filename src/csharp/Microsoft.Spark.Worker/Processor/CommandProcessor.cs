@@ -157,18 +157,29 @@ namespace Microsoft.Spark.Worker.Processor
                         CommandSerDe.SerializedMode deserializerMode;
                         if (evalType == PythonEvalType.SQL_SCALAR_PANDAS_UDF)
                         {
-                            var curWorkerFunction = new ArrowWorkerFunction(
-                                CommandSerDe.Deserialize<ArrowWorkerFunction.ExecuteDelegate>(
-                                    stream,
-                                    out serializerMode,
-                                    out deserializerMode,
-                                    out string runMode));
-
-                            command.WorkerFunction = (command.WorkerFunction == null) ?
+                            object obj = CommandSerDe.DeserializeArrowOrDataFrameUdf(
+                                stream,
+                                out serializerMode,
+                                out deserializerMode,
+                                out string runMode);
+                            if (obj is ArrowWorkerFunction.ExecuteDelegate arrowWorkerFunctionDelegate)
+                            {
+                                var curWorkerFunction = new ArrowWorkerFunction(arrowWorkerFunctionDelegate);
+                                command.WorkerFunction = (command.WorkerFunction == null) ?
                                 curWorkerFunction :
                                 ArrowWorkerFunction.Chain(
                                     (ArrowWorkerFunction)command.WorkerFunction,
                                     curWorkerFunction);
+                            }
+                            else if (obj is DataFrameWorkerFunction.ExecuteDelegate dataFrameWorkerFunctionDelegate)
+                            {
+                                var curWorkerFunction = new DataFrameWorkerFunction(dataFrameWorkerFunctionDelegate);
+                                command.WorkerFunction = (command.WorkerFunction == null) ?
+                                curWorkerFunction :
+                                DataFrameWorkerFunction.Chain(
+                                    (DataFrameWorkerFunction)command.WorkerFunction,
+                                    curWorkerFunction);
+                            }
                         }
                         else if (evalType == PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF)
                         {
@@ -178,12 +189,19 @@ namespace Microsoft.Spark.Worker.Processor
                                     "Grouped map UDFs do not support combining multiple UDFs");
                             }
 
-                            command.WorkerFunction = new ArrowGroupedMapWorkerFunction(
-                                CommandSerDe.Deserialize<ArrowGroupedMapWorkerFunction.ExecuteDelegate>(
-                                    stream,
-                                    out serializerMode,
-                                    out deserializerMode,
-                                    out string runMode));
+                            object obj = CommandSerDe.DeserializeArrowOrDataFrameUdf(
+                                stream,
+                                out serializerMode,
+                                out deserializerMode,
+                                out string runMode);
+                            if (obj is ArrowGroupedMapWorkerFunction.ExecuteDelegate arrowFunctionDelegate)
+                            {
+                                command.WorkerFunction = new ArrowGroupedMapWorkerFunction(arrowFunctionDelegate);
+                            }
+                            else if (obj is DataFrameGroupedMapWorkerFunction.ExecuteDelegate dataFrameDelegate)
+                            {
+                                command.WorkerFunction = new DataFrameGroupedMapWorkerFunction(dataFrameDelegate);
+                            }
                         }
                         else
                         {

@@ -216,11 +216,48 @@ namespace Microsoft.Spark.Utils
             }
         }
 
-        internal static T Deserialize<T>(
+        internal static object DeserializeArrowOrDataFrameUdf(
             Stream stream,
             out SerializedMode serializerMode,
             out SerializedMode deserializerMode,
-            out string runMode) where T : Delegate
+            out string runMode)
+        {
+            var udfWrapperData = GetUdfWrapperDataFromStream(stream, out serializerMode, out deserializerMode, out runMode);
+
+            var nodeIndex = 0;
+            var udfIndex = 0;
+            UdfWrapperNode node = udfWrapperData.UdfWrapperNodes[nodeIndex];
+            var nodeType = Type.GetType(node.TypeName);
+            Delegate udf = null;
+            if (nodeType == typeof(DataFrameGroupedMapUdfWrapper))
+            {
+                udf = (DataFrameGroupedMapWorkerFunction.ExecuteDelegate)DeserializeUdfs<DataFrameGroupedMapUdfWrapper>(udfWrapperData, ref nodeIndex, ref udfIndex);
+            }
+            else if (nodeType == typeof(ArrowGroupedMapUdfWrapper))
+            {
+                udf = (ArrowGroupedMapWorkerFunction.ExecuteDelegate)DeserializeUdfs<ArrowGroupedMapUdfWrapper>(udfWrapperData, ref nodeIndex, ref udfIndex);
+            }
+            else if (nodeType == typeof(ArrowWorkerFunction))
+            {
+                udf = (ArrowWorkerFunction.ExecuteDelegate)DeserializeUdfs<ArrowWorkerFunction>(udfWrapperData, ref nodeIndex, ref udfIndex);
+            }
+            else if (nodeType == typeof(DataFrameWorkerFunction))
+            {
+                udf = (DataFrameWorkerFunction.ExecuteDelegate)DeserializeUdfs<DataFrameWorkerFunction>(udfWrapperData, ref nodeIndex, ref udfIndex);
+            }
+
+            // Check all the data is consumed.
+            Debug.Assert(nodeIndex == udfWrapperData.UdfWrapperNodes.Length);
+            Debug.Assert(udfIndex == udfWrapperData.Udfs.Length);
+
+            return udf;
+        }
+
+        private static UdfWrapperData GetUdfWrapperDataFromStream(
+            Stream stream,
+            out SerializedMode serializerMode,
+            out SerializedMode deserializerMode,
+            out string runMode)
         {
             if (!Enum.TryParse(SerDe.ReadString(stream), out serializerMode))
             {
@@ -239,8 +276,16 @@ namespace Microsoft.Spark.Utils
             var bf = new BinaryFormatter();
             var ms = new MemoryStream(serializedCommand, false);
 
-            var udfWrapperData = (UdfWrapperData)bf.Deserialize(ms);
+            return (UdfWrapperData)bf.Deserialize(ms);
+        }
 
+        internal static T Deserialize<T>(
+            Stream stream,
+            out SerializedMode serializerMode,
+            out SerializedMode deserializerMode,
+            out string runMode) where T : Delegate
+        {
+            var udfWrapperData = GetUdfWrapperDataFromStream(stream, out serializerMode, out deserializerMode, out runMode);
             var nodeIndex = 0;
             var udfIndex = 0;
             var udf = (T)DeserializeUdfs<T>(udfWrapperData, ref nodeIndex, ref udfIndex);
@@ -294,10 +339,20 @@ namespace Microsoft.Spark.Utils
                 parameters,
                 null);
 
-            return Delegate.CreateDelegate(
-                typeof(T),
-                udfWrapper,
-                UdfWrapperMethodName);
+            if (type == typeof(DataFrameGroupedMapUdfWrapper))
+            {
+                return Delegate.CreateDelegate(
+                    typeof(DataFrameGroupedMapWorkerFunction.ExecuteDelegate),
+                    udfWrapper,
+                    UdfWrapperMethodName);
+            }
+            else
+            {
+                return Delegate.CreateDelegate(
+                    typeof(T),
+                    udfWrapper,
+                    UdfWrapperMethodName);
+            }
         }
     }
 }
