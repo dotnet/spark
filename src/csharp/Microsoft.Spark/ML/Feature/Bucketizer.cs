@@ -134,7 +134,7 @@ namespace Microsoft.Spark.ML.Feature
         /// buckets.
         ///
         /// Each column is one set of buckets so if you have two input columns you can have two
-        ///  sets of buckets and two output columns.
+        /// sets of buckets and two output columns.
         /// </summary>
        /// <returns><see cref="Bucketizer"/></returns>
         public IEnumerable<string> GetInputCols()
@@ -147,7 +147,7 @@ namespace Microsoft.Spark.ML.Feature
         /// buckets.
         ///
         /// Each column is one set of buckets so if you have two input columns you can have two
-        ///  sets of buckets and two output columns.
+        /// sets of buckets and two output columns.
         /// </summary>
         /// <param name="value">List of input columns to use as sources for buckets</param>
         /// <returns><see cref="Bucketizer"/></returns>

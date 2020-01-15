@@ -39,9 +39,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             DataFrame output = bucketizer.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col"));
 
-            Assert.IsType<string>(bucketizer.GetInputCol());
-            Assert.IsType<string>(bucketizer.GetOutputCol());
-            Assert.IsType<double[]>(bucketizer.GetSplits());
+            Assert.Equal("input_col", bucketizer.GetInputCol());
+            Assert.Equal("output_col", bucketizer.GetOutputCol());
+            Assert.Equal(expectedSplits, bucketizer.GetSplits());
         }
 
         [Fact]
