@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
 using Xunit;
@@ -23,44 +24,54 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestBucketizer()
         {
-            Bucketizer bucketizer = new Bucketizer("uid")
-                .SetInputCol("input_col")
-                .SetOutputCol("output_col")
-                .SetHandleInvalid("skip")
-                .SetSplits(new[] {Double.MinValue, 0.0, 10.0, 50.0, Double.MaxValue});
+            double[] expectedSplits = new[] {Double.MinValue, 0.0, 10.0, 50.0, Double.MaxValue};
 
-            Assert.Equal("skip",
-                bucketizer.GetHandleInvalid());
+            string expectedHandle = "skip";
+            string expectedUid = "uid";
+            string expectedInputCol = "input_col";
+            string expectedOutputCol = "output_col";
+            
+            Bucketizer bucketizer = new Bucketizer(expectedUid)
+                .SetInputCol(expectedInputCol)
+                .SetOutputCol(expectedOutputCol)
+                .SetHandleInvalid(expectedHandle)
+                .SetSplits(expectedSplits);
 
-            Assert.Equal("uid", bucketizer.Uid());
+            Assert.Equal(expectedHandle, bucketizer.GetHandleInvalid());
+
+            Assert.Equal(expectedUid, bucketizer.Uid());
 
             DataFrame input = _spark.Sql("SELECT ID as input_col from range(100)");
 
             DataFrame output = bucketizer.Transform(input);
-            Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col"));
+            Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
 
-            Assert.Equal("input_col", bucketizer.GetInputCol());
-            Assert.Equal("output_col", bucketizer.GetOutputCol());
+            Assert.Equal(expectedInputCol, bucketizer.GetInputCol());
+            Assert.Equal(expectedOutputCol, bucketizer.GetOutputCol());
             Assert.Equal(expectedSplits, bucketizer.GetSplits());
         }
 
         [Fact]
         public void TestBucketizer_MultipleColumns()
         {
-            double[][] splitsArray = new[]
+            double[][] expectedSplitsArray = new[]
             {
                 new[] {Double.MinValue, 0.0, 10.0, 50.0, Double.MaxValue},
                 new[] {Double.MinValue, 0.0, 10000.0, Double.MaxValue}
             };
-                
-            Bucketizer bucketizer = new Bucketizer()
-                .SetInputCols(new List<string>() {"input_col_a", "input_col_b"})
-                .SetOutputCols(new List<string>() {"output_col_a", "output_col_b"})
-                .SetHandleInvalid("keep")
-                .SetSplitsArray(splitsArray);
 
-            Assert.Equal("keep",
-                bucketizer.GetHandleInvalid());
+            string expectedHandle = "keep";
+
+            List<string> expectedInputCols = new List<string>() {"input_col_a", "input_col_b"};
+            List<string> expectedOutputCols = new List<string>() {"output_col_a", "output_col_b"};
+            
+            Bucketizer bucketizer = new Bucketizer()
+                .SetInputCols(expectedInputCols)
+                .SetOutputCols(expectedOutputCols)
+                .SetHandleInvalid(expectedHandle)
+                .SetSplitsArray(expectedSplitsArray);
+
+            Assert.Equal(expectedHandle, bucketizer.GetHandleInvalid());
 
             DataFrame input =
                 _spark.Sql("SELECT ID as input_col_a, ID as input_col_b from range(100)");
@@ -69,9 +80,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col_a"));
             Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col_b"));
             
-            Assert.IsType<List<string>>(bucketizer.GetInputCols());
-            Assert.IsType<List<string>>(bucketizer.GetOutputCols());
-            Assert.IsType<double[][]>(bucketizer.GetSplitsArray());
+            Assert.Equal(expectedInputCols, bucketizer.GetInputCols());
+            Assert.Equal(expectedOutputCols, bucketizer.GetOutputCols());
+            Assert.Equal(expectedSplitsArray, bucketizer.GetSplitsArray());
         }
     }
 }

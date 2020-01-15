@@ -126,7 +126,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the columns that <see cref="Bucketizer"/> should read from and convert into
         /// buckets. This is set by SetInputCol
         /// </summary>
-       /// <returns>IEnumerable<string>, list of input columns</returns>
+       /// <returns>IEnumerable&lt;string&gt;, list of input columns</returns>
         public IEnumerable<string> GetInputCols()
         {
             return ((string[])(_jvmObject.Invoke("getInputCols"))).ToList();
@@ -171,7 +171,7 @@ namespace Microsoft.Spark.ML.Feature
         /// The list of columns that the <see cref="Bucketizer"/> will create in the DataFrame.
         /// This is set by SetOutputCols
         /// </summary>
-        /// <returns>IEnumerable<string>, list of output columns</returns>
+        /// <returns>IEnumerable&lt;string&gt;, list of output columns</returns>
         public IEnumerable<string> GetOutputCols()
         {
             return ((string[])_jvmObject.Invoke("getOutputCols")).ToList();
