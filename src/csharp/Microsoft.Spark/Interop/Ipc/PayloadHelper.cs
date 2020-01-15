@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.Interop.Ipc
 {
@@ -23,8 +24,10 @@ namespace Microsoft.Spark.Interop.Ipc
         private static readonly byte[] s_doubleTypeId = new[] { (byte)'d' };
         private static readonly byte[] s_jvmObjectTypeId = new[] { (byte)'j' };
         private static readonly byte[] s_byteArrayTypeId = new[] { (byte)'r' };
-        private static readonly byte[] s_intArrayTypeId = new[] { (byte)'l' };
+        private static readonly byte[] s_doubleArrayArrayTypeId = new[] {( byte)'A' };
+        private static readonly byte[] s_arrayTypeId = new[] { (byte)'l' };
         private static readonly byte[] s_dictionaryTypeId = new[] { (byte)'e' };
+        private static readonly byte[] s_rowArrTypeId = new[] { (byte)'R' };
 
         private static readonly ConcurrentDictionary<Type, bool> s_isDictionaryTable =
             new ConcurrentDictionary<Type, bool>();
@@ -133,6 +136,19 @@ namespace Microsoft.Spark.Interop.Ipc
                                     SerDe.Write(destination, d);
                                 }
                                 break;
+                            
+                            case double[][] argDoubleArrayArray:
+                                SerDe.Write(destination, s_doubleArrayArrayTypeId);
+                                SerDe.Write(destination, argDoubleArrayArray.Length);
+                                foreach (double[] doubleArray in argDoubleArrayArray)
+                                {
+                                    SerDe.Write(destination, doubleArray.Length);
+                                    foreach (double d in doubleArray)
+                                    {
+                                        SerDe.Write(destination, d);
+                                    }
+                                }
+                                break;
 
                             case IEnumerable<byte[]> argByteArrayEnumerable:
                                 SerDe.Write(destination, s_byteArrayTypeId);
@@ -176,6 +192,22 @@ namespace Microsoft.Spark.Interop.Ipc
                                 {
                                     ++itemCount;
                                     SerDe.Write(destination, jvmObject.Reference.Id);
+                                }
+                                posAfterEnumerable = destination.Position;
+                                destination.Position = posBeforeEnumerable;
+                                SerDe.Write(destination, itemCount);
+                                destination.Position = posAfterEnumerable;
+                                break;
+
+                            case IEnumerable<GenericRow> argRowEnumerable:
+                                posBeforeEnumerable = destination.Position;
+                                destination.Position += sizeof(int);
+                                itemCount = 0;
+                                foreach (GenericRow r in argRowEnumerable)
+                                {
+                                    ++itemCount;
+                                    SerDe.Write(destination, (int)r.Values.Length);
+                                    ConvertArgsToBytes(destination, r.Values, true);
                                 }
                                 posAfterEnumerable = destination.Position;
                                 destination.Position = posBeforeEnumerable;
@@ -268,10 +300,11 @@ namespace Microsoft.Spark.Interop.Ipc
                     if (type == typeof(int[]) ||
                         type == typeof(long[]) ||
                         type == typeof(double[]) ||
+                        type == typeof(double[][]) ||
                         typeof(IEnumerable<byte[]>).IsAssignableFrom(type) ||
                         typeof(IEnumerable<string>).IsAssignableFrom(type))
                     {
-                        return s_intArrayTypeId;
+                        return s_arrayTypeId;
                     }
 
                     if (IsDictionary(type))
@@ -281,7 +314,12 @@ namespace Microsoft.Spark.Interop.Ipc
 
                     if (typeof(IEnumerable<IJvmObjectReferenceProvider>).IsAssignableFrom(type))
                     {
-                        return s_intArrayTypeId;
+                        return s_arrayTypeId;
+                    }
+
+                    if (typeof(IEnumerable<GenericRow>).IsAssignableFrom(type))
+                    {
+                        return s_rowArrTypeId;
                     }
                     break;
             }

@@ -365,6 +365,15 @@ namespace Microsoft.Spark.Interop.Ipc
                     }
                     returnValue = doubleArray;
                     break;
+                case 'A':
+                    var doubleArrayArray = new double[numOfItemsInList][];
+                    for (int itemIndex = 0; itemIndex < numOfItemsInList; ++itemIndex)
+                    {
+                        doubleArrayArray[itemIndex] = ReadCollection(s) as double[];
+                    }
+                    returnValue = doubleArrayArray;
+                    
+                    break;
                 case 'b':
                     var boolArray = new bool[numOfItemsInList];
                     for (int itemIndex = 0; itemIndex < numOfItemsInList; ++itemIndex)

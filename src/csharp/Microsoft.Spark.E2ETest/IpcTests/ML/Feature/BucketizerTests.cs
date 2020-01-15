@@ -38,20 +38,26 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             DataFrame output = bucketizer.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col"));
+
+            Assert.Equal("input_col", bucketizer.GetInputCol());
+            Assert.Equal("output_col", bucketizer.GetOutputCol());
+            Assert.Equal(expectedSplits, bucketizer.GetSplits());
         }
 
         [Fact]
         public void TestBucketizer_MultipleColumns()
         {
+            double[][] splitsArray = new[]
+            {
+                new[] {Double.MinValue, 0.0, 10.0, 50.0, Double.MaxValue},
+                new[] {Double.MinValue, 0.0, 10000.0, Double.MaxValue}
+            };
+                
             Bucketizer bucketizer = new Bucketizer()
                 .SetInputCols(new List<string>() {"input_col_a", "input_col_b"})
                 .SetOutputCols(new List<string>() {"output_col_a", "output_col_b"})
                 .SetHandleInvalid("keep")
-                .SetSplitsArray(new[]
-                {
-                    new[] {Double.MinValue, 0.0, 10.0, 50.0, Double.MaxValue},
-                    new[] {Double.MinValue, 0.0, 10000.0, Double.MaxValue}
-                });
+                .SetSplitsArray(splitsArray);
 
             Assert.Equal("keep",
                 bucketizer.GetHandleInvalid());
@@ -62,6 +68,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             DataFrame output = bucketizer.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col_a"));
             Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col_b"));
+            
+            Assert.IsType<List<string>>(bucketizer.GetInputCols());
+            Assert.IsType<List<string>>(bucketizer.GetOutputCols());
+            Assert.IsType<double[][]>(bucketizer.GetSplitsArray());
         }
     }
 }

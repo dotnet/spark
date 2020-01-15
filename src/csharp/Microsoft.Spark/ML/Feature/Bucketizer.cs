@@ -4,9 +4,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.ML.Param;
 using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.ML.Feature
@@ -26,10 +26,7 @@ namespace Microsoft.Spark.ML.Feature
         {
             _jvmObject = jvmObject;
         }
-
-        private readonly JvmObjectReference _jvmObject;
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-
+        
         /// <summary>
         /// Create a <see cref="Bucketizer"/> without any parameters
         /// </summary>
@@ -49,7 +46,19 @@ namespace Microsoft.Spark.ML.Feature
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
                 "org.apache.spark.ml.feature.Bucketizer", uid);
         }
-
+        
+        private readonly JvmObjectReference _jvmObject;
+        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        
+        /// <summary>
+        /// Gets the splits that were set using SetSplits
+        /// </summary>
+        /// <returns>double[], the splits to be used to bucket the input column</returns>
+        public double[] GetSplits()
+        {
+            return (double[])_jvmObject.Invoke("getSplits");
+        }
+        
         /// <summary>
         /// Split points for splitting a single column into buckets. To split multiple columns use
         /// SetSplitsArray. You cannot use both SetSplits and SetSplitsArray at the same time
@@ -67,6 +76,15 @@ namespace Microsoft.Spark.ML.Feature
         }
 
         /// <summary>
+        /// Gets the splits that were set by SetSplitsArray
+        /// </summary>
+        /// <returns>double[][], the splits to be used to bucket the input columns</returns>
+        public double[][] GetSplitsArray()
+        {
+            return (double[][])_jvmObject.Invoke("getSplitsArray");
+        } 
+        
+        /// <summary>
         /// Split points fot splitting multiple columns into buckets. To split a single column use
         /// SetSplits. You cannot use both SetSplits and SetSplitsArray at the same time.
         /// </summary>
@@ -79,14 +97,20 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns><see cref="Bucketizer"/></returns>
         public Bucketizer SetSplitsArray(double[][] value)
         {
-            DoubleArrayArrayParam doubleArrayArray = new DoubleArrayArrayParam(_jvmObject,
-                "setSplitsArray",
-                "wrapper for double[][] from csharp", value);
-
-            return WrapAsBucketizer(_jvmObject.Invoke("setSplitsArray",
-                doubleArrayArray.ReferenceValue));
+            double[][][] wrappedValue = new[] {value};
+            return WrapAsBucketizer(_jvmObject.Invoke("setSplitsArray", wrappedValue));
         }
 
+        /// <summary>
+        /// Gets the column that the <see cref="Bucketizer"/> should read from and convert into
+        /// buckets. This would have been set by SetInputCol
+        /// </summary>
+        /// <returns>string, the input column</returns>
+        public string GetInputCol()
+        {
+            return (string)_jvmObject.Invoke("getInputCol");
+        }
+        
         /// <summary>
         /// Sets the column that the <see cref="Bucketizer"/> should read from and convert into
         /// buckets
@@ -97,13 +121,23 @@ namespace Microsoft.Spark.ML.Feature
         {
             return WrapAsBucketizer(_jvmObject.Invoke("setInputCol", value));
         }
+        
+        /// <summary>
+        /// Gets the columns that <see cref="Bucketizer"/> should read from and convert into
+        /// buckets. This is set by SetInputCol
+        /// </summary>
+       /// <returns>IEnumerable<string>, list of input columns</returns>
+        public IEnumerable<string> GetInputCols()
+        {
+            return ((string[])(_jvmObject.Invoke("getInputCols"))).ToList();
+        }
 
         /// <summary>
         /// Sets the columns that <see cref="Bucketizer"/> should read from and convert into
         /// buckets.
         ///
         /// Each column is one set of buckets so if you have two input columns you can have two
-        ///  sets of buckets and two output columns.
+        /// sets of buckets and two output columns.
         /// </summary>
         /// <param name="value">List of input columns to use as sources for buckets</param>
         /// <returns><see cref="Bucketizer"/></returns>
@@ -111,7 +145,17 @@ namespace Microsoft.Spark.ML.Feature
         {
             return WrapAsBucketizer(_jvmObject.Invoke("setInputCols", value));
         }
-
+        
+        /// <summary>
+        /// Gets the name of the column the output data will be written to. This is set by
+        /// SetInputCol
+        /// </summary>
+        // <returns>string, the output column</returns>
+        public string GetOutputCol()
+        {
+            return (string)_jvmObject.Invoke("getOutputCol");
+        }
+        
         /// <summary>
         /// The <see cref="Bucketizer"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
@@ -123,6 +167,16 @@ namespace Microsoft.Spark.ML.Feature
             return WrapAsBucketizer(_jvmObject.Invoke("setOutputCol", value));
         }
 
+        /// <summary>
+        /// The list of columns that the <see cref="Bucketizer"/> will create in the DataFrame.
+        /// This is set by SetOutputCols
+        /// </summary>
+        /// <returns>IEnumerable<string>, list of output columns</returns>
+        public IEnumerable<string> GetOutputCols()
+        {
+            return ((string[])_jvmObject.Invoke("getOutputCols")).ToList();
+        }
+        
         /// <summary>
         /// The list of columns that the <see cref="Bucketizer"/> will create in the DataFrame.
         /// </summary>
