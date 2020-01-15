@@ -372,7 +372,6 @@ namespace Microsoft.Spark.Interop.Ipc
                         doubleArrayArray[itemIndex] = ReadCollection(s) as double[];
                     }
                     returnValue = doubleArrayArray;
-                    
                     break;
                 case 'b':
                     var boolArray = new bool[numOfItemsInList];
