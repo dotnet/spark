@@ -13,11 +13,11 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 {
     [Collection("Spark E2E Tests")]
-    public class IDFModelTests
+    public class IDFTests
     {
         private readonly SparkSession _spark;
 
-        public IDFModelTests(SparkFixture fixture)
+        public IDFTests(SparkFixture fixture)
         {
             _spark = fixture.Spark;
         }
@@ -25,41 +25,25 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestIDFModel()
         {
-            int expectedDocFrequency = 1980;
             string expectedInputCol = "rawFeatures";
             string expectedOutputCol = "features";
-
+            int expectedDocFrequency = 100;
             
-            DataFrame sentenceData =
-                _spark.Sql("SELECT 0.0 as label, 'Hi I heard about Spark' as sentence");
-            Tokenizer tokenizer = new Tokenizer().SetInputCol("sentence").SetOutputCol("words");
-            DataFrame wordsData = tokenizer.Transform(sentenceData);
-
-            HashingTF hashingTF = new HashingTF()
-                                        .SetInputCol("words")
-                                        .SetOutputCol(expectedInputCol)
-                                        .SetNumFeatures(20);
-
-            DataFrame featurizedData = hashingTF.Transform(wordsData);
-    
             IDF idf = new IDF()
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
                 .SetMinDocFreq(expectedDocFrequency);
             
-            IDFModel idfModel = idf.Fit(featurizedData);
-
-            DataFrame rescaledData = idfModel.Transform(featurizedData);
-
             Assert.Equal(expectedInputCol, idf.GetInputCol());
             Assert.Equal(expectedOutputCol, idf.GetOutputCol());
-            
-            Assert.Equal(expectedDocFrequency, idfModel.GetMinDocFreq());
+            Assert.Equal(expectedDocFrequency, idf.GetMinDocFreq());
             
             using (var tempDirectory = new TemporaryDirectory())
             {
-                var modelPath = Path.Join(tempDirectory.Path, "ideModel");
-                idfModel.Save(modelPath);
+                var savePath = Path.Join(tempDirectory.Path, "IDF");
+                idf.Save(savePath);
+                var loadedIdf = IDF.Load(savePath);
+                Assert.Equal(idf.Uid(), loadedIdf.Uid());
             }
         }
     }

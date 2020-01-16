@@ -32,8 +32,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         public Bucketizer()
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                "org.apache.spark.ml.feature.Bucketizer");
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName);
         }
 
         /// <summary>
@@ -43,11 +42,11 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
         public Bucketizer(string uid)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                "org.apache.spark.ml.feature.Bucketizer", uid);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName, uid);
         }
         
         private readonly JvmObjectReference _jvmObject;
+        private const string JavaClassName = "org.apache.spark.ml.feature.Bucketizer";
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
         
         /// <summary>
@@ -242,6 +241,28 @@ namespace Microsoft.Spark.ML.Feature
         public Bucketizer SetHandleInvalid(string value)
         {
             return WrapAsBucketizer(_jvmObject.Invoke("setHandleInvalid", value.ToString()));
+        }
+        
+        /// <summary>
+        /// Loads the <see cref="Bucketizer"/> that was previously saved using Save
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns><see cref="Bucketizer"/></returns>
+        public static Bucketizer Load(string path)
+        {
+            return WrapAsBucketizer(SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                JavaClassName,
+                "load", path));
+        }
+        
+        /// <summary>
+        /// Saves the <see cref="Bucketizer"/> so that it can be loaded later using Load
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns><see cref="Bucketizer"/></returns>
+        public Bucketizer Save(string path)
+        {
+            return WrapAsBucketizer(_jvmObject.Invoke("save", path));
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Microsoft.Spark.ML.Feature
         public IDFModel()
         {
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                "org.apache.spark.ml.feature.IDFModel");
+                JavaClassName);
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace Microsoft.Spark.ML.Feature
         public IDFModel(string uid)
         {
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                "org.apache.spark.ml.feature.IDFModel", uid);
+                JavaClassName, uid);
         }
         
         internal IDFModel(JvmObjectReference jvmObject)
@@ -44,7 +44,18 @@ namespace Microsoft.Spark.ML.Feature
 
         private readonly JvmObjectReference _jvmObject;
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-
+        
+        private const string JavaClassName = "org.apache.spark.ml.feature.IDFModel";
+        
+        /// <summary>
+        /// Gets the column that the <see cref="IDFModel"/> should read from
+        /// </summary>
+        /// <returns>string, input column</returns>
+        public string GetInputCol()
+        {
+            return (string)(_jvmObject.Invoke("getInputCol"));
+        }
+        
         /// <summary>
         /// Sets the column that the <see cref="IDFModel"/> should read from and convert into
         /// buckets
@@ -60,12 +71,31 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="IDFModel"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
         /// </summary>
+        /// <returns>string, the output column</returns>
+        public string GetOutputCol()
+        {
+            return (string)(_jvmObject.Invoke("getOutputCol"));
+        }
+        
+        /// <summary>
+        /// The <see cref="IDFModel"/> will create a new column in the DataFrame, this is the
+        /// name of the new column.
+        /// </summary>
         /// <param name="value">The name of the new column which contains the tokens
         /// </param>
         /// <returns><see cref="IDFModel"/></returns>
         public IDFModel SetOutputCol(string value)
         {
             return WrapAsIDFModel(_jvmObject.Invoke("setOutputCol", value));
+        }
+        
+        /// <summary>
+        /// Minimum of documents in which a term should appear for filtering
+        /// </summary>
+        /// <returns>int</returns>
+        public int GetMinDocFreq()
+        {
+            return (int)_jvmObject.Invoke("getMinDocFreq");
         }
         
         /// <summary>
@@ -100,6 +130,16 @@ namespace Microsoft.Spark.ML.Feature
         public string Uid()
         {
             return (string)_jvmObject.Invoke("uid");
+        }
+        
+        /// <summary>
+        /// Saves the <see cref="IDFModel"/> so that it can be loaded later using Load
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns><see cref="IDFModel"/></returns>
+        public IDFModel Save(string path)
+        {
+            return WrapAsIDFModel(_jvmObject.Invoke("save", path));
         }
     }
 }

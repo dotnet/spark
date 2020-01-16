@@ -50,9 +50,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             using (var tempDirectory = new TemporaryDirectory())
             {
-                var bucketPath = Path.Join(tempDirectory.Path, "bucket");
-                hashingTf.Save(bucketPath);
-                var loadedHashingTf = HashingTF.Load(bucketPath);
+                var savePath = Path.Join(tempDirectory.Path, "hashingTF");
+                hashingTf.Save(savePath);
+                var loadedHashingTf = HashingTF.Load(savePath);
                 Assert.Equal(hashingTf.Uid(), loadedHashingTf.Uid());
             }
 

@@ -4,6 +4,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
 using Xunit;
@@ -23,17 +25,34 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestTokenizer()
         {
-            Tokenizer Tokenizer = new Tokenizer("uid")
-                .SetInputCol("input_col")
-                .SetOutputCol("output_col");
-
-            Assert.Equal("uid", Tokenizer.Uid());
-
+            string expectedUid = "theUid";
+            string expectedInputCol = "input_col";
+            string expectedOutputCol = "output_col";
+            
             DataFrame input = _spark.Sql("SELECT 'hello I AM a string TO, TOKENIZE' as input_col" + 
                                                 " from range(100)");
+            
+            Tokenizer tokenizer = new Tokenizer(expectedUid);
+            
+            tokenizer
+                .SetInputCol(expectedInputCol)
+                .SetOutputCol(expectedOutputCol);
+            
+            DataFrame output = tokenizer.Transform(input);
+            Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
 
-            DataFrame output = Tokenizer.Transform(input);
-            Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col"));
+            Assert.Equal(expectedInputCol, tokenizer.GetInputCol());
+            Assert.Equal(expectedOutputCol, tokenizer.GetOutputCol());
+            
+            using (var tempDirectory = new TemporaryDirectory())
+            {
+                var savePath = Path.Join(tempDirectory.Path, "Tokenizer");
+                tokenizer.Save(savePath);
+                var loadedIdf = Tokenizer.Load(savePath);
+                Assert.Equal(tokenizer.Uid(), loadedIdf.Uid());
+            }
+            
+            Assert.Equal(expectedUid, tokenizer.Uid());
         }
     }
 }

@@ -22,8 +22,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         public Tokenizer()
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                "org.apache.spark.ml.feature.Tokenizer");
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName);
         }
 
         /// <summary>
@@ -33,8 +32,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
         public Tokenizer(string uid)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                "org.apache.spark.ml.feature.Tokenizer", uid);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName, uid);
         }
         
         internal Tokenizer(JvmObjectReference jvmObject)
@@ -45,6 +43,17 @@ namespace Microsoft.Spark.ML.Feature
         private readonly JvmObjectReference _jvmObject;
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
+        private const string JavaClassName = "org.apache.spark.ml.feature.Tokenizer";
+        
+        /// <summary>
+        /// Gets the column that the <see cref="Tokenizer"/> should read from
+        /// </summary>
+        /// <returns>string, input column</returns>
+        public string GetInputCol()
+        {
+            return (string)(_jvmObject.Invoke("getInputCol"));
+        }
+        
         /// <summary>
         /// Sets the column that the <see cref="Tokenizer"/> should read from
         /// </summary>
@@ -55,6 +64,16 @@ namespace Microsoft.Spark.ML.Feature
             return WrapAsTokenizer(_jvmObject.Invoke("setInputCol", value));
         }
 
+        /// <summary>
+        /// The <see cref="Tokenizer"/> will create a new column in the DataFrame, this is the
+        /// name of the new column.
+        /// </summary>
+        /// <returns>string, the output column</returns>
+        public string GetOutputCol()
+        {
+            return (string)(_jvmObject.Invoke("getOutputCol"));
+        }
+        
         /// <summary>
         /// The <see cref="Tokenizer"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
@@ -99,6 +118,28 @@ namespace Microsoft.Spark.ML.Feature
         public string Uid()
         {
             return (string)_jvmObject.Invoke("uid");
+        }
+        
+        
+        /// <summary>
+        /// Loads the <see cref="Tokenizer"/> that was previously saved using Save
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns><see cref="Tokenizer"/></returns>
+        public static Tokenizer Load(string path)
+        {
+            return WrapAsTokenizer(
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(JavaClassName, "load", path));
+        }
+        
+        /// <summary>
+        /// Saves the <see cref="Tokenizer"/> so that it can be loaded later using Load
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns><see cref="Tokenizer"/></returns>
+        public Tokenizer Save(string path)
+        {
+            return WrapAsTokenizer(_jvmObject.Invoke("save", path));
         }
     }
 }

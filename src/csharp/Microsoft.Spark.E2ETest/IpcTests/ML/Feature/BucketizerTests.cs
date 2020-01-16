@@ -4,7 +4,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography;
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
 using Xunit;
@@ -49,6 +51,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Equal(expectedInputCol, bucketizer.GetInputCol());
             Assert.Equal(expectedOutputCol, bucketizer.GetOutputCol());
             Assert.Equal(expectedSplits, bucketizer.GetSplits());
+            
+            using (var tempDirectory = new TemporaryDirectory())
+            {
+                var savePath = Path.Join(tempDirectory.Path, "bucket");
+                bucketizer.Save(savePath);
+                var loadedBucketizer = Bucketizer.Load(savePath);
+                Assert.Equal(bucketizer.Uid(), loadedBucketizer.Uid());
+            }
         }
 
         [Fact]

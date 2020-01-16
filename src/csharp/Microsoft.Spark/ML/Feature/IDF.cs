@@ -21,14 +21,13 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public class IDF : IJvmObjectReferenceProvider
     {
-       
         /// <summary>
         /// Create a <see cref="IDF"/> without any parameters
         /// </summary>
         public IDF()
         {
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                "org.apache.spark.ml.feature.IDF");
+                JavaClassName);
         }
 
         /// <summary>
@@ -39,7 +38,7 @@ namespace Microsoft.Spark.ML.Feature
         public IDF(string uid)
         {
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                "org.apache.spark.ml.feature.IDF", uid);
+                JavaClassName, uid);
         }
         
         internal IDF(JvmObjectReference jvmObject)
@@ -47,9 +46,20 @@ namespace Microsoft.Spark.ML.Feature
             _jvmObject = jvmObject;
         }
 
+        private const string JavaClassName = "org.apache.spark.ml.feature.IDF";
+
         private readonly JvmObjectReference _jvmObject;
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
+        /// <summary>
+        /// Gets the column that the <see cref="IDF"/> should read from
+        /// </summary>
+        /// <returns>string, input column</returns>
+        public string GetInputCol()
+        {
+            return (string)(_jvmObject.Invoke("getInputCol"));
+        }
+        
         /// <summary>
         /// Sets the column that the <see cref="IDF"/> should read from
         /// </summary>
@@ -64,6 +74,16 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="IDF"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
         /// </summary>
+        /// <returns>string, the output column</returns>
+        public string GetOutputCol()
+        {
+            return (string)(_jvmObject.Invoke("getOutputCol"));
+        }
+        
+        /// <summary>
+        /// The <see cref="IDF"/> will create a new column in the DataFrame, this is the
+        /// name of the new column.
+        /// </summary>
         /// <param name="value">The name of the new column
         /// </param>
         /// <returns><see cref="IDF"/></returns>
@@ -72,6 +92,15 @@ namespace Microsoft.Spark.ML.Feature
             return WrapAsIDF(_jvmObject.Invoke("setOutputCol", value));
         }
 
+        /// <summary>
+        /// Minimum of documents in which a term should appear for filtering
+        /// </summary>
+        /// <returns>int</returns>
+        public int GetMinDocFreq()
+        {
+            return (int)_jvmObject.Invoke("getMinDocFreq");
+        }
+        
         /// <summary>
         /// Minimum of documents in which a term should appear for filtering
         /// </summary>
@@ -113,6 +142,27 @@ namespace Microsoft.Spark.ML.Feature
         public string Uid()
         {
             return (string)_jvmObject.Invoke("uid");
+        }
+        
+        /// <summary>
+        /// Loads the <see cref="IDF"/> that was previously saved using Save
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns><see cref="IDF"/></returns>
+        public static IDF Load(string path)
+        {
+            return WrapAsIDF(
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(JavaClassName, "load", path));
+        }
+        
+        /// <summary>
+        /// Saves the <see cref="IDF"/> so that it can be loaded later using Load
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns><see cref="IDF"/></returns>
+        public IDF Save(string path)
+        {
+            return WrapAsIDF(_jvmObject.Invoke("save", path));
         }
     }
 }
