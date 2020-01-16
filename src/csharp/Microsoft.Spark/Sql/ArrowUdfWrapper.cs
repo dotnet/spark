@@ -9,11 +9,19 @@ using static Microsoft.Spark.Sql.ArrowArrayHelpers;
 namespace Microsoft.Spark.Sql
 {
     /// <summary>
+    /// An abstract class to differentiate between ArrowUdfWrapper derivatives and DataFrameUdfWrapper derivatives at runtime
+    /// </summary>
+    internal abstract class ArrowUdfWrapper
+    {
+
+    }
+
+    /// <summary>
     /// Wraps the given Func object, which represents a UDF.
     /// </summary>
     /// <typeparam name="T">Specifies the type of the first argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-    internal sealed class ArrowUdfWrapper<T, TResult>
+    internal sealed class ArrowUdfWrapper<T, TResult> : ArrowUdfWrapper
         where T : IArrowArray
         where TResult : IArrowArray
     {
@@ -45,7 +53,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
     /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-    internal sealed class ArrowUdfWrapper<T1, T2, TResult>
+    internal sealed class ArrowUdfWrapper<T1, T2, TResult> : ArrowUdfWrapper
         where T1 : IArrowArray
         where T2 : IArrowArray
         where TResult : IArrowArray
@@ -80,7 +88,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
     /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-    internal sealed class ArrowUdfWrapper<T1, T2, T3, TResult>
+    internal sealed class ArrowUdfWrapper<T1, T2, T3, TResult> : ArrowUdfWrapper
         where T1 : IArrowArray
         where T2 : IArrowArray
         where T3 : IArrowArray
@@ -118,7 +126,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
     /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-    internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, TResult>
+    internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, TResult> : ArrowUdfWrapper
         where T1 : IArrowArray
         where T2 : IArrowArray
         where T3 : IArrowArray
@@ -159,7 +167,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
     /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-    internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, TResult>
+    internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, TResult> : ArrowUdfWrapper
         where T1 : IArrowArray
         where T2 : IArrowArray
         where T3 : IArrowArray
@@ -203,7 +211,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
     /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-    internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, TResult>
+    internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, TResult> : ArrowUdfWrapper
         where T1 : IArrowArray
         where T2 : IArrowArray
         where T3 : IArrowArray
@@ -250,7 +258,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
     /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-    internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, TResult>
+    internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, TResult> : ArrowUdfWrapper
         where T1 : IArrowArray
         where T2 : IArrowArray
         where T3 : IArrowArray
@@ -300,7 +308,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
     /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-    internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, TResult>
+    internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, TResult> : ArrowUdfWrapper
         where T1 : IArrowArray
         where T2 : IArrowArray
         where T3 : IArrowArray
@@ -353,7 +361,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
     /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-    internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>
+    internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> : ArrowUdfWrapper
         where T1 : IArrowArray
         where T2 : IArrowArray
         where T3 : IArrowArray
@@ -409,7 +417,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
     /// <typeparam name="T10">Specifies the type of the tenth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-    internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>
+    internal sealed class ArrowUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> : ArrowUdfWrapper
         where T1 : IArrowArray
         where T2 : IArrowArray
         where T3 : IArrowArray

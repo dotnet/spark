@@ -233,17 +233,28 @@ namespace Microsoft.Spark.Utils
             {
                 udf = (DataFrameGroupedMapWorkerFunction.ExecuteDelegate)DeserializeUdfs<DataFrameGroupedMapUdfWrapper>(udfWrapperData, ref nodeIndex, ref udfIndex);
             }
-            else if (nodeType == typeof(ArrowGroupedMapUdfWrapper))
-            {
-                udf = (ArrowGroupedMapWorkerFunction.ExecuteDelegate)DeserializeUdfs<ArrowGroupedMapUdfWrapper>(udfWrapperData, ref nodeIndex, ref udfIndex);
-            }
-            else if (nodeType == typeof(ArrowWorkerFunction))
-            {
-                udf = (ArrowWorkerFunction.ExecuteDelegate)DeserializeUdfs<ArrowWorkerFunction>(udfWrapperData, ref nodeIndex, ref udfIndex);
-            }
             else if (nodeType == typeof(DataFrameWorkerFunction))
             {
                 udf = (DataFrameWorkerFunction.ExecuteDelegate)DeserializeUdfs<DataFrameWorkerFunction>(udfWrapperData, ref nodeIndex, ref udfIndex);
+            }
+            //else if (nodeType == typeof(ArrowGroupedMapUdfWrapper))
+            //{
+            //    udf = (ArrowGroupedMapWorkerFunction.ExecuteDelegate)DeserializeUdfs<ArrowGroupedMapUdfWrapper>(udfWrapperData, ref nodeIndex, ref udfIndex);
+            //}
+            //else if (nodeType == typeof(ArrowWorkerFunction))
+            //{
+            //    udf = (ArrowWorkerFunction.ExecuteDelegate)DeserializeUdfs<ArrowWorkerFunction>(udfWrapperData, ref nodeIndex, ref udfIndex);
+            //}
+            else
+            {
+                if (nodeType.IsSubclassOf(typeof(DataFrameUdfWrapper)))
+                {
+                    udf = (DataFrameWorkerFunction.ExecuteDelegate)DeserializeUdfs<DataFrameWorkerFunction.ExecuteDelegate>(udfWrapperData, ref nodeIndex, ref udfIndex);
+                }
+                else
+                {
+                    udf = (ArrowWorkerFunction.ExecuteDelegate)DeserializeUdfs<ArrowWorkerFunction.ExecuteDelegate>(udfWrapperData, ref nodeIndex, ref udfIndex);
+                }
             }
 
             // Check all the data is consumed.
