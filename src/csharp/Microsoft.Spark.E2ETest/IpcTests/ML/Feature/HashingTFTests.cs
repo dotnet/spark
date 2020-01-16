@@ -4,6 +4,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
@@ -28,6 +30,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             string expectedInputCol = "input_col";
             string expectedOutputCol = "output_col";
             int expectedFeatures = 10;
+
+            Assert.IsType<HashingTF>(new HashingTF());
             
             HashingTF hashingTf = new HashingTF("my-unique-id")
                 .SetNumFeatures(expectedFeatures)
@@ -42,12 +46,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                                             " as input_col");
 
             DataFrame output = hashingTf.Transform(input);
-            Assert.Contains(expectedOutputCol, output.Columns());
+            DataFrame outputColumn = output.Select(expectedOutputCol);
 
             using (var tempDirectory = new TemporaryDirectory())
             {
-                hashingTf.Save(tempDirectory.Path);
-                var loadedHashingTf = HashingTF.Load(tempDirectory.Path);
+                var bucketPath = Path.Join(tempDirectory.Path, "bucket");
+                hashingTf.Save(bucketPath);
+                var loadedHashingTf = HashingTF.Load(bucketPath);
                 Assert.Equal(hashingTf.Uid(), loadedHashingTf.Uid());
             }
 
