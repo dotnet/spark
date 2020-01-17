@@ -231,20 +231,12 @@ namespace Microsoft.Spark.Utils
             Delegate udf = null;
             if (nodeType == typeof(DataFrameGroupedMapUdfWrapper))
             {
-                udf = (DataFrameGroupedMapWorkerFunction.ExecuteDelegate)DeserializeUdfs<DataFrameGroupedMapUdfWrapper>(udfWrapperData, ref nodeIndex, ref udfIndex);
+                udf = (DataFrameGroupedMapWorkerFunction.ExecuteDelegate)DeserializeUdfs<DataFrameGroupedMapWorkerFunction.ExecuteDelegate>(udfWrapperData, ref nodeIndex, ref udfIndex);
             }
             else if (nodeType == typeof(DataFrameWorkerFunction))
             {
-                udf = (DataFrameWorkerFunction.ExecuteDelegate)DeserializeUdfs<DataFrameWorkerFunction>(udfWrapperData, ref nodeIndex, ref udfIndex);
+                udf = (DataFrameWorkerFunction.ExecuteDelegate)DeserializeUdfs<DataFrameWorkerFunction.ExecuteDelegate>(udfWrapperData, ref nodeIndex, ref udfIndex);
             }
-            //else if (nodeType == typeof(ArrowGroupedMapUdfWrapper))
-            //{
-            //    udf = (ArrowGroupedMapWorkerFunction.ExecuteDelegate)DeserializeUdfs<ArrowGroupedMapUdfWrapper>(udfWrapperData, ref nodeIndex, ref udfIndex);
-            //}
-            //else if (nodeType == typeof(ArrowWorkerFunction))
-            //{
-            //    udf = (ArrowWorkerFunction.ExecuteDelegate)DeserializeUdfs<ArrowWorkerFunction>(udfWrapperData, ref nodeIndex, ref udfIndex);
-            //}
             else
             {
                 if (nodeType.IsSubclassOf(typeof(DataFrameUdfWrapper)))

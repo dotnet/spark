@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using Apache.Arrow;
 using Microsoft.Data.Analysis;
 using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 
