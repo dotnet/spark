@@ -98,8 +98,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns><see cref="Bucketizer"/></returns>
         public Bucketizer SetSplitsArray(double[][] value)
         {
-            double[][][] wrappedValue = new[] {value};
-            return WrapAsBucketizer(_jvmObject.Invoke("setSplitsArray", wrappedValue));
+            return WrapAsBucketizer(_jvmObject.Invoke("setSplitsArray", (object)value));
         }
 
         /// <summary>

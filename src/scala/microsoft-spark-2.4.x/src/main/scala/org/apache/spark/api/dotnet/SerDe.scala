@@ -119,8 +119,8 @@ object SerDe {
   }
 
   def readDoubleArrArr(in: DataInputStream): Array[Array[Double]] = {
-     val len = readInt(in)
-      (0 until len).map(_ => readDoubleArr(in)).toArray
+    val len = readInt(in)
+    (0 until len).map(_ => readDoubleArr(in)).toArray
   }
 
   def readBooleanArr(in: DataInputStream): Array[Boolean] = {
