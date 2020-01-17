@@ -31,7 +31,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             var expectedInputCol = "input_col";
             var expectedOutputCol = "output_col";
             
-            Bucketizer bucketizer = new Bucketizer(expectedUid)
+            var bucketizer = new Bucketizer(expectedUid)
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
                 .SetHandleInvalid(expectedHandle)
@@ -65,7 +65,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             var expectedInputCols = new List<string>() {"input_col_a", "input_col_b"};
             var expectedOutputCols = new List<string>() {"output_col_a", "output_col_b"};
             
-            Bucketizer bucketizer = new Bucketizer()
+            var bucketizer = new Bucketizer()
                 .SetInputCols(expectedInputCols)
                 .SetOutputCols(expectedOutputCols)
                 .SetHandleInvalid(expectedHandle)
