@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Apache.Arrow;
+using Microsoft.Data.Analysis;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Internal.Java.Util;
 using Microsoft.Spark.Interop.Ipc;
@@ -103,6 +104,15 @@ namespace Microsoft.Spark.Utils
                 {typeof(DoubleArray), "double"},
                 {typeof(StringArray), "string"},
                 {typeof(BinaryArray), "binary"},
+
+                {typeof(PrimitiveDataFrameColumn<bool>), "boolean"},
+                {typeof(PrimitiveDataFrameColumn<byte>), "byte"},
+                {typeof(PrimitiveDataFrameColumn<short>), "short"},
+                {typeof(PrimitiveDataFrameColumn<int>), "integer"},
+                {typeof(PrimitiveDataFrameColumn<long>), "long"},
+                {typeof(PrimitiveDataFrameColumn<float>), "float"},
+                {typeof(PrimitiveDataFrameColumn<double>), "double"},
+                {typeof(ArrowStringDataFrameColumn), "string"},
             };
 
         /// <summary>
