@@ -32,7 +32,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             
             DataFrame sentenceData =
                 _spark.Sql("SELECT 0.0 as label, 'Hi I heard about Spark' as sentence");
-            var tokenizer = new Tokenizer().SetInputCol("sentence").SetOutputCol("words");
+            
+            var tokenizer = new Tokenizer()
+                .SetInputCol("sentence")
+                .SetOutputCol("words");
+            
             DataFrame wordsData = tokenizer.Transform(sentenceData);
 
             var hashingTF = new HashingTF()
@@ -50,9 +54,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             var idfModel = idf.Fit(featurizedData);
 
             DataFrame rescaledData = idfModel.Transform(featurizedData);
-
-            Assert.Equal(expectedInputCol, idf.GetInputCol());
-            Assert.Equal(expectedOutputCol, idf.GetOutputCol());
+            
+            Assert.Equal(expectedInputCol, idfModel.GetInputCol());
+            Assert.Equal(expectedOutputCol, idfModel.GetOutputCol());
             
             Assert.Equal(expectedDocFrequency, idfModel.GetMinDocFreq());
             

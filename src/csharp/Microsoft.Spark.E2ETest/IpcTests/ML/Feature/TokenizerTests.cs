@@ -32,15 +32,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             DataFrame input = _spark.Sql("SELECT 'hello I AM a string TO, TOKENIZE' as input_col" + 
                                                 " from range(100)");
             
-            var tokenizer = new Tokenizer(expectedUid);
-            
-            tokenizer
+            var tokenizer = new Tokenizer(expectedUid)
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol);
             
             DataFrame output = tokenizer.Transform(input);
+            
             Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
-
             Assert.Equal(expectedInputCol, tokenizer.GetInputCol());
             Assert.Equal(expectedOutputCol, tokenizer.GetOutputCol());
             
