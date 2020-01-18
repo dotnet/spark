@@ -56,7 +56,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             
             Assert.Equal(expectedInputCol, idfModel.GetInputCol());
             Assert.Equal(expectedOutputCol, idfModel.GetOutputCol());
-            
             Assert.Equal(expectedDocFrequency, idfModel.GetMinDocFreq());
             
             using (var tempDirectory = new TemporaryDirectory())

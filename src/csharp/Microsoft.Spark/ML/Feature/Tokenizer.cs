@@ -120,7 +120,6 @@ namespace Microsoft.Spark.ML.Feature
             return (string)_jvmObject.Invoke("uid");
         }
         
-        
         /// <summary>
         /// Loads the <see cref="Tokenizer"/> that was previously saved using Save
         /// </summary>
