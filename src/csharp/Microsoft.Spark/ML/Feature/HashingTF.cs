@@ -27,8 +27,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         public HashingTF()
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                _javaClassName);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(_javaClassName);
         }
 
         /// <summary>
@@ -38,8 +37,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         public HashingTF(string uid)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                _javaClassName, uid);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(_javaClassName, uid);
         }
         
         internal HashingTF(JvmObjectReference jvmObject)
@@ -58,9 +56,8 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns><see cref="HashingTF"/></returns>
         public static HashingTF Load(string path)
         {
-            return WrapAsHashingTF(SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                _javaClassName,
-                "load", path));
+            return WrapAsHashingTF(
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(_javaClassName,"load", path));
         }
         
         /// <summary>
@@ -76,7 +73,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Gets the binary toggle that controls term frequency counts
         /// </summary>
-        /// <returns></returns>
+        /// <returns>bool</returns>
         public bool GetBinary()
         {
             return (bool)_jvmObject.Invoke("getBinary");
@@ -113,8 +110,8 @@ namespace Microsoft.Spark.ML.Feature
         }
 
         /// <summary>
-        /// The <see cref="HashingTF"/> will create a new column in the DataFrame, this is the
-        /// name of the new column.
+        /// The <see cref="HashingTF"/> will create a new column in the <see cref="DataFrame"/>,
+        /// this is the name of the new column.
         /// </summary>
         /// <returns>string, the name of the output col</returns>
         public string GetOutputCol()
@@ -123,8 +120,8 @@ namespace Microsoft.Spark.ML.Feature
         }
         
         /// <summary>
-        /// The <see cref="HashingTF"/> will create a new column in the DataFrame, this is the
-        /// name of the new column.
+        /// The <see cref="HashingTF"/> will create a new column in the <see cref="DataFrame"/>,
+        /// this is the name of the new column.
         /// </summary>
         /// <param name="value">The name of the new column</param>
         /// <returns><see cref="HashingTF"/></returns>
@@ -145,6 +142,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Sets the number of features that should be used
         /// </summary>
+        /// <param name="value">int</param>
         /// <returns><see cref="HashingTF"/></returns>
         public HashingTF SetNumFeatures(int value)
         {
@@ -164,7 +162,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Executes the <see cref="HashingTF"/> and transforms the DataFrame to include the new
         /// column or columns with the tokens.
         /// </summary>
-        /// <param name="source">The DataFrame to add the tokens to</param>
+        /// <param name="source">The <see cref="DataFrame"/> to add the tokens to</param>
         /// <returns><see cref="DataFrame"/> containing the original data and the tokens</returns>
         public DataFrame Transform(DataFrame source)
         {
