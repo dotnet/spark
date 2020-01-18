@@ -28,7 +28,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             var expectedDocFrequency = 1980;
             var expectedInputCol = "rawFeatures";
             var expectedOutputCol = "features";
-
             
             DataFrame sentenceData =
                 _spark.Sql("SELECT 0.0 as label, 'Hi I heard about Spark' as sentence");
