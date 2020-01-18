@@ -26,8 +26,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         public IDF()
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                JavaClassName);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName);
         }
 
         /// <summary>
@@ -37,8 +36,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
         public IDF(string uid)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                JavaClassName, uid);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName, uid);
         }
         
         internal IDF(JvmObjectReference jvmObject)
@@ -114,23 +112,11 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Fits a model to the input data.
         /// </summary>
-        /// <param name="source">The DataFrame to fit the model to</param>
+        /// <param name="source">The <see cref="DataFrame"/> to fit the model to</param>
         /// <returns><see cref="IDFModel"/></returns>
         public IDFModel Fit(DataFrame source)
         {
             return new IDFModel((JvmObjectReference)_jvmObject.Invoke("fit", source));
-        }
-
-        /// <summary>
-        /// The reference we get back from each call isn't usable unless we wrap it in a new dotnet
-        /// <see cref="IDF"/>
-        /// </summary>
-        /// <param name="obj">The <see cref="JvmObjectReference"/> to convert into a dotnet
-        /// <see cref="IDF"/></param>
-        /// <returns><see cref="IDF"/></returns>
-        private static IDF WrapAsIDF(object obj)
-        {
-            return new IDF((JvmObjectReference)obj);
         }
 
         /// <summary>
@@ -163,6 +149,18 @@ namespace Microsoft.Spark.ML.Feature
         public IDF Save(string path)
         {
             return WrapAsIDF(_jvmObject.Invoke("save", path));
+        }
+
+        /// <summary>
+        /// The reference we get back from each call isn't usable unless we wrap it in a new dotnet
+        /// <see cref="IDF"/>
+        /// </summary>
+        /// <param name="obj">The <see cref="JvmObjectReference"/> to convert into a dotnet
+        /// <see cref="IDF"/></param>
+        /// <returns><see cref="IDF"/></returns>
+        private static IDF WrapAsIDF(object obj)
+        {
+            return new IDF((JvmObjectReference)obj);
         }
     }
 }

@@ -98,18 +98,6 @@ namespace Microsoft.Spark.ML.Feature
         }
 
         /// <summary>
-        /// The reference we get back from each call isn't usable unless we wrap it in a new dotnet
-        /// <see cref="Tokenizer"/>
-        /// </summary>
-        /// <param name="obj">The <see cref="JvmObjectReference"/> to convert into a dotnet
-        /// <see cref="Tokenizer"/></param>
-        /// <returns><see cref="Tokenizer"/></returns>
-        private static Tokenizer WrapAsTokenizer(object obj)
-        {
-            return new Tokenizer((JvmObjectReference)obj);
-        }
-
-        /// <summary>
         /// The uid that was used to create the <see cref="Tokenizer"/>. If no UID is passed in
         /// when creating the <see cref="Tokenizer"/> then a random UID is created when the
         /// <see cref="Tokenizer"/> is created.
@@ -139,6 +127,18 @@ namespace Microsoft.Spark.ML.Feature
         public Tokenizer Save(string path)
         {
             return WrapAsTokenizer(_jvmObject.Invoke("save", path));
+        }
+        
+        /// <summary>
+        /// The reference we get back from each call isn't usable unless we wrap it in a new dotnet
+        /// <see cref="Tokenizer"/>
+        /// </summary>
+        /// <param name="obj">The <see cref="JvmObjectReference"/> to convert into a dotnet
+        /// <see cref="Tokenizer"/></param>
+        /// <returns><see cref="Tokenizer"/></returns>
+        private static Tokenizer WrapAsTokenizer(object obj)
+        {
+            return new Tokenizer((JvmObjectReference)obj);
         }
     }
 }

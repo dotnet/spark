@@ -221,18 +221,6 @@ namespace Microsoft.Spark.ML.Feature
         }
 
         /// <summary>
-        /// The reference we get back from each call isn't usable unless we wrap it in a new dotnet
-        /// <see cref="Bucketizer"/>
-        /// </summary>
-        /// <param name="obj">The <see cref="JvmObjectReference"/> to convert into a dotnet
-        /// <see cref="Bucketizer"/></param>
-        /// <returns><see cref="Bucketizer"/></returns>
-        private static Bucketizer WrapAsBucketizer(object obj)
-        {
-            return new Bucketizer((JvmObjectReference)obj);
-        }
-
-        /// <summary>
         /// The uid that was used to create the <see cref="Bucketizer"/>. If no UID is passed in
         /// when creating the <see cref="Bucketizer"/> then a random UID is created when the
         /// <see cref="Bucketizer"/> is created.
@@ -263,6 +251,18 @@ namespace Microsoft.Spark.ML.Feature
         public Bucketizer SetHandleInvalid(string value)
         {
             return WrapAsBucketizer(_jvmObject.Invoke("setHandleInvalid", value.ToString()));
+        }
+        
+        /// <summary>
+        /// The reference we get back from each call isn't usable unless we wrap it in a new dotnet
+        /// <see cref="Bucketizer"/>
+        /// </summary>
+        /// <param name="obj">The <see cref="JvmObjectReference"/> to convert into a dotnet
+        /// <see cref="Bucketizer"/></param>
+        /// <returns><see cref="Bucketizer"/></returns>
+        private static Bucketizer WrapAsBucketizer(object obj)
+        {
+            return new Bucketizer((JvmObjectReference)obj);
         }
     }
 }

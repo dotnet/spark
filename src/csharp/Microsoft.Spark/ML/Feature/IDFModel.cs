@@ -66,8 +66,8 @@ namespace Microsoft.Spark.ML.Feature
         }
 
         /// <summary>
-        /// The <see cref="IDFModel"/> will create a new column in the DataFrame, this is the
-        /// name of the new column.
+        /// The <see cref="IDFModel"/> will create a new column in the <see cref="DataFrame"/>,
+        /// this is the name of the new column.
         /// </summary>
         /// <returns>string, the output column</returns>
         public string GetOutputCol()
@@ -97,26 +97,14 @@ namespace Microsoft.Spark.ML.Feature
         }
         
         /// <summary>
-        /// Executes the <see cref="IDFModel"/> and transforms the DataFrame to include the new
-        /// column or columns with the tokens.
+        /// Executes the <see cref="IDFModel"/> and transforms the <see cref="DataFrame"/> to
+        /// include the new column or columns with the tokens.
         /// </summary>
-        /// <param name="source">The DataFrame to add the tokens to</param>
+        /// <param name="source">The <see cref="DataFrame"/> to add the tokens to</param>
         /// <returns><see cref="DataFrame"/> containing the original data and the tokens</returns>
         public DataFrame Transform(DataFrame source)
         {
             return new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
-        }
-
-        /// <summary>
-        /// The reference we get back from each call isn't usable unless we wrap it in a new dotnet
-        /// <see cref="IDFModel"/>
-        /// </summary>
-        /// <param name="obj">The <see cref="JvmObjectReference"/> to convert into a dotnet
-        /// <see cref="IDFModel"/></param>
-        /// <returns><see cref="IDFModel"/></returns>
-        private static IDFModel WrapAsIDFModel(object obj)
-        {
-            return new IDFModel((JvmObjectReference)obj);
         }
 
         /// <summary>
@@ -138,6 +126,18 @@ namespace Microsoft.Spark.ML.Feature
         public IDFModel Save(string path)
         {
             return WrapAsIDFModel(_jvmObject.Invoke("save", path));
+        }
+        
+        /// <summary>
+        /// The reference we get back from each call isn't usable unless we wrap it in a new dotnet
+        /// <see cref="IDFModel"/>
+        /// </summary>
+        /// <param name="obj">The <see cref="JvmObjectReference"/> to convert into a dotnet
+        /// <see cref="IDFModel"/></param>
+        /// <returns><see cref="IDFModel"/></returns>
+        private static IDFModel WrapAsIDFModel(object obj)
+        {
+            return new IDFModel((JvmObjectReference)obj);
         }
     }
 }
