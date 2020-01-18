@@ -25,11 +25,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestIDFModel()
         {
-            string expectedInputCol = "rawFeatures";
-            string expectedOutputCol = "features";
-            int expectedDocFrequency = 100;
+            var expectedInputCol = "rawFeatures";
+            var expectedOutputCol = "features";
+            var expectedDocFrequency = 100;
             
-            IDF idf = new IDF()
+            var idf = new IDF()
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
                 .SetMinDocFreq(expectedDocFrequency);

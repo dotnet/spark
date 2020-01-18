@@ -26,14 +26,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestBucketizer()
         {
-            double[] expectedSplits = new[] {Double.MinValue, 0.0, 10.0, 50.0, Double.MaxValue};
+            var expectedSplits = new double[] {Double.MinValue, 0.0, 10.0, 50.0, Double.MaxValue};
 
-            string expectedHandle = "skip";
-            string expectedUid = "uid";
-            string expectedInputCol = "input_col";
-            string expectedOutputCol = "output_col";
+            var expectedHandle = "skip";
+            var expectedUid = "uid";
+            var expectedInputCol = "input_col";
+            var expectedOutputCol = "output_col";
             
-            Bucketizer bucketizer = new Bucketizer(expectedUid)
+            var bucketizer = new Bucketizer(expectedUid)
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
                 .SetHandleInvalid(expectedHandle)
@@ -64,18 +64,18 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestBucketizer_MultipleColumns()
         {
-            double[][] expectedSplitsArray = new[]
+            var expectedSplitsArray = new[]
             {
                 new[] {Double.MinValue, 0.0, 10.0, 50.0, Double.MaxValue},
                 new[] {Double.MinValue, 0.0, 10000.0, Double.MaxValue}
             };
 
-            string expectedHandle = "keep";
+            var expectedHandle = "keep";
 
-            List<string> expectedInputCols = new List<string>() {"input_col_a", "input_col_b"};
-            List<string> expectedOutputCols = new List<string>() {"output_col_a", "output_col_b"};
+            var expectedInputCols = new List<string>() {"input_col_a", "input_col_b"};
+            var expectedOutputCols = new List<string>() {"output_col_a", "output_col_b"};
             
-            Bucketizer bucketizer = new Bucketizer()
+            var bucketizer = new Bucketizer()
                 .SetInputCols(expectedInputCols)
                 .SetOutputCols(expectedOutputCols)
                 .SetHandleInvalid(expectedHandle)

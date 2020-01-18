@@ -25,29 +25,29 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestIDFModel()
         {
-            int expectedDocFrequency = 1980;
-            string expectedInputCol = "rawFeatures";
-            string expectedOutputCol = "features";
+            var expectedDocFrequency = 1980;
+            var expectedInputCol = "rawFeatures";
+            var expectedOutputCol = "features";
 
             
             DataFrame sentenceData =
                 _spark.Sql("SELECT 0.0 as label, 'Hi I heard about Spark' as sentence");
-            Tokenizer tokenizer = new Tokenizer().SetInputCol("sentence").SetOutputCol("words");
+            var tokenizer = new Tokenizer().SetInputCol("sentence").SetOutputCol("words");
             DataFrame wordsData = tokenizer.Transform(sentenceData);
 
-            HashingTF hashingTF = new HashingTF()
+            var hashingTF = new HashingTF()
                                         .SetInputCol("words")
                                         .SetOutputCol(expectedInputCol)
                                         .SetNumFeatures(20);
 
             DataFrame featurizedData = hashingTF.Transform(wordsData);
     
-            IDF idf = new IDF()
+            var idf = new IDF()
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
                 .SetMinDocFreq(expectedDocFrequency);
             
-            IDFModel idfModel = idf.Fit(featurizedData);
+            var idfModel = idf.Fit(featurizedData);
 
             DataFrame rescaledData = idfModel.Transform(featurizedData);
 

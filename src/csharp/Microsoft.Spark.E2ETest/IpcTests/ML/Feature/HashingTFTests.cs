@@ -27,13 +27,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestHashingTF()
         {
-            string expectedInputCol = "input_col";
-            string expectedOutputCol = "output_col";
-            int expectedFeatures = 10;
+            var expectedInputCol = "input_col";
+            var expectedOutputCol = "output_col";
+            var expectedFeatures = 10;
 
             Assert.IsType<HashingTF>(new HashingTF());
             
-            HashingTF hashingTf = new HashingTF("my-unique-id")
+            var hashingTf = new HashingTF("my-unique-id")
                 .SetNumFeatures(expectedFeatures)
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol);

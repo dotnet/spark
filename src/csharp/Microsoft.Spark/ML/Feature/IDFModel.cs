@@ -22,8 +22,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         public IDFModel()
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                JavaClassName);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName);
         }
 
         /// <summary>
@@ -33,8 +32,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
         public IDFModel(string uid)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                JavaClassName, uid);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName, uid);
         }
         
         internal IDFModel(JvmObjectReference jvmObject)

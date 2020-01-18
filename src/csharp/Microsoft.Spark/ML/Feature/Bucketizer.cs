@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
@@ -96,8 +97,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns><see cref="Bucketizer"/></returns>
         public Bucketizer SetSplitsArray(double[][] value)
         {
-            double[][][] wrappedValue = new[] {value};
-            return WrapAsBucketizer(_jvmObject.Invoke("setSplitsArray", wrappedValue));
+            return WrapAsBucketizer(_jvmObject.Invoke("setSplitsArray", (object)value));
         }
 
         /// <summary>
@@ -185,6 +185,27 @@ namespace Microsoft.Spark.ML.Feature
         {
             return WrapAsBucketizer(_jvmObject.Invoke("setOutputCols", value));
         }
+        
+        /// <summary>
+        /// Loads the <see cref="Bucketizer"/> that was previously saved using Save
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns><see cref="Bucketizer"/></returns>
+        public static Bucketizer Load(string path)
+        {
+            return WrapAsBucketizer(
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(JavaClassName,"load", path));
+        }
+        
+        /// <summary>
+        /// Saves the <see cref="Bucketizer"/> so that it can be loaded later using Load
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns><see cref="Bucketizer"/></returns>
+        public Bucketizer Save(string path)
+        {
+            return WrapAsBucketizer(_jvmObject.Invoke("save", path));
+        }
 
         /// <summary>
         /// Executes the <see cref="Bucketizer"/> and transforms the DataFrame to include the new
@@ -241,28 +262,6 @@ namespace Microsoft.Spark.ML.Feature
         public Bucketizer SetHandleInvalid(string value)
         {
             return WrapAsBucketizer(_jvmObject.Invoke("setHandleInvalid", value.ToString()));
-        }
-        
-        /// <summary>
-        /// Loads the <see cref="Bucketizer"/> that was previously saved using Save
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns><see cref="Bucketizer"/></returns>
-        public static Bucketizer Load(string path)
-        {
-            return WrapAsBucketizer(SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                JavaClassName,
-                "load", path));
-        }
-        
-        /// <summary>
-        /// Saves the <see cref="Bucketizer"/> so that it can be loaded later using Load
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns><see cref="Bucketizer"/></returns>
-        public Bucketizer Save(string path)
-        {
-            return WrapAsBucketizer(_jvmObject.Invoke("save", path));
         }
     }
 }
