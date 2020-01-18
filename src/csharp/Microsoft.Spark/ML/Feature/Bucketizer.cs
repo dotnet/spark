@@ -33,7 +33,12 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         public Bucketizer()
         {
+<<<<<<< HEAD
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName);
+=======
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
+                "org.apache.spark.ml.feature.Bucketizer");
+>>>>>>> 739688e1906d209f9fef9d5078a529ce3f1746ce
         }
 
         /// <summary>
@@ -43,11 +48,19 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
         public Bucketizer(string uid)
         {
+<<<<<<< HEAD
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName, uid);
         }
         
         private readonly JvmObjectReference _jvmObject;
         private const string JavaClassName = "org.apache.spark.ml.feature.Bucketizer";
+=======
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
+                "org.apache.spark.ml.feature.Bucketizer", uid);
+        }
+        
+        private readonly JvmObjectReference _jvmObject;
+>>>>>>> 739688e1906d209f9fef9d5078a529ce3f1746ce
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
         
         /// <summary>
@@ -185,6 +198,7 @@ namespace Microsoft.Spark.ML.Feature
         {
             return WrapAsBucketizer(_jvmObject.Invoke("setOutputCols", value));
         }
+<<<<<<< HEAD
         
         /// <summary>
         /// Loads the <see cref="Bucketizer"/> that was previously saved using Save
@@ -206,6 +220,8 @@ namespace Microsoft.Spark.ML.Feature
         {
             return WrapAsBucketizer(_jvmObject.Invoke("save", path));
         }
+=======
+>>>>>>> 739688e1906d209f9fef9d5078a529ce3f1746ce
 
         /// <summary>
         /// Executes the <see cref="Bucketizer"/> and transforms the DataFrame to include the new
