@@ -166,7 +166,7 @@ namespace Microsoft.Spark.Worker.Command
                 s_outputBuffer = new byte[sizeHint];
 
             Pickler pickler = s_pickler ?? (s_pickler = PythonSerDe.CreatePickler());
-            pickler.dumps(rows,ref s_outputBuffer, out int bytesWritten);
+            pickler.dumps(rows, ref s_outputBuffer, out int bytesWritten);
 
             if (bytesWritten <= 0)
             {
