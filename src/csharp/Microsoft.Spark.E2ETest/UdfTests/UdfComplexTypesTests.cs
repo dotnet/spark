@@ -158,22 +158,57 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithReturnAsRowType()
         {
-            var schema = new StructType(new[]
+            // Single GenericRow
+            var schema1 = new StructType(new[]
             {
                 new StructField("col1", new IntegerType()),
                 new StructField("col2", new StringType())
             });
-            Func<Column, Column> udf = Udf<string>(
-                str => new GenericRow(new object[] { 1, "abc" }), schema);
+            Func<Column, Column> udf1 = Udf<string>(
+                str => new GenericRow(new object[] { 1, "abc" }), schema1);
 
-            Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
-            Assert.Equal(3, rows.Length);
+            Row[] rows1 = _df.Select(udf1(_df["name"])).Collect().ToArray();
+            Assert.Equal(3, rows1.Length);
 
-            foreach (Row row in rows)
+            foreach (Row row in rows1)
             {
                 Assert.Equal(2, row.Size());
-                Assert.Equal(1, row[0]);
-                Assert.Equal("abc", row[1]);
+                Assert.Equal(1, row.GetAs<int>("col1"));
+                Assert.Equal("abc", row.GetAs<string>("col2"));
+            }
+
+            // Nested GenericRow
+            var subSchema1 = new StructType(new[]
+            {
+                new StructField("subCol1", new IntegerType())
+            });
+            var subSchema2 = new StructType(new[]
+            {
+                new StructField("subCol2", new StringType())
+            });
+            var schema2 = new StructType(new[]
+            {
+                new StructField("col1", subSchema1),
+                new StructField("col2", subSchema2)
+            });
+            Func<Column, Column> udf2 = Udf<string>(
+                str => new GenericRow(
+                    new object[]
+                    {
+                        new GenericRow(new object[] { 1 }),
+                        new GenericRow(new object[] { "abc" })
+                    }), schema2);
+
+            Row[] rows2 = _df.Select(udf2(_df["name"])).Collect().ToArray();
+            Assert.Equal(3, rows2.Length);
+
+            foreach (Row row in rows2)
+            {
+                Assert.Equal(2, row.Size());
+                Assert.IsType<Row>(row.Get("col1"));
+                Assert.IsType<Row>(row.Get("col2"));
+                Assert.Equal(new Row(new object[] { 1 }, subSchema1), row.GetAs<Row>("col1"));
+                Assert.Equal(new Row(new object[] { "abc" }, subSchema2), row.GetAs<Row>("col2"));
             }
         }
     }

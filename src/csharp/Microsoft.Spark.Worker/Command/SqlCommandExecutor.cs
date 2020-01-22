@@ -165,13 +165,33 @@ namespace Microsoft.Spark.Worker.Command
             if (s_outputBuffer == null)
                 s_outputBuffer = new byte[sizeHint];
 
+            // Cast GenericRow to object if needed.
+            var newRows = new List<object>();
             if (rows.FirstOrDefault() is GenericRow)
             {
-                rows = rows.Select(r => (object)(r as GenericRow).Values).AsEnumerable();
+                for (int i = 0; i < rows.Count(); ++i)
+                {
+                    object[] cols = (rows.ElementAt(i) as GenericRow).Values;
+                    if (cols.FirstOrDefault() is GenericRow)
+                    {
+                        object[] newCols = new object[cols.Length];
+                        for (int j = 0; j < cols.Length; ++j)
+                        {
+                            newCols[j] = (cols[j] as GenericRow).Values;
+                        }
+                        newRows.Add(newCols);
+                    }
+                    else
+                    {
+                        newRows.Add(cols);
+                    }
+                }
             }
 
             Pickler pickler = s_pickler ?? (s_pickler = new Pickler(false));
-            pickler.dumps(rows, ref s_outputBuffer, out int bytesWritten);
+            pickler.dumps(
+                newRows.Count() == 0 ? rows : newRows,
+                ref s_outputBuffer, out int bytesWritten);
 
             if (bytesWritten <= 0)
             {
