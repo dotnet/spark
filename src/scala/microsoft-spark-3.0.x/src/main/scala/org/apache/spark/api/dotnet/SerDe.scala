@@ -118,6 +118,11 @@ object SerDe {
     (0 until len).map(_ => readDouble(in)).toArray
   }
 
+  def readDoubleArrArr(in: DataInputStream): Array[Array[Double]] = {
+    val len = readInt(in)
+    (0 until len).map(_ => readDoubleArr(in)).toArray
+  }
+
   def readBooleanArr(in: DataInputStream): Array[Boolean] = {
     val len = readInt(in)
     (0 until len).map(_ => readBoolean(in)).toArray
@@ -140,6 +145,7 @@ object SerDe {
       case 'g' => readLongArr(dis)
       case 'c' => readStringArr(dis)
       case 'd' => readDoubleArr(dis)
+      case 'A' => readDoubleArrArr(dis)
       case 'b' => readBooleanArr(dis)
       case 'j' => readStringArr(dis).map(x => JVMObjectTracker.getObject(x))
       case 'r' => readBytesArr(dis)
@@ -189,6 +195,7 @@ object SerDe {
       case "void" => dos.writeByte('n')
       case "character" => dos.writeByte('c')
       case "double" => dos.writeByte('d')
+      case "doublearray" => dos.writeByte('A')
       case "long" => dos.writeByte('g')
       case "integer" => dos.writeByte('i')
       case "logical" => dos.writeByte('b')
@@ -252,6 +259,9 @@ object SerDe {
         case "[D" =>
           writeType(dos, "list")
           writeDoubleArr(dos, value.asInstanceOf[Array[Double]])
+        case "[[D" =>
+          writeType(dos, "list")
+          writeDoubleArrArr(dos, value.asInstanceOf[Array[Array[Double]]])
         case "[Z" =>
           writeType(dos, "list")
           writeBooleanArr(dos, value.asInstanceOf[Array[Boolean]])
@@ -335,6 +345,12 @@ object SerDe {
     writeType(out, "double")
     out.writeInt(value.length)
     value.foreach(v => out.writeDouble(v))
+  }
+
+  def writeDoubleArrArr(out: DataOutputStream, value: Array[Array[Double]]): Unit = {
+    writeType(out, "doublearray")
+    out.writeInt(value.length)
+    value.foreach(v => writeDoubleArr(out, v))
   }
 
   def writeBooleanArr(out: DataOutputStream, value: Array[Boolean]): Unit = {
