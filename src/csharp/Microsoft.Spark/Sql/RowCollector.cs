@@ -34,13 +34,13 @@ namespace Microsoft.Spark.Sql
 
                 foreach (object unpickled in unpickledObjects)
                 {
-                    // yield return (unpickled as RowConstructor).GetRow();
                     switch (unpickled)
                     {
                         case RowConstructor rc:
                             yield return rc.GetRow();
                             break;
 
+                        // Unpickled object contains single Row
                         case object[] objs:
                             if ((objs.Length != 1) || !(objs[0] is Row row))
                             {

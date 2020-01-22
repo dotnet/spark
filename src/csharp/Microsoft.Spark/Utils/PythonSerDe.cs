@@ -67,5 +67,31 @@ namespace Microsoft.Spark.Utils
                 ArrayPool<byte>.Shared.Return(buffer);
             }
         }
+
+        /// <summary>
+        /// Custom pickler for GenericRow objects.
+        /// </summary>
+        internal class GenericRowPickler : IObjectPickler
+        {
+            public void pickle(object o, Stream outs, Pickler currentPickler)
+            {
+                GenericRow row = (GenericRow)o;
+                currentPickler.save(row.Values);
+            }
+
+            public void Register()
+            {
+                Pickler.registerCustomPickler(typeof(GenericRow), new GenericRowPickler());
+            }
+        }
+
+        /// <summary>
+        /// Register custom pickler for GenericRow object and create pickler.
+        /// </summary>
+        internal static Pickler CreatePickler()
+        {
+            new GenericRowPickler().Register();
+            return new Pickler();
+        }
     }
 }
