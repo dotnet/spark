@@ -6,7 +6,7 @@ the error "Type {0} not supported yet", you will need to implement the type.
 
 # Steps to follow
 
-1. Choose a new type identifier and add it to:
+## 1. Choose a new type identifier and add it to [PayloadHelper.cs](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Interop/Ipc/PayloadHelper.cs#L20):
 
 https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Interop/Ipc/PayloadHelper.cs#L20
 
