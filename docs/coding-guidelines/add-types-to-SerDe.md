@@ -2,12 +2,11 @@
 
 This how-to provides general instructions on how to add new types to serialization and deserialization between CLR (Common Language Runtime) and JVM (Java virtual machine). The IPC (Inter-process communication) mechanism between the CLR and the JVM uses serialization to communicate. Each type has a type identifier and then an optional length followed by the actual data.
 
-
 Not every type has been implemented so if you need to use a type that isn't supported and you get the error "Type {0} not supported yet", you will need to implement the type.
 
-# Steps to follow
+## Steps to follow
 
-## 1. Choose a new type identifier and add it to:
+### 1. Choose a new type identifier and add it to:
 
 https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Interop/Ipc/PayloadHelper.cs#L20
 
@@ -58,8 +57,7 @@ the code that will perform the write you need to add a case to `GetTypeId` for y
     }
 ```
 
-
-## 2. Derserialize this new type in JVM with read method
+### 2. Derserialize this new type in JVM with read method
 
 In [SerDe.scala](https://github.com/dotnet/spark/blob/master/src/scala/microsoft-spark-2.3.x/src/main/scala/org/apache/spark/api/dotnet/SerDe.scala) (This need to be changed in all Spark version 2.3.x, 2.4.x and 3.0.x). 
 
@@ -85,7 +83,7 @@ Once you have read the type, you can implement your method to read the data you 
 
 That should be everything you need to be able to send a new type from the CLR to the JVM.
 
-## 3. Serialize this new type in JVM with write method
+### 3. Serialize this new type in JVM with write method
 
 In src/main/scala/org/apache/spark/api/dotnet/SerDe.scala the function `writeObject` contains a switch for each type, a couple of examples:
 
@@ -97,6 +95,6 @@ In src/main/scala/org/apache/spark/api/dotnet/SerDe.scala the function `writeObj
 
 ```
 
-## 4. Add this new type in [JvmBridge.cs](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Interop/Ipc/JvmBridge.cs#L151) to read the value on CLR side
+### 4. Add this new type in [JvmBridge.cs](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Interop/Ipc/JvmBridge.cs#L151) to read the value on CLR side
 
 The final step is to be able to read the value on the CLR side that the JVM side has written. Back in csharp find csharp/Microsoft.Spark/Interop/Ipc/JvmBridge.cs add your type identifier to `CallJavaMethod` in the switch statement `switch (typeAsChar) //TODO: Add support for other types.` You will likely find that the type you want to implement should be implemented inside `ReadCollection`.
