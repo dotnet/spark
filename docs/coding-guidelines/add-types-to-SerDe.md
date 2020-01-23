@@ -61,7 +61,8 @@ the code that will perform the write you need to add a case to `GetTypeId` for y
 
 ## 2. Derserialize this new type in JVM with read method
 
-In src/main/scala/org/apache/spark/api/dotnet/SerDe.scala (These are versioned so you may need to 
+In [SerDe.scala](https://github.com/dotnet/spark/blob/master/src/scala/microsoft-spark-2.3.x/src/main/scala/org/apache/spark/api/dotnet/SerDe.scala) (This need to be changed in all Spark version 2.3.x, 2.4.x and 3.0.x). In the method `readTypedObject` add a new case statement for your new type 
+identifier:
 try and find it). In the method `readTypedObject` add a new case statement for your new type 
 identifier:
 
