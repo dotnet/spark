@@ -4,7 +4,7 @@ This how-to provides general instructions on how to add new types to serializati
 Not every type has been implemented so if you need to use a type that isn't supported and you get 
 the error "Type {0} not supported yet", you will need to implement the type.
 
-Steps you need to take:
+# Steps to follow
 
 1. Choose a new type identifier and add it to:
 
