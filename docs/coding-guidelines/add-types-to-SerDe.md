@@ -109,7 +109,8 @@ Once you have read the type, you can implement your method to read the data you 
 ```
 
 That should be everything you need to be able to send a new type from the CLR to the JVM but we now
- need to write back from the JVM to the CLR.
+
+## 3. Serialize this new type in JVM with write method
 
 In src/main/scala/org/apache/spark/api/dotnet/SerDe.scala the function `writeObject` contains a 
 switch for each type, a couple of examples:
