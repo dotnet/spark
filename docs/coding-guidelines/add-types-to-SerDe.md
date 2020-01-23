@@ -109,7 +109,7 @@ Once you have read the type, you can implement your method to read the data you 
 
 ```
 
-That should be everything you need to be able to send a new type from the CLR to the JVM but we now
+That should be everything you need to be able to send a new type from the CLR to the JVM.
 
 ## 3. Serialize this new type in JVM with write method
 
