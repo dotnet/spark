@@ -35,6 +35,9 @@ namespace Microsoft.Spark.Utils
             s_rowConstructor = new RowConstructor();
             Unpickler.registerConstructor(
                 "pyspark.sql.types", "_create_row_inbound_converter", s_rowConstructor);
+
+            // Register custom pickler for GenericRow object.
+            Pickler.registerCustomPickler(typeof(GenericRow), new GenericRowPickler());
         }
 
         /// <summary>
@@ -78,20 +81,6 @@ namespace Microsoft.Spark.Utils
                 GenericRow row = (GenericRow)o;
                 currentPickler.save(row.Values);
             }
-
-            public void Register()
-            {
-                Pickler.registerCustomPickler(typeof(GenericRow), new GenericRowPickler());
-            }
-        }
-
-        /// <summary>
-        /// Register custom pickler for GenericRow object and create pickler.
-        /// </summary>
-        internal static Pickler CreatePickler()
-        {
-            new GenericRowPickler().Register();
-            return new Pickler();
         }
     }
 }
