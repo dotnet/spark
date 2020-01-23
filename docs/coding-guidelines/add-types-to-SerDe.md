@@ -149,7 +149,7 @@ switch for each type, a couple of examples:
 
 ```
 
-The final step is to be able to read the value on the CLR side that the JVM side has written. Back 
+## 4. Add this new type in [JvmBridge.cs](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Interop/Ipc/JvmBridge.cs#L151) to read the value on CLR side
 in csharp find csharp/Microsoft.Spark/Interop/Ipc/JvmBridge.cs add your type identifier to 
 `CallJavaMethod` in the switch statement `switch (typeAsChar) //TODO: Add support for other types.`
 you will likely find that the type you want to implement should be implemented inside 
