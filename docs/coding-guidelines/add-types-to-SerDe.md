@@ -59,7 +59,7 @@ the code that will perform the write you need to add a case to `GetTypeId` for y
 
 ```
 
-The next step is to add the derserialization code to scala (read code).
+## 2. Derserialize this new type in JVM with read method
 
 In src/main/scala/org/apache/spark/api/dotnet/SerDe.scala (These are versioned so you may need to 
 try and find it). In the method `readTypedObject` add a new case statement for your new type 
