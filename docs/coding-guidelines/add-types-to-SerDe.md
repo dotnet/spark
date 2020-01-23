@@ -1,4 +1,4 @@
-The IPC mechanism between the CLR and the JVM uses serialization to communicate. Each type has a
+This how-to provides general instructions on how to add new types to serialization and deserialization between CLR (Common Language Runtime) and JVM (Java virtual machine). The IPC (Inter-process communication) mechanism between the CLR and the JVM uses serialization to communicate. Each type has a type identifier and then an optional length followed by the actual data.
  type identifier and then an optional length followed by the actual data.
 
 Not every type has been implemented so if you need to use a type that isn't supported and you get 
