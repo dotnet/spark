@@ -24,6 +24,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private static readonly byte[] s_doubleTypeId = new[] { (byte)'d' };
         private static readonly byte[] s_jvmObjectTypeId = new[] { (byte)'j' };
         private static readonly byte[] s_byteArrayTypeId = new[] { (byte)'r' };
+        private static readonly byte[] s_doubleArrayArrayTypeId = new[] { ( byte)'A' };
         private static readonly byte[] s_arrayTypeId = new[] { (byte)'l' };
         private static readonly byte[] s_dictionaryTypeId = new[] { (byte)'e' };
         private static readonly byte[] s_rowArrTypeId = new[] { (byte)'R' };
@@ -133,6 +134,19 @@ namespace Microsoft.Spark.Interop.Ipc
                                 foreach (double d in argDoubleArray)
                                 {
                                     SerDe.Write(destination, d);
+                                }
+                                break;
+                            
+                            case double[][] argDoubleArrayArray:
+                                SerDe.Write(destination, s_doubleArrayArrayTypeId);
+                                SerDe.Write(destination, argDoubleArrayArray.Length);
+                                foreach (double[] doubleArray in argDoubleArrayArray)
+                                {
+                                    SerDe.Write(destination, doubleArray.Length);
+                                    foreach (double d in doubleArray)
+                                    {
+                                        SerDe.Write(destination, d);
+                                    }
                                 }
                                 break;
 
@@ -286,6 +300,7 @@ namespace Microsoft.Spark.Interop.Ipc
                     if (type == typeof(int[]) ||
                         type == typeof(long[]) ||
                         type == typeof(double[]) ||
+                        type == typeof(double[][]) ||
                         typeof(IEnumerable<byte[]>).IsAssignableFrom(type) ||
                         typeof(IEnumerable<string>).IsAssignableFrom(type))
                     {
