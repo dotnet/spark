@@ -14,8 +14,7 @@ namespace Microsoft.Spark.Sql
     {
         public void pickle(object o, Stream outs, Pickler currentPickler)
         {
-            GenericRow row = (GenericRow)o;
-            currentPickler.save(row.Values);
+            currentPickler.save(((GenericRow)o).Values);
         }
     }
 }
