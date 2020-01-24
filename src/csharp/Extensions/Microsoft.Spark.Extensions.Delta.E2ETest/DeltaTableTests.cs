@@ -10,6 +10,7 @@ using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Extensions.Delta.Tables;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Streaming;
+using Microsoft.Spark.Sql.Types;
 using Xunit;
 
 namespace Microsoft.Spark.Extensions.Delta.E2ETest
@@ -206,7 +207,16 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                     identifier,
                     $"{partitionColumnName} bigint"),
                 partitionColumnName);
-            // TODO: Test with StructType partition schema once StructType is supported.
+            testWrapper(
+                data.Repartition(Functions.Col(partitionColumnName)),
+                identifier => DeltaTable.ConvertToDelta(
+                    _spark,
+                    identifier,
+                    new StructType(new[]
+                    {
+                        new StructField(partitionColumnName, new IntegerType())
+                    })),
+                partitionColumnName);
         }
 
         /// <summary>
@@ -276,6 +286,9 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
             Assert.IsType<DataFrame>(table.Vacuum());
             Assert.IsType<DataFrame>(table.Vacuum(168));
 
+            // Generate should return void.
+            table.Generate("symlink_format_manifest");
+
             // Delete should return void.
             table.Delete("id > 10");
             table.Delete(Functions.Expr("id > 5"));
@@ -303,7 +316,13 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 _spark,
                 parquetIdentifier,
                 "id bigint"));
-            // TODO: Test with StructType partition schema once StructType is supported.
+            Assert.IsType<DeltaTable>(DeltaTable.ConvertToDelta(
+                _spark,
+                parquetIdentifier,
+                new StructType(new[]
+                {
+                    new StructField("id", new IntegerType())
+                })));
         }
 
         /// <summary>

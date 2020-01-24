@@ -9,6 +9,8 @@ package org.apache.spark.api.dotnet
 import java.io.{DataInputStream, DataOutputStream}
 import java.sql.{Date, Time, Timestamp}
 
+import org.apache.spark.sql.Row
+
 import scala.collection.JavaConverters._
 
 /**
@@ -39,6 +41,7 @@ object SerDe {
       case 'D' => readDate(dis)
       case 't' => readTime(dis)
       case 'j' => JVMObjectTracker.getObject(readString(dis))
+      case 'R' => readRowArr(dis)
       case _ => throw new IllegalArgumentException(s"Invalid type $dataType")
     }
   }
@@ -90,6 +93,11 @@ object SerDe {
     t
   }
 
+  def readRow(in: DataInputStream): Row = {
+    val len = readInt(in)
+    Row.fromSeq((0 until len).map(_ => readObject(in)))
+  }
+
   def readBytesArr(in: DataInputStream): Array[Array[Byte]] = {
     val len = readInt(in)
     (0 until len).map(_ => readBytes(in)).toArray
@@ -110,6 +118,11 @@ object SerDe {
     (0 until len).map(_ => readDouble(in)).toArray
   }
 
+  def readDoubleArrArr(in: DataInputStream): Array[Array[Double]] = {
+    val len = readInt(in)
+    (0 until len).map(_ => readDoubleArr(in)).toArray
+  }
+
   def readBooleanArr(in: DataInputStream): Array[Boolean] = {
     val len = readInt(in)
     (0 until len).map(_ => readBoolean(in)).toArray
@@ -120,6 +133,11 @@ object SerDe {
     (0 until len).map(_ => readString(in)).toArray
   }
 
+  def readRowArr(in: DataInputStream): java.util.List[Row] = {
+    val len = readInt(in)
+    (0 until len).map(_ => readRow(in)).toList.asJava
+  }
+
   def readList(dis: DataInputStream): Array[_] = {
     val arrType = readObjectType(dis)
     arrType match {
@@ -127,6 +145,7 @@ object SerDe {
       case 'g' => readLongArr(dis)
       case 'c' => readStringArr(dis)
       case 'd' => readDoubleArr(dis)
+      case 'A' => readDoubleArrArr(dis)
       case 'b' => readBooleanArr(dis)
       case 'j' => readStringArr(dis).map(x => JVMObjectTracker.getObject(x))
       case 'r' => readBytesArr(dis)
@@ -176,6 +195,7 @@ object SerDe {
       case "void" => dos.writeByte('n')
       case "character" => dos.writeByte('c')
       case "double" => dos.writeByte('d')
+      case "doublearray" => dos.writeByte('A')
       case "long" => dos.writeByte('g')
       case "integer" => dos.writeByte('i')
       case "logical" => dos.writeByte('b')
@@ -239,6 +259,9 @@ object SerDe {
         case "[D" =>
           writeType(dos, "list")
           writeDoubleArr(dos, value.asInstanceOf[Array[Double]])
+        case "[[D" =>
+          writeType(dos, "list")
+          writeDoubleArrArr(dos, value.asInstanceOf[Array[Array[Double]]])
         case "[Z" =>
           writeType(dos, "list")
           writeBooleanArr(dos, value.asInstanceOf[Array[Boolean]])
@@ -322,6 +345,12 @@ object SerDe {
     writeType(out, "double")
     out.writeInt(value.length)
     value.foreach(v => out.writeDouble(v))
+  }
+
+  def writeDoubleArrArr(out: DataOutputStream, value: Array[Array[Double]]): Unit = {
+    writeType(out, "doublearray")
+    out.writeInt(value.length)
+    value.foreach(v => writeDoubleArr(out, v))
   }
 
   def writeBooleanArr(out: DataOutputStream, value: Array[Boolean]): Unit = {
