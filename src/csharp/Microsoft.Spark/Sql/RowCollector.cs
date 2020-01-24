@@ -34,8 +34,8 @@ namespace Microsoft.Spark.Sql
 
                 foreach (object unpickled in unpickledObjects)
                 {
-                    // Unpickled object can be either a RowConstructor object (not materialized), or
-                    // a Row object (materialized). Refer to RowConstruct.construct() to see how
+                    // Unpickled object can be either a RowConstructor object (not materialized),
+                    // or a Row object (materialized). Refer to RowConstruct.construct() to see how
                     // Row objects are unpickled.
                     switch (unpickled)
                     {

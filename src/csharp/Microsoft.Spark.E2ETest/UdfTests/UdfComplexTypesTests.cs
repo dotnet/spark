@@ -221,7 +221,6 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                     Assert.Equal(
                         new Row(new object[] { 1 }, subSchema1),
                         row.GetAs<Row>("col2"));
-                    Row col3 = row.GetAs<Row>("col3");
                     Assert.Equal(
                         new Row(
                             new object[] { "abc", new Row(new object[] { 10 }, subSchema1) },
