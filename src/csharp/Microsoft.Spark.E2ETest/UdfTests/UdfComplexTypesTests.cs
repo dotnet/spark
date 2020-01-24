@@ -207,8 +207,6 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 foreach (Row row in rows)
                 {
                     Assert.Equal(2, row.Size());
-                    Assert.IsType<Row>(row.Get("col1"));
-                    Assert.IsType<Row>(row.Get("col2"));
                     Assert.Equal(new Row(new object[] { 1 }, subSchema1), row.GetAs<Row>("col1"));
                     Assert.Equal(
                         new Row(new object[] { "abc" }, subSchema2),
