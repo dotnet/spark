@@ -165,10 +165,10 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                     new StructField("col1", new IntegerType()),
                     new StructField("col2", new StringType())
                 });
-                Func<Column, Column> udf1 = Udf<string>(
+                Func<Column, Column> udf = Udf<string>(
                     str => new GenericRow(new object[] { 1, "abc" }), schema);
 
-                Row[] rows = _df.Select(udf1(_df["name"])).Collect().ToArray();
+                Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
                 foreach (Row row in rows)
@@ -193,7 +193,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                     new StructField("col1", subSchema1),
                     new StructField("col2", subSchema2)
                 });
-                Func<Column, Column> udf2 = Udf<string>(
+                Func<Column, Column> udf = Udf<string>(
                     str => new GenericRow(
                         new object[]
                         {
@@ -201,7 +201,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                             new GenericRow(new object[] { "abc" })
                         }), schema);
 
-                Row[] rows = _df.Select(udf2(_df["name"])).Collect().ToArray();
+                Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
                 foreach (Row row in rows)
@@ -210,7 +210,9 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                     Assert.IsType<Row>(row.Get("col1"));
                     Assert.IsType<Row>(row.Get("col2"));
                     Assert.Equal(new Row(new object[] { 1 }, subSchema1), row.GetAs<Row>("col1"));
-                    Assert.Equal(new Row(new object[] { "abc" }, subSchema2), row.GetAs<Row>("col2"));
+                    Assert.Equal(
+                        new Row(new object[] { "abc" }, subSchema2),
+                        row.GetAs<Row>("col2"));
                 }
             }
         }
