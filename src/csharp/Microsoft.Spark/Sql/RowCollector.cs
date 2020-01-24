@@ -34,21 +34,16 @@ namespace Microsoft.Spark.Sql
 
                 foreach (object unpickled in unpickledObjects)
                 {
+                    // Unpickled object can be either a RowConstructor object (not materialized), or
+                    // a Row object (materialized). Refer to RowConstruct.construct() to see how
+                    // Row objects are unpickled.
                     switch (unpickled)
                     {
                         case RowConstructor rc:
                             yield return rc.GetRow();
                             break;
 
-                        // Unpickled object contains single Row
-                        case object[] objs:
-                            if ((objs.Length != 1) || !(objs[0] is Row row))
-                            {
-                                throw new NotSupportedException(
-                                    string.Format("Expected single Row in unpickled type {0}",
-                                        unpickled.GetType()));
-                            }
-
+                        case object[] objs when objs.Length == 1 && (objs[0] is Row row):
                             yield return row;
                             break;
 
