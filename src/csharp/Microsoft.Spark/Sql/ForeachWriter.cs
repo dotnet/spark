@@ -125,7 +125,8 @@ namespace Microsoft.Spark.Sql
                 "streaming.sql.batchId",
                 out string epochIdStr) || !long.TryParse(epochIdStr, out long epochId))
             {
-                throw new Exception("Could not get batch id from TaskContext");
+                throw new Exception(
+                    $"Could not get or parse batch id from TaskContext - batchId: {epochIdStr}");
             }
 
             Exception error = null;
@@ -161,6 +162,11 @@ namespace Microsoft.Spark.Sql
 
     /// <summary>
     /// Wraps the given Func object, which represents a <see cref="ForeachWriterWrapper"/> UDF.
+    /// When this UdfWrapper is processed, the PythonEvalType is
+    /// <see cref="Utils.UdfUtils.PythonEvalType.NON_UDF"/>. The CommandExecutor expects the 
+    /// <see cref="Execute(int, IEnumerable{object})"/> method to match the
+    /// <see cref="RDD.WorkerFunction.ExecuteDelegate"/> delegate. This UdfWrapper helps map 
+    /// the UDF for <see cref="ForeachWriterWrapper"/> to <see cref="RDD.WorkerFunction.ExecuteDelegate"/>.
     /// </summary>
     [UdfWrapper]
     internal class ForeachWriterWrapperUdfWrapper

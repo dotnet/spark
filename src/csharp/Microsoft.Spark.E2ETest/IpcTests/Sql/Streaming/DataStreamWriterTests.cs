@@ -74,7 +74,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // [1, 2, ..., 99]
             _spark.Range(1, 100).Write().Json(streamInputPath);
 
-            // Test a scenario where ForeachWriter runs without issues.
+            // Test a scenario where IForeachWriter runs without issues.
             // If everything is working as expected, then:
             // - Triggering stream will not throw an exception
             // - 3 CSV files will be created in the temporary directory.
@@ -84,15 +84,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             TestAndValidateForeach(
                 streamInputPath,
                 new TestForeachWriter(),
-                false,
-                3,
                 3,
                 0,
                 Enumerable.Range(101, 99));
 
             // Test scenario where IForeachWriter.Open returns false.
             // When IForeachWriter.Open returns false, then IForeachWriter.Process
-            // is not called.  Verify that:
+            // is not called. Verify that:
             // - Triggering stream will not throw an exception
             // - 3 CSV files will be created in the temporary directory.
             // - 0 Exception files will be created in the temporary directory.
@@ -100,14 +98,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             TestAndValidateForeach(
                 streamInputPath,
                 new TestForeachWriterOpenFailure(),
-                false,
-                3,
                 3,
                 0,
                 Enumerable.Empty<int>());
 
 
-            // Test scenario where ForeachWriter.Process throws an Exception.
+            // Test scenario where IForeachWriter.Process throws an Exception.
             // When IForeachWriter.Process throws an Exception, then the exception
             // is rethrown by ForeachWriterWrapper. We will limit the partitions
             // to 1 to make validating this scenario simpler. Verify that:
@@ -117,41 +113,36 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             //   thrown exception from Process() will be sent to Close().
             // - The CSV file will not contain valid data to read.
             TestAndValidateForeach(
-                    streamInputPath,
-                    new TestForeachWriterProcessFailure(),
-                    true,
-                    1,
-                    1,
-                    1,
-                    Enumerable.Empty<int>());
+                streamInputPath,
+                new TestForeachWriterProcessFailure(),
+                1,
+                1,
+                Enumerable.Empty<int>());
         }
 
         private void TestAndValidateForeach(
             string streamInputPath,
             TestForeachWriter foreachWriter,
-            bool foreachThrows,
-            int partitions,
-            long expectedCSVFiles,
-            long expectedExceptionFiles,
+            int expectedCSVFiles,
+            int expectedExceptionFiles,
             IEnumerable<int> expectedOutput)
         {
             // Temporary folder the TestForeachWriter will write to.
             using var dstTempDirectory = new TemporaryDirectory();
-
             foreachWriter.WritePath = dstTempDirectory.Path;
 
-            // Read streamInputPath, repartitions data into `partitions`, then
-            // calls TestForeachWriter on the data.
+            // Read streamInputPath, repartition data, then
+            // call TestForeachWriter on the data.
             DataStreamWriter dsw = _spark
                 .ReadStream()
                 .Schema("id INT")
                 .Json(streamInputPath)
-                .Repartition(partitions)
+                .Repartition(expectedCSVFiles)
                 .WriteStream()
                 .Foreach(foreachWriter);
 
             // Trigger the stream batch once.
-            if (foreachThrows)
+            if (expectedExceptionFiles > 0)
             {
                 Assert.Throws<Exception>(
                     () => dsw.Trigger(Trigger.Once()).Start().AwaitTermination());
@@ -186,20 +177,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Validated expected *.csv data.
             Assert.Equal(
-                    expectedOutput.Select(i => new object[] { i }),
-                    foreachWriterOutputDF.Collect().Select(r => r.Values));
+                expectedOutput.Select(i => new object[] { i }),
+                foreachWriterOutputDF.Collect().Select(r => r.Values));
         }
 
         [Serializable]
         private class TestForeachWriter : IForeachWriter
         {
-            // Mark the StreamWriter as ThreadStatic. If there are multiple Tasks
-            // running this ForeachWriter, on the same Worker, and in parallel, then
-            // it may be possible that they may use the same StreamWriter object. This
-            // may cause an unintended side effect of a Task writing the output to a
-            // file meant for a different Task.
-            [ThreadStatic]
-            private static StreamWriter s_streamWriter;
+            [NonSerialized]
+            private StreamWriter _streamWriter;
 
             private long _partitionId;
 
@@ -218,7 +204,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                     fs.Dispose();
                 }
 
-                s_streamWriter?.Dispose();
+                _streamWriter?.Dispose();
             }
 
             public virtual bool Open(long partitionId, long epochId)
@@ -227,7 +213,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 _epochId = epochId;
                 try
                 {
-                    s_streamWriter = new StreamWriter(
+                    _streamWriter = new StreamWriter(
                         Path.Combine(
                             WritePath,
                             $"sink-foreachWriter-{_partitionId}-{_epochId}.csv"));
@@ -241,7 +227,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             public virtual void Process(Row value)
             {
-                s_streamWriter.WriteLine(string.Join(",", value.Values.Select(v => 100 + (int)v)));
+                _streamWriter.WriteLine(string.Join(",", value.Values.Select(v => 100 + (int)v)));
             }
         }
 

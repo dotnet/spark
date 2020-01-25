@@ -13,11 +13,6 @@ namespace Microsoft.Spark
     /// </summary>
     internal class TaskContext
     {
-        internal TaskContext()
-        {
-            TaskContextHolder.Set(this);
-        }
-
         internal int StageId { get; set; }
 
         internal int PartitionId { get; set; }
