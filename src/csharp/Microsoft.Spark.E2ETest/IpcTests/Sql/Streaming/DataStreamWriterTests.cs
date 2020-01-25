@@ -102,7 +102,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 0,
                 Enumerable.Empty<int>());
 
-
             // Test scenario where IForeachWriter.Process throws an Exception.
             // When IForeachWriter.Process throws an Exception, then the exception
             // is rethrown by ForeachWriterWrapper. We will limit the partitions
