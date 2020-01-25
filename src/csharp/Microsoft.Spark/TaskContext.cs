@@ -81,6 +81,10 @@ namespace Microsoft.Spark
     // TaskContextHolder contains the TaskContext for the current Thread.
     internal static class TaskContextHolder
     {
+        // Multiple Tasks can be assigned to a Worker process. Each
+        // Task will run in its own thread until completion. Therefore
+        // we set this field as a thread local variable, where each
+        // thread will have its own copy of the TaskContext.
         [ThreadStatic]
         internal static TaskContext s_taskContext;
 
