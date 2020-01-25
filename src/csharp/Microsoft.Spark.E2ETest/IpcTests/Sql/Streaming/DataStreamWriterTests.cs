@@ -174,7 +174,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 .Csv(dstTempDirectory.Path)
                 .Sort("id");
 
-            // Validated expected *.csv data.
+            // Validate expected *.csv data.
             Assert.Equal(
                 expectedOutput.Select(i => new object[] { i }),
                 foreachWriterOutputDF.Collect().Select(r => r.Values));
