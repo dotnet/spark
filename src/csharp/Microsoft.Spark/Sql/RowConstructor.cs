@@ -67,7 +67,9 @@ namespace Microsoft.Spark.Sql
 
             // When a row is ready to be materialized, then construct() is called
             // on the RowConstructor which represents the row.
-            if ((args.Length == 1) && (args[0] is RowConstructor rowConstructor))
+            if ((args.Length == 1) &&
+                (args[0] is RowConstructor rowConstructor) &&
+                (rowConstructor._parent == null))
             {
                 // Construct the Row and return args containing the Row.
                 args[0] = rowConstructor.GetRow();

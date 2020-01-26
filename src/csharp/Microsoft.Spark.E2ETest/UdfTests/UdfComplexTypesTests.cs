@@ -168,14 +168,40 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Func<Column, Column> udf = Udf<string>(
                     str => new GenericRow(new object[] { 1, "abc" }), schema);
 
-                Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
+                Row[] rows = _df.Select(udf(_df["name"]).As("col")).Collect().ToArray();
+                Assert.Equal(3, rows.Length);
+                foreach (Row row in rows)
+                {
+                    Assert.Equal(1, row.Size());
+                    Row outerCol = row.GetAs<Row>("col");
+                    Assert.Equal(2, outerCol.Size());
+                    Assert.Equal(1, outerCol.GetAs<int>("col1"));
+                    Assert.Equal("abc", outerCol.GetAs<string>("col2"));
+                }
+            }
+
+            // Generic row is a part of top-level column.
+            {
+                var schema = new StructType(new[]
+                {
+                    new StructField("col1", new IntegerType())
+                });
+                Func<Column, Column> udf = Udf<string>(
+                    str => new GenericRow(new object[] { 111 }), schema);
+
+                // umn nameCol = _df["name"];
+                Row[] rows = _df.Select(udf(_df["name"]).As("col"), _df["name"]).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
                 foreach (Row row in rows)
                 {
                     Assert.Equal(2, row.Size());
-                    Assert.Equal(1, row.GetAs<int>("col1"));
-                    Assert.Equal("abc", row.GetAs<string>("col2"));
+                    Row col1 = row.GetAs<Row>("col");
+                    Assert.Equal(1, col1.Size());
+                    Assert.Equal(111, col1.GetAs<int>("col1"));
+
+                    string col2 = row.GetAs<string>("name");
+                    Assert.NotEmpty(col2);
                 }
             }
 
@@ -211,21 +237,23 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                         }),
                         schema);
 
-                Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
+                Row[] rows = _df.Select(udf(_df["name"]).As("col")).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
                 foreach (Row row in rows)
                 {
-                    Assert.Equal(3, row.Size());
-                    Assert.Equal(1, row.GetAs<int>("col1"));
+                    Assert.Equal(1, row.Size());
+                    Row outerCol = row.GetAs<Row>("col");
+                    Assert.Equal(3, outerCol.Size());
+                    Assert.Equal(1, outerCol.GetAs<int>("col1"));
                     Assert.Equal(
                         new Row(new object[] { 1 }, subSchema1),
-                        row.GetAs<Row>("col2"));
+                        outerCol.GetAs<Row>("col2"));
                     Assert.Equal(
                         new Row(
                             new object[] { "abc", new Row(new object[] { 10 }, subSchema1) },
                             subSchema2),
-                        row.GetAs<Row>("col3"));
+                        outerCol.GetAs<Row>("col3"));
                 }
             }
         }
