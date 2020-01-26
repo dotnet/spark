@@ -189,8 +189,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Func<Column, Column> udf = Udf<string>(
                     str => new GenericRow(new object[] { 111 }), schema);
 
-                // umn nameCol = _df["name"];
-                Row[] rows = _df.Select(udf(_df["name"]).As("col"), _df["name"]).Collect().ToArray();
+                Column nameCol = _df["name"];
+                Row[] rows = _df.Select(udf(nameCol).As("col"), nameCol).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
                 foreach (Row row in rows)
