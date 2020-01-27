@@ -5,8 +5,8 @@ This how-to provides general instructions on how to add new types to serializati
 Not every type has been implemented so if you need to use a type that isn't supported and you get the error "Type {0} not supported yet", you will need to implement the type.
 
 ## Steps to follow
-
-### 1. Choose a new type identifier and add it to:
+Please see the following E2E example of how the new type `DoubleArrayArray` is added to serialization and deserialization between CLR and JVM.
+### 1. Choose a new type identifier and add it in [PayloadHelper.cs](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Interop/Ipc/PayloadHelper.cs) on CLR side
 
 https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Interop/Ipc/PayloadHelper.cs#L20
 
@@ -85,7 +85,7 @@ That should be everything you need to be able to send a new type from the CLR to
 
 ### 3. Serialize this new type in JVM with write method
 
-In src/main/scala/org/apache/spark/api/dotnet/SerDe.scala the function `writeObject` contains a switch for each type, a couple of examples:
+In [SerDe.scala](https://github.com/dotnet/spark/blob/master/src/scala/microsoft-spark-2.3.x/src/main/scala/org/apache/spark/api/dotnet/SerDe.scala) (This need to be changed in all Spark version 2.3.x, 2.4.x and 3.0.x), the function `writeObject` contains a switch for each type, a couple of examples:
 
 ```scala
 
@@ -95,6 +95,6 @@ In src/main/scala/org/apache/spark/api/dotnet/SerDe.scala the function `writeObj
 
 ```
 
-### 4. Add this new type in [JvmBridge.cs](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Interop/Ipc/JvmBridge.cs#L151) to read the value on CLR side
+### 4. Add this new type in [JvmBridge.cs](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Interop/Ipc/JvmBridge.cs) to read the value on CLR side
 
 The final step is to be able to read the value on the CLR side that the JVM side has written. Back in csharp find csharp/Microsoft.Spark/Interop/Ipc/JvmBridge.cs add your type identifier to `CallJavaMethod` in the switch statement `switch (typeAsChar) //TODO: Add support for other types.` You will likely find that the type you want to implement should be implemented inside `ReadCollection`.
