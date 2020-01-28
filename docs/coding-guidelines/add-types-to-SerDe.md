@@ -12,7 +12,7 @@ Please see the following E2E example of how the new type `DoubleArrayArray` is a
 Example:
 
 ```csharp
-private static readonly byte[] s_doubleArrayArrayTypeId = new[] { ( byte)'A' };z
+private static readonly byte[] s_doubleArrayArrayTypeId = new[] { ( byte)'A' };
 ```
 
 Once you have created your new identifier implement the csharp side writer in PayloadHelper.cs by finding the method `ConvertArgsToBytes` and find out where in the switch that the code should be implemented.
