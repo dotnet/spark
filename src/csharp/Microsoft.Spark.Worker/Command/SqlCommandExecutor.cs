@@ -135,8 +135,17 @@ namespace Microsoft.Spark.Worker.Command
 
                     for (int i = 0; i < inputRows.Length; ++i)
                     {
+                        object row = inputRows[i];
+                        // The following can happen if an UDF take Row object(s).
+                        // The JVM Spark side sends a Row object that wraps all the columns used
+                        // in the UDF, thus, it is normalized below (the extra layer is removed).
+                        if (row is RowConstructor rowConstructor)
+                        {
+                            row = rowConstructor.GetRow().Values;
+                        }
+
                         // Split id is not used for SQL UDFs, so 0 is passed.
-                        outputRows.Add(commandRunner.Run(0, inputRows[i]));
+                        outputRows.Add(commandRunner.Run(0, row));
                     }
 
                     // The initial (estimated) buffer size for pickling rows is set to the size of
