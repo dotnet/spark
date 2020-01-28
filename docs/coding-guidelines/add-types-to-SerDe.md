@@ -93,7 +93,7 @@ def writeDoubleArrArr(out: DataOutputStream, value: Array[Array[Double]]): Unit 
 `WriteType` also needs to know how to write the specific type identifier:
 
 ```scala
-case "doublearray" => dos.writeByte('A'
+case "doublearray" => dos.writeByte('A')
 ```
 
 ### 4. Add this new type in [JvmBridge.cs](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Interop/Ipc/JvmBridge.cs) to read the value on CLR side
