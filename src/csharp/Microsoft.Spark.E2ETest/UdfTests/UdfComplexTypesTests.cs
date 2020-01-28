@@ -166,7 +166,10 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Row[] rows = _df.Select(udf(_df["info1"], _df["info2"], _df["name"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
-                var expected = new[] { "Michael:Burdwan,Paschimbanga", "Andy:Los Angeles,California", "Justin:Seattle,Washington" };
+                var expected = new[] {
+                    "Michael:Burdwan,Paschimbanga",
+                    "Andy:Los Angeles,California",
+                    "Justin:Seattle,Washington" };
                 string[] actual = rows.Select(x => x[0].ToString()).ToArray();
                 Assert.Equal(expected, actual);
             }

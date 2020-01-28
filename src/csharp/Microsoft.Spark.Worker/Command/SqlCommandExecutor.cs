@@ -136,7 +136,7 @@ namespace Microsoft.Spark.Worker.Command
                     for (int i = 0; i < inputRows.Length; ++i)
                     {
                         object row = inputRows[i];
-                        // The following can happen if an UDF take Row object(s).
+                        // The following can happen if an UDF takes Row object(s).
                         // The JVM Spark side sends a Row object that wraps all the columns used
                         // in the UDF, thus, it is normalized below (the extra layer is removed).
                         if (row is RowConstructor rowConstructor)
