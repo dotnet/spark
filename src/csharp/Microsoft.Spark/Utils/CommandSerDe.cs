@@ -342,20 +342,10 @@ namespace Microsoft.Spark.Utils
                 parameters,
                 null);
 
-            if (type == typeof(DataFrameGroupedMapUdfWrapper))
-            {
-                return Delegate.CreateDelegate(
-                    typeof(DataFrameGroupedMapWorkerFunction.ExecuteDelegate),
-                    udfWrapper,
-                    UdfWrapperMethodName);
-            }
-            else
-            {
-                return Delegate.CreateDelegate(
-                    typeof(T),
-                    udfWrapper,
-                    UdfWrapperMethodName);
-            }
+            return Delegate.CreateDelegate(
+                typeof(T),
+                udfWrapper,
+                UdfWrapperMethodName);
         }
     }
 }

@@ -320,6 +320,86 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                         new StructField("age", new IntegerType()),
                         new StructField("nameCharCount", new IntegerType())
                     }),
+                    batch => CountCharacters(batch))
+                .Collect()
+                .ToArray();
+
+            Assert.Equal(3, rows.Length);
+            foreach (Row row in rows)
+            {
+                int? age = row.GetAs<int?>("age");
+                int charCount = row.GetAs<int>("nameCharCount");
+                switch (age)
+                {
+                    case null:
+                        Assert.Equal(7, charCount);
+                        break;
+                    case 19:
+                        Assert.Equal(11, charCount);
+                        break;
+                    case 30:
+                        Assert.Equal(8, charCount);
+                        break;
+                    default:
+                        throw new Exception($"Unexpected age: {age}.");
+                }
+            }
+        }
+
+        private static RecordBatch CountCharacters(RecordBatch records)
+        {
+            int stringFieldIndex = records.Schema.GetFieldIndex("name");
+            StringArray stringValues = records.Column(stringFieldIndex) as StringArray;
+
+            int characterCount = 0;
+
+            for (int i = 0; i < stringValues.Length; ++i)
+            {
+                string current = stringValues.GetString(i);
+                characterCount += current.Length;
+            }
+
+            int groupFieldIndex = records.Schema.GetFieldIndex("age");
+            Field groupField = records.Schema.GetFieldByIndex(groupFieldIndex);
+
+            // Return 1 record, if we were given any. 0, otherwise.
+            int returnLength = records.Length > 0 ? 1 : 0;
+
+            return new RecordBatch(
+                new Schema.Builder()
+                    .Field(groupField)
+                    .Field(f => f.Name("name_CharCount").DataType(Int32Type.Default))
+                    .Build(),
+                new IArrowArray[]
+                {
+                    records.Column(groupFieldIndex),
+                    new Int32Array.Builder().Append(characterCount).Build()
+                },
+                returnLength);
+        }
+
+
+        [Fact]
+        public void TestDataFrameGroupedMapUdf()
+        {
+            DataFrame df = _spark
+                .Read()
+                .Schema("age INT, name STRING")
+                .Json($"{TestEnvironment.ResourceDirectory}more_people.json");
+            // Data:
+            // { "name":"Michael"}
+            // { "name":"Andy", "age":30}
+            // { "name":"Seth", "age":30}
+            // { "name":"Justin", "age":19}
+            // { "name":"Kathy", "age":19}
+
+            Row[] rows = df.GroupBy("age")
+                .Apply(
+                    new StructType(new[]
+                    {
+                        new StructField("age", new IntegerType()),
+                        new StructField("nameCharCount", new IntegerType())
+                    }),
                     batch => CountCharacters(batch, "age", "name"))
                 .Collect()
                 .ToArray();

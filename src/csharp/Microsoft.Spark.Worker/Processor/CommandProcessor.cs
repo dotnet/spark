@@ -180,6 +180,10 @@ namespace Microsoft.Spark.Worker.Processor
                                     (DataFrameWorkerFunction)command.WorkerFunction,
                                     curWorkerFunction);
                             }
+                            else
+                            {
+                                throw new NotSupportedException($"Unknown delegate type: {obj.GetType()}");
+                            }
                         }
                         else if (evalType == PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF)
                         {
@@ -201,6 +205,10 @@ namespace Microsoft.Spark.Worker.Processor
                             else if (obj is DataFrameGroupedMapWorkerFunction.ExecuteDelegate dataFrameDelegate)
                             {
                                 command.WorkerFunction = new DataFrameGroupedMapWorkerFunction(dataFrameDelegate);
+                            }
+                            else
+                            {
+                                throw new NotSupportedException($"Unknown delegate type: {obj.GetType()}");
                             }
                         }
                         else
