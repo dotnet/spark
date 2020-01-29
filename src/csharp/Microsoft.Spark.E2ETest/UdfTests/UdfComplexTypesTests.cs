@@ -139,10 +139,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             // Single Row
             {
                 Func<Column, Column> udf = Udf<Row, string>(
-                    (row) =>
-                    {
-                        return row.GetAs<string>("city");
-                    });
+                    (row) => row.GetAs<string>("city"));
 
                 Row[] rows = _df.Select(udf(_df["info1"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
