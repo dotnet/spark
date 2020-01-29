@@ -9,7 +9,9 @@ using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Streaming;
+using Microsoft.Spark.Sql.Types;
 using Xunit;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
@@ -71,8 +73,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             using var srcTempDirectory = new TemporaryDirectory();
             string streamInputPath = Path.Combine(srcTempDirectory.Path, "streamInput");
 
-            // [1, 2, ..., 99]
-            _spark.Range(1, 100).Write().Json(streamInputPath);
+            Func<Column, Column> intToStrUdf = Udf<int, string>(i => i.ToString());
+
+            // id column: [1, 2, ..., 99]
+            // idStr column: "id" column converted to string
+            // idAndIdStr column: Struct column composed from the "id" and "idStr" column.
+            _spark.Range(1, 100)
+                .WithColumn("idStr", intToStrUdf(Col("id")))
+                .WithColumn("idAndIdStr", Struct("id", "idStr"))
+                .Write()
+                .Json(streamInputPath);
 
             // Test a scenario where IForeachWriter runs without issues.
             // If everything is working as expected, then:
@@ -80,13 +90,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // - 3 CSV files will be created in the temporary directory.
             // - 0 Exception files will be created in the temporary directory.
             // - The CSV files will contain valid data to read, where the
-            //   expected entries will contain [101, 102, ..., 199]
+            //   expected entries will contain [1111, 2222, ..., 99999999]
             TestAndValidateForeach(
                 streamInputPath,
                 new TestForeachWriter(),
                 3,
                 0,
-                Enumerable.Range(101, 99));
+                Enumerable.Range(1, 99).Select(i => Convert.ToInt32($"{i}{i}{i}{i}")));
 
             // Test scenario where IForeachWriter.Open returns false.
             // When IForeachWriter.Open returns false, then IForeachWriter.Process
@@ -134,7 +144,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // call TestForeachWriter on the data.
             DataStreamWriter dsw = _spark
                 .ReadStream()
-                .Schema("id INT")
+                .Schema(new StructType(new[]
+                {
+                    new StructField("id", new IntegerType()),
+                    new StructField("idStr", new StringType()),
+                    new StructField("idAndIdStr", new StructType(new[]
+                    {
+                        new StructField("id", new IntegerType()),
+                        new StructField("idStr", new StringType())
+                    }))
+                }))
                 .Json(streamInputPath)
                 .Repartition(expectedCSVFiles)
                 .WriteStream()
@@ -226,7 +245,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             public virtual void Process(Row value)
             {
-                _streamWriter.WriteLine(string.Join(",", value.Values.Select(v => 100 + (int)v)));
+                Row idAndIdStr = value.GetAs<Row>("idAndIdStr");
+                _streamWriter.WriteLine(
+                    string.Format("{0}{1}{2}{3}",
+                        value.GetAs<int>("id"),
+                        value.GetAs<string>("idStr"),
+                        idAndIdStr.GetAs<int>("id"),
+                        idAndIdStr.GetAs<string>("idStr")));
             }
         }
 

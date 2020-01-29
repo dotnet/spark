@@ -181,10 +181,11 @@ namespace Microsoft.Spark.Sql
 
         internal IEnumerable<object> Execute(int pid, IEnumerable<object> input)
         {
-            return _func(
-                pid,
-                input.Cast<object[]>().SelectMany(
-                    objs => objs.Cast<RowConstructor>().Select(rc => rc.GetRow())));
+            // input is an IEnumerable<Row[]>, where each Row[] is batched using the
+            // org.apache.spark.api.python.SerDeUtil.AutoBatchedPickler algorithm.
+            // Refer to spark/sql/core/src/main/scala/org/apache/spark/sql/execution/python/
+            // PythonForeachWriter.scala for more information.
+            return _func(pid, input.Cast<Row[]>().SelectMany(row => row));
         }
     }
 }

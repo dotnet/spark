@@ -5,8 +5,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
 using static Microsoft.Spark.Utils.CommandSerDe;
 
@@ -94,7 +96,12 @@ namespace Microsoft.Spark.RDD
         {
             public object Deserialize(Stream stream, int length)
             {
-                return PythonSerDe.GetUnpickledObjects(stream, length);
+                // Refer to the AutoBatchedPickler class in spark/core/src/main/scala/org/apache/
+                // spark/api/python/SerDeUtil.scala regarding how the Rows may be batched.
+                return PythonSerDe.GetUnpickledObjects(stream, length)
+                    .Cast<RowConstructor>()
+                    .Select(rc => rc.GetRow())
+                    .ToArray();
             }
         }
     }
