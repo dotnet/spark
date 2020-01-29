@@ -177,7 +177,7 @@ Databricks allows you to submit Spark .NET apps to an existing active cluster or
       databricks fs cp db-init.sh dbfs:/spark-dotnet/db-init.sh
       databricks fs cp install-worker.sh dbfs:/spark-dotnet/install-worker.sh
       ```
-   6. Go to to your Databricks cluster homepage -> Clusters (on the left-side menu) -> Create Cluster
+   6. Go to your Databricks cluster homepage -> Clusters (on the left-side menu) -> Create Cluster
    7. After configuring the cluster appropriately, set the init script (see the image below) and create the cluster.
 
       <img src="../docs/img/deployment-databricks-init-script.PNG" alt="ScriptActionImage" width="600"/>
@@ -231,5 +231,5 @@ Publishing your App & Running:
    1. [Create a Job](https://docs.databricks.com/user-guide/jobs.html) and select *Configure spark-submit*.
    2. Configure `spark-submit` with the following parameters:
       ```shell
-      ["--files","/dbfs/<path-to>/<app assembly/file to deploy to worker>","--class","org.apache.spark.deploy.dotnet.DotnetRunner","/dbfs/<path-to>/microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar","/dbfs/<path-to>/<app name>.zip","<app bin name>","app arg1","app arg2"]
+      ["--files","/dbfs/<path-to>/<app assembly/file to deploy to worker>","--class","org.apache.spark.deploy.dotnet.DotnetRunner","/dbfs/<path-to>/microsoft-spark-<spark_majorversion.spark_minorversion.x>-<spark_dotnet_version>.jar","/dbfs/<path-to>/<app name>.zip","<app name>","app arg1","app arg2"]
       ```
