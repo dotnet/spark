@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.Interop.Ipc;
@@ -34,24 +33,7 @@ namespace Microsoft.Spark.Sql
 
                 foreach (object unpickled in unpickledObjects)
                 {
-                    // Unpickled object can be either a RowConstructor object (not materialized),
-                    // or a Row object (materialized). Refer to RowConstruct.construct() to see how
-                    // Row objects are unpickled.
-                    switch (unpickled)
-                    {
-                        case RowConstructor rc:
-                            yield return rc.GetRow();
-                            break;
-
-                        case object[] objs when objs.Length == 1 && (objs[0] is Row row):
-                            yield return row;
-                            break;
-
-                        default:
-                            throw new NotSupportedException(
-                                string.Format("Unpickle type {0} is not supported",
-                                    unpickled.GetType()));
-                    }
+                    yield return (unpickled as RowConstructor).GetRow();
                 }
             }
         }

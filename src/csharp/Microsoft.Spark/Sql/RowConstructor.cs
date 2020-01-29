@@ -65,15 +65,6 @@ namespace Microsoft.Spark.Sql
                 s_schemaCache = new Dictionary<string, StructType>();
             }
 
-            // When a row is ready to be materialized, then construct() is called
-            // on the RowConstructor which represents the row.
-            if ((args.Length == 1) && (args[0] is RowConstructor rowConstructor))
-            {
-                // Construct the Row and return args containing the Row.
-                args[0] = rowConstructor.GetRow();
-                return args;
-            }
-
             // Return a new RowConstructor where the args either represent the
             // schema or the row data. The parent becomes important when calling
             // GetRow() on the RowConstructor containing the row data.
