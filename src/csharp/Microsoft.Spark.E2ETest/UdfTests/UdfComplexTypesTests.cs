@@ -141,8 +141,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Func<Column, Column> udf = Udf<Row, string>(
                     (row) =>
                     {
-                        string city = row.GetAs<string>("city");
-                        return $"{city}";
+                        return row.GetAs<string>("city");
                     });
 
                 Row[] rows = _df.Select(udf(_df["info1"])).Collect().ToArray();
@@ -153,7 +152,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Assert.Equal(expected, actual);
             }
 
-            // Row is a part of top-level column.
+            // Multiple Rows
             {
                 Func<Column, Column, Column, Column> udf = Udf<Row, Row, string, string>(
                     (row1, row2, str) =>
@@ -163,7 +162,10 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                         return $"{str}:{city},{state}";
                     });
 
-                Row[] rows = _df.Select(udf(_df["info1"], _df["info2"], _df["name"])).Collect().ToArray();
+                Row[] rows = _df
+                    .Select(udf(_df["info1"], _df["info2"], _df["name"]))
+                    .Collect()
+                    .ToArray();
                 Assert.Equal(3, rows.Length);
 
                 var expected = new[] {
@@ -180,8 +182,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                     (row) =>
                     {
                         Row outerCol = row.GetAs<Row>("company");
-                        string job = outerCol.GetAs<string>("job");
-                        return $"{job}";
+                        return outerCol.GetAs<string>("job");
                     });
 
                 Row[] rows = _df.Select(udf(_df["info3"])).Collect().ToArray();
