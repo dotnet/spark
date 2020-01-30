@@ -119,7 +119,7 @@ namespace Microsoft.Spark.Sql
         internal ForeachWriterWrapper(IForeachWriter foreachWriter) =>
             _foreachWriter = foreachWriter;
 
-        internal IEnumerable<object> Execute(int partitionId, IEnumerable<Row> rows)
+        internal IEnumerable<object> Process(int partitionId, IEnumerable<Row> rows)
         {
             if (!TaskContextHolder.Get().LocalProperties.TryGetValue(
                 "streaming.sql.batchId",

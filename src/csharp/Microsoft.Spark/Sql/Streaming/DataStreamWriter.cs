@@ -188,7 +188,7 @@ namespace Microsoft.Spark.Sql.Streaming
         {
             RDD.WorkerFunction.ExecuteDelegate wrapper =
                 new ForeachWriterWrapperUdfWrapper(
-                    new ForeachWriterWrapper(writer).Execute).Execute;
+                    new ForeachWriterWrapper(writer).Process).Execute;
 
             _jvmObject.Invoke(
                 "foreach",
