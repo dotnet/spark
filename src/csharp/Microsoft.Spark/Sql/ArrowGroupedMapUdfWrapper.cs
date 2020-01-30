@@ -13,6 +13,7 @@ namespace Microsoft.Spark.Sql
     /// <remarks>
     /// UDF serialization requires a "wrapper" object in order to serialize/deserialize.
     /// </remarks>
+    [UdfWrapper]
     internal sealed class ArrowGroupedMapUdfWrapper
     {
         private readonly Func<RecordBatch, RecordBatch> _func;
