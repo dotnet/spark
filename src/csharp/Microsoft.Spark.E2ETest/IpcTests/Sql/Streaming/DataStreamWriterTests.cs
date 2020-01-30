@@ -178,7 +178,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Only if ForeachWriter.Process(Row) throws an exception, will
             // ForeachWriter.Close(Exception) create a file with the
-            // .exeception extension.
+            // .exception extension.
             Assert.Equal(
                 expectedExceptionFiles,
                 Directory.GetFiles(dstTempDirectory.Path, "*.exception").Length);
