@@ -31,6 +31,12 @@ namespace Microsoft.Spark.Utils
         }
 
         /// <summary>
+        /// The function name of any UDF wrappers that wrap the UDF.
+        /// ex) <see cref="RDD{T}.MapUdfWrapper{I, O}.Execute(int, IEnumerable{object})"/>
+        /// </summary>
+        private const string UdfWrapperMethodName = "Execute";
+
+        /// <summary>
         /// Captures the information about the UDF wrapper.
         /// Example classes for wrapping UDF are:
         ///  - SQL: * <see cref="ArrowUdfWrapper{T, TResult}"/>
