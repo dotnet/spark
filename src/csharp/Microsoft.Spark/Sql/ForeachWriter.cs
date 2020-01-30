@@ -156,6 +156,8 @@ namespace Microsoft.Spark.Sql
                 }
             }
 
+            // An empty IEnumerable is returned because ForEach is a sink operation,
+            // but something needs to be returned to work within the UDF framework.
             return Enumerable.Empty<object>();
         }
     }
