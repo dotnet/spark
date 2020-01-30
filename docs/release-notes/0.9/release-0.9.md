@@ -2,11 +2,12 @@
 
 ### New Features and Improvements
 
-* Support UDF that returns RowType ([#376](https://github.com/dotnet/spark/pull/376))
+* Expose `DataStreamWriter.Foreach` API ([#387](https://github.com/dotnet/spark/pull/387))
+* Support UDF that returns `Row` object ([#376](https://github.com/dotnet/spark/pull/376), [#406](https://github.com/dotnet/spark/pull/406))
 * Support for Bucketizer ([#378](https://github.com/dotnet/spark/pull/378))
 
 ### Breaking Changes
-* None
+* The new `Microsoft.Spark.Worker` needs to be used to enable UDF that returns `Row` object ([#376](https://github.com/dotnet/spark/pull/376)) and `DataStreamWriter.Foreach` ([#387](https://github.com/dotnet/spark/pull/387)).
 
 ### Supported Spark Versions
 
