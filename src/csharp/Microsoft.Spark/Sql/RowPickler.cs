@@ -10,11 +10,11 @@ namespace Microsoft.Spark.Sql
     /// <summary>
     /// Custom pickler for GenericRow objects.
     /// </summary>
-    internal class GenericRowPickler : IObjectPickler
+    internal class RowPickler : IObjectPickler
     {
         public void pickle(object o, Stream outs, Pickler currentPickler)
         {
-            currentPickler.save(((GenericRow)o).Values);
+            currentPickler.save(((Row)o).Values);
         }
     }
 }

@@ -37,6 +37,15 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Constructor for the Row class.
+        /// </summary>
+        /// <param name="values">Column values for a row</param>
+        public Row(object[] values)
+        {
+            _genericRow = new GenericRow(values);
+        }
+
+        /// <summary>
         /// Schema associated with this row.
         /// </summary>
         public StructType Schema { get; }
