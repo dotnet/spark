@@ -38,6 +38,9 @@ namespace Microsoft.Spark.Utils
 
             // Register custom pickler for Row objects.
             Pickler.registerCustomPickler(typeof(Row), new RowPickler());
+
+            // Register custom pickler for GenericRow objects.
+            Pickler.registerCustomPickler(typeof(GenericRow), new GenericRowPickler());
         }
 
         /// <summary>
