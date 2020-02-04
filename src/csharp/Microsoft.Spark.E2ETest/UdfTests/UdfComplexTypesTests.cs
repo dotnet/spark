@@ -197,7 +197,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithReturnAsRowType()
         {
-            // Single Row.
+            // Single GenericRow.
             {
                 var schema = new StructType(new[]
                 {
@@ -219,7 +219,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 }
             }
 
-            // Row is a part of top-level column.
+            // GenericRow is a part of top-level column.
             {
                 var schema = new StructType(new[]
                 {
@@ -244,7 +244,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 }
             }
 
-            // Nested Rows.
+            // Nested GenericRows.
             {
                 var subSchema1 = new StructType(new[]
                 {
@@ -296,7 +296,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 }
             }
 
-            // Chained UDFs with Row type.
+            // Chained UDFs with GenericRow.
             {
                 var schema = new StructType(new[]
                 {
