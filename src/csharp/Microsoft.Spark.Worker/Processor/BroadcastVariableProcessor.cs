@@ -55,7 +55,7 @@ namespace Microsoft.Spark.Worker.Processor
                     else
                     {
                         var path = SerDe.ReadString(stream);
-                        // TODO: Register new broadcast variable.
+                        // TODO: Register new broadcast variable. Check with Python implementation.
                     }
                 }
                 else

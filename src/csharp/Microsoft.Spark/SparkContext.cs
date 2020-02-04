@@ -299,6 +299,11 @@ namespace Microsoft.Spark
             _jvmObject.Invoke("setCheckpointDir", directory);
         }
 
+        public Broadcast Broadcast<T>(T variableToBroadcast)
+        {
+            return _jvmObject.Invoke("broadcast", variableToBroadcast);
+        }
+
         /// <summary>
         /// Returns JVM object reference to JavaRDD object transformed
         /// from a Scala RDD object.
