@@ -136,7 +136,7 @@ namespace Microsoft.Spark.UnitTest
         private Pickler CreatePickler()
         {
             new StructTypePickler().Register();
-            new TestUtils.RowPickler().Register();
+            new RowPickler().Register();
             return new Pickler();
         }
 
