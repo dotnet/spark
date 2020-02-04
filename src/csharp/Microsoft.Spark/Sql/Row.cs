@@ -24,17 +24,32 @@ namespace Microsoft.Spark.Sql
             _genericRow = new GenericRow(values);
             Schema = schema;
 
-            if (Schema != null){
-                // Skip for schema-less Row which can happen within chained UDFs
-                var schemaColumnCount = Schema.Fields.Count;
-                if (Size() != schemaColumnCount)
-                {
-                    throw new Exception(
-                        $"Column count mismatches: data:{Size()}, schema:{schemaColumnCount}");
-                }
+            var schemaColumnCount = Schema.Fields.Count;
+            if (Size() != schemaColumnCount)
+            {
+                throw new Exception(
+                    $"Column count mismatches: data:{Size()}, schema:{schemaColumnCount}");
+            }
 
-                Convert();
-            }           
+            Convert();                       
+        }
+
+        /// <summary>
+        /// Constructor for the schema-less Row class used for chained UDFs.
+        /// </summary>
+        /// <param name="genericRow">GenericRow to convert from</param>      
+        internal Row(GenericRow genericRow)
+        {
+            _genericRow = genericRow;
+        }
+
+        /// <summary>
+        /// Returns schema-less Row which can happen within chained UDFs (same behavior as PySpark).
+        /// </summary>
+        /// <returns>schema-less Row</returns>
+        public static implicit operator Row(GenericRow genericRow)
+        {
+            return new Row(genericRow);
         }
 
         /// <summary>
