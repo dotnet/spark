@@ -3,8 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql
@@ -21,28 +19,22 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="values">Column values for a row</param>
         /// <param name="schema">Schema associated with a row</param>
-        internal Row(object[] values, StructType schema)
+        public Row(object[] values, StructType schema)
         {
             _genericRow = new GenericRow(values);
             Schema = schema;
 
-            var schemaColumnCount = Schema.Fields.Count;
-            if (Size() != schemaColumnCount)
-            {
-                throw new Exception(
-                    $"Column count mismatches: data:{Size()}, schema:{schemaColumnCount}");
-            }
+            if (Schema != null){
+                // Skip for schema-less Row which can happen within chained UDFs
+                var schemaColumnCount = Schema.Fields.Count;
+                if (Size() != schemaColumnCount)
+                {
+                    throw new Exception(
+                        $"Column count mismatches: data:{Size()}, schema:{schemaColumnCount}");
+                }
 
-            Convert();
-        }
-
-        /// <summary>
-        /// Constructor for the Row class.
-        /// </summary>
-        /// <param name="values">Column values for a row</param>
-        internal Row(object[] values)
-        {
-            _genericRow = new GenericRow(values);
+                Convert();
+            }           
         }
 
         /// <summary>

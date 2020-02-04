@@ -98,6 +98,15 @@ namespace Microsoft.Spark.Sql
         /// Returns the hash code of the current object.
         /// </summary>
         /// <returns>The hash code of the current object</returns>
-        public override int GetHashCode() => base.GetHashCode();        
+        public override int GetHashCode() => base.GetHashCode();
+
+        /// <summary>
+        /// Returns schema-less Row which can happen within chained UDFs (same behavior as PySpark).
+        /// </summary>
+        /// <returns>schema-less Row</returns>
+        public static explicit operator Row(GenericRow genericRow)
+        {
+            return new Row(genericRow.Values, null);
+        }
     }
 }

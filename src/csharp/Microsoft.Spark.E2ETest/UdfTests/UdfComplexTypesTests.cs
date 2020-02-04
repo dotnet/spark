@@ -205,7 +205,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                     new StructField("col2", new StringType())
                 });
                 Func<Column, Column> udf = Udf<string>(
-                    str => new Row(new object[] { 1, "abc" }), schema);
+                    str => new GenericRow(new object[] { 1, "abc" }), schema);
 
                 Row[] rows = _df.Select(udf(_df["name"]).As("col")).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
@@ -226,7 +226,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                     new StructField("col1", new IntegerType())
                 });
                 Func<Column, Column> udf = Udf<string>(
-                    str => new Row(new object[] { 111 }), schema);
+                    str => new GenericRow(new object[] { 111 }), schema);
 
                 Column nameCol = _df["name"];
                 Row[] rows = _df.Select(udf(nameCol).As("col"), nameCol).Collect().ToArray();
@@ -263,15 +263,15 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 });
 
                 Func<Column, Column> udf = Udf<string>(
-                    str => new Row(
+                    str => new GenericRow(
                         new object[]
                         {
                             1,
-                            new Row(new object[] { 1 }),
-                            new Row(new object[]
+                            new GenericRow(new object[] { 1 }),
+                            new GenericRow(new object[]
                                 {
                                     "abc",
-                                    new Row(new object[] { 10 })
+                                    new GenericRow(new object[] { 10 })
                                 })
                         }),
                         schema);
@@ -304,7 +304,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                     new StructField("col2", new StringType())
                 });
                 Func<Column, Column> udf1 = Udf<string>(
-                    str => new Row(new object[] { 1, "abc" }), schema);
+                    str => new GenericRow(new object[] { 1, "abc" }), schema);
 
                 Func<Column, Column> udf2 = Udf<Row, string>(
                     row => row.GetAs<string>(1));

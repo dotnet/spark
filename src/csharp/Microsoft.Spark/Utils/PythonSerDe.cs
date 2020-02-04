@@ -37,7 +37,7 @@ namespace Microsoft.Spark.Utils
                 "pyspark.sql.types", "_create_row_inbound_converter", s_rowConstructor);
 
             // Register custom pickler for Row objects.
-            Pickler.registerCustomPickler(typeof(Row), new RowPickler());
+            Pickler.registerCustomPickler(typeof(GenericRow), new GenericRowPickler());
         }
 
         /// <summary>
