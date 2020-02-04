@@ -31,7 +31,7 @@ namespace Microsoft.Spark.Sql
                     $"Column count mismatches: data:{Size()}, schema:{schemaColumnCount}");
             }
 
-            Convert();                       
+            Convert();
         }
 
         /// <summary>
