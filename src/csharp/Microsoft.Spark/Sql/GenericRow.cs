@@ -104,7 +104,7 @@ namespace Microsoft.Spark.Sql
         /// Returns schema-less Row which can happen within chained UDFs (same behavior as PySpark).
         /// </summary>
         /// <returns>schema-less Row</returns>
-        public static explicit operator Row(GenericRow genericRow)
+        public static implicit operator Row(GenericRow genericRow)
         {
             return new Row(genericRow.Values, null);
         }
