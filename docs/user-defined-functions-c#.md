@@ -2,7 +2,9 @@
 This documentation contains user-defined function (UDF) examples. It shows how to define UDFs and how to use UDFs with Row objects as examples.
 
 ## Pre-requisites:
-Install Microsoft.Spark.Worker. When you want to execute a C# UDF, Spark needs to understand how to launch the .NET CLR to execute this UDF. Microsoft.Spark.Worker provides a collection of classes to Spark that enable this functionality. Please see more details at [how to install Microsoft.Spark.Worker](https://docs.microsoft.com/en-us/dotnet/spark/tutorials/get-started#5-install-net-for-apache-spark) and [how to deploy worker and UDF binaries](https://docs.microsoft.com/en-us/dotnet/spark/how-to-guides/deploy-worker-udf-binaries).
+When you want to execute a C# UDF, Spark needs to understand how to launch the .NET CLR to execute this UDF. Microsoft.Spark.Worker provides a collection of classes to Spark that enable this functionality. Thus, you need to [install the Microsoft.Spark.Worker](https://docs.microsoft.com/en-us/dotnet/spark/tutorials/get-started#5-install-net-for-apache-spark).  
+
+Additionally, [you may need to configure certain environment variables and parameters](https://docs.microsoft.com/en-us/dotnet/spark/how-to-guides/deploy-worker-udf-binaries) to deploy worker and UDF binaries when submitting your Spark app.
 
 ## UDF that takes in Row objects
 
