@@ -11,9 +11,9 @@ set -e
 if  [[ $HOSTNAME == hn* ]] ;
 then
     # Update Livy Jars
-    sudo rm -rf /usr/hdp/current/livy2-server/jars/*
-    sudo rm -rf /usr/hdp/current/livy2-server/rsc-jars/*
-    sudo rm -rf /usr/hdp/current/livy2-server/repl_2.11-jars/*
+    sudo bash -c "mkdir -p /usr/hdp/current/livy2-server/jars/old; mv -f /usr/hdp/current/livy2-server/jars/*.jar /usr/hdp/current/livy2-server/jars/old"
+    sudo bash -c "mkdir -p /usr/hdp/current/livy2-server/rsc-jars/old; mv -f /usr/hdp/current/livy2-server/rsc-jars/*.jar /usr/hdp/current/livy2-server/rsc-jars/old"
+    sudo bash -c "mkdir -p /usr/hdp/current/livy2-server/repl_2.11-jars/old; mv -f /usr/hdp/current/livy2-server/repl_2.11-jars/*.jar /usr/hdp/current/livy2-server/repl_2.11-jars/old"   
     
     sudo wget https://sparkdotnetrepl.blob.core.windows.net/notebooks/livy_jar.zip
     sudo unzip -o livy_jar.zip
