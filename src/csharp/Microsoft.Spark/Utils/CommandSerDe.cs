@@ -44,7 +44,7 @@ namespace Microsoft.Spark.Utils
         ///  - RDD: * <see cref="RDD{T}.MapUdfWrapper{I, O}"/>
         ///         * <see cref="RDD{T}.FlatMapUdfWrapper{I, O}"/>
         ///         * <see cref="RDD{T}.MapPartitionsUdfWrapper{I, O}"/>
-        ///         * <see cref="RDD.WorkerFunction.WrokerFuncChainHelper"/>
+        ///         * <see cref="RDD.WorkerFunction.WorkerFuncChainHelper"/>
         /// </summary>
         [Serializable]
         private sealed class UdfWrapperNode
@@ -181,7 +181,8 @@ namespace Microsoft.Spark.Utils
             List<UdfSerDe.UdfData> udfs)
         {
             UdfSerDe.UdfData udfData = UdfSerDe.Serialize(func);
-            if (udfData.MethodName != UdfWrapperMethodName)
+            if ((udfData.MethodName != UdfWrapperMethodName) ||
+                !Attribute.IsDefined(func.Target.GetType(), typeof(UdfWrapperAttribute)))
             {
                 // Found the actual UDF.
                 if (parent != null)
