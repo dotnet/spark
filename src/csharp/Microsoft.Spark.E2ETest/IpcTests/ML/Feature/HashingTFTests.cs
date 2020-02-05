@@ -42,7 +42,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Equal(expectedInputCol, hashingTf.GetInputCol());
             Assert.Equal(expectedOutputCol, hashingTf.GetOutputCol());
 
-            DataFrame input = _spark.Sql("SELECT array('this', 'is', 'a', 'string', 'a', 'a')" + 
+            DataFrame input = _spark.Sql("SELECT array('this', 'is', 'a', 'string', 'a', 'a')" +
+                " as input_col");
                                             " as input_col");
 
             DataFrame output = hashingTf.Transform(input);

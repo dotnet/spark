@@ -12,7 +12,7 @@ namespace Microsoft.Spark.ML.Feature
 {
     /// <summary>
     /// Inverse document frequency (IDF). The standard formulation is used:
-    ///     idf = log((m + 1) / (d(t) + 1)), where m is the total number of documents and d(t) is
+    /// idf = log((m + 1) / (d(t) + 1)), where m is the total number of documents and d(t) is
     /// the number of documents that contain term t.
     /// 
     /// This implementation supports filtering out terms which do not appear in a minimum number
