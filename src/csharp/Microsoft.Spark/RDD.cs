@@ -261,16 +261,14 @@ namespace Microsoft.Spark
         public IEnumerable<T> Collect()
         {
             (int port, string secret) = CollectAndServe();
-            using (ISocketWrapper socket = SocketFactory.CreateSocket())
-            {
-                socket.Connect(IPAddress.Loopback, port, secret);
+            using ISocketWrapper socket = SocketFactory.CreateSocket();
+            socket.Connect(IPAddress.Loopback, port, secret);
 
-                var collector = new RDD.Collector();
-                System.IO.Stream stream = socket.InputStream;
-                foreach (T element in collector.Collect(stream, _serializedMode).Cast<T>())
-                {
-                    yield return element;
-                }
+            var collector = new RDD.Collector();
+            System.IO.Stream stream = socket.InputStream;
+            foreach (T element in collector.Collect(stream, _serializedMode).Cast<T>())
+            {
+                yield return element;
             }
         }
 
@@ -341,6 +339,7 @@ namespace Microsoft.Spark
         /// </summary>
         /// <typeparam name="TArg">Input type</typeparam>
         /// <typeparam name="TResult">Output type</typeparam>
+        [UdfWrapper]
         internal sealed class MapUdfWrapper<TArg, TResult>
         {
             private readonly Func<TArg, TResult> _func;
@@ -361,6 +360,7 @@ namespace Microsoft.Spark
         /// </summary>
         /// <typeparam name="TArg">Input type</typeparam>
         /// <typeparam name="TResult">Output type</typeparam>
+        [UdfWrapper]
         internal sealed class FlatMapUdfWrapper<TArg, TResult>
         {
             private readonly Func<TArg, IEnumerable<TResult>> _func;
@@ -382,6 +382,7 @@ namespace Microsoft.Spark
         /// </summary>
         /// <typeparam name="TArg">Input type</typeparam>
         /// <typeparam name="TResult">Output type</typeparam>
+        [UdfWrapper]
         internal sealed class MapPartitionsUdfWrapper<TArg, TResult>
         {
             private readonly Func<IEnumerable<TArg>, IEnumerable<TResult>> _func;
@@ -403,6 +404,7 @@ namespace Microsoft.Spark
         /// </summary>
         /// <typeparam name="TArg">Input type</typeparam>
         /// <typeparam name="TResult">Output type</typeparam>
+        [UdfWrapper]
         internal sealed class MapPartitionsWithIndexUdfWrapper<TArg, TResult>
         {
             private readonly Func<int, IEnumerable<TArg>, IEnumerable<TResult>> _func;
@@ -423,9 +425,11 @@ namespace Microsoft.Spark
         /// Helper to map the UDF for Filter() to
         /// <see cref="RDD.WorkerFunction.ExecuteDelegate"/>.
         /// </summary>
+        [UdfWrapper]
         internal class FilterUdfWrapper
         {
             private readonly Func<T, bool> _func;
+
             internal FilterUdfWrapper(Func<T, bool> func)
             {
                 _func = func;
