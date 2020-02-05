@@ -38,29 +38,19 @@ namespace Microsoft.Spark.Worker.UnitTest
 
         private static void CreateAndVerifyConnection(ISocketWrapper daemonSocket)
         {
-            var ipEndpoint = (IPEndPoint)daemonSocket.LocalEndPoint;
+            var ipEndpoint = (IPEndPoint) daemonSocket.LocalEndPoint;
             int port = ipEndpoint.Port;
             ISocketWrapper clientSocket = SocketFactory.CreateSocket();
             clientSocket.Connect(ipEndpoint.Address, port);
 
             // Now process the bytes flowing in from the client.
-            var timingDataReceived = false;
-            var exceptionThrown = false;
-            var rowsReceived = new List<object[]>();
-
-            WriteTestData(clientSocket);
-            PayloadReader.Read(
-                clientSocket.InputStream, 
-                rowsReceived, 
-                ref timingDataReceived, 
-                ref exceptionThrown);
-            
-            Assert.True(timingDataReceived);
-            Assert.False(exceptionThrown);
+            PayloadWriter payloadWriter = new PayloadWriterFactory().Create();
+            payloadWriter.WriteTestData(clientSocket.OutputStream);
+            List<object[]> rowsReceived = PayloadReader.Read(clientSocket.InputStream);
 
             // Validate rows received.
             Assert.Equal(10, rowsReceived.Count);
-            
+
             for (int i = 0; i < 10; ++i)
             {
                 // Two UDFs registered, thus expecting two columns.
@@ -70,31 +60,6 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Assert.Equal($"udf2 udf1 {i}", row[0]);
                 Assert.Equal(i + i, row[1]);
             }
-        }
-        
-        private static void WriteTestData(ISocketWrapper clientSocket)
-        {
-            PayloadWriter payloadWriter = new PayloadWriterFactory().Create();
-            Stream outputStream = clientSocket.OutputStream;
-
-            Payload payload = TestData.GetDefaultPayload();
-            CommandPayload commandPayload = TestData.GetDefaultCommandPayload();
-
-            payloadWriter.Write(outputStream, payload, commandPayload);
-
-            // Write 10 rows to the output stream.
-            var pickler = new Pickler();
-            for (int i = 0; i < 10; ++i)
-            {
-                byte[] pickled = pickler.dumps(new[] { new object[] { i.ToString(), i, i } });
-                SerDe.Write(outputStream, pickled.Length);
-                SerDe.Write(outputStream, pickled);
-            }
-
-            // Signal the end of data and stream.
-            SerDe.Write(outputStream, (int)SpecialLengths.END_OF_DATA_SECTION);
-            SerDe.Write(outputStream, (int)SpecialLengths.END_OF_STREAM);
-            outputStream.Flush();
         }
     }
 }

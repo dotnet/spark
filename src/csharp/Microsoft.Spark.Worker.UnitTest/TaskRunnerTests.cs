@@ -34,39 +34,9 @@ namespace Microsoft.Spark.Worker.UnitTest
                 System.IO.Stream inputStream = serverSocket.InputStream;
                 System.IO.Stream outputStream = serverSocket.OutputStream;
 
-                Payload payload = TestData.GetDefaultPayload();
-                CommandPayload commandPayload = TestData.GetDefaultCommandPayload();
-
-                payloadWriter.Write(outputStream, payload, commandPayload);
-
-                // Write 10 rows to the output stream.
-                var pickler = new Pickler();
-                for (int i = 0; i < 10; ++i)
-                {
-                    var pickled = pickler.dumps(
-                        new[] { new object[] { i.ToString(), i, i } });
-                    SerDe.Write(outputStream, pickled.Length);
-                    SerDe.Write(outputStream, pickled);
-                }
-
-                // Signal the end of data and stream.
-                SerDe.Write(outputStream, (int)SpecialLengths.END_OF_DATA_SECTION);
-                SerDe.Write(outputStream, (int)SpecialLengths.END_OF_STREAM);
-                outputStream.Flush();
-
+                payloadWriter.WriteTestData(outputStream);
                 // Now process the bytes flowing in from the client.
-                var timingDataReceived = false;
-                var exceptionThrown = false;
-                var rowsReceived = new List<object[]>();
-
-                PayloadReader.Read(
-                    inputStream, 
-                    rowsReceived, 
-                    ref timingDataReceived, 
-                    ref exceptionThrown);
-
-                Assert.True(timingDataReceived);
-                Assert.False(exceptionThrown);
+                var rowsReceived = PayloadReader.Read(inputStream);
 
                 // Validate rows received.
                 Assert.Equal(10, rowsReceived.Count);

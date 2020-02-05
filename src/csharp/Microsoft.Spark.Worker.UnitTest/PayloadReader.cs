@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.Interop.Ipc;
 using Razorvine.Pickle;
+using Xunit;
 
 namespace Microsoft.Spark.Worker.UnitTest
 {
@@ -11,12 +12,12 @@ namespace Microsoft.Spark.Worker.UnitTest
     /// </summary>
     internal sealed class PayloadReader
     {
-        public static void Read(
-            Stream inputStream, 
-            List<object[]> rowsReceived, 
-            ref bool timingDataReceived,
-            ref bool exceptionThrown)
+        public static List<object[]> Read(Stream inputStream)
         {
+            bool timingDataReceived = false;
+            bool exceptionThrown = false;
+            List<object[]> rowsReceived = new List<object[]>();
+            
             while (true)
             {
                 var length = SerDe.ReadInt32(inputStream);
@@ -53,6 +54,11 @@ namespace Microsoft.Spark.Worker.UnitTest
                     break;
                 }
             }
+            
+            Assert.True(timingDataReceived);
+            Assert.False(exceptionThrown);
+            
+            return rowsReceived;
         }
     }
 }

@@ -152,7 +152,7 @@ namespace Microsoft.Spark.Worker
                         // When reuseWorker is set to true, numTaskRunners will be always one
                         // greater than numWorkerThreads since TaskRunner.Run() does not return
                         // so that the task runner object is not removed from _taskRunners.
-                        var numTaskRunners = CurrentNumTaskRunners;
+                        int numTaskRunners = CurrentNumTaskRunners;
                         while (numWorkerThreads < numTaskRunners)
                         {
                             // Note that in the current implementation of RunWorkerThread() does
