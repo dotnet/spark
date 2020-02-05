@@ -10,13 +10,15 @@ set -e
 
 if  [[ $HOSTNAME == hn* ]] ;
 then
-    # Update Livy Jars
     # The Livy Jars path on the head nodes.
     LIVY_JARS_PATH=/usr/hdp/current/livy2-server
+    
+    # Back up Livy Jars
     sudo bash -c "mkdir -p $LIVY_JARS_PATH/jars/old; mv -f $LIVY_JARS_PATH/jars/*.jar $LIVY_JARS_PATH/jars/old"
     sudo bash -c "mkdir -p $LIVY_JARS_PATH/rsc-jars/old; mv -f $LIVY_JARS_PATH/rsc-jars/*.jar $LIVY_JARS_PATH/rsc-jars/old"
     sudo bash -c "mkdir -p $LIVY_JARS_PATH/repl_2.11-jars/old; mv -f $LIVY_JARS_PATH/repl_2.11-jars/*.jar $LIVY_JARS_PATH/repl_2.11-jars/old"   
     
+    # Update Livy Jars
     sudo wget https://sparkdotnetrepl.blob.core.windows.net/notebooks/livy_jar.zip
     sudo unzip -o livy_jar.zip
     sudo cp -rf livy_jar/* /usr/hdp/current/livy2-server/
