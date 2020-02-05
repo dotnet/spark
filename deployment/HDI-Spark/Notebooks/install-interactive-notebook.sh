@@ -11,6 +11,10 @@ set -e
 if  [[ $HOSTNAME == hn* ]] ;
 then
     # Update Livy Jars
+    sudo rm -rf /usr/hdp/current/livy2-server/jars/*
+    sudo rm -rf /usr/hdp/current/livy2-server/rsc-jars/*
+    sudo rm -rf /usr/hdp/current/livy2-server/repl_2.11-jars/*
+    
     sudo wget https://sparkdotnetrepl.blob.core.windows.net/notebooks/livy_jar.zip
     sudo unzip -o livy_jar.zip
     sudo cp -rf livy_jar/* /usr/hdp/current/livy2-server/
