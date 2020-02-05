@@ -136,20 +136,59 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithRowType()
         {
-            Func<Column, Column> udf = Udf<Row, string>(
-                (row) =>
-                {
-                    string city = row.GetAs<string>("city");
-                    string state = row.GetAs<string>("state");
-                    return $"{city},{state}";
-                });
+            // Single Row
+            {
+                Func<Column, Column> udf = Udf<Row, string>(
+                    (row) => row.GetAs<string>("city"));
 
-            Row[] rows = _df.Select(udf(_df["info"])).Collect().ToArray();
-            Assert.Equal(3, rows.Length);
+                Row[] rows = _df.Select(udf(_df["info1"])).Collect().ToArray();
+                Assert.Equal(3, rows.Length);
 
-            var expected = new[] { "Burdwan,Paschimbanga", "Los Angeles,California", "Seattle," };
-            string[] actual = rows.Select(x => x[0].ToString()).ToArray();
-            Assert.Equal(expected, actual);
+                var expected = new[] { "Burdwan", "Los Angeles", "Seattle" };
+                string[] actual = rows.Select(x => x[0].ToString()).ToArray();
+                Assert.Equal(expected, actual);
+            }
+
+            // Multiple Rows
+            {
+                Func<Column, Column, Column, Column> udf = Udf<Row, Row, string, string>(
+                    (row1, row2, str) =>
+                    {
+                        string city = row1.GetAs<string>("city");
+                        string state = row2.GetAs<string>("state");
+                        return $"{str}:{city},{state}";
+                    });
+
+                Row[] rows = _df
+                    .Select(udf(_df["info1"], _df["info2"], _df["name"]))
+                    .Collect()
+                    .ToArray();
+                Assert.Equal(3, rows.Length);
+
+                var expected = new[] {
+                    "Michael:Burdwan,Paschimbanga",
+                    "Andy:Los Angeles,California",
+                    "Justin:Seattle,Washington" };
+                string[] actual = rows.Select(x => x[0].ToString()).ToArray();
+                Assert.Equal(expected, actual);
+            }
+
+            // Nested Row
+            {
+                Func<Column, Column> udf = Udf<Row, string>(
+                    (row) =>
+                    {
+                        Row outerCol = row.GetAs<Row>("company");
+                        return outerCol.GetAs<string>("job");
+                    });
+
+                Row[] rows = _df.Select(udf(_df["info3"])).Collect().ToArray();
+                Assert.Equal(3, rows.Length);
+
+                var expected = new[] { "Developer", "Developer", "Developer" };
+                string[] actual = rows.Select(x => x[0].ToString()).ToArray();
+                Assert.Equal(expected, actual);
+            }
         }
 
         /// <summary>
@@ -168,14 +207,40 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Func<Column, Column> udf = Udf<string>(
                     str => new GenericRow(new object[] { 1, "abc" }), schema);
 
-                Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
+                Row[] rows = _df.Select(udf(_df["name"]).As("col")).Collect().ToArray();
+                Assert.Equal(3, rows.Length);
+                foreach (Row row in rows)
+                {
+                    Assert.Equal(1, row.Size());
+                    Row outerCol = row.GetAs<Row>("col");
+                    Assert.Equal(2, outerCol.Size());
+                    Assert.Equal(1, outerCol.GetAs<int>("col1"));
+                    Assert.Equal("abc", outerCol.GetAs<string>("col2"));
+                }
+            }
+
+            // Generic row is a part of top-level column.
+            {
+                var schema = new StructType(new[]
+                {
+                    new StructField("col1", new IntegerType())
+                });
+                Func<Column, Column> udf = Udf<string>(
+                    str => new GenericRow(new object[] { 111 }), schema);
+
+                Column nameCol = _df["name"];
+                Row[] rows = _df.Select(udf(nameCol).As("col"), nameCol).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
                 foreach (Row row in rows)
                 {
                     Assert.Equal(2, row.Size());
-                    Assert.Equal(1, row.GetAs<int>("col1"));
-                    Assert.Equal("abc", row.GetAs<string>("col2"));
+                    Row col1 = row.GetAs<Row>("col");
+                    Assert.Equal(1, col1.Size());
+                    Assert.Equal(111, col1.GetAs<int>("col1"));
+
+                    string col2 = row.GetAs<string>("name");
+                    Assert.NotEmpty(col2);
                 }
             }
 
@@ -211,21 +276,23 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                         }),
                         schema);
 
-                Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
+                Row[] rows = _df.Select(udf(_df["name"]).As("col")).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
                 foreach (Row row in rows)
                 {
-                    Assert.Equal(3, row.Size());
-                    Assert.Equal(1, row.GetAs<int>("col1"));
+                    Assert.Equal(1, row.Size());
+                    Row outerCol = row.GetAs<Row>("col");
+                    Assert.Equal(3, outerCol.Size());
+                    Assert.Equal(1, outerCol.GetAs<int>("col1"));
                     Assert.Equal(
                         new Row(new object[] { 1 }, subSchema1),
-                        row.GetAs<Row>("col2"));
+                        outerCol.GetAs<Row>("col2"));
                     Assert.Equal(
                         new Row(
                             new object[] { "abc", new Row(new object[] { 10 }, subSchema1) },
                             subSchema2),
-                        row.GetAs<Row>("col3"));
+                        outerCol.GetAs<Row>("col3"));
                 }
             }
         }

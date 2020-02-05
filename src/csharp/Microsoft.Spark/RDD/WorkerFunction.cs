@@ -37,7 +37,7 @@ namespace Microsoft.Spark.RDD
             WorkerFunction outerFunction)
         {
             return new WorkerFunction(
-                new WrokerFuncChainHelper(
+                new WorkerFuncChainHelper(
                     innerFunction.Func,
                     outerFunction.Func).Execute);
         }
@@ -45,12 +45,13 @@ namespace Microsoft.Spark.RDD
         /// <summary>
         /// Helper to chain two delegates.
         /// </summary>
-        private sealed class WrokerFuncChainHelper
+        [UdfWrapper]
+        private sealed class WorkerFuncChainHelper
         {
             private readonly ExecuteDelegate _innerFunc;
             private readonly ExecuteDelegate _outerFunc;
 
-            internal WrokerFuncChainHelper(ExecuteDelegate innerFunc, ExecuteDelegate outerFunc)
+            internal WorkerFuncChainHelper(ExecuteDelegate innerFunc, ExecuteDelegate outerFunc)
             {
                 _innerFunc = innerFunc;
                 _outerFunc = outerFunc;
