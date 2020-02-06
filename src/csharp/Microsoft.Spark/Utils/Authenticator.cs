@@ -40,7 +40,7 @@ namespace Microsoft.Spark.Utils
         /// <returns>True if authentication succeeds.</returns>
         public static bool AuthenticateAsServer(ISocketWrapper socket, string secret)
         {
-            var clientSecret = SerDe.ReadString(socket.InputStream);
+            string clientSecret = SerDe.ReadString(socket.InputStream);
 
             bool result;
             if (clientSecret == secret)
