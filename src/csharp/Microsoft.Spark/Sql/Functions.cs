@@ -4260,7 +4260,7 @@ namespace Microsoft.Spark.Sql
             return CreateUdf(name, execute, UdfUtils.PythonEvalType.SQL_BATCHED_UDF, returnType);
         }
 
-        private static UserDefinedFunction CreateVectorUdf<TResult>(string name, Delegate execute)
+        internal static UserDefinedFunction CreateVectorUdf<TResult>(string name, Delegate execute)
         {
             return CreateUdf<TResult>(name, execute, UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF);
         }
