@@ -185,7 +185,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Row[] rows = _df.Select(udf(_df["info3"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
-                var expected = new string[] { "Developer", "Developer", "Developer" };                string[] actual = rows.Select(x => x[0].ToString()).ToArray();
+                var expected = new string[] { "Developer", "Developer", "Developer" };
+                string[] actual = rows.Select(x => x[0].ToString()).ToArray();
                 Assert.Equal(expected, actual);
             }
         }
