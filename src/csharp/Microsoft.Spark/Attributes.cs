@@ -73,4 +73,12 @@ namespace Microsoft.Spark
         {
         }
     }
+
+    /// <summary>
+    /// Custom attribute to denote that a class is a Udf Wrapper.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    internal sealed class UdfWrapperAttribute : Attribute
+    {
+    }
 }

@@ -44,7 +44,7 @@ namespace Microsoft.Spark.Utils
         ///  - RDD: * <see cref="RDD{T}.MapUdfWrapper{I, O}"/>
         ///         * <see cref="RDD{T}.FlatMapUdfWrapper{I, O}"/>
         ///         * <see cref="RDD{T}.MapPartitionsUdfWrapper{I, O}"/>
-        ///         * <see cref="RDD.WorkerFunction.WrokerFuncChainHelper"/>
+        ///         * <see cref="RDD.WorkerFunction.WorkerFuncChainHelper"/>
         /// </summary>
         [Serializable]
         private sealed class UdfWrapperNode
@@ -110,9 +110,9 @@ namespace Microsoft.Spark.Utils
             var commandPayloadBytesList = new List<byte[]>();
 
             // Add serializer mode.
-            var modeBytes = Encoding.UTF8.GetBytes(serializerMode.ToString());
-            var length = modeBytes.Length;
-            var lengthAsBytes = BitConverter.GetBytes(length);
+            byte[] modeBytes = Encoding.UTF8.GetBytes(serializerMode.ToString());
+            int length = modeBytes.Length;
+            byte[] lengthAsBytes = BitConverter.GetBytes(length);
             Array.Reverse(lengthAsBytes);
             commandPayloadBytesList.Add(lengthAsBytes);
             commandPayloadBytesList.Add(modeBytes);
@@ -128,8 +128,8 @@ namespace Microsoft.Spark.Utils
             // Add run mode:
             // N - normal
             // R - repl
-            var runMode = Environment.GetEnvironmentVariable("SPARK_NET_RUN_MODE") ?? "N";
-            var runModeBytes = Encoding.UTF8.GetBytes(runMode);
+            string runMode = Environment.GetEnvironmentVariable("SPARK_NET_RUN_MODE") ?? "N";
+            byte[] runModeBytes = Encoding.UTF8.GetBytes(runMode);
             lengthAsBytes = BitConverter.GetBytes(runModeBytes.Length);
             Array.Reverse(lengthAsBytes);
             commandPayloadBytesList.Add(lengthAsBytes);
@@ -138,7 +138,7 @@ namespace Microsoft.Spark.Utils
             if ("R".Equals(runMode, StringComparison.InvariantCultureIgnoreCase))
             {
                 // add compilation dump directory
-                var compilationDumpDirBytes = Encoding.UTF8.GetBytes(
+                byte[] compilationDumpDirBytes = Encoding.UTF8.GetBytes(
                     Environment.GetEnvironmentVariable("SPARK_NET_SCRIPT_COMPILATION_DIR") ?? ".");
                 lengthAsBytes = BitConverter.GetBytes(compilationDumpDirBytes.Length);
                 Array.Reverse(lengthAsBytes);
@@ -164,8 +164,8 @@ namespace Microsoft.Spark.Utils
             {
                 formatter.Serialize(stream, udfWrapperData);
 
-                var udfBytes = stream.ToArray();
-                var udfBytesLengthAsBytes = BitConverter.GetBytes(udfBytes.Length);
+                byte[] udfBytes = stream.ToArray();
+                byte[] udfBytesLengthAsBytes = BitConverter.GetBytes(udfBytes.Length);
                 Array.Reverse(udfBytesLengthAsBytes);
                 commandPayloadBytesList.Add(udfBytesLengthAsBytes);
                 commandPayloadBytesList.Add(udfBytes);
@@ -181,7 +181,8 @@ namespace Microsoft.Spark.Utils
             List<UdfSerDe.UdfData> udfs)
         {
             UdfSerDe.UdfData udfData = UdfSerDe.Serialize(func);
-            if (udfData.MethodName != UdfWrapperMethodName)
+            if ((udfData.MethodName != UdfWrapperMethodName) ||
+                !Attribute.IsDefined(func.Target.GetType(), typeof(UdfWrapperAttribute)))
             {
                 // Found the actual UDF.
                 if (parent != null)
@@ -276,7 +277,7 @@ namespace Microsoft.Spark.Utils
 
             runMode = SerDe.ReadString(stream);
 
-            var serializedCommand = SerDe.ReadBytes(stream);
+            byte[] serializedCommand = SerDe.ReadBytes(stream);
 
             var bf = new BinaryFormatter();
             var ms = new MemoryStream(serializedCommand, false);
@@ -308,7 +309,7 @@ namespace Microsoft.Spark.Utils
             ref int udfIndex)
         {
             UdfWrapperNode node = data.UdfWrapperNodes[nodeIndex++];
-            var nodeType = Type.GetType(node.TypeName);
+            Type nodeType = Type.GetType(node.TypeName);
 
             if (node.HasUdf)
             {

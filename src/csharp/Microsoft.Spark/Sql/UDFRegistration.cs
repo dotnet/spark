@@ -258,7 +258,7 @@ namespace Microsoft.Spark.Sql
                 CommandSerDe.SerializedMode.Row,
                 CommandSerDe.SerializedMode.Row);
 
-            var udf = UserDefinedFunction.Create(
+            UserDefinedFunction udf = UserDefinedFunction.Create(
                 _jvmObject.Jvm,
                 name,
                 command,

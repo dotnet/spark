@@ -54,7 +54,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             var pickler = new Pickler();
             for (int i = 0; i < numRows; ++i)
             {
-                var pickled = pickler.dumps(
+                byte[] pickled = pickler.dumps(
                     new[] { new object[] { (i % 2 == 0) ? null : i.ToString() } });
                 SerDe.Write(inputStream, pickled.Length);
                 SerDe.Write(inputStream, pickled);
@@ -464,7 +464,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             // Validate the output stream.
             outputStream.Seek(0, SeekOrigin.Begin);
-            var arrowLength = SerDe.ReadInt32(outputStream);
+            int arrowLength = SerDe.ReadInt32(outputStream);
             Assert.Equal((int)SpecialLengths.START_ARROW_STREAM, arrowLength);
             var arrowReader = new ArrowStreamReader(outputStream);
             RecordBatch outputBatch = await arrowReader.ReadNextRecordBatchAsync();
@@ -1007,7 +1007,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             var formatter = new BinaryFormatter();
             var memoryStream = new MemoryStream();
 
-            var inputs = new[] { 0, 1, 2, 3, 4 };
+            var inputs = new int[] { 0, 1, 2, 3, 4 };
 
             var values = new List<byte[]>();
             foreach (int input in inputs)

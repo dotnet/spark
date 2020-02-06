@@ -45,11 +45,11 @@ namespace Microsoft.Spark.UnitTest
             object[] input = { 100, "name" };
 
             // Validate one-level chaining.
-            var chainedFunc1 = PicklingWorkerFunction.Chain(func1, func2);
+            PicklingWorkerFunction chainedFunc1 = PicklingWorkerFunction.Chain(func1, func2);
             Assert.Equal("outer1:name:100", chainedFunc1.Func(0, input, new[] { 0, 1 }));
 
             // Validate two-level chaining.
-            var chainedFunc2 = PicklingWorkerFunction.Chain(chainedFunc1, func3);
+            PicklingWorkerFunction chainedFunc2 = PicklingWorkerFunction.Chain(chainedFunc1, func3);
             Assert.Equal("outer2:outer1:name:100", chainedFunc2.Func(0, input, new[] { 0, 1 }));
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.Spark.UnitTest
             object[] input = { 100, "name" };
 
             // The order does not align since workerFunction2 is executed first.
-            var chainedFunc1 = PicklingWorkerFunction.Chain(func2, func1);
+            PicklingWorkerFunction chainedFunc1 = PicklingWorkerFunction.Chain(func2, func1);
             Assert.ThrowsAny<Exception>(() => chainedFunc1.Func(0, input, new[] { 0, 1 }));
         }
 
@@ -185,21 +185,21 @@ namespace Microsoft.Spark.UnitTest
                             .Select(i => $"outer2:{strings.GetString(i)}")
                             .ToArray())).Execute);
 
-            Apache.Arrow.IArrowArray[] input = new[]
+            var input = new IArrowArray[]
             {
                 ToArrowArray(new[] { 100 }),
                 ToArrowArray(new[] { "name" })
             };
 
             // Validate one-level chaining.
-            var chainedFunc1 = ArrowWorkerFunction.Chain(func1, func2);
-            ArrowTestUtils.AssertEquals(
+            ArrowWorkerFunction chainedFunc1 = ArrowWorkerFunction.Chain(func1, func2);
+            AssertEquals(
                 "outer1:name:100",
                 chainedFunc1.Func(input, new[] { 0, 1 }));
 
             // Validate two-level chaining.
-            var chainedFunc2 = ArrowWorkerFunction.Chain(chainedFunc1, func3);
-            ArrowTestUtils.AssertEquals(
+            ArrowWorkerFunction chainedFunc2 = ArrowWorkerFunction.Chain(chainedFunc1, func3);
+            AssertEquals(
                 "outer2:outer1:name:100",
                 chainedFunc2.Func(input, new[] { 0, 1 }));
         }
@@ -279,14 +279,14 @@ namespace Microsoft.Spark.UnitTest
                             .Select(i => $"outer1:{strings.GetString(i)}")
                             .ToArray())).Execute);
 
-            Apache.Arrow.IArrowArray[] input = new[]
+            IArrowArray[] input = new[]
             {
                 ToArrowArray(new[] { 100 }),
                 ToArrowArray(new[] { "name" })
             };
 
             // The order does not align since workerFunction2 is executed first.
-            var chainedFunc1 = ArrowWorkerFunction.Chain(func2, func1);
+            ArrowWorkerFunction chainedFunc1 = ArrowWorkerFunction.Chain(func2, func1);
             Assert.ThrowsAny<Exception>(() => chainedFunc1.Func(input, new[] { 0, 1 }));
         }
 
