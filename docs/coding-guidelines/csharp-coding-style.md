@@ -3,7 +3,7 @@ C# Coding Style
 
 We use the same [coding style](https://github.com/dotnet/corefx/blob/master/Documentation/coding-guidelines/coding-style.md) and [EditorConfig](https://editorconfig.org "EditorConfig homepage") file (`.editorconfig`) used by [dotnet/corefx](https://github.com/dotnet/corefx) with the following differences:
 
-* **`var` must be used when `new`, `as`, or cast operator is used.**
+* **`var` must be used when `new`, `as`, or cast operator is used (and it can be used only with these operators).**
     ```C#
     var foo = new Foo(); // OK
     Foo foo = new Foo(); // NOT OK
