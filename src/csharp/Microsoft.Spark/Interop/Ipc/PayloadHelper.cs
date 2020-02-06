@@ -40,7 +40,7 @@ namespace Microsoft.Spark.Interop.Ipc
             object[] args)
         {
             // Reserve space for total length.
-            var originalPosition = destination.Position;
+            long originalPosition = destination.Position;
             destination.Position += sizeof(int);
 
             SerDe.Write(destination, isStaticMethod);
@@ -50,7 +50,7 @@ namespace Microsoft.Spark.Interop.Ipc
             ConvertArgsToBytes(destination, args);
 
             // Write the length now that we've written out everything else.
-            var afterPosition = destination.Position;
+            long afterPosition = destination.Position;
             destination.Position = originalPosition;
             SerDe.Write(destination, (int)afterPosition - sizeof(int));
             destination.Position = afterPosition;

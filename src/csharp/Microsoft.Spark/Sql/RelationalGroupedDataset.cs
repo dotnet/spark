@@ -89,7 +89,7 @@ namespace Microsoft.Spark.Sql
             ArrowGroupedMapWorkerFunction.ExecuteDelegate wrapper =
                 new ArrowGroupedMapUdfWrapper(func).Execute;
 
-            var udf = UserDefinedFunction.Create(
+            UserDefinedFunction udf = UserDefinedFunction.Create(
                 _jvmObject.Jvm,
                 func.Method.ToString(),
                 CommandSerDe.Serialize(

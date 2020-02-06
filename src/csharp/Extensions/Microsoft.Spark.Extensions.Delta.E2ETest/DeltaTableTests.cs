@@ -47,7 +47,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
             data.Write().Format("delta").Mode("overwrite").Save(path);
 
             // Load the data into a DeltaTable object.
-            var deltaTable = DeltaTable.ForPath(path);
+            DeltaTable deltaTable = DeltaTable.ForPath(path);
 
             // Validate that deltaTable contains the the sequence [5 ... 9].
             ValidateRangeDataFrame(Enumerable.Range(5, 5), deltaTable.ToDF());

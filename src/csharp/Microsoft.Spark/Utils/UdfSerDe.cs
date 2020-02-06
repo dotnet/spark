@@ -143,7 +143,7 @@ namespace Microsoft.Spark.Utils
         internal static UdfData Serialize(Delegate udf)
         {
             MethodInfo method = udf.Method;
-            var target = udf.Target;
+            object target = udf.Target;
 
             var udfData = new UdfData()
             {
@@ -214,7 +214,7 @@ namespace Microsoft.Spark.Utils
             // For now, one way to distinguish is to check if any of the field's type
             // is same as the target type. If so, fields will be emptied out.
             // TODO: Follow up with the dotnet team.
-            var doesUdfHaveClosure = fields.
+            bool doesUdfHaveClosure = fields.
                 Where((field) => field.TypeData.Name.Equals(targetTypeData.Name)).
                 Count() == 0;
 
@@ -230,7 +230,7 @@ namespace Microsoft.Spark.Utils
         private static object DeserializeTargetData(TargetData targetData)
         {
             Type targetType = DeserializeType(targetData.TypeData);
-            var target = FormatterServices.GetUninitializedObject(targetType);
+            object target = FormatterServices.GetUninitializedObject(targetType);
 
             foreach (FieldData field in targetData.Fields ?? Enumerable.Empty<FieldData>())
             {

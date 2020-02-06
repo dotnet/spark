@@ -110,9 +110,9 @@ namespace Microsoft.Spark.Utils
             var commandPayloadBytesList = new List<byte[]>();
 
             // Add serializer mode.
-            var modeBytes = Encoding.UTF8.GetBytes(serializerMode.ToString());
-            var length = modeBytes.Length;
-            var lengthAsBytes = BitConverter.GetBytes(length);
+            byte[] modeBytes = Encoding.UTF8.GetBytes(serializerMode.ToString());
+            int length = modeBytes.Length;
+            byte[] lengthAsBytes = BitConverter.GetBytes(length);
             Array.Reverse(lengthAsBytes);
             commandPayloadBytesList.Add(lengthAsBytes);
             commandPayloadBytesList.Add(modeBytes);
@@ -128,8 +128,8 @@ namespace Microsoft.Spark.Utils
             // Add run mode:
             // N - normal
             // R - repl
-            var runMode = Environment.GetEnvironmentVariable("SPARK_NET_RUN_MODE") ?? "N";
-            var runModeBytes = Encoding.UTF8.GetBytes(runMode);
+            string runMode = Environment.GetEnvironmentVariable("SPARK_NET_RUN_MODE") ?? "N";
+            byte[] runModeBytes = Encoding.UTF8.GetBytes(runMode);
             lengthAsBytes = BitConverter.GetBytes(runModeBytes.Length);
             Array.Reverse(lengthAsBytes);
             commandPayloadBytesList.Add(lengthAsBytes);
@@ -138,7 +138,7 @@ namespace Microsoft.Spark.Utils
             if ("R".Equals(runMode, StringComparison.InvariantCultureIgnoreCase))
             {
                 // add compilation dump directory
-                var compilationDumpDirBytes = Encoding.UTF8.GetBytes(
+                byte[] compilationDumpDirBytes = Encoding.UTF8.GetBytes(
                     Environment.GetEnvironmentVariable("SPARK_NET_SCRIPT_COMPILATION_DIR") ?? ".");
                 lengthAsBytes = BitConverter.GetBytes(compilationDumpDirBytes.Length);
                 Array.Reverse(lengthAsBytes);
@@ -164,8 +164,8 @@ namespace Microsoft.Spark.Utils
             {
                 formatter.Serialize(stream, udfWrapperData);
 
-                var udfBytes = stream.ToArray();
-                var udfBytesLengthAsBytes = BitConverter.GetBytes(udfBytes.Length);
+                byte[] udfBytes = stream.ToArray();
+                byte[] udfBytesLengthAsBytes = BitConverter.GetBytes(udfBytes.Length);
                 Array.Reverse(udfBytesLengthAsBytes);
                 commandPayloadBytesList.Add(udfBytesLengthAsBytes);
                 commandPayloadBytesList.Add(udfBytes);
@@ -235,15 +235,15 @@ namespace Microsoft.Spark.Utils
 
             runMode = SerDe.ReadString(stream);
 
-            var serializedCommand = SerDe.ReadBytes(stream);
+            byte[] serializedCommand = SerDe.ReadBytes(stream);
 
             var bf = new BinaryFormatter();
             var ms = new MemoryStream(serializedCommand, false);
 
             var udfWrapperData = (UdfWrapperData)bf.Deserialize(ms);
 
-            var nodeIndex = 0;
-            var udfIndex = 0;
+            int nodeIndex = 0;
+            int udfIndex = 0;
             var udf = (T)DeserializeUdfs<T>(udfWrapperData, ref nodeIndex, ref udfIndex);
 
             // Check all the data is consumed.
@@ -259,7 +259,7 @@ namespace Microsoft.Spark.Utils
             ref int udfIndex)
         {
             UdfWrapperNode node = data.UdfWrapperNodes[nodeIndex++];
-            var nodeType = Type.GetType(node.TypeName);
+            Type nodeType = Type.GetType(node.TypeName);
 
             if (node.HasUdf)
             {

@@ -90,7 +90,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             // UDF return type as array.
             Func<Column, Column> udfArray =
-                Udf<string, string[]>((str) => new string[] { str, str + str });
+                Udf<string, string[]>((str) => new[] { str, str + str });
             df.Select(Explode(udfArray(df["name"]))).Show();
 
             // UDF return type as map.
