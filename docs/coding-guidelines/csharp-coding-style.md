@@ -22,6 +22,9 @@ We use the same [coding style](https://github.com/dotnet/corefx/blob/master/Docu
     var arr = new string[] { "abc", "def" }; // OK
     string[] arr = new[] { "abc", "def" }; // NOT OK
     var arr = new[] { "abc", "def" }; // NOT OK
+
+    string str = foo.GetString(); // Function name shouldn't matter.
+    var str = foo.GetString(); // NOT OK
     ```
 
 * **A single line statement block must go with braces.**
