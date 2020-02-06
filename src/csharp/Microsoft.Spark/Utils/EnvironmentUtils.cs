@@ -13,7 +13,7 @@ namespace Microsoft.Spark.Utils
     {
         internal static bool GetEnvironmentVariableAsBool(string name)
         {
-            var str = Environment.GetEnvironmentVariable(name);
+            string str = Environment.GetEnvironmentVariable(name);
             if (string.IsNullOrEmpty(str))
             {
                 return false;

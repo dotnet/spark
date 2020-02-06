@@ -75,8 +75,8 @@ namespace Microsoft.Spark.Utils
 
         private static readonly string[] s_extensions =
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
-                    new[] { ".dll", ".exe", ".ni.dll", ".ni.exe" } :
-                    new[] { ".dll", ".ni.dll" };
+                new[] { ".dll", ".exe", ".ni.dll", ".ni.exe" } :
+                new[] { ".dll", ".ni.dll" };
 
         private static readonly object s_cacheLock = new object();
 
