@@ -53,25 +53,6 @@ namespace Microsoft.Spark.Worker.Command
                 throw new ArgumentException("Unexpected serialization mode found.");
             }
 
-            bool useDataFrameCommandExecutor = false;
-            foreach (SqlCommand command in commands)
-            {
-                WorkerFunction workerFunc = command.WorkerFunction;
-                DataFrameWorkerFunction dataFrameWorkerFunction = workerFunc as DataFrameWorkerFunction;
-                if (dataFrameWorkerFunction != null)
-                {
-                    useDataFrameCommandExecutor = true;
-                    break;
-                }
-                DataFrameGroupedMapWorkerFunction dataFrameGroupedMapCommandExecutor = workerFunc as DataFrameGroupedMapWorkerFunction;
-                if (dataFrameGroupedMapCommandExecutor != null)
-                {
-                    useDataFrameCommandExecutor = true;
-                    break;
-                }
-
-            }
-
             SqlCommandExecutor executor;
             if (evalType == UdfUtils.PythonEvalType.SQL_BATCHED_UDF)
             {
@@ -79,25 +60,11 @@ namespace Microsoft.Spark.Worker.Command
             }
             else if (evalType == UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF)
             {
-                if (useDataFrameCommandExecutor)
-                {
-                    executor = new DataFrameSqlCommandExecutor();
-                }
-                else
-                {
-                    executor = new ArrowSqlCommandExecutor();
-                }
+                executor = new ArrowOrDataFrameSqlCommandExecutor();
             }
             else if (evalType == UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF)
             {
-                if (useDataFrameCommandExecutor)
-                {
-                    executor = new DataFrameGroupedMapCommandExecutor();
-                }
-                else
-                {
-                    executor = new ArrowGroupedMapCommandExecutor();
-                }
+                executor = new ArrowOrDataFrameGroupedMapCommandExecutor();
             }
             else
             {
@@ -107,37 +74,7 @@ namespace Microsoft.Spark.Worker.Command
             return executor.ExecuteCore(inputStream, outputStream, commands);
         }
 
-        protected IEnumerable<RecordBatch> GetInputIterator(Stream inputStream)
-        {
-            using (var reader = new ArrowStreamReader(inputStream, leaveOpen: true))
-            {
-                RecordBatch batch;
-                bool returnedResult = false;
-                while ((batch = reader.ReadNextRecordBatch()) != null)
-                {
-                    yield return batch;
-                    returnedResult = true;
-                }
-
-                if (!returnedResult)
-                {
-                    // When no input batches were received, return an empty RecordBatch
-                    // in order to create and write back the result schema.
-
-                    int columnCount = reader.Schema.Fields.Count;
-                    var arrays = new IArrowArray[columnCount];
-                    for (int i = 0; i < columnCount; ++i)
-                    {
-                        IArrowType type = reader.Schema.GetFieldByIndex(i).DataType;
-                        arrays[i] = ArrowArrayHelpers.CreateEmptyArray(type);
-                    }
-
-                    yield return new RecordBatch(reader.Schema, arrays, 0);
-                }
-            }
-        }
-
-        protected abstract CommandExecutorStat ExecuteCore(
+        protected internal abstract CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands);
@@ -155,7 +92,7 @@ namespace Microsoft.Spark.Worker.Command
         [ThreadStatic]
         private static byte[] s_outputBuffer;
 
-        protected override CommandExecutorStat ExecuteCore(
+        protected internal override CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands)
@@ -350,13 +287,87 @@ namespace Microsoft.Spark.Worker.Command
         }
     }
 
+    internal class ArrowBasedCommandExecutor : SqlCommandExecutor
+    {
+        protected internal override CommandExecutorStat ExecuteCore(Stream inputStream, Stream outputStream, SqlCommand[] commands)
+        {
+            throw new NotImplementedException();
+        }
+        protected IEnumerable<RecordBatch> GetInputIterator(Stream inputStream)
+        {
+            using (var reader = new ArrowStreamReader(inputStream, leaveOpen: true))
+            {
+                RecordBatch batch;
+                bool returnedResult = false;
+                while ((batch = reader.ReadNextRecordBatch()) != null)
+                {
+                    yield return batch;
+                    returnedResult = true;
+                }
+
+                if (!returnedResult)
+                {
+                    // When no input batches were received, return an empty RecordBatch
+                    // in order to create and write back the result schema.
+
+                    int columnCount = reader.Schema.Fields.Count;
+                    var arrays = new IArrowArray[columnCount];
+                    for (int i = 0; i < columnCount; ++i)
+                    {
+                        IArrowType type = reader.Schema.GetFieldByIndex(i).DataType;
+                        arrays[i] = ArrowArrayHelpers.CreateEmptyArray(type);
+                    }
+
+                    yield return new RecordBatch(reader.Schema, arrays, 0);
+                }
+            }
+        }
+    }
+
+    internal class ArrowOrDataFrameSqlCommandExecutor : ArrowBasedCommandExecutor
+    {
+        protected internal override CommandExecutorStat ExecuteCore(
+            Stream inputStream,
+            Stream outputStream,
+            SqlCommand[] commands)
+        {
+            bool useDataFrameCommandExecutor = false;
+            bool useArrowSqlCommandExecutor = false;
+            foreach (SqlCommand command in commands)
+            {
+                WorkerFunction workerFunc = command.WorkerFunction;
+                if (workerFunc is DataFrameWorkerFunction dataFrameWorkedFunc)
+                {
+                    useDataFrameCommandExecutor = true;
+                }
+                else
+                {
+                    useArrowSqlCommandExecutor = true;
+                }
+            }
+            if (useDataFrameCommandExecutor && useArrowSqlCommandExecutor)
+            {
+                // Mixed mode. Not supported
+                throw new NotSupportedException("Combined Arrow and DataFrame style commands are not supported");
+            }
+            SqlCommandExecutor executor = null;
+            if (useDataFrameCommandExecutor)
+            {
+                executor = new DataFrameSqlCommandExecutor();
+                return executor.ExecuteCore(inputStream, outputStream, commands);
+            }
+            executor = new ArrowSqlCommandExecutor();
+            return executor.ExecuteCore(inputStream, outputStream, commands);
+        }
+    }
+
     /// <summary>
     /// A SqlCommandExecutor that reads and writes using the
     /// Apache Arrow format.
     /// </summary>
-    internal class ArrowSqlCommandExecutor : SqlCommandExecutor
+    internal class ArrowSqlCommandExecutor : ArrowOrDataFrameSqlCommandExecutor
     {
-        protected override CommandExecutorStat ExecuteCore(
+        protected internal override CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands)
@@ -585,9 +596,9 @@ namespace Microsoft.Spark.Worker.Command
     /// A SqlCommandExecutor that reads and writes using a DataFrame backed by the
     /// Apache Arrow format.
     /// </summary>
-    internal class DataFrameSqlCommandExecutor : SqlCommandExecutor
+    internal class DataFrameSqlCommandExecutor : ArrowOrDataFrameSqlCommandExecutor
     {
-        protected override CommandExecutorStat ExecuteCore(
+        protected internal override CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands)
@@ -741,9 +752,48 @@ namespace Microsoft.Spark.Worker.Command
         }
     }
 
-    internal class ArrowGroupedMapCommandExecutor : SqlCommandExecutor
+    internal class ArrowOrDataFrameGroupedMapCommandExecutor : ArrowOrDataFrameSqlCommandExecutor
     {
-        protected override CommandExecutorStat ExecuteCore(
+        protected internal override CommandExecutorStat ExecuteCore(
+            Stream inputStream,
+            Stream outputStream,
+            SqlCommand[] commands)
+        {
+            Debug.Assert(commands.Length == 1,
+                "Grouped Map UDFs do not support combining multiple UDFs.");
+
+            bool useDataFrameGroupedMapCommandExecutor = false;
+            bool useArrowGroupedMapCommandExecutor = false;
+            foreach (SqlCommand command in commands)
+            {
+                if (command.WorkerFunction is DataFrameGroupedMapWorkerFunction groupedMapWorkerFunction)
+                {
+                    useDataFrameGroupedMapCommandExecutor = true;
+                }
+                else
+                {
+                    useArrowGroupedMapCommandExecutor = true;
+                }
+            }
+            if (useDataFrameGroupedMapCommandExecutor && useArrowGroupedMapCommandExecutor)
+            {
+                // Mixed mode. Not supported
+                throw new NotSupportedException("Combined Arrow and DataFrame style commands are not supported");
+            }
+            SqlCommandExecutor executor = null;
+            if (useDataFrameGroupedMapCommandExecutor)
+            {
+                executor = new DataFrameGroupedMapCommandExecutor();
+                return executor.ExecuteCore(inputStream, outputStream, commands);
+            }
+            executor = new ArrowGroupedMapCommandExecutor();
+            return executor.ExecuteCore(inputStream, outputStream, commands);
+        }
+    }
+
+    internal class ArrowGroupedMapCommandExecutor : ArrowBasedCommandExecutor
+    {
+        protected internal override CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands)
@@ -784,9 +834,9 @@ namespace Microsoft.Spark.Worker.Command
         }
     }
 
-    internal class DataFrameGroupedMapCommandExecutor : SqlCommandExecutor
+    internal class DataFrameGroupedMapCommandExecutor : ArrowBasedCommandExecutor
     {
-        protected override CommandExecutorStat ExecuteCore(
+        protected internal override CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands)

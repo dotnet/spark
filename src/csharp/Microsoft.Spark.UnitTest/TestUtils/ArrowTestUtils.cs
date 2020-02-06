@@ -111,11 +111,11 @@ namespace Microsoft.Spark.UnitTest.TestUtils
         public static ArrowStringDataFrameColumn ToArrowStringDataFrameColumn(StringArray array)
         {
             return new ArrowStringDataFrameColumn("String",
-                                         array.ValueBuffer.Memory,
-                                         array.ValueOffsetsBuffer.Memory,
-                                         array.NullBitmapBuffer.Memory,
-                                         array.Length,
-                                         array.NullCount);
+                array.ValueBuffer.Memory,
+                array.ValueOffsetsBuffer.Memory,
+                array.NullBitmapBuffer.Memory,
+                array.Length,
+                array.NullCount);
         }
 
         public static IArrowArray ToArrowArray<T>(T[] array)
