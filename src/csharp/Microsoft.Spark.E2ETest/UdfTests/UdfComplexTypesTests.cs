@@ -49,7 +49,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Row[] rows = _df.Select(workingUdf(_df["ids"])).Collect().ToArray();
             Assert.Equal(3, rows.Length);
 
-            var expected = new[] { "1", "3,5", "2,4" };
+            var expected = new string[] { "1", "3,5", "2,4" };
             string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
             Assert.Equal(expected, rowsToArray);
         }
@@ -101,7 +101,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Row[] rows = df.Select(workingUdf(df["NameIdsMap"])).Collect().ToArray();
             Assert.Equal(3, rows.Length);
 
-            var expected = new[] { "1", "1", "1" };
+            var expected = new string[] { "1", "1", "1" };
             string[] actual = rows.Select(x => x[0].ToString()).ToArray();
             Assert.Equal(expected, actual);
         }
@@ -144,7 +144,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Row[] rows = _df.Select(udf(_df["info1"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
-                var expected = new[] { "Burdwan", "Los Angeles", "Seattle" };
+                var expected = new string[] { "Burdwan", "Los Angeles", "Seattle" };
                 string[] actual = rows.Select(x => x[0].ToString()).ToArray();
                 Assert.Equal(expected, actual);
             }
@@ -165,7 +165,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                     .ToArray();
                 Assert.Equal(3, rows.Length);
 
-                var expected = new[] {
+                var expected = new string[] {
                     "Michael:Burdwan,Paschimbanga",
                     "Andy:Los Angeles,California",
                     "Justin:Seattle,Washington" };
@@ -185,7 +185,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Row[] rows = _df.Select(udf(_df["info3"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
-                var expected = new[] { "Developer", "Developer", "Developer" };
+                var expected = new string[] { "Developer", "Developer", "Developer" };
                 string[] actual = rows.Select(x => x[0].ToString()).ToArray();
                 Assert.Equal(expected, actual);
             }

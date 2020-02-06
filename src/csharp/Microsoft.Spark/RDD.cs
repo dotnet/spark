@@ -298,7 +298,7 @@ namespace Microsoft.Spark
         private (int, string) CollectAndServe()
         {
             JvmObjectReference rddRef = GetJvmRef();
-            var result = rddRef.Jvm.CallStaticJavaMethod(
+            object result = rddRef.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.api.python.PythonRDD",
                 "collectAndServe",
                 rddRef.Invoke("rdd"));
@@ -479,7 +479,7 @@ namespace Microsoft.Spark
         {
             if (IsPipelinable())
             {
-                var newWorkerFunc = RDD.WorkerFunction.Chain(
+                RDD.WorkerFunction newWorkerFunc = RDD.WorkerFunction.Chain(
                     new RDD.WorkerFunction(_func.Func),
                     new RDD.WorkerFunction(newFunc));
 
@@ -508,8 +508,8 @@ namespace Microsoft.Spark
                 {
                     IJvmBridge jvm = _prevRddJvmObjRef.Jvm;
 
-                    var rdd = _prevRddJvmObjRef.Invoke("rdd");
-                    var command = Serialize(_func.Func, _prevSerializedMode, _serializedMode);
+                    object rdd = _prevRddJvmObjRef.Invoke("rdd");
+                    byte[] command = Serialize(_func.Func, _prevSerializedMode, _serializedMode);
                     JvmObjectReference pythonFunction =
                         UdfUtils.CreatePythonFunction(jvm, command);
 
