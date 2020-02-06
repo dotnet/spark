@@ -166,19 +166,19 @@ namespace Microsoft.Spark.Worker.Processor
                             {
                                 var curWorkerFunction = new ArrowWorkerFunction(arrowWorkerFunctionDelegate);
                                 command.WorkerFunction = (command.WorkerFunction == null) ?
-                                curWorkerFunction :
-                                ArrowWorkerFunction.Chain(
-                                    (ArrowWorkerFunction)command.WorkerFunction,
-                                    curWorkerFunction);
+                                    curWorkerFunction :
+                                    ArrowWorkerFunction.Chain(
+                                        (ArrowWorkerFunction)command.WorkerFunction,
+                                        curWorkerFunction);
                             }
                             else if (obj is DataFrameWorkerFunction.ExecuteDelegate dataFrameWorkerFunctionDelegate)
                             {
                                 var curWorkerFunction = new DataFrameWorkerFunction(dataFrameWorkerFunctionDelegate);
                                 command.WorkerFunction = (command.WorkerFunction == null) ?
-                                curWorkerFunction :
-                                DataFrameWorkerFunction.Chain(
-                                    (DataFrameWorkerFunction)command.WorkerFunction,
-                                    curWorkerFunction);
+                                    curWorkerFunction :
+                                    DataFrameWorkerFunction.Chain(
+                                        (DataFrameWorkerFunction)command.WorkerFunction,
+                                        curWorkerFunction);
                             }
                             else
                             {

@@ -97,7 +97,6 @@ namespace Microsoft.Spark.UnitTest
             ArrowTestUtils.AssertEquals(
                 input[0],
                 func.Func(new[] { ArrowStringDataFrameColumn }, new[] { 0 }));
-
         }
 
         /// <summary>
@@ -160,7 +159,6 @@ namespace Microsoft.Spark.UnitTest
             Assert.True(results[1]);
             Assert.True(results[2]);
             Assert.False(results[3]);
-
         }
 
         [Fact]
@@ -231,7 +229,6 @@ namespace Microsoft.Spark.UnitTest
                         return ToArrowStringDataFrameColumn(stringColumn);
                     }).Execute);
 
-
             var func3 = new DataFrameWorkerFunction(
                 new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (strings) =>
@@ -263,7 +260,6 @@ namespace Microsoft.Spark.UnitTest
             ArrowTestUtils.AssertEquals(
                 "outer2:outer1:name:100",
                 chainedFunc2.Func(input, new[] { 0, 1 }));
-
         }
 
         [Fact]

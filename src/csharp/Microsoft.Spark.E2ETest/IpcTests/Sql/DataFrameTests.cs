@@ -433,7 +433,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             PrimitiveDataFrameColumn<int> characterCountColumn = new PrimitiveDataFrameColumn<int>(stringFieldName + "CharCount");
             PrimitiveDataFrameColumn<int> ageColumn = new PrimitiveDataFrameColumn<int>(groupFieldName);
             ArrowStringDataFrameColumn fieldColumn = dataFrame[stringFieldName] as ArrowStringDataFrameColumn;
-            for (long i = 0; i < dataFrame.Rows.Count; i++)
+            for (long i = 0; i < dataFrame.Rows.Count; ++i)
             {
                 characterCount += fieldColumn[i].Length;
             }

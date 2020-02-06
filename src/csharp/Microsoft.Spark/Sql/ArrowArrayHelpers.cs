@@ -42,56 +42,59 @@ namespace Microsoft.Spark.Sql
         public static DataFrameColumn CreateEmptyColumn<T>()
         {
             DataFrameColumn ret;
-            if (typeof(T) == typeof(PrimitiveDataFrameColumn<bool>))
+            Type type = typeof(T);
+            if (type == typeof(PrimitiveDataFrameColumn<bool>))
             {
                 ret = new PrimitiveDataFrameColumn<bool>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<sbyte>))
+            else if (type == typeof(PrimitiveDataFrameColumn<sbyte>))
             {
                 ret = new PrimitiveDataFrameColumn<sbyte>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<byte>))
+            else if (type == typeof(PrimitiveDataFrameColumn<byte>))
             {
                 ret = new PrimitiveDataFrameColumn<byte>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<short>))
+            else if (type == typeof(PrimitiveDataFrameColumn<short>))
             {
                 ret = new PrimitiveDataFrameColumn<short>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<ushort>))
+            else if (type == typeof(PrimitiveDataFrameColumn<ushort>))
             {
                 ret = new PrimitiveDataFrameColumn<ushort>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<int>))
+            else if (type == typeof(PrimitiveDataFrameColumn<int>))
             {
                 ret = new PrimitiveDataFrameColumn<int>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<uint>))
+            else if (type == typeof(PrimitiveDataFrameColumn<uint>))
             {
                 ret = new PrimitiveDataFrameColumn<uint>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<long>))
+            else if (type == typeof(PrimitiveDataFrameColumn<long>))
             {
                 ret = new PrimitiveDataFrameColumn<long>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<ulong>))
+            else if (type == typeof(PrimitiveDataFrameColumn<ulong>))
             {
                 ret = new PrimitiveDataFrameColumn<ulong>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<float>))
+            else if (type == typeof(PrimitiveDataFrameColumn<float>))
             {
                 ret = new PrimitiveDataFrameColumn<float>("Empty");
             }
-            else if (typeof(T) == typeof(PrimitiveDataFrameColumn<double>))
+            else if (type == typeof(PrimitiveDataFrameColumn<double>))
             {
                 ret = new PrimitiveDataFrameColumn<double>("Empty");
             }
-            else if (typeof(T) == typeof(ArrowStringDataFrameColumn))
+            else if (type == typeof(ArrowStringDataFrameColumn))
             {
                 ret = new ArrowStringDataFrameColumn("Empty");
             }
             else
+            {
                 throw new NotSupportedException($"Unknown type: {typeof(T)}");
+            }
 
             return ret;
         }

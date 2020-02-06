@@ -114,12 +114,11 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, deserializerMode);
                 Assert.Equal("N", runMode);
 
-                string[] inputString = { "spark" };
-                StringArray column = (StringArray)ToArrowArray(inputString);
+                var column = (StringArray)ToArrowArray(new[] { "spark" });
 
                 ArrowStringDataFrameColumn ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
                 DataFrameColumn result =
-                deserializedWorkerFunction.Func(new[] { ArrowStringDataFrameColumn }, new[] { 0 });
+                    deserializedWorkerFunction.Func(new[] { ArrowStringDataFrameColumn }, new[] { 0 });
                 ArrowTestUtils.AssertEquals("hello spark", result);
             }
         }

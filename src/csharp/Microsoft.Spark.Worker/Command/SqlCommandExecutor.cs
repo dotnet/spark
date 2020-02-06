@@ -602,7 +602,7 @@ namespace Microsoft.Spark.Worker.Command
             {
                 FxDataFrame dataFrame = FxDataFrame.FromArrowRecordBatch(input);
                 DataFrameColumn[] inputColumns = new DataFrameColumn[input.ColumnCount];
-                for (int i = 0; i < dataFrame.Columns.Count; i++)
+                for (int i = 0; i < dataFrame.Columns.Count; ++i)
                 {
                     inputColumns[i] = dataFrame.Columns[i];
                 }

@@ -13,7 +13,7 @@ namespace Microsoft.Spark.Utils
     using DataFrameDelegate = DataFrameWorkerFunction.ExecuteDelegate;
 
     /// <summary>
-    /// UdfUtils provides UDF-related functions and enum.
+    /// DataFrameUdfUtils provides utility functions to wrap UDFs that use Microsoft.Data.Analysis
     /// </summary>
     internal static class DataFrameUdfUtils
     {

@@ -3,10 +3,12 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using Apache.Arrow;
-using Apache.Arrow.Types;
+using System.Collections.Generic;
+using Microsoft.Data.Analysis;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
+using DataFrame = Microsoft.Spark.Sql.DataFrame;
+using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 using StructType = Microsoft.Spark.Sql.Types.StructType;
 
 namespace Microsoft.Spark.Examples.Sql.Batch
@@ -14,14 +16,14 @@ namespace Microsoft.Spark.Examples.Sql.Batch
     /// <summary>
     /// An example demonstrating basic Spark SQL features.
     /// </summary>
-    internal sealed class VectorUdfs : IExample
+    internal sealed class VectorDataFrameUdfs : IExample
     {
         public void Run(string[] args)
         {
             if (args.Length != 1)
             {
                 Console.Error.WriteLine(
-                    "Usage: Sql.VectorUdfs <path to SPARK_HOME/examples/src/main/resources/people.json>");
+                    "Usage: Sql.VectorDataFrameUdfs <path to SPARK_HOME/examples/src/main/resources/people.json>");
                 Environment.Exit(1);
             }
 
@@ -56,39 +58,29 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             spark.Stop();
         }
 
-        private static RecordBatch CountCharacters(
-            RecordBatch records,
+        private static FxDataFrame CountCharacters(
+            FxDataFrame dataFrame,
             string groupFieldName,
             string stringFieldName)
         {
-            int stringFieldIndex = records.Schema.GetFieldIndex(stringFieldName);
-            StringArray stringValues = records.Column(stringFieldIndex) as StringArray;
-
             int characterCount = 0;
 
-            for (int i = 0; i < stringValues.Length; ++i)
+            PrimitiveDataFrameColumn<int> characterCountColumn = new PrimitiveDataFrameColumn<int>(stringFieldName + "CharCount");
+            PrimitiveDataFrameColumn<int> ageColumn = new PrimitiveDataFrameColumn<int>(groupFieldName);
+            ArrowStringDataFrameColumn nameColumn = dataFrame[stringFieldName] as ArrowStringDataFrameColumn;
+            for (long i = 0; i < dataFrame.Rows.Count; ++i)
             {
-                string current = stringValues.GetString(i);
-                characterCount += current.Length;
+                characterCount += nameColumn[i].Length;
             }
 
-            int groupFieldIndex = records.Schema.GetFieldIndex(groupFieldName);
-            Field groupField = records.Schema.GetFieldByIndex(groupFieldIndex);
+            if (dataFrame.Rows.Count > 0)
+            {
+                characterCountColumn.Append(characterCount);
+                ageColumn.Append((int?)dataFrame[groupFieldName][0]);
+            }
 
-            // Return 1 record, if we were given any. 0, otherwise.
-            int returnLength = records.Length > 0 ? 1 : 0;
-
-            return new RecordBatch(
-                new Schema.Builder()
-                    .Field(groupField)
-                    .Field(f => f.Name(stringFieldName + "_CharCount").DataType(Int32Type.Default))
-                    .Build(),
-                new IArrowArray[]
-                {
-                    records.Column(groupFieldIndex),
-                    new Int32Array.Builder().Append(characterCount).Build()
-                },
-                returnLength);
+            FxDataFrame ret = new FxDataFrame(ageColumn, characterCountColumn);
+            return ret;
         }
     }
 }
