@@ -8,11 +8,11 @@ We use the same [coding style](https://github.com/dotnet/corefx/blob/master/Docu
     var foo = new Foo(); // OK
     Foo foo = new Foo(); // NOT OK
 
-    var bar = (Bar)foo; // OK
-    Bar bar = (Bar)foo; // NOT OK
-
     var bar = foo as Bar; // OK
     Bar bar = foo as Bar; // NOT OK
+    
+    var bar = (Bar)foo; // OK
+    Bar bar = (Bar)foo; // NOT OK
 
     string str = "hello"; // OK
     var str = "hello"; // NOT OK
