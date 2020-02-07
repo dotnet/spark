@@ -9,7 +9,7 @@ Please see the following E2E example of how the new type `DoubleArrayArray` is a
 
 ### 1. Choose a new type identifier and add it in [PayloadHelper.cs](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Interop/Ipc/PayloadHelper.cs) on CLR side
 
-Example:
+Create a new type identifier for `DoubleArrayArray` as below:
 
 ```csharp
 private static readonly byte[] s_doubleArrayArrayTypeId = new[] { ( byte)'A' };
@@ -50,7 +50,7 @@ if (type == typeof(int[]) ||
 
 ### 2. Derserialize this new type in JVM with read method
 
-In [SerDe.scala](https://github.com/dotnet/spark/blob/master/src/scala/microsoft-spark-2.3.x/src/main/scala/org/apache/spark/api/dotnet/SerDe.scala) (This need to be changed in all Spark version 2.3.x, 2.4.x and 3.0.x). 
+In [SerDe.scala](https://github.com/dotnet/spark/blob/master/src/scala/microsoft-spark-2.3.x/src/main/scala/org/apache/spark/api/dotnet/SerDe.scala) (This need to be changed in all Spark version 2.3.x, 2.4.x and 3.0.x), add a new case statement for your new type identifier in either `readTypedObject` or `readList` method depending on the new type:
 
 In either the method `readTypedObject` or `readList` add a new case statement for your new type 
 identifier:
@@ -98,7 +98,9 @@ case "doublearray" => dos.writeByte('A')
 
 ### 4. Add this new type in [JvmBridge.cs](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Interop/Ipc/JvmBridge.cs) to read the value on CLR side
 
-The final step is to be able to read the value on the CLR side that the JVM side has written. Back in csharp find csharp/Microsoft.Spark/Interop/Ipc/JvmBridge.cs add your type identifier to `CallJavaMethod` in the switch statement `switch (typeAsChar) //TODO: Add support for other types.` You will likely find that the type you want to implement should be implemented inside `ReadCollection`.
+The final step is to be able to read the value on the CLR side that the JVM side has written. Add your type identifier to `CallJavaMethod` in the switch statement `switch (typeAsChar) //TODO: Add support for other types.` in [JvmBridge.cs](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Interop/Ipc/JvmBridge.cs). You will likely find that the type you want to implement should be implemented inside `ReadCollection`.
+
+Add new type identifier for `DoubleArrayArray` as below:
 
 ```csharp
 case 'A':
