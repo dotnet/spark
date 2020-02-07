@@ -14,6 +14,7 @@ namespace Microsoft.Spark.Sql
     /// <remarks>
     /// UDF serialization requires a "wrapper" object in order to serialize/deserialize.
     /// </remarks>
+    [UdfWrapper]
     internal sealed class DataFrameGroupedMapUdfWrapper
     {
         private readonly Func<FxDataFrame, FxDataFrame> _func;
