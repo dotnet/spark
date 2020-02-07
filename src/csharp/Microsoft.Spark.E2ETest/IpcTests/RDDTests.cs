@@ -25,7 +25,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 Assert.Equal(new[] { 0, 1, 2, 3, 4 }, rdd.Collect());
             }
             {
-                var strs = new[] { "hello", "spark", "for", "dotnet" };
+                var strs = new string[] { "hello", "spark", "for", "dotnet" };
                 RDD<string> rdd = _sc.Parallelize(strs);
                 Assert.Equal(strs, rdd.Collect());
             }
@@ -35,7 +35,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         public void TestTextFile()
         {
             RDD<string> rdd = _sc.TextFile($"{TestEnvironment.ResourceDirectory}people.txt");
-            var strs = new[] { "Michael, 29", "Andy, 30", "Justin, 19" };
+            var strs = new string[] { "Michael, 29", "Andy, 30", "Justin, 19" };
             Assert.Equal(strs, rdd.Collect());
 
             // Test a transformation so that SerializedMode is correctly propagated.
@@ -107,7 +107,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             RDD<int> rdd = _sc.Parallelize(Enumerable.Range(0, 10))
                 .Sample(true, 0.9, 0);
 
-            var count = rdd.Collect().Count();
+            int count = rdd.Collect().Count();
             Assert.True(count > 0);
             Assert.True(count <= 10);
         }

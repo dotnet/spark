@@ -21,7 +21,6 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public class HashingTF : IJvmObjectReferenceProvider
     {
-       
         /// <summary>
         /// Create a <see cref="HashingTF"/> without any parameters
         /// </summary>

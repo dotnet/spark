@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.ML.Feature;
@@ -39,9 +37,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             DataFrame wordsData = tokenizer.Transform(sentenceData);
 
             var hashingTF = new HashingTF()
-                                        .SetInputCol("words")
-                                        .SetOutputCol(expectedInputCol)
-                                        .SetNumFeatures(20);
+                .SetInputCol("words")
+                .SetOutputCol(expectedInputCol)
+                .SetNumFeatures(20);
 
             DataFrame featurizedData = hashingTF.Transform(wordsData);
     
@@ -53,6 +51,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             var idfModel = idf.Fit(featurizedData);
 
             DataFrame rescaledData = idfModel.Transform(featurizedData);
+            Assert.Contains(expectedOutputCol, rescaledData.Columns());
             
             Assert.Equal(expectedInputCol, idfModel.GetInputCol());
             Assert.Equal(expectedOutputCol, idfModel.GetOutputCol());
