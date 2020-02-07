@@ -26,7 +26,7 @@ namespace Microsoft.Spark.Sql
             _genericRow = new GenericRow(values);
             Schema = schema;
 
-            int schemaColumnCount = Schema.Fields.Count;
+            var schemaColumnCount = Schema.Fields.Count;
             if (Size() != schemaColumnCount)
             {
                 throw new Exception(
@@ -77,7 +77,7 @@ namespace Microsoft.Spark.Sql
         /// Returns the string version of this row.
         /// </summary>
         /// <returns>String version of this row</returns>
-        public override string ToString() => _genericRow.ToString();        
+        public override string ToString() => _genericRow.ToString();
 
         /// <summary>
         /// Returns the column value at the given index, as a type T.
@@ -123,23 +123,12 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         private void Convert()
         {
-            foreach (StructField field in Schema.Fields)
+            for (int i = 0; i < Size(); ++i)
             {
-                if (field.DataType is ArrayType)
+                DataType dataType = Schema.Fields[i].DataType;
+                if (dataType.NeedConversion())
                 {
-                    throw new NotImplementedException();
-                }
-                else if (field.DataType is MapType)
-                {
-                    throw new NotImplementedException();
-                }
-                else if (field.DataType is DecimalType)
-                {
-                    throw new NotImplementedException();
-                }
-                else if (field.DataType is DateType)
-                {
-                    throw new NotImplementedException();
+                    Values[i] = dataType.FromInternal(Values[i]);
                 }
             }
         }
