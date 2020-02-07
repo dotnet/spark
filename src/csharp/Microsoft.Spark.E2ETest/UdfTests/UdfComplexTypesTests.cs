@@ -197,7 +197,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithReturnAsRowType()
         {
-            // Test UDF that returns a Row object.
+            // Test UDF that returns a Row object with a single column.
             {
                 var schema = new StructType(new[]
                 {
@@ -219,7 +219,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 }
             }
 
-            // GenericRow is a part of top-level column.
+            // Test UDF that returns a Row object with multiple columns.
             {
                 var schema = new StructType(new[]
                 {
@@ -304,7 +304,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                     new StructField("col2", new StringType())
                 });
                 Func<Column, Column> udf1 = Udf<string>(
-                    str => new GenericRow(new object[] { 1, "abc" }), schema);
+                    str => new GenericRow(new object[] { 1, str }), schema);
 
                 Func<Column, Column> udf2 = Udf<Row, string>(
                     row => row.GetAs<string>(1));
@@ -312,9 +312,12 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Row[] rows = _df.Select(udf2(udf1(_df["name"]))).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
-                var expected = new[] { "abc", "abc", "abc" };
-                string[] actual = rows.Select(x => x[0].ToString()).ToArray();
-                Assert.Equal(expected, actual);
+                var expected = new[] { "Michael", "Andy", "Justin" };
+                for (int i = 0; i < rows.Length; ++i)
+                {
+                    Assert.Equal(1, rows[i].Size());
+                    Assert.Equal(expected[i], rows[i].GetAs<string>(0));
+                }
             }
         }
     }

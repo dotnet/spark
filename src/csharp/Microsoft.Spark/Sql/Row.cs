@@ -37,7 +37,7 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Constructor for the schema-less Row class used for chained UDFs.
         /// </summary>
-        /// <param name="genericRow">GenericRow to convert from</param>      
+        /// <param name="genericRow">GenericRow to construct from</param>
         internal Row(GenericRow genericRow)
         {
             _genericRow = genericRow;
@@ -46,6 +46,10 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Returns schema-less Row which can happen within chained UDFs (same behavior as PySpark).
         /// </summary>
+        /// <remarks>
+        /// The use of this conversion operator is discouraged except for the UDF that returns
+        /// a Row object.
+        /// </remarks>
         /// <returns>schema-less Row</returns>
         public static implicit operator Row(GenericRow genericRow)
         {
