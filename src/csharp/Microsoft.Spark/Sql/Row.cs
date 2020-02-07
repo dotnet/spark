@@ -37,7 +37,7 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Constructor for the schema-less Row class used for chained UDFs.
         /// </summary>
-        /// <param name="genericRow">GenericRow to construct from</param>
+        /// <param name="genericRow">GenericRow object</param>
         internal Row(GenericRow genericRow)
         {
             _genericRow = genericRow;
