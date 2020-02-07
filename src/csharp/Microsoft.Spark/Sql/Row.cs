@@ -24,7 +24,7 @@ namespace Microsoft.Spark.Sql
             _genericRow = new GenericRow(values);
             Schema = schema;
 
-            var schemaColumnCount = Schema.Fields.Count;
+            int schemaColumnCount = Schema.Fields.Count;
             if (Size() != schemaColumnCount)
             {
                 throw new Exception(

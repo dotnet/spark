@@ -72,7 +72,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <returns>The integer read from stream</returns>
         public static int ReadInt32(Stream s)
         {
-            var buffer = GetThreadLocalBuffer(sizeof(int));
+            byte[] buffer = GetThreadLocalBuffer(sizeof(int));
             TryReadBytes(s, buffer, sizeof(int));
             return BinaryPrimitives.ReadInt32BigEndian(buffer);
         }
@@ -84,7 +84,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <returns>The long integer read from stream</returns>
         public static long ReadInt64(Stream s)
         {
-            var buffer = GetThreadLocalBuffer(sizeof(long));
+            byte[] buffer = GetThreadLocalBuffer(sizeof(long));
             TryReadBytes(s, buffer, sizeof(long));
             return BinaryPrimitives.ReadInt64BigEndian(buffer);
         }
@@ -96,7 +96,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <returns>The double read from stream</returns>
         public static double ReadDouble(Stream s)
         {
-            var buffer = GetThreadLocalBuffer(sizeof(long));
+            byte[] buffer = GetThreadLocalBuffer(sizeof(long));
             TryReadBytes(s, buffer, sizeof(long));
             return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64BigEndian(buffer));
         }
@@ -108,7 +108,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <returns>The string read from stream</returns>
         public static string ReadString(Stream s)
         {
-            var buffer = GetThreadLocalBuffer(sizeof(int));
+            byte[] buffer = GetThreadLocalBuffer(sizeof(int));
             if (!TryReadBytes(s, buffer, sizeof(int)))
             {
                 return null;
@@ -130,7 +130,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 return null;
             }
 
-            var buffer = GetThreadLocalBuffer(length);
+            byte[] buffer = GetThreadLocalBuffer(length);
             TryReadBytes(s, buffer, length);
             return Encoding.UTF8.GetString(buffer, 0, length);
         }
@@ -158,7 +158,7 @@ namespace Microsoft.Spark.Interop.Ipc
             if (length > 0)
             {
                 int bytesRead;
-                var totalBytesRead = 0;
+                int totalBytesRead = 0;
                 do
                 {
                     bytesRead = s.Read(buffer, totalBytesRead, length - totalBytesRead);
@@ -187,7 +187,7 @@ namespace Microsoft.Spark.Interop.Ipc
             if (length > 0)
             {
                 int bytesRead;
-                var totalBytesRead = 0;
+                int totalBytesRead = 0;
                 do
                 {
                     bytesRead = s.Read(buffer, totalBytesRead, length - totalBytesRead);
@@ -213,13 +213,13 @@ namespace Microsoft.Spark.Interop.Ipc
 
         public static int? ReadBytesLength(Stream s)
         {
-            var lengthBuffer = ReadBytes(s, sizeof(int));
+            byte[] lengthBuffer = ReadBytes(s, sizeof(int));
             if (lengthBuffer == null)
             {
                 return null;
             }
 
-            var length = BinaryPrimitives.ReadInt32BigEndian(lengthBuffer);
+            int length = BinaryPrimitives.ReadInt32BigEndian(lengthBuffer);
             if (length == (int)SpecialLengths.NULL)
             {
                 return null;
@@ -235,7 +235,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <returns>The byte array read from stream</returns>
         public static byte[] ReadBytes(Stream s)
         {
-            var length = ReadBytesLength(s);
+            int? length = ReadBytesLength(s);
             if (length == null)
             {
                 return null;
@@ -248,7 +248,7 @@ namespace Microsoft.Spark.Interop.Ipc
         {
             const int DefaultMinSize = 256;
 
-            var buffer = s_threadLocalBuffer;
+            byte[] buffer = s_threadLocalBuffer;
             if (buffer == null || buffer.Length < minSize)
             {
                 s_threadLocalBuffer = buffer = new byte[Math.Max(DefaultMinSize, minSize)];
@@ -297,7 +297,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <param name="value">The integer to write</param>
         public static void Write(Stream s, int value)
         {
-            var buffer = GetThreadLocalBuffer(sizeof(int));
+            byte[] buffer = GetThreadLocalBuffer(sizeof(int));
             BinaryPrimitives.WriteInt32BigEndian(buffer, value);
             Write(s, buffer, sizeof(int));
         }
@@ -309,7 +309,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <param name="value">The long integer to write</param>
         public static void Write(Stream s, long value)
         {
-            var buffer = GetThreadLocalBuffer(sizeof(long));
+            byte[] buffer = GetThreadLocalBuffer(sizeof(long));
             BinaryPrimitives.WriteInt64BigEndian(buffer, value);
             Write(s, buffer, sizeof(long));
         }
@@ -329,9 +329,9 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <param name="value">The string to write</param>
         public static void Write(Stream s, string value)
         {
-            var buffer = GetThreadLocalBuffer(
+            byte[] buffer = GetThreadLocalBuffer(
                 sizeof(int) + Encoding.UTF8.GetMaxByteCount(value.Length));
-            var len = Encoding.UTF8.GetBytes(value, 0, value.Length, buffer, sizeof(int));
+            int len = Encoding.UTF8.GetBytes(value, 0, value.Length, buffer, sizeof(int));
             BinaryPrimitives.WriteInt32BigEndian(buffer, len);
             Write(s, buffer, sizeof(int) + len);
         }
