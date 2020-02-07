@@ -31,7 +31,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             
             DataFrame input = _spark.Sql("SELECT 'hello I AM a string TO, TOKENIZE' as input_col" +
                 " from range(100)");
-                                                " from range(100)");
             
             var tokenizer = new Tokenizer(expectedUid)
                 .SetInputCol(expectedInputCol)

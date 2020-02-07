@@ -3,13 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
@@ -44,11 +42,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             DataFrame input = _spark.Sql("SELECT array('this', 'is', 'a', 'string', 'a', 'a')" +
                 " as input_col");
-                                            " as input_col");
 
             DataFrame output = hashingTf.Transform(input);
-            DataFrame outputColumn = output.Select(expectedOutputCol);
+            DataFrame outputVector = output.Select(expectedOutputCol);
 
+            Assert.Contains(expectedOutputCol, outputVector.Columns());
+       
             using (var tempDirectory = new TemporaryDirectory())
             {
                 var savePath = Path.Join(tempDirectory.Path, "hashingTF");
