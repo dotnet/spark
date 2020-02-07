@@ -93,7 +93,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // Calling CreateDataFrame(IEnumerable<string> _) without schema
             {
                 var data = new List<string>(new string[] { "Alice", "Bob" });
-                var schema = SchemaWithSingleColumn(new StringType());
+                StructType schema = SchemaWithSingleColumn(new StringType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
                 ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
@@ -102,7 +102,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // Calling CreateDataFrame(IEnumerable<int> _) without schema
             {
                 var data = new List<int>(new int[] { 1, 2 });
-                var schema = SchemaWithSingleColumn(new IntegerType());
+                StructType schema = SchemaWithSingleColumn(new IntegerType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
                 ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
@@ -111,7 +111,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // Calling CreateDataFrame(IEnumerable<double> _) without schema
             {
                 var data = new List<double>(new double[] { 1.2, 2.3 });
-                var schema = SchemaWithSingleColumn(new DoubleType());
+                StructType schema = SchemaWithSingleColumn(new DoubleType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
                 ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
@@ -120,7 +120,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // Calling CreateDataFrame(IEnumerable<bool> _) without schema
             {
                 var data = new List<bool>(new bool[] { true, false });
-                var schema = SchemaWithSingleColumn(new BooleanType());
+                StructType schema = SchemaWithSingleColumn(new BooleanType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
                 ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
