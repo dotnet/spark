@@ -167,7 +167,7 @@ namespace Microsoft.Spark.Worker
                 SerDe.Write(outputStream, 0);
 
                 // Check the end of stream.
-                var endOfStream = SerDe.ReadInt32(inputStream);
+                int endOfStream = SerDe.ReadInt32(inputStream);
                 if (endOfStream == (int)SpecialLengths.END_OF_STREAM)
                 {
                     s_logger.LogDebug($"[{TaskId}] Received END_OF_STREAM signal.");

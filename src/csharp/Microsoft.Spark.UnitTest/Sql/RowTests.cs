@@ -83,10 +83,10 @@ namespace Microsoft.Spark.UnitTest
             var schema = (StructType)DataType.ParseDataType(_testJsonSchema);
             var row1 = new Row(new object[] { 10, "name1" }, schema);
             var row2 = new Row(new object[] { 15, "name2" }, schema);
-            var pickledBytes = pickler.dumps(new[] { row1, row2 });
+            byte[] pickledBytes = pickler.dumps(new[] { row1, row2 });
 
             // Note that the following will invoke RowConstructor.construct().
-            var unpickledData = PythonSerDe.GetUnpickledObjects(
+            object[] unpickledData = PythonSerDe.GetUnpickledObjects(
                 new MemoryStream(pickledBytes),
                 pickledBytes.Length);
 
@@ -106,13 +106,13 @@ namespace Microsoft.Spark.UnitTest
             // Pickle two rows in one batch.
             var row1 = new Row(new object[] { 10, "name1" }, schema);
             var row2 = new Row(new object[] { 15, "name2" }, schema);
-            var batch1 = pickler.dumps(new[] { row1, row2 });
+            byte[] batch1 = pickler.dumps(new[] { row1, row2 });
             SerDe.Write(stream, batch1.Length);
             SerDe.Write(stream, batch1);
 
             // Pickle one row in one batch.
             var row3 = new Row(new object[] { 20, "name3" }, schema);
-            var batch2 = pickler.dumps(new[] { row3 });
+            byte[] batch2 = pickler.dumps(new[] { row3 });
             SerDe.Write(stream, batch2.Length);
             SerDe.Write(stream, batch2);
 
@@ -136,7 +136,7 @@ namespace Microsoft.Spark.UnitTest
         private Pickler CreatePickler()
         {
             new StructTypePickler().Register();
-            new RowPickler().Register();
+            new TestUtils.RowPickler().Register();
             return new Pickler();
         }
 

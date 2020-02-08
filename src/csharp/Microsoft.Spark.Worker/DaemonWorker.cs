@@ -146,7 +146,7 @@ namespace Microsoft.Spark.Worker
                         // When reuseWorker is set to true, numTaskRunners will be always one
                         // greater than numWorkerThreads since TaskRunner.Run() does not return
                         // so that the task runner object is not removed from _taskRunners.
-                        var numTaskRunners = _taskRunners.Count();
+                        int numTaskRunners = _taskRunners.Count();
                         while (numWorkerThreads < numTaskRunners)
                         {
                             // Note that in the current implementation of RunWorkerThread() does
@@ -221,7 +221,7 @@ namespace Microsoft.Spark.Worker
             while (true)
             {
                 var bytes = new byte[sizeof(int)];
-                var readBytes = inputStream.Read(bytes, 0, bytes.Length);
+                int readBytes = inputStream.Read(bytes, 0, bytes.Length);
 
                 if (readBytes != bytes.Length)
                 {
@@ -229,7 +229,7 @@ namespace Microsoft.Spark.Worker
                     Environment.Exit(-1);
                 }
 
-                var taskRunnerId = BinaryPrimitives.ReadInt32BigEndian(bytes);
+                int taskRunnerId = BinaryPrimitives.ReadInt32BigEndian(bytes);
                 if (taskRunnerId < 0)
                 {
                     s_logger.LogInfo($"Received negative TaskRunnerId: {taskRunnerId}, will exit");

@@ -247,7 +247,7 @@ namespace Microsoft.Spark.UnitTest.TestUtils
             // TODO: Use array pool and encode directly into the array.
             foreach (string str in array)
             {
-                var bytes = Encoding.UTF8.GetBytes(str);
+                byte[] bytes = Encoding.UTF8.GetBytes(str);
                 valueOffsets.Append(offset);
                 // TODO: Anyway to use the span-based GetBytes to write directly to
                 // the value buffer?

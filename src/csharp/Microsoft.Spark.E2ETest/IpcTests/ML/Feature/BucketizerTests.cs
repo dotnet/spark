@@ -2,9 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
 using Xunit;
@@ -24,15 +22,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestBucketizer()
         {
-            var expectedSplits = new double[] {Double.MinValue, 0.0, 10.0, 50.0, Double.MaxValue};
+            var expectedSplits = new double[] { double.MinValue, 0.0, 10.0, 50.0, double.MaxValue };
 
-            var expectedHandle = "skip";
-            var expectedUid = "uid";
-            var expectedInputCol = "input_col";
-            var expectedOutputCol = "output_col";
-            
-            var bucketizer = new Bucketizer(expectedUid)
-                .SetInputCol(expectedInputCol)
+            string expectedHandle = "skip";
+            string expectedUid = "uid";
+            string expectedInputCol = "input_col";
+            string expectedOutputCol = "output_col";
+
+            var bucketizer = new Bucketizer(expectedUid);
+            bucketizer.SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
                 .SetHandleInvalid(expectedHandle)
                 .SetSplits(expectedSplits);
@@ -54,19 +52,19 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestBucketizer_MultipleColumns()
         {
-            double[][] expectedSplitsArray = new[]
+            var expectedSplitsArray = new double[][]
             {
-                new[] {Double.MinValue, 0.0, 10.0, 50.0, Double.MaxValue},
-                new[] {Double.MinValue, 0.0, 10000.0, Double.MaxValue}
+                new[] { double.MinValue, 0.0, 10.0, 50.0, double.MaxValue},
+                new[] { double.MinValue, 0.0, 10000.0, double.MaxValue}
             };
 
-            var expectedHandle = "keep";
+            string expectedHandle = "keep";
 
-            var expectedInputCols = new List<string>() {"input_col_a", "input_col_b"};
-            var expectedOutputCols = new List<string>() {"output_col_a", "output_col_b"};
-            
-            var bucketizer = new Bucketizer()
-                .SetInputCols(expectedInputCols)
+            var expectedInputCols = new List<string>() { "input_col_a", "input_col_b" };
+            var expectedOutputCols = new List<string>() { "output_col_a", "output_col_b" };
+
+            var bucketizer = new Bucketizer();
+            bucketizer.SetInputCols(expectedInputCols)
                 .SetOutputCols(expectedOutputCols)
                 .SetHandleInvalid(expectedHandle)
                 .SetSplitsArray(expectedSplitsArray);
@@ -79,7 +77,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             DataFrame output = bucketizer.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col_a"));
             Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col_b"));
-            
+
             Assert.Equal(expectedInputCols, bucketizer.GetInputCols());
             Assert.Equal(expectedOutputCols, bucketizer.GetOutputCols());
             Assert.Equal(expectedSplitsArray, bucketizer.GetSplitsArray());

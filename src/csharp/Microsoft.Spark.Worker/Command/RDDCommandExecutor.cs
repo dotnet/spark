@@ -68,7 +68,7 @@ namespace Microsoft.Spark.Worker.Command
             RDD.Collector.IDeserializer deserializer =
                 RDD.Collector.GetDeserializer(deserializerMode);
 
-            var messageLength = 0;
+            int messageLength = 0;
             while ((messageLength = SerDe.ReadInt32(inputStream)) !=
                 (int)SpecialLengths.END_OF_DATA_SECTION)
             {

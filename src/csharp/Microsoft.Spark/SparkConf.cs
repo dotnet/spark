@@ -134,7 +134,7 @@ namespace Microsoft.Spark
             {
                 if (!string.IsNullOrEmpty(kvpString))
                 {
-                    var kvpItems = kvpString.Split('=');
+                    string[] kvpItems = kvpString.Split('=');
                     if ((kvpItems.Length == 2) &&
                         !string.IsNullOrEmpty(kvpItems[0]) &&
                         !string.IsNullOrEmpty(kvpItems[1]))
