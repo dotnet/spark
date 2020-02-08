@@ -3,7 +3,7 @@
 ### New Features and Improvements
 
 * Expose `DataStreamWriter.Foreach` API ([#387](https://github.com/dotnet/spark/pull/387))
-* Support UDF that returns `Row` object ([#376](https://github.com/dotnet/spark/pull/376), [#406](https://github.com/dotnet/spark/pull/406))
+* Support UDF that returns `Row` object ([#376](https://github.com/dotnet/spark/pull/376), [#406](https://github.com/dotnet/spark/pull/406), [#411](https://github.com/dotnet/spark/pull/411))
 * Support for Bucketizer ([#378](https://github.com/dotnet/spark/pull/378))
 
 ### Breaking Changes
