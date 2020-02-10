@@ -6,6 +6,7 @@
 * Support .NET Core 3.1 ([#291](https://github.com/dotnet/spark/pull/291) and [#386](https://github.com/dotnet/spark/pull/386))
 * Support for new Delta v0.5.0 APIs ([#374](https://github.com/dotnet/spark/pull/374))
 * Precompute the normalized type names of DataTypes and use string.Create on NS2.1 for faster normalization ([#364](https://github.com/dotnet/spark/pull/364))
+* Support for Spark 2.4.5 ([#392](https://github.com/dotnet/spark/pull/392))
 
 ### Breaking Changes
 * None
@@ -28,7 +29,7 @@ The following table outlines the supported Spark versions along with the microso
         </tr>
         <tr>
             <td>2.4.0</td>
-            <td rowspan=4>microsoft-spark-2.4.x-0.8.0.jar</td>
+            <td rowspan=5>microsoft-spark-2.4.x-0.8.0.jar</td>
         </tr>
         <tr>
             <td>2.4.1</td>
@@ -38,6 +39,9 @@ The following table outlines the supported Spark versions along with the microso
         </tr>
         <tr>
             <td>2.4.4</td>
+        </tr>
+        <tr>
+            <td>2.4.5</td>
         </tr>
         <tr>
             <td>2.4.2</td>

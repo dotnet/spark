@@ -28,7 +28,7 @@ namespace Microsoft.Spark.Examples.Sql.Streaming
             }
 
             string hostname = args[0];
-            var port = int.Parse(args[1]);
+            int port = int.Parse(args[1]);
 
             SparkSession spark = SparkSession
                 .Builder()

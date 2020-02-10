@@ -115,7 +115,7 @@ namespace Microsoft.Spark.Network
 
         private Stream CreateStream(string bufferSizeEnvVarName)
         {
-            var envVar = Environment.GetEnvironmentVariable(bufferSizeEnvVarName);
+            string envVar = Environment.GetEnvironmentVariable(bufferSizeEnvVarName);
             if (string.IsNullOrEmpty(envVar) ||
                 !int.TryParse(envVar, out var writeBufferSize))
             {
