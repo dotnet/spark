@@ -24,6 +24,9 @@ namespace Microsoft.Spark
 
         private readonly SparkConf _conf;
 
+        public string _temp_dir;
+        public bool _encryption_enabled;
+
         /// <summary>
         /// Create a SparkContext object with the given config.
         /// </summary>
@@ -299,9 +302,22 @@ namespace Microsoft.Spark
             _jvmObject.Invoke("setCheckpointDir", directory);
         }
 
-        public Broadcast Broadcast<T>(T variableToBroadcast)
+        /// <summary>
+        /// Broadcast a read-only variable to the cluster, returning a Microsoft.Spark.Broadcast
+        /// object for reading it in distributed functions. The variable will be sent to each 
+        /// cluster only once.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value">Value/variable to be broadcast</param>
+        /// <returns>A Microsoft.Spark.Broadcast object</returns>
+        public Broadcast Broadcast<T>(T value)
         {
-            return _jvmObject.Invoke("broadcast", variableToBroadcast);
+            string local_dir = (string)_jvmObject.Jvm.CallStaticJavaMethod(
+                    "org.apache.spark.util.Utils",
+                    "getLocalDir",
+                    _conf);
+            _temp_dir = local_dir + "\\sparkdotnet";
+            return new Broadcast(this, value, _jvmObject);
         }
 
         /// <summary>

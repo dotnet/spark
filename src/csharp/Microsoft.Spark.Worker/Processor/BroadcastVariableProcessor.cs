@@ -4,6 +4,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark.Worker.Processor
@@ -44,6 +45,8 @@ namespace Microsoft.Spark.Worker.Processor
 
             for (int i = 0; i < numBroadcastVariables; ++i)
             {
+                BroadcastRegistry broadcastRegistry = new BroadcastRegistry();
+                var formatter = new BinaryFormatter();
                 long bid = SerDe.ReadInt64(stream);
                 if (bid >= 0)
                 {
@@ -55,13 +58,15 @@ namespace Microsoft.Spark.Worker.Processor
                     else
                     {
                         var path = SerDe.ReadString(stream);
-                        // TODO: Register new broadcast variable. Check with Python implementation.
+                        object value = formatter.Deserialize(stream);
+                        broadcastRegistry.AddBroadcastVariable(bid, value);
                     }
                 }
                 else
                 {
                     bid = -bid - 1;
                     // TODO: Remove registered broadcast variable.
+                    broadcastRegistry.RemoveBroadcastVariable(bid);
                 }
             }
 
