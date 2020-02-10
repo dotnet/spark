@@ -110,6 +110,7 @@ object DotnetRunner extends Logging {
     if (initialized.tryAcquire(backendTimeout, TimeUnit.SECONDS)) {
       if (!runInDebugMode) {
         var returnCode = -1
+        var process: Process = null
         try {
           val builder = new ProcessBuilder(processParameters)
           val env = builder.environment()
@@ -120,7 +121,7 @@ object DotnetRunner extends Logging {
             logInfo(s"Adding key=$key and value=$value to environment")
           }
           builder.redirectErrorStream(true) // Ugly but needed for stdout and stderr to synchronize
-          val process = builder.start()
+          process = builder.start()
 
           // Redirect stdin of JVM process to stdin of .NET process.
           new RedirectThread(System.in, process.getOutputStream, "redirect JVM input").start()
@@ -128,11 +129,13 @@ object DotnetRunner extends Logging {
           new RedirectThread(process.getInputStream, System.out, "redirect .NET stdout").start()
           new RedirectThread(process.getErrorStream, System.out, "redirect .NET stderr").start()
 
-          returnCode = process.waitFor()
-          closeBackend(dotnetBackend)
+          process.waitFor()
         } catch {
           case t: Throwable =>
             logError(s"${t.getMessage} \n ${t.getStackTrace}")
+        } finally {
+          returnCode = destroyDotnetProcess(process)
+          closeBackend(dotnetBackend)
         }
 
         if (returnCode != 0) {
@@ -230,6 +233,14 @@ object DotnetRunner extends Logging {
   private def closeBackend(dotnetBackend: DotnetBackend): Unit = {
     logInfo("Closing DotnetBackend")
     dotnetBackend.close()
+  }
+
+  private def destroyDotnetProcess(dotnetProcess: Process): Int = dotnetProcess match {
+    case process: Process if process.isAlive =>
+      logInfo("Destroying .NET Process")
+      process.destroyForcibly().waitFor()
+    case process: Process => process.exitValue()
+    case _ => 0
   }
 
   private def initializeSettings(args: Array[String]): (Boolean, Int) = {
