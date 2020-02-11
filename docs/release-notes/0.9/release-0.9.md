@@ -7,7 +7,8 @@
 * Support for Bucketizer ([#378](https://github.com/dotnet/spark/pull/378))
 
 ### Breaking Changes
-* The new `Microsoft.Spark.Worker` needs to be used to enable UDF that returns `Row` object ([#376](https://github.com/dotnet/spark/pull/376)) and `DataStreamWriter.Foreach` ([#387](https://github.com/dotnet/spark/pull/387)).
+
+* The prior versions (<0.9) of `Microsoft.Spark.Worker` **are not compatible** with this release due to the internal changes related to UDFs.
 
 ### Supported Spark Versions
 
@@ -27,7 +28,7 @@ The following table outlines the supported Spark versions along with the microso
         </tr>
         <tr>
             <td>2.4.0</td>
-            <td rowspan=4>microsoft-spark-2.4.x-0.9.0.jar</td>
+            <td rowspan=5>microsoft-spark-2.4.x-0.9.0.jar</td>
         </tr>
         <tr>
             <td>2.4.1</td>
@@ -37,6 +38,9 @@ The following table outlines the supported Spark versions along with the microso
         </tr>
         <tr>
             <td>2.4.4</td>
+        </tr>
+        <tr>
+            <td>2.4.5</td>
         </tr>
         <tr>
             <td>2.4.2</td>
