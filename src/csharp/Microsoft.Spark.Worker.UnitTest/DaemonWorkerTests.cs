@@ -38,7 +38,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
         private static void CreateAndVerifyConnection(ISocketWrapper daemonSocket)
         {
-            var ipEndpoint = (IPEndPoint) daemonSocket.LocalEndPoint;
+            var ipEndpoint = (IPEndPoint)daemonSocket.LocalEndPoint;
             int port = ipEndpoint.Port;
             ISocketWrapper clientSocket = SocketFactory.CreateSocket();
             clientSocket.Connect(ipEndpoint.Address, port);
@@ -55,7 +55,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             {
                 // Two UDFs registered, thus expecting two columns.
                 // Refer to TestData.GetDefaultCommandPayload().
-                var row = rowsReceived[i];
+                object[] row = rowsReceived[i];
                 Assert.Equal(2, rowsReceived[i].Length);
                 Assert.Equal($"udf2 udf1 {i}", row[0]);
                 Assert.Equal(i + i, row[1]);

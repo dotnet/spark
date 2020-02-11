@@ -301,7 +301,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             var pickler = new Pickler();
             for (int i = 0; i < 10; ++i)
             {
-                var pickled = pickler.dumps(
+                byte[] pickled = pickler.dumps(
                     new[] { new object[] { i.ToString(), i, i } });
                 SerDe.Write(stream, pickled.Length);
                 SerDe.Write(stream, pickled);

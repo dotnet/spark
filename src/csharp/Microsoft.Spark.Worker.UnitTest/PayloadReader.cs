@@ -16,11 +16,11 @@ namespace Microsoft.Spark.Worker.UnitTest
         {
             bool timingDataReceived = false;
             bool exceptionThrown = false;
-            List<object[]> rowsReceived = new List<object[]>();
+            var rowsReceived = new List<object[]>();
             
             while (true)
             {
-                var length = SerDe.ReadInt32(inputStream);
+                int length = SerDe.ReadInt32(inputStream);
                 if (length > 0)
                 {
                     byte[] pickledBytes = SerDe.ReadBytes(inputStream, length);
