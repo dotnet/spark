@@ -30,17 +30,17 @@ namespace Microsoft.Spark.Examples.Sql.Streaming
             }
 
             string hostname = args[0];
-            var port = int.Parse(args[1]);
-            var windowSize = int.Parse(args[2]);
-            var slideSize = (args.Length == 3) ? windowSize : int.Parse(args[3]);
+            int port = int.Parse(args[1]);
+            int windowSize = int.Parse(args[2]);
+            int slideSize = (args.Length == 3) ? windowSize : int.Parse(args[3]);
             if (slideSize > windowSize)
             {
                 Console.Error.WriteLine(
                     "<slide duration> must be less than or equal " +
                     "to <window duration>");
             }
-            var windowDuration = $"{windowSize} seconds";
-            var slideDuration = $"{slideSize} seconds";
+            string windowDuration = $"{windowSize} seconds";
+            string slideDuration = $"{slideSize} seconds";
 
             SparkSession spark = SparkSession
                 .Builder()

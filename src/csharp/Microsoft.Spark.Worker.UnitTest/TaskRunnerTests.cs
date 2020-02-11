@@ -27,7 +27,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             PayloadWriter payloadWriter = new PayloadWriterFactory().Create();
             var taskRunner = new TaskRunner(0, clientSocket, false, payloadWriter.Version);
-            var clientTask = Task.Run(() => taskRunner.Run());
+            Task clientTask = Task.Run(() => taskRunner.Run());
 
             using (ISocketWrapper serverSocket = serverListener.Accept())
             {
@@ -44,7 +44,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 {
                     // Two UDFs registered, thus expecting two columns.
                     // Refer to TestData.GetDefaultCommandPayload().
-                    var row = rowsReceived[i];
+                    object[] row = rowsReceived[i];
                     Assert.Equal(2, rowsReceived[i].Length);
                     Assert.Equal($"udf2 udf1 {i}", row[0]);
                     Assert.Equal(i + i, row[1]);

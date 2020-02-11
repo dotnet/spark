@@ -140,6 +140,15 @@ jobs:
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
 
+  - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.4.5'
+    inputs:
+      command: test
+      projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
+
   - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
     - task: CopyFiles@2
       displayName: Stage .NET artifacts

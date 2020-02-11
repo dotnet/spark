@@ -8,6 +8,17 @@ using Razorvine.Pickle;
 namespace Microsoft.Spark.Sql
 {
     /// <summary>
+    /// Custom pickler for Row objects.
+    /// </summary>
+    internal class RowPickler : IObjectPickler
+    {
+        public void pickle(object o, Stream outs, Pickler currentPickler)
+        {
+            currentPickler.save(((Row)o).Values);
+        }
+    }
+
+    /// <summary>
     /// Custom pickler for GenericRow objects.
     /// </summary>
     internal class GenericRowPickler : IObjectPickler
