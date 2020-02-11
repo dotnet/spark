@@ -22,6 +22,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private static readonly byte[] s_stringTypeId = new[] { (byte)'c' };
         private static readonly byte[] s_boolTypeId = new[] { (byte)'b' };
         private static readonly byte[] s_doubleTypeId = new[] { (byte)'d' };
+        private static readonly byte[] s_dateTypeId = new[] { (byte)'D' };
         private static readonly byte[] s_jvmObjectTypeId = new[] { (byte)'j' };
         private static readonly byte[] s_byteArrayTypeId = new[] { (byte)'r' };
         private static readonly byte[] s_doubleArrayArrayTypeId = new[] { ( byte)'A' };
@@ -100,6 +101,10 @@ namespace Microsoft.Spark.Interop.Ipc
 
                     case TypeCode.Double:
                         SerDe.Write(destination, (double)arg);
+                        break;
+
+                    case TypeCode.DateTime:
+                        SerDe.Write(destination, ((DateTime)arg).ToString("yyyy-MM-dd"));
                         break;
 
                     case TypeCode.Object:
@@ -286,6 +291,8 @@ namespace Microsoft.Spark.Interop.Ipc
                     return s_boolTypeId;
                 case TypeCode.Double:
                     return s_doubleTypeId;
+                case TypeCode.DateTime:
+                    return s_dateTypeId;
                 case TypeCode.Object:
                     if (typeof(IJvmObjectReferenceProvider).IsAssignableFrom(type))
                     {
