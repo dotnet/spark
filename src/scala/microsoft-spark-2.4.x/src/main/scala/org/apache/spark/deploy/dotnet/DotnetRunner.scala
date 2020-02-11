@@ -132,9 +132,9 @@ object DotnetRunner extends Logging {
            process.waitFor()
         } catch {
           case t: Throwable =>
-            logError(s"${t.getMessage} \n ${t.getStackTrace}")
+            logThrowable(t)
         } finally {
-          returnCode = destroyDotnetProcess(process)
+          returnCode = closeDotnetProcess(process)
           closeBackend(dotnetBackend)
         }
 
@@ -235,12 +235,28 @@ object DotnetRunner extends Logging {
     dotnetBackend.close()
   }
 
-  private def destroyDotnetProcess(dotnetProcess: Process): Int = dotnetProcess match {
-    case process: Process if process.isAlive =>
-      logInfo("Destroying .NET Process")
-      process.destroyForcibly().waitFor()
-    case process: Process => process.exitValue()
-    case _ => 0
+  private def closeDotnetProcess(dotnetProcess: Process): Int = {
+    if (dotnetProcess == null) {
+      return -1
+    } else if (!dotnetProcess.isAlive) {
+      return dotnetProcess.exitValue()
+    }
+
+    // Try to (gracefully on Linux) kill the process and resort to force if interrupted
+    var returnCode = -1
+    logInfo("Closing .NET process")
+    try {
+      dotnetProcess.destroy()
+      returnCode = dotnetProcess.waitFor()
+    } catch {
+      case _: InterruptedException =>
+        logInfo("Thread interrupted while waiting for graceful close. Forcefully closing .NET process")
+        returnCode = dotnetProcess.destroyForcibly().waitFor()
+      case t: Throwable =>
+        logThrowable(t)
+    }
+
+    returnCode
   }
 
   private def initializeSettings(args: Array[String]): (Boolean, Int) = {
@@ -257,4 +273,7 @@ object DotnetRunner extends Logging {
 
     (runInDebugMode, portNumber)
   }
+
+  private def logThrowable(throwable: Throwable): Unit =
+    logError(s"${throwable.getMessage} \n ${throwable.getStackTrace.mkString("\n")}")
 }
