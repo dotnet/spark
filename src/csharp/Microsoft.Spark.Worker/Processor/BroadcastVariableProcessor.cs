@@ -54,7 +54,7 @@ namespace Microsoft.Spark.Worker.Processor
                     }
                     else
                     {
-                        var path = SerDe.ReadString(stream);
+                        string path = SerDe.ReadString(stream);
                         // TODO: Register new broadcast variable.
                     }
                 }

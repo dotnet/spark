@@ -24,7 +24,7 @@ namespace Microsoft.Spark.UnitTest
         [InlineData("short")]
         public void TestSimpleTypes(string typeName)
         {
-            var atomicType = DataType.ParseDataType($@"""{typeName}""");
+            DataType atomicType = DataType.ParseDataType($@"""{typeName}""");
             Assert.Equal(typeName, atomicType.TypeName);
             Assert.Equal(typeName, atomicType.SimpleString);
         }

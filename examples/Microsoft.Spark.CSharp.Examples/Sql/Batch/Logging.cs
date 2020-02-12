@@ -39,7 +39,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
                 .GetOrCreate();
 
             // Read input log file and display it
-            var df = spark.Read().Text(args[0]);
+            DataFrame df = spark.Read().Text(args[0]);
             df.Show();
 
             // Step 1: UDF to determine if each line is a valid log entry
