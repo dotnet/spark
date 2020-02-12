@@ -13,13 +13,21 @@ namespace Microsoft.Spark
     [Serializable]
     public sealed class Broadcast: IJvmObjectReferenceProvider
     {
+        [NonSerialized]
         private JvmObjectReference _jvmObject;
+        [NonSerialized]
         private readonly SparkContext _sc;
+        [NonSerialized]
         private string _path;
+        [NonSerialized]
         private object _python_broadcast;
-        //private long _bid;
- 
-        internal Broadcast(SparkContext sc, object value, JvmObjectReference sparkContext)
+
+        internal Broadcast(SparkContext sc,
+            object value,
+            JvmObjectReference sparkContext,
+            string path = null,
+            string sock_file = null
+            )
         {
             if (sc != null)
             {
@@ -43,16 +51,35 @@ namespace Microsoft.Spark
                     f.Close();
                 }
 
-                _jvmObject = (JvmObjectReference)sparkContext.Invoke(
-                    "broadcast",
+                _jvmObject = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
+                    "org.apache.spark.sql.api.dotnet.SQLUtils",
+                    "createBroadcast",
+                    sparkContext,
                     _python_broadcast);
-                
             }
             else
             {
                 // We're on an executor.
                 _sc = null;
+                _jvmObject = null;
                 _python_broadcast = null;
+                if (sock_file != null)
+                {
+                    throw new NotImplementedException(
+                        "broadcastDecryptionServer is not implemented.");
+                }
+                else
+                {
+                    if (path != null)
+                    {
+                        _path = path;
+                    }
+                    else
+                    {
+                        throw new SystemException(
+                            "broadcast called from executor with path not set.");
+                    }
+                }
 
             }
         }
@@ -72,8 +99,6 @@ namespace Microsoft.Spark
         /// <returns>The broadcasted value</returns>
         public object Value()
         {
-            //BroadcastRegistry broadcastRegistry = new BroadcastRegistry();
-            //return broadcastRegistry.GetBroadcastValue(_bid);
             return _jvmObject.Invoke("value");
         }
 
@@ -109,31 +134,11 @@ namespace Microsoft.Spark
     }
 
     /// <summary>
-    /// Thread-local registry for broadcast variables that have been broadcasted
+    /// Registry for broadcast variables that have been broadcasted
     /// </summary>
-    internal class BroadcastRegistry
+    internal static class BroadcastRegistry
     {
-        private static Dictionary<long, object> _registry = new Dictionary<long, object>();
-        internal BroadcastRegistry()
-        {
-            
-        }
-
-        public void AddBroadcastVariable(long id, object value)
-        {
-            _registry.Add(id, value);
-        }
-
-        public void RemoveBroadcastVariable(long id)
-        {
-            _registry.Remove(id);
-        }
-
-        public object GetBroadcastValue(long id)
-        {
-            return _registry[id];
-        }
-       
+        public static Dictionary<long, object> _registry = new Dictionary<long, object>();
     }
   
 }

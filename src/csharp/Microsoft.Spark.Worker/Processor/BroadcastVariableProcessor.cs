@@ -32,8 +32,6 @@ namespace Microsoft.Spark.Worker.Processor
                 broadcastVars.DecryptionServerNeeded = SerDe.ReadBool(stream);
             }
 
-            // Note that broadcast variables are currently ignored.
-            // Thus, just read the info from stream without handling them.
             int numBroadcastVariables = Math.Max(SerDe.ReadInt32(stream), 0);
             if (broadcastVars.DecryptionServerNeeded)
             {
@@ -45,7 +43,6 @@ namespace Microsoft.Spark.Worker.Processor
 
             for (int i = 0; i < numBroadcastVariables; ++i)
             {
-                BroadcastRegistry broadcastRegistry = new BroadcastRegistry();
                 var formatter = new BinaryFormatter();
                 long bid = SerDe.ReadInt64(stream);
                 if (bid >= 0)
@@ -58,15 +55,16 @@ namespace Microsoft.Spark.Worker.Processor
                     else
                     {
                         var path = SerDe.ReadString(stream);
-                        object value = formatter.Deserialize(stream);
-                        broadcastRegistry.AddBroadcastVariable(bid, value);
+                        FileStream fStream = File.Open(path, FileMode.Open, FileAccess.Read);
+                        object value = formatter.Deserialize(fStream);
+                        fStream.Close();
+                        BroadcastRegistry._registry.Add(bid, value);
                     }
                 }
                 else
                 {
                     bid = -bid - 1;
-                    // TODO: Remove registered broadcast variable.
-                    broadcastRegistry.RemoveBroadcastVariable(bid);
+                    BroadcastRegistry._registry.Remove(bid);
                 }
             }
 
