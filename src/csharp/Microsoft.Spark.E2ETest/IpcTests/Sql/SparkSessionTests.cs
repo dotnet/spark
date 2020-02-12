@@ -127,6 +127,19 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 DataFrame df = _spark.CreateDataFrame(data);
                 ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
             }
+            
+            // Calling CreateDataFrame(IEnumerable<DateTime> _) without schema
+            {
+                var data = new List<DateTime>(new DateTime[]
+                {
+                    new DateTime(2020, 1, 1),
+                    new DateTime(2020, 1, 2)
+                });
+                StructType schema = SchemaWithSingleColumn(new DateType());
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
+            }
         }
 
         private void ValidateDataFrame(
