@@ -8,6 +8,7 @@ using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Catalog;
+using Microsoft.Spark.Sql.Types;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
 
@@ -650,6 +651,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Udf<int, int>((arg) => arg);
             Udf<long, long>((arg) => arg);
             Udf<short, short>((arg) => arg);
+            Udf<DateTime, Date>((arg) => new Date(arg));
 
             // Test array type.
             Udf<string, string[]>((arg) => new[] { arg });
