@@ -36,7 +36,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
                 payloadWriter.WriteTestData(outputStream);
                 // Now process the bytes flowing in from the client.
-                var rowsReceived = PayloadReader.Read(inputStream);
+                List<object[]> rowsReceived = PayloadReader.Read(inputStream);
 
                 // Validate rows received.
                 Assert.Equal(10, rowsReceived.Count);
