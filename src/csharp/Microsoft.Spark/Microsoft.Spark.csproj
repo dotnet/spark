@@ -6,11 +6,14 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
-
     <Description>.NET for Apache Spark</Description>
     <PackageReleaseNotes>https://github.com/dotnet/spark/tree/master/docs/release-notes</PackageReleaseNotes>
     <PackageTags>spark;dotnet;csharp</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
+    <Compile Remove="Interop\Ipc\ArrayBufferWriter.cs" />
+  </ItemGroup>  
 
   <ItemGroup>
     <InternalsVisibleTo Include="Microsoft.Spark.Experimental" />
@@ -26,9 +29,8 @@
   <ItemGroup>
     <PackageReference Include="Apache.Arrow" Version="0.14.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="System.Text.Json" Version="4.6.0" />
     <PackageReference Include="Razorvine.Pyrolite" Version="4.26.0" />
-    <PackageReference Include="System.Memory" Version="4.5.2" />
   </ItemGroup>
 
   <ItemGroup>

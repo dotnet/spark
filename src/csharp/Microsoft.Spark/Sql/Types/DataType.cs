@@ -6,10 +6,9 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Spark.Interop.Ipc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Spark.Sql.Types
 {
@@ -67,10 +66,10 @@ namespace Microsoft.Spark.Sql.Types
         {
             get
             {
-                object jObject = (JsonValue is JObject) ?
-                    ((JObject)JsonValue).SortProperties() :
+                object jObject = (JsonValue is JsonElement jsonElement) ?
+                    jsonElement.SortProperties() :
                     JsonValue;
-                return JsonConvert.SerializeObject(jObject, Formatting.None);
+                return (string)jObject;
             }
         }
 
@@ -99,7 +98,13 @@ namespace Microsoft.Spark.Sql.Types
         /// </summary>
         /// <param name="json">JSON string to parse</param>
         /// <returns>The new DataType instance from the JSON string</returns>
-        public static DataType ParseDataType(string json) => ParseDataType(JToken.Parse(json));
+        public static DataType ParseDataType(string json) 
+        {
+            using (var document = JsonDocument.Parse(json))
+            {
+                return ParseDataType(document.RootElement.Clone());
+            }
+        }
 
         /// <summary>
         /// Checks if the given object is same as the current object by
@@ -134,16 +139,15 @@ namespace Microsoft.Spark.Sql.Types
         public override int GetHashCode() => SimpleString.GetHashCode();
 
         /// <summary>
-        /// Parses a JToken object to construct a DataType.
+        /// Parses a JsonElement object to construct a DataType.
         /// </summary>
-        /// <param name="json">JToken object to parse</param>
+        /// <param name="json">JsonElement object to parse</param>
         /// <returns>The new DataType instance from the JSON string</returns>
-        internal static DataType ParseDataType(JToken json)
+        internal static DataType ParseDataType(JsonElement json)
         {
-            if (json.Type == JTokenType.Object)
+            if (json.ValueKind == JsonValueKind.Object)
             {
-                var typeJObject = (JObject)json;
-                if (typeJObject.TryGetValue("type", out JToken type))
+                if (json.TryGetProperty("type", out JsonElement type))
                 {
                     string typeName = type.ToString();
 
@@ -155,7 +159,7 @@ namespace Microsoft.Spark.Sql.Types
                             s_complexTypes[typeIndex],
                             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
                             null,
-                            new object[] { typeJObject },
+                            new object[] { json },
                             null);
                     }
                     else if (typeName == "udt")
@@ -170,15 +174,14 @@ namespace Microsoft.Spark.Sql.Types
             {
                 return ParseSimpleType(json);
             }
-
         }
 
         /// <summary>
-        /// Parses a JToken object that represents a simple type.
+        /// Parses a JsonElement object that represents a simple type.
         /// </summary>
-        /// <param name="json">JToken object to parse</param>
+        /// <param name="json">JsonElement object to parse</param>
         /// <returns>The new DataType instance from the JSON string</returns>
-        private static DataType ParseSimpleType(JToken json)
+        private static DataType ParseSimpleType(JsonElement json)
         {
             string typeName = json.ToString();
 

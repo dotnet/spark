@@ -5,8 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.Spark.Interop.Ipc;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Spark.Sql.Types
 {
@@ -30,7 +30,7 @@ namespace Microsoft.Spark.Sql.Types
         /// Constructor for ArrayType class.
         /// </summary>
         /// <param name="json">JSON object to create the array type from</param>
-        internal ArrayType(JObject json) => FromJson(json);
+        internal ArrayType(JsonElement json) => FromJson(json);
 
         /// <summary>
         /// Returns the data type of the elements in an array.
@@ -51,21 +51,23 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns JSON object describing this type.
         /// </summary>
-        internal override object JsonValue =>
-            new JObject(
-                new JProperty("type", TypeName),
-                new JProperty("elementType", ElementType.JsonValue),
-                new JProperty("containsNull", ContainsNull));
+        internal override object JsonValue => JsonSerDe.Parse(
+            new
+            {
+                type = TypeName,
+                elementType = ElementType.JsonValue,
+                containsNull = ContainsNull
+            });
 
         /// <summary>
         /// Constructs a ArrayType object from a JSON object.
         /// </summary>
         /// <param name="json">JSON object used to construct a ArrayType object</param>
         /// <returns>ArrayType object</returns>
-        private DataType FromJson(JObject json)
+        private DataType FromJson(JsonElement json)
         {
-            ElementType = ParseDataType(json["elementType"]);
-            ContainsNull = (bool)json["containsNull"];
+            ElementType = ParseDataType(json.GetProperty("elementType"));
+            ContainsNull = json.GetProperty("containsNull").GetBoolean();
             return this;
         }
     }
@@ -92,7 +94,7 @@ namespace Microsoft.Spark.Sql.Types
         /// Constructor for MapType class.
         /// </summary>
         /// <param name="json">JSON object to create the map type from</param>
-        internal MapType(JObject json) => FromJson(json);
+        internal MapType(JsonElement json) => FromJson(json);
 
         /// <summary>
         /// Returns the data type of the keys in the map.
@@ -118,23 +120,25 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns JSON object describing this type.
         /// </summary>
-        internal override object JsonValue =>
-            new JObject(
-                new JProperty("type", TypeName),
-                new JProperty("keyType", KeyType.JsonValue),
-                new JProperty("valueType", ValueType.JsonValue),
-                new JProperty("valueContainsNull", ValueContainsNull));
+        internal override object JsonValue => JsonSerDe.Parse(
+            new
+            {
+                type = TypeName,
+                keyType = KeyType.JsonValue,
+                valueType = ValueType.JsonValue,
+                valueContainsNull = ValueContainsNull
+            });
 
         /// <summary>
         /// Constructs a MapType object from a JSON object.
         /// </summary>
         /// <param name="json">JSON object used to construct a MapType object</param>
         /// <returns>MapType object</returns>
-        private DataType FromJson(JObject json)
+        private DataType FromJson(JsonElement json)
         {
-            KeyType = ParseDataType(json["keyType"]);
-            ValueType = ParseDataType(json["valueType"]);
-            ValueContainsNull = (bool)json["valueContainsNull"];
+            KeyType = ParseDataType(json.GetProperty("keyType"));
+            ValueType = ParseDataType(json.GetProperty("valueType"));
+            ValueContainsNull = json.GetProperty("valueContainsNull").GetBoolean();
             return this;
         }
     }
@@ -155,24 +159,25 @@ namespace Microsoft.Spark.Sql.Types
             string name,
             DataType dataType,
             bool isNullable = true,
-            JObject metadata = null)
+            JsonElement metadata = default)
         {
             Name = name;
             DataType = dataType;
             IsNullable = isNullable;
-            Metadata = metadata ?? new JObject();
+            Metadata = EqualityComparer<JsonElement>.Default.Equals(metadata, default) 
+                ? JsonSerDe.Parse("{}") : metadata;
         }
 
         /// <summary>
         /// Constructor for StructFieldType class.
         /// </summary>
         /// <param name="json">JSON object to construct a StructFieldType object</param>
-        internal StructField(JObject json)
+        internal StructField(JsonElement json)
         {
-            Name = json["name"].ToString();
-            DataType = DataType.ParseDataType(json["type"]);
-            IsNullable = (bool)json["nullable"];
-            Metadata = (JObject)json["metadata"];
+            Name = json.GetProperty("name").GetString();
+            DataType = DataType.ParseDataType(json.GetProperty("type"));
+            IsNullable = json.GetProperty("nullable").GetBoolean();
+            Metadata = json.GetProperty("metadata");
         }
 
         /// <summary>
@@ -193,7 +198,7 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// The metadata of this field.
         /// </summary>
-        internal JObject Metadata { get; }
+        internal JsonElement Metadata { get; }
 
         /// <summary>
         /// Returns a readable string that represents this type.
@@ -203,12 +208,14 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns JSON object describing this type.
         /// </summary>
-        internal object JsonValue =>
-            new JObject(
-                new JProperty("name", Name),
-                new JProperty("type", DataType.JsonValue),
-                new JProperty("nullable", IsNullable),
-                new JProperty("metadata", Metadata));
+        internal object JsonValue => JsonSerDe.Parse(
+            new
+            {
+                name = Name,
+                type = DataType.JsonValue,
+                nullable = IsNullable,
+                metadata = Metadata
+            });
     }
 
     /// <summary>
@@ -221,14 +228,14 @@ namespace Microsoft.Spark.Sql.Types
         /// Constructor for StructType class.
         /// </summary>
         /// <param name="json">JSON object to construct a StructType object</param>
-        internal StructType(JObject json) => FromJson(json);
+        internal StructType(JsonElement json) => FromJson(json);
 
         /// <summary>
         /// Constructor for StructType class.
         /// </summary>
         /// <param name="jvmObject">StructType object on JVM</param>
         internal StructType(JvmObjectReference jvmObject) =>
-            FromJson(JObject.Parse((string)jvmObject.Invoke("json")));
+            FromJson((string)jvmObject.Invoke("json"));
 
         /// <summary>
         /// Returns a list of StructFieldType objects.
@@ -253,22 +260,37 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns JSON object describing this type.
         /// </summary>
-        internal override object JsonValue =>
-            new JObject(
-                new JProperty("type", TypeName),
-                new JProperty("fields", Fields.Select(f => f.JsonValue).ToArray()));
+        internal override object JsonValue => JsonSerDe.Parse(
+            new 
+            {
+                type = TypeName,
+                fields = Fields.Select(f => f.JsonValue).ToArray()
+            });
 
         /// <summary>
         /// Constructs a StructType object from a JSON object
         /// </summary>
         /// <param name="json">JSON object used to construct a StructType object</param>
         /// <returns>A StuructType object</returns>
-        private DataType FromJson(JObject json)
+        private DataType FromJson(JsonElement json)
         {
-            IEnumerable<JObject> fieldsJObjects = json["fields"].Select(f => (JObject)f);
+            IEnumerable<JsonElement> fieldsJObjects = json.GetProperty("fields").EnumerateArray();
             Fields = fieldsJObjects.Select(
                 fieldJObject => new StructField(fieldJObject)).ToList();
             return this;
         }
+
+        /// <summary>
+        /// Constructs a StructType object from a JSON string
+        /// </summary>
+        /// <param name="json">JSON object used to construct a StructType object</param>
+        /// <returns>A StuructType object</returns>
+        private DataType FromJson(string json)
+        {
+            using (var document = JsonDocument.Parse(json))
+            {
+                return FromJson(document.RootElement.Clone());
+            }
+        }        
     }
 }

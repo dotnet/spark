@@ -2,70 +2,158 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Linq;
-using Newtonsoft.Json.Linq;
+using System;
+using System.Buffers;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+using System.Text.Json;
 
 namespace Microsoft.Spark.Interop.Ipc
 {
     /// <summary>
-    /// Json.NET Serialization/Deserialization helper class.
+    /// System.Text.Json Serialization/Deserialization helper class.
     /// </summary>
     internal static class JsonSerDe
     {
-        /// Note: Scala side uses JSortedObject when parsing JSON, so the properties
-        /// in JObject need to be sorted.
-        /// <summary>
-        /// Extension method to sort items in a JSON object by keys.
-        /// </summary>
-        /// <param name="jObject"></param>
-        /// <returns></returns>
-        public static JObject SortProperties(this JObject jObject)
-        {
-            var sortedJObject = new JObject();
-            foreach (JProperty property in jObject.Properties().OrderBy(p => p.Name))
-            {
-                if (property.Value is JObject elem)
-                {
-                    sortedJObject.Add(property.Name, elem.SortProperties());
-                }
-                else if (property.Value is JArray arrayElem)
-                {
-                    sortedJObject.Add(property.Name, arrayElem.SortProperties());
-                }
-                else
-                {
-                    sortedJObject.Add(property.Name, property.Value);
-                }
-            }
 
-            return sortedJObject;
+        /// Note: Scala side uses JSortedObject when parsing JSON, so the properties
+        /// in JsonElement need to be sorted.
+        /// <summary>
+        /// Extension method to sort items in a JSON object by keys. 
+        /// </summary>
+        /// <remarks>
+        /// Please note that this method uses recursion and shouldn't be used with 
+        /// non-trusted/unbounded input data.
+        /// </remarks>
+        /// <param name="jsonElement"></param>
+        /// <returns></returns>
+        public static string SortProperties(this JsonElement jsonElement)
+        {
+            var output = new ArrayBufferWriter<byte>();
+            using (var writer = new Utf8JsonWriter(output))
+            {
+                jsonElement.SortPropertiesCore(writer);
+            }
+            return Encoding.UTF8.GetString(output.WrittenSpan.ToArray());
         }
+
+        /// <summary>
+        /// Helper method to Parse a string into a JsonElement.
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static JsonElement Parse(string json)
+        {
+            using (var document = JsonDocument.Parse(json))
+            {
+                return document.RootElement.Clone();
+            }
+        }           
+
+        /// <summary>
+        /// Helper method to Parse an object into a JsonElement.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static JsonElement Parse(object obj)
+        {
+            return Parse(JsonSerializer.SerializeToUtf8Bytes(obj));
+        }
+
+        /// <summary>
+        /// Helper method to Parse a byte array in UTF8 to a JsonElement.
+        /// </summary>
+        private static JsonElement Parse(byte[] utf8Json)
+        {
+            using (var document = JsonDocument.Parse(utf8Json))
+            {
+                return document.RootElement.Clone();
+            }
+        }        
+
+        /// <summary>
+        /// Sort all types of Json properties.
+        /// </summary>
+        private static void SortPropertiesCore(this JsonElement jsonElement, Utf8JsonWriter writer)
+        {
+            switch (jsonElement.ValueKind)
+            {
+                case JsonValueKind.Undefined:
+                    throw new InvalidOperationException();
+                case JsonValueKind.Object:
+                    jsonElement.SortObjectProperties(writer);
+                    break;
+                case JsonValueKind.Array:
+                    jsonElement.SortArrayProperties(writer);
+                    break;
+                case JsonValueKind.String:
+                case JsonValueKind.Number:
+                case JsonValueKind.True:
+                case JsonValueKind.False:
+                case JsonValueKind.Null:
+                    jsonElement.WriteTo(writer);
+                    break;
+            };
+        }
+
+        /// <summary>
+        /// Sort properties that are Json objects.
+        /// </summary>
+        private static void SortObjectProperties(this JsonElement jObject, Utf8JsonWriter writer)
+        {
+            Debug.Assert(jObject.ValueKind == JsonValueKind.Object);
+
+            var propertyNames = new List<string>();
+            foreach (JsonProperty prop in jObject.EnumerateObject())
+            {
+                propertyNames.Add(prop.Name);
+            }
+            propertyNames.Sort();
+
+            writer.WriteStartObject();
+            foreach (string name in propertyNames)
+            {
+                writer.WritePropertyName(name);
+                jObject.GetProperty(name).WriteElementHelper(writer, writePrimitives: true);
+            }
+            writer.WriteEndObject();
+        }  
 
         /// <summary>
         /// Extend method to sort items in a JSON array by keys.
         /// </summary>
-        public static JArray SortProperties(this JArray jArray)
+        private static void SortArrayProperties(this JsonElement jArray, Utf8JsonWriter writer)
         {
-            if (jArray.Count == 0)
-            {
-                return jArray;
-            }
+            Debug.Assert(jArray.ValueKind == JsonValueKind.Array);
 
-            var sortedJArray = new JArray();
-            foreach (JToken item in jArray)
+            writer.WriteStartArray();
+            foreach (JsonElement item in jArray.EnumerateArray())
             {
-                if (item is JObject elem)
-                {
-                    sortedJArray.Add(elem.SortProperties());
-                }
-                else if (item is JArray arrayElem)
-                {
-                    sortedJArray.Add(arrayElem.SortProperties());
-                }
+                item.WriteElementHelper(writer, writePrimitives: false);
             }
-
-            return sortedJArray;
+            writer.WriteEndArray();
         }
-    }
 
+        /// <summary>
+        /// Helper to appropriately write Json types based on their kind.
+        /// </summary>
+        private static void WriteElementHelper(this JsonElement item, Utf8JsonWriter writer, bool writePrimitives)
+        {
+            Debug.Assert(item.ValueKind != JsonValueKind.Undefined);
+
+            if (item.ValueKind == JsonValueKind.Object)
+            {
+                item.SortObjectProperties(writer);
+            }
+            else if (item.ValueKind == JsonValueKind.Array)
+            {
+                item.SortArrayProperties(writer);
+            }
+            else if (writePrimitives)
+            {
+                item.WriteTo(writer);
+            }
+        }      
+    }
 }

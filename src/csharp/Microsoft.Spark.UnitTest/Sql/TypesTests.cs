@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using Microsoft.Spark.Sql.Types;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Microsoft.Spark.UnitTest
@@ -95,14 +94,14 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Equal("age", field.Name);
                 Assert.Equal("long", field.DataType.TypeName);
                 Assert.True(field.IsNullable);
-                Assert.Equal(new JObject(), field.Metadata);
+                Assert.Equal("{}", field.Metadata.ToString());
             }
             {
                 StructField field = structType.Fields[1];
                 Assert.Equal("name", field.Name);
                 Assert.Equal("string", field.DataType.TypeName);
                 Assert.False(field.IsNullable);
-                Assert.Equal(new JObject(), field.Metadata);
+                Assert.Equal("{}", field.Metadata.ToString());
             }
         }
     }
