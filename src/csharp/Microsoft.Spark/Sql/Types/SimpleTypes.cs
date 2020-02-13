@@ -74,7 +74,7 @@ namespace Microsoft.Spark.Sql.Types
         internal override object FromInternal(object obj)
         {
             var unixTimeEpoch = new DateTime(1970, 1, 1);
-            return new Date(new DateTime((int)obj * TimeSpan.TicksPerDay + unixTimeEpoch.Ticks));
+            return new DateTime((int)obj * TimeSpan.TicksPerDay + unixTimeEpoch.Ticks);
         }
     }
 
