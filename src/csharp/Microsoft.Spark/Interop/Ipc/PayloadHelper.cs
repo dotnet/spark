@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Interop.Ipc
 {
@@ -101,10 +102,6 @@ namespace Microsoft.Spark.Interop.Ipc
 
                     case TypeCode.Double:
                         SerDe.Write(destination, (double)arg);
-                        break;
-
-                    case TypeCode.DateTime:
-                        SerDe.Write(destination, ((DateTime)arg).ToString("yyyy-MM-dd"));
                         break;
 
                     case TypeCode.Object:
@@ -268,6 +265,10 @@ namespace Microsoft.Spark.Interop.Ipc
                                 SerDe.Write(destination, argProvider.Reference.Id);
                                 break;
 
+                            case Date argDate:
+                                SerDe.Write(destination, argDate.ToString("yyyy-MM-dd"));
+                                break;
+
                             default:
                                 throw new NotSupportedException(
                                     string.Format($"Type {arg.GetType()} is not supported"));
@@ -291,8 +292,6 @@ namespace Microsoft.Spark.Interop.Ipc
                     return s_boolTypeId;
                 case TypeCode.Double:
                     return s_doubleTypeId;
-                case TypeCode.DateTime:
-                    return s_dateTypeId;
                 case TypeCode.Object:
                     if (typeof(IJvmObjectReferenceProvider).IsAssignableFrom(type))
                     {
@@ -327,6 +326,11 @@ namespace Microsoft.Spark.Interop.Ipc
                     if (typeof(IEnumerable<GenericRow>).IsAssignableFrom(type))
                     {
                         return s_rowArrTypeId;
+                    }
+
+                    if (typeof(Date).IsAssignableFrom(type))
+                    {
+                        return s_dateTypeId;
                     }
                     break;
             }

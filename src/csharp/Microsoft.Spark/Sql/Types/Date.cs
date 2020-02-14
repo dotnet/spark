@@ -56,6 +56,12 @@ namespace Microsoft.Spark.Sql.Types
         public override string ToString() => $"{Month}/{Day}/{Year}";
 
         /// <summary>
+        /// Readable string representation for this type using the specified format.
+        /// </summary>
+        /// <param name="format">A standard or custom date and time format string</param>
+        public string ToString(string format) => new DateTime(Year, Month, Day).ToString(format);
+
+        /// <summary>
         /// Returns DateTime object describing this type.
         /// </summary>
         public DateTime ToDateTime() => new DateTime(Year, Month, Day);

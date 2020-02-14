@@ -79,8 +79,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // Calling CreateDataFrame with schema
             {
                 var data = new List<GenericRow>();
-                data.Add(new GenericRow(new object[] { "Alice", 20, new DateTime(2020, 1, 1) }));
-                data.Add(new GenericRow(new object[] { "Bob", 30, new DateTime(2020, 1, 2) }));
+                data.Add(new GenericRow(new object[] { "Alice", 20, new Date(2020, 1, 1) }));
+                data.Add(new GenericRow(new object[] { "Bob", 30, new Date(2020, 1, 2) }));
 
                 var schema = new StructType(new List<StructField>()
                 {
@@ -128,12 +128,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
             }
             
-            // Calling CreateDataFrame(IEnumerable<DateTime> _) without schema
+            // Calling CreateDataFrame(IEnumerable<Date> _) without schema
             {
-                var data = new List<DateTime>(new DateTime[]
+                var data = new List<Date>(new Date[]
                 {
-                    new DateTime(2020, 1, 1),
-                    new DateTime(2020, 1, 2)
+                    new Date(2020, 1, 1),
+                    new Date(2020, 1, 2)
                 });
                 StructType schema = SchemaWithSingleColumn(new DateType());
 
