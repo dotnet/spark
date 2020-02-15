@@ -60,8 +60,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 foreach (Row row in rows)
                 {
                     Assert.Equal(1, row.Size());
-                    Assert.IsType<Date>(row.Get("col"));
-                    Assert.Equal(new Date(2020, 1, 4).ToString(), row.Get("col").ToString());
+                    Assert.Equal(new Date(2020, 1, 4), row.GetAs<Date>("col"));
                 }
             }
 

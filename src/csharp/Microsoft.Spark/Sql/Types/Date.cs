@@ -62,6 +62,22 @@ namespace Microsoft.Spark.Sql.Types
         public string ToString(string format) => new DateTime(Year, Month, Day).ToString(format);
 
         /// <summary>
+        /// Checks if the given object is same as the current object.
+        /// </summary>
+        /// <param name="obj">Other object to compare against</param>
+        /// <returns>True if the other object is equal.</returns>
+        public override bool Equals(object obj) =>
+            ReferenceEquals(this, obj) ||
+            ((obj is Date date) && Year.Equals(date.Year) &&
+            Month.Equals(date.Month) && Day.Equals(date.Day));
+
+        /// <summary>
+        /// Returns the hash code of the current object.
+        /// </summary>
+        /// <returns>The hash code of the current object</returns>
+        public override int GetHashCode() => base.GetHashCode();
+
+        /// <summary>
         /// Returns DateTime object describing this type.
         /// </summary>
         public DateTime ToDateTime() => new DateTime(Year, Month, Day);
