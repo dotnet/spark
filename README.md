@@ -54,6 +54,9 @@
             <td>2.4.4</td>
         </tr>
         <tr>
+            <td>2.4.5</td>
+        </tr>
+        <tr>
             <td>2.4.2</td>
             <td><a href="https://github.com/dotnet/spark/issues/60">Not supported</a></td>
         </tr>
