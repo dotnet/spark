@@ -23,7 +23,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             _spark = fixture.Spark;
             _df = _spark
                 .Read()
-                .Schema("name STRING, date DATE")
+                .Schema("name STRING, age INT, date DATE")
                 .Json(Path.Combine($"{TestEnvironment.ResourceDirectory}people.json"));
         }
 
@@ -38,7 +38,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Row[] rows = _df.Select(udf(_df["date"])).Collect().ToArray();
             Assert.Equal(3, rows.Length);
 
-            var expected = new string[] { "1/1/2020", "1/2/2020", "1/3/2020" };
+            var expected = new string[] { "2020-01-01", "2020-01-02", "2020-01-03" };
             string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
             Assert.Equal(expected, rowsToArray);
         }
@@ -49,31 +49,36 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithReturnAsDateType()
         {
-            Func<Column, Column> udf1 = Udf<string, Date>(str => new Date(2020, 1, 4));
+            Func<Column, Column> udf1 = Udf<int?, Date>(
+                s => new Date(2020 + s.GetValueOrDefault(), 1, 4));
             Func<Column, Column> udf2 = Udf<Date, string>(date => date.ToString());
 
             // Test UDF that returns a Date object.
             {
-                Row[] rows = _df.Select(udf1(_df["name"]).Alias("col")).Collect().ToArray();
+                Row[] rows = _df.Select(udf1(_df["age"]).Alias("col")).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
-                foreach (Row row in rows)
+                var expected = new Date[]
                 {
-                    Assert.Equal(1, row.Size());
-                    Assert.Equal(new Date(2020, 1, 4), row.GetAs<Date>("col"));
+                    new Date(2020, 1, 4),
+                    new Date(2050, 1, 4),
+                    new Date(2039, 1, 4)
+                };
+                for (int i = 0; i < rows.Length; ++i)
+                {
+                    Assert.Equal(1, rows[i].Size());
+                    Assert.Equal(expected.ElementAt(i), rows[i].GetAs<Date>("col"));
                 }
             }
 
             // Chained UDFs.
             {
-                Row[] rows = _df.Select(udf2(udf1(_df["name"]))).Collect().ToArray();
+                Row[] rows = _df.Select(udf2(udf1(_df["age"]))).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
-                foreach (Row row in rows)
-                {
-                    Assert.Equal(1, row.Size());
-                    Assert.Equal("1/4/2020", row.GetAs<string>(0));
-                }
+                var expected = new string[] { "2020-01-04", "2050-01-04", "2039-01-04" };
+                string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
+                Assert.Equal(expected, rowsToArray);
             }
         }       
     }
