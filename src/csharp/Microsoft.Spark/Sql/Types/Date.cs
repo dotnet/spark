@@ -11,15 +11,16 @@ namespace Microsoft.Spark.Sql.Types
     /// </summary>
     public class Date
     {
+        private readonly DateTime _dateTime;
+        private static readonly DateTime s_unixTimeEpoch = new DateTime(1970, 1, 1);
+
         /// <summary>
         /// Constructor for Date class.
         /// </summary>
         /// <param name="dt">DateTime object</param>
         public Date(DateTime dt)
         {
-            Year = dt.Year;
-            Month = dt.Month;
-            Day = dt.Day;
+            _dateTime = dt;
         }
 
         /// <summary>
@@ -30,36 +31,28 @@ namespace Microsoft.Spark.Sql.Types
         /// <param name="day">The day (1 through the number of days in month)</param>
         public Date(int year, int month, int day)
         {
-            Year = year;
-            Month = month;
-            Day = day;
+            _dateTime = new DateTime(year, month, day);
         }
 
         /// <summary>
         /// Returns the year component of the date.
         /// </summary>
-        public int Year { get; private set; }
+        public int Year => _dateTime.Year;
 
         /// <summary>
         /// Returns the month component of the date.
         /// </summary>
-        public int Month { get; private set; }
+        public int Month => _dateTime.Month;
 
         /// <summary>
         /// Returns the day component of the date.
         /// </summary>
-        public int Day { get; private set; }
+        public int Day => _dateTime.Day;
 
         /// <summary>
         /// Readable string representation for this type.
         /// </summary>
-        public override string ToString() => $"{Month}/{Day}/{Year}";
-
-        /// <summary>
-        /// Readable string representation for this type using the specified format.
-        /// </summary>
-        /// <param name="format">A standard or custom date and time format string</param>
-        public string ToString(string format) => new DateTime(Year, Month, Day).ToString(format);
+        public override string ToString() => _dateTime.ToString("yyyy-MM-dd");
 
         /// <summary>
         /// Checks if the given object is same as the current object.
@@ -68,8 +61,8 @@ namespace Microsoft.Spark.Sql.Types
         /// <returns>True if the other object is equal.</returns>
         public override bool Equals(object obj) =>
             ReferenceEquals(this, obj) ||
-            ((obj is Date date) && Year.Equals(date.Year) &&
-            Month.Equals(date.Month) && Day.Equals(date.Day));
+            ((obj is Date date) && Year.Equals(date.Year) && Month.Equals(date.Month) &&
+                Day.Equals(date.Day));
 
         /// <summary>
         /// Returns the hash code of the current object.
@@ -80,15 +73,11 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns DateTime object describing this type.
         /// </summary>
-        public DateTime ToDateTime() => new DateTime(Year, Month, Day);
+        public DateTime ToDateTime() => _dateTime;
 
         /// <summary>
         /// Returns an integer object that represents a count of days from 1970-01-01.
         /// </summary>
-        internal int GetInterval()
-        {
-            var unixTimeEpoch = new DateTime(1970, 1, 1);
-            return (new DateTime(Year, Month, Day) - unixTimeEpoch).Days;
-        }
+        internal int GetInterval() => (_dateTime - s_unixTimeEpoch).Days;
     }
 }
