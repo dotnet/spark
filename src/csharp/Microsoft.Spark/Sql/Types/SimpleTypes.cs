@@ -70,6 +70,7 @@ namespace Microsoft.Spark.Sql.Types
     public sealed class DateType : AtomicType
     {
         private static readonly DateTime s_unixTimeEpoch = new DateTime(1970, 1, 1);
+
         internal override bool NeedConversion() => true;
 
         internal override object FromInternal(object obj)
