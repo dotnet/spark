@@ -73,11 +73,13 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns DateTime object describing this type.
         /// </summary>
+        /// <returns>DateTime object of the current object</returns>
         public DateTime ToDateTime() => _dateTime;
 
         /// <summary>
         /// Returns an integer object that represents a count of days from 1970-01-01.
         /// </summary>
+        /// <returns>Integer object that represents a count of days from 1970-01-01.</returns>
         internal int GetInterval() => (_dateTime - s_unixTimeEpoch).Days;
     }
 }
