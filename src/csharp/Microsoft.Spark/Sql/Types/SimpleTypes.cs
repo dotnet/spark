@@ -69,12 +69,12 @@ namespace Microsoft.Spark.Sql.Types
     /// </summary>
     public sealed class DateType : AtomicType
     {
+        private static readonly DateTime s_unixTimeEpoch = new DateTime(1970, 1, 1);
         internal override bool NeedConversion() => true;
 
         internal override object FromInternal(object obj)
         {
-            var unixTimeEpoch = new DateTime(1970, 1, 1);
-            return new Date(new DateTime((int)obj * TimeSpan.TicksPerDay + unixTimeEpoch.Ticks));
+            return new Date(new DateTime((int)obj * TimeSpan.TicksPerDay + s_unixTimeEpoch.Ticks));
         }
     }
 

@@ -266,7 +266,7 @@ namespace Microsoft.Spark.Interop.Ipc
                                 break;
 
                             case Date argDate:
-                                SerDe.Write(destination, argDate.ToString("yyyy-MM-dd"));
+                                SerDe.Write(destination, argDate.ToString());
                                 break;
 
                             default:
