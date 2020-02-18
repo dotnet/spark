@@ -189,7 +189,7 @@ namespace Microsoft.Spark.Sql
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new BooleanType()));
 
         /// <summary>
-        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type Date
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="Date"/>
         /// </summary>
         /// <param name="data"></param>
         /// <returns>Dataframe object</returns>

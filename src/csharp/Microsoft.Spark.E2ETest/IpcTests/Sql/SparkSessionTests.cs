@@ -130,11 +130,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             
             // Calling CreateDataFrame(IEnumerable<Date> _) without schema
             {
-                var data = new List<Date>(new Date[]
+                var data = new Date[]
                 {
                     new Date(2020, 1, 1),
                     new Date(2020, 1, 2)
-                });
+                };
                 StructType schema = SchemaWithSingleColumn(new DateType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
