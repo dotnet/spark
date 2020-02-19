@@ -83,6 +83,6 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                     Assert.Equal(expected[i], rows[i].GetAs<string>(0));
                 }
             }
-        }       
+        }
     }
 }
