@@ -67,7 +67,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 for (int i = 0; i < rows.Length; ++i)
                 {
                     Assert.Equal(1, rows[i].Size());
-                    Assert.Equal(expected.ElementAt(i), rows[i].GetAs<Date>("col"));
+                    Assert.Equal(expected[i], rows[i].GetAs<Date>("col"));
                 }
             }
 
@@ -77,8 +77,11 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Assert.Equal(3, rows.Length);
 
                 var expected = new string[] { "2020-01-04", "2050-01-04", "2039-01-04" };
-                string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
-                Assert.Equal(expected, rowsToArray);
+                for (int i = 0; i < rows.Length; ++i)
+                {
+                    Assert.Equal(1, rows[i].Size());
+                    Assert.Equal(expected[i], rows[i].GetAs<string>(0));
+                }
             }
         }       
     }
