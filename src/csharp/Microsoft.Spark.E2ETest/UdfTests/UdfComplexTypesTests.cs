@@ -178,5 +178,31 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                     return row;
                 }));
         }
+
+        [Fact]
+        public void TestBroadcastAsStringType()
+        {
+            var data = new List<GenericRow>();
+            data.Add(new GenericRow(new object[] { "Alice", 20 }));
+            data.Add(new GenericRow(new object[] { "Bob", 30 }));
+
+            var schema = new StructType(new List<StructField>()
+                {
+                    new StructField("Name", new StringType()),
+                    new StructField("Age", new IntegerType())
+                });
+
+            var df = _spark.CreateDataFrame(data, schema);
+
+            Broadcast bc = _spark.SparkContext.Broadcast("abc");
+
+            Func<Column, Column> addition = Udf<string, string>(
+                name => name + " is " + (string)bc.Value());
+
+            var udfOutput = df.Select(addition(df["Name"]));
+            udfOutput.PrintSchema();
+            udfOutput.Show();
+            Row[] rows = udfOutput.Collect().ToArray();
+        }
     }
 }

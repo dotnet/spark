@@ -4,8 +4,10 @@
 
 using System;
 using System.IO;
+using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Network;
 
 namespace Microsoft.Spark.Worker.Processor
 {
@@ -33,12 +35,11 @@ namespace Microsoft.Spark.Worker.Processor
             }
 
             int numBroadcastVariables = Math.Max(SerDe.ReadInt32(stream), 0);
+            broadcastVars.Count = numBroadcastVariables;
             if (broadcastVars.DecryptionServerNeeded)
             {
                 broadcastVars.DecryptionServerPort = SerDe.ReadInt32(stream);
                 broadcastVars.Secret = SerDe.ReadString(stream);
-
-                // TODO: Handle the authentication.
             }
 
             for (int i = 0; i < numBroadcastVariables; ++i)
@@ -49,8 +50,10 @@ namespace Microsoft.Spark.Worker.Processor
                 {
                     if (broadcastVars.DecryptionServerNeeded)
                     {
-                        throw new NotImplementedException(
-                            "broadcastDecryptionServer is not implemented.");
+
+                        // long readBid = SerDe.ReadInt64(stream);
+                        // Console.WriteLine($"readBid: {readBid}");
+
                     }
                     else
                     {
@@ -58,16 +61,34 @@ namespace Microsoft.Spark.Worker.Processor
                         FileStream fStream = File.Open(path, FileMode.Open, FileAccess.Read);
                         object value = formatter.Deserialize(fStream);
                         fStream.Close();
-                        BroadcastRegistry._registry.Add(bid, value);
+                        BroadcastRegistry._registry.TryAdd(bid, value);
                     }
                 }
                 else
                 {
                     bid = -bid - 1;
-                    BroadcastRegistry._registry.Remove(bid);
+                    object value;
+                    BroadcastRegistry._registry.TryRemove(bid, out value);
+                    BroadcastRegistry.listBroadcastVariables.Remove((int)bid);
                 }
             }
+            if (broadcastVars.DecryptionServerNeeded)
+            {
+                using ISocketWrapper socket2 = SocketFactory.CreateSocket();
+                socket2.Connect(
+                    IPAddress.Loopback,
+                    broadcastVars.DecryptionServerPort,
+                    broadcastVars.Secret);
+                var bid = SerDe.ReadInt64(socket2.InputStream);
+                byte[] buffer = new byte[2];
+                SerDe.TryReadBytes(socket2.InputStream, buffer, 1);
+                //var bid2 = SerDe.ReadInt64(socket2.InputStream);
+                var formatter = new BinaryFormatter();
+                var value = formatter.Deserialize(socket2.InputStream);
 
+            }
+
+            Console.WriteLine("done processing broadcast vars");
             return broadcastVars;
         }
     }

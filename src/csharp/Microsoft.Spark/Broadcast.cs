@@ -1,9 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Interop;
+using Microsoft.Spark.Interop.Internal.Java.Util;
+using Microsoft.Spark.Network;
 
 namespace Microsoft.Spark
 {
@@ -16,32 +18,60 @@ namespace Microsoft.Spark
         [NonSerialized]
         private JvmObjectReference _jvmObject;
         [NonSerialized]
+        private JvmObjectReference _sparkContext;
+        [NonSerialized]
         private readonly SparkContext _sc;
         [NonSerialized]
         private string _path;
         [NonSerialized]
-        private object _python_broadcast;
+        private JvmObjectReference _python_broadcast;
+        private long _bid;
 
         internal Broadcast(SparkContext sc,
             object value,
             JvmObjectReference sparkContext,
             string path = null,
-            string sock_file = null
+            Stream socketStream = null
             )
         {
             if (sc != null)
             {
                 // We're on the driver
                 _sc = sc;
+                _sparkContext = sparkContext;
                 _path = Path.Combine(_sc._temp_dir, Path.GetRandomFileName());
-                _python_broadcast = sparkContext.Jvm.CallStaticJavaMethod(
+                SparkConf sparkConf = _sc.GetConf();
+                sc._encryption_enabled = bool.Parse(sparkConf.Get("spark.io.encryption.enabled", "false"));
+
+                _python_broadcast = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
                     "org.apache.spark.api.python.PythonRDD",
                     "setupBroadcast",
                     _path);
+                
+                BroadcastRegistry bRegistry = new BroadcastRegistry(sparkContext.Jvm);
+                Array encryptionPortSecret = null;
                 if (sc._encryption_enabled)
                 {
-                    throw new NotImplementedException(
-                            "Encryption not supported yet");
+                    //encryptionPortSecret = (Array)sparkContext.Jvm.CallNonStaticJavaMethod(
+                    //(JvmObjectReference)_python_broadcast,
+                    //"setupEncryptionServer");
+
+                    encryptionPortSecret = (Array)_python_broadcast.Invoke("setupEncryptionServer");
+
+                    JvmObjectReference jPort = (JvmObjectReference)encryptionPortSecret.GetValue(0);
+                    int port = int.Parse((string)jPort.Invoke("toString"));
+                    JvmObjectReference jSecret = (JvmObjectReference)encryptionPortSecret.GetValue(1);
+                    string secret = (string)jSecret.Invoke("toString");
+
+                    using (ISocketWrapper socket = SocketFactory.CreateSocket())
+                    {
+                        Directory.CreateDirectory(_sc._temp_dir);
+                        socket.Connect(IPAddress.Loopback, port, secret);
+                        dump(value, socket.OutputStream);
+                        socket.OutputStream.Flush();
+                        _python_broadcast.Invoke("waitTillDataReceived");
+                    }
+                    
                 }
                 else
                 {
@@ -56,6 +86,9 @@ namespace Microsoft.Spark
                     "createBroadcast",
                     sparkContext,
                     _python_broadcast);
+                _bid = (long)_jvmObject.Invoke("id");
+                BroadcastRegistry.listBroadcastVariables.Add(_jvmObject);
+
             }
             else
             {
@@ -63,33 +96,24 @@ namespace Microsoft.Spark
                 _sc = null;
                 _jvmObject = null;
                 _python_broadcast = null;
-                if (sock_file != null)
+                
+                if (path != null)
                 {
-                    throw new NotImplementedException(
-                        "broadcastDecryptionServer is not implemented.");
+                    _path = path;
                 }
                 else
                 {
-                    if (path != null)
-                    {
-                        _path = path;
-                    }
-                    else
-                    {
-                        throw new SystemException(
-                            "broadcast called from executor with path not set.");
-                    }
+                    throw new SystemException(
+                        "broadcast called from executor with path not set.");
                 }
-
             }
         }
-
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
-        public void dump(object value, FileStream fStream)
+        public void dump(object value, Stream stream)
         {
             var formatter = new BinaryFormatter();
-            formatter.Serialize(fStream, value);
+            formatter.Serialize(stream, value);
         }
 
 
@@ -99,7 +123,7 @@ namespace Microsoft.Spark
         /// <returns>The broadcasted value</returns>
         public object Value()
         {
-            return _jvmObject.Invoke("value");
+            return BroadcastRegistry._registry[_bid];
         }
 
         /// <summary>
@@ -131,15 +155,21 @@ namespace Microsoft.Spark
         {
             _jvmObject.Invoke("destroy");
         }
+
     }
 
     /// <summary>
-    /// Registry for broadcast variables that have been broadcasted
+    /// Registry for broadcast variables that have been broadcasted.
     /// </summary>
-    internal static class BroadcastRegistry
+    internal class BroadcastRegistry
     {
-        public static Dictionary<long, object> _registry = new Dictionary<long, object>();
+        public static ConcurrentDictionary<long, object> _registry = new ConcurrentDictionary<long, object>();
+        public static ArrayList listBroadcastVariables;
+
+        public BroadcastRegistry(IJvmBridge jvm)
+        {
+            listBroadcastVariables = new ArrayList(jvm);
+        }
     }
-  
 }
 

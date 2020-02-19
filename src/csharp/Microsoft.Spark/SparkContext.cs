@@ -25,7 +25,7 @@ namespace Microsoft.Spark
         private readonly SparkConf _conf;
 
         public string _temp_dir;
-        public bool _encryption_enabled;
+        public bool _encryption_enabled = true;
 
         /// <summary>
         /// Create a SparkContext object with the given config.

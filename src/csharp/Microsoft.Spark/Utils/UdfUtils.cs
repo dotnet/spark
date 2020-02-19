@@ -160,7 +160,7 @@ namespace Microsoft.Spark.Utils
                 arrayList, // Python includes
                 SparkEnvironment.ConfigurationService.GetWorkerExePath(),
                 Versions.CurrentVersion,
-                arrayList, // Broadcast variables
+                BroadcastRegistry.listBroadcastVariables, // Broadcast variables
                 null); // Accumulator
         }
 
