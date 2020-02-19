@@ -9,7 +9,7 @@ using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 namespace Microsoft.Spark.Sql
 {
     /// <summary>
-    /// Function that will be executed in the worker using the Apache Arrow format.
+    /// Function that will be executed in the worker using a <see cref="Microsoft.Data.Analysis.DataFrame"/> that supports the Apache Arrow format.
     /// </summary>
     internal sealed class DataFrameWorkerFunction : WorkerFunction
     {
@@ -76,7 +76,7 @@ namespace Microsoft.Spark.Sql
     }
 
     /// <summary>
-    /// Function for Grouped Map Vector UDFs using the Apache Arrow format.
+    /// Function for Grouped Map Vector UDFs using a <see cref="Microsoft.Data.Analysis.DataFrame"/> that supports the Apache Arrow format.
     /// </summary>
     internal sealed class DataFrameGroupedMapWorkerFunction : WorkerFunction
     {

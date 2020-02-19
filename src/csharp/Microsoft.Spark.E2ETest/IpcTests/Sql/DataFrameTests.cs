@@ -155,73 +155,73 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        //[Fact]
-        //public void TestVectorUdf()
-        //{
-        //    Func<Int32Array, StringArray, StringArray> udf1Func =
-        //        (ages, names) => (StringArray)ToArrowArray(
-        //            Enumerable.Range(0, names.Length)
-        //                .Select(i => $"{names.GetString(i)} is {ages.GetValue(i) ?? 0}")
-        //                .ToArray());
+        [Fact]
+        public void TestVectorUdf()
+        {
+            Func<Int32Array, StringArray, StringArray> udf1Func =
+                (ages, names) => (StringArray)ToArrowArray(
+                    Enumerable.Range(0, names.Length)
+                        .Select(i => $"{names.GetString(i)} is {ages.GetValue(i) ?? 0}")
+                        .ToArray());
 
-        //    // Single UDF.
-        //    Func<Column, Column, Column> udf1 =
-        //        ExperimentalFunctions.VectorUdf(udf1Func);
-        //    {
-        //        Row[] rows = _df.Select(udf1(_df["age"], _df["name"])).Collect().ToArray();
-        //        Assert.Equal(3, rows.Length);
-        //        Assert.Equal("Michael is 0", rows[0].GetAs<string>(0));
-        //        Assert.Equal("Andy is 30", rows[1].GetAs<string>(0));
-        //        Assert.Equal("Justin is 19", rows[2].GetAs<string>(0));
-        //    }
+            // Single UDF.
+            Func<Column, Column, Column> udf1 =
+                ExperimentalFunctions.VectorUdf(udf1Func);
+            {
+                Row[] rows = _df.Select(udf1(_df["age"], _df["name"])).Collect().ToArray();
+                Assert.Equal(3, rows.Length);
+                Assert.Equal("Michael is 0", rows[0].GetAs<string>(0));
+                Assert.Equal("Andy is 30", rows[1].GetAs<string>(0));
+                Assert.Equal("Justin is 19", rows[2].GetAs<string>(0));
+            }
 
-        //    // Chained UDFs.
-        //    Func<Column, Column> udf2 = ExperimentalFunctions.VectorUdf<StringArray, StringArray>(
-        //        (strings) => (StringArray)ToArrowArray(
-        //            Enumerable.Range(0, strings.Length)
-        //                .Select(i => $"hello {strings.GetString(i)}!")
-        //                .ToArray()));
-        //    {
-        //        Row[] rows = _df
-        //            .Select(udf2(udf1(_df["age"], _df["name"])))
-        //            .Collect()
-        //            .ToArray();
-        //        Assert.Equal(3, rows.Length);
-        //        Assert.Equal("hello Michael is 0!", rows[0].GetAs<string>(0));
-        //        Assert.Equal("hello Andy is 30!", rows[1].GetAs<string>(0));
-        //        Assert.Equal("hello Justin is 19!", rows[2].GetAs<string>(0));
-        //    }
+            // Chained UDFs.
+            Func<Column, Column> udf2 = ExperimentalFunctions.VectorUdf<StringArray, StringArray>(
+                (strings) => (StringArray)ToArrowArray(
+                    Enumerable.Range(0, strings.Length)
+                        .Select(i => $"hello {strings.GetString(i)}!")
+                        .ToArray()));
+            {
+                Row[] rows = _df
+                    .Select(udf2(udf1(_df["age"], _df["name"])))
+                    .Collect()
+                    .ToArray();
+                Assert.Equal(3, rows.Length);
+                Assert.Equal("hello Michael is 0!", rows[0].GetAs<string>(0));
+                Assert.Equal("hello Andy is 30!", rows[1].GetAs<string>(0));
+                Assert.Equal("hello Justin is 19!", rows[2].GetAs<string>(0));
+            }
 
-        //    // Multiple UDFs:
-        //    {
-        //        Row[] rows = _df
-        //            .Select(udf1(_df["age"], _df["name"]), udf2(_df["name"]))
-        //            .Collect()
-        //            .ToArray();
-        //        Assert.Equal(3, rows.Length);
-        //        Assert.Equal("Michael is 0", rows[0].GetAs<string>(0));
-        //        Assert.Equal("hello Michael!", rows[0].GetAs<string>(1));
+            // Multiple UDFs:
+            {
+                Row[] rows = _df
+                    .Select(udf1(_df["age"], _df["name"]), udf2(_df["name"]))
+                    .Collect()
+                    .ToArray();
+                Assert.Equal(3, rows.Length);
+                Assert.Equal("Michael is 0", rows[0].GetAs<string>(0));
+                Assert.Equal("hello Michael!", rows[0].GetAs<string>(1));
 
-        //        Assert.Equal("Andy is 30", rows[1].GetAs<string>(0));
-        //        Assert.Equal("hello Andy!", rows[1].GetAs<string>(1));
+                Assert.Equal("Andy is 30", rows[1].GetAs<string>(0));
+                Assert.Equal("hello Andy!", rows[1].GetAs<string>(1));
 
-        //        Assert.Equal("Justin is 19", rows[2].GetAs<string>(0));
-        //        Assert.Equal("hello Justin!", rows[2].GetAs<string>(1));
-        //    }
+                Assert.Equal("Justin is 19", rows[2].GetAs<string>(0));
+                Assert.Equal("hello Justin!", rows[2].GetAs<string>(1));
+            }
 
-        //    // Register UDF
-        //    {
-        //        _df.CreateOrReplaceTempView("people");
-        //        _spark.Udf().RegisterVector("udf1", udf1Func);
-        //        Row[] rows = _spark.Sql("SELECT udf1(age, name) FROM people")
-        //            .Collect()
-        //            .ToArray();
-        //        Assert.Equal(3, rows.Length);
-        //        Assert.Equal("Michael is 0", rows[0].GetAs<string>(0));
-        //        Assert.Equal("Andy is 30", rows[1].GetAs<string>(0));
-        //        Assert.Equal("Justin is 19", rows[2].GetAs<string>(0));
-        //    }
-        //}
+            // Register UDF
+            {
+                _df.CreateOrReplaceTempView("people");
+                _spark.Udf().RegisterVector("udf1", udf1Func);
+                Row[] rows = _spark.Sql("SELECT udf1(age, name) FROM people")
+                    .Collect()
+                    .ToArray();
+                Assert.Equal(3, rows.Length);
+                Assert.Equal("Michael is 0", rows[0].GetAs<string>(0));
+                Assert.Equal("Andy is 30", rows[1].GetAs<string>(0));
+                Assert.Equal("Justin is 19", rows[2].GetAs<string>(0));
+            }
+        }
 
         //[Fact]
         //public void TestDataFrameVectorUdf()
