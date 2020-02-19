@@ -299,52 +299,52 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         //    }
         //}
 
-        //[Fact]
-        //public void TestGroupedMapUdf()
-        //{
-        //    DataFrame df = _spark
-        //        .Read()
-        //        .Schema("age INT, name STRING")
-        //        .Json($"{TestEnvironment.ResourceDirectory}more_people.json");
-        //    // Data:
-        //    // { "name":"Michael"}
-        //    // { "name":"Andy", "age":30}
-        //    // { "name":"Seth", "age":30}
-        //    // { "name":"Justin", "age":19}
-        //    // { "name":"Kathy", "age":19}
+        [Fact]
+        public void TestGroupedMapUdf()
+        {
+            DataFrame df = _spark
+                .Read()
+                .Schema("age INT, name STRING")
+                .Json($"{TestEnvironment.ResourceDirectory}more_people.json");
+            // Data:
+            // { "name":"Michael"}
+            // { "name":"Andy", "age":30}
+            // { "name":"Seth", "age":30}
+            // { "name":"Justin", "age":19}
+            // { "name":"Kathy", "age":19}
 
-        //    Row[] rows = df.GroupBy("age")
-        //        .Apply(
-        //            new StructType(new[]
-        //            {
-        //                new StructField("age", new IntegerType()),
-        //                new StructField("nameCharCount", new IntegerType())
-        //            }),
-        //            batch => CountCharacters(batch))
-        //        .Collect()
-        //        .ToArray();
+            Row[] rows = df.GroupBy("age")
+                .Apply(
+                    new StructType(new[]
+                    {
+                        new StructField("age", new IntegerType()),
+                        new StructField("nameCharCount", new IntegerType())
+                    }),
+                    batch => CountCharacters(batch))
+                .Collect()
+                .ToArray();
 
-        //    Assert.Equal(3, rows.Length);
-        //    foreach (Row row in rows)
-        //    {
-        //        int? age = row.GetAs<int?>("age");
-        //        int charCount = row.GetAs<int>("nameCharCount");
-        //        switch (age)
-        //        {
-        //            case null:
-        //                Assert.Equal(7, charCount);
-        //                break;
-        //            case 19:
-        //                Assert.Equal(11, charCount);
-        //                break;
-        //            case 30:
-        //                Assert.Equal(8, charCount);
-        //                break;
-        //            default:
-        //                throw new Exception($"Unexpected age: {age}.");
-        //        }
-        //    }
-        //}
+            Assert.Equal(3, rows.Length);
+            foreach (Row row in rows)
+            {
+                int? age = row.GetAs<int?>("age");
+                int charCount = row.GetAs<int>("nameCharCount");
+                switch (age)
+                {
+                    case null:
+                        Assert.Equal(7, charCount);
+                        break;
+                    case 19:
+                        Assert.Equal(11, charCount);
+                        break;
+                    case 30:
+                        Assert.Equal(8, charCount);
+                        break;
+                    default:
+                        throw new Exception($"Unexpected age: {age}.");
+                }
+            }
+        }
 
         private static RecordBatch CountCharacters(RecordBatch records)
         {
