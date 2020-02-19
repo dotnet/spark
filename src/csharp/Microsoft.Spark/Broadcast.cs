@@ -52,10 +52,6 @@ namespace Microsoft.Spark
                 Array encryptionPortSecret = null;
                 if (sc._encryption_enabled)
                 {
-                    //encryptionPortSecret = (Array)sparkContext.Jvm.CallNonStaticJavaMethod(
-                    //(JvmObjectReference)_python_broadcast,
-                    //"setupEncryptionServer");
-
                     encryptionPortSecret = (Array)_python_broadcast.Invoke("setupEncryptionServer");
 
                     JvmObjectReference jPort = (JvmObjectReference)encryptionPortSecret.GetValue(0);
@@ -71,7 +67,6 @@ namespace Microsoft.Spark
                         socket.OutputStream.Flush();
                         _python_broadcast.Invoke("waitTillDataReceived");
                     }
-                    
                 }
                 else
                 {
@@ -88,7 +83,6 @@ namespace Microsoft.Spark
                     _python_broadcast);
                 _bid = (long)_jvmObject.Invoke("id");
                 BroadcastRegistry.listBroadcastVariables.Add(_jvmObject);
-
             }
             else
             {
