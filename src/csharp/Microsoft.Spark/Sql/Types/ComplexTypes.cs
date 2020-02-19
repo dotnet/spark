@@ -68,6 +68,10 @@ namespace Microsoft.Spark.Sql.Types
             ContainsNull = (bool)json["containsNull"];
             return this;
         }
+
+        internal override bool NeedConversion() => true;
+
+        internal override object FromInternal(object obj) => throw new NotImplementedException();
     }
 
     /// <summary>
@@ -137,6 +141,10 @@ namespace Microsoft.Spark.Sql.Types
             ValueContainsNull = (bool)json["valueContainsNull"];
             return this;
         }
+
+        internal override bool NeedConversion() => true;
+
+        internal override object FromInternal(object obj) => throw new NotImplementedException();
     }
 
     /// <summary>

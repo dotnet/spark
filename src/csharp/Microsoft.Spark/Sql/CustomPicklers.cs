@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.IO;
+using Microsoft.Spark.Sql.Types;
 using Razorvine.Pickle;
 
 namespace Microsoft.Spark.Sql
@@ -26,6 +27,17 @@ namespace Microsoft.Spark.Sql
         public void pickle(object o, Stream outs, Pickler currentPickler)
         {
             currentPickler.save(((GenericRow)o).Values);
+        }
+    }
+
+    /// <summary>
+    /// Custom pickler for Date objects.
+    /// </summary>
+    internal class DatePickler : IObjectPickler
+    {
+        public void pickle(object o, Stream outs, Pickler currentPickler)
+        {
+            currentPickler.save(((Date)o).GetInterval());
         }
     }
 }
