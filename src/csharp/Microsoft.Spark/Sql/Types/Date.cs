@@ -17,10 +17,10 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Constructor for Date class.
         /// </summary>
-        /// <param name="dt">DateTime object</param>
-        public Date(DateTime dt)
+        /// <param name="dateTime">DateTime object</param>
+        public Date(DateTime dateTime)
         {
-            _dateTime = dt;
+            _dateTime = dateTime;
         }
 
         /// <summary>
