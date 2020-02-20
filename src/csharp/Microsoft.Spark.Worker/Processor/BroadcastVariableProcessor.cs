@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
@@ -36,6 +37,7 @@ namespace Microsoft.Spark.Worker.Processor
 
             int numBroadcastVariables = Math.Max(SerDe.ReadInt32(stream), 0);
             broadcastVars.Count = numBroadcastVariables;
+
             if (broadcastVars.DecryptionServerNeeded)
             {
                 broadcastVars.DecryptionServerPort = SerDe.ReadInt32(stream);
@@ -50,16 +52,23 @@ namespace Microsoft.Spark.Worker.Processor
                 {
                     if (broadcastVars.DecryptionServerNeeded)
                     {
-
-                        // long readBid = SerDe.ReadInt64(stream);
-                        // Console.WriteLine($"readBid: {readBid}");
-
+                        using ISocketWrapper socket = SocketFactory.CreateSocket();
+                        socket.Connect(
+                            IPAddress.Loopback,
+                            broadcastVars.DecryptionServerPort,
+                            broadcastVars.Secret);
+                        long readBid = SerDe.ReadInt64(socket.InputStream);
+                        if (bid == readBid)
+                        {
+                            var value = formatter.Deserialize(socket.InputStream);
+                            BroadcastRegistry._registry.TryAdd(bid, value);
+                        }
                     }
                     else
                     {
                         var path = SerDe.ReadString(stream);
                         FileStream fStream = File.Open(path, FileMode.Open, FileAccess.Read);
-                        object value = formatter.Deserialize(fStream);
+                        var value = formatter.Deserialize(fStream);
                         fStream.Close();
                         BroadcastRegistry._registry.TryAdd(bid, value);
                     }
@@ -67,28 +76,10 @@ namespace Microsoft.Spark.Worker.Processor
                 else
                 {
                     bid = -bid - 1;
-                    object value;
-                    BroadcastRegistry._registry.TryRemove(bid, out value);
+                    BroadcastRegistry._registry.TryRemove(bid, out _);
                     BroadcastRegistry.listBroadcastVariables.Remove((int)bid);
                 }
             }
-            if (broadcastVars.DecryptionServerNeeded)
-            {
-                using ISocketWrapper socket2 = SocketFactory.CreateSocket();
-                socket2.Connect(
-                    IPAddress.Loopback,
-                    broadcastVars.DecryptionServerPort,
-                    broadcastVars.Secret);
-                var bid = SerDe.ReadInt64(socket2.InputStream);
-                byte[] buffer = new byte[2];
-                SerDe.TryReadBytes(socket2.InputStream, buffer, 1);
-                //var bid2 = SerDe.ReadInt64(socket2.InputStream);
-                var formatter = new BinaryFormatter();
-                var value = formatter.Deserialize(socket2.InputStream);
-
-            }
-
-            Console.WriteLine("done processing broadcast vars");
             return broadcastVars;
         }
     }
