@@ -10,7 +10,7 @@ using static Microsoft.Spark.Sql.ArrowArrayHelpers;
 namespace Microsoft.Spark.Sql
 {
     /// <summary>
-    /// An abstract class to differentiate between ArrowUdfWrapper derivatives and DataFrameUdfWrapper derivatives at runtime
+    /// An abstract class to detect DataFrameUdfWrapper derivatives at runtime
     /// </summary>
     internal abstract class DataFrameUdfWrapper
     {
