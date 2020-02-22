@@ -41,7 +41,7 @@ namespace Microsoft.Spark.Worker.Processor
             {
                 broadcastVars.DecryptionServerPort = SerDe.ReadInt32(stream);
                 broadcastVars.Secret = SerDe.ReadString(stream);
-                // TODO: handle authentication
+                // TODO: Handle the authentication.
             }
 
             for (int i = 0; i < numBroadcastVariables; ++i)
@@ -53,7 +53,7 @@ namespace Microsoft.Spark.Worker.Processor
                     if (broadcastVars.DecryptionServerNeeded)
                     {
                         throw new NotImplementedException(
-                            "Broadcast decryption is not supported yet.");
+                            "broadcastDecryptionServer is not implemented.");
                     }
                     else
                     {
