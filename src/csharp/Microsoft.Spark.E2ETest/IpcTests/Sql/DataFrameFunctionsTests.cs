@@ -85,7 +85,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             double corr = stat.Corr("age", "age", "pearson");
             corr = stat.Corr("age", "age");
 
-            var columnNames = new[] { "age", "name" };
+            var columnNames = new string[] { "age", "name" };
             DataFrame df = stat.FreqItems(columnNames, 0.2);
             df = stat.FreqItems(columnNames);
 

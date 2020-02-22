@@ -54,7 +54,10 @@ namespace Microsoft.Spark.Worker.Processor
 
             payload.SplitIndex = BinaryPrimitives.ReadInt32BigEndian(splitIndexBytes);
             payload.Version = SerDe.ReadString(stream);
+
             payload.TaskContext = new TaskContextProcessor(_version).Process(stream);
+            TaskContextHolder.Set(payload.TaskContext);
+
             payload.SparkFilesDir = SerDe.ReadString(stream);
 
             if (Utils.SettingUtils.IsDatabricks)
