@@ -68,6 +68,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Row[] actualRows = udfOutput.Collect().ToArray();
             string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
             Assert.Equal(expected, actual);
+            bc.Unpersist();
         }
 
         /// <summary>
