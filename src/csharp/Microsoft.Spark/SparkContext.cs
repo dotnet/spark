@@ -85,7 +85,8 @@ namespace Microsoft.Spark
         }
 
         /// <summary>
-        /// Constructor where SparkContext object is already created.
+        /// Constructor where SparkContext object is already created. Also creates a static 
+        /// registry to store active broadcast variables created through this SparkContext.
         /// </summary>
         /// <param name="jvmObject">JVM object reference for this SparkContext object</param>
         internal SparkContext(JvmObjectReference jvmObject)

@@ -8,7 +8,11 @@ using Microsoft.Spark.Interop.Internal.Java.Util;
 namespace Microsoft.Spark
 {
     /// <summary>
-    /// 
+    /// A broadcast variable. Broadcast variables allow the programmer to keep a read-only variable
+    /// cached on each machine rather than shipping a copy of it with tasks.They can be used, for
+    /// example, to give every node a copy of a large input dataset in an efficient manner.Spark 
+    /// also attempts to distribute broadcast variables using efficient broadcast algorithms to 
+    /// reduce communication cost.
     /// </summary>
     [Serializable]
     public sealed class Broadcast: IJvmObjectReferenceProvider
