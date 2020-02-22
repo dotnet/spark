@@ -119,6 +119,6 @@ namespace Microsoft.Spark.Sql.Types
         /// </summary>
         /// <returns>Long object that represents the number of microseconds from the epoch of
         /// 1970-01-01T00:00:00.000000Z(UTC+00:00)</returns>
-        internal int GetInterval() => (_dateTime - s_unixTimeEpoch).Days;
+        internal long GetInterval() => (_dateTime - s_unixTimeEpoch).Ticks / 10;
     }
 }
