@@ -80,10 +80,21 @@ namespace Microsoft.Spark.Sql.Types
     }
 
     /// <summary>
-    /// Represents a timestamp type.
+    /// Represents a timestamp type. It represents a time instant in microsecond precision.
+    /// Valid range is [0001-01-01T00:00:00.000000Z, 9999-12-31T23:59:59.999999Z] where
+    /// the left/right-bound is a date and time of the proleptic Gregorian calendar in UTC+00:00.
     /// </summary>
     public sealed class TimestampType : AtomicType
     {
+        private static readonly DateTime s_unixTimeEpoch =
+            new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        internal override bool NeedConversion() => true;
+
+        internal override object FromInternal(object obj)
+        {
+            return new Timestamp(new DateTime((long)obj * 10 + s_unixTimeEpoch.Ticks).ToLocalTime());
+        }
     }
 
     /// <summary>
