@@ -92,6 +92,7 @@ namespace Microsoft.Spark
         {
             _jvmObject = jvmObject;
             _conf = new SparkConf((JvmObjectReference)_jvmObject.Invoke("getConf"));
+            _ = new BroadcastRegistry(jvmObject.Jvm);
         }
 
 

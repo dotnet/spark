@@ -4,11 +4,10 @@
 
 using System;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Network;
+using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Worker.Processor
 {
@@ -42,6 +41,7 @@ namespace Microsoft.Spark.Worker.Processor
             {
                 broadcastVars.DecryptionServerPort = SerDe.ReadInt32(stream);
                 broadcastVars.Secret = SerDe.ReadString(stream);
+                // TODO: handle authentication
             }
 
             for (int i = 0; i < numBroadcastVariables; ++i)
@@ -52,35 +52,39 @@ namespace Microsoft.Spark.Worker.Processor
                 {
                     if (broadcastVars.DecryptionServerNeeded)
                     {
-                        using ISocketWrapper socket = SocketFactory.CreateSocket();
-                        socket.Connect(
-                            IPAddress.Loopback,
-                            broadcastVars.DecryptionServerPort,
-                            broadcastVars.Secret);
-                        long readBid = SerDe.ReadInt64(socket.InputStream);
-                        if (bid == readBid)
-                        {
-                            var value = formatter.Deserialize(socket.InputStream);
-                            BroadcastRegistry._registry.TryAdd(bid, value);
-                        }
+                        throw new NotImplementedException(
+                            "Broadcast decryption is not supported yet.");
                     }
                     else
                     {
                         var path = SerDe.ReadString(stream);
                         FileStream fStream = File.Open(path, FileMode.Open, FileAccess.Read);
+                        formatter.Binder = new DeserializationBinder();
                         var value = formatter.Deserialize(fStream);
                         fStream.Close();
-                        BroadcastRegistry._registry.TryAdd(bid, value);
+                        BroadcastRegistry.s_registry.TryAdd(bid, value);
                     }
                 }
                 else
                 {
                     bid = -bid - 1;
-                    BroadcastRegistry._registry.TryRemove(bid, out _);
-                    BroadcastRegistry.listBroadcastVariables.Remove((int)bid);
+                    BroadcastRegistry.s_registry.TryRemove(bid, out _);
+                    BroadcastRegistry.s_listBroadcastVariables.Remove((int)bid);
                 }
             }
             return broadcastVars;
+        }
+    }
+
+    /// <summary>
+    /// Function that loads the application assembly and returns the Type of the broadcast variable
+    /// </summary>
+    sealed class DeserializationBinder : SerializationBinder
+    {
+        public override Type BindToType(string assemblyName, string typeName)
+        {
+            Type broadcastType = AssemblyLoader.ResolveAssembly(assemblyName).GetType(typeName);
+            return broadcastType;
         }
     }
 }

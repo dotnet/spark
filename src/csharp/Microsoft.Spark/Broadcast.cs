@@ -1,11 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Concurrent;
-using System.Net;
+using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Interop.Internal.Java.Util;
-using Microsoft.Spark.Network;
 
 namespace Microsoft.Spark
 {
@@ -18,8 +16,6 @@ namespace Microsoft.Spark
         [NonSerialized]
         private JvmObjectReference _jvmObject;
         [NonSerialized]
-        private JvmObjectReference _sparkContext;
-        [NonSerialized]
         private readonly SparkContext _sc;
         [NonSerialized]
         private string _path;
@@ -30,43 +26,29 @@ namespace Microsoft.Spark
         internal Broadcast(SparkContext sc,
             object value,
             JvmObjectReference sparkContext,
-            string path = null,
-            Stream socketStream = null
+            string path = null
             )
         {
             if (sc != null)
             {
                 // We're on the driver
                 _sc = sc;
-                _sparkContext = sparkContext;
                 _path = Path.Combine(_sc._temp_dir, Path.GetRandomFileName());
+
                 SparkConf sparkConf = _sc.GetConf();
-                sc._encryption_enabled = bool.Parse(sparkConf.Get("spark.io.encryption.enabled", "false"));
+                sc._encryption_enabled = bool.Parse(
+                    sparkConf.Get("spark.io.encryption.enabled", 
+                    "false"));
 
                 _python_broadcast = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
                     "org.apache.spark.api.python.PythonRDD",
                     "setupBroadcast",
                     _path);
-                
-                BroadcastRegistry bRegistry = new BroadcastRegistry(sparkContext.Jvm);
-                Array encryptionPortSecret = null;
+
                 if (sc._encryption_enabled)
                 {
-                    encryptionPortSecret = (Array)_python_broadcast.Invoke("setupEncryptionServer");
-
-                    JvmObjectReference jPort = (JvmObjectReference)encryptionPortSecret.GetValue(0);
-                    int port = int.Parse((string)jPort.Invoke("toString"));
-                    JvmObjectReference jSecret = (JvmObjectReference)encryptionPortSecret.GetValue(1);
-                    string secret = (string)jSecret.Invoke("toString");
-
-                    using (ISocketWrapper socket = SocketFactory.CreateSocket())
-                    {
-                        Directory.CreateDirectory(_sc._temp_dir);
-                        socket.Connect(IPAddress.Loopback, port, secret);
-                        dump(value, socket.OutputStream);
-                        socket.OutputStream.Flush();
-                        _python_broadcast.Invoke("waitTillDataReceived");
-                    }
+                    throw new NotImplementedException(
+                            "Broadcast encryption is not supported yet.");
                 }
                 else
                 {
@@ -81,8 +63,9 @@ namespace Microsoft.Spark
                     "createBroadcast",
                     sparkContext,
                     _python_broadcast);
+
                 _bid = (long)_jvmObject.Invoke("id");
-                BroadcastRegistry.listBroadcastVariables.Add(_jvmObject);
+                BroadcastRegistry.s_listBroadcastVariables.Add(_jvmObject);
             }
             else
             {
@@ -104,6 +87,11 @@ namespace Microsoft.Spark
         }
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
+        /// <summary>
+        /// Function that serializes and stores the object passed to the given Stream
+        /// </summary>
+        /// <param name="value">Serializable object</param>
+        /// <param name="stream">Stream to which the object is serialized</param>
         public void dump(object value, Stream stream)
         {
             var formatter = new BinaryFormatter();
@@ -117,7 +105,7 @@ namespace Microsoft.Spark
         /// <returns>The broadcasted value</returns>
         public object Value()
         {
-            return BroadcastRegistry._registry[_bid];
+            return BroadcastRegistry.s_registry[_bid];
         }
 
         /// <summary>
@@ -153,16 +141,18 @@ namespace Microsoft.Spark
     }
 
     /// <summary>
-    /// Registry for broadcast variables that have been broadcasted.
+    /// Registry to store the broadcast variables for access through workers.
     /// </summary>
     internal class BroadcastRegistry
     {
-        public static ConcurrentDictionary<long, object> _registry = new ConcurrentDictionary<long, object>();
-        public static ArrayList listBroadcastVariables;
+        public static ConcurrentDictionary<long, object> s_registry = new ConcurrentDictionary<
+            long, 
+            object>();
+        public static ArrayList s_listBroadcastVariables;
 
         public BroadcastRegistry(IJvmBridge jvm)
         {
-            listBroadcastVariables = new ArrayList(jvm);
+            s_listBroadcastVariables = new ArrayList(jvm);
         }
     }
 }
