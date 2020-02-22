@@ -96,8 +96,9 @@ namespace Microsoft.Spark.Sql.Types
         /// <returns>True if the other object is equal</returns>
         public override bool Equals(object obj) =>
             ReferenceEquals(this, obj) ||
-            ((obj is Timestamp timestamp) && Year.Equals(timestamp.Year) && Month.Equals(timestamp.Month) &&
-                Day.Equals(timestamp.Day) && Hour.Equals(timestamp.Hour) && Minute.Equals(timestamp.Minute) &&
+            ((obj is Timestamp timestamp) && Year.Equals(timestamp.Year) &&
+                Month.Equals(timestamp.Month) && Day.Equals(timestamp.Day) &&
+                Hour.Equals(timestamp.Hour) && Minute.Equals(timestamp.Minute) &&
                 Second.Equals(timestamp.Second) && Microsecond.Equals(timestamp.Microsecond));
 
         /// <summary>
