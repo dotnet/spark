@@ -102,7 +102,6 @@ namespace Microsoft.Spark
             formatter.Serialize(stream, value);
         }
 
-
         /// <summary>
         /// Get the broadcasted value.
         /// </summary>
@@ -141,7 +140,6 @@ namespace Microsoft.Spark
         {
             _jvmObject.Invoke("destroy");
         }
-
     }
 
     /// <summary>

@@ -307,7 +307,7 @@ namespace Microsoft.Spark
         /// <summary>
         /// Broadcast a read-only variable to the cluster, returning a Microsoft.Spark.Broadcast
         /// object for reading it in distributed functions. The variable will be sent to each 
-        /// cluster only once.
+        /// executor only once.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="value">Value/variable to be broadcast</param>

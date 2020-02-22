@@ -24,7 +24,6 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         }
     }
 
-
     [Collection("Spark E2E Tests")]
     public class BroadcastTests
     {
