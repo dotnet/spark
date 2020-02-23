@@ -490,7 +490,7 @@ namespace Microsoft.Spark.Sql
         /// Contains the other element. Returns a boolean column based on a string match.
         /// </summary>
         /// <param name="other">
-        /// The object that is used to check for existance in the current column.
+        /// The object that is used to check for existence in the current column.
         /// </param>
         /// <returns>New column after checking if the column contains object other</returns>
         public Column Contains(object other)

@@ -51,6 +51,8 @@ namespace Microsoft.Spark.Worker
             _version = version;
         }
 
+        internal int CurrentNumTaskRunners => _taskRunners.Count();
+
         /// <summary>
         /// Runs the DaemonWorker server.
         /// </summary>
@@ -62,10 +64,14 @@ namespace Microsoft.Spark.Worker
             // AppDomain.CurrentDomain.ProcessExit += (s, e) => {};,
             // but the above handler is not invoked. This can be investigated if more
             // graceful exit is required.
+            ISocketWrapper listener = SocketFactory.CreateSocket();
+            Run(listener);
+        }
 
+        internal void Run(ISocketWrapper listener)
+        {
             try
             {
-                ISocketWrapper listener = SocketFactory.CreateSocket();
                 listener.Listen();
 
                 // Communicate the server port back to the Spark using standard output.
@@ -146,7 +152,8 @@ namespace Microsoft.Spark.Worker
                         // When reuseWorker is set to true, numTaskRunners will be always one
                         // greater than numWorkerThreads since TaskRunner.Run() does not return
                         // so that the task runner object is not removed from _taskRunners.
-                        var numTaskRunners = _taskRunners.Count();
+                        int numTaskRunners = CurrentNumTaskRunners;
+
                         while (numWorkerThreads < numTaskRunners)
                         {
                             // Note that in the current implementation of RunWorkerThread() does
@@ -221,7 +228,7 @@ namespace Microsoft.Spark.Worker
             while (true)
             {
                 var bytes = new byte[sizeof(int)];
-                var readBytes = inputStream.Read(bytes, 0, bytes.Length);
+                int readBytes = inputStream.Read(bytes, 0, bytes.Length);
 
                 if (readBytes != bytes.Length)
                 {
@@ -229,7 +236,7 @@ namespace Microsoft.Spark.Worker
                     Environment.Exit(-1);
                 }
 
-                var taskRunnerId = BinaryPrimitives.ReadInt32BigEndian(bytes);
+                int taskRunnerId = BinaryPrimitives.ReadInt32BigEndian(bytes);
                 if (taskRunnerId < 0)
                 {
                     s_logger.LogInfo($"Received negative TaskRunnerId: {taskRunnerId}, will exit");

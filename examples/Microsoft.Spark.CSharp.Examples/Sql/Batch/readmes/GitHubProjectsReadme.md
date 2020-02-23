@@ -16,7 +16,9 @@ or changing.
 
 The data used in this example was generated from [GHTorrent](http://ghtorrent.org/), which monitors all public GitHub events (such as info about projects, commits, and watchers), stores the events and their structure in databases, and then releases data collected over different time periods as downloadable archives. 
 
-The dataset used when creating this sample was [downloaded from the GHTorrent archives](http://ghtorrent.org/downloads.html). Specifically, the **projects.csv** file was extracted from one of the latest MySQL dumps. For analysis that only takes a few seconds in demos, projects.csv was shortened to only a few GB, and thus the dataset is called **projects_smaller.csv** throughout this sample.
+The dataset used when creating this sample was [downloaded from the GHTorrent archives](http://ghtorrent.org/downloads.html). Specifically, the **projects.csv** file was extracted from one of the latest MySQL dumps. For analysis that only takes a few seconds in demos, projects.csv was shortened and thus the dataset is called **[projects_smaller.csv](../projects_smaller.csv)** throughout this sample.
+
+The GHTorrent dataset is distributed under a dual licensing scheme ([Creative Commons +](https://wiki.creativecommons.org/wiki/CCPlus)). For non-commercial uses (including, but not limited to, educational, research or personal uses), the dataset is distributed under the [CC-BY-SA license](https://creativecommons.org/licenses/by-sa/4.0/).
 
 ## Solution
 
@@ -72,3 +74,5 @@ spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local 
 ## Next Steps
 
 View the [full coding example](../GitHubProjects.cs) to see an example of prepping and analyzing GitHub data.
+
+You can also view a live video explanation of this app and batch processing overall in the [.NET for Apache Spark 101 video series](https://www.youtube.com/watch?v=i_NvL8p_KZg&list=PLdo4fOcmZ0oXklB5hhg1G1ZwOJTEjcQ5z&index=4&t=3s).

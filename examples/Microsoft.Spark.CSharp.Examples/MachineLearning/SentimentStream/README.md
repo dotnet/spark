@@ -219,8 +219,14 @@ spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local 
 
 ## Next Steps
 
-Checkout the [full coding example](./Program.cs). You can also view a live video explanation of ML.NET + .NET for Spark in the [Bringing Big Data Analytics through Apache Spark to .NET](https://youtu.be/ZWsYMQ0Sw1o?t=1358) session from **.NET Conf 2019.**
+Check out the [full coding example](./Program.cs). You can also view a live video explanation of ML.NET + .NET for Spark in the [Bringing Big Data Analytics through Apache Spark to .NET](https://youtu.be/ZWsYMQ0Sw1o?t=1358) session from **.NET Conf 2019.**
 
 Rather than performing real-time processing, we can adapt our Spark + ML.NET app to instead perform batch processing (analyzing data that's already been stored).
 
 Check out [Sentiment](../Sentiment) to see the adapted version of the sentiment analysis program that will determine the sentiment of text from a batch of online reviews.
+
+## Citations
+
+**UCI Machine Learning Repository citation:** Dua, D. and Graff, C. (2019). UCI Machine Learning Repository [http://archive.ics.uci.edu/ml]. Irvine, CA: University of California, School of Information and Computer Science.
+
+**Sentiment Labelled Sentences Data Set citation:** 'From Group to Individual Labels using Deep Features', Kotzias et. al,. KDD 2015
