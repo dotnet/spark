@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
+using System.Dynamic;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Services;
 
@@ -12,6 +14,18 @@ namespace Microsoft.Spark.Interop
     /// </summary>
     internal static class SparkEnvironment
     {
+        private static readonly Lazy<Version> s_sparkVersion = new Lazy<Version>(
+            () => new Version((string)JvmBridge.CallStaticJavaMethod(
+                "org.apache.spark.deploy.dotnet.DotnetRunner",
+                "SPARK_VERSION")));
+        internal static Version SparkVersion
+        {
+            get
+            {
+                return s_sparkVersion.Value;
+            }
+        }
+
         private static IJvmBridge s_jvmBridge;
         internal static IJvmBridge JvmBridge
         {
