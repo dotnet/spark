@@ -914,7 +914,7 @@ namespace Microsoft.Spark.Sql
                 // string to use for the authentication.
                 (2, 3, _) => ParseConnectionInfo(result),
                 (2, 4, _) => ParseConnectionInfo(result),
-                (3, _, _) => ParseConnectionInfo(result),
+                (3, 0, _) => ParseConnectionInfo(result),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
         }
