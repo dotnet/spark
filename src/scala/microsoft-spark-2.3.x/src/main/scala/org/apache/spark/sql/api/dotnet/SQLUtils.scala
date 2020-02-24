@@ -8,6 +8,7 @@ package org.apache.spark.sql.api.dotnet
 
 import java.util.{List => JList, Map => JMap}
 
+import org.apache.spark.SparkContext
 import org.apache.spark.api.python.{PythonAccumulatorV2, PythonBroadcast, PythonFunction}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.deploy.dotnet.DotnetRunner
@@ -36,5 +37,16 @@ object SQLUtils {
       pythonVersion,
       broadcastVars,
       accumulator)
+  }
+
+  /**
+   * Wrap `SparkContext.broadcast` since it involves ClassTag.
+   * TODO: Investigate to see `DotnetBackendHandler` can be updated to support functions
+   * that require ClassTags.
+   */
+  def createBroadcast(
+      context: SparkContext,
+      pythonBroadcast: PythonBroadcast): Broadcast[PythonBroadcast] = {
+    context.broadcast(pythonBroadcast)
   }
 }

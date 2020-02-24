@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Interop.Internal.Java.Util;
+using Microsoft.Spark.Interop;
 
 namespace Microsoft.Spark
 {
@@ -39,34 +40,50 @@ namespace Microsoft.Spark
                 _sc = sc;
                 _path = Path.Combine(_sc._temp_dir, Path.GetRandomFileName());
 
-                SparkConf sparkConf = _sc.GetConf();
-                sc._encryption_enabled = bool.Parse(
-                    sparkConf.Get("spark.io.encryption.enabled", 
-                    "false"));
+                Version version = SparkEnvironment.SparkVersion;
 
-                _python_broadcast = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
-                    "org.apache.spark.api.python.PythonRDD",
-                    "setupBroadcast",
-                    _path);
-
-                if (sc._encryption_enabled)
+                // Spark versions 2.3.0 and 2.3.1 create Broadcast variables using different logic
+                if (version.Minor == 3 && (version.Build == 0 || version.Build == 1) )
                 {
-                    throw new NotImplementedException(
-                            "Broadcast encryption is not supported yet.");
+                    WriteBroadcastValueToFile(value);
+                    JvmObjectReference javaSparkContext = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
+                    "org.apache.spark.api.java.JavaSparkContext",
+                    "fromSparkContext",
+                    sparkContext);
+                    _jvmObject = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
+                    "org.apache.spark.api.python.PythonRDD",
+                    "readBroadcastFromFile",
+                    javaSparkContext,
+                    _path);
                 }
                 else
                 {
-                    Directory.CreateDirectory(_sc._temp_dir);
-                    FileStream f = File.Create(_path);
-                    dump(value, f);
-                    f.Close();
-                }
+                    SparkConf sparkConf = _sc.GetConf();
+                    sc._encryption_enabled = bool.Parse(
+                        sparkConf.Get("spark.io.encryption.enabled",
+                        "false"));
 
-                _jvmObject = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
-                    "org.apache.spark.sql.api.dotnet.SQLUtils",
-                    "createBroadcast",
-                    sparkContext,
-                    _python_broadcast);
+                    _python_broadcast = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
+                        "org.apache.spark.api.python.PythonRDD",
+                        "setupBroadcast",
+                        _path);
+
+                    if (sc._encryption_enabled)
+                    {
+                        throw new NotImplementedException(
+                                "Broadcast encryption is not supported yet.");
+                    }
+                    else
+                    {
+                        WriteBroadcastValueToFile(value);
+                    }
+
+                    _jvmObject = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
+                        "org.apache.spark.sql.api.dotnet.SQLUtils",
+                        "createBroadcast",
+                        sparkContext,
+                        _python_broadcast);
+                }
 
                 _bid = (long)_jvmObject.Invoke("id");
                 BroadcastRegistry.s_listBroadcastVariables.Add(_jvmObject);
@@ -92,11 +109,23 @@ namespace Microsoft.Spark
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
+        /// Function that creates a file to store the broadcast value in the given path
+        /// </summary>
+        /// <param name="value">Broadcast value to be written to the file</param>
+        public void WriteBroadcastValueToFile(object value)
+        {
+            Directory.CreateDirectory(_sc._temp_dir);
+            FileStream f = File.Create(_path);
+            Dump(value, f);
+            f.Close();
+        }
+
+        /// <summary>
         /// Function that serializes and stores the object passed to the given Stream
         /// </summary>
         /// <param name="value">Serializable object</param>
         /// <param name="stream">Stream to which the object is serialized</param>
-        public void dump(object value, Stream stream)
+        public void Dump(object value, Stream stream)
         {
             var formatter = new BinaryFormatter();
             formatter.Serialize(stream, value);
