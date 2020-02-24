@@ -43,7 +43,6 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestSingleBroadcastWithoutEncryption()
         {
-            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", "false");
             var objectToBroadcast = new BroadcastTestClass(
                 1,
                 "testing first broadcast",
@@ -76,8 +75,6 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestMultipleBroadcastWithoutEncryption()
         {
-            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", "false");
-
             var object1ToBroadcast = new BroadcastTestClass(
                 1,
                 "testing first broadcast",
