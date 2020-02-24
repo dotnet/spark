@@ -10,17 +10,17 @@ namespace Microsoft.Spark.E2ETest.UdfTests
     [Serializable]
     public class BroadcastTestClass
     {
-        public int _intValue { get; set; }
-        public string _stringValue { get; set; }
-        public double _doubleValue { get; set; }
-        public bool _boolValue { get; set; }
+        public int intValue { get; set; }
+        public string stringValue { get; set; }
+        public double doubleValue { get; set; }
+        public bool boolValue { get; set; }
 
         public BroadcastTestClass(int _int, string _string, double _double, bool _bool)
         {
-            _intValue = _int;
-            _stringValue = _string;
-            _doubleValue = _double;
-            _boolValue = _bool;
+            intValue = _int;
+            stringValue = _string;
+            doubleValue = _double;
+            boolValue = _bool;
         }
     }
 
@@ -54,12 +54,12 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
             Func<Column, Column> testBroadcast = Udf<string, string>(
                 row => row + " is " + 
-                ((BroadcastTestClass)bc.Value())._stringValue + 
-                ", " + ((BroadcastTestClass)bc.Value())._intValue + 
-                ", " + ((BroadcastTestClass)bc.Value())._doubleValue + 
-                " => " + ((BroadcastTestClass)bc.Value())._boolValue);
+                ((BroadcastTestClass)bc.Value()).stringValue + 
+                ", " + ((BroadcastTestClass)bc.Value()).intValue + 
+                ", " + ((BroadcastTestClass)bc.Value()).doubleValue + 
+                " => " + ((BroadcastTestClass)bc.Value()).boolValue);
 
-            var expected = new[] {
+            string[] expected = new[] {
                 "Alice is testing first broadcast, 1, 1.1 => True",
                 "Bob is testing first broadcast, 1, 1.1 => True" };
 
@@ -94,10 +94,10 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
             Func<Column, Column> testBroadcast = Udf<string, string>(
                 row => row + " is " +
-                ((BroadcastTestClass)bc1.Value())._stringValue +
-                " and " + ((BroadcastTestClass)bc2.Value())._stringValue);
+                ((BroadcastTestClass)bc1.Value()).stringValue +
+                " and " + ((BroadcastTestClass)bc2.Value()).stringValue);
 
-            var expected = new[] {
+            string[] expected = new[] {
                 "Alice is testing first broadcast and testing second broadcast",
                 "Bob is testing first broadcast and testing second broadcast" };
 

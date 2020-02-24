@@ -10,8 +10,8 @@ namespace Microsoft.Spark
 {
     /// <summary>
     /// A broadcast variable. Broadcast variables allow the programmer to keep a read-only variable
-    /// cached on each machine rather than shipping a copy of it with tasks.They can be used, for
-    /// example, to give every node a copy of a large input dataset in an efficient manner.Spark 
+    /// cached on each machine rather than shipping a copy of it with tasks. They can be used, for
+    /// example, to give every node a copy of a large input dataset in an efficient manner. Spark 
     /// also attempts to distribute broadcast variables using efficient broadcast algorithms to 
     /// reduce communication cost.
     /// </summary>
@@ -20,102 +20,71 @@ namespace Microsoft.Spark
     {
         [NonSerialized]
         private JvmObjectReference _jvmObject;
-        [NonSerialized]
-        private readonly SparkContext _sc;
-        [NonSerialized]
-        private string _path;
-        [NonSerialized]
-        private JvmObjectReference _python_broadcast;
         private long _bid;
 
-        internal Broadcast(SparkContext sc,
-            object value,
-            JvmObjectReference sparkContext,
-            string path = null
-            )
+        internal Broadcast(SparkContext sc, object value, JvmObjectReference sparkContext)
         {
-            if (sc != null)
+            var path = Path.Combine(sc._temp_dir, Path.GetRandomFileName());
+            Version version = SparkEnvironment.SparkVersion;
+
+            // Spark versions 2.3.0 and 2.3.1 create Broadcast variables using different logic
+            if (version.Major == 2 && version.Minor == 3 && (version.Build == 0 || version.Build == 1) )
             {
-                // We're on the driver
-                _sc = sc;
-                _path = Path.Combine(_sc._temp_dir, Path.GetRandomFileName());
-
-                Version version = SparkEnvironment.SparkVersion;
-
-                // Spark versions 2.3.0 and 2.3.1 create Broadcast variables using different logic
-                if (version.Minor == 3 && (version.Build == 0 || version.Build == 1) )
-                {
-                    WriteBroadcastValueToFile(value);
-                    JvmObjectReference javaSparkContext = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
+                WriteBroadcastValueToFile(sc, path, value);
+                var javaSparkContext = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
                     "org.apache.spark.api.java.JavaSparkContext",
                     "fromSparkContext",
                     sparkContext);
-                    _jvmObject = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
+                _jvmObject = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
                     "org.apache.spark.api.python.PythonRDD",
                     "readBroadcastFromFile",
                     javaSparkContext,
-                    _path);
-                }
-                else
-                {
-                    SparkConf sparkConf = _sc.GetConf();
-                    sc._encryption_enabled = bool.Parse(
-                        sparkConf.Get("spark.io.encryption.enabled",
-                        "false"));
-
-                    _python_broadcast = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
-                        "org.apache.spark.api.python.PythonRDD",
-                        "setupBroadcast",
-                        _path);
-
-                    if (sc._encryption_enabled)
-                    {
-                        throw new NotImplementedException(
-                                "Broadcast encryption is not supported yet.");
-                    }
-                    else
-                    {
-                        WriteBroadcastValueToFile(value);
-                    }
-
-                    _jvmObject = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
-                        "org.apache.spark.sql.api.dotnet.SQLUtils",
-                        "createBroadcast",
-                        sparkContext,
-                        _python_broadcast);
-                }
-
-                _bid = (long)_jvmObject.Invoke("id");
-                BroadcastRegistry.s_listBroadcastVariables.Add(_jvmObject);
+                    path);
             }
             else
             {
-                // We're on an executor.
-                _sc = null;
-                _jvmObject = null;
-                _python_broadcast = null;
-                
-                if (path != null)
+                SparkConf sparkConf = sc.GetConf();
+                sc._encryption_enabled = bool.Parse(
+                    sparkConf.Get("spark.io.encryption.enabled",
+                    "false"));
+
+                var _python_broadcast = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
+                    "org.apache.spark.api.python.PythonRDD",
+                    "setupBroadcast",
+                    path);
+
+                if (sc._encryption_enabled)
                 {
-                    _path = path;
+                    throw new NotImplementedException(
+                            "Broadcast encryption is not supported yet.");
                 }
                 else
                 {
-                    throw new SystemException(
-                        "broadcast called from executor with path not set.");
+                    WriteBroadcastValueToFile(sc, path, value);
                 }
+
+                _jvmObject = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
+                    "org.apache.spark.sql.api.dotnet.SQLUtils",
+                    "createBroadcast",
+                    sparkContext,
+                    _python_broadcast);
             }
+            _bid = (long)_jvmObject.Invoke("id");
+            BroadcastRegistry.s_listBroadcastVariables.Add(_jvmObject);
         }
+
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
         /// Function that creates a file to store the broadcast value in the given path
         /// </summary>
+        /// <param name="sc">Spark Context object</param>
+        /// <param name="path">Path where file is to be created</param>
         /// <param name="value">Broadcast value to be written to the file</param>
-        public void WriteBroadcastValueToFile(object value)
+        private void WriteBroadcastValueToFile(SparkContext sc, string path, object value)
         {
-            Directory.CreateDirectory(_sc._temp_dir);
-            FileStream f = File.Create(_path);
+            Directory.CreateDirectory(sc._temp_dir);
+            FileStream f = File.Create(path);
             Dump(value, f);
             f.Close();
         }
@@ -125,7 +94,7 @@ namespace Microsoft.Spark
         /// </summary>
         /// <param name="value">Serializable object</param>
         /// <param name="stream">Stream to which the object is serialized</param>
-        public void Dump(object value, Stream stream)
+        private void Dump(object value, Stream stream)
         {
             var formatter = new BinaryFormatter();
             formatter.Serialize(stream, value);
