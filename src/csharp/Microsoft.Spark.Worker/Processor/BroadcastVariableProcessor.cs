@@ -77,7 +77,8 @@ namespace Microsoft.Spark.Worker.Processor
     }
 
     /// <summary>
-    /// Function that loads the application assembly and returns the Type of the broadcast variable.
+    /// Function that loads the application assembly and returns the Type of the broadcast
+    /// variable.
     /// </summary>
     sealed class DeserializationBinder : SerializationBinder
     {
