@@ -99,6 +99,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Row[] actualRows = _df.Select(testBroadcast(_df["_1"])).Collect().ToArray();
             string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
             Assert.Equal(expected, actual);
+
         }
     }
 }
