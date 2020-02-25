@@ -229,14 +229,16 @@ namespace Microsoft.Spark
         internal RDD<T> Parallelize<T>(IEnumerable<T> seq, int? numSlices = null)
         {
             var formatter = new BinaryFormatter();
-            var memoryStream = new MemoryStream();
-
             var values = new List<byte[]>();
-            foreach (T obj in seq)
+
+            using (var memoryStream = new MemoryStream())
             {
-                formatter.Serialize(memoryStream, obj);
-                values.Add(memoryStream.ToArray());
-                memoryStream.SetLength(0);
+                foreach (T obj in seq)
+                {
+                    formatter.Serialize(memoryStream, obj);
+                    values.Add(memoryStream.ToArray());
+                    memoryStream.SetLength(0);
+                }
             }
 
             return new RDD<T>(
