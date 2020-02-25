@@ -33,7 +33,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         public BroadcastTests(SparkFixture fixture)
         {
             _spark = fixture.Spark;
-            var data = new List<string>(new string[] { "Alice", "Bob" });
+            var data = new List<string>(new string[] { "Alice is testing: ", "Bob is testing: " });
             _df = _spark.CreateDataFrame(data);
         }
 
@@ -45,27 +45,26 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         {
             var objectToBroadcast = new BroadcastTestClass(
                 1,
-                "testing first broadcast",
+                "first broadcast",
                 1.1,
                 true);
 
             Broadcast bc = _spark.SparkContext.Broadcast(objectToBroadcast);
 
             Func<Column, Column> testBroadcast = Udf<string, string>(
-                str => str +" is " +
+                str => str +
                 ((BroadcastTestClass)bc.Value()).stringValue +
                 ", " +((BroadcastTestClass)bc.Value()).intValue +
                 ", " +((BroadcastTestClass)bc.Value()).doubleValue +
-                " => " +((BroadcastTestClass)bc.Value()).boolValue);
+                ", " +((BroadcastTestClass)bc.Value()).boolValue);
 
             string[] expected = new[] {
-                "Alice is testing first broadcast, 1, 1.1 => True",
-                "Bob is testing first broadcast, 1, 1.1 => True" };
+                "Alice is testing: first broadcast, 1, 1.1, True",
+                "Bob is testing: first broadcast, 1, 1.1, True" };
 
             Row[] actualRows = _df.Select(testBroadcast(_df["_1"])).Collect().ToArray();
             string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
             Assert.Equal(expected, actual);
-            bc.Unpersist();
         }
 
         /// <summary>
@@ -76,7 +75,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         {
             var object1ToBroadcast = new BroadcastTestClass(
                 1,
-                "testing first broadcast",
+                "first broadcast",
                 1.1,
                 true);
             var object2ToBroadcast = new BroadcastTestClass(
@@ -89,13 +88,13 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Broadcast bc2 = _spark.SparkContext.Broadcast(object2ToBroadcast);
 
             Func<Column, Column> testBroadcast = Udf<string, string>(
-                str => str +" is " +
+                str => str +
                 ((BroadcastTestClass)bc1.Value()).stringValue +
                 " and " +((BroadcastTestClass)bc2.Value()).stringValue);
 
             string[] expected = new[] {
-                "Alice is testing first broadcast and second broadcast",
-                "Bob is testing first broadcast and second broadcast" };
+                "Alice is testing: first broadcast and second broadcast",
+                "Bob is testing: first broadcast and second broadcast" };
 
             Row[] actualRows = _df.Select(testBroadcast(_df["_1"])).Collect().ToArray();
             string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
