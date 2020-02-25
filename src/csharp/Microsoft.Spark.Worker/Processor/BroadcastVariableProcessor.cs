@@ -57,7 +57,7 @@ namespace Microsoft.Spark.Worker.Processor
                     }
                     else
                     {
-                        var path = SerDe.ReadString(stream);
+                        string path = SerDe.ReadString(stream);
                         FileStream fStream = File.Open(path, FileMode.Open, FileAccess.Read);
                         formatter.Binder = new DeserializationBinder();
                         var value = formatter.Deserialize(fStream);
@@ -77,7 +77,7 @@ namespace Microsoft.Spark.Worker.Processor
     }
 
     /// <summary>
-    /// Function that loads the application assembly and returns the Type of the broadcast variable
+    /// Function that loads the application assembly and returns the Type of the broadcast variable.
     /// </summary>
     sealed class DeserializationBinder : SerializationBinder
     {
