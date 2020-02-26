@@ -49,6 +49,11 @@ namespace Microsoft.Spark.Sql.Types
                 .AddTicks(microsecond * 10);
         }
 
+        public Timestamp(int year, int month, int day, int hour, int minute, int second)
+        {
+            _dateTime = new DateTime(year, month, day, hour, minute, second);
+        }
+
         /// <summary>
         /// Returns the year component of the timestamp.
         /// </summary>

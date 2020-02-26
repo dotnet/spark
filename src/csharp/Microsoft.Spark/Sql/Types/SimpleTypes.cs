@@ -93,8 +93,7 @@ namespace Microsoft.Spark.Sql.Types
 
         internal override object FromInternal(object obj)
         {
-            return new Timestamp(new DateTime((long)obj * 10 + s_unixTimeEpoch.Ticks)
-                .ToLocalTime());
+            return new Timestamp(new DateTime((int)obj * 10 + s_unixTimeEpoch.Ticks, DateTimeKind.Utc));
         }
     }
 
