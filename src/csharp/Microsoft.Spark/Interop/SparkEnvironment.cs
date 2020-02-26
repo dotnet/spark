@@ -14,10 +14,30 @@ namespace Microsoft.Spark.Interop
     /// </summary>
     internal static class SparkEnvironment
     {
-        private static readonly Lazy<Version> s_sparkVersion = new Lazy<Version>(
-            () => new Version((string)JvmBridge.CallStaticJavaMethod(
+        private static readonly ILoggerService s_logger =
+            LoggerServiceFactory.GetLogger(typeof(SparkEnvironment));
+
+        private static Version GetSparkVersion()
+        {
+            var sparkVersion = new Version((string)JvmBridge.CallStaticJavaMethod(
                 "org.apache.spark.deploy.dotnet.DotnetRunner",
-                "SPARK_VERSION")));
+                "SPARK_VERSION"));
+
+            string sparkVersionOverride =
+                Environment.GetEnvironmentVariable("SPARK_VERSION_OVERRIDE");
+            if (!string.IsNullOrEmpty(sparkVersionOverride))
+            {
+                s_logger.LogInfo(
+                    $"Overriding the Spark version from '{sparkVersion}' " +
+                    $"to '{sparkVersionOverride}'.");
+                sparkVersion = new Version(sparkVersionOverride);
+            }
+
+            return sparkVersion;
+        }
+
+        private static readonly Lazy<Version> s_sparkVersion =
+            new Lazy<Version>(() => GetSparkVersion());
         internal static Version SparkVersion
         {
             get
