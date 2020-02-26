@@ -25,8 +25,6 @@ object SQLUtils {
       pythonVersion: String,
       broadcastVars: JList[Broadcast[PythonBroadcast]],
       accumulator: PythonAccumulatorV2): PythonFunction = {
-    // DOTNET_WORKER_SPARK_VERSION is used to handle different versions of Spark on the worker.
-    envVars.put("DOTNET_WORKER_SPARK_VERSION", DotnetRunner.SPARK_VERSION)
 
     PythonFunction(
       command,
