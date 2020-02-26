@@ -7,7 +7,7 @@
 
 ### Breaking Changes
 
-* None, but `SPARK_VERSION_OVERRIDE` environment variable is added to override the Spark version.
+* None
 
 ### Supported Spark Versions
 
