@@ -20,12 +20,13 @@ namespace Microsoft.Spark
     /// </summary>
     public sealed class SparkContext : IJvmObjectReferenceProvider
     {
+        public string TempDir { get; set; }
+
+        public bool EncryptionEnabled { get; set; }
+
         private readonly JvmObjectReference _jvmObject;
 
         private readonly SparkConf _conf;
-
-        public string _temp_dir;
-        public bool _encryption_enabled = true;
 
         /// <summary>
         /// Create a SparkContext object with the given config.
@@ -314,11 +315,11 @@ namespace Microsoft.Spark
         /// <returns>A Microsoft.Spark.Broadcast object</returns>
         public Broadcast Broadcast<T>(T value)
         {
-            var local_dir = (string)_jvmObject.Jvm.CallStaticJavaMethod(
+            var localDir = (string)_jvmObject.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.util.Utils",
                 "getLocalDir",
                 _conf);
-            _temp_dir = local_dir + "\\sparkdotnet";
+            TempDir = (string)Path.Combine(localDir, "\\sparkdotnet");
             return new Broadcast(this, value, _jvmObject);
         }
 

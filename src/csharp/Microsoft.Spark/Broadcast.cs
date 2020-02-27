@@ -24,13 +24,13 @@ namespace Microsoft.Spark
 
         internal Broadcast(SparkContext sc, object value, JvmObjectReference sparkContext)
         {
-            var path = (string)Path.Combine(sc._temp_dir, Path.GetRandomFileName());
+            var path = (string)Path.Combine(sc.TempDir, Path.GetRandomFileName());
             Version version = SparkEnvironment.SparkVersion;
 
             // For Spark versions 2.3.0 and 2.3.1, Broadcast variable is created through different
             // functions.
             if (version.Major == 2 && version.Minor == 3 && (version.Build == 0 || 
-                version.Build == 1) )
+                version.Build == 1))
             {
                 WriteBroadcastValueToFile(sc, path, value);
                 var javaSparkContext = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
@@ -46,16 +46,16 @@ namespace Microsoft.Spark
             else
             {
                 SparkConf sparkConf = sc.GetConf();
-                sc._encryption_enabled = bool.Parse(
+                sc.EncryptionEnabled = bool.Parse(
                     sparkConf.Get("spark.io.encryption.enabled",
                     "false"));
 
-                var _python_broadcast = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
+                var pythonBroadcast = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
                     "org.apache.spark.api.python.PythonRDD",
                     "setupBroadcast",
                     path);
 
-                if (sc._encryption_enabled)
+                if (sc.EncryptionEnabled)
                 {
                     throw new NotImplementedException(
                             "Broadcast encryption is not supported yet.");
@@ -69,38 +69,13 @@ namespace Microsoft.Spark
                     "org.apache.spark.sql.api.dotnet.SQLUtils",
                     "createBroadcast",
                     sparkContext,
-                    _python_broadcast);
+                    pythonBroadcast);
             }
             _bid = (long)_jvmObject.Invoke("id");
             BroadcastRegistry.s_listBroadcastVariables.Add(_jvmObject);
         }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-
-        /// <summary>
-        /// Function that creates a file to store the broadcast value in the given path.
-        /// </summary>
-        /// <param name="sc">Spark Context object</param>
-        /// <param name="path">Path where file is to be created</param>
-        /// <param name="value">Broadcast value to be written to the file</param>
-        private void WriteBroadcastValueToFile(SparkContext sc, string path, object value)
-        {
-            Directory.CreateDirectory(sc._temp_dir);
-            FileStream f = File.Create(path);
-            Dump(value, f);
-            f.Close();
-        }
-
-        /// <summary>
-        /// Function that serializes and stores the object passed to the given Stream.
-        /// </summary>
-        /// <param name="value">Serializable object</param>
-        /// <param name="stream">Stream to which the object is serialized</param>
-        private void Dump(object value, Stream stream)
-        {
-            var formatter = new BinaryFormatter();
-            formatter.Serialize(stream, value);
-        }
 
         /// <summary>
         /// Get the broadcasted value.
@@ -139,6 +114,30 @@ namespace Microsoft.Spark
         public void Destroy()
         {
             _jvmObject.Invoke("destroy");
+        }
+
+        /// <summary>
+        /// Function that creates a file to store the broadcast value in the given path.
+        /// </summary>
+        /// <param name="sc">Spark Context object</param>
+        /// <param name="path">Path where file is to be created</param>
+        /// <param name="value">Broadcast value to be written to the file</param>
+        private void WriteBroadcastValueToFile(SparkContext sc, string path, object value)
+        {
+            Directory.CreateDirectory(sc.TempDir);
+            using FileStream f = File.Create(path);
+            Dump(value, f);
+        }
+
+        /// <summary>
+        /// Function that serializes and stores the object passed to the given Stream.
+        /// </summary>
+        /// <param name="value">Serializable object</param>
+        /// <param name="stream">Stream to which the object is serialized</param>
+        private void Dump(object value, Stream stream)
+        {
+            var formatter = new BinaryFormatter();
+            formatter.Serialize(stream, value);
         }
     }
 

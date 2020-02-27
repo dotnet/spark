@@ -34,8 +34,7 @@ namespace Microsoft.Spark.Worker.Processor
                 broadcastVars.DecryptionServerNeeded = SerDe.ReadBool(stream);
             }
 
-            int numBroadcastVariables = Math.Max(SerDe.ReadInt32(stream), 0);
-            broadcastVars.Count = numBroadcastVariables;
+            broadcastVars.Count = Math.Max(SerDe.ReadInt32(stream), 0);
 
             if (broadcastVars.DecryptionServerNeeded)
             {
@@ -44,7 +43,7 @@ namespace Microsoft.Spark.Worker.Processor
                 // TODO: Handle the authentication.
             }
 
-            for (int i = 0; i < numBroadcastVariables; ++i)
+            for (int i = 0; i < broadcastVars.Count; ++i)
             {
                 var formatter = new BinaryFormatter();
                 long bid = SerDe.ReadInt64(stream);
@@ -58,10 +57,9 @@ namespace Microsoft.Spark.Worker.Processor
                     else
                     {
                         string path = SerDe.ReadString(stream);
-                        FileStream fStream = File.Open(path, FileMode.Open, FileAccess.Read);
+                        using FileStream fStream = File.Open(path, FileMode.Open, FileAccess.Read);
                         formatter.Binder = new DeserializationBinder();
                         var value = formatter.Deserialize(fStream);
-                        fStream.Close();
                         BroadcastRegistry.s_registry.TryAdd(bid, value);
                     }
                 }

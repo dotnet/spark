@@ -8,19 +8,19 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.UdfTests
 {
     [Serializable]
-    public class BroadcastTestClass
+    public class BroadcastExampleType
     {
-        public int intValue { get; set; }
-        public string stringValue { get; set; }
-        public double doubleValue { get; set; }
-        public bool boolValue { get; set; }
+        public int IntValue { get; set; }
+        public string StringValue { get; set; }
+        public double DoubleValue { get; set; }
+        public bool BoolValue { get; set; }
 
-        public BroadcastTestClass(int _int, string _string, double _double, bool _bool)
+        public BroadcastExampleType(int intVal, string stringVal, double doubleVal, bool boolVal)
         {
-            intValue = _int;
-            stringValue = _string;
-            doubleValue = _double;
-            boolValue = _bool;
+            IntValue = intVal;
+            StringValue = stringVal;
+            DoubleValue = doubleVal;
+            BoolValue = boolVal;
         }
     }
 
@@ -43,7 +43,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestSingleBroadcastWithoutEncryption()
         {
-            var objectToBroadcast = new BroadcastTestClass(
+            var objectToBroadcast = new BroadcastExampleType(
                 1,
                 "first broadcast",
                 1.1,
@@ -53,10 +53,10 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
             Func<Column, Column> testBroadcast = Udf<string, string>(
                 str => str +
-                ((BroadcastTestClass)bc.Value()).stringValue +
-                ", " +((BroadcastTestClass)bc.Value()).intValue +
-                ", " +((BroadcastTestClass)bc.Value()).doubleValue +
-                ", " +((BroadcastTestClass)bc.Value()).boolValue);
+                ((BroadcastExampleType)bc.Value()).StringValue +
+                ", " +((BroadcastExampleType)bc.Value()).IntValue +
+                ", " +((BroadcastExampleType)bc.Value()).DoubleValue +
+                ", " +((BroadcastExampleType)bc.Value()).BoolValue);
 
             string[] expected = new[] {
                 "Alice is testing: first broadcast, 1, 1.1, True",
@@ -73,12 +73,12 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestMultipleBroadcastWithoutEncryption()
         {
-            var object1ToBroadcast = new BroadcastTestClass(
+            var object1ToBroadcast = new BroadcastExampleType(
                 1,
                 "first broadcast",
                 1.1,
                 true);
-            var object2ToBroadcast = new BroadcastTestClass(
+            var object2ToBroadcast = new BroadcastExampleType(
                 2,
                 "second broadcast",
                 2.2,
@@ -89,8 +89,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
             Func<Column, Column> testBroadcast = Udf<string, string>(
                 str => str +
-                ((BroadcastTestClass)bc1.Value()).stringValue +
-                " and " +((BroadcastTestClass)bc2.Value()).stringValue);
+                ((BroadcastExampleType)bc1.Value()).StringValue +
+                " and " +((BroadcastExampleType)bc2.Value()).StringValue);
 
             string[] expected = new[] {
                 "Alice is testing: first broadcast and second broadcast",
