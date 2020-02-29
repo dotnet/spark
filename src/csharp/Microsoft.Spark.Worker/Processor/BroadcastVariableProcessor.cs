@@ -82,8 +82,7 @@ namespace Microsoft.Spark.Worker.Processor
     {
         public override Type BindToType(string assemblyName, string typeName)
         {
-            Type broadcastType = AssemblyLoader.ResolveAssembly(assemblyName).GetType(typeName);
-            return broadcastType;
+            return AssemblyLoader.ResolveAssembly(assemblyName).GetType(typeName);
         }
     }
 }

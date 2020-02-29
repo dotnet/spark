@@ -319,7 +319,7 @@ namespace Microsoft.Spark
                 "org.apache.spark.util.Utils",
                 "getLocalDir",
                 _conf);
-            TempDir = (string)Path.Combine(localDir, "\\sparkdotnet");
+            TempDir = Path.Combine(localDir, "sparkdotnet");
             return new Broadcast(this, value, _jvmObject);
         }
 
