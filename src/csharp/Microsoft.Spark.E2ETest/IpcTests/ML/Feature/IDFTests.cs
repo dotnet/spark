@@ -23,9 +23,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestIDFModel()
         {
-            var expectedInputCol = "rawFeatures";
-            var expectedOutputCol = "features";
-            var expectedDocFrequency = 100;
+            string expectedInputCol = "rawFeatures";
+            string expectedOutputCol = "features";
+            int expectedDocFrequency = 100;
             
             var idf = new IDF()
                 .SetInputCol(expectedInputCol)
@@ -38,9 +38,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             
             using (var tempDirectory = new TemporaryDirectory())
             {
-                var savePath = Path.Join(tempDirectory.Path, "IDF");
+                string savePath = Path.Join(tempDirectory.Path, "IDF");
                 idf.Save(savePath);
-                var loadedIdf = IDF.Load(savePath);
+                
+                IDF loadedIdf = IDF.Load(savePath);
                 Assert.Equal(idf.Uid(), loadedIdf.Uid());
             }
         }

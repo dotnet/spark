@@ -14,13 +14,15 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public class IDFModel : IJvmObjectReferenceProvider
     {
-       
+        private static readonly string s_IDFModelClassName = 
+            "org.apache.spark.ml.feature.IDFModel";
+
         /// <summary>
         /// Create a <see cref="IDFModel"/> without any parameters
         /// </summary>
         public IDFModel()
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_IDFModelClassName);
         }
 
         /// <summary>
@@ -30,7 +32,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
         public IDFModel(string uid)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName, uid);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_IDFModelClassName, uid);
         }
         
         internal IDFModel(JvmObjectReference jvmObject)
@@ -40,8 +42,6 @@ namespace Microsoft.Spark.ML.Feature
 
         private readonly JvmObjectReference _jvmObject;
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-        
-        private const string JavaClassName = "org.apache.spark.ml.feature.IDFModel";
         
         /// <summary>
         /// Gets the column that the <see cref="IDFModel"/> should read from
@@ -114,6 +114,17 @@ namespace Microsoft.Spark.ML.Feature
         public string Uid()
         {
             return (string)_jvmObject.Invoke("uid");
+        }
+        
+        /// <summary>
+        /// Loads the <see cref="IDFModel"/> that was previously saved using Save
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns><see cref="IDFModel"/></returns>
+        public static IDFModel Load(string path)
+        {
+            return WrapAsIDFModel(
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_IDFModelClassName, "load", path));
         }
         
         /// <summary>

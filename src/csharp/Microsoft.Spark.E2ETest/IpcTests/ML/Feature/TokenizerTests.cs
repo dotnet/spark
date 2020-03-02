@@ -23,9 +23,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestTokenizer()
         {
-            var expectedUid = "theUid";
-            var expectedInputCol = "input_col";
-            var expectedOutputCol = "output_col";
+            string expectedUid = "theUid";
+            string expectedInputCol = "input_col";
+            string expectedOutputCol = "output_col";
             
             DataFrame input = _spark.Sql("SELECT 'hello I AM a string TO, TOKENIZE' as input_col" +
                 " from range(100)");
@@ -42,10 +42,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             
             using (var tempDirectory = new TemporaryDirectory())
             {
-                var savePath = Path.Join(tempDirectory.Path, "Tokenizer");
+                string savePath = Path.Join(tempDirectory.Path, "Tokenizer");
                 tokenizer.Save(savePath);
-                var loadedIdf = Tokenizer.Load(savePath);
-                Assert.Equal(tokenizer.Uid(), loadedIdf.Uid());
+                
+                Tokenizer loadedTokenizer = Tokenizer.Load(savePath);
+                Assert.Equal(tokenizer.Uid(), loadedTokenizer.Uid());
             }
             
             Assert.Equal(expectedUid, tokenizer.Uid());

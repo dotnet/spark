@@ -23,9 +23,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestHashingTF()
         {
-            var expectedInputCol = "input_col";
-            var expectedOutputCol = "output_col";
-            var expectedFeatures = 10;
+            string expectedInputCol = "input_col";
+            string expectedOutputCol = "output_col";
+            int expectedFeatures = 10;
 
             Assert.IsType<HashingTF>(new HashingTF());
             
@@ -48,9 +48,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
        
             using (var tempDirectory = new TemporaryDirectory())
             {
-                var savePath = Path.Join(tempDirectory.Path, "hashingTF");
+                string savePath = Path.Join(tempDirectory.Path, "hashingTF");
                 hashingTf.Save(savePath);
-                var loadedHashingTf = HashingTF.Load(savePath);
+                
+                HashingTF loadedHashingTf = HashingTF.Load(savePath);
                 Assert.Equal(hashingTf.Uid(), loadedHashingTf.Uid());
             }
 

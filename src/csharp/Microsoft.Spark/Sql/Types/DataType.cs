@@ -164,7 +164,7 @@ namespace Microsoft.Spark.Sql.Types
                         {
                             if (typeJObject.TryGetValue("sqlType", out JToken sqlTypeToken))
                             {
-                                return new StructType(sqlTypeToken as JObject);
+                                return new StructType((JObject)sqlTypeToken);
                             }
                         }
 

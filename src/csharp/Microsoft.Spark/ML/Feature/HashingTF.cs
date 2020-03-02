@@ -21,12 +21,15 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public class HashingTF : IJvmObjectReferenceProvider
     {
+        private static readonly string s_hashingTfClassName = 
+            "org.apache.spark.ml.feature.HashingTF";
+        
         /// <summary>
         /// Create a <see cref="HashingTF"/> without any parameters
         /// </summary>
         public HashingTF()
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(_javaClassName);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_hashingTfClassName);
         }
 
         /// <summary>
@@ -36,7 +39,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         public HashingTF(string uid)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(_javaClassName, uid);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_hashingTfClassName, uid);
         }
         
         internal HashingTF(JvmObjectReference jvmObject)
@@ -45,7 +48,7 @@ namespace Microsoft.Spark.ML.Feature
         }
 
         private readonly JvmObjectReference _jvmObject;
-        private const string _javaClassName = "org.apache.spark.ml.feature.HashingTF";
+        
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
@@ -56,7 +59,7 @@ namespace Microsoft.Spark.ML.Feature
         public static HashingTF Load(string path)
         {
             return WrapAsHashingTF(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(_javaClassName,"load", path));
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_hashingTfClassName,"load", path));
         }
         
         /// <summary>
@@ -130,7 +133,10 @@ namespace Microsoft.Spark.ML.Feature
         }
 
         /// <summary>
-        /// Gets the number of features that should be used
+        /// Gets the number of features that should be used. Since a simple modulo is used to
+        /// transform the hash function to a column index, it is advisable to use a power of two
+        /// as the numFeatures parameter; otherwise the features will not be mapped evenly to the
+        /// columns.
         /// </summary>
         /// <returns>int</returns>
         public int GetNumFeatures()
@@ -139,7 +145,10 @@ namespace Microsoft.Spark.ML.Feature
         }
         
         /// <summary>
-        /// Sets the number of features that should be used
+        /// Sets the number of features that should be used. Since a simple modulo is used to
+        /// transform the hash function to a column index, it is advisable to use a power of two as
+        /// the numFeatures parameter; otherwise the features will not be mapped evenly to the
+        /// columns.
         /// </summary>
         /// <param name="value">int</param>
         /// <returns><see cref="HashingTF"/></returns>

@@ -8,7 +8,6 @@ using System.Linq;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
@@ -23,17 +22,15 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public class Bucketizer : IJvmObjectReferenceProvider
     {
-        internal Bucketizer(JvmObjectReference jvmObject)
-        {
-            _jvmObject = jvmObject;
-        }
+        private static readonly string s_bucketizerClassName = 
+            "org.apache.spark.ml.feature.Bucketizer";
 
         /// <summary>
         /// Create a <see cref="Bucketizer"/> without any parameters
         /// </summary>
         public Bucketizer()
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_bucketizerClassName);
         }
 
         /// <summary>
@@ -43,12 +40,16 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
         public Bucketizer(string uid)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName, uid);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_bucketizerClassName, uid);
+        }
+        
+        internal Bucketizer(JvmObjectReference jvmObject)
+        {
+            _jvmObject = jvmObject;
         }
         
         private readonly JvmObjectReference _jvmObject;
-        private const string JavaClassName = "org.apache.spark.ml.feature.Bucketizer";
-
+        
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
         
         /// <summary>
@@ -195,7 +196,7 @@ namespace Microsoft.Spark.ML.Feature
         public static Bucketizer Load(string path)
         {
             return WrapAsBucketizer(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(JavaClassName,"load", path));
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_bucketizerClassName,"load", path));
         }
         
         /// <summary>

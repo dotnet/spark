@@ -23,9 +23,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestIDFModel()
         {
-            var expectedDocFrequency = 1980;
-            var expectedInputCol = "rawFeatures";
-            var expectedOutputCol = "features";
+            int expectedDocFrequency = 1980;
+            string expectedInputCol = "rawFeatures";
+            string expectedOutputCol = "features";
             
             DataFrame sentenceData =
                 _spark.Sql("SELECT 0.0 as label, 'Hi I heard about Spark' as sentence");
@@ -48,7 +48,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .SetOutputCol(expectedOutputCol)
                 .SetMinDocFreq(expectedDocFrequency);
             
-            var idfModel = idf.Fit(featurizedData);
+            IDFModel idfModel = idf.Fit(featurizedData);
 
             DataFrame rescaledData = idfModel.Transform(featurizedData);
             Assert.Contains(expectedOutputCol, rescaledData.Columns());
@@ -59,8 +59,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             
             using (var tempDirectory = new TemporaryDirectory())
             {
-                var modelPath = Path.Join(tempDirectory.Path, "ideModel");
+                string modelPath = Path.Join(tempDirectory.Path, "ideModel");
                 idfModel.Save(modelPath);
+
+                IDFModel loadedModel = IDFModel.Load(modelPath);
+                Assert.Equal(idfModel.Uid(), loadedModel.Uid());
             }
         }
     }

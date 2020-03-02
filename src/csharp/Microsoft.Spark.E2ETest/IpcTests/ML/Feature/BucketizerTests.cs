@@ -52,9 +52,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             
             using (var tempDirectory = new TemporaryDirectory())
             {
-                var savePath = Path.Join(tempDirectory.Path, "bucket");
+                string savePath = Path.Join(tempDirectory.Path, "bucket");
                 bucketizer.Save(savePath);
-                var loadedBucketizer = Bucketizer.Load(savePath);
+                
+                Bucketizer loadedBucketizer = Bucketizer.Load(savePath);
                 Assert.Equal(bucketizer.Uid(), loadedBucketizer.Uid());
             }
         }

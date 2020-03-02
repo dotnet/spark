@@ -19,12 +19,14 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public class IDF : IJvmObjectReferenceProvider
     {
+        private static readonly string s_IDFClassName = "org.apache.spark.ml.feature.IDF";
+        
         /// <summary>
         /// Create a <see cref="IDF"/> without any parameters
         /// </summary>
         public IDF()
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_IDFClassName);
         }
 
         /// <summary>
@@ -34,15 +36,13 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
         public IDF(string uid)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(JavaClassName, uid);
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_IDFClassName, uid);
         }
         
         internal IDF(JvmObjectReference jvmObject)
         {
             _jvmObject = jvmObject;
         }
-
-        private const string JavaClassName = "org.apache.spark.ml.feature.IDF";
 
         private readonly JvmObjectReference _jvmObject;
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
@@ -136,7 +136,7 @@ namespace Microsoft.Spark.ML.Feature
         public static IDF Load(string path)
         {
             return WrapAsIDF(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(JavaClassName, "load", path));
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_IDFClassName, "load", path));
         }
         
         /// <summary>
