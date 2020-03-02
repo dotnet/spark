@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Text.RegularExpressions;
 
 namespace Microsoft.Spark.Sql.Types
@@ -63,10 +64,19 @@ namespace Microsoft.Spark.Sql.Types
     }
 
     /// <summary>
-    /// Represents a date type.
+    /// Represents a date type. It represents a valid date in the proleptic Gregorian
+    /// calendar. Valid range is [0001-01-01, 9999-12-31].
     /// </summary>
     public sealed class DateType : AtomicType
     {
+        private static readonly DateTime s_unixTimeEpoch = new DateTime(1970, 1, 1);
+
+        internal override bool NeedConversion() => true;
+
+        internal override object FromInternal(object obj)
+        {
+            return new Date(new DateTime((int)obj * TimeSpan.TicksPerDay + s_unixTimeEpoch.Ticks));
+        }
     }
 
     /// <summary>
