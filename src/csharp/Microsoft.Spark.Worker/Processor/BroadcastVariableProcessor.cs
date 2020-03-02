@@ -14,7 +14,6 @@ namespace Microsoft.Spark.Worker.Processor
     internal sealed class BroadcastVariableProcessor
     {
         private readonly Version _version;
-
         internal BroadcastVariableProcessor(Version version)
         {
             _version = version;
@@ -58,31 +57,17 @@ namespace Microsoft.Spark.Worker.Processor
                     {
                         string path = SerDe.ReadString(stream);
                         using FileStream fStream = File.Open(path, FileMode.Open, FileAccess.Read);
-                        formatter.Binder = new DeserializationBinder();
                         var value = formatter.Deserialize(fStream);
-                        BroadcastRegistry.s_registry.TryAdd(bid, value);
+                        BroadcastRegistry.Add(bid, value);
                     }
                 }
                 else
                 {
                     bid = -bid - 1;
-                    BroadcastRegistry.s_registry.TryRemove(bid, out _);
-                    BroadcastRegistry.s_listBroadcastVariables.Remove((int)bid);
+                    BroadcastRegistry.Remove(bid);
                 }
             }
             return broadcastVars;
-        }
-    }
-
-    /// <summary>
-    /// Function that loads the application assembly and returns the Type of the broadcast
-    /// variable.
-    /// </summary>
-    sealed class DeserializationBinder : SerializationBinder
-    {
-        public override Type BindToType(string assemblyName, string typeName)
-        {
-            return AssemblyLoader.ResolveAssembly(assemblyName).GetType(typeName);
         }
     }
 }

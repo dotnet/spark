@@ -153,6 +153,7 @@ namespace Microsoft.Spark.Utils
         internal static JvmObjectReference CreatePythonFunction(IJvmBridge jvm, byte[] command)
         {
             var arrayList = new ArrayList(jvm);
+            ArrayList broadcastVariablesList = JvmBroadcastRegistry.ConvertToArrayList(jvm);
 
             return (JvmObjectReference)jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.SQLUtils",
@@ -162,7 +163,7 @@ namespace Microsoft.Spark.Utils
                 arrayList, // Python includes
                 SparkEnvironment.ConfigurationService.GetWorkerExePath(),
                 Versions.CurrentVersion,
-                BroadcastRegistry.s_listBroadcastVariables, // Broadcast variables
+                broadcastVariablesList, // Broadcast variables
                 null); // Accumulator
         }
 

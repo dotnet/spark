@@ -49,7 +49,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 1.1,
                 true);
 
-            Broadcast bc = _spark.SparkContext.Broadcast(objectToBroadcast);
+            Broadcast<BroadcastExampleType> bc = _spark.SparkContext.Broadcast(objectToBroadcast);
 
             Func<Column, Column> testBroadcast = Udf<string, string>(
                 str => str +
@@ -84,8 +84,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 2.2,
                 false);
 
-            Broadcast bc1 = _spark.SparkContext.Broadcast(object1ToBroadcast);
-            Broadcast bc2 = _spark.SparkContext.Broadcast(object2ToBroadcast);
+            Broadcast<BroadcastExampleType> bc1 = _spark.SparkContext.Broadcast(object1ToBroadcast);
+            Broadcast<BroadcastExampleType> bc2 = _spark.SparkContext.Broadcast(object2ToBroadcast);
 
             Func<Column, Column> testBroadcast = Udf<string, string>(
                 str => str +

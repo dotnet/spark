@@ -5,6 +5,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Interop.Internal.Java.Util;
 using Microsoft.Spark.Interop;
+using System.Collections.Generic;
 
 namespace Microsoft.Spark
 {
@@ -16,7 +17,7 @@ namespace Microsoft.Spark
     /// reduce communication cost.
     /// </summary>
     [Serializable]
-    public sealed class Broadcast: IJvmObjectReferenceProvider
+    public sealed class Broadcast<T>: IJvmObjectReferenceProvider
     {
         [NonSerialized]
         private readonly JvmObjectReference _jvmObject;
@@ -72,7 +73,7 @@ namespace Microsoft.Spark
                     pythonBroadcast);
             }
             _bid = (long)_jvmObject.Invoke("id");
-            BroadcastRegistry.s_listBroadcastVariables.Add(_jvmObject);
+            JvmBroadcastRegistry.s_jvmBroadcastVariables.Add(_jvmObject);
         }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
@@ -81,9 +82,9 @@ namespace Microsoft.Spark
         /// Get the broadcasted value.
         /// </summary>
         /// <returns>The broadcasted value</returns>
-        public object Value()
+        public T Value()
         {
-            return BroadcastRegistry.s_registry[_bid];
+            return (T)BroadcastRegistry.s_registry[_bid];
         }
 
         /// <summary>
@@ -142,17 +143,58 @@ namespace Microsoft.Spark
     }
 
     /// <summary>
-    /// Registry to store the broadcast variables for access through workers.
+    /// Global registry to store the value of all active broadcast variables. It is populated on
+    /// the worker when accessed through BroadcastVariableProcessor. The value is returned whenever
+    /// the user invokes Broadcast.Value().
     /// </summary>
-    internal class BroadcastRegistry
+    internal static class BroadcastRegistry
     {
         public static ConcurrentDictionary<long, object> s_registry = 
             new ConcurrentDictionary<long, object>();
-        public static ArrayList s_listBroadcastVariables;
 
-        public BroadcastRegistry(IJvmBridge jvm)
+        /// <summary>
+        /// Function to add the value of the broadcast variable to s_registry.
+        /// </summary>
+        /// <param name="bid">Id of the Broadcast variable object to add</param>
+        /// <param name="value">Value of the Broadcast variable</param>
+        public static void Add(long bid, object value)
         {
-            s_listBroadcastVariables = new ArrayList(jvm);
+            s_registry.TryAdd(bid, value);
+        }
+
+        /// <summary>
+        /// Function to remove the Broadcast variable from s_regitry.
+        /// </summary>
+        /// <param name="bid">Id of the Broadcast variable object to remove</param>
+        public static void Remove(long bid)
+        {
+            s_registry.TryRemove(bid, out _);
+        }
+    }
+
+    /// <summary>
+    /// Stores the JVMObjectReference objects of all active broadcast variables that
+    /// are sent to each executor through the CreatePythonFunction.
+    /// </summary>
+    internal static class JvmBroadcastRegistry
+    {
+        public static List<JvmObjectReference> s_jvmBroadcastVariables = 
+            new List<JvmObjectReference>();
+
+        /// <summary>
+        /// Converts Generic.List of JvmObjectReference to ArrayList of JvmObjectReference
+        /// </summary>
+        /// <param name="jvm">JVM bridge to use</param>
+        /// <returns>ArrayList object containing JvmObjectReference objects for all
+        /// broadcast variables</returns>
+        public static ArrayList ConvertToArrayList(IJvmBridge jvm)
+        {
+            var arrayList = new ArrayList(jvm);
+            foreach (JvmObjectReference broadcastVariable in s_jvmBroadcastVariables)
+            {
+                arrayList.Add(broadcastVariable);
+            }
+            return arrayList;
         }
     }
 }

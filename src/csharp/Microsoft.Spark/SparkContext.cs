@@ -94,7 +94,6 @@ namespace Microsoft.Spark
         {
             _jvmObject = jvmObject;
             _conf = new SparkConf((JvmObjectReference)_jvmObject.Invoke("getConf"));
-            _ = new BroadcastRegistry(jvmObject.Jvm);
         }
 
 
@@ -313,14 +312,14 @@ namespace Microsoft.Spark
         /// <typeparam name="T"></typeparam>
         /// <param name="value">Value/variable to be broadcast</param>
         /// <returns>A Microsoft.Spark.Broadcast object</returns>
-        public Broadcast Broadcast<T>(T value)
+        public Broadcast<T> Broadcast<T>(T value)
         {
             var localDir = (string)_jvmObject.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.util.Utils",
                 "getLocalDir",
                 _conf);
             TempDir = Path.Combine(localDir, "sparkdotnet");
-            return new Broadcast(this, value, _jvmObject);
+            return new Broadcast<T>(this, value, _jvmObject);
         }
 
         /// <summary>
