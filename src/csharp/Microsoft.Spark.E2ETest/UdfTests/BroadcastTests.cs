@@ -89,8 +89,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
             Func<Column, Column> testBroadcast = Udf<string, string>(
                 str => str +
-                ((BroadcastExampleType)bc1.Value()).StringValue +
-                " and " +((BroadcastExampleType)bc2.Value()).StringValue);
+                (bc1.Value()).StringValue +
+                " and " +(bc2.Value()).StringValue);
 
             string[] expected = new[] {
                 "Alice is testing: first broadcast and second broadcast",
@@ -100,6 +100,49 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
             Assert.Equal(expected, actual);
 
+        }
+
+        /// <summary>
+        /// Test Broadcast.Destroy() that destroys all data and metadata related to the broadcast
+        /// variable and makes it inaccessible from workers.
+        /// </summary>
+        [Fact]
+        public void TestDestroy()
+        {
+            var objectToBroadcast = new BroadcastExampleType(
+                3,
+                "Broadcast.Destroy()",
+                3.3,
+                true);
+
+            Broadcast<BroadcastExampleType> bc = _spark.SparkContext.Broadcast(objectToBroadcast);
+
+            Func<Column, Column> testBroadcast = Udf<string, string>(
+                str => str +
+                (bc.Value()).StringValue +
+                ", " + (bc.Value()).IntValue +
+                ", " + (bc.Value()).DoubleValue +
+                ", " + (bc.Value()).BoolValue);
+
+            string[] expected = new[] {
+                "Alice is testing: Broadcast.Destroy(), 3, 3.3, True",
+                "Bob is testing: Broadcast.Destroy(), 3, 3.3, True" };
+
+            Row[] actualRows = _df.Select(testBroadcast(_df["_1"])).Collect().ToArray();
+            string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
+            Assert.Equal(expected, actual);
+
+            bc.Destroy();
+
+            Func<Column, Column> testDestroyedBroadcast = Udf<string, string>(
+                str => str +
+                (bc.Value()).StringValue +
+                ", " + (bc.Value()).IntValue +
+                ", " + (bc.Value()).DoubleValue +
+                ", " + (bc.Value()).BoolValue);
+
+            //Row[] rowsAfterDestroy = _df.Select(testDestroyedBroadcast(_df["_1"])).Collect().ToArray();
+            Assert.Throws<Exception>(() => _df.Select(testDestroyedBroadcast(_df["_1"])).Collect().ToArray());
         }
     }
 }
