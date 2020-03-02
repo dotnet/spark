@@ -114,7 +114,8 @@ namespace Microsoft.Spark.ML.Feature
         public static Tokenizer Load(string path)
         {
             return WrapAsTokenizer(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_tokenizerClassName, "load", path));
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_tokenizerClassName, "load", path));
         }
         
         /// <summary>

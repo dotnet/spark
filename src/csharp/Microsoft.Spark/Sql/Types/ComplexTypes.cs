@@ -3,7 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Spark.Interop.Ipc;
 using Newtonsoft.Json.Linq;
@@ -71,7 +73,16 @@ namespace Microsoft.Spark.Sql.Types
 
         internal override bool NeedConversion() => true;
 
-        internal override object FromInternal(object obj) => throw new NotImplementedException();
+        internal override object FromInternal(object obj)
+        {
+            switch (obj)
+            {
+                case ArrayList objArrayList:
+                    return objArrayList.ToArray();
+            }
+            
+            throw new NotImplementedException();
+        }
     }
 
     /// <summary>

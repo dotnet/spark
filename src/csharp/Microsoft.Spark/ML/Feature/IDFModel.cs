@@ -124,7 +124,8 @@ namespace Microsoft.Spark.ML.Feature
         public static IDFModel Load(string path)
         {
             return WrapAsIDFModel(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_IDFModelClassName, "load", path));
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_IDFModelClassName, "load", path));
         }
         
         /// <summary>

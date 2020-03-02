@@ -196,7 +196,8 @@ namespace Microsoft.Spark.ML.Feature
         public static Bucketizer Load(string path)
         {
             return WrapAsBucketizer(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_bucketizerClassName,"load", path));
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_bucketizerClassName,"load", path));
         }
         
         /// <summary>

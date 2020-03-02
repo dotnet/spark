@@ -2,7 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
@@ -57,6 +60,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             hashingTf.SetBinary(true);
             Assert.True(hashingTf.GetBinary());
+            
+            IEnumerable<Row> vectors = outputVector.Collect();
+            Row row = vectors.First();
+            Assert.Equal(1.0, ((row.Values[0] as Row).Values[3] as object[])[1]);
+            
         }
     }
 }
