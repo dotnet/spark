@@ -80,8 +80,7 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="IDF"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
         /// </summary>
-        /// <param name="value">The name of the new column
-        /// </param>
+        /// <param name="value">The name of the new column</param>
         /// <returns><see cref="IDF"/></returns>
         public IDF SetOutputCol(string value)
         {
@@ -100,7 +99,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Minimum of documents in which a term should appear for filtering
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">int, the minimum of documents a term should appear in</param>
         /// <returns></returns>
         public IDF SetMinDocFreq(int value)
         {
@@ -131,7 +130,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Loads the <see cref="IDF"/> that was previously saved using Save
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The path the previous <see cref="IDF"/> was saved to</param>
         /// <returns><see cref="IDF"/></returns>
         public static IDF Load(string path)
         {
@@ -142,7 +141,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Saves the <see cref="IDF"/> so that it can be loaded later using Load
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The path to save the <see cref="IDF"/> to</param>
         /// <returns><see cref="IDF"/></returns>
         public IDF Save(string path)
         {

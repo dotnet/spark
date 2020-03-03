@@ -76,8 +76,7 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="Tokenizer"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
         /// </summary>
-        /// <param name="value">The name of the new column
-        /// </param>
+        /// <param name="value">The name of the new column</param>
         /// <returns><see cref="Tokenizer"/></returns>
         public Tokenizer SetOutputCol(string value)
         {
@@ -109,7 +108,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Loads the <see cref="Tokenizer"/> that was previously saved using Save
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The path the previous <see cref="Tokenizer"/> was saved to</param>
         /// <returns><see cref="Tokenizer"/></returns>
         public static Tokenizer Load(string path)
         {
@@ -121,7 +120,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Saves the <see cref="Tokenizer"/> so that it can be loaded later using Load
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The path to save the <see cref="Tokenizer"/> to</param>
         /// <returns><see cref="Tokenizer"/></returns>
         public Tokenizer Save(string path)
         {

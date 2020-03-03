@@ -54,7 +54,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Loads the <see cref="HashingTF"/> that was previously saved using Save
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The path the previous <see cref="HashingTF"/> was saved to</param>
         /// <returns><see cref="HashingTF"/></returns>
         public static HashingTF Load(string path)
         {
@@ -65,7 +65,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Saves the <see cref="HashingTF"/> so that it can be loaded later using Load
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The path to save the <see cref="HashingTF"/> to</param>
         /// <returns><see cref="HashingTF"/></returns>
         public HashingTF Save(string path)
         {

@@ -191,7 +191,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Loads the <see cref="Bucketizer"/> that was previously saved using Save
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The path the previous <see cref="Bucketizer"/> was saved to</param>
         /// <returns><see cref="Bucketizer"/></returns>
         public static Bucketizer Load(string path)
         {
@@ -203,7 +203,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Saves the <see cref="Bucketizer"/> so that it can be loaded later using Load
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The path to save the <see cref="Bucketizer"/> to</param>
         /// <returns><see cref="Bucketizer"/></returns>
         public Bucketizer Save(string path)
         {

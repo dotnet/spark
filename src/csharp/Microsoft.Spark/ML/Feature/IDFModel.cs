@@ -119,7 +119,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Loads the <see cref="IDFModel"/> that was previously saved using Save
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The path the previous <see cref="IDFModel"/> was saved to</param>
         /// <returns><see cref="IDFModel"/></returns>
         public static IDFModel Load(string path)
         {
@@ -131,7 +131,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Saves the <see cref="IDFModel"/> so that it can be loaded later using Load
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The path to save the <see cref="IDFModel"/> to</param>
         /// <returns><see cref="IDFModel"/></returns>
         public IDFModel Save(string path)
         {
