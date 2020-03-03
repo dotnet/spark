@@ -18,12 +18,12 @@ namespace Microsoft.Spark.Sql
         /// Maps each group of the current DataFrame using a UDF and
         /// returns the result as a DataFrame.
         /// 
-        /// The user-defined function should take an FxDataFrame
-        /// and return another FxDataFrame. For each group, all
-        /// columns are passed together as an FxDataFrame to the user-function and
+        /// The user-defined function should take an <see cref="FxDataFrame"/>
+        /// and return another <see cref="FxDataFrame"/>. For each group, all
+        /// columns are passed together as an <see cref="FxDataFrame"/> to the user-function and
         /// the returned FxDataFrame are combined as a DataFrame.
         ///
-        /// The returned FxDataFrame can be of arbitrary length and its schema must match
+        /// The returned <see cref="FxDataFrame"/> can be of arbitrary length and its schema must match
         /// <paramref name="returnType"/>.
         /// </summary>
         /// <param name="dataset">

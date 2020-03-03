@@ -355,24 +355,14 @@ namespace Microsoft.Spark.Worker.Command
                 // Mixed mode. Not supported
                 throw new NotSupportedException("Combined Arrow and DataFrame style commands are not supported");
             }
-            SqlCommandExecutor executor = null;
             if (useDataFrameCommandExecutor)
             {
-                executor = new DataFrameSqlCommandExecutor();
-                return executor.ExecuteCore(inputStream, outputStream, commands);
+                return ExecuteDataFrameSqlCommand(inputStream, outputStream, commands);
             }
-            executor = new ArrowSqlCommandExecutor();
-            return executor.ExecuteCore(inputStream, outputStream, commands);
+            return ExecuteArrowSqlCommand(inputStream, outputStream, commands);
         }
-    }
 
-    /// <summary>
-    /// A SqlCommandExecutor that reads and writes using the
-    /// Apache Arrow format.
-    /// </summary>
-    internal class ArrowSqlCommandExecutor : ArrowOrDataFrameSqlCommandExecutor
-    {
-        protected internal override CommandExecutorStat ExecuteCore(
+        private CommandExecutorStat ExecuteArrowSqlCommand(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands)
@@ -404,6 +394,55 @@ namespace Microsoft.Spark.Worker.Command
 
                 // TODO: Remove sync-over-async once WriteRecordBatch exists.
                 writer.WriteRecordBatchAsync(recordBatch).GetAwaiter().GetResult();
+            }
+
+            SerDe.Write(outputStream, 0);
+
+            if (writer != null)
+            {
+                writer.Dispose();
+            }
+
+            return stat;
+        }
+        private CommandExecutorStat ExecuteDataFrameSqlCommand(
+            Stream inputStream,
+            Stream outputStream,
+            SqlCommand[] commands)
+        {
+            var stat = new CommandExecutorStat();
+            ICommandRunner commandRunner = CreateCommandRunner(commands);
+
+            SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
+
+            ArrowStreamWriter writer = null;
+            foreach (RecordBatch input in GetInputIterator(inputStream))
+            {
+                FxDataFrame dataFrame = FxDataFrame.FromArrowRecordBatch(input);
+                DataFrameColumn[] inputColumns = new DataFrameColumn[input.ColumnCount];
+                for (int i = 0; i < dataFrame.Columns.Count; ++i)
+                {
+                    inputColumns[i] = dataFrame.Columns[i];
+                }
+
+                DataFrameColumn[] results = commandRunner.Run(inputColumns);
+
+                FxDataFrame resultDataFrame = new FxDataFrame(results);
+                IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToArrowRecordBatches();
+
+                foreach (RecordBatch result in recordBatches)
+                {
+                    int numEntries = result.Length;
+                    stat.NumEntriesProcessed += numEntries;
+
+                    if (writer == null)
+                    {
+                        writer = new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true);
+                    }
+
+                    // TODO: Remove sync-over-async once WriteRecordBatch exists.
+                    writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
+                }
             }
 
             SerDe.Write(outputStream, 0);
@@ -524,6 +563,13 @@ namespace Microsoft.Spark.Worker.Command
             /// <param name="input">Input data for the commands to run</param>
             /// <returns>Value returned by running the commands</returns>
             IArrowArray[] Run(ReadOnlyMemory<IArrowArray> input);
+
+            /// <summary>
+            /// Runs commands based on the given split id and input.
+            /// </summary>
+            /// <param name="input">Input data for the commands to run</param>
+            /// <returns>Value returned by running the commands</returns>
+            DataFrameColumn[] Run(ReadOnlyMemory<DataFrameColumn> input);
         }
 
         /// <summary>
@@ -553,6 +599,18 @@ namespace Microsoft.Spark.Worker.Command
             public IArrowArray[] Run(ReadOnlyMemory<IArrowArray> input)
             {
                 return new[] { ((ArrowWorkerFunction)_command.WorkerFunction).Func(
+                    input,
+                    _command.ArgOffsets) };
+            }
+
+            /// <summary>
+            /// Runs a single command.
+            /// </summary>
+            /// <param name="input">Input data for the command to run</param>
+            /// <returns>Value returned by running the command</returns>
+            public DataFrameColumn[] Run(ReadOnlyMemory<DataFrameColumn> input)
+            {
+                return new[] { ((DataFrameWorkerFunction)_command.WorkerFunction).Func(
                     input,
                     _command.ArgOffsets) };
             }
@@ -593,146 +651,6 @@ namespace Microsoft.Spark.Worker.Command
                         command.ArgOffsets);
                 }
                 return resultColumns;
-            }
-        }
-    }
-
-    /// <summary>
-    /// A SqlCommandExecutor that reads and writes using a DataFrame backed by the
-    /// Apache Arrow format.
-    /// </summary>
-    internal class DataFrameSqlCommandExecutor : ArrowOrDataFrameSqlCommandExecutor
-    {
-        protected internal override CommandExecutorStat ExecuteCore(
-            Stream inputStream,
-            Stream outputStream,
-            SqlCommand[] commands)
-        {
-            var stat = new CommandExecutorStat();
-            ICommandRunner commandRunner = CreateCommandRunner(commands);
-
-            SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
-
-            ArrowStreamWriter writer = null;
-            foreach (RecordBatch input in GetInputIterator(inputStream))
-            {
-                FxDataFrame dataFrame = FxDataFrame.FromArrowRecordBatch(input);
-                DataFrameColumn[] inputColumns = new DataFrameColumn[input.ColumnCount];
-                for (int i = 0; i < dataFrame.Columns.Count; ++i)
-                {
-                    inputColumns[i] = dataFrame.Columns[i];
-                }
-
-                DataFrameColumn[] results = commandRunner.Run(inputColumns);
-
-                FxDataFrame resultDataFrame = new FxDataFrame(results);
-                IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToArrowRecordBatches();
-
-                foreach (RecordBatch result in recordBatches)
-                {
-                    int numEntries = result.Length;
-                    stat.NumEntriesProcessed += numEntries;
-
-                    if (writer == null)
-                    {
-                        writer = new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true);
-                    }
-
-                    // TODO: Remove sync-over-async once WriteRecordBatch exists.
-                    writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
-                }
-            }
-
-            SerDe.Write(outputStream, 0);
-
-            if (writer != null)
-            {
-                writer.Dispose();
-            }
-
-            return stat;
-        }
-
-        /// <summary>
-        /// Creates an ICommandRunner instance based on the given commands.
-        /// </summary>
-        /// <param name="commands">Commands used for creating a command runner</param>
-        /// <returns>An ICommandRunner instance</returns>
-        private static ICommandRunner CreateCommandRunner(SqlCommand[] commands)
-        {
-            return (commands.Length == 1) ?
-                (ICommandRunner)new SingleCommandRunner(commands[0]) :
-                new MultiCommandRunner(commands);
-        }
-
-        /// <summary>
-        /// Interface for running commands.
-        /// On the Spark side, the following is expected for the Pickling to work:
-        /// If there is a single command (one UDF), the computed value is returned
-        /// as an object (one element). If there are multiple commands (multiple UDF scenario),
-        /// the computed value should be an array (not IEnumerable) where each element
-        /// in the array corresponds to the value returned by a command.
-        /// Refer to EvaluatePython.scala for StructType case.
-        /// </summary>
-        private interface ICommandRunner
-        {
-            /// <summary>
-            /// Runs commands based on the given split id and input.
-            /// </summary>
-            /// <param name="input">Input data for the commands to run</param>
-            /// <returns>Value returned by running the commands</returns>
-            DataFrameColumn[] Run(ReadOnlyMemory<DataFrameColumn> input);
-        }
-
-        /// <summary>
-        /// SingleCommandRunner handles running a single command.
-        /// </summary>
-        private sealed class SingleCommandRunner : ICommandRunner
-        {
-            /// <summary>
-            /// A command to run.
-            /// </summary>
-            private readonly SqlCommand _command;
-
-            /// <summary>
-            /// Constructor.
-            /// </summary>
-            /// <param name="command">A command to run</param>
-            internal SingleCommandRunner(SqlCommand command)
-            {
-                _command = command;
-            }
-
-            /// <summary>
-            /// Runs a single command.
-            /// </summary>
-            /// <param name="input">Input data for the command to run</param>
-            /// <returns>Value returned by running the command</returns>
-            public DataFrameColumn[] Run(ReadOnlyMemory<DataFrameColumn> input)
-            {
-                return new[] { ((DataFrameWorkerFunction)_command.WorkerFunction).Func(
-                    input,
-                    _command.ArgOffsets) };
-            }
-        }
-
-        /// <summary>
-        /// MultiCommandRunner handles running multiple commands.
-        /// </summary>
-        private sealed class MultiCommandRunner : ICommandRunner
-        {
-            /// <summary>
-            /// Commands to run.
-            /// </summary>
-            private readonly SqlCommand[] _commands;
-
-            /// <summary>
-            /// Constructor.
-            /// </summary>
-            /// <param name="commands">Multiple commands top run</param>
-            internal MultiCommandRunner(SqlCommand[] commands)
-            {
-                _commands = commands;
             }
 
             /// <summary>
@@ -785,20 +703,14 @@ namespace Microsoft.Spark.Worker.Command
                 // Mixed mode. Not supported
                 throw new NotSupportedException("Combined Arrow and DataFrame style commands are not supported");
             }
-            SqlCommandExecutor executor = null;
             if (useDataFrameGroupedMapCommandExecutor)
             {
-                executor = new DataFrameGroupedMapCommandExecutor();
-                return executor.ExecuteCore(inputStream, outputStream, commands);
+                return ExecuteDataFrameGroupedMapCommand(inputStream, outputStream, commands);
             }
-            executor = new ArrowGroupedMapCommandExecutor();
-            return executor.ExecuteCore(inputStream, outputStream, commands);
+            return ExecuteArrowGroupedMapCommand(inputStream, outputStream, commands);
         }
-    }
 
-    internal class ArrowGroupedMapCommandExecutor : ArrowBasedCommandExecutor
-    {
-        protected internal override CommandExecutorStat ExecuteCore(
+        private CommandExecutorStat ExecuteArrowGroupedMapCommand(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands)
@@ -837,11 +749,8 @@ namespace Microsoft.Spark.Worker.Command
 
             return stat;
         }
-    }
 
-    internal class DataFrameGroupedMapCommandExecutor : ArrowBasedCommandExecutor
-    {
-        protected internal override CommandExecutorStat ExecuteCore(
+        private CommandExecutorStat ExecuteDataFrameGroupedMapCommand(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands)

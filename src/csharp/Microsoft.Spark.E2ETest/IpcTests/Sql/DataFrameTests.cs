@@ -320,7 +320,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                         new StructField("age", new IntegerType()),
                         new StructField("nameCharCount", new IntegerType())
                     }),
-                    batch => CountCharacters(batch))
+                    batch => ArrowBasedCountCharacters(batch))
                 .Collect()
                 .ToArray();
 
@@ -346,7 +346,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        private static RecordBatch CountCharacters(RecordBatch records)
+        private static RecordBatch ArrowBasedCountCharacters(RecordBatch records)
         {
             int stringFieldIndex = records.Schema.GetFieldIndex("name");
             StringArray stringValues = records.Column(stringFieldIndex) as StringArray;
