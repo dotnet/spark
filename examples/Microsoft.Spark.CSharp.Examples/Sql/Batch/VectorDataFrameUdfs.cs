@@ -52,22 +52,20 @@ namespace Microsoft.Spark.Examples.Sql.Batch
                         new StructField("age", new IntegerType()),
                         new StructField("nameCharCount", new IntegerType())
                     }),
-                    r => CountCharacters(r, "age", "name"))
+                    r => CountCharacters(r))
                 .Show();
 
             spark.Stop();
         }
 
         private static FxDataFrame CountCharacters(
-            FxDataFrame dataFrame,
-            string groupFieldName,
-            string stringFieldName)
+            FxDataFrame dataFrame)
         {
             int characterCount = 0;
 
-            PrimitiveDataFrameColumn<int> characterCountColumn = new PrimitiveDataFrameColumn<int>(stringFieldName + "CharCount");
-            PrimitiveDataFrameColumn<int> ageColumn = new PrimitiveDataFrameColumn<int>(groupFieldName);
-            ArrowStringDataFrameColumn nameColumn = dataFrame[stringFieldName] as ArrowStringDataFrameColumn;
+            PrimitiveDataFrameColumn<int> characterCountColumn = new PrimitiveDataFrameColumn<int>("name" + "CharCount");
+            PrimitiveDataFrameColumn<int> ageColumn = new PrimitiveDataFrameColumn<int>("age");
+            ArrowStringDataFrameColumn nameColumn = dataFrame["name"] as ArrowStringDataFrameColumn;
             for (long i = 0; i < dataFrame.Rows.Count; ++i)
             {
                 characterCount += nameColumn[i].Length;
@@ -76,7 +74,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             if (dataFrame.Rows.Count > 0)
             {
                 characterCountColumn.Append(characterCount);
-                ageColumn.Append((int?)dataFrame[groupFieldName][0]);
+                ageColumn.Append((int?)dataFrame["age"][0]);
             }
 
             FxDataFrame ret = new FxDataFrame(ageColumn, characterCountColumn);

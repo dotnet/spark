@@ -400,7 +400,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                         new StructField("age", new IntegerType()),
                         new StructField("nameCharCount", new IntegerType())
                     }),
-                    batch => CountCharacters(batch, "age", "name"))
+                    batch => CountCharacters(batch))
                 .Collect()
                 .ToArray();
 
@@ -426,13 +426,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        private static FxDataFrame CountCharacters(FxDataFrame dataFrame, string groupFieldName, string stringFieldName)
+        private static FxDataFrame CountCharacters(FxDataFrame dataFrame)
         {
             int characterCount = 0;
 
-            PrimitiveDataFrameColumn<int> characterCountColumn = new PrimitiveDataFrameColumn<int>(stringFieldName + "CharCount");
-            PrimitiveDataFrameColumn<int> ageColumn = new PrimitiveDataFrameColumn<int>(groupFieldName);
-            ArrowStringDataFrameColumn fieldColumn = dataFrame[stringFieldName] as ArrowStringDataFrameColumn;
+            PrimitiveDataFrameColumn<int> characterCountColumn = new PrimitiveDataFrameColumn<int>("name" + "CharCount");
+            PrimitiveDataFrameColumn<int> ageColumn = new PrimitiveDataFrameColumn<int>("age");
+            ArrowStringDataFrameColumn fieldColumn = dataFrame["name"] as ArrowStringDataFrameColumn;
             for (long i = 0; i < dataFrame.Rows.Count; ++i)
             {
                 characterCount += fieldColumn[i].Length;
@@ -441,7 +441,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             if (dataFrame.Rows.Count > 0)
             {
                 characterCountColumn.Append(characterCount);
-                ageColumn.Append((int?)dataFrame[groupFieldName][0]);
+                ageColumn.Append((int?)dataFrame["age"][0]);
             }
 
             FxDataFrame ret = new FxDataFrame(ageColumn, characterCountColumn);

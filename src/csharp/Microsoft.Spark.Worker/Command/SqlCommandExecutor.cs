@@ -296,12 +296,8 @@ namespace Microsoft.Spark.Worker.Command
         }
     }
 
-    internal class ArrowBasedCommandExecutor : SqlCommandExecutor
+    internal abstract class ArrowBasedCommandExecutor : SqlCommandExecutor
     {
-        protected internal override CommandExecutorStat ExecuteCore(Stream inputStream, Stream outputStream, SqlCommand[] commands)
-        {
-            throw new NotImplementedException();
-        }
         protected IEnumerable<RecordBatch> GetInputIterator(Stream inputStream)
         {
             using (var reader = new ArrowStreamReader(inputStream, leaveOpen: true))
