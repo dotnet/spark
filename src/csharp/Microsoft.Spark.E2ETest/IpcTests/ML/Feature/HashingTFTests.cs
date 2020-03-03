@@ -60,11 +60,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             hashingTf.SetBinary(true);
             Assert.True(hashingTf.GetBinary());
-            
-            IEnumerable<Row> vectors = outputVector.Collect();
-            Row row = vectors.First();
-            Assert.Equal(1.0, ((row.Values[0] as Row).Values[3] as object[])[1]);
-            
         }
     }
 }
