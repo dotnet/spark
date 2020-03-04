@@ -309,7 +309,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) =>
                 {
-                    StringArray stringArray = (StringArray)ToArrowArray(
+                    var stringArray = (StringArray)ToArrowArray(
                     Enumerable.Range(0, (int)strings.Length)
                         .Select(i => $"udf: {strings[i]}")
                         .ToArray());
@@ -492,7 +492,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             var udfWrapper1 = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) =>
                 {
-                    StringArray stringArray = (StringArray)ToArrowArray(
+                    var stringArray = (StringArray)ToArrowArray(
                     Enumerable.Range(0, (int)strings.Length)
                         .Select(i => $"udf: {strings[i]}")
                         .ToArray());
@@ -682,7 +682,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) =>
                 {
-                    StringArray stringArray = (StringArray)ToArrowArray(
+                    var stringArray = (StringArray)ToArrowArray(
                      Enumerable.Range(0, (int)strings.Length)
                          .Select(i => $"udf: {strings[i]}")
                          .ToArray());
@@ -814,7 +814,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             int numRows = 10;
 
             // Write test data to the input stream.
-            Schema schema = new Schema.Builder()
+            var schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Field(b => b.Name("arg2").DataType(Int64Type.Default))
                 .Build();
@@ -887,7 +887,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                         .ToArray());
             }
 
-            Schema resultSchema = new Schema.Builder()
+            var resultSchema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Field(b => b.Name("arg2").DataType(Int64Type.Default))
                 .Build();
@@ -896,7 +896,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 (dataFrame) =>
                 {
                     StringArray strings = ConvertStrings(dataFrame.Columns[0]);
-                    ArrowStringDataFrameColumn stringColumn = new ArrowStringDataFrameColumn(dataFrame.Columns[0].Name, strings.ValueBuffer.Memory, strings.ValueOffsetsBuffer.Memory, strings.NullBitmapBuffer.Memory, strings.Length, strings.NullCount);
+                    var stringColumn = new ArrowStringDataFrameColumn(dataFrame.Columns[0].Name, strings.ValueBuffer.Memory, strings.ValueOffsetsBuffer.Memory, strings.NullBitmapBuffer.Memory, strings.Length, strings.NullCount);
                     DataFrameColumn doubles = dataFrame.Columns[1] + 100;
                     return new DataFrame(new List<DataFrameColumn>() { stringColumn, doubles });
                 });
@@ -921,7 +921,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             int numRows = 10;
 
             // Write test data to the input stream.
-            Schema schema = new Schema.Builder()
+            var schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Field(b => b.Name("arg2").DataType(Int64Type.Default))
                 .Build();

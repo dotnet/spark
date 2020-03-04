@@ -87,16 +87,16 @@ namespace Microsoft.Spark.UnitTest
             var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) =>
                 {
-                    StringArray stringColumn = (StringArray)ToArrowArray(
-                    Enumerable.Range(0, (int)strings.Length)
-                        .Select(i => $"hello {strings[i]}")
-                        .ToArray());
+                    var stringColumn = (StringArray)ToArrowArray(
+                        Enumerable.Range(0, (int)strings.Length)
+                            .Select(i => $"hello {strings[i]}")
+                            .ToArray());
                     return ToArrowStringDataFrameColumn(stringColumn);
                 });
 
             var workerFunction = new DataFrameWorkerFunction(udfWrapper.Execute);
 
-            var serializedCommand = Utils.CommandSerDe.Serialize(
+            byte[] serializedCommand = Utils.CommandSerDe.Serialize(
                 workerFunction.Func,
                 Utils.CommandSerDe.SerializedMode.Row,
                 Utils.CommandSerDe.SerializedMode.Row);

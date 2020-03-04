@@ -63,8 +63,8 @@ namespace Microsoft.Spark.Examples.Sql.Batch
         {
             int characterCount = 0;
 
-            PrimitiveDataFrameColumn<int> characterCountColumn = new PrimitiveDataFrameColumn<int>("name" + "CharCount");
-            PrimitiveDataFrameColumn<int> ageColumn = new PrimitiveDataFrameColumn<int>("age");
+            var characterCountColumn = new PrimitiveDataFrameColumn<int>("name" + "CharCount");
+            var ageColumn = new PrimitiveDataFrameColumn<int>("age");
             ArrowStringDataFrameColumn nameColumn = dataFrame["name"] as ArrowStringDataFrameColumn;
             for (long i = 0; i < dataFrame.Rows.Count; ++i)
             {
@@ -77,8 +77,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
                 ageColumn.Append((int?)dataFrame["age"][0]);
             }
 
-            FxDataFrame ret = new FxDataFrame(ageColumn, characterCountColumn);
-            return ret;
+            return new FxDataFrame(ageColumn, characterCountColumn);
         }
     }
 }

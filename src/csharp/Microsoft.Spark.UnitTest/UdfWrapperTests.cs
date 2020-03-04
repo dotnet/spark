@@ -356,7 +356,7 @@ namespace Microsoft.Spark.UnitTest
                 builder.Clear();
             }
 
-            StringArray stringColumn = (StringArray)ToArrowArray(resultStrings);
+            var stringColumn = (StringArray)ToArrowArray(resultStrings);
             return ToArrowStringDataFrameColumn(stringColumn);
         }
 
@@ -398,7 +398,7 @@ namespace Microsoft.Spark.UnitTest
             for (int i = 0; i < input.Length; ++i)
             {
                 inputStrings.Add($"arg{i}");
-                StringArray stringColumn = (StringArray)ToArrowArray(new string[] { $"arg{i}" });
+                var stringColumn = (StringArray)ToArrowArray(new string[] { $"arg{i}" });
                 input[i] = ToArrowStringDataFrameColumn(stringColumn);
             }
 

@@ -92,7 +92,7 @@ namespace Microsoft.Spark.UnitTest
                     (str) => str).Execute);
 
             string[] input = { "arg1" };
-            StringArray column = (StringArray)ToArrowArray(input);
+            var column = (StringArray)ToArrowArray(input);
             ArrowStringDataFrameColumn ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
             ArrowTestUtils.AssertEquals(
                 input[0],
@@ -137,22 +137,22 @@ namespace Microsoft.Spark.UnitTest
                 new DataFrameUdfWrapper<ArrowStringDataFrameColumn, PrimitiveDataFrameColumn<bool>, PrimitiveDataFrameColumn<bool>>(
                     (strings, flags) =>
                     {
-                        for (long i = 0; i < strings.Length; i++)
+                        for (long i = 0; i < strings.Length; ++i)
                         {
                             flags[i] = flags[i].Value || strings[i].Contains("true");
                         }
                         return flags;
                     }).Execute);
 
-            StringArray stringColumn = (StringArray)ToArrowArray(new[] { "arg1_true", "arg1_true", "arg1_false", "arg1_false" });
+            var stringColumn = (StringArray)ToArrowArray(new[] { "arg1_true", "arg1_true", "arg1_false", "arg1_false" });
 
-            ArrowStringDataFrameColumn ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(stringColumn);
-            PrimitiveDataFrameColumn<bool> boolColumn = new PrimitiveDataFrameColumn<bool>("Bool", Enumerable.Range(0, 4).Select(x => x % 2 == 0 ? true : false));
-            DataFrameColumn[] input = new DataFrameColumn[]
-            {
-                ArrowStringDataFrameColumn,
-                boolColumn
-            };
+            var ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(stringColumn);
+            var boolColumn = new PrimitiveDataFrameColumn<bool>("Bool", Enumerable.Range(0, 4).Select(x => x % 2 == 0));
+            var input = new DataFrameColumn[]
+                {
+                    ArrowStringDataFrameColumn,
+                    boolColumn
+                };
             var results = (PrimitiveDataFrameColumn<bool>)func.Func(input, new[] { 0, 1 });
             Assert.Equal(4, results.Length);
             Assert.True(results[0]);
@@ -211,7 +211,7 @@ namespace Microsoft.Spark.UnitTest
                 new DataFrameUdfWrapper<PrimitiveDataFrameColumn<int>, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (numbers, strings) =>
                     {
-                        StringArray stringColumn = (StringArray)ToArrowArray(
+                        var stringColumn = (StringArray)ToArrowArray(
                          Enumerable.Range(0, (int)strings.Length)
                              .Select(i => $"{strings[i]}:{numbers[i]}")
                              .ToArray());
@@ -222,7 +222,7 @@ namespace Microsoft.Spark.UnitTest
                 new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (strings) =>
                     {
-                        StringArray stringColumn = (StringArray)ToArrowArray(
+                        var stringColumn = (StringArray)ToArrowArray(
                         Enumerable.Range(0, (int)strings.Length)
                             .Select(i => $"outer1:{strings[i]}")
                             .ToArray());
@@ -233,7 +233,7 @@ namespace Microsoft.Spark.UnitTest
                 new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (strings) =>
                     {
-                        StringArray stringColumn = (StringArray)ToArrowArray(
+                        var stringColumn = (StringArray)ToArrowArray(
                          Enumerable.Range(0, (int)strings.Length)
                              .Select(i => $"outer2:{strings[(i)]}")
                              .ToArray());
@@ -241,13 +241,13 @@ namespace Microsoft.Spark.UnitTest
                     }).Execute);
 
             string[] inputString = { "name" };
-            StringArray column = (StringArray)ToArrowArray(inputString);
-            ArrowStringDataFrameColumn ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
-            DataFrameColumn[] input = new DataFrameColumn[]
-            {
-                new PrimitiveDataFrameColumn<int>("Int", new List<int>() {100 }),
-                ArrowStringDataFrameColumn
-            };
+            var column = (StringArray)ToArrowArray(inputString);
+            var ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
+            var input = new DataFrameColumn[]
+                {
+                    new PrimitiveDataFrameColumn<int>("Int", new List<int>() {100 }),
+                    ArrowStringDataFrameColumn
+                };
 
             // Validate one-level chaining.
             var chainedFunc1 = DataFrameWorkerFunction.Chain(func1, func2);
@@ -297,7 +297,7 @@ namespace Microsoft.Spark.UnitTest
                 new DataFrameUdfWrapper<PrimitiveDataFrameColumn<int>, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (numbers, strings) =>
                     {
-                        StringArray stringArray = (StringArray)ToArrowArray(
+                        var stringArray = (StringArray)ToArrowArray(
                             Enumerable.Range(0, (int)strings.Length)
                                 .Select(i => $"{strings[i]}:{numbers[i]}")
                                 .ToArray());
@@ -308,7 +308,7 @@ namespace Microsoft.Spark.UnitTest
                 new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (strings) =>
                     {
-                        StringArray stringArray = (StringArray)ToArrowArray(
+                        var stringArray = (StringArray)ToArrowArray(
                          Enumerable.Range(0, (int)strings.Length)
                              .Select(i => $"outer1:{strings[i]}")
                              .ToArray());
@@ -316,13 +316,13 @@ namespace Microsoft.Spark.UnitTest
                     }).Execute);
 
             string[] inputString = { "name" };
-            StringArray column = (StringArray)ToArrowArray(inputString);
-            ArrowStringDataFrameColumn ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
-            DataFrameColumn[] input = new DataFrameColumn[]
-            {
-                new PrimitiveDataFrameColumn<int>("Int", new List<int>() {100 }),
-                ArrowStringDataFrameColumn
-            };
+            var column = (StringArray)ToArrowArray(inputString);
+            var ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
+            var input = new DataFrameColumn[]
+                {
+                    new PrimitiveDataFrameColumn<int>("Int", new List<int>() {100 }),
+                    ArrowStringDataFrameColumn
+                };
 
             // The order does not align since workerFunction2 is executed first.
             var chainedFunc1 = DataFrameWorkerFunction.Chain(func2, func1);

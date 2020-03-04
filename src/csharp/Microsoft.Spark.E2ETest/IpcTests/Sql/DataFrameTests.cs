@@ -229,10 +229,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Func<PrimitiveDataFrameColumn<int>, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn> udf1Func =
                 (ages, names) =>
                 {
-                    StringArray stringArray = (StringArray)ToArrowArray(
-                    Enumerable.Range(0, (int)names.Length)
-                        .Select(i => $"{names[i]} is {ages[i] ?? 0}")
-                        .ToArray());
+                    var stringArray = (StringArray)ToArrowArray(
+                        Enumerable.Range(0, (int)names.Length)
+                            .Select(i => $"{names[i]} is {ages[i] ?? 0}")
+                            .ToArray());
                     return ToArrowStringDataFrameColumn(stringArray);
                 };
 
@@ -251,7 +251,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Func<Column, Column> udf2 = ExperimentalDataFrameFunctions.VectorUdf<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) =>
                 {
-                    StringArray stringArray = (StringArray)ToArrowArray(
+                    var stringArray = (StringArray)ToArrowArray(
                         Enumerable.Range(0, (int)strings.Length)
                             .Select(i => $"hello {strings[i]}!")
                             .ToArray());
@@ -430,8 +430,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {
             int characterCount = 0;
 
-            PrimitiveDataFrameColumn<int> characterCountColumn = new PrimitiveDataFrameColumn<int>("name" + "CharCount");
-            PrimitiveDataFrameColumn<int> ageColumn = new PrimitiveDataFrameColumn<int>("age");
+            var characterCountColumn = new PrimitiveDataFrameColumn<int>("name" + "CharCount");
+            var ageColumn = new PrimitiveDataFrameColumn<int>("age");
             ArrowStringDataFrameColumn fieldColumn = dataFrame["name"] as ArrowStringDataFrameColumn;
             for (long i = 0; i < dataFrame.Rows.Count; ++i)
             {
@@ -444,8 +444,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 ageColumn.Append((int?)dataFrame["age"][0]);
             }
 
-            FxDataFrame ret = new FxDataFrame(ageColumn, characterCountColumn);
-            return ret;
+            return new FxDataFrame(ageColumn, characterCountColumn);
         }
 
         /// <summary>

@@ -30,7 +30,7 @@ namespace Microsoft.Spark.Sql
         /// The <see cref="RelationalGroupedDataset"/> containing grouped data.
         /// </param>
         /// <param name="returnType">
-        /// The <see cref="StructType"/> that represents the shape of the return data set.
+        /// The <see cref="StructType"/> that represents the schema of the return data set.
         /// </param>
         /// <param name="func">A grouped map user-defined function.</param>
         /// <returns>New DataFrame object with the UDF applied.</returns>

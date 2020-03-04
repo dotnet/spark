@@ -419,7 +419,7 @@ namespace Microsoft.Spark.Worker.Command
             foreach (RecordBatch input in GetInputIterator(inputStream))
             {
                 FxDataFrame dataFrame = FxDataFrame.FromArrowRecordBatch(input);
-                DataFrameColumn[] inputColumns = new DataFrameColumn[input.ColumnCount];
+                var inputColumns = new DataFrameColumn[input.ColumnCount];
                 for (int i = 0; i < dataFrame.Columns.Count; ++i)
                 {
                     inputColumns[i] = dataFrame.Columns[i];
@@ -427,7 +427,7 @@ namespace Microsoft.Spark.Worker.Command
 
                 DataFrameColumn[] results = commandRunner.Run(inputColumns);
 
-                FxDataFrame resultDataFrame = new FxDataFrame(results);
+                var resultDataFrame = new FxDataFrame(results);
                 IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToArrowRecordBatches();
 
                 foreach (RecordBatch result in recordBatches)
