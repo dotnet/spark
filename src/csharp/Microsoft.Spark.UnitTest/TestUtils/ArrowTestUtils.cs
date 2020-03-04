@@ -110,7 +110,7 @@ namespace Microsoft.Spark.UnitTest.TestUtils
 
         public static ArrowStringDataFrameColumn ToArrowStringDataFrameColumn(StringArray array)
         {
-            return new ArrowStringDataFrameColumn(null,
+            return new ArrowStringDataFrameColumn("String",
                 array.ValueBuffer.Memory,
                 array.ValueOffsetsBuffer.Memory,
                 array.NullBitmapBuffer.Memory,
