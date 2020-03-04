@@ -110,6 +110,7 @@ object DotnetRunner extends Logging {
     if (initialized.tryAcquire(backendTimeout, TimeUnit.SECONDS)) {
       if (!runInDebugMode) {
         var returnCode = -1
+        var process: Process = null
         try {
           val builder = new ProcessBuilder(processParameters)
           val env = builder.environment()
@@ -120,7 +121,7 @@ object DotnetRunner extends Logging {
             logInfo(s"Adding key=$key and value=$value to environment")
           }
           builder.redirectErrorStream(true) // Ugly but needed for stdout and stderr to synchronize
-          val process = builder.start()
+          process = builder.start()
 
           // Redirect stdin of JVM process to stdin of .NET process.
           new RedirectThread(System.in, process.getOutputStream, "redirect JVM input").start()
@@ -128,11 +129,13 @@ object DotnetRunner extends Logging {
           new RedirectThread(process.getInputStream, System.out, "redirect .NET stdout").start()
           new RedirectThread(process.getErrorStream, System.out, "redirect .NET stderr").start()
 
-          returnCode = process.waitFor()
-          closeBackend(dotnetBackend)
+          process.waitFor()
         } catch {
           case t: Throwable =>
-            logError(s"${t.getMessage} \n ${t.getStackTrace}")
+            logThrowable(t)
+        } finally {
+          returnCode = closeDotnetProcess(process)
+          closeBackend(dotnetBackend)
         }
 
         if (returnCode != 0) {
@@ -232,6 +235,30 @@ object DotnetRunner extends Logging {
     dotnetBackend.close()
   }
 
+  private def closeDotnetProcess(dotnetProcess: Process): Int = {
+    if (dotnetProcess == null) {
+      return -1
+    } else if (!dotnetProcess.isAlive) {
+      return dotnetProcess.exitValue()
+    }
+
+    // Try to (gracefully on Linux) kill the process and resort to force if interrupted
+    var returnCode = -1
+    logInfo("Closing .NET process")
+    try {
+      dotnetProcess.destroy()
+      returnCode = dotnetProcess.waitFor()
+    } catch {
+      case _: InterruptedException =>
+        logInfo("Thread interrupted while waiting for graceful close. Forcefully closing .NET process")
+        returnCode = dotnetProcess.destroyForcibly().waitFor()
+      case t: Throwable =>
+        logThrowable(t)
+    }
+
+    returnCode
+  }
+
   private def initializeSettings(args: Array[String]): (Boolean, Int) = {
     val runInDebugMode = (args.length == 1 || args.length == 2) && args(0).equalsIgnoreCase(
       "debug")
@@ -246,4 +273,7 @@ object DotnetRunner extends Logging {
 
     (runInDebugMode, portNumber)
   }
+
+  private def logThrowable(throwable: Throwable): Unit =
+    logError(s"${throwable.getMessage} \n ${throwable.getStackTrace.mkString("\n")}")
 }

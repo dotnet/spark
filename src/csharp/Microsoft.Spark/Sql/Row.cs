@@ -3,8 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql
@@ -34,6 +32,28 @@ namespace Microsoft.Spark.Sql
             }
 
             Convert();
+        }
+
+        /// <summary>
+        /// Constructor for the schema-less Row class used for chained UDFs.
+        /// </summary>
+        /// <param name="genericRow">GenericRow object</param>
+        internal Row(GenericRow genericRow)
+        {
+            _genericRow = genericRow;
+        }
+
+        /// <summary>
+        /// Returns schema-less Row which can happen within chained UDFs (same behavior as PySpark).
+        /// </summary>
+        /// <remarks>
+        /// The use of this conversion operator is discouraged except for the UDF that returns
+        /// a Row object.
+        /// </remarks>
+        /// <returns>schema-less Row</returns>
+        public static implicit operator Row(GenericRow genericRow)
+        {
+            return new Row(genericRow);
         }
 
         /// <summary>
@@ -77,7 +97,7 @@ namespace Microsoft.Spark.Sql
         /// Returns the string version of this row.
         /// </summary>
         /// <returns>String version of this row</returns>
-        public override string ToString() => _genericRow.ToString();        
+        public override string ToString() => _genericRow.ToString();
 
         /// <summary>
         /// Returns the column value at the given index, as a type T.
@@ -123,23 +143,12 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         private void Convert()
         {
-            foreach (StructField field in Schema.Fields)
+            for (int i = 0; i < Size(); ++i)
             {
-                if (field.DataType is ArrayType)
+                DataType dataType = Schema.Fields[i].DataType;
+                if (dataType.NeedConversion())
                 {
-                    throw new NotImplementedException();
-                }
-                else if (field.DataType is MapType)
-                {
-                    throw new NotImplementedException();
-                }
-                else if (field.DataType is DecimalType)
-                {
-                    throw new NotImplementedException();
-                }
-                else if (field.DataType is DateType)
-                {
-                    throw new NotImplementedException();
+                    Values[i] = dataType.FromInternal(Values[i]);
                 }
             }
         }

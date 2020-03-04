@@ -34,69 +34,9 @@ namespace Microsoft.Spark.Worker.UnitTest
                 System.IO.Stream inputStream = serverSocket.InputStream;
                 System.IO.Stream outputStream = serverSocket.OutputStream;
 
-                Payload payload = TestData.GetDefaultPayload();
-                CommandPayload commandPayload = TestData.GetDefaultCommandPayload();
-
-                payloadWriter.Write(outputStream, payload, commandPayload);
-
-                // Write 10 rows to the output stream.
-                var pickler = new Pickler();
-                for (int i = 0; i < 10; ++i)
-                {
-                    byte[] pickled = pickler.dumps(
-                        new[] { new object[] { i.ToString(), i, i } });
-                    SerDe.Write(outputStream, pickled.Length);
-                    SerDe.Write(outputStream, pickled);
-                }
-
-                // Signal the end of data and stream.
-                SerDe.Write(outputStream, (int)SpecialLengths.END_OF_DATA_SECTION);
-                SerDe.Write(outputStream, (int)SpecialLengths.END_OF_STREAM);
-                outputStream.Flush();
-
+                payloadWriter.WriteTestData(outputStream);
                 // Now process the bytes flowing in from the client.
-                bool timingDataReceived = false;
-                bool exceptionThrown = false;
-                var rowsReceived = new List<object[]>();
-
-                while (true)
-                {
-                    int length = SerDe.ReadInt32(inputStream);
-                    if (length > 0)
-                    {
-                        byte[] pickledBytes = SerDe.ReadBytes(inputStream, length);
-                        using var unpickler = new Unpickler();
-                        var rows = unpickler.loads(pickledBytes) as ArrayList;
-                        foreach (object row in rows)
-                        {
-                            rowsReceived.Add((object[])row);
-                        }
-                    }
-                    else if (length == (int)SpecialLengths.TIMING_DATA)
-                    {
-                        long bootTime = SerDe.ReadInt64(inputStream);
-                        long initTime = SerDe.ReadInt64(inputStream);
-                        long finishTime = SerDe.ReadInt64(inputStream);
-                        long memoryBytesSpilled = SerDe.ReadInt64(inputStream);
-                        long diskBytesSpilled = SerDe.ReadInt64(inputStream);
-                        timingDataReceived = true;
-                    }
-                    else if (length == (int)SpecialLengths.PYTHON_EXCEPTION_THROWN)
-                    {
-                        SerDe.ReadString(inputStream);
-                        exceptionThrown = true;
-                        break;
-                    }
-                    else if (length == (int)SpecialLengths.END_OF_DATA_SECTION)
-                    {
-                        int numAccumulatorUpdates = SerDe.ReadInt32(inputStream);
-                        SerDe.ReadInt32(inputStream);
-                        break;
-                    }
-                }
-
-                Assert.True(timingDataReceived);
-                Assert.False(exceptionThrown);
+                List<object[]> rowsReceived = PayloadReader.Read(inputStream);
 
                 // Validate rows received.
                 Assert.Equal(10, rowsReceived.Count);
