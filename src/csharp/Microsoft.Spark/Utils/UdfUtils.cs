@@ -154,10 +154,7 @@ namespace Microsoft.Spark.Utils
         {
             var arrayList = new ArrayList(jvm);
             var broadcastVariablesList = new ArrayList(jvm);
-            foreach (JvmObjectReference broadcastVariable in JvmBroadcastRegistry.GetAll())
-            {
-                arrayList.Add(broadcastVariable);
-            }
+            broadcastVariablesList.AddRange(JvmBroadcastRegistry.GetAll());
 
             return (JvmObjectReference)jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.SQLUtils",

@@ -5,15 +5,16 @@ using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.Functions;
 using Xunit;
 
-namespace Microsoft.Spark.E2ETest.UdfTests
+namespace Microsoft.Spark.E2ETest.IpcTests
 {
+    [Collection("Spark E2E Tests")]
     [Serializable]
-    public class BroadcastExampleType
+    public class TestBroadcastVariable
     {
         public int IntValue { get; set; }
         public string StringValue { get; set; }
 
-        public BroadcastExampleType(int intVal, string stringVal)
+        public TestBroadcastVariable(int intVal, string stringVal)
         {
             IntValue = intVal;
             StringValue = stringVal;
@@ -39,16 +40,16 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestSingleBroadcastWithoutEncryption()
         {
-            var objectToBroadcast = new BroadcastExampleType(
+            var objectToBroadcast = new TestBroadcastVariable(
                 1,
                 "first broadcast");
 
-            Broadcast<BroadcastExampleType> bc = _spark.SparkContext.Broadcast(objectToBroadcast);
+            Broadcast<TestBroadcastVariable> bc = _spark.SparkContext.Broadcast(objectToBroadcast);
 
             Func<Column, Column> testBroadcast = Udf<string, string>(
                 str => str +
-                ((BroadcastExampleType)bc.Value()).StringValue +
-                ", " +((BroadcastExampleType)bc.Value()).IntValue);
+                (bc.Value()).StringValue +
+                ", " +(bc.Value()).IntValue);
 
             string[] expected = new[] {
                 "hello first broadcast, 1",
@@ -65,15 +66,15 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestMultipleBroadcastWithoutEncryption()
         {
-            var object1ToBroadcast = new BroadcastExampleType(
+            var object1ToBroadcast = new TestBroadcastVariable(
                 1,
                 "first broadcast");
-            var object2ToBroadcast = new BroadcastExampleType(
+            var object2ToBroadcast = new TestBroadcastVariable(
                 2,
                 "second broadcast");
 
-            Broadcast<BroadcastExampleType> bc1 = _spark.SparkContext.Broadcast(object1ToBroadcast);
-            Broadcast<BroadcastExampleType> bc2 = _spark.SparkContext.Broadcast(object2ToBroadcast);
+            Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(object1ToBroadcast);
+            Broadcast<TestBroadcastVariable> bc2 = _spark.SparkContext.Broadcast(object2ToBroadcast);
 
             Func<Column, Column> testBroadcast = Udf<string, string>(
                 str => str +
@@ -97,11 +98,11 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestDestroy()
         {
-            var objectToBroadcast = new BroadcastExampleType(
+            var objectToBroadcast = new TestBroadcastVariable(
                 3,
                 "Broadcast.Destroy()");
 
-            Broadcast<BroadcastExampleType> bc = _spark.SparkContext.Broadcast(objectToBroadcast);
+            Broadcast<TestBroadcastVariable> bc = _spark.SparkContext.Broadcast(objectToBroadcast);
 
             Func<Column, Column> testBroadcast = Udf<string, string>(
                 str => str +
