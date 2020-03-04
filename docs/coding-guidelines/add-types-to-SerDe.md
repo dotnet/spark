@@ -50,10 +50,7 @@ if (type == typeof(int[]) ||
 
 ### 2. Derserialize this new type in JVM with read method
 
-In [SerDe.scala](https://github.com/dotnet/spark/blob/master/src/scala/microsoft-spark-2.3.x/src/main/scala/org/apache/spark/api/dotnet/SerDe.scala) (This need to be changed in all Spark version 2.3.x, 2.4.x and 3.0.x), add a new case statement for your new type identifier in either `readTypedObject` or `readList` method depending on the new type:
-
-In either the method `readTypedObject` or `readList` add a new case statement for your new type 
-identifier:
+In [SerDe.scala](https://github.com/dotnet/spark/blob/master/src/scala/microsoft-spark-2.3.x/src/main/scala/org/apache/spark/api/dotnet/SerDe.scala) (This needs to be changed in all Spark version 2.3.x, 2.4.x and 3.0.x), add a new case statement for your new type identifier in either `readTypedObject` or `readList` method depending on the new type:
 
 ```scala
 case 'A' => readDoubleArrArr(dis)
@@ -72,7 +69,7 @@ That should be everything you need to be able to send a new type from the CLR to
 
 ### 3. Serialize this new type in JVM with write method
 
-In [SerDe.scala](https://github.com/dotnet/spark/blob/master/src/scala/microsoft-spark-2.3.x/src/main/scala/org/apache/spark/api/dotnet/SerDe.scala) (This need to be changed in all Spark version 2.3.x, 2.4.x and 3.0.x), the function `writeObject` contains a switch for each type:
+In [SerDe.scala](https://github.com/dotnet/spark/blob/master/src/scala/microsoft-spark-2.3.x/src/main/scala/org/apache/spark/api/dotnet/SerDe.scala) (This needs to be changed in all Spark version 2.3.x, 2.4.x and 3.0.x), the function `writeObject` contains a switch for each type:
 
 ```scala
 case "[[D" =>
