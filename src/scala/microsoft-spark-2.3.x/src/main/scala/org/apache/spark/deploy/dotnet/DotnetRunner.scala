@@ -178,7 +178,7 @@ object DotnetRunner extends Logging {
   // permission to executable (only for Unix systems, since the zip file may have been
   // created under Windows. Finally, the absolute path for the executable is returned.
   private def resolveDotnetExecutable(dir: File, dotnetExecutable: String): String = {
-    val resolvedExecutable = ""
+    var resolvedExecutable = ""
     if (Files.isRegularFile(Paths.get(dir.getAbsolutePath, dotnetExecutable))) {
       resolvedExecutable = new File(dir, dotnetExecutable).getAbsolutePath
     } else {
