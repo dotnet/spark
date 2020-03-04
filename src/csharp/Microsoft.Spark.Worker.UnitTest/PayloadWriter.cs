@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Utils;
+using Razorvine.Pickle;
 using static Microsoft.Spark.Utils.UdfUtils;
 
 namespace Microsoft.Spark.Worker.UnitTest
@@ -287,6 +288,29 @@ namespace Microsoft.Spark.Worker.UnitTest
             Write(stream, payload.IncludeItems);
             _broadcastVariableWriter.Write(stream, payload.BroadcastVariables);
             _commandWriter.Write(stream, commandPayload);
+        }
+
+        public void WriteTestData(Stream stream)
+        {
+            Payload payload = TestData.GetDefaultPayload();
+            CommandPayload commandPayload = TestData.GetDefaultCommandPayload();
+
+            Write(stream, payload, commandPayload);
+
+            // Write 10 rows to the output stream.
+            var pickler = new Pickler();
+            for (int i = 0; i < 10; ++i)
+            {
+                byte[] pickled = pickler.dumps(
+                    new[] { new object[] { i.ToString(), i, i } });
+                SerDe.Write(stream, pickled.Length);
+                SerDe.Write(stream, pickled);
+            }
+
+            // Signal the end of data and stream.
+            SerDe.Write(stream, (int)SpecialLengths.END_OF_DATA_SECTION);
+            SerDe.Write(stream, (int)SpecialLengths.END_OF_STREAM);
+            stream.Flush();
         }
 
         private static void Write(Stream stream, IEnumerable<string> includeItems)

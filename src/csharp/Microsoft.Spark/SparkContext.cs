@@ -229,7 +229,7 @@ namespace Microsoft.Spark
         internal RDD<T> Parallelize<T>(IEnumerable<T> seq, int? numSlices = null)
         {
             var formatter = new BinaryFormatter();
-            var memoryStream = new MemoryStream();
+            using var memoryStream = new MemoryStream();
 
             var values = new List<byte[]>();
             foreach (T obj in seq)

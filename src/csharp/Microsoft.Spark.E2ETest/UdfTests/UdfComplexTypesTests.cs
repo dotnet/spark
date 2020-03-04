@@ -136,7 +136,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithRowType()
         {
-            // Single Row
+            // Single Row.
             {
                 Func<Column, Column> udf = Udf<Row, string>(
                     (row) => row.GetAs<string>("city"));
@@ -149,7 +149,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Assert.Equal(expected, actual);
             }
 
-            // Multiple Rows
+            // Multiple Rows.
             {
                 Func<Column, Column, Column, Column> udf = Udf<Row, Row, string, string>(
                     (row1, row2, str) =>
@@ -173,7 +173,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Assert.Equal(expected, actual);
             }
 
-            // Nested Row
+            // Nested Rows.
             {
                 Func<Column, Column> udf = Udf<Row, string>(
                     (row) =>
@@ -197,7 +197,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithReturnAsRowType()
         {
-            // Single GenericRow
+            // Test UDF that returns a Row object with a single column.
             {
                 var schema = new StructType(new[]
                 {
@@ -219,7 +219,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 }
             }
 
-            // Generic row is a part of top-level column.
+            // Test UDF that returns a Row object with multiple columns.
             {
                 var schema = new StructType(new[]
                 {
@@ -244,7 +244,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 }
             }
 
-            // Nested GenericRow
+            // Test UDF that returns a nested Row object.
             {
                 var subSchema1 = new StructType(new[]
                 {
@@ -293,6 +293,30 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                             new object[] { "abc", new Row(new object[] { 10 }, subSchema1) },
                             subSchema2),
                         outerCol.GetAs<Row>("col3"));
+                }
+            }
+
+            // Chained UDFs.
+            {
+                var schema = new StructType(new[]
+                {
+                    new StructField("col1", new IntegerType()),
+                    new StructField("col2", new StringType())
+                });
+                Func<Column, Column> udf1 = Udf<string>(
+                    str => new GenericRow(new object[] { 1, str }), schema);
+
+                Func<Column, Column> udf2 = Udf<Row, string>(
+                    row => row.GetAs<string>(1));
+
+                Row[] rows = _df.Select(udf2(udf1(_df["name"]))).Collect().ToArray();
+                Assert.Equal(3, rows.Length);
+
+                var expected = new[] { "Michael", "Andy", "Justin" };
+                for (int i = 0; i < rows.Length; ++i)
+                {
+                    Assert.Equal(1, rows[i].Size());
+                    Assert.Equal(expected[i], rows[i].GetAs<string>(0));
                 }
             }
         }
