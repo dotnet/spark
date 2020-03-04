@@ -20,10 +20,6 @@ namespace Microsoft.Spark
     /// </summary>
     public sealed class SparkContext : IJvmObjectReferenceProvider
     {
-        public string TempDir { get; set; }
-
-        public bool EncryptionEnabled { get; set; }
-
         private readonly JvmObjectReference _jvmObject;
 
         private readonly SparkConf _conf;
@@ -318,8 +314,7 @@ namespace Microsoft.Spark
                 "org.apache.spark.util.Utils",
                 "getLocalDir",
                 _conf);
-            TempDir = Path.Combine(localDir, "sparkdotnet");
-            return new Broadcast<T>(this, value, _jvmObject);
+            return new Broadcast<T>(this, value, localDir, _jvmObject);
         }
 
         /// <summary>

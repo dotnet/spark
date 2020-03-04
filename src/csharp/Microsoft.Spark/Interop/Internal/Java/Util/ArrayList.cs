@@ -24,14 +24,9 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
-        public void Add(object element)
+        internal void Add(object element)
         {
             _jvmObject.Invoke("add", element);
-        }
-
-        public void Remove(int index)
-        {
-            _jvmObject.Invoke("remove", index);
         }
     }
 }

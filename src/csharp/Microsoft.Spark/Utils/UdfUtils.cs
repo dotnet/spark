@@ -153,7 +153,11 @@ namespace Microsoft.Spark.Utils
         internal static JvmObjectReference CreatePythonFunction(IJvmBridge jvm, byte[] command)
         {
             var arrayList = new ArrayList(jvm);
-            ArrayList broadcastVariablesList = JvmBroadcastRegistry.ConvertToArrayList(jvm);
+            var broadcastVariablesList = new ArrayList(jvm);
+            foreach (JvmObjectReference broadcastVariable in JvmBroadcastRegistry.GetAll())
+            {
+                arrayList.Add(broadcastVariable);
+            }
 
             return (JvmObjectReference)jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.SQLUtils",

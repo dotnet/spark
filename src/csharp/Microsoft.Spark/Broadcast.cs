@@ -23,9 +23,13 @@ namespace Microsoft.Spark
         private readonly JvmObjectReference _jvmObject;
         private readonly long _bid;
 
-        internal Broadcast(SparkContext sc, object value, JvmObjectReference sparkContext)
+        internal Broadcast(SparkContext sc,
+            object value,
+            string localDir,
+            JvmObjectReference sparkContext)
         {
-            var path = (string)Path.Combine(sc.TempDir, Path.GetRandomFileName());
+            var tempDir = Path.Combine(localDir, "sparkdotnet");
+            var path = (string)Path.Combine(tempDir, Path.GetRandomFileName());
             Version version = SparkEnvironment.SparkVersion;
 
             // For Spark versions 2.3.0 and 2.3.1, Broadcast variable is created through different
@@ -33,7 +37,7 @@ namespace Microsoft.Spark
             if (version.Major == 2 && version.Minor == 3 && (version.Build == 0 || 
                 version.Build == 1))
             {
-                WriteBroadcastValueToFile(sc, path, value);
+                WriteBroadcastValueToFile(sc, path, tempDir, value);
                 var javaSparkContext = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
                     "org.apache.spark.api.java.JavaSparkContext",
                     "fromSparkContext",
@@ -47,7 +51,7 @@ namespace Microsoft.Spark
             else
             {
                 SparkConf sparkConf = sc.GetConf();
-                sc.EncryptionEnabled = bool.Parse(
+                var encryptionEnabled = bool.Parse(
                     sparkConf.Get("spark.io.encryption.enabled",
                     "false"));
 
@@ -56,14 +60,14 @@ namespace Microsoft.Spark
                     "setupBroadcast",
                     path);
 
-                if (sc.EncryptionEnabled)
+                if (encryptionEnabled)
                 {
                     throw new NotImplementedException(
-                            "Broadcast encryption is not supported yet.");
+                        "Broadcast encryption is not supported yet.");
                 }
                 else
                 {
-                    WriteBroadcastValueToFile(sc, path, value);
+                    WriteBroadcastValueToFile(sc, path, tempDir, value);
                 }
 
                 _jvmObject = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
@@ -73,7 +77,7 @@ namespace Microsoft.Spark
                     pythonBroadcast);
             }
             _bid = (long)_jvmObject.Invoke("id");
-            JvmBroadcastRegistry.s_jvmBroadcastVariables.Add(_jvmObject);
+            JvmBroadcastRegistry.Add(_jvmObject);
         }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
@@ -84,7 +88,7 @@ namespace Microsoft.Spark
         /// <returns>The broadcasted value</returns>
         public T Value()
         {
-            return (T)BroadcastRegistry.s_registry[_bid];
+            return (T)BroadcastRegistry.Get(_bid);
         }
 
         /// <summary>
@@ -121,11 +125,15 @@ namespace Microsoft.Spark
         /// Function that creates a file to store the broadcast value in the given path.
         /// </summary>
         /// <param name="sc">Spark Context object</param>
-        /// <param name="path">Path where file is to be created</param>
+        /// <param name="path">Complete filename with the absolute path</param>
+        /// <param name="tempDir">Path where file is to be created</param>
         /// <param name="value">Broadcast value to be written to the file</param>
-        private void WriteBroadcastValueToFile(SparkContext sc, string path, object value)
+        private void WriteBroadcastValueToFile(SparkContext sc,
+            string path,
+            string tempDir,
+            object value)
         {
-            Directory.CreateDirectory(sc.TempDir);
+            Directory.CreateDirectory(tempDir);
             using FileStream f = File.Create(path);
             Dump(value, f);
         }
@@ -143,13 +151,13 @@ namespace Microsoft.Spark
     }
 
     /// <summary>
-    /// Global registry to store the value of all active broadcast variables. It is populated on
-    /// the worker when accessed through BroadcastVariableProcessor. The value is returned whenever
-    /// the user invokes Broadcast.Value().
+    /// Global registry to store the object value of all active broadcast variables from
+    /// the workers. This registry is only used on the worker side when Broadcast.Value() is called
+    /// through a UDF.
     /// </summary>
     internal static class BroadcastRegistry
     {
-        public static ConcurrentDictionary<long, object> s_registry = 
+        private static ConcurrentDictionary<long, object> s_registry = 
             new ConcurrentDictionary<long, object>();
 
         /// <summary>
@@ -170,31 +178,39 @@ namespace Microsoft.Spark
         {
             s_registry.TryRemove(bid, out _);
         }
+
+        public static object Get(long bid)
+        {
+            return s_registry[bid];
+        }
     }
 
     /// <summary>
-    /// Stores the JVMObjectReference objects of all active broadcast variables that
-    /// are sent to each executor through the CreatePythonFunction.
+    /// Stores the JVMObjectReference object of type org.apache.spark.broadcast.Broadcast for all
+    /// active broadcast variables that are sent to the workers through the CreatePythonFunction.
+    /// This registry is only used on the driver side.
     /// </summary>
     internal static class JvmBroadcastRegistry
     {
-        public static List<JvmObjectReference> s_jvmBroadcastVariables = 
+        private static List<JvmObjectReference> s_jvmBroadcastVariables = 
             new List<JvmObjectReference>();
 
         /// <summary>
-        /// Converts Generic.List of JvmObjectReference to ArrayList of JvmObjectReference
+        /// Adds a JVMObjectReference object of type <see cref="Broadcast{T}"/> to the list.
         /// </summary>
-        /// <param name="jvm">JVM bridge to use</param>
-        /// <returns>ArrayList object containing JvmObjectReference objects for all
-        /// broadcast variables</returns>
-        public static ArrayList ConvertToArrayList(IJvmBridge jvm)
+        /// <param name="broadcastJvmObject">JVMObjectReference of the Broadcast variable</param>
+        public static void Add(JvmObjectReference broadcastJvmObject)
         {
-            var arrayList = new ArrayList(jvm);
-            foreach (JvmObjectReference broadcastVariable in s_jvmBroadcastVariables)
-            {
-                arrayList.Add(broadcastVariable);
-            }
-            return arrayList;
+            s_jvmBroadcastVariables.Add(broadcastJvmObject);
+        }
+
+        /// <summary>
+        /// Returns the static member s_jvmBroadcastVariables.
+        /// </summary>
+        /// <returns></returns>
+        public static List<JvmObjectReference> GetAll()
+        {
+            return s_jvmBroadcastVariables;
         }
     }
 }

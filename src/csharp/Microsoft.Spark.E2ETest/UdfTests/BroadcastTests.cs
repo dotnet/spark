@@ -12,15 +12,11 @@ namespace Microsoft.Spark.E2ETest.UdfTests
     {
         public int IntValue { get; set; }
         public string StringValue { get; set; }
-        public double DoubleValue { get; set; }
-        public bool BoolValue { get; set; }
 
-        public BroadcastExampleType(int intVal, string stringVal, double doubleVal, bool boolVal)
+        public BroadcastExampleType(int intVal, string stringVal)
         {
             IntValue = intVal;
             StringValue = stringVal;
-            DoubleValue = doubleVal;
-            BoolValue = boolVal;
         }
     }
 
@@ -33,7 +29,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         public BroadcastTests(SparkFixture fixture)
         {
             _spark = fixture.Spark;
-            var data = new List<string>(new string[] { "Alice is testing: ", "Bob is testing: " });
+            var data = new List<string>(new string[] { "hello ", "world " });
             _df = _spark.CreateDataFrame(data);
         }
 
@@ -45,22 +41,18 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         {
             var objectToBroadcast = new BroadcastExampleType(
                 1,
-                "first broadcast",
-                1.1,
-                true);
+                "first broadcast");
 
             Broadcast<BroadcastExampleType> bc = _spark.SparkContext.Broadcast(objectToBroadcast);
 
             Func<Column, Column> testBroadcast = Udf<string, string>(
                 str => str +
                 ((BroadcastExampleType)bc.Value()).StringValue +
-                ", " +((BroadcastExampleType)bc.Value()).IntValue +
-                ", " +((BroadcastExampleType)bc.Value()).DoubleValue +
-                ", " +((BroadcastExampleType)bc.Value()).BoolValue);
+                ", " +((BroadcastExampleType)bc.Value()).IntValue);
 
             string[] expected = new[] {
-                "Alice is testing: first broadcast, 1, 1.1, True",
-                "Bob is testing: first broadcast, 1, 1.1, True" };
+                "hello first broadcast, 1",
+                "world first broadcast, 1" };
 
             Row[] actualRows = _df.Select(testBroadcast(_df["_1"])).Collect().ToArray();
             string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
@@ -75,14 +67,10 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         {
             var object1ToBroadcast = new BroadcastExampleType(
                 1,
-                "first broadcast",
-                1.1,
-                true);
+                "first broadcast");
             var object2ToBroadcast = new BroadcastExampleType(
                 2,
-                "second broadcast",
-                2.2,
-                false);
+                "second broadcast");
 
             Broadcast<BroadcastExampleType> bc1 = _spark.SparkContext.Broadcast(object1ToBroadcast);
             Broadcast<BroadcastExampleType> bc2 = _spark.SparkContext.Broadcast(object2ToBroadcast);
@@ -93,8 +81,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 " and " +(bc2.Value()).StringValue);
 
             string[] expected = new[] {
-                "Alice is testing: first broadcast and second broadcast",
-                "Bob is testing: first broadcast and second broadcast" };
+                "hello first broadcast and second broadcast",
+                "world first broadcast and second broadcast" };
 
             Row[] actualRows = _df.Select(testBroadcast(_df["_1"])).Collect().ToArray();
             string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
@@ -111,22 +99,18 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         {
             var objectToBroadcast = new BroadcastExampleType(
                 3,
-                "Broadcast.Destroy()",
-                3.3,
-                true);
+                "Broadcast.Destroy()");
 
             Broadcast<BroadcastExampleType> bc = _spark.SparkContext.Broadcast(objectToBroadcast);
 
             Func<Column, Column> testBroadcast = Udf<string, string>(
                 str => str +
                 (bc.Value()).StringValue +
-                ", " + (bc.Value()).IntValue +
-                ", " + (bc.Value()).DoubleValue +
-                ", " + (bc.Value()).BoolValue);
+                ", " + (bc.Value()).IntValue);
 
             string[] expected = new[] {
-                "Alice is testing: Broadcast.Destroy(), 3, 3.3, True",
-                "Bob is testing: Broadcast.Destroy(), 3, 3.3, True" };
+                "hello Broadcast.Destroy(), 3",
+                "world Broadcast.Destroy(), 3" };
 
             Row[] actualRows = _df.Select(testBroadcast(_df["_1"])).Collect().ToArray();
             string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
@@ -137,12 +121,9 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Func<Column, Column> testDestroyedBroadcast = Udf<string, string>(
                 str => str +
                 (bc.Value()).StringValue +
-                ", " + (bc.Value()).IntValue +
-                ", " + (bc.Value()).DoubleValue +
-                ", " + (bc.Value()).BoolValue);
+                ", " + (bc.Value()).IntValue);
 
-            //Row[] rowsAfterDestroy = _df.Select(testDestroyedBroadcast(_df["_1"])).Collect().ToArray();
-            Assert.Throws<Exception>(() => _df.Select(testDestroyedBroadcast(_df["_1"])).Collect().ToArray());
+            Assert.Throws<Exception>(() => _df.Select(testDestroyedBroadcast(_df["_1"])).Show());
         }
     }
 }
