@@ -13,7 +13,7 @@ namespace Microsoft.Spark.Sql
     /// <summary>
     /// RowConstructor is a custom unpickler for GenericRowWithSchema in Spark.
     /// Refer to spark/sql/core/src/main/scala/org/apache/spark/sql/execution/python/
-    /// EvaluatePython.scala how GenericRowWithSchema is being pickeld.
+    /// EvaluatePython.scala how GenericRowWithSchema is being pickled.
     /// </summary>
     internal sealed class RowConstructor : IObjectConstructor
     {
@@ -63,15 +63,6 @@ namespace Microsoft.Spark.Sql
             if (s_schemaCache is null)
             {
                 s_schemaCache = new Dictionary<string, StructType>();
-            }
-
-            // When a row is ready to be materialized, then construct() is called
-            // on the RowConstructor which represents the row.
-            if ((args.Length == 1) && (args[0] is RowConstructor rowConstructor))
-            {
-                // Construct the Row and return args containing the Row.
-                args[0] = rowConstructor.GetRow();
-                return args;
             }
 
             // Return a new RowConstructor where the args either represent the

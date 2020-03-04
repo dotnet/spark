@@ -185,21 +185,21 @@ class DotnetBackendHandler(server: DotnetBackend)
           case Some(jObj) => jObj.getClass.getName
           case None => "NullObject"
         }
-        logError(s"On object of type $jvmObjName failed", e)
+        val argsStr = args.map(arg => {
+          if (arg != null) {
+            s"[Type=${arg.getClass.getCanonicalName}, Value: $arg]"
+          } else {
+            "[Value: NULL]"
+          }
+        }).mkString(", ")
+
+        logError(s"Failed to execute '$methodName' on '$jvmObjName' with args=($argsStr)")
+
         if (methods != null) {
-          logError("methods:")
-          methods.foreach(m => logError(m.toString))
+          logDebug(s"All methods for $jvmObjName:")
+          methods.foreach(m => logDebug(m.toString))
         }
-        if (args != null) {
-          logError("args:")
-          args.foreach(arg => {
-            if (arg != null) {
-              logError(s"argType: ${arg.getClass.getCanonicalName}, argValue: $arg")
-            } else {
-              logError("arg: NULL")
-            }
-          })
-        }
+
         writeInt(dos, -1)
         writeString(dos, Utils.exceptionString(e.getCause))
     }
@@ -222,7 +222,7 @@ class DotnetBackendHandler(server: DotnetBackend)
       return false
     }
 
-    for (i <- 0 to numArgs - 1) {
+    for (i <- 0 until numArgs) {
       val parameterType = parameterTypes(i)
       var parameterWrapperType = parameterType
 

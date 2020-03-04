@@ -11,6 +11,7 @@ using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Internal.Java.Util;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Utils
 {
@@ -92,6 +93,7 @@ namespace Microsoft.Spark.Utils
                 {typeof(int), "integer"},
                 {typeof(long), "long"},
                 {typeof(short), "short"},
+                {typeof(Date), "date"},
 
                 // Arrow array types
                 {typeof(BooleanArray), "boolean"},
@@ -181,6 +183,8 @@ namespace Microsoft.Spark.Utils
                     AssemblySearchPathResolver.AssemblySearchPathsEnvVarName,
                     assemblySearchPath);
             }
+            // DOTNET_WORKER_SPARK_VERSION is used to handle different versions of Spark on the worker.
+            environmentVars.Put("DOTNET_WORKER_SPARK_VERSION", SparkEnvironment.SparkVersion.ToString());
 
             return environmentVars;
         }

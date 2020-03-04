@@ -2,10 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Catalog;
 using Microsoft.Spark.Sql.Streaming;
+using Microsoft.Spark.Sql.Types;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
@@ -65,5 +69,94 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {
             Assert.IsType<SparkSession>(SparkSession.Active());
         }
+
+        /// <summary>
+        /// Test CreateDataFrame APIs.
+        /// </summary>
+        [Fact]
+        public void TestCreateDataFrame()
+        {            
+            // Calling CreateDataFrame with schema
+            {
+                var data = new List<GenericRow>();
+                data.Add(new GenericRow(new object[] { "Alice", 20, new Date(2020, 1, 1) }));
+                data.Add(new GenericRow(new object[] { "Bob", 30, new Date(2020, 1, 2) }));
+
+                var schema = new StructType(new List<StructField>()
+                {
+                    new StructField("Name", new StringType()),
+                    new StructField("Age", new IntegerType()),
+                    new StructField("Date", new DateType())
+                });
+                DataFrame df = _spark.CreateDataFrame(data, schema);
+                ValidateDataFrame(df, data.Select(a => a.Values), schema);
+            }
+
+            // Calling CreateDataFrame(IEnumerable<string> _) without schema
+            {
+                var data = new List<string>(new string[] { "Alice", "Bob" });
+                StructType schema = SchemaWithSingleColumn(new StringType());
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
+            }
+
+            // Calling CreateDataFrame(IEnumerable<int> _) without schema
+            {
+                var data = new List<int>(new int[] { 1, 2 });
+                StructType schema = SchemaWithSingleColumn(new IntegerType());
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
+            }
+
+            // Calling CreateDataFrame(IEnumerable<double> _) without schema
+            {
+                var data = new List<double>(new double[] { 1.2, 2.3 });
+                StructType schema = SchemaWithSingleColumn(new DoubleType());
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
+            }
+
+            // Calling CreateDataFrame(IEnumerable<bool> _) without schema
+            {
+                var data = new List<bool>(new bool[] { true, false });
+                StructType schema = SchemaWithSingleColumn(new BooleanType());
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
+            }
+            
+            // Calling CreateDataFrame(IEnumerable<Date> _) without schema
+            {
+                var data = new Date[]
+                {
+                    new Date(2020, 1, 1),
+                    new Date(2020, 1, 2)
+                };
+                StructType schema = SchemaWithSingleColumn(new DateType());
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
+            }
+        }
+
+        private void ValidateDataFrame(
+            DataFrame actual,
+            IEnumerable<object[]> expectedRows,
+            StructType expectedSchema)
+        {
+            Assert.Equal(expectedSchema, actual.Schema());
+            Assert.Equal(expectedRows, actual.Collect().Select(r => r.Values));
+        }
+
+        /// <summary>
+        /// Returns a single column schema of the given datatype.
+        /// </summary>
+        /// <param name="dataType">Datatype of the column</param>
+        /// <returns>Schema as StructType</returns>
+        private StructType SchemaWithSingleColumn(DataType dataType) =>
+            new StructType(new[] { new StructField("_1", dataType) });
     }
 }

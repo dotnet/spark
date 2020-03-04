@@ -16,7 +16,7 @@ Building Spark .NET on Ubuntu 18.04
 
 If you already have all the pre-requisites, skip to the [build](ubuntu-instructions.md#building) steps below.
 
-  1. Download and install **[.NET Core 2.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/2.1)** or the **[.NET Core 3.0 preview SDK](https://dotnet.microsoft.com/download/dotnet-core/3.0)** - installing the SDK will add the `dotnet` toolchain to your path.
+  1. Download and install **[.NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.1)** - installing the SDK will add the `dotnet` toolchain to your path.
   2. Install **[OpenJDK 8](https://openjdk.java.net/install/)** 
      - You can use the following command:
        ```bash
@@ -121,21 +121,21 @@ You should see JARs created for the supported Spark versions:
   1. Build the Worker
       ```bash
       cd ~/dotnet.spark/src/csharp/Microsoft.Spark.Worker/
-      dotnet publish -f netcoreapp2.1 -r ubuntu.18.04-x64
+      dotnet publish -f netcoreapp3.1 -r linux-x64
       ```
       <details>
       <summary>&#x1F4D9; Click to see sample console output</summary>
 
       ```bash
-      user@machine:/home/user/dotnet.spark/src/csharp/Microsoft.Spark.Worker$ dotnet publish -f netcoreapp2.1 -r ubuntu.18.04-x64
+      user@machine:/home/user/dotnet.spark/src/csharp/Microsoft.Spark.Worker$ dotnet publish -f netcoreapp3.1 -r linux-x64
       Microsoft (R) Build Engine version 16.0.462+g62fb89029d for .NET Core
       Copyright (C) Microsoft Corporation. All rights reserved.
       
         Restore completed in 36.03 ms for /home/user/dotnet.spark/src/csharp/Microsoft.Spark.Worker/Microsoft.Spark.Worker.csproj.
         Restore completed in 35.94 ms for /home/user/dotnet.spark/src/csharp/Microsoft.Spark/Microsoft.Spark.csproj.
         Microsoft.Spark -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark/Debug/netstandard2.0/Microsoft.Spark.dll
-        Microsoft.Spark.Worker -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/netcoreapp2.1/ubuntu.18.04-x64/Microsoft.Spark.Worker.dll
-        Microsoft.Spark.Worker -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/netcoreapp2.1/ubuntu.18.04-x64/publish/
+        Microsoft.Spark.Worker -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/netcoreapp3.1/linux-x64/Microsoft.Spark.Worker.dll
+        Microsoft.Spark.Worker -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/netcoreapp3.1/linux-x64/publish/
       ```
 
       </details>
@@ -143,21 +143,21 @@ You should see JARs created for the supported Spark versions:
   2. Build the Samples
       ```bash
       cd ~/dotnet.spark/examples/Microsoft.Spark.CSharp.Examples/
-      dotnet publish -f netcoreapp2.1 -r ubuntu.18.04-x64
+      dotnet publish -f netcoreapp3.1 -r linux-x64
       ```
       <details>
       <summary>&#x1F4D9; Click to see sample console output</summary>
 
       ```bash
-      user@machine:/home/user/dotnet.spark/examples/Microsoft.Spark.CSharp.Examples$ dotnet publish -f netcoreapp2.1 -r ubuntu.18.04-x64
+      user@machine:/home/user/dotnet.spark/examples/Microsoft.Spark.CSharp.Examples$ dotnet publish -f netcoreapp3.1 -r linux-x64
       Microsoft (R) Build Engine version 16.0.462+g62fb89029d for .NET Core
       Copyright (C) Microsoft Corporation. All rights reserved.
 
         Restore completed in 37.11 ms for /home/user/dotnet.spark/src/csharp/Microsoft.Spark/Microsoft.Spark.csproj.
         Restore completed in 281.63 ms for /home/user/dotnet.spark/examples/Microsoft.Spark.CSharp.Examples/Microsoft.Spark.CSharp.Examples.csproj.
         Microsoft.Spark -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark/Debug/netstandard2.0/Microsoft.Spark.dll
-        Microsoft.Spark.CSharp.Examples -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/netcoreapp2.1/ubuntu.18.04-x64/Microsoft.Spark.CSharp.Examples.dll
-        Microsoft.Spark.CSharp.Examples -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/netcoreapp2.1/ubuntu.18.04-x64/publish/
+        Microsoft.Spark.CSharp.Examples -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/netcoreapp3.1/linux-x64/Microsoft.Spark.CSharp.Examples.dll
+        Microsoft.Spark.CSharp.Examples -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/netcoreapp3.1/linux-x64/publish/
       ```
 
      </details>
@@ -166,8 +166,8 @@ You should see JARs created for the supported Spark versions:
 
 Once you build the samples, you can use `spark-submit` to submit your .NET Core apps. Make sure you have followed the [pre-requisites](#pre-requisites) section and installed Apache Spark.
 
-  1. Set the `DOTNET_WORKER_DIR` or `PATH` environment variable to include the path where the `Microsoft.Spark.Worker` binary has been generated (e.g., `~/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/netcoreapp2.1/ubuntu.18.04-x64/publish`)
-  2. Open a terminal and go to the directory where your app binary has been generated (e.g., `~/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/netcoreapp2.1/ubuntu.18.04-x64/publish`)
+  1. Set the `DOTNET_WORKER_DIR` or `PATH` environment variable to include the path where the `Microsoft.Spark.Worker` binary has been generated (e.g., `~/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/netcoreapp3.1/linux-x64/publish`)
+  2. Open a terminal and go to the directory where your app binary has been generated (e.g., `~/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/netcoreapp3.1/linux-x64/publish`)
   3. Running your app follows the basic structure:
      ```bash
      spark-submit \
@@ -184,7 +184,7 @@ Once you build the samples, you can use `spark-submit` to submit your .NET Core 
          spark-submit \
          --class org.apache.spark.deploy.dotnet.DotnetRunner \
          --master local \
-         ~/dotnet.spark/src/scala/microsoft-spark-2.3.x/target/microsoft-spark-2.3.x-0.6.0.jar \
+         ~/dotnet.spark/src/scala/microsoft-spark-<version>/target/microsoft-spark-<version>.jar \
          Microsoft.Spark.CSharp.Examples Sql.Batch.Basic $SPARK_HOME/examples/src/main/resources/people.json
          ```
      - **[Microsoft.Spark.Examples.Sql.Streaming.StructuredNetworkWordCount](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.cs)**
@@ -192,7 +192,7 @@ Once you build the samples, you can use `spark-submit` to submit your .NET Core 
          spark-submit \
          --class org.apache.spark.deploy.dotnet.DotnetRunner \
          --master local \
-         ~/dotnet.spark/src/scala/microsoft-spark-2.3.x/target/microsoft-spark-2.3.x-0.6.0.jar \
+         ~/dotnet.spark/src/scala/microsoft-spark-<version>/target/microsoft-spark-<version>.jar \
          Microsoft.Spark.CSharp.Examples Sql.Streaming.StructuredNetworkWordCount localhost 9999
          ```
      - **[Microsoft.Spark.Examples.Sql.Streaming.StructuredKafkaWordCount (maven accessible)](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.cs)**
@@ -201,7 +201,7 @@ Once you build the samples, you can use `spark-submit` to submit your .NET Core 
          --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.2 \
          --class org.apache.spark.deploy.dotnet.DotnetRunner \
          --master local \
-         ~/dotnet.spark/src/scala/microsoft-spark-2.3.x/target/microsoft-spark-2.3.x-0.6.0.jar \
+         ~/dotnet.spark/src/scala/microsoft-spark-<version>/target/microsoft-spark-<version>.jar \
          Microsoft.Spark.CSharp.Examples Sql.Streaming.StructuredKafkaWordCount localhost:9092 subscribe test
          ```
      - **[Microsoft.Spark.Examples.Sql.Streaming.StructuredKafkaWordCount (jars provided)](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.cs)**
@@ -210,7 +210,7 @@ Once you build the samples, you can use `spark-submit` to submit your .NET Core 
          --jars path/to/net.jpountz.lz4/lz4-1.3.0.jar,path/to/org.apache.kafka/kafka-clients-0.10.0.1.jar,path/to/org.apache.spark/spark-sql-kafka-0-10_2.11-2.3.2.jar,`path/to/org.slf4j/slf4j-api-1.7.6.jar,path/to/org.spark-project.spark/unused-1.0.0.jar,path/to/org.xerial.snappy/snappy-java-1.1.2.6.jar \
          --class org.apache.spark.deploy.dotnet.DotnetRunner \
          --master local \
-         ~/dotnet.spark/src/scala/microsoft-spark-2.3.x/target/microsoft-spark-2.3.x-0.6.0.jar \
+         ~/dotnet.spark/src/scala/microsoft-spark-<version>/target/microsoft-spark-<version>.jar \
          Microsoft.Spark.CSharp.Examples Sql.Streaming.StructuredKafkaWordCount localhost:9092 subscribe test
           ```
 

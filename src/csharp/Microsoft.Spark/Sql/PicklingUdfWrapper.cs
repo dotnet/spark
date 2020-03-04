@@ -10,6 +10,7 @@ namespace Microsoft.Spark.Sql
     /// Wraps the given Func object, which represents a UDF.
     /// </summary>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+    [UdfWrapper]
     internal class PicklingUdfWrapper<TResult>
     {
         private readonly Func<TResult> _func;
@@ -30,6 +31,7 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     /// <typeparam name="T">Specifies the type of the first argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+    [UdfWrapper]
     internal class PicklingUdfWrapper<T, TResult>
     {
         private readonly Func<T, TResult> _func;
@@ -51,6 +53,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
     /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+    [UdfWrapper]
     internal class PicklingUdfWrapper<T1, T2, TResult>
     {
         private readonly Func<T1, T2, TResult> _func;
@@ -73,6 +76,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
     /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+    [UdfWrapper]
     internal class PicklingUdfWrapper<T1, T2, T3, TResult>
     {
         private readonly Func<T1, T2, T3, TResult> _func;
@@ -99,6 +103,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
     /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+    [UdfWrapper]
     internal class PicklingUdfWrapper<T1, T2, T3, T4, TResult>
     {
         private readonly Func<T1, T2, T3, T4, TResult> _func;
@@ -127,6 +132,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
     /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+    [UdfWrapper]
     internal class PicklingUdfWrapper<T1, T2, T3, T4, T5, TResult>
     {
         private readonly Func<T1, T2, T3, T4, T5, TResult> _func;
@@ -157,6 +163,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
     /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+    [UdfWrapper]
     internal class PicklingUdfWrapper<T1, T2, T3, T4, T5, T6, TResult>
     {
         private readonly Func<T1, T2, T3, T4, T5, T6, TResult> _func;
@@ -189,6 +196,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
     /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+    [UdfWrapper]
     internal class PicklingUdfWrapper<T1, T2, T3, T4, T5, T6, T7, TResult>
     {
         private readonly Func<T1, T2, T3, T4, T5, T6, T7, TResult> _func;
@@ -223,6 +231,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
     /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+    [UdfWrapper]
     internal class PicklingUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, TResult>
     {
         private readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> _func;
@@ -259,6 +268,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
     /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+    [UdfWrapper]
     internal class PicklingUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>
     {
         private readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> _func;
@@ -296,6 +306,7 @@ namespace Microsoft.Spark.Sql
     /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
     /// <typeparam name="T10">Specifies the type of the tenth argument to the UDF.</typeparam>
     /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+    [UdfWrapper]
     internal class PicklingUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>
     {
         private readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> _func;

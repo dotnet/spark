@@ -3,10 +3,14 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Streaming;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql
 {
@@ -137,6 +141,62 @@ namespace Microsoft.Spark.Sql
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("table", tableName));
 
         /// <summary>
+        /// Creates a <see cref="DataFrame"/> from an <see cref="IEnumerable"/> containing 
+        /// <see cref="GenericRow"/>s using the given schema.
+        /// It is important to make sure that the structure of every <see cref="GenericRow"/> of 
+        /// the provided <see cref="IEnumerable"/> matches
+        /// the provided schema. Otherwise, there will be runtime exception.
+        /// </summary>
+        /// <param name="data">List of Row objects</param>
+        /// <param name="schema">Schema as StructType</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<GenericRow> data, StructType schema) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+                "createDataFrame",
+                data,
+                DataType.FromJson(_jvmObject.Jvm, schema.Json)));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="int"/>
+        /// </summary>
+        /// <param name="data"><see cref="IEnumerable"/> of type <see cref="int"/></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<int> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new IntegerType()));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="string"/>
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<string> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new StringType()));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="double"/>
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<double> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DoubleType()));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="bool"/>
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<bool> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new BooleanType()));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="Date"/>
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<Date> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DateType()));
+
+        /// <summary>
         /// Executes a SQL query using Spark, returning the result as a DataFrame.
         /// </summary>
         /// <param name="sqlText">SQL query text</param>
@@ -223,5 +283,23 @@ namespace Microsoft.Spark.Sql
         /// Stops the underlying SparkContext.
         /// </summary>
         public void Stop() => _jvmObject.Invoke("stop");
+
+        /// <summary>
+        /// Returns a single column schema of the given datatype.
+        /// </summary>
+        /// <param name="dataType">Datatype of the column</param>
+        /// <returns>Schema as StructType</returns>
+        private StructType SchemaWithSingleColumn(DataType dataType) =>
+            new StructType(new[] { new StructField("_1", dataType) });
+
+        /// <summary>
+        /// This method is transforming each element of IEnumerable of type T input into a single 
+        /// columned GenericRow.
+        /// </summary>
+        /// <typeparam name="T">Datatype of values in rows</typeparam>
+        /// <param name="rows">List of values of type T</param>
+        /// <returns><see cref="IEnumerable"/> of type <see cref="GenericRow"/></returns>
+        private IEnumerable<GenericRow> ToGenericRows<T>(IEnumerable<T> rows) =>
+            rows.Select(r => new GenericRow(new object[] { r }));
     }
 }

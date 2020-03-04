@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Sql.Streaming;
@@ -874,7 +875,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <returns>DataStreamWriter object</returns>
         public DataStreamWriter WriteStream() =>
-            new DataStreamWriter((JvmObjectReference)_jvmObject.Invoke("writeStream"));
+            new DataStreamWriter((JvmObjectReference)_jvmObject.Invoke("writeStream"), this);
 
         /// <summary>
         /// Returns row objects based on the function (either "toPythonIterator" or
@@ -902,20 +903,26 @@ namespace Microsoft.Spark.Sql
         /// <returns>A tuple of port number and secret string</returns>
         private (int, string) GetConnectionInfo(string funcName)
         {
-            var result = _jvmObject.Invoke(funcName);
-            if (result is int)
+            object result = _jvmObject.Invoke(funcName);
+            Version version = SparkEnvironment.SparkVersion;
+            return (version.Major, version.Minor, version.Build) switch
             {
                 // In spark 2.3.0, PythonFunction.serveIterator() returns a port number.
-                return ((int)result, string.Empty);
-            }
-            else
-            {
+                (2, 3, 0) => ((int)result, string.Empty),
                 // From spark >= 2.3.1, PythonFunction.serveIterator() returns a pair
                 // where the first is a port number and the second is the secret
                 // string to use for the authentication.
-                var pair = (JvmObjectReference[])result;
-                return ((int)pair[0].Invoke("intValue"), (string)pair[1].Invoke("toString"));
-            }
+                (2, 3, _) => ParseConnectionInfo(result),
+                (2, 4, _) => ParseConnectionInfo(result),
+                (3, 0, _) => ParseConnectionInfo(result),
+                _ => throw new NotSupportedException($"Spark {version} not supported.")
+            };
+        }
+
+        private (int, string) ParseConnectionInfo(object info)
+        {
+            var pair = (JvmObjectReference[])info;
+            return ((int)pair[0].Invoke("intValue"), (string)pair[1].Invoke("toString"));
         }
 
         private DataFrame WrapAsDataFrame(object obj) => new DataFrame((JvmObjectReference)obj);

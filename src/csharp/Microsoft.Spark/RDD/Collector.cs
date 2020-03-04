@@ -5,8 +5,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Sql;
+using Microsoft.Spark.Utils;
 using static Microsoft.Spark.Utils.CommandSerDe;
 
 namespace Microsoft.Spark.RDD
@@ -47,6 +50,8 @@ namespace Microsoft.Spark.RDD
                     return new BinaryDeserializer();
                 case SerializedMode.String:
                     return new StringDeserializer();
+                case SerializedMode.Row:
+                    return new RowDeserializer();
                 default:
                     throw new ArgumentException($"Unsupported mode found {mode}");
             }
@@ -81,6 +86,22 @@ namespace Microsoft.Spark.RDD
             public object Deserialize(Stream stream, int length)
             {
                 return SerDe.ReadString(stream, length);
+            }
+        }
+
+        /// <summary>
+        /// Deserializer for Pickled Rows.
+        /// </summary>
+        private sealed class RowDeserializer : IDeserializer
+        {
+            public object Deserialize(Stream stream, int length)
+            {
+                // Refer to the AutoBatchedPickler class in spark/core/src/main/scala/org/apache/
+                // spark/api/python/SerDeUtil.scala regarding how the Rows may be batched.
+                return PythonSerDe.GetUnpickledObjects(stream, length)
+                    .Cast<RowConstructor>()
+                    .Select(rc => rc.GetRow())
+                    .ToArray();
             }
         }
     }
