@@ -183,6 +183,8 @@ namespace Microsoft.Spark.Utils
                     AssemblySearchPathResolver.AssemblySearchPathsEnvVarName,
                     assemblySearchPath);
             }
+            // DOTNET_WORKER_SPARK_VERSION is used to handle different versions of Spark on the worker.
+            environmentVars.Put("DOTNET_WORKER_SPARK_VERSION", SparkEnvironment.SparkVersion.ToString());
 
             return environmentVars;
         }
