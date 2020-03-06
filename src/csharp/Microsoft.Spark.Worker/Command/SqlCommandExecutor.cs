@@ -405,6 +405,7 @@ namespace Microsoft.Spark.Worker.Command
 
             return stat;
         }
+
         private CommandExecutorStat ExecuteDataFrameSqlCommand(
             Stream inputStream,
             Stream outputStream,
@@ -432,8 +433,7 @@ namespace Microsoft.Spark.Worker.Command
 
                 foreach (RecordBatch result in recordBatches)
                 {
-                    int numEntries = result.Length;
-                    stat.NumEntriesProcessed += numEntries;
+                    stat.NumEntriesProcessed += result.Length;
 
                     if (writer == null)
                     {
@@ -772,8 +772,7 @@ namespace Microsoft.Spark.Worker.Command
 
                 foreach (RecordBatch result in recordBatches)
                 {
-                    int numEntries = result.Length;
-                    stat.NumEntriesProcessed += numEntries;
+                    stat.NumEntriesProcessed += result.Length;
 
                     if (writer == null)
                     {

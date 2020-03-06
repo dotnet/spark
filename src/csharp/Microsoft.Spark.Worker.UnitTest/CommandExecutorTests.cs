@@ -310,9 +310,9 @@ namespace Microsoft.Spark.Worker.UnitTest
                 (strings) =>
                 {
                     var stringArray = (StringArray)ToArrowArray(
-                    Enumerable.Range(0, (int)strings.Length)
-                        .Select(i => $"udf: {strings[i]}")
-                        .ToArray());
+                        Enumerable.Range(0, (int)strings.Length)
+                            .Select(i => $"udf: {strings[i]}")
+                            .ToArray());
                     return ToArrowStringDataFrameColumn(stringArray);
                 });
 
@@ -493,9 +493,9 @@ namespace Microsoft.Spark.Worker.UnitTest
                 (strings) =>
                 {
                     var stringArray = (StringArray)ToArrowArray(
-                    Enumerable.Range(0, (int)strings.Length)
-                        .Select(i => $"udf: {strings[i]}")
-                        .ToArray());
+                        Enumerable.Range(0, (int)strings.Length)
+                            .Select(i => $"udf: {strings[i]}")
+                            .ToArray());
                     return ToArrowStringDataFrameColumn(stringArray);
                 });
             var udfWrapper2 = new Sql.DataFrameUdfWrapper<PrimitiveDataFrameColumn<int>, PrimitiveDataFrameColumn<int>, PrimitiveDataFrameColumn<int>>(
@@ -683,9 +683,9 @@ namespace Microsoft.Spark.Worker.UnitTest
                 (strings) =>
                 {
                     var stringArray = (StringArray)ToArrowArray(
-                     Enumerable.Range(0, (int)strings.Length)
-                         .Select(i => $"udf: {strings[i]}")
-                         .ToArray());
+                        Enumerable.Range(0, (int)strings.Length)
+                            .Select(i => $"udf: {strings[i]}")
+                            .ToArray());
                     return ToArrowStringDataFrameColumn(stringArray);
                 });
 

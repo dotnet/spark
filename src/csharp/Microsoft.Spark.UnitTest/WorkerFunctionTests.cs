@@ -146,7 +146,7 @@ namespace Microsoft.Spark.UnitTest
 
             var stringColumn = (StringArray)ToArrowArray(new[] { "arg1_true", "arg1_true", "arg1_false", "arg1_false" });
 
-            var ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(stringColumn);
+            ArrowStringDataFrameColumn ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(stringColumn);
             var boolColumn = new PrimitiveDataFrameColumn<bool>("Bool", Enumerable.Range(0, 4).Select(x => x % 2 == 0));
             var input = new DataFrameColumn[]
                 {
@@ -212,9 +212,9 @@ namespace Microsoft.Spark.UnitTest
                     (numbers, strings) =>
                     {
                         var stringColumn = (StringArray)ToArrowArray(
-                         Enumerable.Range(0, (int)strings.Length)
-                             .Select(i => $"{strings[i]}:{numbers[i]}")
-                             .ToArray());
+                             Enumerable.Range(0, (int)strings.Length)
+                                .Select(i => $"{strings[i]}:{numbers[i]}")
+                                .ToArray());
                         return ToArrowStringDataFrameColumn(stringColumn);
                     }).Execute);
 
@@ -223,9 +223,9 @@ namespace Microsoft.Spark.UnitTest
                     (strings) =>
                     {
                         var stringColumn = (StringArray)ToArrowArray(
-                        Enumerable.Range(0, (int)strings.Length)
-                            .Select(i => $"outer1:{strings[i]}")
-                            .ToArray());
+                            Enumerable.Range(0, (int)strings.Length)
+                                .Select(i => $"outer1:{strings[i]}")
+                                .ToArray());
                         return ToArrowStringDataFrameColumn(stringColumn);
                     }).Execute);
 
@@ -234,15 +234,15 @@ namespace Microsoft.Spark.UnitTest
                     (strings) =>
                     {
                         var stringColumn = (StringArray)ToArrowArray(
-                         Enumerable.Range(0, (int)strings.Length)
-                             .Select(i => $"outer2:{strings[(i)]}")
-                             .ToArray());
+                            Enumerable.Range(0, (int)strings.Length)
+                                .Select(i => $"outer2:{strings[(i)]}")
+                                .ToArray());
                         return ToArrowStringDataFrameColumn(stringColumn);
                     }).Execute);
 
             string[] inputString = { "name" };
             var column = (StringArray)ToArrowArray(inputString);
-            var ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
+            ArrowStringDataFrameColumn ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
             var input = new DataFrameColumn[]
                 {
                     new PrimitiveDataFrameColumn<int>("Int", new List<int>() {100 }),
@@ -317,7 +317,7 @@ namespace Microsoft.Spark.UnitTest
 
             string[] inputString = { "name" };
             var column = (StringArray)ToArrowArray(inputString);
-            var ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
+            ArrowStringDataFrameColumn ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
             var input = new DataFrameColumn[]
                 {
                     new PrimitiveDataFrameColumn<int>("Int", new List<int>() {100 }),

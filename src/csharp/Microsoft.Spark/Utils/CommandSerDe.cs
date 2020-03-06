@@ -223,12 +223,15 @@ namespace Microsoft.Spark.Utils
             out SerializedMode deserializerMode,
             out string runMode)
         {
-            var udfWrapperData = GetUdfWrapperDataFromStream(stream, out serializerMode, out deserializerMode, out runMode);
+            var udfWrapperData = GetUdfWrapperDataFromStream(stream,
+                out serializerMode,
+                out deserializerMode,
+                out runMode);
 
             var nodeIndex = 0;
             var udfIndex = 0;
             UdfWrapperNode node = udfWrapperData.UdfWrapperNodes[nodeIndex];
-            var nodeType = Type.GetType(node.TypeName);
+            Type nodeType = Type.GetType(node.TypeName);
             Delegate udf = null;
             if (nodeType == typeof(DataFrameGroupedMapUdfWrapper))
             {
@@ -253,7 +256,8 @@ namespace Microsoft.Spark.Utils
             }
             else 
             {
-                udf = (ArrowWorkerFunction.ExecuteDelegate)DeserializeUdfs<ArrowWorkerFunction.ExecuteDelegate>(
+                udf = (ArrowWorkerFunction.ExecuteDelegate)
+                    DeserializeUdfs<ArrowWorkerFunction.ExecuteDelegate>(
                         udfWrapperData,
                         ref nodeIndex,
                         ref udfIndex);
