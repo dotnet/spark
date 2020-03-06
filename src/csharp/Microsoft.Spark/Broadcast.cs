@@ -23,6 +23,7 @@ namespace Microsoft.Spark
         [NonSerialized]
         private readonly JvmObjectReference _jvmObject;
         private readonly long _bid;
+        private string _path;
 
         internal Broadcast(SparkContext sc,
             object value,
@@ -30,7 +31,7 @@ namespace Microsoft.Spark
             JvmObjectReference sparkContext)
         {
             var tempDir = Path.Combine(localDir, "sparkdotnet");
-            string path = Path.Combine(tempDir, Path.GetRandomFileName());
+            _path = Path.Combine(tempDir, Path.GetRandomFileName());
             Version version = SparkEnvironment.SparkVersion;
 
             // For Spark versions 2.3.0 and 2.3.1, Broadcast variable is created through different
@@ -39,15 +40,15 @@ namespace Microsoft.Spark
             {
                 (2, 3) => (version.Build) switch
                 {
-                    0 => CreateBroadcast_V2_3_1_Below(path, tempDir, sparkContext, value),
-                    1 => CreateBroadcast_V2_3_1_Below(path, tempDir, sparkContext, value),
-                    2 => CreateBroadcast_V2_3_2_Above(sc, path, tempDir, sparkContext, value),
-                    3 => CreateBroadcast_V2_3_2_Above(sc, path, tempDir, sparkContext, value),
-                    4 => CreateBroadcast_V2_3_2_Above(sc, path, tempDir, sparkContext, value),
+                    0 => CreateBroadcast_V2_3_1_Below(_path, tempDir, sparkContext, value),
+                    1 => CreateBroadcast_V2_3_1_Below(_path, tempDir, sparkContext, value),
+                    2 => CreateBroadcast_V2_3_2_Above(sc, _path, tempDir, sparkContext, value),
+                    3 => CreateBroadcast_V2_3_2_Above(sc, _path, tempDir, sparkContext, value),
+                    4 => CreateBroadcast_V2_3_2_Above(sc, _path, tempDir, sparkContext, value),
                     _ => throw new Exception($"Incorrect Spark version: {version}")
                 },
-                (2, 4) => CreateBroadcast_V2_3_2_Above(sc, path, tempDir, sparkContext, value),
-                (3, 0) => CreateBroadcast_V2_3_2_Above(sc, path, tempDir, sparkContext, value),
+                (2, 4) => CreateBroadcast_V2_3_2_Above(sc, _path, tempDir, sparkContext, value),
+                (3, 0) => CreateBroadcast_V2_3_2_Above(sc, _path, tempDir, sparkContext, value),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
 
@@ -94,6 +95,8 @@ namespace Microsoft.Spark
         public void Destroy()
         {
             _jvmObject.Invoke("destroy");
+            File.Delete(_path);
+            JvmBroadcastRegistry.Remove(_jvmObject);
         }
 
         /// <summary>
@@ -243,6 +246,15 @@ namespace Microsoft.Spark
         public static void Add(JvmObjectReference broadcastJvmObject)
         {
             s_jvmBroadcastVariables.Add(broadcastJvmObject);
+        }
+
+        /// <summary>
+        /// Removes the JVMObjectReference object of type <see cref="Broadcast{T}"/> from the list.
+        /// </summary>
+        /// <param name="broadcastJvmObject">JVMObjectReference of the Broadcast variable</param>
+        public static void Remove(JvmObjectReference broadcastJvmObject)
+        {
+            s_jvmBroadcastVariables.Remove(broadcastJvmObject);
         }
 
         /// <summary>

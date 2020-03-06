@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
-    [Collection("Spark E2E Tests")]
+
     [Serializable]
     public class TestBroadcastVariable
     {
@@ -111,7 +111,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             string[] expected = new[] {
                 "hello Broadcast.Destroy(), 3",
-                "world Broadcast.Destroy(), 3" };
+                "world Broadcast.Destroy(), 3"};
 
             Row[] actualRows = _df.Select(testBroadcast(_df["_1"])).Collect().ToArray();
             string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
@@ -124,7 +124,41 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 (bc.Value()).StringValue +
                 ", " + (bc.Value()).IntValue);
 
-            Assert.Throws<Exception>(() => _df.Select(testDestroyedBroadcast(_df["_1"])).Show());
+            Assert.Throws<Exception>(() => _df.Select(testDestroyedBroadcast(_df["_1"])).Collect().ToArray());
+        }
+
+        [Fact]
+        public void TestUnpersist()
+        {
+            var objectToBroadcast = new TestBroadcastVariable(
+                4,
+                "Broadcast.Unpersist()");
+
+            Broadcast<TestBroadcastVariable> bc = _spark.SparkContext.Broadcast(objectToBroadcast);
+
+            Func<Column, Column> testBroadcast = Udf<string, string>(
+                str => str +
+                (bc.Value()).StringValue +
+                ", " + (bc.Value()).IntValue);
+
+            string[] expected = new[] {
+                "hello Broadcast.Unpersist(), 4",
+                "world Broadcast.Unpersist(), 4" };
+
+            Row[] actualRows = _df.Select(testBroadcast(_df["_1"])).Collect().ToArray();
+            string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
+            Assert.Equal(expected, actual);
+
+            bc.Unpersist();
+
+            Func<Column, Column> testUnpersistedBroadcast = Udf<string, string>(
+                str => str +
+                (bc.Value()).StringValue +
+                ", " + (bc.Value()).IntValue);
+
+            Row[] rowsAfterUnpersist = _df.Select(testUnpersistedBroadcast(_df["_1"])).Collect().ToArray();
+            string[] actualUnpersisted = rowsAfterUnpersist.Select(s => s[0].ToString()).ToArray();
+            Assert.Equal(expected, actualUnpersisted);
         }
     }
 }
