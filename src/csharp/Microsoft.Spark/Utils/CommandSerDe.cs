@@ -223,14 +223,14 @@ namespace Microsoft.Spark.Utils
             out SerializedMode deserializerMode,
             out string runMode)
         {
-            var udfWrapperData = GetUdfWrapperDataFromStream(
+            UdfWrapperData udfWrapperData = GetUdfWrapperDataFromStream(
                 stream,
                 out serializerMode,
                 out deserializerMode,
                 out runMode);
 
-            var nodeIndex = 0;
-            var udfIndex = 0;
+            int nodeIndex = 0;
+            int udfIndex = 0;
             UdfWrapperNode node = udfWrapperData.UdfWrapperNodes[nodeIndex];
             Type nodeType = Type.GetType(node.TypeName);
             Delegate udf = null;
