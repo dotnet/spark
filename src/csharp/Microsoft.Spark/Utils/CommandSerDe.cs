@@ -303,10 +303,14 @@ namespace Microsoft.Spark.Utils
             out SerializedMode deserializerMode,
             out string runMode) where T : Delegate
         {
-            var udfWrapperData = GetUdfWrapperDataFromStream(stream, out serializerMode, out deserializerMode, out runMode);
-            var nodeIndex = 0;
-            var udfIndex = 0;
-            var udf = (T)DeserializeUdfs<T>(udfWrapperData, ref nodeIndex, ref udfIndex);
+            UdfWrapperData udfWrapperData = GetUdfWrapperDataFromStream(
+                stream,
+                out serializerMode,
+                out deserializerMode,
+                out runMode);
+            int nodeIndex = 0;
+            int udfIndex = 0;
+            T udf = (T)DeserializeUdfs<T>(udfWrapperData, ref nodeIndex, ref udfIndex);
 
             // Check all the data is consumed.
             Debug.Assert(nodeIndex == udfWrapperData.UdfWrapperNodes.Length);
