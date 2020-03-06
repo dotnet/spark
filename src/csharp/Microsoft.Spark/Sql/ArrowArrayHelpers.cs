@@ -41,7 +41,6 @@ namespace Microsoft.Spark.Sql
 
         public static DataFrameColumn CreateEmptyColumn<T>()
         {
-            DataFrameColumn ret;
             Type type = typeof(T);
             if (type == typeof(PrimitiveDataFrameColumn<bool>))
             {

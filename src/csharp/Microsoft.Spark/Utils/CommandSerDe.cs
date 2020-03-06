@@ -223,7 +223,8 @@ namespace Microsoft.Spark.Utils
             out SerializedMode deserializerMode,
             out string runMode)
         {
-            var udfWrapperData = GetUdfWrapperDataFromStream(stream,
+            var udfWrapperData = GetUdfWrapperDataFromStream(
+                stream,
                 out serializerMode,
                 out deserializerMode,
                 out runMode);

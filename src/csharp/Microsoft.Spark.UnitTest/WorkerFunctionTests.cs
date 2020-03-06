@@ -250,13 +250,13 @@ namespace Microsoft.Spark.UnitTest
                 };
 
             // Validate one-level chaining.
-            var chainedFunc1 = DataFrameWorkerFunction.Chain(func1, func2);
+            DataFrameWorkerFunction chainedFunc1 = DataFrameWorkerFunction.Chain(func1, func2);
             ArrowTestUtils.AssertEquals(
                 "outer1:name:100",
                 chainedFunc1.Func(input, new[] { 0, 1 }));
 
             // Validate two-level chaining.
-            var chainedFunc2 = DataFrameWorkerFunction.Chain(chainedFunc1, func3);
+            DataFrameWorkerFunction chainedFunc2 = DataFrameWorkerFunction.Chain(chainedFunc1, func3);
             ArrowTestUtils.AssertEquals(
                 "outer2:outer1:name:100",
                 chainedFunc2.Func(input, new[] { 0, 1 }));
@@ -309,9 +309,9 @@ namespace Microsoft.Spark.UnitTest
                     (strings) =>
                     {
                         var stringArray = (StringArray)ToArrowArray(
-                         Enumerable.Range(0, (int)strings.Length)
-                             .Select(i => $"outer1:{strings[i]}")
-                             .ToArray());
+                             Enumerable.Range(0, (int)strings.Length)
+                                .Select(i => $"outer1:{strings[i]}")
+                                .ToArray());
                         return ToArrowStringDataFrameColumn(stringArray);
                     }).Execute);
 
@@ -325,7 +325,7 @@ namespace Microsoft.Spark.UnitTest
                 };
 
             // The order does not align since workerFunction2 is executed first.
-            var chainedFunc1 = DataFrameWorkerFunction.Chain(func2, func1);
+            DataFrameWorkerFunction chainedFunc1 = DataFrameWorkerFunction.Chain(func2, func1);
             Assert.ThrowsAny<Exception>(() => chainedFunc1.Func(input, new[] { 0, 1 }));
         }
     }

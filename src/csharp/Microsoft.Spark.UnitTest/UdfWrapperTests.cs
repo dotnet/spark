@@ -342,7 +342,7 @@ namespace Microsoft.Spark.UnitTest
         private static ArrowStringDataFrameColumn Concat(params ArrowStringDataFrameColumn[] arrays)
         {
             var builder = new StringBuilder();
-            int length = (int)arrays[0].Length;
+            var length = (int)arrays[0].Length;
             var resultStrings = new string[length];
 
             for (int i = 0; i < length; ++i)
