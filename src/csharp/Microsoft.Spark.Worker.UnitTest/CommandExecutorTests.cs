@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 using Apache.Arrow;
 using Apache.Arrow.Ipc;
 using Apache.Arrow.Types;
+using Microsoft.Data.Analysis;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Utils;
 using Microsoft.Spark.Worker.Command;
@@ -302,6 +304,90 @@ namespace Microsoft.Spark.Worker.UnitTest
         }
 
         [Fact]
+        public async Task TestDataFrameSqlCommandExecutorWithSingleCommand()
+        {
+            var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+                (strings) =>
+                {
+                    var stringArray = (StringArray)ToArrowArray(
+                        Enumerable.Range(0, (int)strings.Length)
+                            .Select(i => $"udf: {strings[i]}")
+                            .ToArray());
+                    return ToArrowStringDataFrameColumn(stringArray);
+                });
+
+            var command = new SqlCommand()
+            {
+                ArgOffsets = new[] { 0 },
+                NumChainedFunctions = 1,
+                WorkerFunction = new Sql.DataFrameWorkerFunction(udfWrapper.Execute),
+                SerializerMode = CommandSerDe.SerializedMode.Row,
+                DeserializerMode = CommandSerDe.SerializedMode.Row
+            };
+
+            var commandPayload = new Worker.CommandPayload()
+            {
+                EvalType = UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF,
+                Commands = new[] { command }
+            };
+
+            using var inputStream = new MemoryStream();
+            using var outputStream = new MemoryStream();
+            int numRows = 10;
+
+            // Write test data to the input stream.
+            Schema schema = new Schema.Builder()
+                .Field(b => b.Name("arg1").DataType(StringType.Default))
+                .Build();
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema);
+            await arrowWriter.WriteRecordBatchAsync(
+                new RecordBatch(
+                    schema,
+                    new[]
+                    {
+                        ToArrowArray(
+                            Enumerable.Range(0, numRows)
+                                .Select(i => i.ToString())
+                                .ToArray())
+                    },
+                    numRows));
+
+            inputStream.Seek(0, SeekOrigin.Begin);
+
+            CommandExecutorStat stat = new CommandExecutor().Execute(
+                inputStream,
+                outputStream,
+                0,
+                commandPayload);
+
+            // Validate that all the data on the stream is read.
+            Assert.Equal(inputStream.Length, inputStream.Position);
+            Assert.Equal(numRows, stat.NumEntriesProcessed);
+
+            // Validate the output stream.
+            outputStream.Seek(0, SeekOrigin.Begin);
+            int arrowLength = SerDe.ReadInt32(outputStream);
+            Assert.Equal((int)SpecialLengths.START_ARROW_STREAM, arrowLength);
+            var arrowReader = new ArrowStreamReader(outputStream);
+            RecordBatch outputBatch = await arrowReader.ReadNextRecordBatchAsync();
+
+            Assert.Equal(numRows, outputBatch.Length);
+            Assert.Single(outputBatch.Arrays);
+            var array = (StringArray)outputBatch.Arrays.ElementAt(0);
+            // Validate the single command.
+            for (int i = 0; i < numRows; ++i)
+            {
+                Assert.Equal($"udf: {i}", array.GetString(i));
+            }
+
+            int end = SerDe.ReadInt32(outputStream);
+            Assert.Equal(0, end);
+
+            // Validate all the data on the stream is read.
+            Assert.Equal(outputStream.Length, outputStream.Position);
+        }
+
+        [Fact]
         public async Task TestArrowSqlCommandExecutorWithMultiCommands()
         {
             var udfWrapper1 = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
@@ -400,6 +486,106 @@ namespace Microsoft.Spark.Worker.UnitTest
             Assert.Equal(outputStream.Length, outputStream.Position);
         }
 
+        [Fact]
+        public async Task TestDataFrameSqlCommandExecutorWithMultiCommands()
+        {
+            var udfWrapper1 = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+                (strings) =>
+                {
+                    var stringArray = (StringArray)ToArrowArray(
+                        Enumerable.Range(0, (int)strings.Length)
+                            .Select(i => $"udf: {strings[i]}")
+                            .ToArray());
+                    return ToArrowStringDataFrameColumn(stringArray);
+                });
+            var udfWrapper2 = new Sql.DataFrameUdfWrapper<PrimitiveDataFrameColumn<int>, PrimitiveDataFrameColumn<int>, PrimitiveDataFrameColumn<int>>(
+                (arg1, arg2) => (PrimitiveDataFrameColumn<int>)(arg1 * arg2));
+
+            var command1 = new SqlCommand()
+            {
+                ArgOffsets = new[] { 0 },
+                NumChainedFunctions = 1,
+                WorkerFunction = new Sql.DataFrameWorkerFunction(udfWrapper1.Execute),
+                SerializerMode = CommandSerDe.SerializedMode.Row,
+                DeserializerMode = CommandSerDe.SerializedMode.Row
+            };
+
+            var command2 = new SqlCommand()
+            {
+                ArgOffsets = new[] { 1, 2 },
+                NumChainedFunctions = 1,
+                WorkerFunction = new Sql.DataFrameWorkerFunction(udfWrapper2.Execute),
+                SerializerMode = CommandSerDe.SerializedMode.Row,
+                DeserializerMode = CommandSerDe.SerializedMode.Row
+            };
+
+            var commandPayload = new Worker.CommandPayload()
+            {
+                EvalType = UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF,
+                Commands = new[] { command1, command2 }
+            };
+
+            using var inputStream = new MemoryStream();
+            using var outputStream = new MemoryStream();
+            int numRows = 10;
+
+            // Write test data to the input stream.
+            Schema schema = new Schema.Builder()
+                .Field(b => b.Name("arg1").DataType(StringType.Default))
+                .Field(b => b.Name("arg2").DataType(Int32Type.Default))
+                .Field(b => b.Name("arg3").DataType(Int32Type.Default))
+                .Build();
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema);
+            await arrowWriter.WriteRecordBatchAsync(
+                new RecordBatch(
+                    schema,
+                    new[]
+                    {
+                        ToArrowArray(
+                            Enumerable.Range(0, numRows)
+                                .Select(i => i.ToString())
+                                .ToArray()),
+                        ToArrowArray(Enumerable.Range(0, numRows).ToArray()),
+                        ToArrowArray(Enumerable.Range(0, numRows).ToArray()),
+                    },
+                    numRows));
+
+            inputStream.Seek(0, SeekOrigin.Begin);
+
+            CommandExecutorStat stat = new CommandExecutor().Execute(
+                inputStream,
+                outputStream,
+                0,
+                commandPayload);
+
+            // Validate all the data on the stream is read.
+            Assert.Equal(inputStream.Length, inputStream.Position);
+            Assert.Equal(numRows, stat.NumEntriesProcessed);
+
+            // Validate the output stream.
+            outputStream.Seek(0, SeekOrigin.Begin);
+            var arrowLength = SerDe.ReadInt32(outputStream);
+            Assert.Equal((int)SpecialLengths.START_ARROW_STREAM, arrowLength);
+            var arrowReader = new ArrowStreamReader(outputStream);
+            RecordBatch outputBatch = await arrowReader.ReadNextRecordBatchAsync();
+
+            Assert.Equal(numRows, outputBatch.Length);
+            Assert.Equal(2, outputBatch.Arrays.Count());
+            var array1 = (StringArray)outputBatch.Arrays.ElementAt(0);
+            var array2 = (Int32Array)outputBatch.Arrays.ElementAt(1);
+            for (int i = 0; i < numRows; ++i)
+            {
+                Assert.Equal($"udf: {i}", array1.GetString(i));
+                Assert.Equal(i * i, array2.Values[i]);
+            }
+
+            int end = SerDe.ReadInt32(outputStream);
+            Assert.Equal(0, end);
+
+            // Validate all the data on the stream is read.
+            Assert.Equal(outputStream.Length, outputStream.Position);
+        }
+
         /// <summary>
         /// Tests when Spark writes an input stream that only contains a
         /// Schema, and no record batches, that CommandExecutor writes the
@@ -419,6 +605,95 @@ namespace Microsoft.Spark.Worker.UnitTest
                 ArgOffsets = new[] { 0 },
                 NumChainedFunctions = 1,
                 WorkerFunction = new Sql.ArrowWorkerFunction(udfWrapper.Execute),
+                SerializerMode = CommandSerDe.SerializedMode.Row,
+                DeserializerMode = CommandSerDe.SerializedMode.Row
+            };
+
+            var commandPayload = new Worker.CommandPayload()
+            {
+                EvalType = UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF,
+                Commands = new[] { command }
+            };
+
+            using var inputStream = new MemoryStream();
+            using var outputStream = new MemoryStream();
+            // Write test data to the input stream.
+            Schema schema = new Schema.Builder()
+                .Field(b => b.Name("arg1").DataType(StringType.Default))
+                .Build();
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema);
+
+            // The .NET ArrowStreamWriter doesn't currently support writing just a 
+            // schema with no batches - but Java does. We use Reflection to simulate
+            // the request Spark sends.
+            MethodInfo writeSchemaMethod = arrowWriter.GetType().GetMethod(
+                "WriteSchemaAsync",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+
+            writeSchemaMethod.Invoke(
+                arrowWriter,
+                new object[] { schema, CancellationToken.None });
+
+            SerDe.Write(inputStream, 0);
+
+            inputStream.Seek(0, SeekOrigin.Begin);
+
+            CommandExecutorStat stat = new CommandExecutor().Execute(
+                inputStream,
+                outputStream,
+                0,
+                commandPayload);
+
+            // Validate that all the data on the stream is read.
+            Assert.Equal(inputStream.Length, inputStream.Position);
+            Assert.Equal(0, stat.NumEntriesProcessed);
+
+            // Validate the output stream.
+            outputStream.Seek(0, SeekOrigin.Begin);
+            int arrowLength = SerDe.ReadInt32(outputStream);
+            Assert.Equal((int)SpecialLengths.START_ARROW_STREAM, arrowLength);
+            var arrowReader = new ArrowStreamReader(outputStream);
+            RecordBatch outputBatch = arrowReader.ReadNextRecordBatch();
+
+            Assert.Equal(1, outputBatch.Schema.Fields.Count);
+            Assert.IsType<StringType>(outputBatch.Schema.GetFieldByIndex(0).DataType);
+
+            Assert.Equal(0, outputBatch.Length);
+            Assert.Single(outputBatch.Arrays);
+
+            var array = (StringArray)outputBatch.Arrays.ElementAt(0);
+            Assert.Equal(0, array.Length);
+
+            int end = SerDe.ReadInt32(outputStream);
+            Assert.Equal(0, end);
+
+            // Validate all the data on the stream is read.
+            Assert.Equal(outputStream.Length, outputStream.Position);
+        }
+
+        /// <summary>
+        /// Tests when Spark writes an input stream that only contains a
+        /// Schema, and no record batches, that CommandExecutor writes the
+        /// appropriate response back.
+        /// </summary>
+        [Fact]
+        public void TestDataFrameSqlCommandExecutorWithEmptyInput()
+        {
+            var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+                (strings) =>
+                {
+                    var stringArray = (StringArray)ToArrowArray(
+                        Enumerable.Range(0, (int)strings.Length)
+                            .Select(i => $"udf: {strings[i]}")
+                            .ToArray());
+                    return ToArrowStringDataFrameColumn(stringArray);
+                });
+
+            var command = new SqlCommand()
+            {
+                ArgOffsets = new[] { 0 },
+                NumChainedFunctions = 1,
+                WorkerFunction = new Sql.DataFrameWorkerFunction(udfWrapper.Execute),
                 SerializerMode = CommandSerDe.SerializedMode.Row,
                 DeserializerMode = CommandSerDe.SerializedMode.Row
             };
@@ -539,7 +814,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             int numRows = 10;
 
             // Write test data to the input stream.
-            Schema schema = new Schema.Builder()
+            var schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Field(b => b.Name("arg2").DataType(Int64Type.Default))
                 .Build();
@@ -592,6 +867,113 @@ namespace Microsoft.Spark.Worker.UnitTest
             for (int i = 0; i < numRows; ++i)
             {
                 Assert.Equal(100 + i, longArray.Values[i]);
+            }
+
+            int end = SerDe.ReadInt32(outputStream);
+            Assert.Equal(0, end);
+
+            // Validate all the data on the stream is read.
+            Assert.Equal(outputStream.Length, outputStream.Position);
+        }
+
+        [Fact]
+        public async Task TestDataFrameGroupedMapCommandExecutor()
+        {
+            StringArray ConvertStrings(DataFrameColumn strings)
+            {
+                return (StringArray)ToArrowArray(
+                    Enumerable.Range(0, (int)strings.Length)
+                        .Select(i => $"udf: {strings[i]}")
+                        .ToArray());
+            }
+
+            var resultSchema = new Schema.Builder()
+                .Field(b => b.Name("arg1").DataType(StringType.Default))
+                .Field(b => b.Name("arg2").DataType(Int64Type.Default))
+                .Build();
+
+            var udfWrapper = new Sql.DataFrameGroupedMapUdfWrapper(
+                (dataFrame) =>
+                {
+                    StringArray strings = ConvertStrings(dataFrame.Columns[0]);
+                    var stringColumn = new ArrowStringDataFrameColumn(dataFrame.Columns[0].Name, strings.ValueBuffer.Memory, strings.ValueOffsetsBuffer.Memory, strings.NullBitmapBuffer.Memory, strings.Length, strings.NullCount);
+                    DataFrameColumn doubles = dataFrame.Columns[1] + 100;
+                    return new DataFrame(new List<DataFrameColumn>() { stringColumn, doubles });
+                });
+
+            var command = new SqlCommand()
+            {
+                ArgOffsets = new[] { 0 },
+                NumChainedFunctions = 1,
+                WorkerFunction = new Sql.DataFrameGroupedMapWorkerFunction(udfWrapper.Execute),
+                SerializerMode = CommandSerDe.SerializedMode.Row,
+                DeserializerMode = CommandSerDe.SerializedMode.Row
+            };
+
+            var commandPayload = new Worker.CommandPayload()
+            {
+                EvalType = UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF,
+                Commands = new[] { command }
+            };
+
+            using var inputStream = new MemoryStream();
+            using var outputStream = new MemoryStream();
+            int numRows = 10;
+
+            // Write test data to the input stream.
+            var schema = new Schema.Builder()
+                .Field(b => b.Name("arg1").DataType(StringType.Default))
+                .Field(b => b.Name("arg2").DataType(Int64Type.Default))
+                .Build();
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema);
+            await arrowWriter.WriteRecordBatchAsync(
+                new RecordBatch(
+                    schema,
+                    new[]
+                    {
+                        ToArrowArray(
+                            Enumerable.Range(0, numRows)
+                                .Select(i => i.ToString())
+                                .ToArray()),
+                        ToArrowArray(
+                            Enumerable.Range(0, numRows)
+                                .Select(i => (long)i)
+                                .ToArray())
+                    },
+                    numRows));
+
+            inputStream.Seek(0, SeekOrigin.Begin);
+
+            CommandExecutorStat stat = new CommandExecutor().Execute(
+                inputStream,
+                outputStream,
+                0,
+                commandPayload);
+
+            // Validate that all the data on the stream is read.
+            Assert.Equal(inputStream.Length, inputStream.Position);
+            Assert.Equal(numRows, stat.NumEntriesProcessed);
+
+            // Validate the output stream.
+            outputStream.Seek(0, SeekOrigin.Begin);
+            int arrowLength = SerDe.ReadInt32(outputStream);
+            Assert.Equal((int)SpecialLengths.START_ARROW_STREAM, arrowLength);
+            var arrowReader = new ArrowStreamReader(outputStream);
+            RecordBatch outputBatch = await arrowReader.ReadNextRecordBatchAsync();
+
+            Assert.Equal(numRows, outputBatch.Length);
+            Assert.Equal(2, outputBatch.ColumnCount);
+
+            var stringArray = (StringArray)outputBatch.Column(0);
+            for (int i = 0; i < numRows; ++i)
+            {
+                Assert.Equal($"udf: {i}", stringArray.GetString(i));
+            }
+
+            var doubleArray = (DoubleArray)outputBatch.Column(1);
+            for (int i = 0; i < numRows; ++i)
+            {
+                Assert.Equal(100 + i, doubleArray.Values[i]);
             }
 
             int end = SerDe.ReadInt32(outputStream);
