@@ -28,6 +28,7 @@ an open source and cross-platform machine learning framework.
   </tr>
   <tr>
     <td align="middle"><a href="Sql/Batch/VectorUdfs.cs"><b>VectorUdfs.cs</a></b><br>Example using vectorized UDFs to improve query performance.<br></td>
+    <td align="middle"><a href="Sql/Batch/VectorDataFrameUdfs.cs"><b>VectorDataFrameUdfs.cs</a></b><br>Example using vectorized UDFs and convenience APIs from Microsft.Data.Analysis to improve query performance.<br></td>
   </tr>
 </table>
 
