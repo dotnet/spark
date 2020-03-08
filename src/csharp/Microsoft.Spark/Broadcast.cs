@@ -40,15 +40,15 @@ namespace Microsoft.Spark
             {
                 (2, 3) => (version.Build) switch
                 {
-                    0 => CreateBroadcast_V2_3_1_Below(_path, tempDir, sparkContext, value),
-                    1 => CreateBroadcast_V2_3_1_Below(_path, tempDir, sparkContext, value),
-                    2 => CreateBroadcast_V2_3_2_Above(sc, _path, tempDir, sparkContext, value),
-                    3 => CreateBroadcast_V2_3_2_Above(sc, _path, tempDir, sparkContext, value),
-                    4 => CreateBroadcast_V2_3_2_Above(sc, _path, tempDir, sparkContext, value),
+                    0 => CreateBroadcast_V2_3_1_Below(tempDir, sparkContext, value),
+                    1 => CreateBroadcast_V2_3_1_Below(tempDir, sparkContext, value),
+                    2 => CreateBroadcast_V2_3_2_Above(sc, tempDir, sparkContext, value),
+                    3 => CreateBroadcast_V2_3_2_Above(sc, tempDir, sparkContext, value),
+                    4 => CreateBroadcast_V2_3_2_Above(sc, tempDir, sparkContext, value),
                     _ => throw new Exception($"Incorrect Spark version: {version}")
                 },
-                (2, 4) => CreateBroadcast_V2_3_2_Above(sc, _path, tempDir, sparkContext, value),
-                (3, 0) => CreateBroadcast_V2_3_2_Above(sc, _path, tempDir, sparkContext, value),
+                (2, 4) => CreateBroadcast_V2_3_2_Above(sc, tempDir, sparkContext, value),
+                (3, 0) => CreateBroadcast_V2_3_2_Above(sc, tempDir, sparkContext, value),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
 
@@ -102,13 +102,12 @@ namespace Microsoft.Spark
         /// <summary>
         /// Function that creates a file to store the broadcast value in the given path.
         /// </summary>
-        /// <param name="path">Complete filename with the absolute path</param>
         /// <param name="tempDir">Path where file is to be created</param>
         /// <param name="value">Broadcast value to be written to the file</param>
-        private void WriteBroadcastValueToFile(string path, string tempDir, object value)
+        private void WriteBroadcastValueToFile(string tempDir, object value)
         {
             Directory.CreateDirectory(tempDir);
-            using FileStream f = File.Create(path);
+            using FileStream f = File.Create(_path);
             Dump(value, f);
         }
 
@@ -127,18 +126,16 @@ namespace Microsoft.Spark
         /// Calls the necessary functions to create org.apache.spark.broadcast.Broadcast object
         /// for Spark versions 2.3.0 and 2.3.1 and returns the JVMObjectReference object.
         /// </summary>
-        /// <param name="path">Complete filename with the absolute path</param>
         /// <param name="tempDir">Path where file is to be created</param>
         /// <param name="sparkContext">JVMObjectReference object of SparkContext</param>
         /// <param name="value">Broadcast value of type object</param>
         /// <returns></returns>
         private JvmObjectReference CreateBroadcast_V2_3_1_Below(
-            string path,
             string tempDir,
             JvmObjectReference sparkContext,
             object value)
         {
-            WriteBroadcastValueToFile(path, tempDir, value);
+            WriteBroadcastValueToFile(tempDir, value);
             var javaSparkContext = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.api.java.JavaSparkContext",
                 "fromSparkContext",
@@ -147,7 +144,7 @@ namespace Microsoft.Spark
                 "org.apache.spark.api.python.PythonRDD",
                 "readBroadcastFromFile",
                 javaSparkContext,
-                path);
+                _path);
         }
 
         /// <summary>
@@ -155,14 +152,12 @@ namespace Microsoft.Spark
         /// object for Spark versions 2.3.2 and above, and returns the JVMObjectReference object.
         /// </summary>
         /// <param name="sc">SparkContext object</param>
-        /// <param name="path">Complete filename with the absolute path</param>
         /// <param name="tempDir">Path where file is to be created</param>
         /// <param name="sparkContext">JVMObjectReference object of SparkContext</param>
         /// <param name="value">Broadcast value of type object</param>
         /// <returns></returns>
         private JvmObjectReference CreateBroadcast_V2_3_2_Above(
             SparkContext sc,
-            string path,
             string tempDir,
             JvmObjectReference sparkContext,
             object value)
@@ -170,7 +165,7 @@ namespace Microsoft.Spark
             var pythonBroadcast = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
                     "org.apache.spark.api.python.PythonRDD",
                     "setupBroadcast",
-                    path);
+                    _path);
             SparkConf sparkConf = sc.GetConf();
             var encryptionEnabled = bool.Parse(
                 sparkConf.Get("spark.io.encryption.enabled",
@@ -183,7 +178,7 @@ namespace Microsoft.Spark
             }
             else
             {
-                WriteBroadcastValueToFile(path, tempDir, value);
+                WriteBroadcastValueToFile(tempDir, value);
             }
 
             return (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
