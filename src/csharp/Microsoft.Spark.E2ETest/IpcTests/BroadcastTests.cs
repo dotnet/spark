@@ -130,6 +130,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
+        /// <summary>
+        /// Test Broadcast.Unpersist() deletes cached copies of the broadcast on the executors.
+        /// </summary>
         [Fact]
         public void TestUnpersist()
         {
