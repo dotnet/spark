@@ -22,7 +22,7 @@ namespace Microsoft.Spark.Sql.Types
         /// <param name="dateTime">DateTime object</param>
         public Timestamp(DateTime dateTime)
         {
-            _dateTime = dateTime;
+            _dateTime = dateTime.ToUniversalTime();
 
             if (dateTime.Kind != DateTimeKind.Utc)
             {
@@ -45,13 +45,8 @@ namespace Microsoft.Spark.Sql.Types
         /// <param name="microsecond">The microsecond (0 through 999999)</param>
         public Timestamp(int year, int month, int day, int hour, int minute, int second, int microsecond)
         {
-            _dateTime = new DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc)
-                .AddTicks(microsecond * 10);
-        }
-
-        public Timestamp(int year, int month, int day, int hour, int minute, int second)
-        {
-            _dateTime = new DateTime(year, month, day, hour, minute, second);
+            _dateTime = new DateTime(year, month, day, hour, minute, second)
+                .AddTicks(microsecond * 10).ToUniversalTime();
         }
 
         /// <summary>
@@ -87,12 +82,14 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns the microsecond component of the timestamp.
         /// </summary>
-        public int Microsecond => (int)_dateTime.Ticks / 10;
+        public int Microsecond => (int)(_dateTime.Ticks -
+            new DateTime(Year, Month, Day, Hour, Minute, Second).Ticks) / 10;
 
         /// <summary>
         /// Readable string representation for this type.
         /// </summary>
-        public override string ToString() => _dateTime.ToString("yyyy-MM-dd HH:mm:ss.ffffff");
+        public override string ToString() => _dateTime.ToLocalTime()
+            .ToString("yyyy-MM-dd HH:mm:ss.ffffff");
 
         /// <summary>
         /// Checks if the given object is same as the current object.
@@ -124,6 +121,7 @@ namespace Microsoft.Spark.Sql.Types
         /// </summary>
         /// <returns>Long object that represents the number of microseconds from the epoch of
         /// 1970-01-01T00:00:00.000000Z(UTC+00:00)</returns>
-        internal long GetInterval() => (_dateTime - s_unixTimeEpoch).Ticks / 10;
+        internal double GetInterval() => (double)(_dateTime.Ticks - s_unixTimeEpoch.Ticks) /
+            10000000;
     }
 }

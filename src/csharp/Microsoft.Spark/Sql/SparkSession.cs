@@ -197,6 +197,15 @@ namespace Microsoft.Spark.Sql
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DateType()));
 
         /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type
+        /// <see cref="Timestamp"/>
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<Timestamp> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new TimestampType()));
+
+        /// <summary>
         /// Executes a SQL query using Spark, returning the result as a DataFrame.
         /// </summary>
         /// <param name="sqlText">SQL query text</param>
