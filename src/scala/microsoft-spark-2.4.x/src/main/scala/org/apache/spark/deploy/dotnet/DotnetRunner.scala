@@ -178,16 +178,21 @@ object DotnetRunner extends Logging {
   // permission to executable (only for Unix systems, since the zip file may have been
   // created under Windows. Finally, the absolute path for the executable is returned.
   private def resolveDotnetExecutable(dir: File, dotnetExecutable: String): String = {
-    val resolvedExecutable = Files
-      .walk(FileSystems.getDefault.getPath(dir.getAbsolutePath))
-      .iterator()
-      .asScala
-      .find(path => Files.isRegularFile(path) && path.getFileName.toString == dotnetExecutable) match {
-      case Some(path) => path.toAbsolutePath.toString
-      case None =>
-        throw new IllegalArgumentException(
-          s"Failed to find $dotnetExecutable under" +
-            s" ${dir.getAbsolutePath}")
+    val path = Paths.get(dir.getAbsolutePath, dotnetExecutable)
+    val resolvedExecutable = if (Files.isRegularFile(path)) {
+      path.toAbsolutePath.toString
+    } else {
+      Files
+        .walk(FileSystems.getDefault.getPath(dir.getAbsolutePath))
+        .iterator()
+        .asScala
+        .find(path => Files.isRegularFile(path) && path.getFileName.toString == dotnetExecutable) match {
+          case Some(path) => path.toAbsolutePath.toString
+          case None =>
+            throw new IllegalArgumentException(
+              s"Failed to find $dotnetExecutable under" +
+                s" ${dir.getAbsolutePath}")
+      }
     }
 
     if (DotnetUtils.supportPosix) {
