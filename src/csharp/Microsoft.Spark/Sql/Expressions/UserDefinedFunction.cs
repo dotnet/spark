@@ -47,6 +47,7 @@ namespace Microsoft.Spark.Sql.Expressions
         internal UserDefinedFunction(JvmObjectReference jvmObject)
         {
             _jvmObject = jvmObject;
+            JvmBroadcastRegistry.Clear();
         }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;

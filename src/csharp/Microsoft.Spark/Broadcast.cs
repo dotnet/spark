@@ -86,7 +86,6 @@ namespace Microsoft.Spark
         {
             _jvmObject.Invoke("destroy");
             File.Delete(_path);
-            JvmBroadcastRegistry.Remove(_jvmObject);
         }
 
         /// <summary>
@@ -225,11 +224,11 @@ namespace Microsoft.Spark
             s_jvmBroadcastVariables.Add(broadcastJvmObject);
 
         /// <summary>
-        /// Removes the JVMObjectReference object of type <see cref="Broadcast{T}"/> from the list.
+        /// Clears s_jvmBroadcastVariables of all the JVMObjectReference objects of type
+        /// <see cref="Broadcast{T}"/>
         /// </summary>
-        /// <param name="broadcastJvmObject">JVMObjectReference of the Broadcast variable</param>
-        internal static void Remove(JvmObjectReference broadcastJvmObject) =>
-            s_jvmBroadcastVariables.Remove(broadcastJvmObject);
+        internal static void Clear() =>
+            s_jvmBroadcastVariables.Clear();
 
         /// <summary>
         /// Returns the static member s_jvmBroadcastVariables.
