@@ -4,10 +4,8 @@
 
 using System;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Worker.Processor
 {
@@ -57,7 +55,7 @@ namespace Microsoft.Spark.Worker.Processor
                     {
                         string path = SerDe.ReadString(stream);
                         using FileStream fStream = File.Open(path, FileMode.Open, FileAccess.Read);
-                        var value = formatter.Deserialize(fStream);
+                        object value = formatter.Deserialize(fStream);
                         BroadcastRegistry.Add(bid, value);
                     }
                 }
