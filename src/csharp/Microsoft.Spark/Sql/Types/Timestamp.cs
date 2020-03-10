@@ -95,7 +95,7 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Readable string representation for this type.
         /// </summary>
-        public override string ToString() => _dateTime.ToLocalTime()
+        public override string ToString() => _dateTime.ToUniversalTime()
             .ToString("yyyy-MM-dd HH:mm:ss.ffffff");
 
         /// <summary>
