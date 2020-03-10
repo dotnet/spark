@@ -30,9 +30,9 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
             _jvmObject.Invoke("add", element);
         }
 
-        internal void AddRange(List<JvmObjectReference> listJvmObjects)
+        internal void AddAll(IEnumerable<object> collection)
         {
-            foreach (object elem in listJvmObjects)
+            foreach (object elem in collection)
             {
                 Add(elem);
             }

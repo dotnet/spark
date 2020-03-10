@@ -65,6 +65,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             var obj2 = new TestBroadcastVariable(2, "second");
             Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
             Broadcast<TestBroadcastVariable> bc2 = _spark.SparkContext.Broadcast(obj2);
+            Exception expectedException = null;
 
             Func<Column, Column> udf = Udf<string, string>(
                 str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
@@ -77,20 +78,19 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             bc1.Destroy();
 
-            //Assert.Throws<Exception>(() => _df.Select(udf(_df["_1"])).Collect().ToArray());
-
             try
             {
                 Row[] testRows = _df.Select(udf(_df["_1"])).Collect().ToArray();
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Attempted to use broadcast after being destroyed: {e.Message}");
+                expectedException = e;
             }
+            Assert.NotNull(expectedException);
+            expectedException = null;
 
             Func<Column, Column> udf2 = Udf<string, string>(
                 str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
-            //Assert.Throws<Exception>(() => _df.Select(udf2(_df["_1"])).Collect().ToArray());
 
             try
             {
@@ -98,8 +98,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Attempted to use broadcast after being destroyed: {e.Message}");
+                expectedException = e;
             }
+            Assert.NotNull(expectedException);
 
             Func<Column, Column> udf3 = Udf<string, string>(
                 str => $"{str} {bc2.Value().StringValue}, {bc2.Value().IntValue}");
