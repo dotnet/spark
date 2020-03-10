@@ -310,11 +310,7 @@ namespace Microsoft.Spark
         /// <returns>A Microsoft.Spark.Broadcast object</returns>
         public Broadcast<T> Broadcast<T>(T value)
         {
-            var localDir = (string)_jvmObject.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.util.Utils",
-                "getLocalDir",
-                _conf);
-            return new Broadcast<T>(this, value, localDir, _jvmObject);
+            return new Broadcast<T>(this, value);
         }
 
         /// <summary>

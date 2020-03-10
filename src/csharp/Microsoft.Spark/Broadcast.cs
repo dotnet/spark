@@ -24,11 +24,15 @@ namespace Microsoft.Spark
         [NonSerialized]
         private readonly string _path;
 
-        internal Broadcast(SparkContext sc,
-            T value,
-            string localDir,
-            JvmObjectReference sparkContext)
+        internal Broadcast(SparkContext sc, T value)
         {
+            SparkConf sparkConf = sc.GetConf();
+            var localDir = (string)((IJvmObjectReferenceProvider)sc).Reference.Jvm.
+            CallStaticJavaMethod(
+               "org.apache.spark.util.Utils",
+               "getLocalDir",
+               sparkConf);
+
             var tempDir = Path.Combine(localDir, "sparkdotnet");
             _path = Path.Combine(tempDir, Path.GetRandomFileName());
             Version version = SparkEnvironment.SparkVersion;
@@ -36,7 +40,10 @@ namespace Microsoft.Spark
             _jvmObject = (version.Major, version.Minor) switch
             {
                 (2, 3) when version.Build == 0 || version.Build == 1 =>
-                    CreateBroadcast_V2_3_1_Below(tempDir, sparkContext, value),
+                    CreateBroadcast_V2_3_1_Below(
+                        tempDir,
+                        ((IJvmObjectReferenceProvider)sc).Reference,
+                        value),
                 (2, 3) => CreateBroadcast_V2_3_2_Above(sc, tempDir, value),
                 (2, 4) => CreateBroadcast_V2_3_2_Above(sc, tempDir, value),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
