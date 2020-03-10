@@ -61,32 +61,54 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestDestroy()
         {
-            var obj = new TestBroadcastVariable(
-                3,
-                "Broadcast.Destroy()");
-
-            Broadcast<TestBroadcastVariable> bc = _spark.SparkContext.Broadcast(obj);
+            var obj1 = new TestBroadcastVariable(1, "first");
+            var obj2 = new TestBroadcastVariable(2, "second");
+            Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
+            Broadcast<TestBroadcastVariable> bc2 = _spark.SparkContext.Broadcast(obj2);
 
             Func<Column, Column> udf = Udf<string, string>(
-                str => $"{str} {bc.Value().StringValue}, {bc.Value().IntValue}");
+                str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
 
-            string[] expected = new[] {
-                "hello Broadcast.Destroy(), 3",
-                "world Broadcast.Destroy(), 3" };
+            string[] expected = new[] {"hello first, 1", "world first, 1" };
 
             Row[] actualRows = _df.Select(udf(_df["_1"])).Collect().ToArray();
             string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
             Assert.Equal(expected, actual);
 
-            bc.Destroy();
+            bc1.Destroy();
 
-            Func<Column, Column> test = Udf<string, string>(str => "hello");
+            //Assert.Throws<Exception>(() => _df.Select(udf(_df["_1"])).Collect().ToArray());
 
-            string[] expected2 = new[] {"hello", "hello" };
+            try
+            {
+                Row[] testRows = _df.Select(udf(_df["_1"])).Collect().ToArray();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Attempted to use broadcast after being destroyed: {e.Message}");
+            }
 
-            Row[] actualRows2 = _df.Select(test(_df["_1"])).Collect().ToArray();
+            Func<Column, Column> udf2 = Udf<string, string>(
+                str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
+            //Assert.Throws<Exception>(() => _df.Select(udf2(_df["_1"])).Collect().ToArray());
+
+            try
+            {
+                Row[] testRows = _df.Select(udf2(_df["_1"])).Collect().ToArray();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Attempted to use broadcast after being destroyed: {e.Message}");
+            }
+
+            Func<Column, Column> udf3 = Udf<string, string>(
+                str => $"{str} {bc2.Value().StringValue}, {bc2.Value().IntValue}");
+
+            string[] expected2 = new[] { "hello second, 2", "world second, 2" };
+
+            Row[] actualRows2 = _df.Select(udf3(_df["_1"])).Collect().ToArray();
             string[] actual2 = actualRows2.Select(s => s[0].ToString()).ToArray();
-            Assert.Equal(expected, actual);
+            Assert.Equal(expected2, actual2);
         }
 
         /// <summary>
