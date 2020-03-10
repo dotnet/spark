@@ -45,8 +45,15 @@ namespace Microsoft.Spark.Sql.Types
         /// <param name="microsecond">The microsecond (0 through 999999)</param>
         public Timestamp(int year, int month, int day, int hour, int minute, int second, int microsecond)
         {
-            _dateTime = new DateTime(year, month, day, hour, minute, second)
-                .AddTicks(microsecond * 10).ToUniversalTime();
+            if (microsecond <= 999999 && microsecond >= 0)
+            {
+                _dateTime = new DateTime(year, month, day, hour, minute, second)
+                    .AddTicks(microsecond * 10).ToUniversalTime();
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException($"Invalid microsecond value {microsecond}");
+            }
         }
 
         /// <summary>
