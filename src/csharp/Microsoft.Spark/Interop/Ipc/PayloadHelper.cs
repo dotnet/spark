@@ -271,7 +271,7 @@ namespace Microsoft.Spark.Interop.Ipc
                                 break;
 
                             case Timestamp argTimestamp:
-                                SerDe.Write(destination, argTimestamp.GetInterval());
+                                SerDe.Write(destination, argTimestamp.GetIntervalInSeconds());
                                 break;
 
                             default:

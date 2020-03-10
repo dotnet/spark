@@ -116,12 +116,21 @@ namespace Microsoft.Spark.Sql.Types
         public DateTime ToDateTime() => _dateTime;
 
         /// <summary>
+        /// Returns a double object that represents the number of seconds from the epoch of
+        /// 1970-01-01T00:00:00.000000Z(UTC+00:00).
+        /// </summary>
+        /// <returns>Double object that represents the number of seconds from the epoch of
+        /// 1970-01-01T00:00:00.000000Z(UTC+00:00)</returns>
+        internal double GetIntervalInSeconds() => (_dateTime.Ticks - s_unixTimeEpoch.Ticks) /
+            10000000;
+
+        /// <summary>
         /// Returns a long object that represents the number of microseconds from the epoch of
         /// 1970-01-01T00:00:00.000000Z(UTC+00:00).
         /// </summary>
         /// <returns>Long object that represents the number of microseconds from the epoch of
         /// 1970-01-01T00:00:00.000000Z(UTC+00:00)</returns>
-        internal double GetInterval() => (double)(_dateTime.Ticks - s_unixTimeEpoch.Ticks) /
-            10000000;
+        internal long GetIntervalInMicroseconds() => (_dateTime.Ticks - s_unixTimeEpoch.Ticks) /
+            10;
     }
 }

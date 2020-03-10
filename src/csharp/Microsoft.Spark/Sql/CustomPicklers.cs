@@ -48,7 +48,7 @@ namespace Microsoft.Spark.Sql
     {
         public void pickle(object o, Stream outs, Pickler currentPickler)
         {
-            currentPickler.save(((Timestamp)o).GetInterval());
+            currentPickler.save(((Timestamp)o).GetIntervalInMicroseconds());
         }
     }
 }
