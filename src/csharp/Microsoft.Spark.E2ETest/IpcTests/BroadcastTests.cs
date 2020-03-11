@@ -67,12 +67,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Broadcast<TestBroadcastVariable> bc2 = _spark.SparkContext.Broadcast(obj2);
             Exception expectedException = null;
 
-            Func<Column, Column> udf = Udf<string, string>(
+            Func<Column, Column> udf1 = Udf<string, string>(
                 str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
 
             string[] expected = new[] { "hello first, 1", "world first, 1" };
 
-            Row[] actualRows = _df.Select(udf(_df["_1"])).Collect().ToArray();
+            Row[] actualRows = _df.Select(udf1(_df["_1"])).Collect().ToArray();
             string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
             Assert.Equal(expected, actual);
 
@@ -80,28 +80,27 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             try
             {
-                Row[] testRows = _df.Select(udf(_df["_1"])).Collect().ToArray();
+                Row[] testRows = _df.Select(udf1(_df["_1"])).Collect().ToArray();
             }
             catch (Exception e)
             {
                 expectedException = e;
             }
             Assert.NotNull(expectedException);
-            //expectedException = null;
+            expectedException = null;
 
-            //Func<Column, Column> udf2 = Udf<string, string>(
-            //    str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
+            Func<Column, Column> udf2 = Udf<string, string>(
+                str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
 
-            //try
-            //{
-            //    Row[] testRows = _df.Select(udf2(_df["_1"])).Collect().ToArray();
-            //}
-            //catch (Exception e)
-            //{
-            //    expectedException = e;
-            //}
-            //Assert.NotNull(expectedException);
-
+            try
+            {
+                Row[] testRows = _df.Select(udf2(_df["_1"])).Collect().ToArray();
+            }
+            catch (Exception e)
+            {
+                expectedException = e;
+            }
+            Assert.NotNull(expectedException);
 
             Func<Column, Column> udf3 = Udf<string, string>(
                 str => $"{str} {bc2.Value().StringValue}, {bc2.Value().IntValue}");
