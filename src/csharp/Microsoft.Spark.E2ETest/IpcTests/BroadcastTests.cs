@@ -54,63 +54,63 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
         }
 
-        /// <summary>
-        /// Test Broadcast.Destroy() that destroys all data and metadata related to the broadcast
-        /// variable and makes it inaccessible from workers.
-        /// </summary>
-        [Fact]
-        public void TestDestroy()
-        {
-            var obj1 = new TestBroadcastVariable(1, "first");
-            var obj2 = new TestBroadcastVariable(2, "second");
-            Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
-            Broadcast<TestBroadcastVariable> bc2 = _spark.SparkContext.Broadcast(obj2);
-            Exception expectedException = null;
+        ///// <summary>
+        ///// Test Broadcast.Destroy() that destroys all data and metadata related to the broadcast
+        ///// variable and makes it inaccessible from workers.
+        ///// </summary>
+        //[Fact]
+        //public void TestDestroy()
+        //{
+        //    var obj1 = new TestBroadcastVariable(1, "first");
+        //    var obj2 = new TestBroadcastVariable(2, "second");
+        //    Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
+        //    Broadcast<TestBroadcastVariable> bc2 = _spark.SparkContext.Broadcast(obj2);
+        //    Exception expectedException = null;
 
-            Func<Column, Column> udf = Udf<string, string>(
-                str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
+        //    Func<Column, Column> udf = Udf<string, string>(
+        //        str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
 
-            string[] expected = new[] {"hello first, 1", "world first, 1" };
+        //    string[] expected = new[] {"hello first, 1", "world first, 1" };
 
-            Row[] actualRows = _df.Select(udf(_df["_1"])).Collect().ToArray();
-            string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
-            Assert.Equal(expected, actual);
+        //    Row[] actualRows = _df.Select(udf(_df["_1"])).Collect().ToArray();
+        //    string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
+        //    Assert.Equal(expected, actual);
 
-            bc1.Destroy();
+        //    bc1.Destroy();
 
-            try
-            {
-                Row[] testRows = _df.Select(udf(_df["_1"])).Collect().ToArray();
-            }
-            catch (Exception e)
-            {
-                expectedException = e;
-            }
-            Assert.NotNull(expectedException);
-            expectedException = null;
+        //    try
+        //    {
+        //        Row[] testRows = _df.Select(udf(_df["_1"])).Collect().ToArray();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        expectedException = e;
+        //    }
+        //    Assert.NotNull(expectedException);
+        //    expectedException = null;
 
-            Func<Column, Column> udf2 = Udf<string, string>(
-                str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
+        //    Func<Column, Column> udf2 = Udf<string, string>(
+        //        str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
 
-            try
-            {
-                Row[] testRows = _df.Select(udf2(_df["_1"])).Collect().ToArray();
-            }
-            catch (Exception e)
-            {
-                expectedException = e;
-            }
-            Assert.NotNull(expectedException);
+        //    try
+        //    {
+        //        Row[] testRows = _df.Select(udf2(_df["_1"])).Collect().ToArray();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        expectedException = e;
+        //    }
+        //    Assert.NotNull(expectedException);
 
-            Func<Column, Column> udf3 = Udf<string, string>(
-                str => $"{str} {bc2.Value().StringValue}, {bc2.Value().IntValue}");
+        //    Func<Column, Column> udf3 = Udf<string, string>(
+        //        str => $"{str} {bc2.Value().StringValue}, {bc2.Value().IntValue}");
 
-            string[] expected2 = new[] { "hello second, 2", "world second, 2" };
+        //    string[] expected2 = new[] { "hello second, 2", "world second, 2" };
 
-            Row[] actualRows2 = _df.Select(udf3(_df["_1"])).Collect().ToArray();
-            string[] actual2 = actualRows2.Select(s => s[0].ToString()).ToArray();
-            Assert.Equal(expected2, actual2);
-        }
+        //    Row[] actualRows2 = _df.Select(udf3(_df["_1"])).Collect().ToArray();
+        //    string[] actual2 = actualRows2.Select(s => s[0].ToString()).ToArray();
+        //    Assert.Equal(expected2, actual2);
+        //}
 
         /// <summary>
         /// Test Broadcast.Unpersist() deletes cached copies of the broadcast on the executors.
