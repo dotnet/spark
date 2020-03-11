@@ -37,15 +37,21 @@ namespace Microsoft.Spark
             _path = Path.Combine(tempDir, Path.GetRandomFileName());
             Version version = SparkEnvironment.SparkVersion;
 
+            var javaSparkContext = (JvmObjectReference)((IJvmObjectReferenceProvider)sc).Reference
+            .Jvm.CallStaticJavaMethod(
+                "org.apache.spark.api.java.JavaSparkContext",
+                "fromSparkContext",
+                ((IJvmObjectReferenceProvider)sc).Reference);
+
             _jvmObject = (version.Major, version.Minor) switch
             {
                 (2, 3) when version.Build == 0 || version.Build == 1 =>
                     CreateBroadcast_V2_3_1_Below(
+                        javaSparkContext,
                         tempDir,
-                        ((IJvmObjectReferenceProvider)sc).Reference,
                         value),
-                (2, 3) => CreateBroadcast_V2_3_2_Above(sc, tempDir, value),
-                (2, 4) => CreateBroadcast_V2_3_2_Above(sc, tempDir, value),
+                (2, 3) => CreateBroadcast_V2_3_2_Above(javaSparkContext,sc, tempDir, value),
+                (2, 4) => CreateBroadcast_V2_3_2_Above(javaSparkContext, sc, tempDir, value),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
 
@@ -123,21 +129,18 @@ namespace Microsoft.Spark
         /// Calls the necessary functions to create org.apache.spark.broadcast.Broadcast object
         /// for Spark versions 2.3.0 and 2.3.1 and returns the JVMObjectReference object.
         /// </summary>
+        /// <param name="javaSparkContext">Java Spark context object</param>
         /// <param name="tempDir">Path where file is to be created</param>
-        /// <param name="sparkContext">JVMObjectReference object of SparkContext</param>
         /// <param name="value">Broadcast value of type object</param>
         /// <returns></returns>
         private JvmObjectReference CreateBroadcast_V2_3_1_Below(
+            JvmObjectReference javaSparkContext,
             string tempDir,
-            JvmObjectReference sparkContext,
             object value)
         {
             WriteBroadcastValueToFile(tempDir, value);
-            var javaSparkContext = (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.api.java.JavaSparkContext",
-                "fromSparkContext",
-                sparkContext);
-            return (JvmObjectReference)sparkContext.Jvm.CallStaticJavaMethod(
+            
+            return (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.api.python.PythonRDD",
                 "readBroadcastFromFile",
                 javaSparkContext,
@@ -148,21 +151,22 @@ namespace Microsoft.Spark
         /// Calls the necessary Spark functions to create org.apache.spark.broadcast.Broadcast
         /// object for Spark versions 2.3.2 and above, and returns the JVMObjectReference object.
         /// </summary>
+        /// <param name="javaSparkContext">Java Spark context object</param>
         /// <param name="sc">SparkContext object</param>
         /// <param name="tempDir">Path where file is to be created</param>
         /// <param name="value">Broadcast value of type object</param>
         /// <returns></returns>
         private JvmObjectReference CreateBroadcast_V2_3_2_Above(
+            JvmObjectReference javaSparkContext,
             SparkContext sc,
             string tempDir,
             object value)
         {
-            var pythonBroadcast = (JvmObjectReference)((IJvmObjectReferenceProvider)sc).Reference
-            .Jvm.CallStaticJavaMethod(
+            var pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.api.python.PythonRDD",
                 "setupBroadcast",
                 _path);
-
+            
             SparkConf sparkConf = sc.GetConf();
             bool encryptionEnabled = bool.Parse(
                 sparkConf.Get("spark.io.encryption.enabled", "false"));
@@ -176,11 +180,9 @@ namespace Microsoft.Spark
                 WriteBroadcastValueToFile(tempDir, value);
             }
 
-            return (JvmObjectReference)((IJvmObjectReferenceProvider)sc).Reference
-            .Jvm.CallStaticJavaMethod(
-                "org.apache.spark.sql.api.dotnet.SQLUtils",
-                "createBroadcast",
-                ((IJvmObjectReferenceProvider)sc).Reference,
+            return (JvmObjectReference)javaSparkContext.Jvm.CallNonStaticJavaMethod(
+                javaSparkContext,
+                "broadcast",
                 pythonBroadcast);
         }
     }

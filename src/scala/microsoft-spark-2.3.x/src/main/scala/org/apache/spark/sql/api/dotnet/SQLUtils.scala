@@ -36,15 +36,4 @@ object SQLUtils {
       broadcastVars,
       accumulator)
   }
-
-  /**
-   * Wrap `SparkContext.broadcast` since it involves ClassTag.
-   * TODO: Investigate to see `DotnetBackendHandler` can be updated to support functions
-   * that require ClassTags.
-   */
-  def createBroadcast(
-      context: SparkContext,
-      pythonBroadcast: PythonBroadcast): Broadcast[PythonBroadcast] = {
-    context.broadcast(pythonBroadcast)
-  }
 }
