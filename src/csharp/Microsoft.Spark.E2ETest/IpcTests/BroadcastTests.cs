@@ -87,21 +87,21 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 expectedException = e;
             }
             Assert.NotNull(expectedException);
+            expectedException = null;
+
+            Func<Column, Column> udf2 = Udf<string, string>(
+                str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
+
+            try
+            {
+                Row[] testRows = _df.Select(udf2(_df["_1"])).Collect().ToArray();
+            }
+            catch (Exception e)
+            {
+                expectedException = e;
+            }
+            Assert.NotNull(expectedException);
         }
-        //    expectedException = null;
-
-            //    Func<Column, Column> udf2 = Udf<string, string>(
-            //        str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
-
-            //    try
-            //    {
-            //        Row[] testRows = _df.Select(udf2(_df["_1"])).Collect().ToArray();
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        expectedException = e;
-            //    }
-            //    Assert.NotNull(expectedException);
 
             //    Func<Column, Column> udf3 = Udf<string, string>(
             //        str => $"{str} {bc2.Value().StringValue}, {bc2.Value().IntValue}");
