@@ -60,6 +60,24 @@ jobs:
       arguments: '--configuration $(buildConfiguration)'
 
   - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.3.0'
+    inputs:
+      command: test
+      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      arguments: '--filter "Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestDestroy"'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
+
+  - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.3.1'
+    inputs:
+      command: test
+      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      arguments: '--filter "Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestDestroy"'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
+
+  - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 2.3.2'
     inputs:
       command: test
