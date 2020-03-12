@@ -94,7 +94,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             try
             {
-                Row[] testRows = _df.Select(udf1(_df["_1"])).Collect().ToArray();
+                Row[] testRows = _df.Select(udf2(_df["_1"])).Collect().ToArray();
             }
             catch (Exception e)
             {
