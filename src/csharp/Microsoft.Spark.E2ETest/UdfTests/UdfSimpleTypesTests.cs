@@ -69,7 +69,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         public void TestUdfWithReturnAsDateType()
         {
             Func<Column, Column> udf1 = Udf<int?, Date>(
-                s => new Date(2020 + s.GetValueOrDefault(), 1, 4));
+                i => new Date(2020 + i.GetValueOrDefault(), 1, 4));
             Func<Column, Column> udf2 = Udf<Date, string>(date => date.ToString());
 
             // Test UDF that returns a Date object.
@@ -130,7 +130,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         public void TestUdfWithReturnAsTimestampType()
         {
             Func<Column, Column> udf1 = Udf<int?, Timestamp>(
-                s => new Timestamp(2020 + s.GetValueOrDefault(), 1, 4, 0, 0, 0, 0));
+                i => new Timestamp(2020 + i.GetValueOrDefault(), 1, 4, 15, 30, 30, 123456));
             Func<Column, Column> udf2 = Udf<Timestamp, string>(time => time.ToString());
 
             // Test UDF that returns a Timestamp object.
@@ -140,8 +140,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
                 var expected = new Timestamp[]
                 {
-                    new Timestamp(2020, 1, 4, 0, 0, 0, 0),
-                    new Timestamp(2050, 1, 4, 0, 0, 0, 0),
+                    new Timestamp(2020, 1, 4, 15, 30, 30, 123456),
+                    new Timestamp(2050, 1, 4, 15, 30, 30, 123456),
                 };
                 for (int i = 0; i < rows.Length; ++i)
                 {
@@ -157,8 +157,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
                 var expected = new string[]
                 {
-                    "2020-01-04 00:00:00.000000",
-                    "2050-01-04 00:00:00.000000"
+                    "2020-01-04 15:30:30.123456",
+                    "2050-01-04 15:30:30.123456"
                 };
                 for (int i = 0; i < rows.Length; ++i)
                 {

@@ -146,7 +146,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 var data = new Timestamp[]
                 {
                     new Timestamp(2020, 1, 1, 0, 0, 0, 0),
-                    new Timestamp(2020, 1, 2, 0, 0, 0, 0)
+                    new Timestamp(2020, 1, 2, 15, 30, 30, 0)
                 };
                 StructType schema = SchemaWithSingleColumn(new TimestampType());
 
