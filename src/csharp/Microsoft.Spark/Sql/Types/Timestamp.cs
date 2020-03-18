@@ -26,7 +26,7 @@ namespace Microsoft.Spark.Sql.Types
             {
                 throw new InvalidTimeZoneException(
                     $"Invalid TimeZone for Timestamp, please use " +
-                    $"Coordinated Universal Time (UTC).");
+                    $"Coordinated Universal Time (UTC) instead of {dateTime.Kind}.");
             }
 
             _dateTime = dateTime.ToUniversalTime();
@@ -43,7 +43,14 @@ namespace Microsoft.Spark.Sql.Types
         /// <param name="minute">The minute (0 through 59)</param>
         /// <param name="second">The second (0 through 59)</param>
         /// <param name="microsecond">The microsecond (0 through 999999)</param>
-        public Timestamp(int year, int month, int day, int hour, int minute, int second, int microsecond)
+        public Timestamp(
+            int year,
+            int month,
+            int day,
+            int hour,
+            int minute,
+            int second,
+            int microsecond)
         {
             if (microsecond <= 999999 && microsecond >= 0)
             {
@@ -52,7 +59,8 @@ namespace Microsoft.Spark.Sql.Types
             }
             else
             {
-                throw new ArgumentOutOfRangeException($"Invalid microsecond value {microsecond}");
+                throw new ArgumentOutOfRangeException($"Invalid microsecond value {microsecond}." +
+                    $" The microsecond is from 0 through 999999.");
             }
         }
 
@@ -105,16 +113,13 @@ namespace Microsoft.Spark.Sql.Types
         /// <returns>True if the other object is equal</returns>
         public override bool Equals(object obj) =>
             ReferenceEquals(this, obj) ||
-            ((obj is Timestamp timestamp) && Year.Equals(timestamp.Year) &&
-                Month.Equals(timestamp.Month) && Day.Equals(timestamp.Day) &&
-                Hour.Equals(timestamp.Hour) && Minute.Equals(timestamp.Minute) &&
-                Second.Equals(timestamp.Second) && Microsecond.Equals(timestamp.Microsecond));
+            ((obj is Timestamp timestamp) && _dateTime.Equals(timestamp._dateTime));
 
         /// <summary>
         /// Returns the hash code of the current object.
         /// </summary>
         /// <returns>The hash code of the current object</returns>
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode() => _dateTime.GetHashCode();
 
         /// <summary>
         /// Returns DateTime object describing this type.
@@ -123,8 +128,9 @@ namespace Microsoft.Spark.Sql.Types
         public DateTime ToDateTime() => _dateTime;
 
         /// <summary>
-        /// Returns a double object that represents the number of seconds from the epoch of
-        /// 1970-01-01T00:00:00.000000Z(UTC+00:00).
+        /// Returns a double object that represents the number of microseconds from the epoch
+        /// of 1970-01-01T00:00:00.000000Z(UTC+00:00) in the second unit to serialize and
+        /// deserialize between CLR and JVM.
         /// </summary>
         /// <returns>Double object that represents the number of seconds from the epoch of
         /// 1970-01-01T00:00:00.000000Z(UTC+00:00)</returns>
