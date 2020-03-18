@@ -73,6 +73,11 @@ namespace Microsoft.Spark.Sql.Types
 
         internal override bool NeedConversion() => true;
 
+        /// <summary>
+        /// Internally, a date is stored as a simple incrementing count of days as int
+        /// where day 0 is 1970-01-01. This will convert internal SQL DateType objects
+        /// from count of days into native C# Date objects.
+        /// </summary>
         internal override object FromInternal(object obj)
         {
             return new Date(new DateTime((int)obj * TimeSpan.TicksPerDay + s_unixTimeEpoch.Ticks));
@@ -91,6 +96,11 @@ namespace Microsoft.Spark.Sql.Types
 
         internal override bool NeedConversion() => true;
 
+        /// <summary>
+        /// Internally, a timestamp is stored as the number of microseconds as long from the epoch
+        /// of 1970-01-01T00:00:00.000000Z(UTC+00:00). This will convert internal SQL TimestampType
+        /// objects from the number of microseconds into native C# Timestamp objects.
+        /// </summary>
         internal override object FromInternal(object obj)
         {
             return new Timestamp(new DateTime((long)obj * 10 + s_unixTimeEpoch.Ticks,

@@ -22,14 +22,14 @@ namespace Microsoft.Spark.Sql.Types
         /// <param name="dateTime">DateTime object</param>
         public Timestamp(DateTime dateTime)
         {
-            _dateTime = dateTime.ToUniversalTime();
-
             if (dateTime.Kind != DateTimeKind.Utc)
             {
                 throw new InvalidTimeZoneException(
                     $"Invalid TimeZone for Timestamp, please use " +
                     $"Coordinated Universal Time (UTC).");
             }
+
+            _dateTime = dateTime.ToUniversalTime();
         }
 
         /// <summary>
