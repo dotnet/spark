@@ -3,8 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql
@@ -14,6 +12,8 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     public sealed class Row
     {
+        private readonly GenericRow _genericRow;
+
         /// <summary>
         /// Constructor for the Row class.
         /// </summary>
@@ -21,10 +21,10 @@ namespace Microsoft.Spark.Sql
         /// <param name="schema">Schema associated with a row</param>
         internal Row(object[] values, StructType schema)
         {
-            Values = values;
+            _genericRow = new GenericRow(values);
             Schema = schema;
 
-            var schemaColumnCount = Schema.Fields.Count;
+            int schemaColumnCount = Schema.Fields.Count;
             if (Size() != schemaColumnCount)
             {
                 throw new Exception(
@@ -35,6 +35,28 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Constructor for the schema-less Row class used for chained UDFs.
+        /// </summary>
+        /// <param name="genericRow">GenericRow object</param>
+        internal Row(GenericRow genericRow)
+        {
+            _genericRow = genericRow;
+        }
+
+        /// <summary>
+        /// Returns schema-less Row which can happen within chained UDFs (same behavior as PySpark).
+        /// </summary>
+        /// <remarks>
+        /// The use of this conversion operator is discouraged except for the UDF that returns
+        /// a Row object.
+        /// </remarks>
+        /// <returns>schema-less Row</returns>
+        public static implicit operator Row(GenericRow genericRow)
+        {
+            return new Row(genericRow);
+        }
+
+        /// <summary>
         /// Schema associated with this row.
         /// </summary>
         public StructType Schema { get; }
@@ -42,13 +64,13 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Values representing this row.
         /// </summary>
-        public object[] Values { get; }
+        public object[] Values => _genericRow.Values;
 
         /// <summary>
         /// Returns the number of columns in this row.
         /// </summary>
         /// <returns>Number of columns in this row</returns>
-        public int Size() => Values.Length;
+        public int Size() => _genericRow.Size();
 
         /// <summary>
         /// Returns the column value at the given index.
@@ -62,20 +84,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="index">Index to look up</param>
         /// <returns>A column value</returns>
-        public object Get(int index)
-        {
-            if (index >= Size())
-            {
-                throw new IndexOutOfRangeException($"index ({index}) >= column counts ({Size()})");
-            }
-            else if (index < 0)
-            {
-                throw new IndexOutOfRangeException($"index ({index}) < 0)");
-            }
-
-            return Values[index];
-        }
-
+        public object Get(int index) => _genericRow.Get(index);
         /// <summary>
         /// Returns the column value whose column name is given.
         /// </summary>
@@ -88,16 +97,7 @@ namespace Microsoft.Spark.Sql
         /// Returns the string version of this row.
         /// </summary>
         /// <returns>String version of this row</returns>
-        public override string ToString()
-        {
-            var cols = new List<string>();
-            foreach (object item in Values)
-            {
-                cols.Add(item?.ToString() ?? string.Empty);
-            }
-
-            return $"[{(string.Join(",", cols.ToArray()))}]";
-        }
+        public override string ToString() => _genericRow.ToString();
 
         /// <summary>
         /// Returns the column value at the given index, as a type T.
@@ -126,26 +126,9 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="obj">Other object to compare against</param>
         /// <returns>True if the other object is equal.</returns>
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (obj is Row otherRow)
-            {
-                return Values.SequenceEqual(otherRow.Values) &&
-                    Schema.Equals(otherRow.Schema);
-            }
-
-            return false;
-        }
+        public override bool Equals(object obj) =>
+            ReferenceEquals(this, obj) ||
+            ((obj is Row row) && _genericRow.Equals(row._genericRow)) && Schema.Equals(row.Schema);
 
         /// <summary>
         /// Returns the hash code of the current object.
@@ -160,27 +143,12 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         private void Convert()
         {
-            foreach (StructField field in Schema.Fields)
+            for (int i = 0; i < Size(); ++i)
             {
-                if (field.DataType is ArrayType)
+                DataType dataType = Schema.Fields[i].DataType;
+                if (dataType.NeedConversion())
                 {
-                    throw new NotImplementedException();
-                }
-                else if (field.DataType is MapType)
-                {
-                    throw new NotImplementedException();
-                }
-                else if (field.DataType is StructType)
-                {
-                    throw new NotImplementedException();
-                }
-                else if (field.DataType is DecimalType)
-                {
-                    throw new NotImplementedException();
-                }
-                else if (field.DataType is DateType)
-                {
-                    throw new NotImplementedException();
+                    Values[i] = dataType.FromInternal(Values[i]);
                 }
             }
         }

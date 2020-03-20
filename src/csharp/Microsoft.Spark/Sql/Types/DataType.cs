@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -39,10 +40,20 @@ namespace Microsoft.Spark.Sql.Types
             typeof(MapType),
             typeof(StructType) };
 
+        private static readonly Lazy<string[]> s_simpleTypeNormalizedNames =
+            new Lazy<string[]>(
+                () => s_simpleTypes.Select(t => NormalizeTypeName(t.Name)).ToArray());
+
+        private static readonly Lazy<string[]> s_complexTypeNormalizedNames =
+            new Lazy<string[]>(
+                () => s_complexTypes.Select(t => NormalizeTypeName(t.Name)).ToArray());
+
+        private string _typeName;
+
         /// <summary>
         /// Normalized type name.
         /// </summary>
-        public string TypeName => NormalizeTypeName(GetType().Name);
+        public string TypeName => _typeName ?? (_typeName = NormalizeTypeName(GetType().Name));
 
         /// <summary>
         /// Simple string version of the current data type.
@@ -67,6 +78,21 @@ namespace Microsoft.Spark.Sql.Types
         /// JSON value of this data type.
         /// </summary>
         internal virtual object JsonValue => TypeName;
+
+        /// <summary>
+        /// Parses a JSON string to create a <see cref="JvmObjectReference"/>.
+        /// It references a <see cref="StructType"/> on the JVM side.
+        /// </summary>
+        /// <param name="jvm">JVM bridge to use</param>
+        /// <param name="json">JSON string to parse</param>
+        /// <returns>The new JvmObjectReference created from the JSON string</returns>
+        internal static JvmObjectReference FromJson(IJvmBridge jvm, string json)
+        {
+            return (JvmObjectReference)jvm.CallStaticJavaMethod(
+                "org.apache.spark.sql.types.DataType",
+                "fromJson",
+                json);
+        }
 
         /// <summary>
         /// Parses a JSON string to construct a DataType.
@@ -119,19 +145,20 @@ namespace Microsoft.Spark.Sql.Types
                 var typeJObject = (JObject)json;
                 if (typeJObject.TryGetValue("type", out JToken type))
                 {
-                    Type complexType = s_complexTypes.FirstOrDefault(
-                        (t) => NormalizeTypeName(t.Name) == type.ToString());
+                    string typeName = type.ToString();
 
-                    if (complexType != default)
+                    int typeIndex = Array.IndexOf(s_complexTypeNormalizedNames.Value, typeName);
+
+                    if (typeIndex != -1)
                     {
                         return (DataType)Activator.CreateInstance(
-                            complexType,
+                            s_complexTypes[typeIndex],
                             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
                             null,
                             new object[] { typeJObject },
                             null);
                     }
-                    else if (type.ToString() == "udt")
+                    else if (typeName == "udt")
                     {
                         throw new NotImplementedException();
                     }
@@ -147,6 +174,16 @@ namespace Microsoft.Spark.Sql.Types
         }
 
         /// <summary>
+        /// Does this type need to conversion between C# object and internal SQL object.
+        /// </summary>
+        internal virtual bool NeedConversion() => false;
+
+        /// <summary>
+        /// Converts an internal SQL object into a native C# object.
+        /// </summary>
+        internal virtual object FromInternal(object obj) => obj;
+
+        /// <summary>
         /// Parses a JToken object that represents a simple type.
         /// </summary>
         /// <param name="json">JToken object to parse</param>
@@ -154,12 +191,12 @@ namespace Microsoft.Spark.Sql.Types
         private static DataType ParseSimpleType(JToken json)
         {
             string typeName = json.ToString();
-            Type simpleType = s_simpleTypes.FirstOrDefault(
-                (t) => NormalizeTypeName(t.Name) == typeName);
 
-            if (simpleType != default)
+            int typeIndex = Array.IndexOf(s_simpleTypeNormalizedNames.Value, typeName);
+
+            if (typeIndex != -1)
             {
-                return (DataType)Activator.CreateInstance(simpleType);
+                return (DataType)Activator.CreateInstance(s_simpleTypes[typeIndex]);
             }
 
             Match decimalMatch = DecimalType.s_fixedDecimal.Match(typeName);
@@ -178,7 +215,16 @@ namespace Microsoft.Spark.Sql.Types
         /// </summary>
         /// <param name="typeName">Type name to normalize</param>
         /// <returns>Normalized type name</returns>
-        private static string NormalizeTypeName(string typeName) =>
-            typeName.Substring(0, typeName.Length - 4).ToLower();
+        private static string NormalizeTypeName(string typeName)
+        {
+#if !NETSTANDARD2_0
+            return string.Create(typeName.Length - 4, typeName, (span, name) =>
+            {
+                name.AsSpan(0, name.Length - 4).ToLower(span, CultureInfo.CurrentCulture);
+            });
+#else
+            return typeName.Substring(0, typeName.Length - 4).ToLower();
+#endif
+        }
     }
 }

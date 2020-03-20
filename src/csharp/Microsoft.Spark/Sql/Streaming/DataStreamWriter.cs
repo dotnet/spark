@@ -4,6 +4,8 @@
 
 using System.Collections.Generic;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Sql.Types;
+using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Sql.Streaming
 {
@@ -14,8 +16,13 @@ namespace Microsoft.Spark.Sql.Streaming
     public sealed class DataStreamWriter : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
+        private readonly DataFrame _df;
 
-        internal DataStreamWriter(JvmObjectReference jvmObject) => _jvmObject = jvmObject;
+        internal DataStreamWriter(JvmObjectReference jvmObject, DataFrame df)
+        {
+            _jvmObject = jvmObject;
+            _df = df;
+        }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
@@ -60,11 +67,23 @@ namespace Microsoft.Spark.Sql.Streaming
         }
 
         /// <summary>
+        /// Partitions the output by the given columns on the file system. If specified,
+        /// the output is laid out on the file system similar to Hive's partitioning scheme.
+        /// </summary>
+        /// <param name="colNames">Column names to partition by</param>
+        /// <returns>This DataStreamWriter object</returns>
+        public DataStreamWriter PartitionBy(params string[] colNames)
+        {
+            _jvmObject.Invoke("partitionBy", (object)colNames);
+            return this;
+        }
+
+        /// <summary>
         /// Adds an output option for the underlying data source.
         /// </summary>
         /// <param name="key">Name of the option</param>
         /// <param name="value">Value of the option</param>
-        /// <returns>This DataStreamReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter Option(string key, string value)
         {
             OptionInternal(key, value);
@@ -76,7 +95,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// </summary>
         /// <param name="key">Name of the option</param>
         /// <param name="value">Value of the option</param>
-        /// <returns>This DataStreamReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter Option(string key, bool value)
         {
             OptionInternal(key, value);
@@ -88,7 +107,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// </summary>
         /// <param name="key">Name of the option</param>
         /// <param name="value">Value of the option</param>
-        /// <returns>This DataStreamReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter Option(string key, long value)
         {
             OptionInternal(key, value);
@@ -100,7 +119,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// </summary>
         /// <param name="key">Name of the option</param>
         /// <param name="value">Value of the option</param>
-        /// <returns>This DataStreamReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter Option(string key, double value)
         {
             OptionInternal(key, value);
@@ -111,7 +130,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// Adds output options for the underlying data source.
         /// </summary>
         /// <param name="options">Key/value options</param>
-        /// <returns>This DataStreamReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter Options(Dictionary<string, string> options)
         {
             _jvmObject.Invoke("options", options);
@@ -122,7 +141,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// Sets the trigger for the stream query.
         /// </summary>
         /// <param name="trigger">Trigger object</param>
-        /// <returns>This DataStreamReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter Trigger(Trigger trigger)
         {
             _jvmObject.Invoke("trigger", trigger);
@@ -136,7 +155,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// in the associated SQLContext.
         /// </summary>
         /// <param name="queryName">Query name</param>
-        /// <returns>This DataStreamReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter QueryName(string queryName)
         {
             _jvmObject.Invoke("queryName", queryName);
@@ -158,11 +177,40 @@ namespace Microsoft.Spark.Sql.Streaming
         }
 
         /// <summary>
+        /// Sets the output of the streaming query to be processed using the provided
+        /// writer object. See <see cref="IForeachWriter"/> for more details on the
+        /// lifecycle and semantics.
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <returns>This DataStreamWriter object</returns>
+        [Since(Versions.V2_4_0)]
+        public DataStreamWriter Foreach(IForeachWriter writer)
+        {
+            RDD.WorkerFunction.ExecuteDelegate wrapper =
+                new ForeachWriterWrapperUdfWrapper(
+                    new ForeachWriterWrapper(writer).Process).Execute;
+
+            _jvmObject.Invoke(
+                "foreach",
+                _jvmObject.Jvm.CallConstructor(
+                    "org.apache.spark.sql.execution.python.PythonForeachWriter",
+                    UdfUtils.CreatePythonFunction(
+                        _jvmObject.Jvm,
+                        CommandSerDe.Serialize(
+                            wrapper,
+                            CommandSerDe.SerializedMode.Row,
+                            CommandSerDe.SerializedMode.Row)),
+                    DataType.FromJson(_jvmObject.Jvm, _df.Schema().Json)));
+
+            return this;
+        }
+
+        /// <summary>
         /// Helper function to add given key/value pair as a new option.
         /// </summary>
         /// <param name="key">Name of the option</param>
         /// <param name="value">Value of the option</param>
-        /// <returns>This DataFrameReader object</returns>
+        /// <returns>This DataStreamWriter object</returns>
         private DataStreamWriter OptionInternal(string key, object value)
         {
             _jvmObject.Invoke("option", key, value);

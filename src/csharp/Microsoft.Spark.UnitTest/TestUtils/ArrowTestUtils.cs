@@ -6,6 +6,7 @@ using System;
 using System.Text;
 using Apache.Arrow;
 using Apache.Arrow.Types;
+using Microsoft.Data.Analysis;
 using Xunit;
 
 namespace Microsoft.Spark.UnitTest.TestUtils
@@ -18,6 +19,13 @@ namespace Microsoft.Spark.UnitTest.TestUtils
             var stringArray = (StringArray)arrowArray;
             Assert.Equal(1, stringArray.Length);
             Assert.Equal(expectedValue, stringArray.GetString(0));
+        }
+
+        public static void AssertEquals(string expectedValue, DataFrameColumn arrowArray)
+        {
+            var stringArray = (ArrowStringDataFrameColumn)arrowArray;
+            Assert.Equal(1, stringArray.Length);
+            Assert.Equal(expectedValue, stringArray[0]);
         }
 
         public static IArrowType GetArrowType<T>()
@@ -98,6 +106,16 @@ namespace Microsoft.Spark.UnitTest.TestUtils
             }
 
             throw new NotSupportedException($"Unknown type: {typeof(T)}");
+        }
+
+        public static ArrowStringDataFrameColumn ToArrowStringDataFrameColumn(StringArray array)
+        {
+            return new ArrowStringDataFrameColumn("String",
+                array.ValueBuffer.Memory,
+                array.ValueOffsetsBuffer.Memory,
+                array.NullBitmapBuffer.Memory,
+                array.Length,
+                array.NullCount);
         }
 
         public static IArrowArray ToArrowArray<T>(T[] array)
@@ -247,7 +265,7 @@ namespace Microsoft.Spark.UnitTest.TestUtils
             // TODO: Use array pool and encode directly into the array.
             foreach (string str in array)
             {
-                var bytes = Encoding.UTF8.GetBytes(str);
+                byte[] bytes = Encoding.UTF8.GetBytes(str);
                 valueOffsets.Append(offset);
                 // TODO: Anyway to use the span-based GetBytes to write directly to
                 // the value buffer?

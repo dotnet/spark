@@ -68,17 +68,83 @@ namespace Microsoft.Spark.Sql.Types
             ContainsNull = (bool)json["containsNull"];
             return this;
         }
+
+        internal override bool NeedConversion() => true;
+
+        internal override object FromInternal(object obj) => throw new NotImplementedException();
     }
 
     /// <summary>
-    /// The data type for a map. This class is not implemented yet.
+    /// The data type for a map. 
     /// </summary>
     public sealed class MapType : DataType
     {
         /// <summary>
-        /// Initializes the <see cref="MapType"/> instance.
+        /// Constructor for MapType class.
         /// </summary>
-        public MapType() => throw new NotImplementedException();
+        /// <param name="keyType">The data type of keys in this map</param>
+        /// <param name="valueType">The data type of values in this map</param>
+        /// <param name="valueContainsNull">Indicates if values can be null</param>
+        public MapType(DataType keyType, DataType valueType, bool valueContainsNull = true)
+        {
+            KeyType = keyType;
+            ValueType = valueType;
+            ValueContainsNull = valueContainsNull;
+        }
+
+        /// <summary>
+        /// Constructor for MapType class.
+        /// </summary>
+        /// <param name="json">JSON object to create the map type from</param>
+        internal MapType(JObject json) => FromJson(json);
+
+        /// <summary>
+        /// Returns the data type of the keys in the map.
+        /// </summary>
+        public DataType KeyType { get; private set; }
+
+        /// <summary>
+        /// Returns the data type of the values in the map.
+        /// </summary>
+        public DataType ValueType { get; private set; }
+
+        /// <summary>
+        /// Checks if the value can contain null values.
+        /// </summary>
+        public bool ValueContainsNull { get; private set; }
+
+        /// <summary>
+        /// Readable string representation for this type.
+        /// </summary>
+        public override string SimpleString =>
+            string.Format("map<{0},{1}>", KeyType.SimpleString, ValueType.SimpleString);
+
+        /// <summary>
+        /// Returns JSON object describing this type.
+        /// </summary>
+        internal override object JsonValue =>
+            new JObject(
+                new JProperty("type", TypeName),
+                new JProperty("keyType", KeyType.JsonValue),
+                new JProperty("valueType", ValueType.JsonValue),
+                new JProperty("valueContainsNull", ValueContainsNull));
+
+        /// <summary>
+        /// Constructs a MapType object from a JSON object.
+        /// </summary>
+        /// <param name="json">JSON object used to construct a MapType object</param>
+        /// <returns>MapType object</returns>
+        private DataType FromJson(JObject json)
+        {
+            KeyType = ParseDataType(json["keyType"]);
+            ValueType = ParseDataType(json["valueType"]);
+            ValueContainsNull = (bool)json["valueContainsNull"];
+            return this;
+        }
+
+        internal override bool NeedConversion() => true;
+
+        internal override object FromInternal(object obj) => throw new NotImplementedException();
     }
 
     /// <summary>

@@ -8,6 +8,7 @@ using Apache.Arrow;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Expressions;
+using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Sql
@@ -718,7 +719,12 @@ namespace Microsoft.Spark.Sql
         /// Window function: returns the special frame boundary that represents the first
         /// row in the window partition.
         /// </summary>
+        /// <remarks>
+        /// This API is deprecated in Spark 2.4 and removed in Spark 3.0.
+        /// </remarks>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V2_4_0)]
+        [Removed(Versions.V3_0_0)]
         public static Column UnboundedPreceding()
         {
             return ApplyFunction("unboundedPreceding");
@@ -728,7 +734,12 @@ namespace Microsoft.Spark.Sql
         /// Window function: returns the special frame boundary that represents the last
         /// row in the window partition.
         /// </summary>
+        /// <remarks>
+        /// This API is deprecated in Spark 2.4 and removed in Spark 3.0.
+        /// </remarks>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V2_4_0)]
+        [Removed(Versions.V3_0_0)]
         public static Column UnboundedFollowing()
         {
             return ApplyFunction("unboundedFollowing");
@@ -738,7 +749,12 @@ namespace Microsoft.Spark.Sql
         /// Window function: returns the special frame boundary that represents the current
         /// row in the window partition.
         /// </summary>
+        /// <remarks>
+        /// This API is deprecated in Spark 2.4 and removed in Spark 3.0.
+        /// </remarks>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V2_4_0)]
+        [Removed(Versions.V3_0_0)]
         public static Column CurrentRow()
         {
             return ApplyFunction("currentRow");
@@ -2957,9 +2973,13 @@ namespace Microsoft.Spark.Sql
         /// and renders that time as a timestamp in the given time zone. For example, 'GMT+1'
         /// would yield '2017-07-14 03:40:00.0'.
         /// </summary>
+        /// <remarks>
+        /// This API is deprecated in Spark 3.0.
+        /// </remarks>
         /// <param name="column">Column to apply</param>
         /// <param name="tz">Timezone string</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_0_0)]
         public static Column FromUtcTimestamp(Column column, string tz)
         {
             return ApplyFunction("from_utc_timestamp", column, tz);
@@ -2970,10 +2990,14 @@ namespace Microsoft.Spark.Sql
         /// and renders that time as a timestamp in the given time zone. For example, 'GMT+1'
         /// would yield '2017-07-14 03:40:00.0'.
         /// </summary>
+        /// <remarks>
+        /// This API is deprecated in Spark 3.0.
+        /// </remarks>
         /// <param name="column">Column to apply</param>
         /// <param name="tz">Timezone expression</param>
         /// <returns>Column object</returns>
         [Since(Versions.V2_4_0)]
+        [Deprecated(Versions.V3_0_0)]
         public static Column FromUtcTimestamp(Column column, Column tz)
         {
             return ApplyFunction("from_utc_timestamp", column, tz);
@@ -2984,9 +3008,13 @@ namespace Microsoft.Spark.Sql
         /// given time zone, and renders that time as a timestamp in UTC. For example, 'GMT+1'
         /// would yield '2017-07-14 01:40:00.0'.
         /// </summary>
+        /// <remarks>
+        /// This API is deprecated in Spark 3.0.
+        /// </remarks>
         /// <param name="column">Column to apply</param>
         /// <param name="tz">Timezone string</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_0_0)]
         public static Column ToUtcTimestamp(Column column, string tz)
         {
             return ApplyFunction("to_utc_timestamp", column, tz);
@@ -2997,10 +3025,14 @@ namespace Microsoft.Spark.Sql
         /// given time zone, and renders that time as a timestamp in UTC. For example, 'GMT+1'
         /// would yield '2017-07-14 01:40:00.0'.
         /// </summary>
+        /// <remarks>
+        /// This API is deprecated in Spark 3.0.
+        /// </remarks>
         /// <param name="column">Column to apply</param>
         /// <param name="tz">Timezone expression</param>
         /// <returns>Column object</returns>
         [Since(Versions.V2_4_0)]
+        [Deprecated(Versions.V3_0_0)]
         public static Column ToUtcTimestamp(Column column, Column tz)
         {
             return ApplyFunction("to_utc_timestamp", column, tz);
@@ -3766,6 +3798,189 @@ namespace Microsoft.Spark.Sql
             return CreateUdf<TResult>(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf)).Apply10;
         }
 
+        /// <summary>Creates a UDF from the specified delegate.</summary>
+        /// <param name="udf">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
+        /// </returns>
+        public static Func<Column> Udf(Func<Row> udf, StructType returnType)
+        {
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply0;
+        }
+
+        /// <summary>Creates a UDF from the specified delegate.</summary>
+        /// <typeparam name="T">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <param name="udf">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
+        /// </returns>
+        public static Func<Column, Column> Udf<T>(Func<T, Row> udf, StructType returnType)
+        {
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply1;
+        }
+
+        /// <summary>Creates a UDF from the specified delegate.</summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <param name="udf">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
+        /// </returns>
+        public static Func<Column, Column, Column> Udf<T1, T2>(
+            Func<T1, T2, Row> udf, StructType returnType)
+        {
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply2;
+        }
+
+        /// <summary>Creates a UDF from the specified delegate.</summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <param name="udf">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
+        /// </returns>
+        public static Func<Column, Column, Column, Column> Udf<T1, T2, T3>(
+            Func<T1, T2, T3, Row> udf, StructType returnType)
+        {
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply3;
+        }
+
+        /// <summary>Creates a UDF from the specified delegate.</summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <param name="udf">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
+        /// </returns>
+        public static Func<Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4>(
+            Func<T1, T2, T3, T4, Row> udf, StructType returnType)
+        {
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply4;
+        }
+
+        /// <summary>Creates a UDF from the specified delegate.</summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <param name="udf">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
+        /// </returns>
+        public static Func<Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5>(
+            Func<T1, T2, T3, T4, T5, Row> udf, StructType returnType)
+        {
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply5;
+        }
+
+        /// <summary>Creates a UDF from the specified delegate.</summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
+        /// <param name="udf">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
+        /// </returns>
+        public static Func<Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6>(
+            Func<T1, T2, T3, T4, T5, T6, Row> udf, StructType returnType)
+        {
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply6;
+        }
+
+        /// <summary>Creates a UDF from the specified delegate.</summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
+        /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
+        /// <param name="udf">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
+        /// </returns>
+        public static Func<Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7>(
+            Func<T1, T2, T3, T4, T5, T6, T7, Row> udf, StructType returnType)
+        {
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply7;
+        }
+
+        /// <summary>Creates a UDF from the specified delegate.</summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
+        /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
+        /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
+        /// <param name="udf">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
+        /// </returns>
+        public static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7, T8>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, Row> udf, StructType returnType)
+        {
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply8;
+        }
+
+        /// <summary>Creates a UDF from the specified delegate.</summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
+        /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
+        /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
+        /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
+        /// <param name="udf">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        /// <returns>A delegate that when invoked will return a <see cref="Column"/> for the result of the UDF.</returns>
+        public static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Row> udf, StructType returnType)
+        {
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply9;
+        }
+
+        /// <summary>Creates a UDF from the specified delegate.</summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
+        /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
+        /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
+        /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
+        /// <typeparam name="T10">Specifies the type of the tenth argument to the UDF.</typeparam>
+        /// <param name="udf">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        /// <returns>
+        /// A delegate that returns a <see cref="Column"/> for the result of the UDF.
+        /// </returns>
+        public static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> Udf<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Row> udf, StructType returnType)
+        {
+            return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply10;
+        }
+
         /// <summary>Creates a Vector UDF from the specified delegate.</summary>
         /// <typeparam name="T">Specifies the type of the first argument to the UDF.</typeparam>
         /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
@@ -4040,7 +4255,12 @@ namespace Microsoft.Spark.Sql
             return CreateUdf<TResult>(name, execute, UdfUtils.PythonEvalType.SQL_BATCHED_UDF);
         }
 
-        private static UserDefinedFunction CreateVectorUdf<TResult>(string name, Delegate execute)
+        private static UserDefinedFunction CreateUdf(string name, Delegate execute, StructType returnType)
+        {
+            return CreateUdf(name, execute, UdfUtils.PythonEvalType.SQL_BATCHED_UDF, returnType);
+        }
+
+        internal static UserDefinedFunction CreateVectorUdf<TResult>(string name, Delegate execute)
         {
             return CreateUdf<TResult>(name, execute, UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF);
         }
@@ -4048,7 +4268,21 @@ namespace Microsoft.Spark.Sql
         private static UserDefinedFunction CreateUdf<TResult>(
             string name,
             Delegate execute,
-            UdfUtils.PythonEvalType evalType)
+            UdfUtils.PythonEvalType evalType) =>
+            CreateUdf(name, execute, evalType, UdfUtils.GetReturnType(typeof(TResult)));
+
+        private static UserDefinedFunction CreateUdf(
+            string name,
+            Delegate execute,
+            UdfUtils.PythonEvalType evalType,
+            StructType returnType) =>
+            CreateUdf(name, execute, evalType, returnType.Json);
+
+        private static UserDefinedFunction CreateUdf(
+            string name,
+            Delegate execute,
+            UdfUtils.PythonEvalType evalType,
+            string returnType)
         {
             return UserDefinedFunction.Create(
                 name,
@@ -4057,7 +4291,7 @@ namespace Microsoft.Spark.Sql
                     CommandSerDe.SerializedMode.Row,
                     CommandSerDe.SerializedMode.Row),
                 evalType,
-                UdfUtils.GetReturnType(typeof(TResult)));
+                returnType);
         }
 
         private static Column ApplyFunction(string funcName)

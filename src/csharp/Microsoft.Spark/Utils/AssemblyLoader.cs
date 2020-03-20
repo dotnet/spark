@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.Spark.Utils
 {
@@ -74,10 +75,19 @@ namespace Microsoft.Spark.Utils
 
         private static readonly string[] s_extensions =
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
-                    new[] { ".dll", ".exe", ".ni.dll", ".ni.exe" } :
-                    new[] { ".dll", ".ni.dll" };
+                new[] { ".dll", ".exe", ".ni.dll", ".ni.exe" } :
+                new[] { ".dll", ".ni.dll" };
 
         private static readonly object s_cacheLock = new object();
+
+        // Roslyn generates assembly names with characters that cause issues.
+        // The generated name contains *, a reserved character in Windows,
+        // and #, which causes problems when used with SparkContext.AddFile.
+        // https://github.com/dotnet/roslyn/blob/da63493c37e4a450076d6dac02044bf0fcdbcc50/src/Scripting/Core/ScriptBuilder.cs#L51
+        private static readonly Regex s_roslynAssemblyNameRegex =
+            new Regex(
+                "^\u211B\\*([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})#([0-9]+-[0-9]+)",
+                RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         /// <summary>
         /// Return the cached assembly, otherwise attempt to load and cache the assembly
@@ -90,6 +100,12 @@ namespace Microsoft.Spark.Utils
         /// found.</exception>
         internal static Assembly LoadAssembly(string assemblyName, string assemblyFileName)
         {
+            // assemblyFileName is empty when serializing a UDF from within the REPL.
+            if (string.IsNullOrWhiteSpace(assemblyFileName))
+            {
+                return ResolveAssembly(assemblyName);
+            }
+
             lock (s_cacheLock)
             {
                 if (s_assemblyCache.TryGetValue(assemblyName, out Assembly assembly))
@@ -103,7 +119,7 @@ namespace Microsoft.Spark.Utils
                     return assembly;
                 }
 
-                throw new FileNotFoundException($"Assembly '{assemblyName}' file not found: '{assemblyFileName}'");
+                throw new FileNotFoundException($"Assembly '{assemblyName}' file not found '{assemblyFileName}' in '{string.Join(",", s_searchPaths)}'");
             }
         }
 
@@ -125,7 +141,8 @@ namespace Microsoft.Spark.Utils
                     return assembly;
                 }
 
-                string simpleAsmName = new AssemblyName(assemblyName).Name;
+                string simpleAsmName =
+                    NormalizeAssemblyName(new AssemblyName(assemblyName).Name);
                 foreach (string extension in s_extensions)
                 {
                     string assemblyFileName = $"{simpleAsmName}{extension}";
@@ -136,7 +153,7 @@ namespace Microsoft.Spark.Utils
                     }
                 }
 
-                throw new FileNotFoundException($"Assembly file not found: '{assemblyName}'");
+                throw new FileNotFoundException($"Assembly '{assemblyName}' file not found '{simpleAsmName}[{string.Join(",", s_extensions)}]' in '{string.Join(",", s_searchPaths)}'");
             }
         }
 
@@ -168,6 +185,25 @@ namespace Microsoft.Spark.Utils
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Normalizes the assemblyName by removing characters known to cause
+        /// issues. This is useful in situations where the assemblyName is
+        /// automatically generated, ie the Roslyn compiler used in the REPL
+        /// generates an assembly name that contains * and #.
+        /// </summary>
+        /// <param name="assemblyName">Assembly name</param>
+        /// <returns>Normalized assembly name</returns>
+        private static string NormalizeAssemblyName(string assemblyName)
+        {
+            // Check if the assembly name follows the Roslyn naming convention.
+            // Roslyn assembly name: "\u211B*4b31b71b-d4bd-4642-9f63-eef5f5d99197#1-14"
+            // Normalized Roslyn assembly name: "4b31b71b-d4bd-4642-9f63-eef5f5d99197-1-14"
+            Match match = s_roslynAssemblyNameRegex.Match(assemblyName);
+            return match.Success ?
+                $"{match.Groups[1].Value}-{match.Groups[2].Value}" :
+                assemblyName;
         }
     }
 }

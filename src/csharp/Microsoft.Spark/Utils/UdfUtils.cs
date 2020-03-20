@@ -7,9 +7,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Apache.Arrow;
+using Microsoft.Data.Analysis;
 using Microsoft.Spark.Interop;
+using Microsoft.Spark.Interop.Internal.Java.Util;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Utils
 {
@@ -17,7 +20,7 @@ namespace Microsoft.Spark.Utils
     using PicklingDelegate = PicklingWorkerFunction.ExecuteDelegate;
 
     /// <summary>
-    /// UdfTypeUtils provides fuctions related to UDF types.
+    /// UdfTypeUtils provides functions related to UDF types.
     /// </summary>
     internal static class UdfTypeUtils
     {
@@ -91,6 +94,7 @@ namespace Microsoft.Spark.Utils
                 {typeof(int), "integer"},
                 {typeof(long), "long"},
                 {typeof(short), "short"},
+                {typeof(Date), "date"},
 
                 // Arrow array types
                 {typeof(BooleanArray), "boolean"},
@@ -102,6 +106,15 @@ namespace Microsoft.Spark.Utils
                 {typeof(DoubleArray), "double"},
                 {typeof(StringArray), "string"},
                 {typeof(BinaryArray), "binary"},
+
+                {typeof(PrimitiveDataFrameColumn<bool>), "boolean"},
+                {typeof(PrimitiveDataFrameColumn<byte>), "byte"},
+                {typeof(PrimitiveDataFrameColumn<short>), "short"},
+                {typeof(PrimitiveDataFrameColumn<int>), "integer"},
+                {typeof(PrimitiveDataFrameColumn<long>), "long"},
+                {typeof(PrimitiveDataFrameColumn<float>), "float"},
+                {typeof(PrimitiveDataFrameColumn<double>), "double"},
+                {typeof(ArrowStringDataFrameColumn), "string"},
             };
 
         /// <summary>
@@ -149,33 +162,39 @@ namespace Microsoft.Spark.Utils
         /// <returns>JvmObjectReference object to the PythonFunction object</returns>
         internal static JvmObjectReference CreatePythonFunction(IJvmBridge jvm, byte[] command)
         {
-            JvmObjectReference arrayListReference = jvm.CallConstructor("java.util.ArrayList");
+            var arrayList = new ArrayList(jvm);
 
             return (JvmObjectReference)jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.SQLUtils",
                 "createPythonFunction",
                 command,
                 CreateEnvVarsForPythonFunction(jvm),
-                arrayListReference, // Python includes
+                arrayList, // Python includes
                 SparkEnvironment.ConfigurationService.GetWorkerExePath(),
                 Versions.CurrentVersion,
-                arrayListReference, // Broadcast variables
+                arrayList, // Broadcast variables
                 null); // Accumulator
         }
 
-        private static JvmObjectReference CreateEnvVarsForPythonFunction(IJvmBridge jvm)
+        private static IJvmObjectReferenceProvider CreateEnvVarsForPythonFunction(IJvmBridge jvm)
         {
-            JvmObjectReference environmentVars = jvm.CallConstructor("java.util.Hashtable");
-            string assemblySearchPath = Environment.GetEnvironmentVariable(
-                AssemblySearchPathResolver.AssemblySearchPathsEnvVarName);
+            var environmentVars = new Hashtable(jvm);
+            string assemblySearchPath = string.Join(",",
+                new[]
+                {
+                    Environment.GetEnvironmentVariable(
+                        AssemblySearchPathResolver.AssemblySearchPathsEnvVarName),
+                    SparkFiles.GetRootDirectory()
+                }.Where(s => !string.IsNullOrWhiteSpace(s)));
+
             if (!string.IsNullOrEmpty(assemblySearchPath))
             {
-                jvm.CallNonStaticJavaMethod(
-                    environmentVars,
-                    "put",
+                environmentVars.Put(
                     AssemblySearchPathResolver.AssemblySearchPathsEnvVarName,
                     assemblySearchPath);
             }
+            // DOTNET_WORKER_SPARK_VERSION is used to handle different versions of Spark on the worker.
+            environmentVars.Put("DOTNET_WORKER_SPARK_VERSION", SparkEnvironment.SparkVersion.ToString());
 
             return environmentVars;
         }

@@ -5,6 +5,7 @@
 using System;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Expressions;
+using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Sql
@@ -257,7 +258,7 @@ namespace Microsoft.Spark.Sql
                 CommandSerDe.SerializedMode.Row,
                 CommandSerDe.SerializedMode.Row);
 
-            var udf = UserDefinedFunction.Create(
+            UserDefinedFunction udf = UserDefinedFunction.Create(
                 _jvmObject.Jvm,
                 name,
                 command,
@@ -269,10 +270,7 @@ namespace Microsoft.Spark.Sql
 
         private JvmObjectReference GetDataType<T>()
         {
-            return (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.sql.types.DataType",
-                "fromJson",
-                $"{UdfUtils.GetReturnType(typeof(T))}");
+            return DataType.FromJson(_jvmObject.Jvm, UdfUtils.GetReturnType(typeof(T)));
         }
     }
 }

@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Spark.E2ETest.ExternalLibrary;
 using Microsoft.Spark.Sql;
@@ -40,7 +39,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
             Assert.Equal(3, rows.Length);
 
-            var expected = new[] { "HelloMichael", "HelloAndy", "HelloJustin" };
+            var expected = new string[] { "HelloMichael", "HelloAndy", "HelloJustin" };
             for (int i = 0; i < rows.Length; ++i)
             {
                 Row row = rows[i];
@@ -82,7 +81,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
             Assert.Equal(3, rows.Length);
 
-            var expected = new[] { "HelloMichael", "HelloAndy", "HelloJustin" };
+            var expected = new string[] { "HelloMichael", "HelloAndy", "HelloJustin" };
             for (int i = 0; i < rows.Length; ++i)
             {
                 Row row = rows[i];

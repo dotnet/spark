@@ -3,55 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Worker
 {
-    /// <summary>
-    /// TaskContext stores information related to a task.
-    /// </summary>
-    internal class TaskContext
-    {
-        internal int StageId { get; set; }
-
-        internal int PartitionId { get; set; }
-
-        internal int AttemptNumber { get; set; }
-
-        internal long AttemptId { get; set; }
-
-        internal bool IsBarrier { get; set; }
-
-        internal int Port { get; set; }
-
-        internal string Secret { get; set; }
-
-        internal Dictionary<string, string> LocalProperties { get; set; } =
-            new Dictionary<string, string>();
-
-        public override bool Equals(object obj)
-        {
-            var other = obj as TaskContext;
-            if (other is null)
-            {
-                return false;
-            }
-
-            return (StageId == other.StageId) &&
-                (PartitionId == other.PartitionId) &&
-                (AttemptNumber == other.AttemptNumber) &&
-                (AttemptId == other.AttemptId) &&
-                (LocalProperties.Count == other.LocalProperties.Count) &&
-                !LocalProperties.Except(other.LocalProperties).Any();
-        }
-
-        public override int GetHashCode()
-        {
-            return StageId;
-        }
-    }
-
     /// <summary>
     /// BroadcastVariables stores information on broadcast variables.
     /// </summary>
@@ -68,8 +23,7 @@ namespace Microsoft.Spark.Worker
 
         public override bool Equals(object obj)
         {
-            var other = obj as BroadcastVariables;
-            if (other is null)
+            if (!(obj is BroadcastVariables other))
             {
                 return false;
             }

@@ -34,7 +34,7 @@ import scala.util.Try
  */
 object DotnetRunner extends Logging {
   private val DEBUG_PORT = 5567
-  private val supportedSparkVersions = Set[String]("2.4.0", "2.4.1", "2.4.3")
+  private val supportedSparkVersions = Set[String]("2.4.0", "2.4.1", "2.4.3", "2.4.4", "2.4.5")
 
   val SPARK_VERSION = DotnetUtils.normalizeSparkVersion(spark.SPARK_VERSION)
 
@@ -110,6 +110,7 @@ object DotnetRunner extends Logging {
     if (initialized.tryAcquire(backendTimeout, TimeUnit.SECONDS)) {
       if (!runInDebugMode) {
         var returnCode = -1
+        var process: Process = null
         try {
           val builder = new ProcessBuilder(processParameters)
           val env = builder.environment()
@@ -120,7 +121,7 @@ object DotnetRunner extends Logging {
             logInfo(s"Adding key=$key and value=$value to environment")
           }
           builder.redirectErrorStream(true) // Ugly but needed for stdout and stderr to synchronize
-          val process = builder.start()
+          process = builder.start()
 
           // Redirect stdin of JVM process to stdin of .NET process.
           new RedirectThread(System.in, process.getOutputStream, "redirect JVM input").start()
@@ -128,11 +129,13 @@ object DotnetRunner extends Logging {
           new RedirectThread(process.getInputStream, System.out, "redirect .NET stdout").start()
           new RedirectThread(process.getErrorStream, System.out, "redirect .NET stderr").start()
 
-          returnCode = process.waitFor()
-          closeBackend(dotnetBackend)
+           process.waitFor()
         } catch {
           case t: Throwable =>
-            logError(s"${t.getMessage} \n ${t.getStackTrace}")
+            logThrowable(t)
+        } finally {
+          returnCode = closeDotnetProcess(process)
+          closeBackend(dotnetBackend)
         }
 
         if (returnCode != 0) {
@@ -175,16 +178,21 @@ object DotnetRunner extends Logging {
   // permission to executable (only for Unix systems, since the zip file may have been
   // created under Windows. Finally, the absolute path for the executable is returned.
   private def resolveDotnetExecutable(dir: File, dotnetExecutable: String): String = {
-    val resolvedExecutable = Files
-      .walk(FileSystems.getDefault.getPath(dir.getAbsolutePath))
-      .iterator()
-      .asScala
-      .find(path => Files.isRegularFile(path) && path.getFileName.toString == dotnetExecutable) match {
-      case Some(path) => path.toAbsolutePath.toString
-      case None =>
-        throw new IllegalArgumentException(
-          s"Failed to find $dotnetExecutable under" +
-            s" ${dir.getAbsolutePath}")
+    val path = Paths.get(dir.getAbsolutePath, dotnetExecutable)
+    val resolvedExecutable = if (Files.isRegularFile(path)) {
+      path.toAbsolutePath.toString
+    } else {
+      Files
+        .walk(FileSystems.getDefault.getPath(dir.getAbsolutePath))
+        .iterator()
+        .asScala
+        .find(path => Files.isRegularFile(path) && path.getFileName.toString == dotnetExecutable) match {
+          case Some(path) => path.toAbsolutePath.toString
+          case None =>
+            throw new IllegalArgumentException(
+              s"Failed to find $dotnetExecutable under" +
+                s" ${dir.getAbsolutePath}")
+      }
     }
 
     if (DotnetUtils.supportPosix) {
@@ -232,6 +240,30 @@ object DotnetRunner extends Logging {
     dotnetBackend.close()
   }
 
+  private def closeDotnetProcess(dotnetProcess: Process): Int = {
+    if (dotnetProcess == null) {
+      return -1
+    } else if (!dotnetProcess.isAlive) {
+      return dotnetProcess.exitValue()
+    }
+
+    // Try to (gracefully on Linux) kill the process and resort to force if interrupted
+    var returnCode = -1
+    logInfo("Closing .NET process")
+    try {
+      dotnetProcess.destroy()
+      returnCode = dotnetProcess.waitFor()
+    } catch {
+      case _: InterruptedException =>
+        logInfo("Thread interrupted while waiting for graceful close. Forcefully closing .NET process")
+        returnCode = dotnetProcess.destroyForcibly().waitFor()
+      case t: Throwable =>
+        logThrowable(t)
+    }
+
+    returnCode
+  }
+
   private def initializeSettings(args: Array[String]): (Boolean, Int) = {
     val runInDebugMode = (args.length == 1 || args.length == 2) && args(0).equalsIgnoreCase(
       "debug")
@@ -246,4 +278,7 @@ object DotnetRunner extends Logging {
 
     (runInDebugMode, portNumber)
   }
+
+  private def logThrowable(throwable: Throwable): Unit =
+    logError(s"${throwable.getMessage} \n ${throwable.getStackTrace.mkString("\n")}")
 }

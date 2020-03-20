@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Microsoft.Spark.E2ETest\Microsoft.Spark.E2ETest.csproj" />
+    <ProjectReference Include="..\..\Microsoft.Spark\Microsoft.Spark.csproj" />
+    <ProjectReference Include="..\Microsoft.Spark.Extensions.Delta\Microsoft.Spark.Extensions.Delta.csproj" />
+  </ItemGroup>
+</Project>

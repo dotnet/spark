@@ -39,7 +39,7 @@
     <tbody align="center">
         <tr>
             <td >2.3.*</td>
-            <td rowspan=4><a href="https://github.com/dotnet/spark/releases/tag/v0.4.0">v0.4.0</a></td>
+            <td rowspan=6><a href="https://github.com/dotnet/spark/releases/tag/v0.10.0">v0.10.0</a></td>
         </tr>
         <tr>
             <td>2.4.0</td>
@@ -49,6 +49,12 @@
         </tr>
         <tr>
             <td>2.4.3</td>
+        </tr>
+        <tr>
+            <td>2.4.4</td>
+        </tr>
+        <tr>
+            <td>2.4.5</td>
         </tr>
         <tr>
             <td>2.4.2</td>
@@ -65,6 +71,7 @@
 These instructions will show you how to run a .NET for Apache Spark app using .NET Core.
 - [Windows Instructions](docs/getting-started/windows-instructions.md)
 - [Ubuntu Instructions](docs/getting-started/ubuntu-instructions.md)
+- [MacOs Instructions](docs/getting-started/macos-instructions.md)
 
 ## Build Status
 
@@ -79,8 +86,8 @@ Building from source is very easy and the whole process (from cloning to being a
 
 | |  | Instructions |
 | :---: | :---         |      :--- |
-| ![Windows icon](docs/img/windows-icon-32.png) | **Windows**    | <ul><li>Local - [.NET Framework 4.6.1](docs/building/windows-instructions.md#using-visual-studio-for-net-framework-461)</li><li>Local - [.NET Core 2.1.x](docs/building/windows-instructions.md#using-net-core-cli-for-net-core-21x)</li><ul>    |
-| ![Ubuntu icon](docs/img/ubuntu-icon-32.png) | **Ubuntu**     | <ul><li>Local - [.NET Core 2.1.x](docs/building/ubuntu-instructions.md)</li><li>[Azure HDInsight Spark - .NET Core 2.1.x](deployment/README.md)</li></ul>      |
+| ![Windows icon](docs/img/windows-icon-32.png) | **Windows**    | <ul><li>Local - [.NET Framework 4.6.1](docs/building/windows-instructions.md#using-visual-studio-for-net-framework-461)</li><li>Local - [.NET Core 3.1](docs/building/windows-instructions.md#using-net-core-cli-for-net-core)</li><ul>    |
+| ![Ubuntu icon](docs/img/ubuntu-icon-32.png) | **Ubuntu**     | <ul><li>Local - [.NET Core 3.1](docs/building/ubuntu-instructions.md)</li><li>[Azure HDInsight Spark - .NET Core 3.1](deployment/README.md)</li></ul>      |
 
 <a name="samples"></a>
 ## Samples
@@ -114,7 +121,7 @@ We welcome contributions to both categories!
   </td>
     <td>
       <h5>Basic &nbsp;&nbsp;&nbsp;
-      <a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Basic.cs">C#</a> &nbsp; &nbsp; <a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Basic.fs">F#</a>&nbsp;&nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></a></h5>
+      <a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Batch/Basic.cs">C#</a> &nbsp; &nbsp; <a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Basic.fs">F#</a>&nbsp;&nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></a></h5>
   </td>
  </tr>
  <tr>

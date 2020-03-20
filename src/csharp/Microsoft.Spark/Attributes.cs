@@ -7,23 +7,78 @@ using System;
 namespace Microsoft.Spark
 {
     /// <summary>
+    /// Base class for custom attributes that involve the Spark version.
+    /// </summary>
+    public abstract class VersionAttribute : Attribute
+    {
+        /// <summary>
+        /// Constructor for VersionAttribute class.
+        /// </summary>
+        /// <param name="version">Spark version</param>
+        protected VersionAttribute(string version)
+        {
+            Version = new Version(version);
+        }
+
+        /// <summary>
+        /// Returns the Spark version.
+        /// </summary>
+        public Version Version { get; }
+    }
+
+    /// <summary>
     /// Custom attribute to denote the Spark version in which an API is introduced.
     /// </summary>
     [AttributeUsage(AttributeTargets.All)]
-    public sealed class SinceAttribute : Attribute
+    public sealed class SinceAttribute : VersionAttribute
     {
         /// <summary>
         /// Constructor for SinceAttribute class.
         /// </summary>
         /// <param name="version">Spark version</param>
         public SinceAttribute(string version)
+            : base(version)
         {
-            Version = version;
         }
+    }
 
+    /// <summary>
+    /// Custom attribute to denote the Spark version in which an API is removed.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.All)]
+    public sealed class RemovedAttribute : VersionAttribute
+    {
         /// <summary>
-        /// Returns the Spark version.
+        /// Constructor for RemovedAttribute class.
         /// </summary>
-        public string Version { get; }
+        /// <param name="version">Spark version</param>
+        public RemovedAttribute(string version)
+            : base(version)
+        {
+        }
+    }
+
+    /// <summary>
+    /// Custom attribute to denote the Spark version in which an API is deprecated.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.All)]
+    public sealed class DeprecatedAttribute : VersionAttribute
+    {
+        /// <summary>
+        /// Constructor for DeprecatedAttribute class.
+        /// </summary>
+        /// <param name="version">Spark version</param>
+        public DeprecatedAttribute(string version)
+            : base(version)
+        {
+        }
+    }
+
+    /// <summary>
+    /// Custom attribute to denote that a class is a Udf Wrapper.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    internal sealed class UdfWrapperAttribute : Attribute
+    {
     }
 }

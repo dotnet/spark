@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Apache.Arrow;
+using Microsoft.Data.Analysis;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
@@ -18,18 +19,18 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestCommandSerDeForSqlPickling()
         {
-            var udfWrapper = new Sql.PicklingUdfWrapper<string, string>((str) => $"hello {str}");
-            var workerFunction = new Sql.PicklingWorkerFunction(udfWrapper.Execute);
+            var udfWrapper = new PicklingUdfWrapper<string, string>((str) => $"hello {str}");
+            var workerFunction = new PicklingWorkerFunction(udfWrapper.Execute);
 
-            var serializedCommand = Utils.CommandSerDe.Serialize(
+            byte[] serializedCommand = Utils.CommandSerDe.Serialize(
                 workerFunction.Func,
                 Utils.CommandSerDe.SerializedMode.Row,
                 Utils.CommandSerDe.SerializedMode.Row);
 
             using (var ms = new MemoryStream(serializedCommand))
             {
-                var deserializedWorkerFunction = new Sql.PicklingWorkerFunction(
-                    Utils.CommandSerDe.Deserialize<Sql.PicklingWorkerFunction.ExecuteDelegate>(
+                var deserializedWorkerFunction = new PicklingWorkerFunction(
+                    Utils.CommandSerDe.Deserialize<PicklingWorkerFunction.ExecuteDelegate>(
                         ms,
                         out Utils.CommandSerDe.SerializedMode serializerMode,
                         out Utils.CommandSerDe.SerializedMode deserializerMode,
@@ -39,7 +40,7 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, deserializerMode);
                 Assert.Equal("N", runMode);
 
-                var result = deserializedWorkerFunction.Func(0, new[] { "spark" }, new[] { 0 });
+                object result = deserializedWorkerFunction.Func(0, new[] { "spark" }, new[] { 0 });
                 Assert.Equal("hello spark", result);
             }
         }
@@ -47,7 +48,7 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestCommandSerDeForSqlArrow()
         {
-            var udfWrapper = new Sql.ArrowUdfWrapper<StringArray, StringArray>(
+            var udfWrapper = new ArrowUdfWrapper<StringArray, StringArray>(
                 (strings) => (StringArray)ToArrowArray(
                     Enumerable.Range(0, strings.Length)
                         .Select(i => $"hello {strings.GetString(i)}")
@@ -55,7 +56,7 @@ namespace Microsoft.Spark.UnitTest
 
             var workerFunction = new ArrowWorkerFunction(udfWrapper.Execute);
 
-            var serializedCommand = Utils.CommandSerDe.Serialize(
+            byte[] serializedCommand = Utils.CommandSerDe.Serialize(
                 workerFunction.Func,
                 Utils.CommandSerDe.SerializedMode.Row,
                 Utils.CommandSerDe.SerializedMode.Row);
@@ -73,9 +74,51 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, deserializerMode);
                 Assert.Equal("N", runMode);
 
-                Apache.Arrow.IArrowArray input = ToArrowArray(new[] { "spark" });
-                Apache.Arrow.IArrowArray result =
+                IArrowArray input = ToArrowArray(new[] { "spark" });
+                IArrowArray result =
                     deserializedWorkerFunction.Func(new[] { input }, new[] { 0 });
+                AssertEquals("hello spark", result);
+            }
+        }
+
+        [Fact]
+        public void TestCommandSerDeForSqlArrowDataFrame()
+        {
+            var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+                (strings) =>
+                {
+                    var stringColumn = (StringArray)ToArrowArray(
+                        Enumerable.Range(0, (int)strings.Length)
+                            .Select(i => $"hello {strings[i]}")
+                            .ToArray());
+                    return ToArrowStringDataFrameColumn(stringColumn);
+                });
+
+            var workerFunction = new DataFrameWorkerFunction(udfWrapper.Execute);
+
+            byte[] serializedCommand = Utils.CommandSerDe.Serialize(
+                workerFunction.Func,
+                Utils.CommandSerDe.SerializedMode.Row,
+                Utils.CommandSerDe.SerializedMode.Row);
+
+            using (var ms = new MemoryStream(serializedCommand))
+            {
+                var deserializedWorkerFunction = new DataFrameWorkerFunction(
+                    Utils.CommandSerDe.Deserialize<DataFrameWorkerFunction.ExecuteDelegate>(
+                        ms,
+                        out Utils.CommandSerDe.SerializedMode serializerMode,
+                        out Utils.CommandSerDe.SerializedMode deserializerMode,
+                        out var runMode));
+
+                Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, serializerMode);
+                Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, deserializerMode);
+                Assert.Equal("N", runMode);
+
+                var column = (StringArray)ToArrowArray(new[] { "spark" });
+
+                ArrowStringDataFrameColumn ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
+                DataFrameColumn result =
+                    deserializedWorkerFunction.Func(new[] { ArrowStringDataFrameColumn }, new[] { 0 });
                 ArrowTestUtils.AssertEquals("hello spark", result);
             }
         }
@@ -94,10 +137,10 @@ namespace Microsoft.Spark.UnitTest
             var func3 = new RDD.WorkerFunction(
                 new RDD<int>.MapUdfWrapper<int, int>((a) => a + 5).Execute);
 
-            var chainedFunc1 = RDD.WorkerFunction.Chain(func1, func2);
-            var chainedFunc2 = RDD.WorkerFunction.Chain(chainedFunc1, func3);
+            RDD.WorkerFunction chainedFunc1 = RDD.WorkerFunction.Chain(func1, func2);
+            RDD.WorkerFunction chainedFunc2 = RDD.WorkerFunction.Chain(chainedFunc1, func3);
 
-            var serializedCommand = Utils.CommandSerDe.Serialize(
+            byte[] serializedCommand = Utils.CommandSerDe.Serialize(
                 chainedFunc2.Func,
                 Utils.CommandSerDe.SerializedMode.Byte,
                 Utils.CommandSerDe.SerializedMode.Byte);
