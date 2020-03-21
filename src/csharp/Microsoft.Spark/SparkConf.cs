@@ -87,7 +87,7 @@ namespace Microsoft.Spark
         }
 
         /// <summary>
-        /// Set the value of a string config
+        /// Set the value of a string config.
         /// </summary>
         /// <param name="key">Config name</param>
         /// <param name="value">Config value</param>
@@ -98,7 +98,7 @@ namespace Microsoft.Spark
         }
 
         /// <summary>
-        /// Get a int parameter value, falling back to a default if not set
+        /// Get a int parameter value, falling back to a default if not set.
         /// </summary>
         /// <param name="key">Key to use</param>
         /// <param name="defaultValue">Default value to use</param>
@@ -108,13 +108,22 @@ namespace Microsoft.Spark
         }
 
         /// <summary>
-        /// Get a string parameter value, falling back to a default if not set
+        /// Get a string parameter value, falling back to a default if not set.
         /// </summary>
         /// <param name="key">Key to use</param>
         /// <param name="defaultValue">Default value to use</param>
         public string Get(string key, string defaultValue)
         {
             return (string)_jvmObject.Invoke("get", key, defaultValue);
+        }
+
+        /// <summary>
+        /// Get a string parameter value, throws a NoSuchElementException if it's not set.
+        /// </summary>
+        /// <param name="key">Key to use</param>
+        public string Get(string key)
+        {
+            return (string)_jvmObject.Invoke("get", key);
         }
 
         /// <summary>

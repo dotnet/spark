@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
@@ -56,7 +57,6 @@ namespace Microsoft.Spark
             };
 
             _bid = (long)_jvmObject.Invoke("id");
-            JvmBroadcastRegistry.Add(_jvmObject);
         }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
@@ -99,7 +99,17 @@ namespace Microsoft.Spark
         {
             _jvmObject.Invoke("destroy");
             File.Delete(_path);
-            JvmBroadcastRegistry.Remove(_jvmObject);
+        }
+
+        /// <summary>
+        /// Serialization callback function that adds to the JvmBroadcastRegistry when the
+        /// Broadcast variable object is being serialized.
+        /// </summary>
+        /// <param name="context"></param>
+        [OnSerialized]
+        internal void OnSerialized(StreamingContext context)
+        {
+            JvmBroadcastRegistry.Add(_jvmObject);
         }
 
         /// <summary>
@@ -208,8 +218,20 @@ namespace Microsoft.Spark
         /// Function to remove the Broadcast variable from s_registry.
         /// </summary>
         /// <param name="bid">Id of the Broadcast variable object to remove</param>
-        internal static void Remove(long bid) => s_registry.TryRemove(bid, out _);
+        internal static void Remove(long bid)
+        {
+            bool result = s_registry.TryRemove(bid, out _);
+            if (!result)
+            {
+                throw new Exception($"Trying to remove an already removed broadcast with id {bid}.");
+            }
+        }
 
+        /// <summary>
+        /// Returns the value of the Broadcast variable object of given id.
+        /// </summary>
+        /// <param name="bid"></param>
+        /// <returns></returns>
         internal static object Get(long bid)
         {
             return s_registry[bid];
@@ -223,6 +245,7 @@ namespace Microsoft.Spark
     /// </summary>
     internal static class JvmBroadcastRegistry
     {
+        [ThreadStatic]
         private static readonly List<JvmObjectReference> s_jvmBroadcastVariables =
             new List<JvmObjectReference>();
 
@@ -235,17 +258,10 @@ namespace Microsoft.Spark
 
         /// <summary>
         /// Clears s_jvmBroadcastVariables of all the JVMObjectReference objects of type
-        /// <see cref="Broadcast{T}"/>
+        /// <see cref="Broadcast{T}"/>.
         /// </summary>
         internal static void Clear() =>
             s_jvmBroadcastVariables.Clear();
-
-        /// <summary>
-        /// Clears s_jvmBroadcastVariables of all the JVMObjectReference objects of type
-        /// <see cref="Broadcast{T}"/>
-        /// </summary>
-        internal static void Remove(JvmObjectReference broadcastJvmObject) =>
-            s_jvmBroadcastVariables.Remove(broadcastJvmObject);
 
         /// <summary>
         /// Returns the static member s_jvmBroadcastVariables.
