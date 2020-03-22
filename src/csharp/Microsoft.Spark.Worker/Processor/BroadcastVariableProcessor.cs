@@ -40,9 +40,9 @@ namespace Microsoft.Spark.Worker.Processor
                 // TODO: Handle the authentication.
             }
 
+            var formatter = new BinaryFormatter();
             for (int i = 0; i < broadcastVars.Count; ++i)
             {
-                var formatter = new BinaryFormatter();
                 long bid = SerDe.ReadInt64(stream);
                 if (bid >= 0)
                 {

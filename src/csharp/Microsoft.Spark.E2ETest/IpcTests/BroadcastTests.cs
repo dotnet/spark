@@ -47,10 +47,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Func<Column, Column> udf = Udf<string, string>(
                 str => $"{str} {bc1.Value().StringValue} and {bc2.Value().StringValue}");
 
-            string[] expected = new[] {"hello first and second", "world first and second" };
+            var expected = new string[] {"hello first and second", "world first and second" };
 
-            Row[] actualRows = _df.Select(udf(_df["_1"])).Collect().ToArray();
-            string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
+            DataFrame udfResult = _df.Select(udf(_df["_1"]));
+            string[] actual = DataFrameToString(udfResult);
             Assert.Equal(expected, actual);
         }
 
@@ -61,60 +61,68 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestDestroy()
         {
-            var obj1 = new TestBroadcastVariable(1, "Broadcast.Destroy()");
+            var obj1 = new TestBroadcastVariable(5, "destroy");
             Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
-            Exception expectedException = null;
 
-            Func<Column, Column> udf1 = Udf<string, string>(
+            Func<Column, Column> udf = Udf<string, string>(
                 str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
 
-            string[] expected = new[] {
-                "hello Broadcast.Destroy(), 1",
-                "world Broadcast.Destroy(), 1" };
+            var expected = new string[] {"hello destroy, 5", "world destroy, 5"};
 
-            Row[] actualRows = _df.Select(udf1(_df["_1"])).Collect().ToArray();
-            string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
+            DataFrame udfResult = _df.Select(udf(_df["_1"]));
+            string[] actual = DataFrameToString(udfResult);
             Assert.Equal(expected, actual);
 
             bc1.Destroy();
 
             try
             {
-                Row[] testRows = _df.Select(udf1(_df["_1"])).Collect().ToArray();
+                Row[] testRows = _df.Select(udf(_df["_1"])).Collect().ToArray();
             }
             catch (Exception e)
             {
-                expectedException = e;
+                Assert.NotNull(e);
             }
-            Assert.NotNull(expectedException);
         }
 
         /// <summary>
-        /// Test Broadcast.Unpersist() deletes cached copies of the broadcast on the executors.
+        /// Test Broadcast.Unpersist() deletes cached copies of the broadcast on the executors. If
+        /// the broadcast is used after unpersist is called, it is re-sent to the executors.
         /// </summary>
         [Fact]
         public void TestUnpersist()
         {
-            var obj = new TestBroadcastVariable(1, "Broadcast.Unpersist()");
-
+            var obj = new TestBroadcastVariable(1, "unpersist");
             Broadcast<TestBroadcastVariable> bc = _spark.SparkContext.Broadcast(obj);
 
             Func<Column, Column> udf = Udf<string, string>(
                 str => $"{str} {bc.Value().StringValue}, {bc.Value().IntValue}");
 
-            string[] expected = new[] {
-                "hello Broadcast.Unpersist(), 1",
-                "world Broadcast.Unpersist(), 1" };
+            var expected = new string[] {"hello unpersist, 1", "world unpersist, 1"};
 
-            Row[] actualRows = _df.Select(udf(_df["_1"])).Collect().ToArray();
-            string[] actual = actualRows.Select(s => s[0].ToString()).ToArray();
+            DataFrame udfResult = _df.Select(udf(_df["_1"]));
+            string[] actual = DataFrameToString(udfResult);
+
             Assert.Equal(expected, actual);
 
+            // This deletes the copies of the broadcast on the executors. We then use the Broadcast
+            // variable again in the UDF and validate that it is re-sent to all executors.
             bc.Unpersist();
 
-            Row[] rowsAfterUnpersist = _df.Select(udf(_df["_1"])).Collect().ToArray();
-            string[] actualUnpersisted = rowsAfterUnpersist.Select(s => s[0].ToString()).ToArray();
+            DataFrame udfResultUnpersist = _df.Select(udf(_df["_1"]));
+            string[] actualUnpersisted = DataFrameToString(udfResultUnpersist);
             Assert.Equal(expected, actualUnpersisted);
+        }
+
+        /// <summary>
+        /// Function that converts the given DataFrame object to a list of strings.
+        /// </summary>
+        /// <param name="df"></param>
+        /// <returns></returns>
+        private string[] DataFrameToString(DataFrame df)
+        {
+            Row[] rows = df.Collect().ToArray();
+            return rows.Select(s => s[0].ToString()).ToArray();
         }
     }
 }
