@@ -31,8 +31,7 @@ namespace Microsoft.Spark
             var localDir = (string)((IJvmObjectReferenceProvider)sc).Reference.Jvm.
                 CallStaticJavaMethod("org.apache.spark.util.Utils", "getLocalDir", sparkConf);
 
-            var tempDir = Path.Combine(localDir, "sparkdotnet");
-            _path = Path.Combine(tempDir, Path.GetRandomFileName());
+            _path = CreateTempFilePath(localDir);
             Version version = SparkEnvironment.SparkVersion;
 
             var javaSparkContext = (JvmObjectReference)((IJvmObjectReferenceProvider)sc).Reference
@@ -44,12 +43,9 @@ namespace Microsoft.Spark
             _jvmObject = (version.Major, version.Minor) switch
             {
                 (2, 3) when version.Build == 0 || version.Build == 1 =>
-                    CreateBroadcast_V2_3_1_AndBelow(
-                        javaSparkContext,
-                        tempDir,
-                        value),
-                (2, 3) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext,sc, tempDir, value),
-                (2, 4) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, tempDir, value),
+                    CreateBroadcast_V2_3_1_AndBelow(javaSparkContext, value),
+                (2, 3) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext,sc, value),
+                (2, 4) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
 
@@ -110,13 +106,11 @@ namespace Microsoft.Spark
         }
 
         /// <summary>
-        /// Function that creates a file to store the broadcast value in the given path.
+        /// Function that creates a file in _path to store the broadcast value in the given path.
         /// </summary>
-        /// <param name="dir">Path where file is to be created</param>
         /// <param name="value">Broadcast value to be written to the file</param>
-        private void WriteToFile(string dir, object value)
+        private void WriteToFile(object value)
         {
-            Directory.CreateDirectory(dir);
             using FileStream f = File.Create(_path);
             Dump(value, f);
         }
@@ -133,19 +127,30 @@ namespace Microsoft.Spark
         }
 
         /// <summary>
+        /// Function that creates a temporary directory inside the given directory and returns the
+        /// absolute filepath of temporary file name in that directory.
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <returns></returns>
+        private string CreateTempFilePath(string dir)
+        {
+            var tempDir = Path.Combine(dir, "sparkdotnet");
+            Directory.CreateDirectory(tempDir);
+            return Path.Combine(tempDir, Path.GetRandomFileName());
+        }
+
+        /// <summary>
         /// Calls the necessary functions to create org.apache.spark.broadcast.Broadcast object
         /// for Spark versions 2.3.0 and 2.3.1 and returns the JVMObjectReference object.
         /// </summary>
         /// <param name="javaSparkContext">Java Spark context object</param>
-        /// <param name="tempDir">Path where file is to be created</param>
         /// <param name="value">Broadcast value of type object</param>
         /// <returns></returns>
         private JvmObjectReference CreateBroadcast_V2_3_1_AndBelow(
             JvmObjectReference javaSparkContext,
-            string tempDir,
             object value)
         {
-            WriteToFile(tempDir, value);
+            WriteToFile(value);
             
             return (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.api.python.PythonRDD",
@@ -160,13 +165,11 @@ namespace Microsoft.Spark
         /// </summary>
         /// <param name="javaSparkContext">Java Spark context object</param>
         /// <param name="sc">SparkContext object</param>
-        /// <param name="tempDir">Path where file is to be created</param>
         /// <param name="value">Broadcast value of type object</param>
         /// <returns></returns>
         private JvmObjectReference CreateBroadcast_V2_3_2_AndAbove(
             JvmObjectReference javaSparkContext,
             SparkContext sc,
-            string tempDir,
             object value)
         {
             var pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
@@ -184,7 +187,7 @@ namespace Microsoft.Spark
             }
             else
             {
-                WriteToFile(tempDir, value);
+                WriteToFile(value);
             }
 
             return (JvmObjectReference)javaSparkContext.Jvm.CallNonStaticJavaMethod(
