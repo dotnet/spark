@@ -113,8 +113,7 @@ namespace Microsoft.Spark.Sql.Types
             {
                 val = (int)obj;
             }
-            return new Timestamp(new DateTime(val * 10 + s_unixTimeEpoch.Ticks,
-                DateTimeKind.Utc));
+            return new Timestamp(new DateTime(val * 10 + s_unixTimeEpoch.Ticks, DateTimeKind.Utc));
         }
     }
 
