@@ -213,6 +213,220 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Registers the given delegate as a user-defined function with the specified name.
+        /// </summary>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+        /// <param name="name">The UDF name.</param>
+        /// <param name="f">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        public void Register<TResult>(string name, Func<TResult> f, StructType returnType)
+        {
+            Register<TResult>(name, UdfUtils.CreateUdfWrapper(f), returnType);
+        }
+
+        /// <summary>
+        /// Registers the given delegate as a user-defined function with the specified name.
+        /// </summary>
+        /// <typeparam name="T">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+        /// <param name="name">The UDF name.</param>
+        /// <param name="f">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        public void Register<T, TResult>(string name, Func<T, TResult> f, StructType returnType)
+        {
+            Register<TResult>(name, UdfUtils.CreateUdfWrapper(f), returnType);
+        }
+
+        /// <summary>
+        /// Registers the given delegate as a user-defined function with the specified name.
+        /// </summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+        /// <param name="name">The UDF name.</param>
+        /// <param name="f">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        public void Register<T1, T2, TResult>(
+            string name,
+            Func<T1, T2, TResult> f,
+            StructType returnType)
+        {
+            Register<TResult>(name, UdfUtils.CreateUdfWrapper(f), returnType);
+        }
+
+        /// <summary>
+        /// Registers the given delegate as a user-defined function with the specified name.
+        /// </summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+        /// <param name="name">The UDF name.</param>
+        /// <param name="f">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        public void Register<T1, T2, T3, TResult>(
+            string name,
+            Func<T1, T2, T3, TResult> f,
+            StructType returnType)
+        {
+            Register<TResult>(name, UdfUtils.CreateUdfWrapper(f), returnType);
+        }
+
+        /// <summary>
+        /// Registers the given delegate as a user-defined function with the specified name.
+        /// </summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+        /// <param name="name">The UDF name.</param>
+        /// <param name="f">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        public void Register<T1, T2, T3, T4, TResult>(
+            string name,
+            Func<T1, T2, T3, T4, TResult> f,
+            StructType returnType)
+        {
+            Register<TResult>(name, UdfUtils.CreateUdfWrapper(f), returnType);
+        }
+
+        /// <summary>
+        /// Registers the given delegate as a user-defined function with the specified name.
+        /// </summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+        /// <param name="name">The UDF name.</param>
+        /// <param name="f">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        public void Register<T1, T2, T3, T4, T5, TResult>(
+            string name,
+            Func<T1, T2, T3, T4, T5, TResult> f,
+            StructType returnType)
+        {
+            Register<TResult>(name, UdfUtils.CreateUdfWrapper(f), returnType);
+        }
+
+        /// <summary>
+        /// Registers the given delegate as a user-defined function with the specified name.
+        /// </summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+        /// <param name="name">The UDF name.</param>
+        /// <param name="f">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        public void Register<T1, T2, T3, T4, T5, T6, TResult>(
+            string name,
+            Func<T1, T2, T3, T4, T5, T6, TResult> f,
+            StructType returnType)
+        {
+            Register<TResult>(name, UdfUtils.CreateUdfWrapper(f), returnType);
+        }
+
+        /// <summary>
+        /// Registers the given delegate as a user-defined function with the specified name.
+        /// </summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
+        /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+        /// <param name="name">The UDF name.</param>
+        /// <param name="f">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        public void Register<T1, T2, T3, T4, T5, T6, T7, TResult>(
+            string name,
+            Func<T1, T2, T3, T4, T5, T6, T7, TResult> f,
+            StructType returnType)
+        {
+            Register<TResult>(name, UdfUtils.CreateUdfWrapper(f), returnType);
+        }
+
+        /// <summary>
+        /// Registers the given delegate as a user-defined function with the specified name.
+        /// </summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
+        /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
+        /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+        /// <param name="name">The UDF name.</param>
+        /// <param name="f">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        public void Register<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
+            string name,
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> f,
+            StructType returnType)
+        {
+            Register<TResult>(name, UdfUtils.CreateUdfWrapper(f), returnType);
+        }
+
+        /// <summary>
+        /// Registers the given delegate as a user-defined function with the specified name.
+        /// </summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
+        /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
+        /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
+        /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+        /// <param name="name">The UDF name.</param>
+        /// <param name="f">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        public void Register<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
+            string name,
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> f,
+            StructType returnType)
+        {
+            Register<TResult>(name, UdfUtils.CreateUdfWrapper(f), returnType);
+        }
+
+        /// <summary>
+        /// Registers the given delegate as a user-defined function with the specified name.
+        /// </summary>
+        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
+        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
+        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
+        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
+        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
+        /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
+        /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
+        /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
+        /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
+        /// <typeparam name="T10">Specifies the type of the tenth argument to the UDF.</typeparam>
+        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
+        /// <param name="name">The UDF name.</param>
+        /// <param name="f">The UDF function implementation.</param>
+        /// <param name="returnType">Schema associated with this row</param>
+        public void Register<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
+            string name,
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> f,
+            StructType returnType)
+        {
+            Register<TResult>(name, UdfUtils.CreateUdfWrapper(f), returnType);
+        }
+
+        /// <summary>
         /// Register a Java UDF class using reflection.
         /// </summary>
         /// <typeparam name="TResult">Return type</typeparam>
@@ -241,7 +455,19 @@ namespace Microsoft.Spark.Sql
         /// <param name="func">Wrapped UDF function</param>
         private void Register<TResult>(string name, Delegate func)
         {
-            Register<TResult>(name, func, UdfUtils.PythonEvalType.SQL_BATCHED_UDF);
+            Register<TResult>(name, func, UdfUtils.PythonEvalType.SQL_BATCHED_UDF, UdfUtils.GetReturnType(typeof(TResult)));
+        }
+
+        /// <summary>
+        /// Helper function to register wrapped udf.
+        /// </summary>
+        /// <typeparam name="TResult">Return type of the udf</typeparam>
+        /// <param name="name">Name of the udf</param>
+        /// <param name="func">Wrapped UDF function</param>
+        /// <param name="returnType">Schema associated with the udf</param>
+        private void Register<TResult>(string name, Delegate func, StructType returnType)
+        {
+            Register<TResult>(name, func, UdfUtils.PythonEvalType.SQL_BATCHED_UDF, returnType.Json);
         }
 
         /// <summary>
@@ -251,7 +477,8 @@ namespace Microsoft.Spark.Sql
         /// <param name="name">Name of the udf</param>
         /// <param name="func">Wrapped UDF function</param>
         /// <param name="evalType">The EvalType of the function.</param>
-        internal void Register<TResult>(string name, Delegate func, UdfUtils.PythonEvalType evalType)
+        /// <param name="returnType">The return type of the function in JSON format.</param>
+        internal void Register<TResult>(string name, Delegate func, UdfUtils.PythonEvalType evalType, string returnType)
         {
             byte[] command = CommandSerDe.Serialize(
                 func,
@@ -263,7 +490,7 @@ namespace Microsoft.Spark.Sql
                 name,
                 command,
                 evalType,
-                UdfUtils.GetReturnType(typeof(TResult)));
+                returnType);
 
             _jvmObject.Invoke("registerPython", name, udf);
         }
