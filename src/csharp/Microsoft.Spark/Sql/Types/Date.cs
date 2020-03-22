@@ -12,7 +12,6 @@ namespace Microsoft.Spark.Sql.Types
     public class Date
     {
         private readonly DateTime _dateTime;
-        private static readonly DateTime s_unixTimeEpoch = new DateTime(1970, 1, 1);
 
         /// <summary>
         /// Constructor for Date class.
@@ -80,6 +79,6 @@ namespace Microsoft.Spark.Sql.Types
         /// Returns an integer object that represents a count of days from 1970-01-01.
         /// </summary>
         /// <returns>Integer object that represents a count of days from 1970-01-01</returns>
-        internal int GetInterval() => (_dateTime - s_unixTimeEpoch).Days;
+        internal int GetInterval() => (_dateTime - DateType.s_unixTimeEpoch).Days;
     }
 }

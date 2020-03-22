@@ -69,7 +69,7 @@ namespace Microsoft.Spark.Sql.Types
     /// </summary>
     public sealed class DateType : AtomicType
     {
-        private static readonly DateTime s_unixTimeEpoch = new DateTime(1970, 1, 1);
+        internal static readonly DateTime s_unixTimeEpoch = new DateTime(1970, 1, 1);
 
         internal override bool NeedConversion() => true;
 
@@ -91,7 +91,7 @@ namespace Microsoft.Spark.Sql.Types
     /// </summary>
     public sealed class TimestampType : AtomicType
     {
-        private static readonly DateTime s_unixTimeEpoch =
+        internal static readonly DateTime s_unixTimeEpoch =
             new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         internal override bool NeedConversion() => true;
@@ -103,7 +103,17 @@ namespace Microsoft.Spark.Sql.Types
         /// </summary>
         internal override object FromInternal(object obj)
         {
-            return new Timestamp(new DateTime((long)obj * 10 + s_unixTimeEpoch.Ticks,
+            // Known issue that if the original type is "long" and its value can be fit into the
+            // "int", Pickler will serialize the value as int.
+            if (obj is long val)
+            {
+                val = (long)obj;
+            }
+            else
+            {
+                val = (int)obj;
+            }
+            return new Timestamp(new DateTime(val * 10 + s_unixTimeEpoch.Ticks,
                 DateTimeKind.Utc));
         }
     }

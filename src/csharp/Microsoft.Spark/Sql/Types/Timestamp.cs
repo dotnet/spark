@@ -13,8 +13,6 @@ namespace Microsoft.Spark.Sql.Types
     public class Timestamp
     {
         private readonly DateTime _dateTime;
-        private static readonly DateTime s_unixTimeEpoch =
-            new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// Constructor for Timestamp class.
@@ -22,13 +20,6 @@ namespace Microsoft.Spark.Sql.Types
         /// <param name="dateTime">DateTime object</param>
         public Timestamp(DateTime dateTime)
         {
-            if (dateTime.Kind != DateTimeKind.Utc)
-            {
-                throw new InvalidTimeZoneException(
-                    $"Invalid TimeZone for Timestamp, please use " +
-                    $"Coordinated Universal Time (UTC) instead of {dateTime.Kind}.");
-            }
-
             _dateTime = dateTime.ToUniversalTime();
         }
 
@@ -55,15 +46,13 @@ namespace Microsoft.Spark.Sql.Types
             if (microsecond <= 999999 && microsecond >= 0)
             {
                 // Create DateTime and AddTicks based on the microsecond value.
-                _dateTime = new DateTime(year, month, day, hour, minute, second)
-                    .AddTicks(
-                        microsecond * (long)Math.Pow(10, 6 - microsecond.ToString().Length) * 10)
-                    .ToUniversalTime();
+                _dateTime = new DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc)
+                    .AddTicks(microsecond * 10);
             }
             else
             {
-                throw new ArgumentOutOfRangeException($"Invalid microsecond value {microsecond}." +
-                    $" The microsecond is from 0 through 999999.");
+                throw new ArgumentOutOfRangeException($"Invalid microsecond value {microsecond}. " +
+                    $"The microsecond is from 0 through 999999.");
             }
         }
 
@@ -136,8 +125,8 @@ namespace Microsoft.Spark.Sql.Types
         /// </summary>
         /// <returns>Double object that represents the number of seconds from the epoch of
         /// 1970-01-01T00:00:00.000000Z(UTC+00:00)</returns>
-        internal double GetIntervalInSeconds() => (_dateTime.Ticks - s_unixTimeEpoch.Ticks) /
-            10000000.0;
+        internal double GetIntervalInSeconds() =>
+            (_dateTime.Ticks - TimestampType.s_unixTimeEpoch.Ticks) / 10000000.0;
 
         /// <summary>
         /// Returns a long object that represents the number of microseconds from the epoch of
@@ -145,7 +134,7 @@ namespace Microsoft.Spark.Sql.Types
         /// </summary>
         /// <returns>Long object that represents the number of microseconds from the epoch of
         /// 1970-01-01T00:00:00.000000Z(UTC+00:00)</returns>
-        internal long GetIntervalInMicroseconds() => (_dateTime.Ticks - s_unixTimeEpoch.Ticks) /
-            10;
+        internal long GetIntervalInMicroseconds() =>
+            (_dateTime.Ticks - TimestampType.s_unixTimeEpoch.Ticks) / 10;
     }
 }
