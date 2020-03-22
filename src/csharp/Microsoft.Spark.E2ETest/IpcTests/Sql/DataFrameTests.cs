@@ -348,31 +348,30 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
         private static RecordBatch ArrowBasedCountCharacters(RecordBatch records)
         {
-            int stringFieldIndex = records.Schema.GetFieldIndex("name");
-            StringArray stringValues = records.Column(stringFieldIndex) as StringArray;
+            StringArray nameColumn = records.Column("name") as StringArray;
 
             int characterCount = 0;
 
-            for (int i = 0; i < stringValues.Length; ++i)
+            for (int i = 0; i < nameColumn.Length; ++i)
             {
-                string current = stringValues.GetString(i);
+                string current = nameColumn.GetString(i);
                 characterCount += current.Length;
             }
 
-            int groupFieldIndex = records.Schema.GetFieldIndex("age");
-            Field groupField = records.Schema.GetFieldByIndex(groupFieldIndex);
+            int ageFieldIndex = records.Schema.GetFieldIndex("age");
+            Field ageField = records.Schema.GetFieldByIndex(ageFieldIndex);
 
             // Return 1 record, if we were given any. 0, otherwise.
             int returnLength = records.Length > 0 ? 1 : 0;
 
             return new RecordBatch(
                 new Schema.Builder()
-                    .Field(groupField)
+                    .Field(ageField)
                     .Field(f => f.Name("name_CharCount").DataType(Int32Type.Default))
                     .Build(),
                 new IArrowArray[]
                 {
-                    records.Column(groupFieldIndex),
+                    records.Column(ageFieldIndex),
                     new Int32Array.Builder().Append(characterCount).Build()
                 },
                 returnLength);
@@ -430,7 +429,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {
             int characterCount = 0;
 
-            var characterCountColumn = new PrimitiveDataFrameColumn<int>("name" + "CharCount");
+            var characterCountColumn = new PrimitiveDataFrameColumn<int>("nameCharCount");
             var ageColumn = new PrimitiveDataFrameColumn<int>("age");
             ArrowStringDataFrameColumn fieldColumn = dataFrame["name"] as ArrowStringDataFrameColumn;
             for (long i = 0; i < dataFrame.Rows.Count; ++i)
