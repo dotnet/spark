@@ -265,7 +265,7 @@ namespace Microsoft.Spark.Sql
 
         private static void RegisterVector<TResult>(UdfRegistration udf, string name, Delegate func)
         {
-            udf.Register<TResult>(name, func, UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF);
+            udf.Register<TResult>(name, func, UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF, UdfUtils.GetReturnType(typeof(TResult)));
         }
     }
 }
