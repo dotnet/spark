@@ -27,7 +27,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             string expectedOutputCol = "features";
             int expectedDocFrequency = 100;
             
-            var idf = new IDF()
+            IDF idf = new IDF()
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
                 .SetMinDocFreq(expectedDocFrequency);
