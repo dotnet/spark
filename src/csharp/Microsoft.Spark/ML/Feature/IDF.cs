@@ -21,6 +21,8 @@ namespace Microsoft.Spark.ML.Feature
     {
         private static readonly string s_IDFClassName = "org.apache.spark.ml.feature.IDF";
         
+        private readonly JvmObjectReference _jvmObject;
+        
         /// <summary>
         /// Create a <see cref="IDF"/> without any parameters
         /// </summary>
@@ -43,8 +45,7 @@ namespace Microsoft.Spark.ML.Feature
         {
             _jvmObject = jvmObject;
         }
-
-        private readonly JvmObjectReference _jvmObject;
+        
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
@@ -60,7 +61,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Sets the column that the <see cref="IDF"/> should read from
         /// </summary>
         /// <param name="value">The name of the column to as the source</param>
-        /// <returns><see cref="IDF"/></returns>
+        /// <returns>New <see cref="IDF"/> object</returns>
         public IDF SetInputCol(string value)
         {
             return WrapAsIDF(_jvmObject.Invoke("setInputCol", value));
@@ -81,7 +82,7 @@ namespace Microsoft.Spark.ML.Feature
         /// name of the new column.
         /// </summary>
         /// <param name="value">The name of the new column</param>
-        /// <returns><see cref="IDF"/></returns>
+        /// <returns>New <see cref="IDF"/> object</returns>
         public IDF SetOutputCol(string value)
         {
             return WrapAsIDF(_jvmObject.Invoke("setOutputCol", value));
@@ -90,7 +91,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Minimum of documents in which a term should appear for filtering
         /// </summary>
-        /// <returns>int</returns>
+        /// <returns>int, minimum number of documents in which a term should appear</returns>
         public int GetMinDocFreq()
         {
             return (int)_jvmObject.Invoke("getMinDocFreq");
@@ -100,7 +101,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Minimum of documents in which a term should appear for filtering
         /// </summary>
         /// <param name="value">int, the minimum of documents a term should appear in</param>
-        /// <returns></returns>
+        /// <returns>New <see cref="IDF"/> object</returns>
         public IDF SetMinDocFreq(int value)
         {
             return WrapAsIDF(_jvmObject.Invoke("setMinDocFreq", value));
@@ -110,7 +111,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Fits a model to the input data.
         /// </summary>
         /// <param name="source">The <see cref="DataFrame"/> to fit the model to</param>
-        /// <returns><see cref="IDFModel"/></returns>
+        /// <returns>New <see cref="IDFModel"/> object</returns>
         public IDFModel Fit(DataFrame source)
         {
             return new IDFModel((JvmObjectReference)_jvmObject.Invoke("fit", source));
@@ -131,7 +132,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Loads the <see cref="IDF"/> that was previously saved using Save
         /// </summary>
         /// <param name="path">The path the previous <see cref="IDF"/> was saved to</param>
-        /// <returns><see cref="IDF"/></returns>
+        /// <returns>New <see cref="IDF"/> object, loaded from path</returns>
         public static IDF Load(string path)
         {
             return WrapAsIDF(
@@ -142,22 +143,12 @@ namespace Microsoft.Spark.ML.Feature
         /// Saves the <see cref="IDF"/> so that it can be loaded later using Load
         /// </summary>
         /// <param name="path">The path to save the <see cref="IDF"/> to</param>
-        /// <returns><see cref="IDF"/></returns>
+        /// <returns>New <see cref="IDF"/> object</returns>
         public IDF Save(string path)
         {
             return WrapAsIDF(_jvmObject.Invoke("save", path));
         }
 
-        /// <summary>
-        /// The reference we get back from each call isn't usable unless we wrap it in a new dotnet
-        /// <see cref="IDF"/>
-        /// </summary>
-        /// <param name="obj">The <see cref="JvmObjectReference"/> to convert into a dotnet
-        /// <see cref="IDF"/></param>
-        /// <returns><see cref="IDF"/></returns>
-        private static IDF WrapAsIDF(object obj)
-        {
-            return new IDF((JvmObjectReference)obj);
-        }
+        private static IDF WrapAsIDF(object obj) => new IDF((JvmObjectReference)obj);
     }
 }

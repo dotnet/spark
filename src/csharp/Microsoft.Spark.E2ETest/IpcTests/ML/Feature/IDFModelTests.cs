@@ -30,20 +30,20 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             DataFrame sentenceData =
                 _spark.Sql("SELECT 0.0 as label, 'Hi I heard about Spark' as sentence");
             
-            var tokenizer = new Tokenizer()
+            Tokenizer tokenizer = new Tokenizer()
                 .SetInputCol("sentence")
                 .SetOutputCol("words");
             
             DataFrame wordsData = tokenizer.Transform(sentenceData);
 
-            var hashingTF = new HashingTF()
+            HashingTF hashingTF = new HashingTF()
                 .SetInputCol("words")
                 .SetOutputCol(expectedInputCol)
                 .SetNumFeatures(20);
 
             DataFrame featurizedData = hashingTF.Transform(wordsData);
     
-            var idf = new IDF()
+            IDF idf = new IDF()
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
                 .SetMinDocFreq(expectedDocFrequency);

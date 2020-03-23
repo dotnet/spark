@@ -32,7 +32,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             Assert.IsType<HashingTF>(new HashingTF());
             
-            var hashingTf = new HashingTF("my-unique-id")
+            HashingTF hashingTf = new HashingTF("my-unique-id")
                 .SetNumFeatures(expectedFeatures)
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol);

@@ -16,6 +16,8 @@ namespace Microsoft.Spark.ML.Feature
     {
         private static readonly string s_IDFModelClassName = 
             "org.apache.spark.ml.feature.IDFModel";
+        
+        private readonly JvmObjectReference _jvmObject;
 
         /// <summary>
         /// Create a <see cref="IDFModel"/> without any parameters
@@ -39,8 +41,7 @@ namespace Microsoft.Spark.ML.Feature
         {
             _jvmObject = jvmObject;
         }
-
-        private readonly JvmObjectReference _jvmObject;
+        
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
         
         /// <summary>
@@ -57,7 +58,7 @@ namespace Microsoft.Spark.ML.Feature
         /// buckets
         /// </summary>
         /// <param name="value">The name of the column to as the source</param>
-        /// <returns><see cref="IDFModel"/></returns>
+        /// <returns>New <see cref="IDFModel"/> object</returns>
         public IDFModel SetInputCol(string value)
         {
             return WrapAsIDFModel(_jvmObject.Invoke("setInputCol", value));
@@ -79,7 +80,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">The name of the new column which contains the tokens
         /// </param>
-        /// <returns><see cref="IDFModel"/></returns>
+        /// <returns>New <see cref="IDFModel"/> object</returns>
         public IDFModel SetOutputCol(string value)
         {
             return WrapAsIDFModel(_jvmObject.Invoke("setOutputCol", value));
@@ -88,7 +89,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Minimum of documents in which a term should appear for filtering
         /// </summary>
-        /// <returns>int</returns>
+        /// <returns>int, minimum number of documents a term should appear</returns>
         public int GetMinDocFreq()
         {
             return (int)_jvmObject.Invoke("getMinDocFreq");
@@ -120,7 +121,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Loads the <see cref="IDFModel"/> that was previously saved using Save
         /// </summary>
         /// <param name="path">The path the previous <see cref="IDFModel"/> was saved to</param>
-        /// <returns><see cref="IDFModel"/></returns>
+        /// <returns>New <see cref="IDFModel"/> object, loaded from path</returns>
         public static IDFModel Load(string path)
         {
             return WrapAsIDFModel(
@@ -132,22 +133,13 @@ namespace Microsoft.Spark.ML.Feature
         /// Saves the <see cref="IDFModel"/> so that it can be loaded later using Load
         /// </summary>
         /// <param name="path">The path to save the <see cref="IDFModel"/> to</param>
-        /// <returns><see cref="IDFModel"/></returns>
+        /// <returns>New <see cref="IDFModel"/> object</returns>
         public IDFModel Save(string path)
         {
             return WrapAsIDFModel(_jvmObject.Invoke("save", path));
         }
         
-        /// <summary>
-        /// The reference we get back from each call isn't usable unless we wrap it in a new dotnet
-        /// <see cref="IDFModel"/>
-        /// </summary>
-        /// <param name="obj">The <see cref="JvmObjectReference"/> to convert into a dotnet
-        /// <see cref="IDFModel"/></param>
-        /// <returns><see cref="IDFModel"/></returns>
-        private static IDFModel WrapAsIDFModel(object obj)
-        {
-            return new IDFModel((JvmObjectReference)obj);
-        }
+        private static IDFModel WrapAsIDFModel(object obj) 
+            => new IDFModel((JvmObjectReference)obj);
     }
 }

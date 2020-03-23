@@ -17,6 +17,8 @@ namespace Microsoft.Spark.ML.Feature
         private static readonly string s_tokenizerClassName = 
             "org.apache.spark.ml.feature.Tokenizer";
         
+        private readonly JvmObjectReference _jvmObject;
+        
         /// <summary>
         /// Create a <see cref="Tokenizer"/> without any parameters
         /// </summary>
@@ -39,8 +41,7 @@ namespace Microsoft.Spark.ML.Feature
         {
             _jvmObject = jvmObject;
         }
-
-        private readonly JvmObjectReference _jvmObject;
+        
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
         
         /// <summary>
@@ -56,7 +57,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Sets the column that the <see cref="Tokenizer"/> should read from
         /// </summary>
         /// <param name="value">The name of the column to as the source</param>
-        /// <returns><see cref="Tokenizer"/></returns>
+        /// <returns>New <see cref="Tokenizer"/> object</returns>
         public Tokenizer SetInputCol(string value)
         {
             return WrapAsTokenizer(_jvmObject.Invoke("setInputCol", value));
@@ -77,7 +78,7 @@ namespace Microsoft.Spark.ML.Feature
         /// name of the new column.
         /// </summary>
         /// <param name="value">The name of the new column</param>
-        /// <returns><see cref="Tokenizer"/></returns>
+        /// <returns>New <see cref="Tokenizer"/> object</returns>
         public Tokenizer SetOutputCol(string value)
         {
             return WrapAsTokenizer(_jvmObject.Invoke("setOutputCol", value));
@@ -88,7 +89,8 @@ namespace Microsoft.Spark.ML.Feature
         /// column
         /// </summary>
         /// <param name="source">The DataFrame to transform</param>
-        /// <returns><see cref="DataFrame"/></returns>
+        /// <returns>New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/>
+        /// transformed</returns>
         public DataFrame Transform(DataFrame source)
         {
             return new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
@@ -109,7 +111,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Loads the <see cref="Tokenizer"/> that was previously saved using Save
         /// </summary>
         /// <param name="path">The path the previous <see cref="Tokenizer"/> was saved to</param>
-        /// <returns><see cref="Tokenizer"/></returns>
+        /// <returns>New <see cref="Tokenizer"/> object, loaded from path</returns>
         public static Tokenizer Load(string path)
         {
             return WrapAsTokenizer(
@@ -121,22 +123,13 @@ namespace Microsoft.Spark.ML.Feature
         /// Saves the <see cref="Tokenizer"/> so that it can be loaded later using Load
         /// </summary>
         /// <param name="path">The path to save the <see cref="Tokenizer"/> to</param>
-        /// <returns><see cref="Tokenizer"/></returns>
+        /// <returns>New <see cref="Tokenizer"/> object</returns>
         public Tokenizer Save(string path)
         {
             return WrapAsTokenizer(_jvmObject.Invoke("save", path));
         }
         
-        /// <summary>
-        /// The reference we get back from each call isn't usable unless we wrap it in a new dotnet
-        /// <see cref="Tokenizer"/>
-        /// </summary>
-        /// <param name="obj">The <see cref="JvmObjectReference"/> to convert into a dotnet
-        /// <see cref="Tokenizer"/></param>
-        /// <returns><see cref="Tokenizer"/></returns>
-        private static Tokenizer WrapAsTokenizer(object obj)
-        {
-            return new Tokenizer((JvmObjectReference)obj);
-        }
+        private static Tokenizer WrapAsTokenizer(object obj) 
+            => new Tokenizer((JvmObjectReference)obj);
     }
 }

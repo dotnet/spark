@@ -24,6 +24,8 @@ namespace Microsoft.Spark.ML.Feature
         private static readonly string s_hashingTfClassName = 
             "org.apache.spark.ml.feature.HashingTF";
         
+        private readonly JvmObjectReference _jvmObject;
+        
         /// <summary>
         /// Create a <see cref="HashingTF"/> without any parameters
         /// </summary>
@@ -47,26 +49,25 @@ namespace Microsoft.Spark.ML.Feature
             _jvmObject = jvmObject;
         }
 
-        private readonly JvmObjectReference _jvmObject;
-        
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
         /// Loads the <see cref="HashingTF"/> that was previously saved using Save
         /// </summary>
         /// <param name="path">The path the previous <see cref="HashingTF"/> was saved to</param>
-        /// <returns><see cref="HashingTF"/></returns>
+        /// <returns>New <see cref="HashingTF"/> object</returns>
         public static HashingTF Load(string path)
         {
             return WrapAsHashingTF(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_hashingTfClassName,"load", path));
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_hashingTfClassName, "load", path));
         }
         
         /// <summary>
         /// Saves the <see cref="HashingTF"/> so that it can be loaded later using Load
         /// </summary>
         /// <param name="path">The path to save the <see cref="HashingTF"/> to</param>
-        /// <returns><see cref="HashingTF"/></returns>
+        /// <returns>New <see cref="HashingTF"/> object</returns>
         public HashingTF Save(string path)
         {
             return WrapAsHashingTF(_jvmObject.Invoke("save", path));
@@ -75,7 +76,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Gets the binary toggle that controls term frequency counts
         /// </summary>
-        /// <returns>bool</returns>
+        /// <returns>bool showing term frequency counts</returns>
         public bool GetBinary()
         {
             return (bool)_jvmObject.Invoke("getBinary");
@@ -105,7 +106,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Sets the column that the <see cref="HashingTF"/> should read from
         /// </summary>
         /// <param name="value">The name of the column to as the source</param>
-        /// <returns><see cref="HashingTF"/></returns>
+        /// <returns>New <see cref="HashingTF"/> object</returns>
         public HashingTF SetInputCol(string value)
         {
             return WrapAsHashingTF(_jvmObject.Invoke("setInputCol", value));
@@ -126,7 +127,7 @@ namespace Microsoft.Spark.ML.Feature
         /// this is the name of the new column.
         /// </summary>
         /// <param name="value">The name of the new column</param>
-        /// <returns><see cref="HashingTF"/></returns>
+        /// <returns>New <see cref="HashingTF"/> object</returns>
         public HashingTF SetOutputCol(string value)
         {
             return WrapAsHashingTF(_jvmObject.Invoke("setOutputCol", value));
@@ -138,7 +139,7 @@ namespace Microsoft.Spark.ML.Feature
         /// as the numFeatures parameter; otherwise the features will not be mapped evenly to the
         /// columns.
         /// </summary>
-        /// <returns>int</returns>
+        /// <returns>int, the number of features to be used</returns>
         public int GetNumFeatures()
         {
             return (int)_jvmObject.Invoke("getNumFeatures");
@@ -151,7 +152,7 @@ namespace Microsoft.Spark.ML.Feature
         /// columns.
         /// </summary>
         /// <param name="value">int</param>
-        /// <returns><see cref="HashingTF"/></returns>
+        /// <returns>New <see cref="HashingTF"/> object</returns>
         public HashingTF SetNumFeatures(int value)
         {
             return WrapAsHashingTF(_jvmObject.Invoke("setNumFeatures", value));
@@ -160,7 +161,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// An immutable unique ID for the object and its derivatives.
         /// </summary>
-        /// <returns>string</returns>
+        /// <returns>string, unique ID for the object</returns>
         public string Uid()
         {
             return (string)_jvmObject.Invoke("uid");
@@ -176,17 +177,8 @@ namespace Microsoft.Spark.ML.Feature
         {
             return new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
         }
-
-        /// <summary>
-        /// The reference we get back from each call isn't usable unless we wrap it in a new dotnet
-        /// <see cref="HashingTF"/>
-        /// </summary>
-        /// <param name="obj">The <see cref="JvmObjectReference"/> to convert into a dotnet
-        /// <see cref="HashingTF"/></param>
-        /// <returns><see cref="HashingTF"/></returns>
-        private static HashingTF WrapAsHashingTF(object obj)
-        {
-            return new HashingTF((JvmObjectReference)obj);
-        }
+        
+        private static HashingTF WrapAsHashingTF(object obj) 
+            => new HashingTF((JvmObjectReference)obj);
     }
 }

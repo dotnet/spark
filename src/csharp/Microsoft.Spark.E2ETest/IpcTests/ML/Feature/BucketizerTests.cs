@@ -63,7 +63,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestBucketizer_MultipleColumns()
         {
-            var expectedSplitsArray = new[]
+            var expectedSplitsArray = new double[][]
             {
                 new[] { double.MinValue, 0.0, 10.0, 50.0, double.MaxValue},
                 new[] { double.MinValue, 0.0, 10000.0, double.MaxValue}
