@@ -59,7 +59,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             
             using (var tempDirectory = new TemporaryDirectory())
             {
-                string modelPath = Path.Join(tempDirectory.Path, "ideModel");
+                string modelPath = Path.Join(tempDirectory.Path, "idfModel");
                 idfModel.Save(modelPath);
 
                 IDFModel loadedModel = IDFModel.Load(modelPath);
