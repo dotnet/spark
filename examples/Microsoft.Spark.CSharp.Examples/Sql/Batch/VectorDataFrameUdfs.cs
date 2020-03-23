@@ -58,12 +58,11 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             spark.Stop();
         }
 
-        private static FxDataFrame CountCharacters(
-            FxDataFrame dataFrame)
+        private static FxDataFrame CountCharacters(FxDataFrame dataFrame)
         {
             int characterCount = 0;
 
-            var characterCountColumn = new PrimitiveDataFrameColumn<int>("name" + "CharCount");
+            var characterCountColumn = new PrimitiveDataFrameColumn<int>("nameCharCount");
             var ageColumn = new PrimitiveDataFrameColumn<int>("age");
             ArrowStringDataFrameColumn nameColumn = dataFrame["name"] as ArrowStringDataFrameColumn;
             for (long i = 0; i < dataFrame.Rows.Count; ++i)
