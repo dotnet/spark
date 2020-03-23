@@ -320,5 +320,165 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 }
             }
         }
+
+        /// <summary>
+        /// UDF Registration with UDF that returns Row type.
+        /// </summary>
+        [Fact]
+        public void TestUdfRegistrationWithReturnAsRowType()
+        {
+            // Test UDF that returns a Row object with a single column.
+            {
+                var schema = new StructType(new[]
+                {
+                    new StructField("col1", new IntegerType()),
+                    new StructField("col2", new StringType())
+                });
+
+                _df.CreateOrReplaceTempView("people");
+
+                _spark.Udf().Register<string>(
+                    "udf1",
+                    str => new GenericRow(new object[] { 1, "abc" }),
+                    schema);
+
+                Row[] rows =
+                    _spark.Sql("SELECT udf1(name) AS col FROM people")
+                    .Collect()
+                    .ToArray();
+                Assert.Equal(3, rows.Length);
+                foreach (Row row in rows)
+                {
+                    Assert.Equal(1, row.Size());
+                    Row outerCol = row.GetAs<Row>("col");
+                    Assert.Equal(2, outerCol.Size());
+                    Assert.Equal(1, outerCol.GetAs<int>("col1"));
+                    Assert.Equal("abc", outerCol.GetAs<string>("col2"));
+                }
+            }
+
+            // Test UDF that returns a Row object with multiple columns.
+            {
+                var schema = new StructType(new[]
+                {
+                    new StructField("col1", new IntegerType())
+                });
+
+                _df.CreateOrReplaceTempView("people");
+
+                _spark.Udf().Register<string>(
+                    "udf2",
+                    str => new GenericRow(new object[] { 111 }),
+                    schema);
+
+                Row[] rows =
+                    _spark.Sql("SELECT udf2(name) AS col, name FROM people")
+                    .Collect()
+                    .ToArray();
+                Assert.Equal(3, rows.Length);
+
+                foreach (Row row in rows)
+                {
+                    Assert.Equal(2, row.Size());
+                    Row col1 = row.GetAs<Row>("col");
+                    Assert.Equal(1, col1.Size());
+                    Assert.Equal(111, col1.GetAs<int>("col1"));
+
+                    string col2 = row.GetAs<string>("name");
+                    Assert.NotEmpty(col2);
+                }
+            }
+
+            // Test UDF that returns a nested Row object.
+            {
+                var subSchema1 = new StructType(new[]
+                {
+                    new StructField("col1", new IntegerType()),
+                });
+                var subSchema2 = new StructType(new[]
+                {
+                    new StructField("col1", new StringType()),
+                    new StructField("col2", subSchema1),
+                });
+                var schema = new StructType(new[]
+                {
+                    new StructField("col1", new IntegerType()),
+                    new StructField("col2", subSchema1),
+                    new StructField("col3", subSchema2)
+                });
+
+                _df.CreateOrReplaceTempView("people");
+
+                _spark.Udf().Register<string>(
+                    "udf3",
+                    str => new GenericRow(
+                        new object[]
+                        {
+                            1,
+                            new GenericRow(new object[] { 1 }),
+                            new GenericRow(new object[]
+                                {
+                                    "abc",
+                                    new GenericRow(new object[] { 10 })
+                                })
+                        }),
+                    schema);
+
+                Row[] rows =
+                    _spark.Sql("SELECT udf3(name) AS col FROM people")
+                    .Collect()
+                    .ToArray();
+                Assert.Equal(3, rows.Length);
+
+                foreach (Row row in rows)
+                {
+                    Assert.Equal(1, row.Size());
+                    Row outerCol = row.GetAs<Row>("col");
+                    Assert.Equal(3, outerCol.Size());
+                    Assert.Equal(1, outerCol.GetAs<int>("col1"));
+                    Assert.Equal(
+                        new Row(new object[] { 1 }, subSchema1),
+                        outerCol.GetAs<Row>("col2"));
+                    Assert.Equal(
+                        new Row(
+                            new object[] { "abc", new Row(new object[] { 10 }, subSchema1) },
+                            subSchema2),
+                        outerCol.GetAs<Row>("col3"));
+                }
+            }
+
+            // Chained UDFs.
+            {
+                var schema = new StructType(new[]
+                {
+                    new StructField("col1", new IntegerType()),
+                    new StructField("col2", new StringType())
+                });
+
+                _df.CreateOrReplaceTempView("people");
+
+                _spark.Udf().Register<string>(
+                    "udf4",
+                    str => new GenericRow(new object[] { 1, str }),
+                    schema);
+
+                _spark.Udf().Register<Row, string>(
+                    "udf5",
+                    row => row.GetAs<string>(1));
+
+                Row[] rows =
+                    _spark.Sql("SELECT udf5(udf4(name)) FROM people")
+                    .Collect()
+                    .ToArray();
+                Assert.Equal(3, rows.Length);
+
+                var expected = new[] { "Michael", "Andy", "Justin" };
+                for (int i = 0; i < rows.Length; ++i)
+                {
+                    Assert.Equal(1, rows[i].Size());
+                    Assert.Equal(expected[i], rows[i].GetAs<string>(0));
+                }
+            }
+        }
     }
 }
