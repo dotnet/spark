@@ -11,6 +11,8 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
 
 For detailed instructions, you can see [Building .NET for Apache Spark from Source on Ubuntu](../building/ubuntu-instructions.md).
 
+Alternatively, you can build a Docker image. See this [Quickstart with Docker guide](../docker.md) to learn how.
+
 ## Authoring a .NET for Apache Spark App
 
 - Use the `dotnet` CLI to create a console application.
