@@ -88,7 +88,7 @@ git clone https://github.com/dotnet/spark.git c:\github\dotnet-spark
 
 ## Building Spark .NET Scala Extensions Layer
 
-When you submit a .NET application, Spark .NET has the necessary logic written in Scala that inform Apache Spark how to handle your requests (e.g., request to create a new Spark Session, request to transfer data from .NET side to JVM side etc.). This logic can be found in the [Spark .NET Scala Source Code](../../../src/scala).
+When you submit a .NET application, Spark .NET has the necessary logic written in Scala that inform Apache Spark how to handle your requests (e.g., request to create a new Spark Session, request to transfer data from .NET side to JVM side etc.). This logic can be found in the [Spark .NET Scala Source Code](../../src/scala).
 
 Regardless of whether you are using .NET Framework or .NET Core, you will need to build the Spark .NET Scala extension layer. This is easy to do:
 
