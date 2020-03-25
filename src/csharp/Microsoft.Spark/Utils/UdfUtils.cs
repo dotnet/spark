@@ -107,13 +107,13 @@ namespace Microsoft.Spark.Utils
                 {typeof(StringArray), "string"},
                 {typeof(BinaryArray), "binary"},
 
-                {typeof(PrimitiveDataFrameColumn<bool>), "boolean"},
-                {typeof(PrimitiveDataFrameColumn<byte>), "byte"},
-                {typeof(PrimitiveDataFrameColumn<short>), "short"},
-                {typeof(PrimitiveDataFrameColumn<int>), "integer"},
-                {typeof(PrimitiveDataFrameColumn<long>), "long"},
-                {typeof(PrimitiveDataFrameColumn<float>), "float"},
-                {typeof(PrimitiveDataFrameColumn<double>), "double"},
+                {typeof(BooleanDataFrameColumn), "boolean"},
+                {typeof(ByteDataFrameColumn), "byte"},
+                {typeof(Int16DataFrameColumn), "short"},
+                {typeof(Int32DataFrameColumn), "integer"},
+                {typeof(Int64DataFrameColumn), "long"},
+                {typeof(SingleDataFrameColumn), "float"},
+                {typeof(DoubleDataFrameColumn), "double"},
                 {typeof(ArrowStringDataFrameColumn), "string"},
             };
 
