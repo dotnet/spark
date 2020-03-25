@@ -215,8 +215,9 @@ namespace Microsoft.Spark.ML.Feature
         /// column or columns with the bucketed data.
         /// </summary>
         /// <param name="source">The DataFrame to add the bucketed data to</param>
-        /// <returns><see cref="DataFrame"/> containing the original data and the new bucketed
-        /// columns</returns>
+        /// <returns>
+        /// <see cref="DataFrame"/> containing the original data and the new bucketed columns
+        /// </returns>
         public DataFrame Transform(DataFrame source)
         {
             return new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
@@ -255,7 +256,7 @@ namespace Microsoft.Spark.ML.Feature
             return WrapAsBucketizer(_jvmObject.Invoke("setHandleInvalid", value.ToString()));
         }
         
-        private static Bucketizer WrapAsBucketizer(object obj) 
-            => new Bucketizer((JvmObjectReference)obj);
+        private static Bucketizer WrapAsBucketizer(object obj) => 
+            new Bucketizer((JvmObjectReference)obj);
     }
 }

@@ -89,8 +89,9 @@ namespace Microsoft.Spark.ML.Feature
         /// column
         /// </summary>
         /// <param name="source">The DataFrame to transform</param>
-        /// <returns>New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/>
-        /// transformed</returns>
+        /// <returns>
+        /// New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/> transformed
+        /// </returns>
         public DataFrame Transform(DataFrame source)
         {
             return new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
@@ -129,7 +130,7 @@ namespace Microsoft.Spark.ML.Feature
             return WrapAsTokenizer(_jvmObject.Invoke("save", path));
         }
         
-        private static Tokenizer WrapAsTokenizer(object obj) 
-            => new Tokenizer((JvmObjectReference)obj);
+        private static Tokenizer WrapAsTokenizer(object obj) => 
+            new Tokenizer((JvmObjectReference)obj);
     }
 }

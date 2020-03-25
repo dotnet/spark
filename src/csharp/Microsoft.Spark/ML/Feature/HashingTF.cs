@@ -76,7 +76,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Gets the binary toggle that controls term frequency counts
         /// </summary>
-        /// <returns>bool showing term frequency counts</returns>
+        /// <returns>Flag showing whether the binary toggle is on or off</returns>
         public bool GetBinary()
         {
             return (bool)_jvmObject.Invoke("getBinary");
@@ -139,7 +139,7 @@ namespace Microsoft.Spark.ML.Feature
         /// as the numFeatures parameter; otherwise the features will not be mapped evenly to the
         /// columns.
         /// </summary>
-        /// <returns>int, the number of features to be used</returns>
+        /// <returns>The number of features to be used</returns>
         public int GetNumFeatures()
         {
             return (int)_jvmObject.Invoke("getNumFeatures");
@@ -178,7 +178,7 @@ namespace Microsoft.Spark.ML.Feature
             return new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
         }
         
-        private static HashingTF WrapAsHashingTF(object obj) 
-            => new HashingTF((JvmObjectReference)obj);
+        private static HashingTF WrapAsHashingTF(object obj) => 
+            new HashingTF((JvmObjectReference)obj);
     }
 }

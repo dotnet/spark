@@ -89,7 +89,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Minimum of documents in which a term should appear for filtering
         /// </summary>
-        /// <returns>int, minimum number of documents a term should appear</returns>
+        /// <returns>Minimum number of documents a term should appear</returns>
         public int GetMinDocFreq()
         {
             return (int)_jvmObject.Invoke("getMinDocFreq");
@@ -139,7 +139,7 @@ namespace Microsoft.Spark.ML.Feature
             return WrapAsIDFModel(_jvmObject.Invoke("save", path));
         }
         
-        private static IDFModel WrapAsIDFModel(object obj) 
-            => new IDFModel((JvmObjectReference)obj);
+        private static IDFModel WrapAsIDFModel(object obj) => 
+            new IDFModel((JvmObjectReference)obj);
     }
 }
