@@ -65,10 +65,10 @@ namespace Tpch
 
         internal void Q1d()
         {
-            Func<Column, Column, Column> discPrice = VectorUdf<PrimitiveDataFrameColumn<double>, PrimitiveDataFrameColumn<double>, PrimitiveDataFrameColumn<double>>(
+            Func<Column, Column, Column> discPrice = VectorUdf<DoubleDataFrameColumn, DoubleDataFrameColumn, DoubleDataFrameColumn>(
                 (price, discount) => VectorDataFrameFunctions.ComputeDiscountPrice(price, discount));
 
-            Func<Column, Column, Column, Column> total = VectorUdf<PrimitiveDataFrameColumn<double>, PrimitiveDataFrameColumn<double>, PrimitiveDataFrameColumn<double>, PrimitiveDataFrameColumn<double>>(
+            Func<Column, Column, Column, Column> total = VectorUdf<DoubleDataFrameColumn, DoubleDataFrameColumn, DoubleDataFrameColumn, DoubleDataFrameColumn>(
                 (price, discount, tax) => VectorDataFrameFunctions.ComputeTotal(price, discount, tax));
 
             _lineitem.Filter(Col("l_shipdate") <= "1998-09-02")
@@ -255,7 +255,7 @@ namespace Tpch
         internal void Q8d()
         {
             Func<Column, Column> getYear = Udf<string, string>(x => x.Substring(0, 4));
-            Func<Column, Column, Column> discPrice = VectorUdf<PrimitiveDataFrameColumn<double>, PrimitiveDataFrameColumn<double>, PrimitiveDataFrameColumn<double>>(
+            Func<Column, Column, Column> discPrice = VectorUdf<DoubleDataFrameColumn, DoubleDataFrameColumn, DoubleDataFrameColumn>(
                 (price, discount) => VectorDataFrameFunctions.ComputeDiscountPrice(price, discount));
 
             Func<Column, Column, Column> isBrazil = Udf<string, double, double>((x, y) => x == "BRAZIL" ? y : 0);
