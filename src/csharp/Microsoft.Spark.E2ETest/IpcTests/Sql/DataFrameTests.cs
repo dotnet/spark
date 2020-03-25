@@ -246,10 +246,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Chained UDFs.
             Func<Column, Column> udf2 = ExperimentalDataFrameFunctions.VectorUdf<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
-                (strings) =>
-                {
-                    return strings.Apply(cur => $"hello {cur}!");
-                });
+                (strings) => strings.Apply(cur => $"hello {cur}!"));
             {
                 Row[] rows = _df
                     .Select(udf2(udf1(_df["age"], _df["name"])))

@@ -85,10 +85,7 @@ namespace Microsoft.Spark.UnitTest
         public void TestCommandSerDeForSqlArrowDataFrame()
         {
             var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
-                (strings) =>
-                {
-                    return strings.Apply(cur => $"hello {cur}");
-                });
+                (strings) => strings.Apply(cur => $"hello {cur}"));
 
             var workerFunction = new DataFrameWorkerFunction(udfWrapper.Execute);
 

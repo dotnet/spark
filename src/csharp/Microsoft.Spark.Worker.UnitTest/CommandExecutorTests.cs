@@ -307,10 +307,7 @@ namespace Microsoft.Spark.Worker.UnitTest
         public async Task TestDataFrameSqlCommandExecutorWithSingleCommand()
         {
             var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
-                (strings) =>
-                {
-                    return strings.Apply(cur => $"udf: {cur}");
-                });
+                (strings) => strings.Apply(cur => $"udf: {cur}"));
 
             var command = new SqlCommand()
             {
@@ -486,10 +483,8 @@ namespace Microsoft.Spark.Worker.UnitTest
         public async Task TestDataFrameSqlCommandExecutorWithMultiCommands()
         {
             var udfWrapper1 = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
-                (strings) =>
-                {
-                    return strings.Apply(cur => $"udf: {cur}");
-                });
+                (strings) => strings.Apply(cur => $"udf: {cur}"));
+
             var udfWrapper2 = new Sql.DataFrameUdfWrapper<Int32DataFrameColumn, Int32DataFrameColumn, Int32DataFrameColumn>(
                 (arg1, arg2) => arg1 * arg2);
 
@@ -672,10 +667,7 @@ namespace Microsoft.Spark.Worker.UnitTest
         public void TestDataFrameSqlCommandExecutorWithEmptyInput()
         {
             var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
-                (strings) =>
-                {
-                    return strings.Apply(cur=> $"udf: {cur}");
-                });
+                (strings) => strings.Apply(cur=> $"udf: {cur}"));
 
             var command = new SqlCommand()
             {

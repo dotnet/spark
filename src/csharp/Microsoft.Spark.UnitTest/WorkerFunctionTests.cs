@@ -217,17 +217,13 @@ namespace Microsoft.Spark.UnitTest
 
             var func2 = new DataFrameWorkerFunction(
                 new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
-                    (strings) =>
-                    {
-                        return strings.Apply(cur => $"outer1:{cur}");
-                    }).Execute);
+                    (strings) => strings.Apply(cur => $"outer1:{cur}"))
+                    .Execute);
 
             var func3 = new DataFrameWorkerFunction(
                 new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
-                    (strings) =>
-                    {
-                        return strings.Apply(cur => $"outer2:{cur}");
-                    }).Execute);
+                    (strings) => strings.Apply(cur => $"outer2:{cur}"))
+                    .Execute);
 
             string[] inputString = { "name" };
             var column = (StringArray)ToArrowArray(inputString);
@@ -292,10 +288,8 @@ namespace Microsoft.Spark.UnitTest
 
             var func2 = new DataFrameWorkerFunction(
                 new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
-                    (strings) =>
-                    {
-                        return strings.Apply(cur => $"outer1:{cur}");
-                    }).Execute);
+                    (strings) => strings.Apply(cur => $"outer1:{cur}"))
+                    .Execute);
 
             string[] inputString = { "name" };
             var column = (StringArray)ToArrowArray(inputString);
