@@ -134,7 +134,7 @@ namespace Microsoft.Spark.UnitTest
         public void TestDataFrameWorkerFunctionForBool()
         {
             var func = new DataFrameWorkerFunction(
-                new DataFrameUdfWrapper<ArrowStringDataFrameColumn, PrimitiveDataFrameColumn<bool>, PrimitiveDataFrameColumn<bool>>(
+                new DataFrameUdfWrapper<ArrowStringDataFrameColumn, BooleanDataFrameColumn, BooleanDataFrameColumn>(
                     (strings, flags) =>
                     {
                         for (long i = 0; i < strings.Length; ++i)
@@ -147,13 +147,13 @@ namespace Microsoft.Spark.UnitTest
             var stringColumn = (StringArray)ToArrowArray(new[] { "arg1_true", "arg1_true", "arg1_false", "arg1_false" });
 
             ArrowStringDataFrameColumn ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(stringColumn);
-            var boolColumn = new PrimitiveDataFrameColumn<bool>("Bool", Enumerable.Range(0, 4).Select(x => x % 2 == 0));
+            var boolColumn = new BooleanDataFrameColumn("Bool", Enumerable.Range(0, 4).Select(x => x % 2 == 0));
             var input = new DataFrameColumn[]
                 {
                     ArrowStringDataFrameColumn,
                     boolColumn
                 };
-            var results = (PrimitiveDataFrameColumn<bool>)func.Func(input, new[] { 0, 1 });
+            var results = (BooleanDataFrameColumn)func.Func(input, new[] { 0, 1 });
             Assert.Equal(4, results.Length);
             Assert.True(results[0]);
             Assert.True(results[1]);
@@ -208,44 +208,29 @@ namespace Microsoft.Spark.UnitTest
         public void TestChainingDataFrameWorkerFunction()
         {
             var func1 = new DataFrameWorkerFunction(
-                new DataFrameUdfWrapper<PrimitiveDataFrameColumn<int>, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+                new DataFrameUdfWrapper<Int32DataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (numbers, strings) =>
                     {
-                        var stringColumn = (StringArray)ToArrowArray(
-                             Enumerable.Range(0, (int)strings.Length)
-                                .Select(i => $"{strings[i]}:{numbers[i]}")
-                                .ToArray());
-                        return ToArrowStringDataFrameColumn(stringColumn);
+                        long i = 0;
+                        return strings.Apply(cur => $"{cur}:{numbers[i++]}");
                     }).Execute);
 
             var func2 = new DataFrameWorkerFunction(
                 new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
-                    (strings) =>
-                    {
-                        var stringColumn = (StringArray)ToArrowArray(
-                            Enumerable.Range(0, (int)strings.Length)
-                                .Select(i => $"outer1:{strings[i]}")
-                                .ToArray());
-                        return ToArrowStringDataFrameColumn(stringColumn);
-                    }).Execute);
+                    (strings) => strings.Apply(cur => $"outer1:{cur}"))
+                    .Execute);
 
             var func3 = new DataFrameWorkerFunction(
                 new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
-                    (strings) =>
-                    {
-                        var stringColumn = (StringArray)ToArrowArray(
-                            Enumerable.Range(0, (int)strings.Length)
-                                .Select(i => $"outer2:{strings[(i)]}")
-                                .ToArray());
-                        return ToArrowStringDataFrameColumn(stringColumn);
-                    }).Execute);
+                    (strings) => strings.Apply(cur => $"outer2:{cur}"))
+                    .Execute);
 
             string[] inputString = { "name" };
             var column = (StringArray)ToArrowArray(inputString);
             ArrowStringDataFrameColumn ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
             var input = new DataFrameColumn[]
                 {
-                    new PrimitiveDataFrameColumn<int>("Int", new List<int>() {100 }),
+                    new Int32DataFrameColumn("Int", new List<int>() { 100 }),
                     ArrowStringDataFrameColumn
                 };
 
@@ -294,33 +279,24 @@ namespace Microsoft.Spark.UnitTest
         public void TestInvalidChainingDataFrame()
         {
             var func1 = new DataFrameWorkerFunction(
-                new DataFrameUdfWrapper<PrimitiveDataFrameColumn<int>, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+                new DataFrameUdfWrapper<Int32DataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                     (numbers, strings) =>
                     {
-                        var stringArray = (StringArray)ToArrowArray(
-                            Enumerable.Range(0, (int)strings.Length)
-                                .Select(i => $"{strings[i]}:{numbers[i]}")
-                                .ToArray());
-                        return ToArrowStringDataFrameColumn(stringArray);
+                        long i = 0;
+                        return strings.Apply(cur => $"{cur}:{numbers[i++]}");
                     }).Execute);
 
             var func2 = new DataFrameWorkerFunction(
                 new DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
-                    (strings) =>
-                    {
-                        var stringArray = (StringArray)ToArrowArray(
-                             Enumerable.Range(0, (int)strings.Length)
-                                .Select(i => $"outer1:{strings[i]}")
-                                .ToArray());
-                        return ToArrowStringDataFrameColumn(stringArray);
-                    }).Execute);
+                    (strings) => strings.Apply(cur => $"outer1:{cur}"))
+                    .Execute);
 
             string[] inputString = { "name" };
             var column = (StringArray)ToArrowArray(inputString);
             ArrowStringDataFrameColumn ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
             var input = new DataFrameColumn[]
                 {
-                    new PrimitiveDataFrameColumn<int>("Int", new List<int>() {100 }),
+                    new Int32DataFrameColumn("Int", new List<int>() { 100 }),
                     ArrowStringDataFrameColumn
                 };
 
