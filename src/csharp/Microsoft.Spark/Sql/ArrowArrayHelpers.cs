@@ -42,49 +42,49 @@ namespace Microsoft.Spark.Sql
         public static DataFrameColumn CreateEmptyColumn<T>()
         {
             Type type = typeof(T);
-            if (type == typeof(PrimitiveDataFrameColumn<bool>))
+            if (type == typeof(BooleanDataFrameColumn))
             {
-                return new PrimitiveDataFrameColumn<bool>("Empty");
+                return new BooleanDataFrameColumn("Empty");
             }
-            else if (type == typeof(PrimitiveDataFrameColumn<sbyte>))
+            else if (type == typeof(SByteDataFrameColumn))
             {
-                return new PrimitiveDataFrameColumn<sbyte>("Empty");
+                return new SByteDataFrameColumn("Empty");
             }
-            else if (type == typeof(PrimitiveDataFrameColumn<byte>))
+            else if (type == typeof(ByteDataFrameColumn))
             {
-                return new PrimitiveDataFrameColumn<byte>("Empty");
+                return new ByteDataFrameColumn("Empty");
             }
-            else if (type == typeof(PrimitiveDataFrameColumn<short>))
+            else if (type == typeof(Int16DataFrameColumn))
             {
-                return new PrimitiveDataFrameColumn<short>("Empty");
+                return new Int16DataFrameColumn("Empty");
             }
-            else if (type == typeof(PrimitiveDataFrameColumn<ushort>))
+            else if (type == typeof(UInt16DataFrameColumn))
             {
-                return new PrimitiveDataFrameColumn<ushort>("Empty");
+                return new UInt16DataFrameColumn("Empty");
             }
-            else if (type == typeof(PrimitiveDataFrameColumn<int>))
+            else if (type == typeof(Int32DataFrameColumn))
             {
-                return new PrimitiveDataFrameColumn<int>("Empty");
+                return new Int32DataFrameColumn("Empty");
             }
-            else if (type == typeof(PrimitiveDataFrameColumn<uint>))
+            else if (type == typeof(UInt32DataFrameColumn))
             {
-                return new PrimitiveDataFrameColumn<uint>("Empty");
+                return new UInt32DataFrameColumn("Empty");
             }
-            else if (type == typeof(PrimitiveDataFrameColumn<long>))
+            else if (type == typeof(Int64DataFrameColumn))
             {
-                return new PrimitiveDataFrameColumn<long>("Empty");
+                return new Int64DataFrameColumn("Empty");
             }
-            else if (type == typeof(PrimitiveDataFrameColumn<ulong>))
+            else if (type == typeof(UInt64DataFrameColumn))
             {
-                return new PrimitiveDataFrameColumn<ulong>("Empty");
+                return new UInt64DataFrameColumn("Empty");
             }
-            else if (type == typeof(PrimitiveDataFrameColumn<float>))
+            else if (type == typeof(SingleDataFrameColumn))
             {
-                return new PrimitiveDataFrameColumn<float>("Empty");
+                return new SingleDataFrameColumn("Empty");
             }
-            else if (type == typeof(PrimitiveDataFrameColumn<double>))
+            else if (type == typeof(DoubleDataFrameColumn))
             {
-                return new PrimitiveDataFrameColumn<double>("Empty");
+                return new DoubleDataFrameColumn("Empty");
             }
             else if (type == typeof(ArrowStringDataFrameColumn))
             {
