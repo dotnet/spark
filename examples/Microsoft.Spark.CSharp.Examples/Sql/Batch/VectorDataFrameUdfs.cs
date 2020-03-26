@@ -58,14 +58,13 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             spark.Stop();
         }
 
-        private static FxDataFrame CountCharacters(
-            FxDataFrame dataFrame)
+        private static FxDataFrame CountCharacters(FxDataFrame dataFrame)
         {
             int characterCount = 0;
 
-            var characterCountColumn = new PrimitiveDataFrameColumn<int>("name" + "CharCount");
-            var ageColumn = new PrimitiveDataFrameColumn<int>("age");
-            ArrowStringDataFrameColumn nameColumn = dataFrame["name"] as ArrowStringDataFrameColumn;
+            var characterCountColumn = new Int32DataFrameColumn("nameCharCount");
+            var ageColumn = new Int32DataFrameColumn("age");
+            ArrowStringDataFrameColumn nameColumn = dataFrame.Columns.GetArrowStringColumn("name");
             for (long i = 0; i < dataFrame.Rows.Count; ++i)
             {
                 characterCount += nameColumn[i].Length;
@@ -74,7 +73,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             if (dataFrame.Rows.Count > 0)
             {
                 characterCountColumn.Append(characterCount);
-                ageColumn.Append((int?)dataFrame["age"][0]);
+                ageColumn.Append(dataFrame.Columns.GetInt32Column("age")[0]);
             }
 
             return new FxDataFrame(ageColumn, characterCountColumn);
