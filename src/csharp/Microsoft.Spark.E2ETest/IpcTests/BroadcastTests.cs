@@ -75,6 +75,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             bc1.Destroy();
 
+            // Throws the following exception:
+            // ERROR Utils: Exception encountered
+            //  org.apache.spark.SparkException: Attempted to use Broadcast(0) after it was destroyed(destroy at NativeMethodAccessorImpl.java:0)
+            //  at org.apache.spark.broadcast.Broadcast.assertValid(Broadcast.scala:144)
+            //  at org.apache.spark.broadcast.TorrentBroadcast$$anonfun$writeObject$1.apply$mcV$sp(TorrentBroadcast.scala:203)
+            //  at org.apache.spark.broadcast.TorrentBroadcast$$anonfun$writeObject$1.apply(TorrentBroadcast.scala:202)
+            //  at org.apache.spark.broadcast.TorrentBroadcast$$anonfun$writeObject$1.apply(TorrentBroadcast.scala:202)
+            //  at org.apache.spark.util.Utils$.tryOrIOException(Utils.scala:1326)
+            //  at org.apache.spark.broadcast.TorrentBroadcast.writeObject(TorrentBroadcast.scala:202)
+            //  at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
             try
             {
                 Row[] testRows = _df.Select(udf(_df["_1"])).Collect().ToArray();
