@@ -4,7 +4,7 @@ This is a guide to show how to use Broadcast variables in .NET for Apache Spark.
 
 ## What are Broadcast variables
 
-Broadcast variables in Apache Spark is a mechanism for sharing variables across executors that are meant to be read-only. They allow the programmer to keep a read-only variable cached on each machine rather than shipping a copy of it with tasks. They can be used, for example, to give every node a copy of a large input dataset in an efficient manner.
+[Broadcast variables in Apache Spark](https://spark.apache.org/docs/2.2.0/rdd-programming-guide.html#broadcast-variables) is a mechanism for sharing variables across executors that are meant to be read-only. They allow the programmer to keep a read-only variable cached on each machine rather than shipping a copy of it with tasks. They can be used, for example, to give every node a copy of a large input dataset in an efficient manner.
 
 ### How to use Broadcast variables in .NET for Apache Spark
 

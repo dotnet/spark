@@ -4,7 +4,7 @@ This is a guide to show how to use UDFs in .NET for Apache Spark.
 
 ## What are UDFs
 
-User-Defined Functions (UDFs) are a feature of Spark that allow developers to use custom functions to extend the vocabulary of Spark SQL’s Domain Specific Language. They transform values from a single row within a table to produce a single corresponding output value per row based on the logic defined in the UDF.
+[User-Defined Functions (UDFs)](https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/expressions/UserDefinedFunction.html) are a feature of Spark that allow developers to use custom functions to extend the vocabulary of Spark SQL’s Domain Specific Language. They transform values from a single row within a table to produce a single corresponding output value per row based on the logic defined in the UDF.
 
 Let's take the following as an example for a UDF definition:
 
