@@ -44,7 +44,7 @@ jobs:
       filename: script\download-spark-distros.cmd
       arguments: $(Build.BinariesDirectory)
 
-  - task: BatchScript@2
+  - task: BatchScript@1
     displayName: Download oldest compatible worker version
     inputs:
       filename: script\download-worker-release.cmd
