@@ -26,7 +26,7 @@ jobs:
       _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
     HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
     DOTNET_WORKER_DIR: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp3.1\win-x64
-    oldestCompatibleWorker: 0.9.0
+    oldestCompatibleWorker: '0.9.0'
 
   steps:
   - task: Maven@3
