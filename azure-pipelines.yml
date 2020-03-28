@@ -67,7 +67,7 @@ jobs:
       arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
-      DOTNET_WORKER_DIR: "$(Build.BinariesDirectory)\Microsoft.Spark.Worker\Microsoft.Spark.Worker-{{oldestCompatibleWorker}}"
+      DOTNET_WORKER_DIR: "$(Build.BinariesDirectory)\\Microsoft.Spark.Worker\\Microsoft.Spark.Worker-{{oldestCompatibleWorker}}"
 
   - task: DotNetCoreCLI@2
     displayName: '.NET unit tests'
