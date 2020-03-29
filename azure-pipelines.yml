@@ -68,9 +68,9 @@ jobs:
   - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 2.3.0 with oldest compatible worker $(oldestCompatibleWorker)'
     inputs:
-      command: test --filter (Name!~TestDataFrameGroupedMapUdf) & (Name!~TestDataFrameVectorUdf)
+      command: test
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
+      arguments: '--configuration $(buildConfiguration) --filter (Name!~TestDataFrameGroupedMapUdf) & (Name!~TestDataFrameVectorUdf)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
       DOTNET_WORKER_DIR: $(Build.BinariesDirectory)\Microsoft.Spark.Worker-$(oldestCompatibleWorker)
