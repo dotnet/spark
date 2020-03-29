@@ -10,6 +10,7 @@ variables:
   buildConfiguration: 'Release'
   _SignType: real
   _TeamName: DotNetSpark
+  oldestCompatibleWorker: '0.8.0'
 
   # Azure DevOps variables are transformed into environment variables, with these variables we
   # avoid the first time experience and telemetry to speed up the build.
@@ -25,8 +26,6 @@ jobs:
     ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
       _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
     HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
-    - name: oldestCompatibleWorker
-      value: 0.8.0
 
   steps:
   - task: Maven@3
