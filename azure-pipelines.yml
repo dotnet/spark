@@ -10,7 +10,7 @@ variables:
   buildConfiguration: 'Release'
   _SignType: real
   _TeamName: DotNetSpark
-  oldestCompatibleWorker: '0.8.0'
+  oldestCompatibleWorker: '0.9.0'
 
   # Azure DevOps variables are transformed into environment variables, with these variables we
   # avoid the first time experience and telemetry to speed up the build.
