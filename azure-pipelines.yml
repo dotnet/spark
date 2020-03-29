@@ -25,7 +25,8 @@ jobs:
     ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
       _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
     HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
-    oldestCompatibleWorker: "{{ 0.9.0 }}"
+    - name: oldestCompatibleWorker
+      value: 0.8.0
 
   steps:
   - task: Maven@3
@@ -66,14 +67,14 @@ jobs:
       arguments: '--configuration $(buildConfiguration)'
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.1 with oldest compatible worker'
+    displayName: 'E2E tests for Spark 2.3.1 with oldest compatible worker $(oldestCompatibleWorker)'
     inputs:
       command: test
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
-      DOTNET_WORKER_DIR: "$(Build.BinariesDirectory)\\Microsoft.Spark.Worker\\Microsoft.Spark.Worker-{{ oldestCompatibleWorker }}"
+      DOTNET_WORKER_DIR: $(Build.BinariesDirectory)\Microsoft.Spark.Worker\Microsoft.Spark.Worker-$(oldestCompatibleWorker)
 
   - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 2.3.2 with oldest compatible worker'
