@@ -43,7 +43,7 @@ namespace Microsoft.Spark.Sql.Types
             int second,
             int microsecond)
         {
-            if (microsecond <= 999999 && microsecond >= 0)
+            if ((0 <= microsecond) && (microsecond <= 999999))
             {
                 // Create DateTime and AddTicks based on the microsecond value.
                 _dateTime = new DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc)
@@ -52,7 +52,7 @@ namespace Microsoft.Spark.Sql.Types
             else
             {
                 throw new ArgumentOutOfRangeException($"Invalid microsecond value {microsecond}. " +
-                    $"The microsecond is from 0 through 999999.");
+                    $"The microsecond should be in the range of [0, 999999].");
             }
         }
 
@@ -126,7 +126,7 @@ namespace Microsoft.Spark.Sql.Types
         /// <returns>Double object that represents the number of seconds from the epoch of
         /// 1970-01-01T00:00:00.000000Z(UTC+00:00)</returns>
         internal double GetIntervalInSeconds() =>
-            (_dateTime.Ticks - TimestampType.s_unixTimeEpoch.Ticks) / 10000000.0;
+            (_dateTime.Ticks - DateType.s_unixTimeEpoch.Ticks) / 10000000.0;
 
         /// <summary>
         /// Returns a long object that represents the number of microseconds from the epoch of
@@ -135,6 +135,6 @@ namespace Microsoft.Spark.Sql.Types
         /// <returns>Long object that represents the number of microseconds from the epoch of
         /// 1970-01-01T00:00:00.000000Z(UTC+00:00)</returns>
         internal long GetIntervalInMicroseconds() =>
-            (_dateTime.Ticks - TimestampType.s_unixTimeEpoch.Ticks) / 10;
+            (_dateTime.Ticks - DateType.s_unixTimeEpoch.Ticks) / 10;
     }
 }

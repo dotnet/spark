@@ -69,7 +69,8 @@ namespace Microsoft.Spark.Sql.Types
     /// </summary>
     public sealed class DateType : AtomicType
     {
-        internal static readonly DateTime s_unixTimeEpoch = new DateTime(1970, 1, 1);
+        internal static readonly DateTime s_unixTimeEpoch =
+            new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         internal override bool NeedConversion() => true;
 
@@ -91,9 +92,6 @@ namespace Microsoft.Spark.Sql.Types
     /// </summary>
     public sealed class TimestampType : AtomicType
     {
-        internal static readonly DateTime s_unixTimeEpoch =
-            new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
         internal override bool NeedConversion() => true;
 
         /// <summary>
@@ -113,7 +111,8 @@ namespace Microsoft.Spark.Sql.Types
             {
                 val = (int)obj;
             }
-            return new Timestamp(new DateTime(val * 10 + s_unixTimeEpoch.Ticks, DateTimeKind.Utc));
+            return new Timestamp(
+                new DateTime(val * 10 + DateType.s_unixTimeEpoch.Ticks, DateTimeKind.Utc));
         }
     }
 
