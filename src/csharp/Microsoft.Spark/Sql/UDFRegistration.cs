@@ -461,6 +461,18 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Helper function to register wrapped udf.
         /// </summary>
+        /// <typeparam name="TResult">Return type of the udf</typeparam>
+        /// <param name="name">Name of the udf</param>
+        /// <param name="func">Wrapped UDF function</param>
+        /// <param name="evalType">The EvalType of the function.</param>
+        internal void Register<TResult>(string name, Delegate func, UdfUtils.PythonEvalType evalType)
+        {
+            Register(name, func, evalType, UdfUtils.GetReturnType(typeof(TResult)));
+        }
+
+        /// <summary>
+        /// Helper function to register wrapped udf.
+        /// </summary>
         /// <param name="name">Name of the udf</param>
         /// <param name="func">Wrapped UDF function</param>
         /// <param name="evalType">The EvalType of the function.</param>
