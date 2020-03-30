@@ -477,7 +477,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="func">Wrapped UDF function</param>
         /// <param name="evalType">The EvalType of the function</param>
         /// <param name="returnType">The return type of the function in JSON format</param>
-        internal void Register(string name, Delegate func, UdfUtils.PythonEvalType evalType, string returnType)
+        private void Register(string name, Delegate func, UdfUtils.PythonEvalType evalType, string returnType)
         {
             byte[] command = CommandSerDe.Serialize(
                 func,
