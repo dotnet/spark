@@ -305,7 +305,7 @@ namespace Microsoft.Spark
         /// object for reading it in distributed functions. The variable will be sent to each 
         /// executor only once.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">Type of the variable being broadcast</typeparam>
         /// <param name="value">Value/variable to be broadcast</param>
         /// <returns>A Microsoft.Spark.Broadcast object</returns>
         public Broadcast<T> Broadcast<T>(T value)

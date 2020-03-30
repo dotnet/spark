@@ -20,34 +20,38 @@ namespace Microsoft.Spark
     public sealed class Broadcast<T> : IJvmObjectReferenceProvider
     {
         [NonSerialized]
-        private readonly JvmObjectReference _jvmObject;
-        private readonly long _bid;
-        [NonSerialized]
         private readonly string _path;
+        [NonSerialized]
+        private readonly JvmObjectReference _jvmObject;
+
+        private readonly long _bid;
 
         internal Broadcast(SparkContext sc, T value)
         {
-            SparkConf sparkConf = sc.GetConf();
-            var localDir = (string)((IJvmObjectReferenceProvider)sc).Reference.Jvm.
-                CallStaticJavaMethod("org.apache.spark.util.Utils", "getLocalDir", sparkConf);
+            _path = CreateTempFilePath(sc.GetConf());
+            _jvmObject = CreateBroadcast(sc, value);
 
-            _path = CreateTempFilePath(localDir);
-            Version version = SparkEnvironment.SparkVersion;
+            //SparkConf sparkConf = sc.GetConf();
+            //var localDir = (string)((IJvmObjectReferenceProvider)sc).Reference.Jvm.
+            //    CallStaticJavaMethod("org.apache.spark.util.Utils", "getLocalDir", sparkConf);
 
-            var javaSparkContext = (JvmObjectReference)((IJvmObjectReferenceProvider)sc).Reference
-            .Jvm.CallStaticJavaMethod(
-                "org.apache.spark.api.java.JavaSparkContext",
-                "fromSparkContext",
-                ((IJvmObjectReferenceProvider)sc).Reference);
+            //_path = CreateTempFilePath(localDir);
+            //Version version = SparkEnvironment.SparkVersion;
 
-            _jvmObject = (version.Major, version.Minor) switch
-            {
-                (2, 3) when version.Build == 0 || version.Build == 1 =>
-                    CreateBroadcast_V2_3_1_AndBelow(javaSparkContext, value),
-                (2, 3) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext,sc, value),
-                (2, 4) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
-                _ => throw new NotSupportedException($"Spark {version} not supported.")
-            };
+            //var javaSparkContext = (JvmObjectReference)((IJvmObjectReferenceProvider)sc).Reference
+            //.Jvm.CallStaticJavaMethod(
+            //    "org.apache.spark.api.java.JavaSparkContext",
+            //    "fromSparkContext",
+            //    ((IJvmObjectReferenceProvider)sc).Reference);
+
+            //_jvmObject = (version.Major, version.Minor) switch
+            //{
+            //    (2, 3) when version.Build == 0 || version.Build == 1 =>
+            //        CreateBroadcast_V2_3_1_AndBelow(javaSparkContext, value),
+            //    (2, 3) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext,sc, value),
+            //    (2, 4) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
+            //    _ => throw new NotSupportedException($"Spark {version} not supported.")
+            //};
 
             _bid = (long)_jvmObject.Invoke("id");
         }
@@ -60,7 +64,7 @@ namespace Microsoft.Spark
         /// <returns>The broadcasted value</returns>
         public T Value()
         {
-            return (T)BroadcastRegistry.Use(_bid);
+            return (T)BroadcastRegistry.Get(_bid);
         }
 
         /// <summary>
@@ -98,11 +102,109 @@ namespace Microsoft.Spark
         /// Serialization callback function that adds to the JvmBroadcastRegistry when the
         /// Broadcast variable object is being serialized.
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">The current StreaminContext being used</param>
         [OnSerialized]
         internal void OnSerialized(StreamingContext context)
         {
             JvmBroadcastRegistry.Add(_jvmObject);
+        }
+
+        /// <summary>
+        /// Function that creates a temporary directory inside the given directory and returns the
+        /// absolute filepath of temporary file name in that directory.
+        /// </summary>
+        /// <param name="conf">SparkConf object</param>
+        /// <returns>Absolute filepath of the created random file</returns>
+        private string CreateTempFilePath(SparkConf conf)
+        {
+            IJvmBridge jvm = ((IJvmObjectReferenceProvider)conf).Reference.Jvm;
+            var localDir = (string)jvm.CallStaticJavaMethod(
+                "org.apache.spark.util.Utils",
+                "getLocalDir",
+                conf);
+            string dir = Path.Combine(localDir, "sparkdotnet");
+            Directory.CreateDirectory(dir);
+            return Path.Combine(dir, Path.GetRandomFileName());
+        }
+
+        /// <summary>
+        /// Function to create the Broadcast variable (org.apache.spark.broadcast.Broadcast)
+        /// </summary>
+        /// <param name="sc"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private JvmObjectReference CreateBroadcast(SparkContext sc, T value)
+        {
+            IJvmBridge jvm = ((IJvmObjectReferenceProvider)sc).Reference.Jvm;
+            var javaSparkContext = (JvmObjectReference)jvm.CallStaticJavaMethod(
+                "org.apache.spark.api.java.JavaSparkContext",
+                "fromSparkContext",
+                sc);
+
+            Version version = SparkEnvironment.SparkVersion;
+            return (version.Major, version.Minor) switch
+            {
+                (2, 3) when version.Build == 0 || version.Build == 1 =>
+                    CreateBroadcast_V2_3_1_AndBelow(javaSparkContext, value),
+                (2, 3) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
+                (2, 4) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
+                _ => throw new NotSupportedException($"Spark {version} not supported.")
+            };
+        }
+
+        /// <summary>
+        /// Calls the necessary functions to create org.apache.spark.broadcast.Broadcast object
+        /// for Spark versions 2.3.0 and 2.3.1 and returns the JVMObjectReference object.
+        /// </summary>
+        /// <param name="javaSparkContext">Java Spark context object</param>
+        /// <param name="value">Broadcast value of type object</param>
+        /// <returns></returns>
+        private JvmObjectReference CreateBroadcast_V2_3_1_AndBelow(
+            JvmObjectReference javaSparkContext,
+            object value)
+        {
+            WriteToFile(value);
+            return (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
+                "org.apache.spark.api.python.PythonRDD",
+                "readBroadcastFromFile",
+                javaSparkContext,
+                _path);
+        }
+
+        /// <summary>
+        /// Calls the necessary Spark functions to create org.apache.spark.broadcast.Broadcast
+        /// object for Spark versions 2.3.2 and above, and returns the JVMObjectReference object.
+        /// </summary>
+        /// <param name="javaSparkContext">Java Spark context object</param>
+        /// <param name="sc">SparkContext object</param>
+        /// <param name="value">Broadcast value of type object</param>
+        /// <returns></returns>
+        private JvmObjectReference CreateBroadcast_V2_3_2_AndAbove(
+            JvmObjectReference javaSparkContext,
+            SparkContext sc,
+            object value)
+        {
+            bool encryptionEnabled = bool.Parse(
+                sc.GetConf().Get("spark.io.encryption.enabled", "false"));
+
+            if (encryptionEnabled)
+            {
+                throw new NotImplementedException("Broadcast encryption is not supported yet.");
+            }
+            else
+            {
+                WriteToFile(value);
+            }
+
+            var pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
+                "org.apache.spark.api.python.PythonRDD",
+                "setupBroadcast",
+                _path);
+
+            return (JvmObjectReference)javaSparkContext.Jvm.CallNonStaticJavaMethod(
+                javaSparkContext,
+                "broadcast",
+                pythonBroadcast);
         }
 
         /// <summary>
@@ -125,76 +227,6 @@ namespace Microsoft.Spark
             var formatter = new BinaryFormatter();
             formatter.Serialize(stream, value);
         }
-
-        /// <summary>
-        /// Function that creates a temporary directory inside the given directory and returns the
-        /// absolute filepath of temporary file name in that directory.
-        /// </summary>
-        /// <param name="dir"></param>
-        /// <returns></returns>
-        private string CreateTempFilePath(string dir)
-        {
-            var tempDir = Path.Combine(dir, "sparkdotnet");
-            Directory.CreateDirectory(tempDir);
-            return Path.Combine(tempDir, Path.GetRandomFileName());
-        }
-
-        /// <summary>
-        /// Calls the necessary functions to create org.apache.spark.broadcast.Broadcast object
-        /// for Spark versions 2.3.0 and 2.3.1 and returns the JVMObjectReference object.
-        /// </summary>
-        /// <param name="javaSparkContext">Java Spark context object</param>
-        /// <param name="value">Broadcast value of type object</param>
-        /// <returns></returns>
-        private JvmObjectReference CreateBroadcast_V2_3_1_AndBelow(
-            JvmObjectReference javaSparkContext,
-            object value)
-        {
-            WriteToFile(value);
-            
-            return (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.api.python.PythonRDD",
-                "readBroadcastFromFile",
-                javaSparkContext,
-                _path);
-        }
-
-        /// <summary>
-        /// Calls the necessary Spark functions to create org.apache.spark.broadcast.Broadcast
-        /// object for Spark versions 2.3.2 and above, and returns the JVMObjectReference object.
-        /// </summary>
-        /// <param name="javaSparkContext">Java Spark context object</param>
-        /// <param name="sc">SparkContext object</param>
-        /// <param name="value">Broadcast value of type object</param>
-        /// <returns></returns>
-        private JvmObjectReference CreateBroadcast_V2_3_2_AndAbove(
-            JvmObjectReference javaSparkContext,
-            SparkContext sc,
-            object value)
-        {
-            var pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.api.python.PythonRDD",
-                "setupBroadcast",
-                _path);
-            
-            SparkConf sparkConf = sc.GetConf();
-            bool encryptionEnabled = bool.Parse(
-                sparkConf.Get("spark.io.encryption.enabled", "false"));
-
-            if (encryptionEnabled)
-            {
-                throw new NotImplementedException("Broadcast encryption is not supported yet.");
-            }
-            else
-            {
-                WriteToFile(value);
-            }
-
-            return (JvmObjectReference)javaSparkContext.Jvm.CallNonStaticJavaMethod(
-                javaSparkContext,
-                "broadcast",
-                pythonBroadcast);
-        }
     }
 
     /// <summary>
@@ -212,7 +244,14 @@ namespace Microsoft.Spark
         /// </summary>
         /// <param name="bid">Id of the Broadcast variable object to add</param>
         /// <param name="value">Value of the Broadcast variable</param>
-        internal static void Add(long bid, object value) => s_registry.TryAdd(bid, value);
+        internal static void Add(long bid, object value)
+        {
+            bool result = s_registry.TryAdd(bid, value);
+            if (!result)
+            {
+                Console.WriteLine($"Broadcast {bid} already exists in the registry.");
+            }
+        }
 
         /// <summary>
         /// Function to remove the Broadcast variable from s_registry.
@@ -220,8 +259,7 @@ namespace Microsoft.Spark
         /// <param name="bid">Id of the Broadcast variable object to remove</param>
         internal static void Remove(long bid)
         {
-            bool result = s_registry.TryRemove(bid, out _);
-            if (!result)
+            if (!s_registry.TryRemove(bid, out _))
             {
                 throw new Exception($"Trying to remove a broadcast {bid} that does not exist.");
             }
@@ -232,7 +270,7 @@ namespace Microsoft.Spark
         /// </summary>
         /// <param name="bid">Id of the Broadcast variable object</param>
         /// <returns>Value of the Broadcast variable with given Id</returns>
-        internal static object Use(long bid) => s_registry[bid];
+        internal static object Get(long bid) => s_registry[bid];
     }
 
     /// <summary>

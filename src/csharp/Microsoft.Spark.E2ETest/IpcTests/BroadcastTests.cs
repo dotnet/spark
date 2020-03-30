@@ -88,6 +88,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             try
             {
                 Row[] testRows = _df.Select(udf(_df["_1"])).Collect().ToArray();
+                Assert.True(false);
             }
             catch (Exception e)
             {
