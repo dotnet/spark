@@ -344,8 +344,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
                 Row[] rows =
                     _spark.Sql("SELECT udf1(name) AS col FROM people")
-                    .Collect()
-                    .ToArray();
+                        .Collect()
+                        .ToArray();
                 Assert.Equal(3, rows.Length);
                 foreach (Row row in rows)
                 {
@@ -373,8 +373,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
                 Row[] rows =
                     _spark.Sql("SELECT udf2(name) AS col, name FROM people")
-                    .Collect()
-                    .ToArray();
+                        .Collect()
+                        .ToArray();
                 Assert.Equal(3, rows.Length);
 
                 foreach (Row row in rows)
@@ -426,8 +426,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
                 Row[] rows =
                     _spark.Sql("SELECT udf3(name) AS col FROM people")
-                    .Collect()
-                    .ToArray();
+                        .Collect()
+                        .ToArray();
                 Assert.Equal(3, rows.Length);
 
                 foreach (Row row in rows)
@@ -468,11 +468,11 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
                 Row[] rows =
                     _spark.Sql("SELECT udf5(udf4(name)) FROM people")
-                    .Collect()
-                    .ToArray();
+                        .Collect()
+                        .ToArray();
                 Assert.Equal(3, rows.Length);
 
-                var expected = new[] { "Michael", "Andy", "Justin" };
+                var expected = new string[] { "Michael", "Andy", "Justin" };
                 for (int i = 0; i < rows.Length; ++i)
                 {
                     Assert.Equal(1, rows[i].Size());
