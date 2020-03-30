@@ -89,8 +89,7 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns the microsecond component of the timestamp.
         /// </summary>
-        public int Microsecond => (int)(_dateTime.Ticks -
-            new DateTime(Year, Month, Day, Hour, Minute, Second).Ticks) / 10;
+        public int Microsecond => (int)(_dateTime.Ticks % 10000000 / 10);
 
         /// <summary>
         /// Readable string representation for this type.
