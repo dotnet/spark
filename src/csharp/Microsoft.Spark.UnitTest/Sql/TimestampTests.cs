@@ -30,7 +30,6 @@ namespace Microsoft.Spark.UnitTest
                 // Validate ToString().
                 Assert.Equal("2020-01-01 08:30:30.000123", timestamp.ToString());
 
-
                 // Validate ToDateTime().
                 Assert.Equal(
                     new DateTime(2020, 1, 1, 8, 30, 30, DateTimeKind.Utc).AddTicks(1230),
