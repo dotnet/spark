@@ -45,9 +45,9 @@ namespace Microsoft.Spark.UnitTest
             }
 
             {
-                // Validate microsecond and TimeZone.
                 var timestamp = new Timestamp(2020, 1, 2, 15, 30, 30, 123456);
 
+                // Validate values.
                 Assert.Equal(2020, timestamp.Year);
                 Assert.Equal(1, timestamp.Month);
                 Assert.Equal(2, timestamp.Day);
@@ -67,7 +67,7 @@ namespace Microsoft.Spark.UnitTest
             }
 
             {
-                // Validate invalid microsecond values.
+                // Validate microsecond values.
                 Assert.Throws<ArgumentOutOfRangeException>(
                     () => new Timestamp(2020, 1, 2, 15, 30, 30, 1234567));
             }
