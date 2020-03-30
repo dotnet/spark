@@ -444,7 +444,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="func">Wrapped UDF function</param>
         private void Register<TResult>(string name, Delegate func)
         {
-            Register(name, func, UdfUtils.PythonEvalType.SQL_BATCHED_UDF, UdfUtils.GetReturnType(typeof(TResult)));
+            Register<TResult>(name, func, UdfUtils.PythonEvalType.SQL_BATCHED_UDF);
         }
 
         /// <summary>
