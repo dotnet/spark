@@ -41,6 +41,7 @@ namespace Microsoft.Spark.Utils
             Pickler.registerCustomPickler(typeof(Row), new RowPickler());
             Pickler.registerCustomPickler(typeof(GenericRow), new GenericRowPickler());
             Pickler.registerCustomPickler(typeof(Date), new DatePickler());
+            Pickler.registerCustomPickler(typeof(Timestamp), new TimestampPickler());
         }
 
         /// <summary>

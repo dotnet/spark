@@ -95,6 +95,7 @@ namespace Microsoft.Spark.Utils
                 {typeof(long), "long"},
                 {typeof(short), "short"},
                 {typeof(Date), "date"},
+                {typeof(Timestamp), "timestamp"},
 
                 // Arrow array types
                 {typeof(BooleanArray), "boolean"},

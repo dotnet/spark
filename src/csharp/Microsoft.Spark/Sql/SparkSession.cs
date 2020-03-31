@@ -167,7 +167,7 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="string"/>
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data"><see cref="IEnumerable"/> of type <see cref="string"/></param>
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<string> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new StringType()));
@@ -175,7 +175,7 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="double"/>
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data"><see cref="IEnumerable"/> of type <see cref="double"/></param>
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<double> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DoubleType()));
@@ -183,7 +183,7 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="bool"/>
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data"><see cref="IEnumerable"/> of type <see cref="bool"/></param>
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<bool> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new BooleanType()));
@@ -191,10 +191,19 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="Date"/>
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data"><see cref="IEnumerable"/> of type <see cref="Date"/></param>
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<Date> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DateType()));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type
+        /// <see cref="Timestamp"/>
+        /// </summary>
+        /// <param name="data"><see cref="IEnumerable"/> of type <see cref="Timestamp"/></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<Timestamp> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new TimestampType()));
 
         /// <summary>
         /// Executes a SQL query using Spark, returning the result as a DataFrame.

@@ -12,7 +12,6 @@ namespace Microsoft.Spark.Sql.Types
     public class Date
     {
         private readonly DateTime _dateTime;
-        private static readonly DateTime s_unixTimeEpoch = new DateTime(1970, 1, 1);
 
         /// <summary>
         /// Constructor for Date class.
@@ -58,7 +57,7 @@ namespace Microsoft.Spark.Sql.Types
         /// Checks if the given object is same as the current object.
         /// </summary>
         /// <param name="obj">Other object to compare against</param>
-        /// <returns>True if the other object is equal.</returns>
+        /// <returns>True if the other object is equal</returns>
         public override bool Equals(object obj) =>
             ReferenceEquals(this, obj) ||
             ((obj is Date date) && Year.Equals(date.Year) && Month.Equals(date.Month) &&
@@ -79,7 +78,7 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Returns an integer object that represents a count of days from 1970-01-01.
         /// </summary>
-        /// <returns>Integer object that represents a count of days from 1970-01-01.</returns>
-        internal int GetInterval() => (_dateTime - s_unixTimeEpoch).Days;
+        /// <returns>Integer object that represents a count of days from 1970-01-01</returns>
+        internal int GetInterval() => (_dateTime - DateType.s_unixTimeEpoch).Days;
     }
 }
