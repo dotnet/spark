@@ -30,29 +30,6 @@ namespace Microsoft.Spark
         {
             _path = CreateTempFilePath(sc.GetConf());
             _jvmObject = CreateBroadcast(sc, value);
-
-            //SparkConf sparkConf = sc.GetConf();
-            //var localDir = (string)((IJvmObjectReferenceProvider)sc).Reference.Jvm.
-            //    CallStaticJavaMethod("org.apache.spark.util.Utils", "getLocalDir", sparkConf);
-
-            //_path = CreateTempFilePath(localDir);
-            //Version version = SparkEnvironment.SparkVersion;
-
-            //var javaSparkContext = (JvmObjectReference)((IJvmObjectReferenceProvider)sc).Reference
-            //.Jvm.CallStaticJavaMethod(
-            //    "org.apache.spark.api.java.JavaSparkContext",
-            //    "fromSparkContext",
-            //    ((IJvmObjectReferenceProvider)sc).Reference);
-
-            //_jvmObject = (version.Major, version.Minor) switch
-            //{
-            //    (2, 3) when version.Build == 0 || version.Build == 1 =>
-            //        CreateBroadcast_V2_3_1_AndBelow(javaSparkContext, value),
-            //    (2, 3) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext,sc, value),
-            //    (2, 4) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
-            //    _ => throw new NotSupportedException($"Spark {version} not supported.")
-            //};
-
             _bid = (long)_jvmObject.Invoke("id");
         }
 
@@ -184,8 +161,10 @@ namespace Microsoft.Spark
             SparkContext sc,
             object value)
         {
-            bool encryptionEnabled = bool.Parse(
-                sc.GetConf().Get("spark.io.encryption.enabled", "false"));
+            bool encryptionEnabled = (bool)javaSparkContext.Jvm.CallStaticJavaMethod(
+                "org.apache.spark.api.python.PythonUtils",
+                "getEncryptionEnabled",
+                javaSparkContext);
 
             if (encryptionEnabled)
             {
