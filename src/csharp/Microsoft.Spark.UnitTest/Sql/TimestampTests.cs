@@ -14,11 +14,10 @@ namespace Microsoft.Spark.UnitTest
         public void TimestampTest()
         {
             {
-                var timestamp = new Timestamp(
-                    new DateTime(2020, 1, 1, 8, 30, 30, DateTimeKind.Utc).AddTicks(1230));
                 var testDate =
                     new DateTime(2020, 1, 1, 8, 30, 30, DateTimeKind.Utc).AddTicks(1230);
-
+                var timestamp = new Timestamp(testDate);
+                
                 // Validate values.
                 Assert.Equal(2020, timestamp.Year);
                 Assert.Equal(1, timestamp.Month);
@@ -46,8 +45,6 @@ namespace Microsoft.Spark.UnitTest
 
             {
                 var timestamp = new Timestamp(2020, 1, 2, 15, 30, 30, 123456);
-                var testDate =
-                    new DateTime(2020, 1, 2, 15, 30, 30, DateTimeKind.Utc).AddTicks(1234560);
 
                 // Validate values.
                 Assert.Equal(2020, timestamp.Year);
@@ -63,7 +60,9 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Equal("2020-01-02 15:30:30.123456", timestamp.ToString());
 
                 // Validate ToDateTime().
-                Assert.Equal(testDate, timestamp.ToDateTime());
+                Assert.Equal(
+                    new DateTime(2020, 1, 2, 15, 30, 30, DateTimeKind.Utc).AddTicks(1234560),
+                    timestamp.ToDateTime());
             }
 
             {
