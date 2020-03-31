@@ -161,10 +161,8 @@ namespace Microsoft.Spark
             SparkContext sc,
             object value)
         {
-            bool encryptionEnabled = (bool)javaSparkContext.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.api.python.PythonUtils",
-                "getEncryptionEnabled",
-                javaSparkContext);
+            bool encryptionEnabled = bool.Parse(
+                sc.GetConf().Get("spark.io.encryption.enabled", "false"));
 
             if (encryptionEnabled)
             {
