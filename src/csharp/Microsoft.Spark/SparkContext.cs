@@ -300,6 +300,19 @@ namespace Microsoft.Spark
         }
 
         /// <summary>
+        /// Broadcast a read-only variable to the cluster, returning a Microsoft.Spark.Broadcast
+        /// object for reading it in distributed functions. The variable will be sent to each 
+        /// executor only once.
+        /// </summary>
+        /// <typeparam name="T">Type of the variable being broadcast</typeparam>
+        /// <param name="value">Value of the broadcast variable</param>
+        /// <returns>A Broadcast object of type <see cref="Broadcast{T}(T)"/></returns>
+        public Broadcast<T> Broadcast<T>(T value)
+        {
+            return new Broadcast<T>(this, value);
+        }
+
+        /// <summary>
         /// Returns JVM object reference to JavaRDD object transformed
         /// from a Scala RDD object.
         /// </summary>

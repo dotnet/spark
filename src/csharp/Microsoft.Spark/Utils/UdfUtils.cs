@@ -95,6 +95,7 @@ namespace Microsoft.Spark.Utils
                 {typeof(long), "long"},
                 {typeof(short), "short"},
                 {typeof(Date), "date"},
+                {typeof(Timestamp), "timestamp"},
 
                 // Arrow array types
                 {typeof(BooleanArray), "boolean"},
@@ -163,6 +164,9 @@ namespace Microsoft.Spark.Utils
         internal static JvmObjectReference CreatePythonFunction(IJvmBridge jvm, byte[] command)
         {
             var arrayList = new ArrayList(jvm);
+            var broadcastVariables = new ArrayList(jvm);
+            broadcastVariables.AddAll(JvmBroadcastRegistry.GetAll());
+            JvmBroadcastRegistry.Clear();
 
             return (JvmObjectReference)jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.SQLUtils",
@@ -172,7 +176,7 @@ namespace Microsoft.Spark.Utils
                 arrayList, // Python includes
                 SparkEnvironment.ConfigurationService.GetWorkerExePath(),
                 Versions.CurrentVersion,
-                arrayList, // Broadcast variables
+                broadcastVariables,
                 null); // Accumulator
         }
 
