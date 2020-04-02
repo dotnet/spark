@@ -82,8 +82,7 @@ namespace Microsoft.Spark
         }
 
         /// <summary>
-        /// Constructor where SparkContext object is already created. Also creates a static 
-        /// registry to store active broadcast variables created through this SparkContext.
+        /// Constructor where SparkContext object is already created.
         /// </summary>
         /// <param name="jvmObject">JVM object reference for this SparkContext object</param>
         internal SparkContext(JvmObjectReference jvmObject)
@@ -306,8 +305,8 @@ namespace Microsoft.Spark
         /// executor only once.
         /// </summary>
         /// <typeparam name="T">Type of the variable being broadcast</typeparam>
-        /// <param name="value">Value/variable to be broadcast</param>
-        /// <returns>A Microsoft.Spark.Broadcast object</returns>
+        /// <param name="value">Value of the broadcast variable</param>
+        /// <returns>A Broadcast object of type <see cref="Broadcast{T}(T)"/></returns>
         public Broadcast<T> Broadcast<T>(T value)
         {
             return new Broadcast<T>(this, value);

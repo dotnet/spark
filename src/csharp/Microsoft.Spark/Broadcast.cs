@@ -6,6 +6,8 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Services;
+
 
 namespace Microsoft.Spark
 {
@@ -107,9 +109,9 @@ namespace Microsoft.Spark
         /// <summary>
         /// Function to create the Broadcast variable (org.apache.spark.broadcast.Broadcast)
         /// </summary>
-        /// <param name="sc"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="sc">SparkContext object of type <see cref="SparkContext"/></param>
+        /// <param name="value">Broadcast value of type object</param>
+        /// <returns>Returns broadcast variable of type <see cref="JvmObjectReference"/></returns>
         private JvmObjectReference CreateBroadcast(SparkContext sc, T value)
         {
             IJvmBridge jvm = ((IJvmObjectReferenceProvider)sc).Reference.Jvm;
@@ -135,7 +137,7 @@ namespace Microsoft.Spark
         /// </summary>
         /// <param name="javaSparkContext">Java Spark context object</param>
         /// <param name="value">Broadcast value of type object</param>
-        /// <returns></returns>
+        /// <returns>Returns broadcast variable of type <see cref="JvmObjectReference"/></returns>
         private JvmObjectReference CreateBroadcast_V2_3_1_AndBelow(
             JvmObjectReference javaSparkContext,
             object value)
@@ -155,12 +157,15 @@ namespace Microsoft.Spark
         /// <param name="javaSparkContext">Java Spark context object</param>
         /// <param name="sc">SparkContext object</param>
         /// <param name="value">Broadcast value of type object</param>
-        /// <returns></returns>
+        /// <returns>Returns broadcast variable of type <see cref="JvmObjectReference"/></returns>
         private JvmObjectReference CreateBroadcast_V2_3_2_AndAbove(
             JvmObjectReference javaSparkContext,
             SparkContext sc,
             object value)
         {
+            // Using SparkConf.Get() and passing default value of 'false' instead of  using 
+            // PythonUtils.getEncryptionEnabled as the latter is a changing API wrt different
+            // Spark versions.
             bool encryptionEnabled = bool.Parse(
                 sc.GetConf().Get("spark.io.encryption.enabled", "false"));
 
@@ -178,10 +183,7 @@ namespace Microsoft.Spark
                 "setupBroadcast",
                 _path);
 
-            return (JvmObjectReference)javaSparkContext.Jvm.CallNonStaticJavaMethod(
-                javaSparkContext,
-                "broadcast",
-                pythonBroadcast);
+            return (JvmObjectReference)javaSparkContext.Invoke("broadcast", pythonBroadcast);
         }
 
         /// <summary>
@@ -215,6 +217,8 @@ namespace Microsoft.Spark
     {
         private static readonly ConcurrentDictionary<long, object> s_registry =
             new ConcurrentDictionary<long, object>();
+        private static readonly ILoggerService s_logger =
+            LoggerServiceFactory.GetLogger(typeof(BroadcastRegistry));
 
         /// <summary>
         /// Function to add the value of the broadcast variable to s_registry.
@@ -226,7 +230,7 @@ namespace Microsoft.Spark
             bool result = s_registry.TryAdd(bid, value);
             if (!result)
             {
-                Console.WriteLine($"Broadcast {bid} already exists in the registry.");
+                s_logger.LogInfo($"Broadcast {bid} already exists in the registry.");
             }
         }
 
@@ -238,7 +242,7 @@ namespace Microsoft.Spark
         {
             if (!s_registry.TryRemove(bid, out _))
             {
-                throw new Exception($"Trying to remove a broadcast {bid} that does not exist.");
+                s_logger.LogWarn($"Trying to remove a broadcast {bid} that does not exist.");
             }
         }
 
@@ -277,7 +281,7 @@ namespace Microsoft.Spark
         /// <summary>
         /// Returns the static member s_jvmBroadcastVariables.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A list of all broadcast objects of type <see cref="JvmObjectReference"/></returns>
         internal static List<JvmObjectReference> GetAll() => s_jvmBroadcastVariables;
     }
 }
