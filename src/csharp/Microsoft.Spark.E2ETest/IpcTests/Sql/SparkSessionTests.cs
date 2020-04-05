@@ -142,17 +142,17 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
 
             // Calling CreateDataFrame(IEnumerable<Timestamp> _) without schema
-            {
-                var data = new Timestamp[]
-                {
-                    new Timestamp(2020, 1, 1, 0, 0, 0, 0),
-                    new Timestamp(2020, 1, 2, 15, 30, 30, 0)
-                };
-                StructType schema = SchemaWithSingleColumn(new TimestampType());
+            //{
+            //    var data = new Timestamp[]
+            //    {
+            //        new Timestamp(2020, 1, 1, 0, 0, 0, 0),
+            //        new Timestamp(2020, 1, 2, 15, 30, 30, 0)
+            //    };
+            //    StructType schema = SchemaWithSingleColumn(new TimestampType());
 
-                DataFrame df = _spark.CreateDataFrame(data);
-                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
-            }
+            //    DataFrame df = _spark.CreateDataFrame(data);
+            //    ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
+            //}
         }
 
         private void ValidateDataFrame(
