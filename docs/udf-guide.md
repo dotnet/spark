@@ -4,7 +4,7 @@ This is a guide to show how to use UDFs in .NET for Apache Spark.
 
 ## What are UDFs
 
-[User-Defined Functions (UDFs)](https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/expressions/UserDefinedFunction.html) are a feature of Spark that allow developers to use custom functions to extend the vocabulary of Spark SQL’s Domain Specific Language. They transform values from a single row within a table to produce a single corresponding output value per row based on the logic defined in the UDF.
+[User-Defined Functions (UDFs)](https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/expressions/UserDefinedFunction.html) are a feature of Spark that allow developers to use custom functions to extend the system's built-in functionality. They transform values from a single row within a table to produce a single corresponding output value per row based on the logic defined in the UDF.
 
 Let's take the following as an example for a UDF definition:
 
@@ -47,9 +47,9 @@ This would return the below as the Dataframe `udfResult`:
 
 ## Good to know while implementing UDFs
 
-One behavior to be aware of while implementing UDFs in .NET for Apache Spark is the way target of the UDF gets serialized. .NET for Apache Spark uses .NET Core which does not support serializing delegates, so it is instead done by using reflection to serialize the target where the delegate is defined. When multiple delegates are defined in a common scope, they have a shared closure that becomes the target of reflection for serialization. Let's take an example to illustrate what that means:
+One behavior to be aware of while implementing UDFs in .NET for Apache Spark is how the target of the UDF gets serialized. .NET for Apache Spark uses .NET Core, which does not support serializing delegates, so it is instead done by using reflection to serialize the target where the delegate is defined. When multiple delegates are defined in a common scope, they have a shared closure that becomes the target of reflection for serialization. Let's take an example to illustrate what that means.
 
-Sample user code:
+The following code snippet defines two string variables that are referenced:
 
 ```csharp
 using System;
