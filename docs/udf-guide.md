@@ -1,4 +1,4 @@
-# Guide to User-Defined Functions (UDF)
+# Guide to User-Defined Functions (UDFs)
 
 This is a guide to show how to use UDFs in .NET for Apache Spark.
 
@@ -123,7 +123,7 @@ Recommended user code to implement desired behavior of previous code snippet:
 }
 ```
 
-The above C# code generates the following IL (Intermediate language) code from the compiler:
+The above C# code generates the following C# disassembly (credit source: [sharplab.io](sharplab.io)) code from the compiler:
 
 ```csharp
     public class C
