@@ -63,7 +63,7 @@ The following code snippet defines two string variables that are being reference
             Func<string, string> a = str => s1;
             Func<string, string> b = str => s2;
         }
-}
+    }
 ```
 
 The above C# code generates the following C# disassembly (credit source: [sharplab.io](sharplab.io)) code from the compiler:
@@ -97,7 +97,7 @@ The above C# code generates the following C# disassembly (credit source: [sharpl
             Func<string, string> func = new Func<string, string>(<>c__DisplayClass0_.<M>b__0);
             Func<string, string> func2 = new Func<string, string>(<>c__DisplayClass0_.<M>b__1);
         }
-}
+    }
 ```
 As can be seen in the above IL code, both `func` and `func2` share the same closure `<>c__DisplayClass0_0`, which is the target that is serialized when serializing the delegates `func` and `func2`. Hence, even though `Func<string, string> a` is only referencing `s1`, `s2` also gets serialized when sending over the bytes to the workers.
 
@@ -120,7 +120,7 @@ Recommended user code to implement desired behavior of previous code snippet:
                 Func<string, string> b = str => s2;
             }
         }
-}
+    }
 ```
 
 The above C# code generates the following C# disassembly (credit source: [sharplab.io](sharplab.io)) code from the compiler:
@@ -159,7 +159,7 @@ The above C# code generates the following C# disassembly (credit source: [sharpl
             <>c__DisplayClass0_2.s2 = "s2";
             Func<string, string> func2 = new Func<string, string>(<>c__DisplayClass0_2.<M>b__1);
         }
-}
+    }
 ```
 
 Here we see that `func` and `func2` no longer share a closure and have their own separate closures `<>c__DisplayClass0_0` and `<>c__DisplayClass0_1` respectively. When used as the target for serialization, nothing other than the referenced variables will get serialized for the delegate.
