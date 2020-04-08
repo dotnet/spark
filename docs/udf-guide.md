@@ -9,13 +9,14 @@ This is a guide to show how to use UDFs in .NET for Apache Spark.
 Let's take the following as an example for a UDF definition:
 
 ```csharp
-string s1 = "hello";
-Func<Column, Column> udf = Udf<string, string>(
-    str => $"{s1} {str}");
+    string s1 = "hello";
+    Func<Column, Column> udf = Udf<string, string>(
+        str => $"{s1} {str}");
 
 ```
+The above defined UDF takes a `string` as an input (in the form of a [Column](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Sql/Column.cs#L14) of a [Dataframe](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Sql/DataFrame.cs#L24)), and returns a `string` with `hello` appended infront of the input.
 
-And for a sample Dataframe, let's take the following Dataframe `df`:
+For a sample Dataframe, let's take the following Dataframe `df`:
 
 ```text
     +-------+
@@ -30,7 +31,7 @@ And for a sample Dataframe, let's take the following Dataframe `df`:
 Now let's apply the above defined `udf` to the dataframe `df`:
 
 ```csharp
-DataFrame udfResult = df.Select(udf(df["name"]));
+    DataFrame udfResult = df.Select(udf(df["name"]));
 ```
 
 This would return the below as the Dataframe `udfResult`:
@@ -44,116 +45,123 @@ This would return the below as the Dataframe `udfResult`:
     | hello Justin|
     +-------------+
 ```
+To get a better understanding of how to implement UDFs, please take a look at the [UDF helper functions](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark/Sql/Functions.cs#L3616) and some [test examples](https://github.com/dotnet/spark/blob/master/src/csharp/Microsoft.Spark.E2ETest/UdfTests/UdfSimpleTypesTests.cs#L49).
 
 ## Good to know while implementing UDFs
 
 One behavior to be aware of while implementing UDFs in .NET for Apache Spark is how the target of the UDF gets serialized. .NET for Apache Spark uses .NET Core, which does not support serializing delegates, so it is instead done by using reflection to serialize the target where the delegate is defined. When multiple delegates are defined in a common scope, they have a shared closure that becomes the target of reflection for serialization. Let's take an example to illustrate what that means.
 
-The following code snippet defines two string variables that are referenced:
+The following code snippet defines two string variables that are being referenced in two function delegates, that just return the respective strings as result:
 
 ```csharp
-using System;
+    using System;
 
-public class C {
-    public void M() {
-        string s1 = "s1";
-        string s2 = "s2";
-        Func<string, string> a = str => s1;
-        Func<string, string> b = str => s2;
-    }
+    public class C {
+        public void M() {
+            string s1 = "s1";
+            string s2 = "s2";
+            Func<string, string> a = str => s1;
+            Func<string, string> b = str => s2;
+        }
 }
 ```
 
-The above C# code generates the following IL (Intermediate language) code from the compiler:
+The above C# code generates the following C# disassembly (credit source: [sharplab.io](sharplab.io)) code from the compiler:
 
 ```csharp
-public class C
-{
-    [CompilerGenerated]
-    private sealed class <>c__DisplayClass0_0
+    public class C
     {
-        public string s1;
-
-        public string s2;
-
-        internal string <M>b__0(string str)
+        [CompilerGenerated]
+        private sealed class <>c__DisplayClass0_0
         {
-            return s1;
+            public string s1;
+
+            public string s2;
+
+            internal string <M>b__0(string str)
+            {
+                return s1;
+            }
+
+            internal string <M>b__1(string str)
+            {
+                return s2;
+            }
         }
 
-        internal string <M>b__1(string str)
+        public void M()
         {
-            return s2;
+            <>c__DisplayClass0_0 <>c__DisplayClass0_ = new <>c__DisplayClass0_0();
+            <>c__DisplayClass0_.s1 = "s1";
+            <>c__DisplayClass0_.s2 = "s2";
+            Func<string, string> func = new Func<string, string>(<>c__DisplayClass0_.<M>b__0);
+            Func<string, string> func2 = new Func<string, string>(<>c__DisplayClass0_.<M>b__1);
         }
-    }
-
-    public void M()
-    {
-        <>c__DisplayClass0_0 <>c__DisplayClass0_ = new <>c__DisplayClass0_0();
-        <>c__DisplayClass0_.s1 = "s1";
-        <>c__DisplayClass0_.s2 = "s2";
-        Func<string, string> func = new Func<string, string>(<>c__DisplayClass0_.<M>b__0);
-        Func<string, string> func2 = new Func<string, string>(<>c__DisplayClass0_.<M>b__1);
-    }
 }
 ```
 As can be seen in the above IL code, both `func` and `func2` share the same closure `<>c__DisplayClass0_0`, which is the target that is serialized when serializing the delegates `func` and `func2`. Hence, even though `Func<string, string> a` is only referencing `s1`, `s2` also gets serialized when sending over the bytes to the workers.
-This can lead to some unexpected behaviors at runtime (for example in the case of using Broadcast variables, as explained in more detail in [this guide](broadcast-guide.md)), which is why we recommend restricting the visibility of the variables used in a function to that function's scope.
+
+This can lead to some unexpected behaviors at runtime (like in the case of using [broadcast variables](broadcast-guide.md)), which is why we recommend restricting the visibility of the variables used in a function to that function's scope.
 Taking the above example to better explain what that means:
 
-Recommended user code:
+Recommended user code to implement desired behavior of previous code snippet:
 
 ```csharp
-using System;
+    using System;
 
-public class C {
-    public void M() {
-        string s1 = "s1";
-        string s2 = "s2";
-        Func<string, string> a = str => s1;
-        Func<string, string> b = str => s2;
-    }
+    public class C {
+        public void M() {
+            {
+                string s1 = "s1";
+                Func<string, string> a = str => s1;
+            }
+            {
+                string s2 = "s2";
+                Func<string, string> b = str => s2;
+            }
+        }
 }
 ```
 
 The above C# code generates the following IL (Intermediate language) code from the compiler:
 
 ```csharp
-public class C
-{
-    [CompilerGenerated]
-    private sealed class <>c__DisplayClass0_0
+    public class C
     {
-        public string s1;
-
-        internal string <M>b__0(string str)
+        [CompilerGenerated]
+        private sealed class <>c__DisplayClass0_0
         {
-            return s1;
+            public string s1;
+
+            internal string <M>b__0(string str)
+            {
+                return s1;
+            }
         }
-    }
 
-    [CompilerGenerated]
-    private sealed class <>c__DisplayClass0_1
-    {
-        public string s2;
-
-        internal string <M>b__1(string str)
+        [CompilerGenerated]
+        private sealed class <>c__DisplayClass0_1
         {
-            return s2;
-        }
-    }
+            public string s2;
 
-    public void M()
-    {
-        <>c__DisplayClass0_0 <>c__DisplayClass0_ = new <>c__DisplayClass0_0();
-        <>c__DisplayClass0_.s1 = "s1";
-        Func<string, string> func = new Func<string, string>(<>c__DisplayClass0_.<M>b__0);
-        <>c__DisplayClass0_1 <>c__DisplayClass0_2 = new <>c__DisplayClass0_1();
-        <>c__DisplayClass0_2.s2 = "s2";
-        Func<string, string> func2 = new Func<string, string>(<>c__DisplayClass0_2.<M>b__1);
-    }
+            internal string <M>b__1(string str)
+            {
+                return s2;
+            }
+        }
+
+        public void M()
+        {
+            <>c__DisplayClass0_0 <>c__DisplayClass0_ = new <>c__DisplayClass0_0();
+            <>c__DisplayClass0_.s1 = "s1";
+            Func<string, string> func = new Func<string, string>(<>c__DisplayClass0_.<M>b__0);
+            <>c__DisplayClass0_1 <>c__DisplayClass0_2 = new <>c__DisplayClass0_1();
+            <>c__DisplayClass0_2.s2 = "s2";
+            Func<string, string> func2 = new Func<string, string>(<>c__DisplayClass0_2.<M>b__1);
+        }
 }
 ```
 
-Here we see that `func` and `func2` no longer share a closure and have their own separate closures `<>c__DisplayClass0_0` and `<>c__DisplayClass0_1` respectively, which when used as target for serialization mean that no more than the referenced variables get serialized for the delegate.
+Here we see that `func` and `func2` no longer share a closure and have their own separate closures `<>c__DisplayClass0_0` and `<>c__DisplayClass0_1` respectively. When used as the target for serialization, nothing other than the referenced variables will get serialized for the delegate.
 
+This above behavior is important to keep in mind while implementing multiple UDFs in a common scope. To know more about UDFs in general please go through the following articles that explain UDFs and how to use them: [UDFs in databricks(scala)](https://docs.databricks.com/spark/latest/spark-sql/udf-scala.html), [Spark UDFs and some gotchas](https://medium.com/@achilleus/spark-udfs-we-can-use-them-but-should-we-use-them-2c5a561fde6d).
