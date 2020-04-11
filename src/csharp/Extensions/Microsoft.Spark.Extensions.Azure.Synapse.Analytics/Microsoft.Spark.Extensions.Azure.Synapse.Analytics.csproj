@@ -8,7 +8,7 @@
 
     <Description>Azure Synapse Analytics Extension for .NET for Apache Spark</Description>
     <PackageReleaseNotes>https://github.com/dotnet/spark/tree/master/docs/release-notes</PackageReleaseNotes>
-    <PackageTags>spark;dotnet;csharp;delta;delta lake</PackageTags>
+    <PackageTags>spark;dotnet;csharp;synapse;synapse analytics</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
