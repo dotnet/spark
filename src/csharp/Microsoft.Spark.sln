@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Delta.E2ETest", "Extensions\Microsoft.Spark.Extensions.Delta.E2ETest\Microsoft.Spark.Extensions.Delta.E2ETest.csproj", "{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Azure.Synapse.Analytics", "Extensions\Microsoft.Spark.Extensions.Azure.Synapse.Analytics\Microsoft.Spark.Extensions.Azure.Synapse.Analytics.csproj", "{47652C7D-B076-4FD9-98AC-959E38BE18E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47652C7D-B076-4FD9-98AC-959E38BE18E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47652C7D-B076-4FD9-98AC-959E38BE18E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47652C7D-B076-4FD9-98AC-959E38BE18E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47652C7D-B076-4FD9-98AC-959E38BE18E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,6 +98,7 @@ Global
 		{4E379DB3-7741-43C2-B32D-17AD96FEA7D0} = {C8C53525-4FEB-4B5B-91A2-619566C72F3E}
 		{2048446B-45AB-4304-B230-50EDF6E8E6A4} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
 		{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
+		{47652C7D-B076-4FD9-98AC-959E38BE18E3} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FD15FFDB-EA1B-436F-841D-3386DDF94538}
