@@ -169,16 +169,17 @@ Databricks allows you to submit Spark .NET apps to an existing active cluster or
 
    1. Download **[db-init.sh](../deployment/db-init.sh)** and **[install-worker.sh](../deployment/install-worker.sh)** onto your local machine
    2. Modify **db-init.sh** appropriately to point to the Microsoft.Spark.Worker release you want to download and install on your cluster
-   3. Download and install [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html)
-   4. [Setup authentication](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html#set-up-authentication) details for the Databricks CLI appropriately
-   5. Upload the files you downloaded and modified to your Databricks cluster
+   3. Emsure both the shell scripts End of Line sequence is set to LF and not CRLF.
+   4. Download and install [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html)
+   5. [Setup authentication](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html#set-up-authentication) details for the Databricks CLI appropriately
+   6. Upload the files you downloaded and modified to your Databricks cluster
       ```shell
       cd <path-to-db-init-and-install-worker>
       databricks fs cp db-init.sh dbfs:/spark-dotnet/db-init.sh
       databricks fs cp install-worker.sh dbfs:/spark-dotnet/install-worker.sh
       ```
-   6. Go to your Databricks cluster homepage -> Clusters (on the left-side menu) -> Create Cluster
-   7. After configuring the cluster appropriately, set the init script (see the image below) and create the cluster.
+   7. Go to your Databricks cluster homepage -> Clusters (on the left-side menu) -> Create Cluster
+   8. After configuring the cluster appropriately, set the init script (see the image below) and create the cluster.
 
       <img src="../docs/img/deployment-databricks-init-script.PNG" alt="ScriptActionImage" width="600"/>
 
