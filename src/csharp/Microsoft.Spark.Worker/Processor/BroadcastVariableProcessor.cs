@@ -4,8 +4,10 @@
 
 using System;
 using System.IO;
+using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Network;
 
 namespace Microsoft.Spark.Worker.Processor
 {
@@ -25,6 +27,7 @@ namespace Microsoft.Spark.Worker.Processor
         internal BroadcastVariables Process(Stream stream)
         {
             var broadcastVars = new BroadcastVariables();
+            ISocketWrapper socket = null;
 
             if (_version >= new Version(Versions.V2_3_2))
             {
@@ -37,7 +40,11 @@ namespace Microsoft.Spark.Worker.Processor
             {
                 broadcastVars.DecryptionServerPort = SerDe.ReadInt32(stream);
                 broadcastVars.Secret = SerDe.ReadString(stream);
-                // TODO: Handle the authentication.
+                socket = SocketFactory.CreateSocket();
+                socket.Connect(
+                    IPAddress.Loopback,
+                    broadcastVars.DecryptionServerPort,
+                    broadcastVars.Secret);
             }
 
             var formatter = new BinaryFormatter();
@@ -48,8 +55,14 @@ namespace Microsoft.Spark.Worker.Processor
                 {
                     if (broadcastVars.DecryptionServerNeeded)
                     {
-                        throw new NotImplementedException(
-                            "broadcastDecryptionServer is not implemented.");
+                        var readBid = SerDe.ReadInt64(socket.InputStream);
+                        if (bid != readBid)
+                        {
+                            throw new Exception($"Encrypted broadcast id {readBid} does not " +
+                                $"match regular stream broadcast id {bid}");
+                        }
+                        object value = formatter.Deserialize(socket.InputStream);
+                        BroadcastRegistry.Add(bid, value);
                     }
                     else
                     {
