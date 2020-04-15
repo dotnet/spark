@@ -23,7 +23,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestWord2VecModel()
         {
-
             DataFrame documentDataFrame =
                 _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as text " +
                            "union " +
