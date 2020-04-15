@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Microsoft.Spark.Experimental" />
+    <InternalsVisibleTo Include="Microsoft.Spark.Extensions.Azure.Synapse.Analytics" />
     <InternalsVisibleTo Include="Microsoft.Spark.Extensions.Delta" />
     <InternalsVisibleTo Include="Microsoft.Spark.Extensions.Delta.E2ETest" />
     <InternalsVisibleTo Include="Microsoft.Spark.UnitTest" />
