@@ -108,10 +108,9 @@ namespace Microsoft.Spark.ML.Feature
         /// vocabulary, the default is 5.
         /// </param>
         /// <returns><see cref="Word2Vec"/></returns>
-        public virtual Word2Vec SetMinCount(int value)
-        {
-            return WrapAsWord2Vec(_jvmObject.Invoke("setMinCount", value));
-        }
+        public virtual Word2Vec SetMinCount(int value) => 
+            WrapAsWord2Vec(_jvmObject.Invoke("setMinCount", value));
+        
 
         /// <summary>Gets the maximum number of iterations.</summary>
         /// <returns>The maximum number of iterations.</returns>
@@ -127,10 +126,8 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the maximum length (in words) of each sentence in the input data.
         /// </summary>
         /// <returns>The maximum length (in words) of each sentence in the input data.</returns>
-        public virtual int GetMaxSentenceLength()
-        {
-            return (int)_jvmObject.Invoke("getMaxSentenceLength");
-        }
+        public virtual int GetMaxSentenceLength() => 
+            (int)_jvmObject.Invoke("getMaxSentenceLength");
 
         /// <summary>
         /// Sets the maximum length (in words) of each sentence in the input data.
@@ -198,33 +195,24 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="Word2Vec"/> is created.
         /// </summary>
         /// <returns>string UID identifying the <see cref="Word2Vec"/>.</returns>
-        public string Uid()
-        {
-            return (string)_jvmObject.Invoke("uid");
-        }
-        
+        public string Uid() => (string)_jvmObject.Invoke("uid");
+
         /// <summary>
         /// Loads the <see cref="Word2Vec"/> that was previously saved using Save.
         /// </summary>
         /// <param name="path">The path the previous <see cref="Word2Vec"/> was saved to</param>
         /// <returns>New <see cref="Word2Vec"/> object, loaded from path.</returns>
-        public static Word2Vec Load(string path)
-        {
-            return WrapAsWord2Vec(
+        public static Word2Vec Load(string path) => WrapAsWord2Vec(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_word2VecClassName, "load", path));
-        }
-        
+
         /// <summary>
         /// Saves the <see cref="Word2Vec"/> so that it can be loaded later using Load.
         /// </summary>
         /// <param name="path">The path to save the <see cref="Word2Vec"/> to.</param>
         /// <returns>New <see cref="Word2Vec"/> object.</returns>
-        public Word2Vec Save(string path)
-        {
-            return WrapAsWord2Vec(_jvmObject.Invoke("save", path));
-        }
-        
+        public Word2Vec Save(string path) => WrapAsWord2Vec(_jvmObject.Invoke("save", path));
+
         private static Word2Vec WrapAsWord2Vec(object obj) => 
             new Word2Vec((JvmObjectReference)obj);
     }

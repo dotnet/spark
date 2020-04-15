@@ -42,10 +42,9 @@ namespace Microsoft.Spark.ML.Feature
         /// Transform a sentence column to a vector column to represent the whole sentence.
         /// </summary>
         /// <param name="documentDF"><see cref="Word2VecModel"/> to transform</param>
-        public DataFrame Transform(DataFrame documentDF)
-        {
-            return new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", documentDF));
-        }
+        public DataFrame Transform(DataFrame documentDF) => 
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", documentDF));
+        
 
         /// <summary>
         /// Find "num" number of words whose vector representation most similar to the supplied
@@ -66,22 +65,19 @@ namespace Microsoft.Spark.ML.Feature
         /// The path the previous <see cref="Word2VecModel"/> was saved to
         /// </param>
         /// <returns>New <see cref="Word2VecModel"/> object, loaded from path.</returns>
-        public static Word2VecModel Load(string path)
-        {
-            return WrapAsWord2VecModel(
+        public static Word2VecModel Load(string path) => WrapAsWord2VecModel(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_word2VecModelClassName, "load", path));
-        }
+        
         
         /// <summary>
         /// Saves the <see cref="Word2VecModel"/> so that it can be loaded later using Load.
         /// </summary>
         /// <param name="path">The path to save the <see cref="Word2VecModel"/> to.</param>
         /// <returns>New <see cref="Word2VecModel"/> object.</returns>
-        public Word2VecModel Save(string path)
-        {
-            return WrapAsWord2VecModel(_jvmObject.Invoke("save", path));
-        }
+        public Word2VecModel Save(string path) => 
+            WrapAsWord2VecModel(_jvmObject.Invoke("save", path));
+        
         
         /// <summary>
         /// The uid that was used to create the <see cref="Word2Vec"/>. If no UID is passed in
@@ -89,11 +85,8 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="Word2Vec"/> is created.
         /// </summary>
         /// <returns>string UID identifying the <see cref="Word2Vec"/>.</returns>
-        public string Uid()
-        {
-            return (string)_jvmObject.Invoke("uid");
-        }
-        
+        public string Uid() => (string)_jvmObject.Invoke("uid");
+
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
         
         private static Word2VecModel WrapAsWord2VecModel(object obj) => 
