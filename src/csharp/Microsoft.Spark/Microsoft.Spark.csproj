@@ -35,9 +35,9 @@
 
   <ItemGroup>
     <Content Include="..\..\scala\microsoft-spark-*\target\microsoft-spark-*.jar" 
-           Link="jars\%(Filename)%(Extension)" 
-           Pack="true" 
-           PackagePath="jars\%(Filename)%(Extension)" />
+          Link="jars\%(Filename)%(Extension)" 
+          Pack="true" 
+          PackagePath="jars\%(Filename)%(Extension)" />
     <Content Include="build\**" Pack="true" PackagePath="build" />
   </ItemGroup>
 
