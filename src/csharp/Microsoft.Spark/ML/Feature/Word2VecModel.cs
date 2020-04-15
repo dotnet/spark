@@ -45,7 +45,6 @@ namespace Microsoft.Spark.ML.Feature
         public DataFrame Transform(DataFrame documentDF) => 
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", documentDF));
         
-
         /// <summary>
         /// Find "num" number of words whose vector representation most similar to the supplied
         /// vector. If the supplied vector is the vector representation of a word in the model's
@@ -69,7 +68,6 @@ namespace Microsoft.Spark.ML.Feature
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_word2VecModelClassName, "load", path));
         
-        
         /// <summary>
         /// Saves the <see cref="Word2VecModel"/> so that it can be loaded later using Load.
         /// </summary>
@@ -77,7 +75,6 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>New <see cref="Word2VecModel"/> object.</returns>
         public Word2VecModel Save(string path) => 
             WrapAsWord2VecModel(_jvmObject.Invoke("save", path));
-        
         
         /// <summary>
         /// The uid that was used to create the <see cref="Word2Vec"/>. If no UID is passed in

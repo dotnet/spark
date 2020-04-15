@@ -111,7 +111,6 @@ namespace Microsoft.Spark.ML.Feature
         public virtual Word2Vec SetMinCount(int value) => 
             WrapAsWord2Vec(_jvmObject.Invoke("setMinCount", value));
         
-
         /// <summary>Gets the maximum number of iterations.</summary>
         /// <returns>The maximum number of iterations.</returns>
         public int GetMaxIter() => (int)_jvmObject.Invoke("getMaxIter");
