@@ -24,23 +24,19 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         public void TestWord2VecModel()
         {
             DataFrame documentDataFrame =
-                _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as text " +
-                           "union " +
-                           "SELECT split('I wish c# could use case classes', ' ') as text " +
-                           "union " +
-                           "SELECT split('Logistic regression models are neat', ' ') as text");
-
+                _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as text ");
+            
             Word2Vec word2vec = new Word2Vec()
                 .SetInputCol("text")
                 .SetOutputCol("result")
                 .SetMinCount(1);
             
             Word2VecModel model = word2vec.Fit(documentDataFrame);
-           
-            const int expectedSynonyms = 10;
+
+            const int expectedSynonyms = 2;
             DataFrame synonyms = model.FindSynonyms("Hi", expectedSynonyms);
-            
-            Assert.Equal(synonyms.Count(), expectedSynonyms);
+
+            Assert.Equal(expectedSynonyms, synonyms.Count());
 
             using (var tempDirectory = new TemporaryDirectory())
             {

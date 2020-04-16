@@ -53,23 +53,17 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .SetVectorSize(expectedVectorSize)
                 .SetWindowSize(expectedWindowSize);
             
-            Assert.Equal(word2vec.GetInputCol(), expectedInputCol);
-            Assert.Equal(word2vec.GetOutputCol(), expectedOutputCol);
-            Assert.Equal(word2vec.GetMinCount(), expectedMinCount);
-            Assert.Equal(word2vec.GetMaxIter(), expectedMaxIter);
-            Assert.Equal(word2vec.GetMaxSentenceLength(), expectedMaxSentenceLength);
-            Assert.Equal(word2vec.GetNumPartitions(), expectedNumPartitions);
-            Assert.Equal(word2vec.GetSeed(), expectedSeed);
-            Assert.Equal(word2vec.GetStepSize(), expectedStepSize);
-            Assert.Equal(word2vec.GetVectorSize(), expectedVectorSize);
-            Assert.Equal(word2vec.GetWindowSize(), expectedWindowSize);
+            Assert.Equal(expectedInputCol, word2vec.GetInputCol());
+            Assert.Equal(expectedOutputCol, word2vec.GetOutputCol());
+            Assert.Equal(expectedMinCount, word2vec.GetMinCount());
+            Assert.Equal(expectedMaxIter, word2vec.GetMaxIter());
+            Assert.Equal(expectedMaxSentenceLength, word2vec.GetMaxSentenceLength());
+            Assert.Equal(expectedNumPartitions, word2vec.GetNumPartitions());
+            Assert.Equal(expectedSeed, word2vec.GetSeed());
+            Assert.Equal(expectedStepSize, word2vec.GetStepSize());
+            Assert.Equal(expectedVectorSize, word2vec.GetVectorSize());
+            Assert.Equal(expectedWindowSize, word2vec.GetWindowSize());
             
-            Word2VecModel model = word2vec.Fit(documentDataFrame);
-
-            DataFrame result = model.Transform(documentDataFrame);
-
-            result.Show();
-
             using (var tempDirectory = new TemporaryDirectory())
             {
                 string savePath = Path.Join(tempDirectory.Path, "word2vec");
