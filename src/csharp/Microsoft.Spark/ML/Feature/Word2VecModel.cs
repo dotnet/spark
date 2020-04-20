@@ -14,7 +14,7 @@ namespace Microsoft.Spark.ML.Feature
             "org.apache.spark.ml.feature.Word2VecModel";
         
         private readonly JvmObjectReference _jvmObject;
-        
+
         /// <summary>
         /// Create a <see cref="Word2VecModel"/> without any parameters
         /// </summary>
@@ -37,6 +37,8 @@ namespace Microsoft.Spark.ML.Feature
         {
             _jvmObject = jvmObject;
         }
+        
+        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
         /// Transform a sentence column to a vector column to represent the whole sentence.
@@ -65,8 +67,8 @@ namespace Microsoft.Spark.ML.Feature
         /// </param>
         /// <returns>New <see cref="Word2VecModel"/> object, loaded from path.</returns>
         public static Word2VecModel Load(string path) => WrapAsWord2VecModel(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_word2VecModelClassName, "load", path));
+            SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                s_word2VecModelClassName, "load", path));
         
         /// <summary>
         /// Saves the <see cref="Word2VecModel"/> so that it can be loaded later using Load.
@@ -84,8 +86,6 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>string UID identifying the <see cref="Word2Vec"/>.</returns>
         public string Uid() => (string)_jvmObject.Invoke("uid");
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-        
         private static Word2VecModel WrapAsWord2VecModel(object obj) => 
             new Word2VecModel((JvmObjectReference)obj);
     }

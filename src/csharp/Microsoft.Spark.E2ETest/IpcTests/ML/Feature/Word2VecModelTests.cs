@@ -12,25 +12,20 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 {
     [Collection("Spark E2E Tests")]
-    public class Word2VecModelTests : IDisposable
+    public class Word2VecModelTests
     {
         private readonly SparkSession _spark;
 
         public Word2VecModelTests(SparkFixture fixture)
         {
             _spark = fixture.Spark;
-            //Calling Word2Vec.Fit is really slow with logging on, makes the test really slow
-            _spark.SparkContext.SetLogLevel("OFF");
-            
         }
 
         [Fact]
         public void TestWord2VecModel()
         {
-
-            DataFrame documentDataFrame =
-                _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as text " + 
-                           "union all SELECT split('it is really cool to be able to use C#', '')");
+            DataFrame documentDataFrame = 
+                _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as text");
 
             Word2Vec word2vec = new Word2Vec()
                 .SetInputCol("text")
@@ -43,6 +38,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             DataFrame synonyms = model.FindSynonyms("Hi", expectedSynonyms);
 
             Assert.Equal(expectedSynonyms, synonyms.Count());
+            synonyms.Show();
 
             using (var tempDirectory = new TemporaryDirectory())
             {
@@ -52,11 +48,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 Word2VecModel loadedModel = Word2VecModel.Load(savePath);
                 Assert.Equal(model.Uid(), loadedModel.Uid());
             }
-        }
-
-        public void Dispose()
-        {
-            _spark.SparkContext.SetLogLevel(SparkFixture.DefaultLogLevel);
         }
     }
 }

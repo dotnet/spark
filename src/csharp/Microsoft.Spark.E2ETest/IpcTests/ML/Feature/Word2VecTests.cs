@@ -23,12 +23,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestWord2Vec()
         {
-            DataFrame documentDataFrame =
-                _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as text " +
-                           "union " +
-                           "SELECT split('I wish c# could use case classes', ' ') as text " +
-                           "union " +
-                           "SELECT split('Logistic regression models are neat', ' ') as text");
+            DataFrame documentDataFrame = _spark.Sql("SELECT split('Spark dotnet is cool', ' ')");
             
             const string expectedInputCol = "text";
             const string expectedOutputCol = "result";
