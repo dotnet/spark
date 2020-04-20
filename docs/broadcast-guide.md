@@ -13,12 +13,12 @@ Broadcast variables are created from a variable `v` by calling `SparkContext.Bro
 Example:
 
 ```csharp
-	string v = "Variable to be broadcasted";
-	Broadcast<string> bv = SparkContext.Broadcast(v);
+string v = "Variable to be broadcasted";
+Broadcast<string> bv = SparkContext.Broadcast(v);
 
-	// Using the broadcast variable in a UDF:
-	Func<Column, Column> udf = Udf<string, string>(
-		str => $"{str}: {bv.Value()}");
+// Using the broadcast variable in a UDF:
+Func<Column, Column> udf = Udf<string, string>(
+	str => $"{str}: {bv.Value()}");
 ```
 
 The type of broadcast variable is captured by using Generics in C#, as can be seen in the above example.
@@ -28,8 +28,8 @@ The type of broadcast variable is captured by using Generics in C#, as can be se
 The broadcast variable can be deleted from all executors by calling the `Destroy()` function on it.
 
 ```csharp
-	// Destroying the broadcast variable bv:
-	bv.Destroy();
+// Destroying the broadcast variable bv:
+bv.Destroy();
 ```
 
 > Note: `Destroy` deletes all data and metadata related to the broadcast variable. Use this with caution- once a broadcast variable has been destroyed, it cannot be used again.
@@ -41,7 +41,35 @@ One important thing to keep in mind while using broadcast variables in UDFs is t
 Example to demonstrate:
 
 ```csharp
-	string v = "Variable to be broadcasted";
+string v = "Variable to be broadcasted";
+Broadcast<string> bv = SparkContext.Broadcast(v);
+
+// Using the broadcast variable in a UDF:
+Func<Column, Column> udf1 = Udf<string, string>(
+	str => $"{str}: {bv.Value()}");
+
+// Destroying bv
+bv.Destroy();
+
+// Calling udf1 after destroying bv throws the following expected exception:
+// org.apache.spark.SparkException: Attempted to use Broadcast(0) after it was destroyed
+df.Select(udf1(df["_1"])).Show();
+
+// Different UDF udf2 that is not referencing bv
+Func<Column, Column> udf2 = Udf<string, string>(
+	str => $"{str}: not referencing broadcast variable");
+
+// Calling udf2 throws the following (unexpected) exception:
+// [Error] [JvmBridge] org.apache.spark.SparkException: Task not serializable
+df.Select(udf2(df["_1"])).Show();
+```
+
+The recommended way of implementing above desired behavior:
+
+```csharp
+string v = "Variable to be broadcasted";
+// Restricting the visibility of bv to only the UDF referencing it
+{
 	Broadcast<string> bv = SparkContext.Broadcast(v);
 
 	// Using the broadcast variable in a UDF:
@@ -50,42 +78,14 @@ Example to demonstrate:
 
 	// Destroying bv
 	bv.Destroy();
+}
 
-	// Calling udf1 after destroying bv throws the following expected exception:
-	// org.apache.spark.SparkException: Attempted to use Broadcast(0) after it was destroyed
-	df.Select(udf1(df["_1"])).Show();
+// Different UDF udf2 that is not referencing bv
+Func<Column, Column> udf2 = Udf<string, string>(
+	str => $"{str}: not referencing broadcast variable");
 
-	// Different UDF udf2 that is not referencing bv
-	Func<Column, Column> udf2 = Udf<string, string>(
-		str => $"{str}: not referencing broadcast variable");
-
-	// Calling udf2 throws the following (unexpected) exception:
-	// [Error] [JvmBridge] org.apache.spark.SparkException: Task not serializable
-	df.Select(udf2(df["_1"])).Show();
-```
-
-The recommended way of implementing above desired behavior:
-
-```csharp
-	string v = "Variable to be broadcasted";
-	// Restricting the visibility of bv to only the UDF referencing it
-	{
-		Broadcast<string> bv = SparkContext.Broadcast(v);
-
-		// Using the broadcast variable in a UDF:
-		Func<Column, Column> udf1 = Udf<string, string>(
-			str => $"{str}: {bv.Value()}");
-
-		// Destroying bv
-		bv.Destroy();
-	}
-
-	// Different UDF udf2 that is not referencing bv
-	Func<Column, Column> udf2 = Udf<string, string>(
-		str => $"{str}: not referencing broadcast variable");
-
-	// Calling udf2 works fine as expected
-	df.Select(udf2(df["_1"])).Show();
+// Calling udf2 works fine as expected
+df.Select(udf2(df["_1"])).Show();
 ```
  This ensures that destroying `bv` doesn't affect calling `udf2` because of unexpected serialization behavior. 
 
