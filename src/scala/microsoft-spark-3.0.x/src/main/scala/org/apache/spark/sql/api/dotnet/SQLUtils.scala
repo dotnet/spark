@@ -10,7 +10,6 @@ import java.util.{List => JList, Map => JMap}
 
 import org.apache.spark.api.python.{PythonAccumulatorV2, PythonBroadcast, PythonFunction}
 import org.apache.spark.broadcast.Broadcast
-import org.apache.spark.deploy.dotnet.DotnetRunner
 
 object SQLUtils {
 
