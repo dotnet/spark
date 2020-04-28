@@ -16,8 +16,7 @@ namespace Microsoft.Spark.ML.Feature.Param
         
         public Param(Identifiable parent, string name, string doc)
         {
-            _jvmObject = 
-                SparkEnvironment.JvmBridge.CallConstructor(
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
                     s_ParamClassName, parent.Uid(), name, doc);
         }
         
@@ -72,5 +71,6 @@ namespace Microsoft.Spark.ML.Feature.Param
         {
             return (string)_jvmObject.Invoke("parent");
         }
+        
     }
 }
