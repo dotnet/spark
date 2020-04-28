@@ -202,8 +202,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="path">The path the previous <see cref="Word2Vec"/> was saved to</param>
         /// <returns>New <see cref="Word2Vec"/> object, loaded from path.</returns>
         public static Word2Vec Load(string path) => WrapAsWord2Vec(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_word2VecClassName, "load", path));
+            SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_word2VecClassName, "load", path));
 
         /// <summary>
         /// Saves the <see cref="Word2Vec"/> so that it can be loaded later using Load.
