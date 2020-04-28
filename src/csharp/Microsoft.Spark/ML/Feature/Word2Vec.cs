@@ -17,7 +17,8 @@ namespace Microsoft.Spark.ML.Feature
         
         /// <summary>
         /// Create a <see cref="Word2Vec"/> without any parameters. Once you have created a
-        /// <see cref="Word2Vec"/> you must call SetInputCol(), SetOutputCol(), and SetMinCount()
+        /// <see cref="Word2Vec"/> you must call <see cref="SetInputCol(string)"/>,
+        /// <see cref="SetOutputCol(string)"/>, and <see cref="SetMinCount(int)"/>.
         /// </summary>
         public Word2Vec()
         {
@@ -44,7 +45,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Gets the column that the <see cref="Word2Vec"/> should read from.
         /// </summary>
-        /// <returns>string, the name of the input column.</returns>
+        /// <returns>The name of the input column.</returns>
         public string GetInputCol() => (string)(_jvmObject.Invoke("getInputCol"));
 
         /// <summary>
@@ -59,7 +60,7 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="Word2Vec"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
         /// </summary>
-        /// <returns>string, the name of the output column.</returns>
+        /// <returns>The name of the output column.</returns>
         public string GetOutputCol() => (string)(_jvmObject.Invoke("getOutputCol"));
 
         /// <summary>
@@ -197,7 +198,8 @@ namespace Microsoft.Spark.ML.Feature
         public string Uid() => (string)_jvmObject.Invoke("uid");
 
         /// <summary>
-        /// Loads the <see cref="Word2Vec"/> that was previously saved using Save.
+        /// Loads the <see cref="Word2Vec"/> that was previously saved using
+        /// <see cref="Save(string)"/>.
         /// </summary>
         /// <param name="path">The path the previous <see cref="Word2Vec"/> was saved to</param>
         /// <returns>New <see cref="Word2Vec"/> object, loaded from path.</returns>
@@ -205,7 +207,8 @@ namespace Microsoft.Spark.ML.Feature
             SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_word2VecClassName, "load", path));
 
         /// <summary>
-        /// Saves the <see cref="Word2Vec"/> so that it can be loaded later using Load.
+        /// Saves the <see cref="Word2Vec"/> so that it can be loaded later using
+        /// <see cref="Load(string)"/>.
         /// </summary>
         /// <param name="path">The path to save the <see cref="Word2Vec"/> to.</param>
         /// <returns>New <see cref="Word2Vec"/> object.</returns>

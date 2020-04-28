@@ -43,15 +43,15 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Transform a sentence column to a vector column to represent the whole sentence.
         /// </summary>
-        /// <param name="documentDF"><see cref="Word2VecModel"/> to transform</param>
+        /// <param name="documentDF"><see cref="DataFrame"/> to transform</param>
         public DataFrame Transform(DataFrame documentDF) => 
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", documentDF));
         
         /// <summary>
-        /// Find "num" number of words whose vector representation most similar to the supplied
-        /// vector. If the supplied vector is the vector representation of a word in the model's
-        /// vocabulary, that word will be in the results. Returns a dataframe with the words and
-        /// the cosine similarities between the synonyms and the given word vector.
+        /// Find <paramref name="num"/> number of words whose vector representation most similar to
+        /// the supplied vector. If the supplied vector is the vector representation of a word in
+        /// the model's vocabulary, that word will be in the results. Returns a dataframe with the
+        /// words and the cosine similarities between the synonyms and the given word vector.
         /// </summary>
         /// <param name="word">The "word" to find similarities for, this can be a string or a
         /// vector representation.</param>
@@ -60,7 +60,8 @@ namespace Microsoft.Spark.ML.Feature
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("findSynonyms", word, num));
         
         /// <summary>
-        /// Loads the <see cref="Word2VecModel"/> that was previously saved using Save.
+        /// Loads the <see cref="Word2VecModel"/> that was previously saved using
+        /// <see cref="Save(string)"/>.
         /// </summary>
         /// <param name="path">
         /// The path the previous <see cref="Word2VecModel"/> was saved to
@@ -71,7 +72,8 @@ namespace Microsoft.Spark.ML.Feature
                 s_word2VecModelClassName, "load", path));
         
         /// <summary>
-        /// Saves the <see cref="Word2VecModel"/> so that it can be loaded later using Load.
+        /// Saves the <see cref="Word2VecModel"/> so that it can be loaded later using
+        /// <see cref="Load(string)"/>.
         /// </summary>
         /// <param name="path">The path to save the <see cref="Word2VecModel"/> to.</param>
         /// <returns>New <see cref="Word2VecModel"/> object.</returns>
@@ -79,7 +81,7 @@ namespace Microsoft.Spark.ML.Feature
             WrapAsWord2VecModel(_jvmObject.Invoke("save", path));
         
         /// <summary>
-        /// The uid that was used to create the <see cref="Word2Vec"/>. If no UID is passed in
+        /// The UID that was used to create the <see cref="Word2Vec"/>. If no UID is passed in
         /// when creating the <see cref="Word2Vec"/> then a random UID is created when the
         /// <see cref="Word2Vec"/> is created.
         /// </summary>
