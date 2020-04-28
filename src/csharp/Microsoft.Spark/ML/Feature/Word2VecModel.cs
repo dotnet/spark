@@ -43,15 +43,15 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Transform a sentence column to a vector column to represent the whole sentence.
         /// </summary>
-        /// <param name="documentDF"><see cref="Word2VecModel"/> to transform</param>
+        /// <param name="documentDF"><see cref="DataFrame"/> to transform</param>
         public DataFrame Transform(DataFrame documentDF) => 
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", documentDF));
         
         /// <summary>
-        /// Find <paramref name="num"/> number of words whose vector representation most similar to the supplied
-        /// vector. If the supplied vector is the vector representation of a word in the model's
-        /// vocabulary, that word will be in the results. Returns a dataframe with the words and
-        /// the cosine similarities between the synonyms and the given word vector.
+        /// Find <paramref name="num"/> number of words whose vector representation most similar to
+        /// the supplied vector. If the supplied vector is the vector representation of a word in
+        /// the model's vocabulary, that word will be in the results. Returns a dataframe with the
+        /// words and the cosine similarities between the synonyms and the given word vector.
         /// </summary>
         /// <param name="word">The "word" to find similarities for, this can be a string or a
         /// vector representation.</param>
