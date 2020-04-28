@@ -58,6 +58,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 Bucketizer loadedBucketizer = Bucketizer.Load(savePath);
                 Assert.Equal(bucketizer.Uid(), loadedBucketizer.Uid());
             }
+            
         }
 
         [Fact]

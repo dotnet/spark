@@ -3,24 +3,15 @@ using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class FeatureBase<T>
+    public class FeatureBase<T> : Identifiable
     {
         internal readonly JvmObjectReference _jvmObject;
         
-        /// <summary>
-        /// Create a <see cref="Bucketizer"/> without any parameters
-        /// </summary>
         public FeatureBase(string className)
         {
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(className);
         }
-
-        /// <summary>
-        /// Create a <see cref="Bucketizer"/> with a UID that is used to give the
-        /// <see cref="Bucketizer"/> a unique ID
-        /// </summary>
-        /// <param name="className"></param>
-        /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
+        
         public FeatureBase(string className, string uid)
         {
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(className, uid);
@@ -70,7 +61,7 @@ namespace Microsoft.Spark.ML.Feature
 
         public Param.Param GetParam(string paramName)
         {
-            return _jvmObject.Invoke("getPram", paramName);
+            return new Param.Param((JvmObjectReference)_jvmObject.Invoke("getPram", paramName));
         }
 
     }

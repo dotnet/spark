@@ -218,9 +218,7 @@ namespace Microsoft.Spark.ML.Feature
         {
             return new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
         }
-
         
-
         /// <summary>
         /// How should the <see cref="Bucketizer"/> handle invalid data, choices are "skip",
         /// "error" or "keep"
@@ -243,25 +241,11 @@ namespace Microsoft.Spark.ML.Feature
             return WrapAsBucketizer(_jvmObject.Invoke("setHandleInvalid", value.ToString()));
         }
 
-        public Bucketizer Clear(Param.Param value)
-        {
-            return WrapAsBucketizer(_jvmObject.Invoke("setHandleInvalid", value));
-        }
-
-        public string ExplainParams()
-        {
-            return (string)_jvmObject.Invoke("explainParams");
-        }
-
         public Bucketizer Set(Param.Param parameter, object value)
         {
             return WrapAsBucketizer(_jvmObject.Invoke("set", parameter, value));
         }
         
-        public object Get(Param.Param parameter)
-        {
-            return _jvmObject.Invoke("get", parameter);
-        }
         private static Bucketizer WrapAsBucketizer(object obj) => 
             new Bucketizer((JvmObjectReference)obj);
     }
