@@ -20,7 +20,7 @@ namespace Microsoft.Spark.ML.Feature
     /// will be thrown. The splits parameter is only used for single column usage, and splitsArray
     /// is for multiple columns.
     /// </summary>
-    public class Bucketizer : IJvmObjectReferenceProvider
+    public class Bucketizer : IJvmObjectReferenceProvider, Identifiable
     {
         private static readonly string s_bucketizerClassName = 
             "org.apache.spark.ml.feature.Bucketizer";
@@ -255,7 +255,26 @@ namespace Microsoft.Spark.ML.Feature
         {
             return WrapAsBucketizer(_jvmObject.Invoke("setHandleInvalid", value.ToString()));
         }
+
+        public Bucketizer Clear(Param.Param value)
+        {
+            return WrapAsBucketizer(_jvmObject.Invoke("setHandleInvalid", value));
+        }
+
+        public string ExplainParams()
+        {
+            return (string)_jvmObject.Invoke("explainParams");
+        }
+
+        public Bucketizer Set(Param.Param parameter, object value)
+        {
+            return WrapAsBucketizer(_jvmObject.Invoke("set", parameter, value));
+        }
         
+        public object Get(Param.Param parameter)
+        {
+            return _jvmObject.Invoke("get", parameter);
+        }
         private static Bucketizer WrapAsBucketizer(object obj) => 
             new Bucketizer((JvmObjectReference)obj);
     }
