@@ -1,13 +1,5 @@
 # Spark .NET build
 
-resources:
-  repositories:
-  - repository: oldestCompatibleDotnetSpark
-    type: github
-    endpoint: dotnet
-    name: dotnet/spark
-    ref: refs/tags/v0.9.0
-
 trigger:
   batch: true
   branches:
@@ -19,6 +11,7 @@ variables:
   _SignType: real
   _TeamName: DotNetSpark
   oldestCompatibleWorker: '0.9.0'
+  oldestCompatibleRelease: 'v0.9.0'
   TestsToFilterOut: "(FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameVectorUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestDestroy)&\
@@ -35,6 +28,14 @@ variables:
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
 
+resources:
+  repositories:
+  - repository: oldestCompatibleRelease
+    type: github
+    endpoint: dotnet
+    name: dotnet/spark
+    ref: refs/tags/$(oldestCompatibleRelease)
+
 jobs:
 - job: Build
   displayName: Build and Test Sources
@@ -46,32 +47,34 @@ jobs:
     HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
 
   steps:
-  - checkout: oldestCompatibleDotnetSpark
-    displayName: Checkout dotnet/spark@refs/tags/v0.9.0 to s
-    
+  - checkout: self
+    path: s\master
+  - checkout: oldestCompatibleRelease
+    path: s\$(oldestCompatibleRelease)
+
   - task: Maven@3
     displayName: 'Maven build src'
     inputs:
-      mavenPomFile: src/scala/pom.xml
+      mavenPomFile: master/src/scala/pom.xml
 
   - task: Maven@3
     displayName: 'Maven build benchmark'
     inputs:
-      mavenPomFile: benchmark/scala/pom.xml
+      mavenPomFile: master/benchmark/scala/pom.xml
 
   - task: BatchScript@1
     displayName: Download Spark Distros & Winutils.exe
     inputs:
-      filename: script\download-spark-distros.cmd
+      filename: master\script\download-spark-distros.cmd
       arguments: $(Build.BinariesDirectory)
 
   - task: BatchScript@1
-    displayName: Download oldest compatible worker version
+    displayName: Download oldest compatible worker v$(oldestCompatibleWorker)
     inputs:
-      filename: script\download-worker-release.cmd
+      filename: master\script\download-worker-release.cmd
       arguments: '$(Build.BinariesDirectory) $(oldestCompatibleWorker)'
 
-  - script: build.cmd -pack
+  - script: master\build.cmd -pack
               -c $(buildConfiguration)
               -ci
               $(_OfficialBuildIdArgs)
@@ -83,14 +86,14 @@ jobs:
     displayName: '.NET unit tests'
     inputs:
       command: test
-      projects: '**/*UnitTest/*.csproj'
+      projects: 'master/**/*UnitTest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
 
   - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 2.3.0'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
@@ -100,7 +103,7 @@ jobs:
     displayName: 'E2E tests for Spark 2.3.1'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
@@ -110,7 +113,7 @@ jobs:
     displayName: 'E2E tests for Spark 2.3.2'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
@@ -120,7 +123,7 @@ jobs:
     displayName: 'E2E tests for Spark 2.3.3'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
@@ -130,7 +133,7 @@ jobs:
     displayName: 'E2E tests for Spark 2.3.4'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.4-bin-hadoop2.7
@@ -140,7 +143,7 @@ jobs:
     displayName: 'E2E tests for Spark 2.4.0'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
@@ -150,7 +153,7 @@ jobs:
     displayName: 'E2E tests for Spark 2.4.1'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
@@ -160,7 +163,7 @@ jobs:
     displayName: 'E2E tests for Spark 2.4.3'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark*.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
@@ -170,7 +173,7 @@ jobs:
     displayName: 'E2E tests for Spark 2.4.4'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark*.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
@@ -180,111 +183,211 @@ jobs:
     displayName: 'E2E tests for Spark 2.4.5'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark*.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
       DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.0 with oldest compatible worker $(oldestCompatibleWorker)'
+    displayName: 'E2E tests for Spark 2.3.0 with oldest compatible worker v$(oldestCompatibleWorker)'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
       DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.1 with oldest compatible worker $(oldestCompatibleWorker)'
+    displayName: 'E2E tests for Spark 2.3.1 with oldest compatible worker v$(oldestCompatibleWorker)'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
       DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.2 with oldest compatible worker $(oldestCompatibleWorker)'
+    displayName: 'E2E tests for Spark 2.3.2 with oldest compatible worker v$(oldestCompatibleWorker)'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
       DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.3 with oldest compatible worker $(oldestCompatibleWorker)'
+    displayName: 'E2E tests for Spark 2.3.3 with oldest compatible worker v$(oldestCompatibleWorker)'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
       DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.4 with oldest compatible worker $(oldestCompatibleWorker)'
+    displayName: 'E2E tests for Spark 2.3.4 with oldest compatible worker v$(oldestCompatibleWorker)'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.4-bin-hadoop2.7
       DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.0 with oldest compatible worker $(oldestCompatibleWorker)'
+    displayName: 'E2E tests for Spark 2.4.0 with oldest compatible worker v$(oldestCompatibleWorker)'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
       DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.1 with oldest compatible worker $(oldestCompatibleWorker)'
+    displayName: 'E2E tests for Spark 2.4.1 with oldest compatible worker v$(oldestCompatibleWorker)'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
       DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
   
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.3 with oldest compatible worker $(oldestCompatibleWorker)'
+    displayName: 'E2E tests for Spark 2.4.3 with oldest compatible worker v$(oldestCompatibleWorker)'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark*.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
       DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.4 with oldest compatible worker $(oldestCompatibleWorker)'
+    displayName: 'E2E tests for Spark 2.4.4 with oldest compatible worker v$(oldestCompatibleWorker)'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark*.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
       DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.5 with oldest compatible worker $(oldestCompatibleWorker)'
+    displayName: 'E2E tests for Spark 2.4.5 with oldest compatible worker v$(oldestCompatibleWorker)'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark*.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
       DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
+
+  - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.3.0 from oldest compatible release $(oldestCompatibleRelease)'
+    inputs:
+      command: test
+      projects: '$(oldestCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
+      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
+
+  - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.3.1 from oldest compatible release $(oldestCompatibleRelease)'
+    inputs:
+      command: test
+      projects: '$(oldestCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
+      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
+
+  - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.3.2 from oldest compatible release $(oldestCompatibleRelease)'
+    inputs:
+      command: test
+      projects: '$(oldestCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
+      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
+
+  - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.3.3 from oldest compatible release $(oldestCompatibleRelease)'
+    inputs:
+      command: test
+      projects: '$(oldestCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
+      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
+
+  - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.3.4 from oldest compatible release $(oldestCompatibleRelease)'
+    inputs:
+      command: test
+      projects: '$(oldestCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.4-bin-hadoop2.7
+      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
+
+  - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.4.0 from oldest compatible release $(oldestCompatibleRelease)'
+    inputs:
+      command: test
+      projects: '$(oldestCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
+      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
+
+  - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.4.1 from oldest compatible release $(oldestCompatibleRelease)'
+    inputs:
+      command: test
+      projects: '$(oldestCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
+      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
+  
+  - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.4.3 from oldest compatible release $(oldestCompatibleRelease)'
+    inputs:
+      command: test
+      projects: '$(oldestCompatibleRelease)/**/Microsoft.Spark*.E2ETest/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
+      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
+
+  - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.4.4 from oldest compatible release $(oldestCompatibleRelease)'
+    inputs:
+      command: test
+      projects: '$(oldestCompatibleRelease)/**/Microsoft.Spark*.E2ETest/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
+      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
+
+  - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark 2.4.5 from oldest compatible release $(oldestCompatibleRelease)'
+    inputs:
+      command: test
+      projects: '$(oldestCompatibleRelease)/**/Microsoft.Spark*.E2ETest/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
+      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
 
   - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
     - task: CopyFiles@2
