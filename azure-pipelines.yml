@@ -38,7 +38,7 @@ jobs:
     HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
 
   steps:
-  - checkout: dotnet/spark@refs/tags/v0.9.0
+  - checkout: git://dotnet/spark@refs/tags/v0.9.0
     displayName: Checkout dotnet/spark@refs/tags/v0.9.0 to s
     
   - task: Maven@3
