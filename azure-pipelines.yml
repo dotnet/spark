@@ -1,5 +1,13 @@
 # Spark .NET build
 
+resources:
+  repositories:
+  - repository: oldestCompatibleDotnetSpark
+    type: github
+    endpoint: dotnet
+    name: dotnet/spark
+    ref: refs/tags/v0.9.0
+
 trigger:
   batch: true
   branches:
@@ -38,7 +46,7 @@ jobs:
     HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
 
   steps:
-  - checkout: git://dotnet/spark@refs/tags/v0.9.0
+  - checkout: oldestCompatibleDotnetSpark
     displayName: Checkout dotnet/spark@refs/tags/v0.9.0 to s
     
   - task: Maven@3
