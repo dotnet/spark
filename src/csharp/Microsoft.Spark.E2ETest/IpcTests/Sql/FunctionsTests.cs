@@ -652,6 +652,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Udf<long, long>((arg) => arg);
             Udf<short, short>((arg) => arg);
             Udf<Date, Date>((arg) => arg);
+            Udf<Timestamp, Timestamp>((arg) => arg);
 
             // Test array type.
             Udf<string, string[]>((arg) => new[] { arg });

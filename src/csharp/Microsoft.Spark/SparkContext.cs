@@ -229,7 +229,7 @@ namespace Microsoft.Spark
         internal RDD<T> Parallelize<T>(IEnumerable<T> seq, int? numSlices = null)
         {
             var formatter = new BinaryFormatter();
-            var memoryStream = new MemoryStream();
+            using var memoryStream = new MemoryStream();
 
             var values = new List<byte[]>();
             foreach (T obj in seq)
@@ -297,6 +297,19 @@ namespace Microsoft.Spark
         public void SetCheckpointDir(string directory)
         {
             _jvmObject.Invoke("setCheckpointDir", directory);
+        }
+
+        /// <summary>
+        /// Broadcast a read-only variable to the cluster, returning a Microsoft.Spark.Broadcast
+        /// object for reading it in distributed functions. The variable will be sent to each 
+        /// executor only once.
+        /// </summary>
+        /// <typeparam name="T">Type of the variable being broadcast</typeparam>
+        /// <param name="value">Value of the broadcast variable</param>
+        /// <returns>A Broadcast object of type <see cref="Broadcast{T}(T)"/></returns>
+        public Broadcast<T> Broadcast<T>(T value)
+        {
+            return new Broadcast<T>(this, value);
         }
 
         /// <summary>

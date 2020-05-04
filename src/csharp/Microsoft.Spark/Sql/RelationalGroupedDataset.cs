@@ -9,6 +9,7 @@ using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Expressions;
 using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.Utils;
+using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 
 namespace Microsoft.Spark.Sql
 {
@@ -83,6 +84,35 @@ namespace Microsoft.Spark.Sql
         /// <returns>New DataFrame object with sum applied</returns>
         public DataFrame Sum(params string[] colNames) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("sum", (object)colNames));
+
+        internal DataFrame Apply(StructType returnType, Func<FxDataFrame, FxDataFrame> func)
+        {
+            DataFrameGroupedMapWorkerFunction.ExecuteDelegate wrapper =
+                new DataFrameGroupedMapUdfWrapper(func).Execute;
+
+            var udf = UserDefinedFunction.Create(
+                _jvmObject.Jvm,
+                func.Method.ToString(),
+                CommandSerDe.Serialize(
+                    wrapper,
+                    CommandSerDe.SerializedMode.Row,
+                    CommandSerDe.SerializedMode.Row),
+                UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF,
+                returnType.Json);
+
+            IReadOnlyList<string> columnNames = _dataFrame.Columns();
+            var columns = new Column[columnNames.Count];
+            for (int i = 0; i < columnNames.Count; ++i)
+            {
+                columns[i] = _dataFrame[columnNames[i]];
+            }
+
+            Column udfColumn = udf.Apply(columns);
+
+            return new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+                "flatMapGroupsInPandas",
+                udfColumn.Expr()));
+        }
 
         internal DataFrame Apply(StructType returnType, Func<RecordBatch, RecordBatch> func)
         {

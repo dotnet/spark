@@ -40,4 +40,15 @@ namespace Microsoft.Spark.Sql
             currentPickler.save(((Date)o).GetInterval());
         }
     }
+
+    /// <summary>
+    /// Custom pickler for Timestamp objects.
+    /// </summary>
+    internal class TimestampPickler : IObjectPickler
+    {
+        public void pickle(object o, Stream outs, Pickler currentPickler)
+        {
+            currentPickler.save(((Timestamp)o).GetIntervalInMicroseconds());
+        }
+    }
 }

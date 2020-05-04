@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Apache.Arrow;
+using Microsoft.Data.Analysis;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
@@ -77,6 +78,41 @@ namespace Microsoft.Spark.UnitTest
                 IArrowArray result =
                     deserializedWorkerFunction.Func(new[] { input }, new[] { 0 });
                 AssertEquals("hello spark", result);
+            }
+        }
+
+        [Fact]
+        public void TestCommandSerDeForSqlArrowDataFrame()
+        {
+            var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+                (strings) => strings.Apply(cur => $"hello {cur}"));
+
+            var workerFunction = new DataFrameWorkerFunction(udfWrapper.Execute);
+
+            byte[] serializedCommand = Utils.CommandSerDe.Serialize(
+                workerFunction.Func,
+                Utils.CommandSerDe.SerializedMode.Row,
+                Utils.CommandSerDe.SerializedMode.Row);
+
+            using (var ms = new MemoryStream(serializedCommand))
+            {
+                var deserializedWorkerFunction = new DataFrameWorkerFunction(
+                    Utils.CommandSerDe.Deserialize<DataFrameWorkerFunction.ExecuteDelegate>(
+                        ms,
+                        out Utils.CommandSerDe.SerializedMode serializerMode,
+                        out Utils.CommandSerDe.SerializedMode deserializerMode,
+                        out var runMode));
+
+                Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, serializerMode);
+                Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, deserializerMode);
+                Assert.Equal("N", runMode);
+
+                var column = (StringArray)ToArrowArray(new[] { "spark" });
+
+                ArrowStringDataFrameColumn ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
+                DataFrameColumn result =
+                    deserializedWorkerFunction.Func(new[] { ArrowStringDataFrameColumn }, new[] { 0 });
+                ArrowTestUtils.AssertEquals("hello spark", result);
             }
         }
 
