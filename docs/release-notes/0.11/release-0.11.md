@@ -16,6 +16,8 @@
 
 ### Compatibility
 
+The following table describes the oldest version of the worker that this current version is compatible with, excluding some incompatible features as shown below.
+
 <table>
     <thead>
         <tr>
