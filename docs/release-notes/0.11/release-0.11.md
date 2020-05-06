@@ -46,6 +46,20 @@ The following table describes the oldest version of the worker that the current 
 
 #### Forward compatibility
 
+The following table describes the oldest version of .NET for Apache Spark release that the current version is compatible with.
+
+<table>
+    <thead>
+        <tr>
+            <th>Oldest compatible .NET for Apache Spark release version</th>
+        </tr>
+    </thead>
+    <tbody align="center">
+        <tr>
+            <td rowspan=4>v0.9.0</td>
+        </tr>
+    </tbody>
+</table>
 
 ### Supported Spark Versions
 
