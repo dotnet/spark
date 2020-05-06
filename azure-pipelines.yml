@@ -10,6 +10,7 @@ variables:
   buildConfiguration: 'Release'
   _SignType: real
   _TeamName: DotNetSpark
+  MSBUILDSINGLELOADCONTEXT: 1
   oldestCompatibleWorker: '0.9.0'
   oldestCompatibleRelease: 'v0.9.0'
   TestsToFilterOut: "(FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
