@@ -14,10 +14,12 @@
 
 * SparkSession.Catalog call changed from a method to a property ([#508](https://github.com/dotnet/spark/pull/508))
 
+### Compatibility
+
 <table>
     <thead>
         <tr>
-            <th>Oldest compatible .NET for Apache Spark version</th>
+            <th>Oldest compatible .NET for Apache Spark worker</th>
             <th>Incompatible features</th>
         </tr>
     </thead>
