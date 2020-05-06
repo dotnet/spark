@@ -41,6 +41,14 @@ namespace Microsoft.Spark.Sql
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
+        /// Interface through which the user may create, drop, alter or query underlying databases,
+        /// tables, functions etc.
+        /// </summary>
+        /// <returns>Catalog object</returns>
+        public Catalog.Catalog Catalog =>
+            new Catalog.Catalog((JvmObjectReference)_jvmObject.Invoke("catalog"));
+
+        /// <summary>
         /// Returns SparkContext object associated with this SparkSession.
         /// </summary>
         public SparkContext SparkContext => _sparkContext.Value;
@@ -279,14 +287,6 @@ namespace Microsoft.Spark.Sql
         /// <returns>UDFRegistration object</returns>
         public UdfRegistration Udf() =>
             new UdfRegistration((JvmObjectReference)_jvmObject.Invoke("udf"));
-
-        /// <summary>
-        /// Interface through which the user may create, drop, alter or query underlying databases,
-        /// tables, functions etc.
-        /// </summary>
-        /// <returns>Catalog object</returns>
-        public Catalog.Catalog Catalog() =>
-            new Catalog.Catalog((JvmObjectReference)_jvmObject.Invoke("catalog"));
 
         /// <summary>
         /// Stops the underlying SparkContext.
