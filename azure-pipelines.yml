@@ -23,7 +23,7 @@ variables:
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithTimestampType)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.SparkSessionTests.TestCreateDataFrameWithTimestamp)"
   LatestDotnetWorkerDir: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp3.1\win-x64'
-  OldestCompatibleDotnetWorkerDir: $(Build.BinariesDirectory)\Microsoft.Spark.Worker-$(backwardCompatibleRelease)
+  BackwardCompatibleDotnetWorkerDir: $(Build.BinariesDirectory)\Microsoft.Spark.Worker-$(backwardCompatibleRelease)
 
   # Azure DevOps variables are transformed into environment variables, with these variables we
   # avoid the first time experience and telemetry to speed up the build.
@@ -192,104 +192,104 @@ jobs:
       DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.0 with oldest compatible worker v$(backwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.3.0 with backward compatible worker v$(backwardCompatibleRelease)'
     inputs:
       command: test
       projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
+      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.1 with oldest compatible worker v$(backwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.3.1 with backward compatible worker v$(backwardCompatibleRelease)'
     inputs:
       command: test
       projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
+      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.2 with oldest compatible worker v$(backwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.3.2 with backward compatible worker v$(backwardCompatibleRelease)'
     inputs:
       command: test
       projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
+      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.3 with oldest compatible worker v$(backwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.3.3 with backward compatible worker v$(backwardCompatibleRelease)'
     inputs:
       command: test
       projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
+      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.4 with oldest compatible worker v$(backwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.3.4 with backward compatible worker v$(backwardCompatibleRelease)'
     inputs:
       command: test
       projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.4-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
+      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.0 with oldest compatible worker v$(backwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.4.0 with backward compatible worker v$(backwardCompatibleRelease)'
     inputs:
       command: test
       projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
+      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.1 with oldest compatible worker v$(backwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.4.1 with backward compatible worker v$(backwardCompatibleRelease)'
     inputs:
       command: test
       projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
+      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
   
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.3 with oldest compatible worker v$(backwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.4.3 with backward compatible worker v$(backwardCompatibleRelease)'
     inputs:
       command: test
       projects: 'master/**/Microsoft.Spark*.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
+      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.4 with oldest compatible worker v$(backwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.4.4 with backward compatible worker v$(backwardCompatibleRelease)'
     inputs:
       command: test
       projects: 'master/**/Microsoft.Spark*.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
+      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.5 with oldest compatible worker v$(backwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.4.5 with backward compatible worker v$(backwardCompatibleRelease)'
     inputs:
       command: test
       projects: 'master/**/Microsoft.Spark*.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
+      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
 
   - task: Maven@3
     displayName: 'Maven build src for forward compatible release v$(forwardCompatibleRelease)'
@@ -302,7 +302,7 @@ jobs:
               $(_OfficialBuildIdArgs)
               /p:PublishSparkWorker=true
               /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\$(forwardCompatibleRelease)\Microsoft.Spark.Worker
-    displayName: '.NET build for oldest compatible release v$(oldestCompatibleRelease)'
+    displayName: '.NET build for forward compatible release v$(forwardCompatibleRelease)'
 
   - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 2.3.0 from forward compatible release v$(forwardCompatibleRelease)'
@@ -315,7 +315,7 @@ jobs:
       DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.1 from oldest compatible release v$(forwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.3.1 from forward compatible release v$(forwardCompatibleRelease)'
     inputs:
       command: test
       projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
@@ -325,7 +325,7 @@ jobs:
       DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.2 from oldest compatible release v$(forwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.3.2 from forward compatible release v$(forwardCompatibleRelease)'
     inputs:
       command: test
       projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
@@ -335,7 +335,7 @@ jobs:
       DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.3 from oldest compatible release v$(forwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.3.3 from forward compatible release v$(forwardCompatibleRelease)'
     inputs:
       command: test
       projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
@@ -345,7 +345,7 @@ jobs:
       DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.4 from oldest compatible release v$(forwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.3.4 from forward compatible release v$(forwardCompatibleRelease)'
     inputs:
       command: test
       projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
@@ -355,7 +355,7 @@ jobs:
       DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.0 from oldest compatible release v$(forwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.4.0 from forward compatible release v$(forwardCompatibleRelease)'
     inputs:
       command: test
       projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
@@ -365,7 +365,7 @@ jobs:
       DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.1 from oldest compatible release v$(forwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.4.1 from forward compatible release v$(forwardCompatibleRelease)'
     inputs:
       command: test
       projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
@@ -375,7 +375,7 @@ jobs:
       DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
   
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.3 from oldest compatible release v$(forwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.4.3 from forward compatible release v$(forwardCompatibleRelease)'
     inputs:
       command: test
       projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark*.E2ETest/*.csproj'
@@ -385,7 +385,7 @@ jobs:
       DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.4 from oldest compatible release v$(forwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.4.4 from forward compatible release v$(forwardCompatibleRelease)'
     inputs:
       command: test
       projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark*.E2ETest/*.csproj'
@@ -395,7 +395,7 @@ jobs:
       DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.5 from oldest compatible release v$(forwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.4.5 from forward compatible release v$(forwardCompatibleRelease)'
     inputs:
       command: test
       projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark*.E2ETest/*.csproj'
