@@ -1,0 +1,55 @@
+# .NET for Apache Spark 0.11 Release Notes
+
+### New Features and Improvements
+
+* Streamline logging when there is a failure ([#439](https://github.com/dotnet/spark/pull/439))
+* Ability to pass and return corefxlab DataFrames to UDF APIs ([#277](https://github.com/dotnet/spark/pull/277))
+* Refactor the DataFrame APIs to use the latest versions where possible ([#452](https://github.com/dotnet/spark/pull/452))
+* Supporting ML TF-IDF (Term frequency-inverse document frequency) feature vectorization method ([#394](https://github.com/dotnet/spark/pull/394))
+* Support for TimestampType in `DataFrame.Collect()`, `CreateDataFrame` and UDFs ([#428](https://github.com/dotnet/spark/pull/428))
+* Support for Broadcast Variables ([#414](https://github.com/dotnet/spark/pull/414))
+* Implement ML feature Word2Vec ([#491](https://github.com/dotnet/spark/pull/491))
+
+
+### Breaking Changes
+
+* None
+
+### Supported Spark Versions
+
+The following table outlines the supported Spark versions along with the microsoft-spark JAR to use with:
+
+<table>
+    <thead>
+        <tr>
+            <th>Spark Version</th>
+            <th>microsoft-spark JAR</th>
+        </tr>
+    </thead>
+    <tbody align="center">
+        <tr>
+            <td>2.3.*</td>
+            <td>microsoft-spark-2.3.x-0.11.0.jar</td>
+        </tr>
+        <tr>
+            <td>2.4.0</td>
+            <td rowspan=5>microsoft-spark-2.4.x-0.11.0.jar</td>
+        </tr>
+        <tr>
+            <td>2.4.1</td>
+        </tr>
+        <tr>
+            <td>2.4.3</td>
+        </tr>
+        <tr>
+            <td>2.4.4</td>
+        </tr>
+        <tr>
+            <td>2.4.5</td>
+        </tr>
+        <tr>
+            <td>2.4.2</td>
+            <td><a href="https://github.com/dotnet/spark/issues/60">Not supported</a></td>
+        </tr>
+    </tbody>
+</table>
