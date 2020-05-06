@@ -292,7 +292,7 @@ jobs:
       DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
 
   - task: Maven@3
-    displayName: 'Maven build src for oldest compatible release v$(forwardCompatibleRelease)'
+    displayName: 'Maven build src for forward compatible release v$(forwardCompatibleRelease)'
     inputs:
       mavenPomFile: $(forwardCompatibleRelease)/src/scala/pom.xml
       
@@ -305,7 +305,7 @@ jobs:
     displayName: '.NET build for oldest compatible release v$(oldestCompatibleRelease)'
 
   - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.0 from oldest compatible release v$(forwardCompatibleRelease)'
+    displayName: 'E2E tests for Spark 2.3.0 from forward compatible release v$(forwardCompatibleRelease)'
     inputs:
       command: test
       projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
