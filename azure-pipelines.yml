@@ -56,17 +56,17 @@ jobs:
   - task: Maven@3
     displayName: 'Maven build src'
     inputs:
-      mavenPomFile: $(oldestCompatibleRelease)/src/scala/pom.xml
+      mavenPomFile: master/src/scala/pom.xml
 
   - task: Maven@3
     displayName: 'Maven build benchmark'
     inputs:
-      mavenPomFile: $(oldestCompatibleRelease)/benchmark/scala/pom.xml
+      mavenPomFile: master/benchmark/scala/pom.xml
 
   - task: BatchScript@1
     displayName: Download Spark Distros & Winutils.exe
     inputs:
-      filename: $(oldestCompatibleRelease)\script\download-spark-distros.cmd
+      filename: master\script\download-spark-distros.cmd
       arguments: $(Build.BinariesDirectory)
 
   - task: BatchScript@1
@@ -75,7 +75,7 @@ jobs:
       filename: master\script\download-worker-release.cmd
       arguments: '$(Build.BinariesDirectory) $(oldestCompatibleWorker)'
 
-  - script: $(oldestCompatibleRelease)\build.cmd -pack
+  - script: master\build.cmd -pack
               -c $(buildConfiguration)
               -ci
               $(_OfficialBuildIdArgs)
@@ -87,14 +87,14 @@ jobs:
     displayName: '.NET unit tests'
     inputs:
       command: test
-      projects: '$(oldestCompatibleRelease)/**/*UnitTest/*.csproj'
+      projects: 'master/**/*UnitTest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
 
   - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 2.3.0'
     inputs:
       command: test
-      projects: '$(oldestCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
@@ -289,6 +289,19 @@ jobs:
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
       DOTNET_WORKER_DIR: $(OldestCompatibleDotnetWorkerDir)
+
+  - task: Maven@3
+    displayName: 'Maven build src for oldest compatible release $(oldestCompatibleRelease)'
+    inputs:
+      mavenPomFile: $(oldestCompatibleRelease)/src/scala/pom.xml
+      
+  - script: $(oldestCompatibleRelease)\build.cmd -pack
+              -c $(buildConfiguration)
+              -ci
+              $(_OfficialBuildIdArgs)
+              /p:PublishSparkWorker=true
+              /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
+    displayName: '.NET build for oldest compatible release $(oldestCompatibleRelease)'
 
   - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark 2.3.0 from oldest compatible release $(oldestCompatibleRelease)'
