@@ -71,7 +71,7 @@ jobs:
   - task: BatchScript@1
     displayName: Download oldest compatible worker v$(oldestCompatibleWorker)
     inputs:
-      filename: $(oldestCompatibleRelease)\script\download-worker-release.cmd
+      filename: master\script\download-worker-release.cmd
       arguments: '$(Build.BinariesDirectory) $(oldestCompatibleWorker)'
 
   - script: $(oldestCompatibleRelease)\build.cmd -pack
