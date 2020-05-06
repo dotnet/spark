@@ -71,7 +71,7 @@ jobs:
       arguments: $(Build.BinariesDirectory)
 
   - task: BatchScript@1
-    displayName: Download oldest compatible worker v$(backwardCompatibleRelease)
+    displayName: Download backward compatible worker v$(backwardCompatibleRelease)
     inputs:
       filename: master\script\download-worker-release.cmd
       arguments: '$(Build.BinariesDirectory) $(backwardCompatibleRelease)'
