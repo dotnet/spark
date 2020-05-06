@@ -28,7 +28,7 @@ The following table describes the oldest version of the worker that this current
     <tbody align="center">
         <tr>
             <td rowspan=5>v0.9.0</td>
-            <td>DataFrame with Grouped Map UDF ([PR](https://github.com/dotnet/spark/pull/277))</td>
+            <td>DataFrame with Grouped Map UDF ([#277](https://github.com/dotnet/spark/pull/277))</td>
         </tr>
         <tr>
             <td>DataFrame with Vector UDF ([PR](https://github.com/dotnet/spark/pull/277))</td>
