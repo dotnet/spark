@@ -22,6 +22,7 @@ namespace Microsoft.Spark.Sql
         private readonly JvmObjectReference _jvmObject;
 
         private readonly Lazy<SparkContext> _sparkContext;
+        private readonly Lazy<Catalog.Catalog> _catalog;
 
         private static readonly string s_sparkSessionClassName =
             "org.apache.spark.sql.SparkSession";
@@ -36,22 +37,23 @@ namespace Microsoft.Spark.Sql
             _sparkContext = new Lazy<SparkContext>(
                 () => new SparkContext(
                     (JvmObjectReference)_jvmObject.Invoke("sparkContext")));
+            _catalog = new Lazy<Catalog.Catalog>(
+                () => new Catalog.Catalog((JvmObjectReference)_jvmObject.Invoke("catalog")));
         }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+
+        /// <summary>
+        /// Returns SparkContext object associated with this SparkSession.
+        /// </summary>
+        public SparkContext SparkContext => _sparkContext.Value;
 
         /// <summary>
         /// Interface through which the user may create, drop, alter or query underlying databases,
         /// tables, functions etc.
         /// </summary>
         /// <returns>Catalog object</returns>
-        public Catalog.Catalog Catalog =>
-            new Catalog.Catalog((JvmObjectReference)_jvmObject.Invoke("catalog"));
-
-        /// <summary>
-        /// Returns SparkContext object associated with this SparkSession.
-        /// </summary>
-        public SparkContext SparkContext => _sparkContext.Value;
+        public Catalog.Catalog Catalog => _catalog.Value;
 
         /// <summary>
         /// Creates a Builder object for SparkSession.
