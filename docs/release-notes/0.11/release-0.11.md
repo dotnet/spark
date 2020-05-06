@@ -28,16 +28,16 @@ The following table describes the oldest version of the worker that this current
     <tbody align="center">
         <tr>
             <td rowspan=5>v0.9.0</td>
-            <td>DataFrame with Grouped Map UDF</td>
+            <td>DataFrame with Grouped Map UDF ([PR](https://github.com/dotnet/spark/pull/277))</td>
         </tr>
         <tr>
-            <td>DataFrame with Vector UDF</td>
+            <td>DataFrame with Vector UDF ([PR](https://github.com/dotnet/spark/pull/277))</td>
         </tr>
         <tr>
-            <td>Support for Broadcast Variables</td>
+            <td>Support for Broadcast Variables ([PR](https://github.com/dotnet/spark/pull/414))</td>
         </tr>
         <tr>
-            <td>Support for TimestampType</td>
+            <td>Support for TimestampType ([PR](https://github.com/dotnet/spark/pull/428))</td>
         </tr>
     </tbody>
 </table>
