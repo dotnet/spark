@@ -3,7 +3,7 @@
 ### New Features and Improvements
 
 * Ability to pass and return [corefxlab](https://github.com/dotnet/corefxlab) DataFrames to UDF APIs ([#277](https://github.com/dotnet/spark/pull/277))
-* Supporting ML TF-IDF (Term frequency-inverse document frequency) feature vectorization method ([#394](https://github.com/dotnet/spark/pull/394))
+* Support for ML TF-IDF (Term frequency-inverse document frequency) feature vectorization method ([#394](https://github.com/dotnet/spark/pull/394))
 * Support for TimestampType in `DataFrame.Collect()`, `CreateDataFrame` and UDFs ([#428](https://github.com/dotnet/spark/pull/428))
 * Support for Broadcast Variables ([#414](https://github.com/dotnet/spark/pull/414))
 * Support for ML feature Word2Vec ([#491](https://github.com/dotnet/spark/pull/491))
@@ -16,7 +16,9 @@
 
 ### Compatibility
 
-The following table describes the oldest version of the worker that this current version is compatible with, excluding some incompatible features as shown below.
+#### Backward compatibility
+
+The following table describes the oldest version of the worker that the current version is compatible with, along with new features that are incompatible with the worker.
 
 <table>
     <thead>
@@ -41,6 +43,8 @@ The following table describes the oldest version of the worker that this current
         </tr>
     </tbody>
 </table>
+
+#### Forward compatibility
 
 
 ### Supported Spark Versions
