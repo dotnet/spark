@@ -23,7 +23,7 @@ The following table describes the oldest version of the worker that the current 
 <table>
     <thead>
         <tr>
-            <th>Oldest compatible .NET for Apache Spark worker</th>
+            <th>Oldest compatible Microsoft.Spark.Worker version</th>
             <th>Incompatible features</th>
         </tr>
     </thead>
