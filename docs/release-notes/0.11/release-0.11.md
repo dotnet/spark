@@ -2,17 +2,17 @@
 
 ### New Features and Improvements
 
-* Ability to pass and return corefxlab DataFrames to UDF APIs ([#277](https://github.com/dotnet/spark/pull/277))
+* Ability to pass and return [corefxlab](https://github.com/dotnet/corefxlab) DataFrames to UDF APIs ([#277](https://github.com/dotnet/spark/pull/277))
 * Supporting ML TF-IDF (Term frequency-inverse document frequency) feature vectorization method ([#394](https://github.com/dotnet/spark/pull/394))
 * Support for TimestampType in `DataFrame.Collect()`, `CreateDataFrame` and UDFs ([#428](https://github.com/dotnet/spark/pull/428))
 * Support for Broadcast Variables ([#414](https://github.com/dotnet/spark/pull/414))
-* Implement ML feature Word2Vec ([#491](https://github.com/dotnet/spark/pull/491))
+* Support for ML feature Word2Vec ([#491](https://github.com/dotnet/spark/pull/491))
 * Streamline logging when there is a failure ([#439](https://github.com/dotnet/spark/pull/439))
 
 
 ### Breaking Changes
 
-* SparkSession.Catalog call changed from a method to a property ([#508](https://github.com/dotnet/spark/pull/508))
+* `SparkSession.Catalog` is changed from a method to a property ([#508](https://github.com/dotnet/spark/pull/508))
 
 ### Compatibility
 
