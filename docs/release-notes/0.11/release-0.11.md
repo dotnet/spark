@@ -24,9 +24,6 @@
     <tbody align="center">
         <tr>
             <td rowspan=5>v0.9.0</td>
-            <td>microsoft-spark-2.3.x-0.11.0.jar</td>
-        </tr>
-        <tr>
             <td>DataFrame with Grouped Map UDF</td>
         </tr>
         <tr>
