@@ -296,7 +296,7 @@ jobs:
     inputs:
       mavenPomFile: $(forwardCompatibleRelease)/src/scala/pom.xml
       
-  - script: $(forwardCompatibleRelease)\build.cmd -pack
+  - script: $(forwardCompatibleRelease)\build.cmd
               -c $(buildConfiguration)
               -ci
               $(_OfficialBuildIdArgs)
@@ -412,6 +412,12 @@ jobs:
           **/*.nupkg
           **/*.snupkg
         targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/packages/$(buildConfiguration)/Shipping
+
+    - task: CopyFiles@2
+      displayName: Stage build logs
+      inputs:
+        sourceFolder: $(Build.SourcesDirectory)/master/artifacts/log
+        targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/log
 
     - task: PublishBuildArtifacts@1
       inputs:
