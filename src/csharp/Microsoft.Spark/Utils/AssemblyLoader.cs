@@ -20,8 +20,10 @@ namespace Microsoft.Spark.Utils
         /// precedence:
         /// 1) Comma-separated paths specified in DOTNET_ASSEMBLY_SEARCH_PATHS environment
         /// variable. Note that if a path starts with ".", the working directory will be prepended.
-        /// 2) The working directory.
-        /// 3) The directory of the application.
+        /// 2) The path of the files added through
+        /// <see cref="SparkContext.AddFile(string, bool)"/>.
+        /// 3) The working directory.
+        /// 4) The directory of the application.
         /// </summary>
         /// <remarks>
         /// The reason that the working directory has higher precedence than the directory
@@ -54,6 +56,12 @@ namespace Microsoft.Spark.Utils
                 }
             }
 
+            string sparkFilesPath = SparkFiles.GetRootDirectory();
+            if (!string.IsNullOrWhiteSpace(sparkFilesPath))
+            {
+                searchPaths.Add(sparkFilesPath);
+            }
+
             searchPaths.Add(Directory.GetCurrentDirectory());
             searchPaths.Add(AppDomain.CurrentDomain.BaseDirectory);
 
@@ -65,13 +73,11 @@ namespace Microsoft.Spark.Utils
     {
         internal static Func<string, Assembly> LoadFromFile { get; set; } = Assembly.LoadFrom;
 
-        internal static Func<string, Assembly> LoadFromName { get; set; } = Assembly.Load;
-
         private static readonly Dictionary<string, Assembly> s_assemblyCache =
             new Dictionary<string, Assembly>();
 
-        private static readonly string[] s_searchPaths =
-            AssemblySearchPathResolver.GetAssemblySearchPaths();
+        private static readonly Lazy<string[]> s_searchPaths =
+            new Lazy<string[]>(() => AssemblySearchPathResolver.GetAssemblySearchPaths());
 
         private static readonly string[] s_extensions =
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
@@ -165,7 +171,7 @@ namespace Microsoft.Spark.Utils
         /// <returns>True if assembly is loaded, false otherwise.</returns>
         private static bool TryLoadAssembly(string assemblyFileName, ref Assembly assembly)
         {
-            foreach (string searchPath in s_searchPaths)
+            foreach (string searchPath in s_searchPaths.Value)
             {
                 string assemblyPath = Path.Combine(searchPath, assemblyFileName);
                 if (File.Exists(assemblyPath))

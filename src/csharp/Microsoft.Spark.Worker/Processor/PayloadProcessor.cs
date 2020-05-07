@@ -7,12 +7,6 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Utils;
-
-#if NETCOREAPP
-using System.Reflection;
-using System.Runtime.Loader;
-#endif
 
 namespace Microsoft.Spark.Worker.Processor
 {
@@ -26,20 +20,6 @@ namespace Microsoft.Spark.Worker.Processor
         internal PayloadProcessor(Version version)
         {
             _version = version;
-        }
-
-        static PayloadProcessor()
-        {
-#if NETCOREAPP
-            AssemblyLoader.LoadFromFile = AssemblyLoadContext.Default.LoadFromAssemblyPath;
-            AssemblyLoader.LoadFromName = (asmName) =>
-                AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(asmName));
-            AssemblyLoadContext.Default.Resolving += (assemblyLoadContext, assemblyName) =>
-                AssemblyLoader.ResolveAssembly(assemblyName.FullName);
-#else
-            AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) =>
-                AssemblyLoader.ResolveAssembly(args.Name);
-#endif
         }
 
         /// <summary>
@@ -79,6 +59,7 @@ namespace Microsoft.Spark.Worker.Processor
             TaskContextHolder.Set(payload.TaskContext);
 
             payload.SparkFilesDir = SerDe.ReadString(stream);
+            SparkFiles.SetRootDirectory(payload.SparkFilesDir);
 
             if (Utils.SettingUtils.IsDatabricks)
             {

@@ -5,11 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Moq" Version="4.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Microsoft.Spark.Worker\Microsoft.Spark.Worker.csproj" />
     <ProjectReference Include="..\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Microsoft.Spark.UnitTest\SparkFixture.cs" />
     <Compile Include="..\Microsoft.Spark.UnitTest\TestUtils\ArrowTestUtils.cs" />
   </ItemGroup>
 

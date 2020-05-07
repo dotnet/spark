@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Dynamic;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Services;
 
@@ -46,6 +45,13 @@ namespace Microsoft.Spark.Interop
             }
         }
 
+        private static IJvmBridgeFactory s_jvmBridgeFactory = new JvmBridgeFactory();
+        internal static void SetJvmBridgeFactory(IJvmBridgeFactory jvmBridgeFactory)
+        {
+            s_jvmBridgeFactory = jvmBridgeFactory;
+        }
+
+
         private static IJvmBridge s_jvmBridge;
         internal static IJvmBridge JvmBridge
         {
@@ -53,7 +59,8 @@ namespace Microsoft.Spark.Interop
             {
                 if (s_jvmBridge == null)
                 {
-                    s_jvmBridge = new JvmBridge(ConfigurationService.GetBackendPortNumber());
+                    s_jvmBridge =
+                        s_jvmBridgeFactory.Create(ConfigurationService.GetBackendPortNumber());
                 }
 
                 return s_jvmBridge;
