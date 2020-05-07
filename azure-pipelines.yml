@@ -408,7 +408,7 @@ jobs:
     - task: CopyFiles@2
       displayName: Stage .NET artifacts
       inputs:
-        sourceFolder: $(Build.SourcesDirectory)/artifacts/packages/$(buildConfiguration)/Shipping
+        sourceFolder: $(Build.SourcesDirectory)/master/artifacts/packages/$(buildConfiguration)/Shipping
         contents: |
           **/*.nupkg
           **/*.snupkg
