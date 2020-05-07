@@ -300,8 +300,7 @@ jobs:
               -c $(buildConfiguration)
               -ci
               $(_OfficialBuildIdArgs)
-              /p:PublishSparkWorker=true
-              /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\$(forwardCompatibleRelease)\Microsoft.Spark.Worker
+              /p:PublishSparkWorker=false
     displayName: '.NET build for forward compatible release v$(forwardCompatibleRelease)'
 
   - task: DotNetCoreCLI@2
