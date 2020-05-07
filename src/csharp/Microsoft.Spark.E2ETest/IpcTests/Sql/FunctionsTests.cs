@@ -672,7 +672,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// Tests for the Catclog Functions - returned from SparkSession.Catalog
         public void CatalogFunctions()
         {
-            Catalog catalog = _spark.Catalog();
+            Catalog catalog = _spark.Catalog;
 
             Assert.IsType<DataFrame>(catalog.ListDatabases());
             Assert.IsType<DataFrame>(catalog.ListFunctions());
