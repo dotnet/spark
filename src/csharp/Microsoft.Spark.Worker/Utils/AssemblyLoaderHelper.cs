@@ -56,15 +56,18 @@ namespace Microsoft.Spark.Worker.Utils
             string sparkFilesPath = SparkFiles.GetRootDirectory();
             string assemblyPathsFile = FindHighestFile(sparkFilesPath, "assemblyPaths_*.probe");
             string nativeDepenciesFile = FindHighestFile(sparkFilesPath, "nativePaths_*.probe");
+            string nugetsMetadataFile = FindHighestFile(sparkFilesPath, "nugets_*.txt");
 
             if (string.IsNullOrEmpty(assemblyPathsFile) ||
-                string.IsNullOrEmpty(nativeDepenciesFile))
+                string.IsNullOrEmpty(nativeDepenciesFile) ||
+                string.IsNullOrEmpty(nugetsMetadataFile))
             {
                 return;
             }
 
             string[] assemblyDependencies = File.ReadAllLines(assemblyPathsFile);
             string[] nativeDependencies = File.ReadAllLines(nativeDepenciesFile);
+            string[] nugetsMetadata = File.ReadAllLines(nugetsMetadataFile);
 
             string unpackPath =
                 Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(".nuget", "packages"));
@@ -86,7 +89,7 @@ namespace Microsoft.Spark.Worker.Utils
                 }
             }
 
-            UnpackPackages(sparkFilesPath, unpackPath);
+            UnpackPackages(sparkFilesPath, unpackPath, nugetsMetadata);
             _dependencyProvider = new DependencyProvider(AssemblyProbingPaths, NativeProbingRoots);
         }
 
@@ -102,26 +105,23 @@ namespace Microsoft.Spark.Worker.Utils
             return null;
         }
 
-        private static void UnpackPackages(string src, string dst)
+        private static void UnpackPackages(string src, string dst, string[] nugetsMetadata)
         {
             var srcDir = new DirectoryInfo(src);
             FileInfo[] packages = srcDir.GetFiles("*.nupkg");
+
+            IDictionary<string, string> nugetDict =
+                nugetsMetadata
+                    .Select(s => s.Split('/'))
+                    .ToDictionary(s => s[0], s => Path.Combine(s[1].ToLower(), s[2]));
+
             foreach (FileInfo package in packages)
             {
-                string name = Path.GetFileNameWithoutExtension(package.Name);
-                int build = name.LastIndexOf(".");
-                int minor = (build >= 0) ? name.LastIndexOf(".", build - 1) : -1;
-                int major = (minor >= 0) ? name.LastIndexOf(".", minor - 1) : -1;
-                if (major >= 0)
+                var packageDirectory = new DirectoryInfo(
+                    Path.Combine(dst, nugetDict[package.Name]));
+                if (!packageDirectory.Exists)
                 {
-                    string packageName = name.Substring(0, major);
-                    string packageVersion = name.Substring(major + 1);
-                    var packageDirectory = new DirectoryInfo(
-                        Path.Combine(dst, Path.Combine(packageName, packageVersion)));
-                    if (!packageDirectory.Exists)
-                    {
-                        ZipFile.ExtractToDirectory(package.FullName, packageDirectory.FullName);
-                    }
+                    ZipFile.ExtractToDirectory(package.FullName, packageDirectory.FullName);
                 }
             }
         }
