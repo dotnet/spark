@@ -122,7 +122,6 @@ namespace Microsoft.Spark.Worker.Utils
                         Path.Combine(src, nugetFileName),
                         packageDirectory.FullName);
                 }
-
             }
         }
 #endif
