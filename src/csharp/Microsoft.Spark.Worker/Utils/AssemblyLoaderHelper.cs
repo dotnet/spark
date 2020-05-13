@@ -107,22 +107,22 @@ namespace Microsoft.Spark.Worker.Utils
 
         private static void UnpackPackages(string src, string dst, string[] nugetsMetadata)
         {
-            var srcDir = new DirectoryInfo(src);
-            FileInfo[] packages = srcDir.GetFiles("*.nupkg");
-
-            IDictionary<string, string> nugetDict =
-                nugetsMetadata
-                    .Select(s => s.Split('/'))
-                    .ToDictionary(s => s[0], s => Path.Combine(s[1].ToLower(), s[2]));
-
-            foreach (FileInfo package in packages)
+            foreach (string entry in nugetsMetadata)
             {
+                string[] nugetMetaData = entry.Split('/');
+                string nugetFileName = nugetMetaData[0];
+                string nugetName = nugetMetaData[1];
+                string nugetVersion = nugetMetaData[2];
+
                 var packageDirectory = new DirectoryInfo(
-                    Path.Combine(dst, nugetDict[package.Name]));
+                    Path.Combine(dst, Path.Combine(nugetName.ToLower(), nugetVersion)));
                 if (!packageDirectory.Exists)
                 {
-                    ZipFile.ExtractToDirectory(package.FullName, packageDirectory.FullName);
+                    ZipFile.ExtractToDirectory(
+                        Path.Combine(src, nugetFileName),
+                        packageDirectory.FullName);
                 }
+
             }
         }
 #endif
