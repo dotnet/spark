@@ -109,10 +109,10 @@ namespace Microsoft.Spark.Worker.Utils
         {
             foreach (string entry in nugetsMetadata)
             {
-                string[] nugetMetaData = entry.Split('/');
-                string nugetFileName = nugetMetaData[0];
-                string nugetName = nugetMetaData[1];
-                string nugetVersion = nugetMetaData[2];
+                string[] metadata = entry.Split('/');
+                string nugetFileName = metadata[0];
+                string nugetName = metadata[1];
+                string nugetVersion = metadata[2];
 
                 var packageDirectory = new DirectoryInfo(
                     Path.Combine(dst, Path.Combine(nugetName.ToLower(), nugetVersion)));
