@@ -7,16 +7,16 @@ using Microsoft.DotNet.Interactive.Utility;
 
 namespace Microsoft.Spark.Extensions.DotNet.Interactive
 {
-    static class PackagesHelper
+    internal static class PackagesHelper
     {
         private static readonly HashSet<string> s_filesCopied = new HashSet<string>();
-        private static ulong s_probeFileCounter = 0;
+        private static ulong s_metadataCounter = 0;
 
         private static PackageRestoreContext RestoreContext =>
             (KernelInvocationContext.Current.HandlingKernel as ISupportNuget)
             .PackageRestoreContext;
 
-        public static void DoWork(string path, Action<string, bool> action)
+        internal static void GenerateAndAddFiles(DirectoryInfo dir, Action<string, bool> fileAction)
         {
             IEnumerable<NuGetMetadata> nugets = GetNugetPackages();
             IEnumerable<FileInfo> packages = GetFilesToCopy(nugets.Select(n => n.File));
@@ -24,40 +24,40 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             foreach (FileInfo file in packages)
             {
                 packageCount++;
-                action(file.FullName, false);
+                fileAction(file.FullName, false);
             }
 
             if (packageCount > 0)
             {
-                GenerateMetadata(path, nugets, action);
+                GenerateMetadata(dir.FullName, nugets, fileAction);
             }
         }
 
         private static void GenerateMetadata(string path,
             IEnumerable<NuGetMetadata> nugets,
-            Action<string, bool> action)
+            Action<string, bool> fileAction)
         {
-            s_probeFileCounter++;
+            s_metadataCounter++;
 
             // Assembly probing paths
             var assemblyProbingPath =
-                Path.Combine(path, NewNumberFileName("assemblyPaths_*.probe", s_probeFileCounter));
+                Path.Combine(path, NewNumberFileName("assemblyPaths_*.probe", s_metadataCounter));
             File.WriteAllLines(assemblyProbingPath, GetAssemblyProbingPaths());
-            action(assemblyProbingPath, false);
+            fileAction(assemblyProbingPath, false);
 
             // Native probing paths
             var nativeProbingPath =
-                Path.Combine(path, NewNumberFileName("nativePaths_*.probe", s_probeFileCounter));
+                Path.Combine(path, NewNumberFileName("nativePaths_*.probe", s_metadataCounter));
             File.WriteAllLines(nativeProbingPath, GetNativeProbingPaths());
-            action(nativeProbingPath, false);
+            fileAction(nativeProbingPath, false);
 
             // Nuget metadata
             var nugetMetadata =
-                Path.Combine(path, NewNumberFileName("nugets_*.txt", s_probeFileCounter));
+                Path.Combine(path, NewNumberFileName("nugets_*.txt", s_metadataCounter));
             File.WriteAllLines(
                 nugetMetadata,
                 nugets.Select(n => $"{n.File.Name}/{n.Name}/{n.Version}"));
-            action(nugetMetadata, false);
+            fileAction(nugetMetadata, false);
         }
 
         private static IEnumerable<NuGetMetadata> GetNugetPackages()
@@ -68,8 +68,9 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             List<NuGetMetadata> nugets = new List<NuGetMetadata>();
             foreach (ResolvedPackageReference package in packages)
             {
-                DirectoryInfo dir = package.PackageRoot;
-                foreach (FileInfo file in dir.EnumerateFiles("*.nupkg", SearchOption.AllDirectories))
+                IEnumerable<FileInfo> files =
+                    package.PackageRoot.EnumerateFiles("*.nupkg", SearchOption.AllDirectories);
+                foreach (FileInfo file in files)
                 {
                     nugets.Add(
                         new NuGetMetadata

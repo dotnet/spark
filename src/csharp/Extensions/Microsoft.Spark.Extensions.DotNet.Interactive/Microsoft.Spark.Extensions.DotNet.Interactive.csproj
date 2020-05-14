@@ -7,6 +7,7 @@
     <IsPackable>true</IsPackable>
 
     <Description>DotNet Interactive Extension for .NET for Apache Spark</Description>
+    <PackageReleaseNotes>https://github.com/dotnet/spark/tree/master/docs/release-notes</PackageReleaseNotes>
     <PackageTags>spark;dotnet;csharp;interactive;dotnet-interactive</PackageTags>
 
     <RestoreAdditionalProjectSources>https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json</RestoreAdditionalProjectSources>
