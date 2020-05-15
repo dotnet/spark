@@ -52,12 +52,12 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             fileAction(nativeProbingPath, false);
 
             // Nuget metadata
-            var nugetMetadata =
+            var nugetMetadataPath =
                 Path.Combine(path, NewNumberFileName("nugets_*.txt", s_metadataCounter));
             File.WriteAllLines(
-                nugetMetadata,
+                nugetMetadataPath,
                 nugets.Select(n => $"{n.File.Name}/{n.Name}/{n.Version}"));
-            fileAction(nugetMetadata, false);
+            fileAction(nugetMetadataPath, false);
         }
 
         private static IEnumerable<NuGetMetadata> GetNugetPackages()
