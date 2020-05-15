@@ -23,11 +23,6 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
     public class AssemblyKernelExtension : IKernelExtension
     {
         /// <summary>
-        /// Flag to enable/disable the extension.
-        /// </summary>
-        public static volatile bool s_enabled = true;
-
-        /// <summary>
         /// Called by the Microsoft.DotNet.Interactive Assembly Extension Loader.
         /// </summary>
         /// <param name="kernel">The kernel calling this method.</param>
@@ -45,7 +40,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
                 kernelBase.AddMiddleware(async (command, context, next) =>
                 {
-                    if (command is SubmitCode && s_enabled)
+                    if (command is SubmitCode)
                     {
                         var kernel = context.HandlingKernel as CSharpKernel;
                         Compilation preCellCompilation = kernel.ScriptState.Script.GetCompilation();
