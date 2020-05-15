@@ -30,8 +30,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
         /// <summary>
         /// Called by the Microsoft.DotNet.Interactive Assembly Extension Loader.
         /// </summary>
-        /// <param name="kernel"></param>
-        /// <returns></returns>
+        /// <param name="kernel">The kernel calling this method.</param>
         public Task OnLoadAsync(IKernel kernel)
         {
             if (kernel is CompositeKernel kernelBase)
@@ -41,7 +40,8 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                     Path.Combine(
                         string.IsNullOrEmpty(home) ? Directory.GetCurrentDirectory() : home,
                         Path.GetRandomFileName()));
-                var disposableDirectory = new DisposableDirectory(tempDir);
+
+                kernelBase.RegisterForDisposal(new DisposableDirectory(tempDir));
 
                 kernelBase.AddMiddleware(async (command, context, next) =>
                 {
@@ -66,8 +66,6 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
                     await next(command, context);
                 });
-
-                kernelBase.RegisterForDisposal(disposableDirectory);
             }
 
             return Task.CompletedTask;
