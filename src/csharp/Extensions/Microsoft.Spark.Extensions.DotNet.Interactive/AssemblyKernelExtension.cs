@@ -43,14 +43,14 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                     if (command is SubmitCode)
                     {
                         var kernel = context.HandlingKernel as CSharpKernel;
-                        Compilation preCellCompilation = kernel.ScriptState.Script.GetCompilation();
+                        Compilation preCompilation = kernel.ScriptState.Script.GetCompilation();
 
                         string assemblyName =
-                            AssemblyLoader.NormalizeAssemblyName(preCellCompilation.AssemblyName);
+                            AssemblyLoader.NormalizeAssemblyName(preCompilation.AssemblyName);
                         string assemblyPath = Path.Combine(tempDir.FullName, $"{assemblyName}.dll");
                         if (!File.Exists(assemblyPath))
                         {
-                            FileSystemExtensions.Emit(preCellCompilation, assemblyPath);
+                            FileSystemExtensions.Emit(preCompilation, assemblyPath);
                             SparkSession.Active().SparkContext.AddFile(assemblyPath);
                         }
 

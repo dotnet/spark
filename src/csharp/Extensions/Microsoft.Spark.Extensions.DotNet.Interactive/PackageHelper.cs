@@ -16,10 +16,12 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             (KernelInvocationContext.Current.HandlingKernel as ISupportNuget)
             .PackageRestoreContext;
 
-        internal static void GenerateAndAddFiles(DirectoryInfo dir, Action<string, bool> fileAction)
+        internal static void GenerateAndAddFiles(
+            DirectoryInfo dir,
+            Action<string, bool> fileAction)
         {
-            IEnumerable<NuGetMetadata> nugets = GetNugetPackages();
-            IEnumerable<FileInfo> packages = GetFilesToCopy(nugets.Select(n => n.File));
+            IEnumerable<NuGetMetadata> nugetMetadatas = GetNugetPackages();
+            IEnumerable<FileInfo> packages = GetFilesToCopy(nugetMetadatas.Select(n => n.File));
             int packageCount = 0;
             foreach (FileInfo file in packages)
             {
@@ -29,12 +31,12 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
             if (packageCount > 0)
             {
-                GenerateMetadata(dir.FullName, nugets, fileAction);
+                GenerateMetadata(dir.FullName, nugetMetadatas, fileAction);
             }
         }
 
         private static void GenerateMetadata(string path,
-            IEnumerable<NuGetMetadata> nugets,
+            IEnumerable<NuGetMetadata> nugetMetadatas,
             Action<string, bool> fileAction)
         {
             s_metadataCounter++;
@@ -56,7 +58,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                 Path.Combine(path, NewNumberFileName("nugets_*.txt", s_metadataCounter));
             File.WriteAllLines(
                 nugetMetadataPath,
-                nugets.Select(n => $"{n.File.Name}/{n.Name}/{n.Version}"));
+                nugetMetadatas.Select(n => $"{n.File.Name}/{n.Name}/{n.Version}"));
             fileAction(nugetMetadataPath, false);
         }
 

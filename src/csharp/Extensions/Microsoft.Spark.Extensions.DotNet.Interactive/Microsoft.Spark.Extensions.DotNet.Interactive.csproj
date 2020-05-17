@@ -6,15 +6,15 @@
     <RootNamespace>Microsoft.Spark.Extensions.DotNet.Interactive</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);InteractiveExtensions</TargetsForTfmSpecificBuildOutput>
+    <NoWarn>NU5100;$(NoWarn)</NoWarn>
 
     <Description>DotNet Interactive Extension for .NET for Apache Spark</Description>
     <PackageReleaseNotes>https://github.com/dotnet/spark/tree/master/docs/release-notes</PackageReleaseNotes>
     <PackageTags>spark;dotnet;csharp;interactive;dotnet-interactive</PackageTags>
 
     <RestoreAdditionalProjectSources>https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet3.1/nuget/v3/index.json</RestoreAdditionalProjectSources>
-    <NoWarn>NU5100</NoWarn>
   </PropertyGroup>
-
 
   <ItemGroup>
     <PackageReference Include="Microsoft.DotNet.Interactive.CSharp" Version="1.0.0-beta.20262.1">
@@ -26,10 +26,12 @@
     <ProjectReference Include="..\..\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="$(OutputPath)/Microsoft.Spark.Extensions.DotNet.Interactive.dll"
-          Pack="true"
-          PackagePath="interactive-extensions/dotnet" />
-  </ItemGroup>
+  <Target Name="InteractiveExtensions">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(OutputPath)/Microsoft.Spark.Extensions.DotNet.Interactive.dll">
+        <PackagePath>interactive-extensions/dotnet</PackagePath>
+      </TfmSpecificPackageFile>
+    </ItemGroup>
+  </Target>
 
 </Project>
