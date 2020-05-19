@@ -18,6 +18,12 @@ namespace Microsoft.Spark.UnitTest
         public SparkFixture()
         {
             SetupBasicMockJvm();
+
+            // Unit tests may contain calls that hit the AssemblyLoader.
+            // One of the AssemblyLoader assembly search paths is populated
+            // using SparkFiles. Unless we are running in an E2E scenario and
+            // on the Worker, SparkFiles will attempt to call the JVM. Because
+            // this is a (non E2E) Unit test, it is necessary to mock this call.
             SetupSparkFiles();
 
             var mockJvmBridgeFactory = new Mock<IJvmBridgeFactory>();

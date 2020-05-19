@@ -6,18 +6,12 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Worker.Utils;
 
 namespace Microsoft.Spark.Worker.Processor
 {
     internal sealed class BroadcastVariableProcessor
     {
         private readonly Version _version;
-
-        static BroadcastVariableProcessor()
-        {
-            AssemblyLoaderHelper.Setup();
-        }
 
         internal BroadcastVariableProcessor(Version version)
         {

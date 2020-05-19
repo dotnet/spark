@@ -9,9 +9,9 @@ using Microsoft.Spark.Utils;
 using System.IO;
 using System.IO.Compression;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Loader;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Linq;
 using Microsoft.DotNet.DependencyManager;
 #endif
 
@@ -19,21 +19,15 @@ namespace Microsoft.Spark.Worker.Utils
 {
     internal static class AssemblyLoaderHelper
     {
-        private static bool s_initialized = false;
-
 #if NETCOREAPP
-        private static DependencyProvider _dependencyProvider;
+        private static int s_stageId = int.MinValue;
+        private static DependencyProvider s_dependencyProvider;
+        private static object s_lock = new Object();
 #endif
 
-        internal static void Setup()
+        static AssemblyLoaderHelper()
         {
-            if (s_initialized)
-            {
-                return;
-            }
-
 #if NETCOREAPP
-            RegisterReplAssemblyHandler();
             AssemblyLoader.LoadFromFile = AssemblyLoadContext.Default.LoadFromAssemblyPath;
             AssemblyLoadContext.Default.Resolving += (assemblyLoadContext, assemblyName) =>
                 AssemblyLoader.ResolveAssembly(assemblyName.FullName);
@@ -41,54 +35,63 @@ namespace Microsoft.Spark.Worker.Utils
             AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) =>
                 AssemblyLoader.ResolveAssembly(args.Name);
 #endif
-
-            s_initialized = true;
         }
 
 #if NETCOREAPP
-        private static void RegisterReplAssemblyHandler()
+        internal static void RegisterReplAssemblyHandler(int stageId)
         {
-            if (!EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_REPL_MODE"))
+            if (!EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_REPL_MODE") ||
+                (stageId == s_stageId))
             {
                 return;
             }
 
-            string sparkFilesPath = SparkFiles.GetRootDirectory();
-            string metadataFile =
-                FindHighestFile(sparkFilesPath, DependencyProviderUtils.FilePattern);
-
-            if (string.IsNullOrEmpty(metadataFile))
+            lock (s_lock)
             {
-                return;
-            }
-
-            using FileStream fileStream = File.OpenRead(metadataFile);
-            BinaryFormatter formatter = new BinaryFormatter();
-            DependencyProviderUtils.Metadata metadata =
-                (DependencyProviderUtils.Metadata)formatter.Deserialize(fileStream);
-
-            string unpackPath =
-                Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(".nuget", "packages"));
-            Directory.CreateDirectory(unpackPath);
-
-            IEnumerable<string> AssemblyProbingPaths()
-            {
-                foreach (string dependency in metadata.AssemblyProbingPaths)
+                if (stageId == s_stageId)
                 {
-                    yield return Path.Combine(unpackPath, dependency);
+                    return;
                 }
-            }
 
-            IEnumerable<string> NativeProbingRoots()
-            {
-                foreach (string dependency in metadata.NativeProbingPaths)
+                string sparkFilesPath = SparkFiles.GetRootDirectory();
+                string metadataFile =
+                    FindHighestFile(sparkFilesPath, DependencyProviderUtils.FilePattern);
+
+                if (string.IsNullOrEmpty(metadataFile))
                 {
-                    yield return Path.Combine(unpackPath, dependency);
+                    return;
                 }
-            }
 
-            UnpackPackages(sparkFilesPath, unpackPath, metadata.NuGets);
-            _dependencyProvider = new DependencyProvider(AssemblyProbingPaths, NativeProbingRoots);
+                using FileStream fileStream = File.OpenRead(metadataFile);
+                BinaryFormatter formatter = new BinaryFormatter();
+                DependencyProviderUtils.Metadata metadata =
+                    (DependencyProviderUtils.Metadata)formatter.Deserialize(fileStream);
+
+                string unpackPath =
+                    Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(".nuget", "packages"));
+                Directory.CreateDirectory(unpackPath);
+
+                IEnumerable<string> AssemblyProbingPaths()
+                {
+                    foreach (string dependency in metadata.AssemblyProbingPaths)
+                    {
+                        yield return Path.Combine(unpackPath, dependency);
+                    }
+                }
+
+                IEnumerable<string> NativeProbingRoots()
+                {
+                    foreach (string dependency in metadata.NativeProbingPaths)
+                    {
+                        yield return Path.Combine(unpackPath, dependency);
+                    }
+                }
+
+                UnpackPackages(sparkFilesPath, unpackPath, metadata.NuGets);
+
+                (s_dependencyProvider as IDisposable)?.Dispose();
+                s_dependencyProvider = new DependencyProvider(AssemblyProbingPaths, NativeProbingRoots);
+            }
         }
 
         private static string FindHighestFile(string src, string pattern)
