@@ -48,7 +48,7 @@ namespace Microsoft.Spark.Worker.Utils
 #if NETCOREAPP
         private static void RegisterReplAssemblyHandler()
         {
-            if (!EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_REPL"))
+            if (!EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_REPL_MODE"))
             {
                 return;
             }
