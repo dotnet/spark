@@ -1,9 +1,15 @@
-﻿using System;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Utility;
+using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Extensions.DotNet.Interactive
 {
@@ -18,56 +24,77 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
         internal static void GenerateAndAddFiles(
             DirectoryInfo dir,
-            Action<string, bool> fileAction)
+            Action<string> fileAction)
         {
-            IEnumerable<NuGetMetadata> nugetMetadatas = GetNugetPackages();
-            IEnumerable<FileInfo> packages = GetFilesToCopy(nugetMetadatas.Select(n => n.File));
-            int packageCount = 0;
-            foreach (FileInfo file in packages)
+            IEnumerable<NuGetPackage> nugetPackages = GetNugetPackages();
+            IEnumerable<FileInfo> filesToCopy =
+                GetFilesToCopy(nugetPackages.Select(n => n.NuGetFile));
+
+            bool newPackages = false;
+            foreach (FileInfo file in filesToCopy)
             {
-                packageCount++;
-                fileAction(file.FullName, false);
+                newPackages = true;
+                fileAction(file.FullName);
             }
 
-            if (packageCount > 0)
+            if (newPackages)
             {
-                GenerateMetadata(dir.FullName, nugetMetadatas, fileAction);
+                GenerateMetadata(dir.FullName, nugetPackages, fileAction);
             }
         }
 
-        private static void GenerateMetadata(string path,
-            IEnumerable<NuGetMetadata> nugetMetadatas,
-            Action<string, bool> fileAction)
+        private static void GenerateMetadata(
+            string path,
+            IEnumerable<NuGetPackage> nugetPackages,
+            Action<string> fileAction)
         {
-            s_metadataCounter++;
+            List<string> assemblyProbingPaths = new List<string>();
+            List<string> nativeProbingPaths = new List<string>();
 
-            // Assembly probing paths
-            var assemblyProbingPath =
-                Path.Combine(path, NewNumberFileName("assemblyPaths_*.probe", s_metadataCounter));
-            File.WriteAllLines(assemblyProbingPath, GetAssemblyProbingPaths());
-            fileAction(assemblyProbingPath, false);
+            PackageRestoreContext restoreContext = RestoreContext;
+            IEnumerable<ResolvedPackageReference> packages =
+                restoreContext.ResolvedPackageReferences;
+            foreach (ResolvedPackageReference package in packages)
+            {
+                foreach (FileInfo asmPath in package.AssemblyPaths)
+                {
+                    assemblyProbingPaths.Add(
+                        GetPathRelativeToPackages(asmPath.FullName, package.PackageRoot));
+                }
 
-            // Native probing paths
-            var nativeProbingPath =
-                Path.Combine(path, NewNumberFileName("nativePaths_*.probe", s_metadataCounter));
-            File.WriteAllLines(nativeProbingPath, GetNativeProbingPaths());
-            fileAction(nativeProbingPath, false);
+                foreach (DirectoryInfo probePath in package.ProbingPaths)
+                {
+                    nativeProbingPaths.Add(
+                        GetPathRelativeToPackages(probePath.FullName, package.PackageRoot));
+                }
+            }
 
-            // Nuget metadata
-            var nugetMetadataPath =
-                Path.Combine(path, NewNumberFileName("nugets_*.txt", s_metadataCounter));
-            File.WriteAllLines(
-                nugetMetadataPath,
-                nugetMetadatas.Select(n => $"{n.File.Name}/{n.Name}/{n.Version}"));
-            fileAction(nugetMetadataPath, false);
+            string metadataPath =
+                Path.Combine(
+                    path,
+                    NewNumberFileName(DependencyProviderUtils.FilePattern, ++s_metadataCounter));
+            using (FileStream fileStream = File.OpenWrite(metadataPath))
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(
+                    fileStream,
+                    new DependencyProviderUtils.Metadata
+                    {
+                        AssemblyProbingPaths = assemblyProbingPaths.ToArray(),
+                        NativeProbingPaths = nativeProbingPaths.ToArray(),
+                        NuGets = nugetPackages.Select(n => n.Metadata).ToArray()
+                    });
+            }
+
+            fileAction(metadataPath);
         }
 
-        private static IEnumerable<NuGetMetadata> GetNugetPackages()
+        private static IEnumerable<NuGetPackage> GetNugetPackages()
         {
             PackageRestoreContext restoreContext = RestoreContext;
             IEnumerable<ResolvedPackageReference> packages =
                 restoreContext.ResolvedPackageReferences;
-            List<NuGetMetadata> nugets = new List<NuGetMetadata>();
+            List<NuGetPackage> nugets = new List<NuGetPackage>();
             foreach (ResolvedPackageReference package in packages)
             {
                 IEnumerable<FileInfo> files =
@@ -75,11 +102,15 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                 foreach (FileInfo file in files)
                 {
                     nugets.Add(
-                        new NuGetMetadata
+                        new NuGetPackage
                         {
-                            File = file,
-                            Name = package.PackageName,
-                            Version = package.PackageVersion
+                            NuGetFile = file,
+                            Metadata = new DependencyProviderUtils.NuGetMetadata
+                            {
+                                FileName = file.Name,
+                                PackageName = package.PackageName,
+                                PackageVersion = package.PackageVersion
+                            }
                         });
                 }
             }
@@ -118,39 +149,10 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             }
         }
 
-        private static IEnumerable<string> GetAssemblyProbingPaths()
+        private class NuGetPackage
         {
-            PackageRestoreContext restoreContext = RestoreContext;
-            IEnumerable<ResolvedPackageReference> packages =
-                restoreContext.ResolvedPackageReferences;
-            foreach (ResolvedPackageReference package in packages)
-            {
-                foreach (FileInfo path in package.AssemblyPaths)
-                {
-                    yield return GetPathRelativeToPackages(path.FullName, package.PackageRoot);
-                }
-            }
-        }
-
-        private static IEnumerable<string> GetNativeProbingPaths()
-        {
-            PackageRestoreContext restoreContext = RestoreContext;
-            IEnumerable<ResolvedPackageReference> packages =
-                restoreContext.ResolvedPackageReferences;
-            foreach (ResolvedPackageReference package in packages)
-            {
-                foreach (DirectoryInfo path in package.ProbingPaths)
-                {
-                    yield return GetPathRelativeToPackages(path.FullName, package.PackageRoot);
-                }
-            }
-        }
-
-        private struct NuGetMetadata
-        {
-            public FileInfo File { get; set; }
-            public string Name { get; set; }
-            public string Version { get; set; }
+            public FileInfo NuGetFile { get; set; }
+            public DependencyProviderUtils.NuGetMetadata Metadata { get; set; }
         }
     }
 }

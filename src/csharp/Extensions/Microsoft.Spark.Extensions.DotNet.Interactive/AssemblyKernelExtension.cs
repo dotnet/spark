@@ -56,7 +56,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
                         PackagesHelper.GenerateAndAddFiles(
                             tempDir,
-                            SparkSession.Active().SparkContext.AddFile);
+                            s => SparkSession.Active().SparkContext.AddFile(s, false));
                     }
 
                     await next(command, context);
