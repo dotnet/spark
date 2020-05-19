@@ -1,4 +1,4 @@
-# Spark .NET build
+   # Spark .NET build
 
 trigger:
   batch: true
@@ -105,6 +105,11 @@ stages:
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
 
     steps:
+    - task: Maven@3
+      displayName: 'Maven build src'
+      inputs:
+        mavenPomFile: src/scala/pom.xml
+
     - task: BatchScript@1
       displayName: Download Spark Distros & Winutils.exe
       inputs:
@@ -116,6 +121,13 @@ stages:
       inputs:
         filename: script\download-worker-release.cmd
         arguments: '$(Build.BinariesDirectory) $(backwardCompatibleRelease)'
+
+    - script: build.cmd
+                -c $(buildConfiguration)
+                -ci
+                $(_OfficialBuildIdArgs)
+                /p:PublishSparkWorker=false
+      displayName: '.NET build for backward compatible release v$(backwardCompatibleRelease)'
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.0 with backward compatible worker v$(backwardCompatibleRelease)'
@@ -140,25 +152,36 @@ stages:
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
 
     steps:
+    - checkout: self
+      path: s\master
     - checkout: forwardCompatibleRelease
-
+      path: s\$(forwardCompatibleRelease)
+    
     - task: Maven@3
       displayName: 'Maven build src for forward compatible release v$(forwardCompatibleRelease)'
       inputs:
-        mavenPomFile: src/scala/pom.xml
+        mavenPomFile: $(forwardCompatibleRelease)/src/scala/pom.xml
       
     - task: BatchScript@1
       displayName: Download Spark Distros & Winutils.exe
       inputs:
-        filename: script\download-spark-distros.cmd
+        filename: master\script\download-spark-distros.cmd
         arguments: $(Build.BinariesDirectory)
 
-    - script: build.cmd
+    - script: $(forwardCompatibleRelease)\build.cmd
                 -c $(buildConfiguration)
                 -ci
                 $(_OfficialBuildIdArgs)
                 /p:PublishSparkWorker=false
       displayName: '.NET build for forward compatible release v$(forwardCompatibleRelease)'
+
+    - script: master\build.cmd -pack
+                -c $(buildConfiguration)
+                -ci
+                $(_OfficialBuildIdArgs)
+                /p:PublishSparkWorker=true
+                /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
+      displayName: '.NET build'
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.0 from forward compatible release v$(forwardCompatibleRelease)'
