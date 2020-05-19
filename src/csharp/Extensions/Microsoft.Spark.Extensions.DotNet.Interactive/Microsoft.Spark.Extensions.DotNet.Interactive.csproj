@@ -6,7 +6,6 @@
     <RootNamespace>Microsoft.Spark.Extensions.DotNet.Interactive</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);InteractiveExtensions</TargetsForTfmSpecificBuildOutput>
     <NoWarn>NU5100;$(NoWarn)</NoWarn>
 
     <Description>DotNet Interactive Extension for .NET for Apache Spark</Description>
@@ -26,12 +25,10 @@
     <ProjectReference Include="..\..\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
 
-  <Target Name="InteractiveExtensions">
-    <ItemGroup>
-      <TfmSpecificPackageFile Include="$(OutputPath)/Microsoft.Spark.Extensions.DotNet.Interactive.dll">
-        <PackagePath>interactive-extensions/dotnet</PackagePath>
-      </TfmSpecificPackageFile>
-    </ItemGroup>
-  </Target>
+  <ItemGroup>
+    <None Include="$(OutputPath)/Microsoft.Spark.Extensions.DotNet.Interactive.dll"
+      Pack="true"
+      PackagePath="interactive-extensions/dotnet" />
+  </ItemGroup>
 
 </Project>
