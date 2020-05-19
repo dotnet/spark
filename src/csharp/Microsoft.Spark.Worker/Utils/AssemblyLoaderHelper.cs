@@ -54,17 +54,18 @@ namespace Microsoft.Spark.Worker.Utils
             }
 
             string sparkFilesPath = SparkFiles.GetRootDirectory();
-            string metadataFile = FindHighestFile(sparkFilesPath, "dependencyProviderMetadata_*");
+            string metadataFile =
+                FindHighestFile(sparkFilesPath, DependencyProviderUtils.FilePattern);
 
             if (string.IsNullOrEmpty(metadataFile))
             {
                 return;
             }
 
-            BinaryFormatter formatter = new BinaryFormatter();
             using FileStream fileStream = File.OpenRead(metadataFile);
-            AssemblyLoader.DependencyProviderMetadata metadata =
-                (AssemblyLoader.DependencyProviderMetadata)formatter.Deserialize(fileStream);
+            BinaryFormatter formatter = new BinaryFormatter();
+            DependencyProviderUtils.Metadata metadata =
+                (DependencyProviderUtils.Metadata)formatter.Deserialize(fileStream);
 
             string unpackPath =
                 Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(".nuget", "packages"));
@@ -105,9 +106,9 @@ namespace Microsoft.Spark.Worker.Utils
         private static void UnpackPackages(
             string src,
             string dst,
-            AssemblyLoader.NuGetMetadata[] nugetMetadata)
+            DependencyProviderUtils.NuGetMetadata[] nugetMetadata)
         {
-            foreach (AssemblyLoader.NuGetMetadata metadata in nugetMetadata)
+            foreach (DependencyProviderUtils.NuGetMetadata metadata in nugetMetadata)
             {
                 string relativePackagePath =
                     Path.Combine(metadata.PackageName.ToLower(), metadata.PackageVersion);

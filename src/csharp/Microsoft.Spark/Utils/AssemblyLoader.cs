@@ -211,19 +211,5 @@ namespace Microsoft.Spark.Utils
                 $"{match.Groups[1].Value}-{match.Groups[2].Value}" :
                 assemblyName;
         }
-
-        internal struct NuGetMetadata
-        {
-            public string FileName;
-            public string PackageName;
-            public string PackageVersion;
-        }
-
-        internal struct DependencyProviderMetadata
-        {
-            public string[] AssemblyProbingPaths;
-            public string[] NativeProbingPaths;
-            public NuGetMetadata[] NuGets;
-        }
     }
 }
