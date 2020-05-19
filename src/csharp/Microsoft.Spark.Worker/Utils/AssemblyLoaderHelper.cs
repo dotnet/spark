@@ -9,8 +9,8 @@ using Microsoft.Spark.Utils;
 using System.IO;
 using System.IO.Compression;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.Loader;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Linq;
 using Microsoft.DotNet.DependencyManager;
 #endif
@@ -54,20 +54,17 @@ namespace Microsoft.Spark.Worker.Utils
             }
 
             string sparkFilesPath = SparkFiles.GetRootDirectory();
-            string assemblyPathsFile = FindHighestFile(sparkFilesPath, "assemblyPaths_*.probe");
-            string nativeDepenciesFile = FindHighestFile(sparkFilesPath, "nativePaths_*.probe");
-            string nugetsMetadataFile = FindHighestFile(sparkFilesPath, "nugets_*.txt");
+            string metadataFile = FindHighestFile(sparkFilesPath, "dependencyProviderMetadata_*");
 
-            if (string.IsNullOrEmpty(assemblyPathsFile) ||
-                string.IsNullOrEmpty(nativeDepenciesFile) ||
-                string.IsNullOrEmpty(nugetsMetadataFile))
+            if (string.IsNullOrEmpty(metadataFile))
             {
                 return;
             }
 
-            string[] assemblyDependencies = File.ReadAllLines(assemblyPathsFile);
-            string[] nativeDependencies = File.ReadAllLines(nativeDepenciesFile);
-            string[] nugetsMetadata = File.ReadAllLines(nugetsMetadataFile);
+            BinaryFormatter formatter = new BinaryFormatter();
+            using FileStream fileStream = File.OpenRead(metadataFile);
+            AssemblyLoader.DependencyProviderMetadata metadata =
+                (AssemblyLoader.DependencyProviderMetadata)formatter.Deserialize(fileStream);
 
             string unpackPath =
                 Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(".nuget", "packages"));
@@ -75,7 +72,7 @@ namespace Microsoft.Spark.Worker.Utils
 
             IEnumerable<string> AssemblyProbingPaths()
             {
-                foreach (string dependency in assemblyDependencies)
+                foreach (string dependency in metadata.AssemblyProbingPaths)
                 {
                     yield return Path.Combine(unpackPath, dependency);
                 }
@@ -83,13 +80,13 @@ namespace Microsoft.Spark.Worker.Utils
 
             IEnumerable<string> NativeProbingRoots()
             {
-                foreach (string dependency in nativeDependencies)
+                foreach (string dependency in metadata.NativeProbingPaths)
                 {
                     yield return Path.Combine(unpackPath, dependency);
                 }
             }
 
-            UnpackPackages(sparkFilesPath, unpackPath, nugetsMetadata);
+            UnpackPackages(sparkFilesPath, unpackPath, metadata.NuGets);
             _dependencyProvider = new DependencyProvider(AssemblyProbingPaths, NativeProbingRoots);
         }
 
@@ -105,21 +102,20 @@ namespace Microsoft.Spark.Worker.Utils
             return null;
         }
 
-        private static void UnpackPackages(string src, string dst, string[] nugetsMetadata)
+        private static void UnpackPackages(
+            string src,
+            string dst,
+            AssemblyLoader.NuGetMetadata[] nugetMetadata)
         {
-            foreach (string entry in nugetsMetadata)
+            foreach (AssemblyLoader.NuGetMetadata metadata in nugetMetadata)
             {
-                string[] metadata = entry.Split('/');
-                string nugetFileName = metadata[0];
-                string nugetName = metadata[1];
-                string nugetVersion = metadata[2];
-
-                var packageDirectory = new DirectoryInfo(
-                    Path.Combine(dst, Path.Combine(nugetName.ToLower(), nugetVersion)));
+                string relativePackagePath =
+                    Path.Combine(metadata.PackageName.ToLower(), metadata.PackageVersion);
+                var packageDirectory = new DirectoryInfo(Path.Combine(dst, relativePackagePath));
                 if (!packageDirectory.Exists)
                 {
                     ZipFile.ExtractToDirectory(
-                        Path.Combine(src, nugetFileName),
+                        Path.Combine(src, metadata.FileName),
                         packageDirectory.FullName);
                 }
             }
