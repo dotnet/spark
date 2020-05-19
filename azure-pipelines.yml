@@ -298,7 +298,7 @@ stages:
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
 
-- task: DotNetCoreCLI@2
+    - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.1 from forward compatible release v$(forwardCompatibleRelease)'
       inputs:
         command: test
