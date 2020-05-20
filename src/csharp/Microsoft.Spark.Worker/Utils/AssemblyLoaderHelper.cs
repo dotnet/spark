@@ -21,6 +21,7 @@ namespace Microsoft.Spark.Worker.Utils
     {
 #if NETCOREAPP
         private static int s_stageId = int.MinValue;
+        private static string s_lastFileRead;
         private static DependencyProvider s_dependencyProvider;
         private static readonly object s_lock = new object();
 #endif
@@ -83,15 +84,17 @@ namespace Microsoft.Spark.Worker.Utils
                 {
                     return;
                 }
+                s_stageId = stageId;
 
                 string sparkFilesPath = SparkFiles.GetRootDirectory();
                 string metadataFile =
                     FindHighestFile(sparkFilesPath, DependencyProviderUtils.FilePattern);
 
-                if (string.IsNullOrEmpty(metadataFile))
+                if (string.IsNullOrEmpty(metadataFile) || metadataFile.Equals(s_lastFileRead))
                 {
                     return;
                 }
+                s_lastFileRead = metadataFile;
 
                 using FileStream fileStream = File.OpenRead(metadataFile);
                 BinaryFormatter formatter = new BinaryFormatter();
@@ -122,7 +125,6 @@ namespace Microsoft.Spark.Worker.Utils
 
                 (s_dependencyProvider as IDisposable)?.Dispose();
                 s_dependencyProvider = new DependencyProvider(AssemblyProbingPaths, NativeProbingRoots);
-                s_stageId = stageId;
             }
         }
 
