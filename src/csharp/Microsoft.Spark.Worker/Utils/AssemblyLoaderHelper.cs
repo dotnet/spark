@@ -38,9 +38,9 @@ namespace Microsoft.Spark.Worker.Utils
         }
 
 #if NETCOREAPP
-        internal static void RegisterReplAssemblyHandler(int stageId)
+        internal static void RegisterAssemblyHandler(int stageId)
         {
-            if (!EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_REPL_MODE") ||
+            if (!EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_REPL_MODE") ||l
                 (stageId == s_stageId))
             {
                 return;
@@ -91,6 +91,7 @@ namespace Microsoft.Spark.Worker.Utils
 
                 (s_dependencyProvider as IDisposable)?.Dispose();
                 s_dependencyProvider = new DependencyProvider(AssemblyProbingPaths, NativeProbingRoots);
+                s_stageId = stageId;
             }
         }
 
