@@ -18,14 +18,14 @@ namespace Microsoft.Spark.Worker.Processor
     {
         private readonly Version _version;
 
-        static PayloadProcessor()
-        {
-            AssemblyLoaderHelper.Initialize();
-        }
-
         internal PayloadProcessor(Version version)
         {
             _version = version;
+        }
+
+        static PayloadProcessor()
+        {
+            AssemblyLoaderHelper.Initialize();
         }
 
         /// <summary>
@@ -76,6 +76,10 @@ namespace Microsoft.Spark.Worker.Processor
             payload.IncludeItems = ReadIncludeItems(stream);
 
 #if NETCOREAPP
+            // Register additional assembly handlers after SparkFilesDir has been set
+            // and before any deserialization occurs. BroadcastVariableProcessor may
+            // deserialize objects from assemblies that are not currently loaded within
+            // our current context.
             Utils.AssemblyLoaderHelper.RegisterAssemblyHandler(payload.TaskContext.StageId);
 #endif
 

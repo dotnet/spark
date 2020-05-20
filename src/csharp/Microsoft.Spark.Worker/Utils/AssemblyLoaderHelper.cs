@@ -22,9 +22,13 @@ namespace Microsoft.Spark.Worker.Utils
 #if NETCOREAPP
         private static int s_stageId = int.MinValue;
         private static DependencyProvider s_dependencyProvider;
-        private static object s_lock = new Object();
+        private static readonly object s_lock = new object();
 #endif
 
+        /// <summary>
+        /// Register the AssemblyLoader.ResolveAssembly handler to handle the
+        /// event when assemblies fail to load in the current assembly load context.
+        /// </summary>
         internal static void Initialize()
         {
 #if NETCOREAPP
@@ -38,6 +42,29 @@ namespace Microsoft.Spark.Worker.Utils
         }
 
 #if NETCOREAPP
+        /// <summary>
+        /// In a dotnet-interactive REPL session (driver), nuget dependencies will be
+        /// systematically added using <see cref="SparkContext.AddFile(string, bool)"/>.
+        ///
+        /// These files include:
+        /// - "{packagename}.{version}.nupkg"
+        ///   The nuget packages
+        /// - "dependencyProviderMetadata"
+        ///   Serialized <see cref="DependencyProviderUtils.Metadata"/> object.
+        ///
+        /// On the Worker, in order to resolve the nuget dependencies referenced by
+        /// the dotnet-interactive session, we instantiate a <see cref="DependencyProvider"/>.
+        /// This provider will register an event handler to the
+        /// <see cref="AssemblyLoadContext.Resolving"/> event.
+        /// By using <see cref="SparkFiles.GetRootDirectory"/>, we can access the
+        /// required files added to the <see cref="SparkContext"/>.
+        ///
+        /// Note: Because <see cref="SparkContext.AddFile(string, bool)"/> prevents
+        /// overwriting/deleting files once they have been added to the
+        /// <see cref="SparkContext"/>, numbered identifiers are added to relevant files:
+        /// - "dependencyProviderMetadata" => dependencyProviderMetadata_{zero padded ulong}
+        /// </summary>
+        /// <param name="stageId">The current Stage ID</param>
         internal static void RegisterAssemblyHandler(int stageId)
         {
             if (!EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_REPL_MODE") ||
@@ -46,6 +73,10 @@ namespace Microsoft.Spark.Worker.Utils
                 return;
             }
 
+            // For a given stage, it is sufficient to instantiate one DependencyProvider.
+            // However, the Worker process may be reused between stages. New nuget dependencies
+            // may be introduced between stages and a new DependencyProvider will need to be
+            // created that can resolve them.
             lock (s_lock)
             {
                 if (stageId == s_stageId)

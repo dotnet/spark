@@ -12,7 +12,6 @@ namespace Microsoft.Spark.Worker.Processor
     internal sealed class BroadcastVariableProcessor
     {
         private readonly Version _version;
-
         internal BroadcastVariableProcessor(Version version)
         {
             _version = version;
