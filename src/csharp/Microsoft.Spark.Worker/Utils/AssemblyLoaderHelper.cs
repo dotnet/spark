@@ -49,7 +49,7 @@ namespace Microsoft.Spark.Worker.Utils
         /// These files include:
         /// - "{packagename}.{version}.nupkg"
         ///   The nuget packages
-        /// - "dependencyProviderMetadata"
+        /// - <see cref="DependencyProviderUtils.FilePattern"/>
         ///   Serialized <see cref="DependencyProviderUtils.Metadata"/> object.
         ///
         /// On the Worker, in order to resolve the nuget dependencies referenced by
@@ -62,7 +62,7 @@ namespace Microsoft.Spark.Worker.Utils
         /// Note: Because <see cref="SparkContext.AddFile(string, bool)"/> prevents
         /// overwriting/deleting files once they have been added to the
         /// <see cref="SparkContext"/>, numbered identifiers are added to relevant files:
-        /// - "dependencyProviderMetadata" => dependencyProviderMetadata_{zero padded ulong}
+        /// - <see cref="DependencyProviderUtils.FilePattern"/>
         /// </summary>
         /// <param name="stageId">The current Stage ID</param>
         internal static void RegisterAssemblyHandler(int stageId)
