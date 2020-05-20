@@ -25,7 +25,7 @@ namespace Microsoft.Spark.Worker.Utils
         private static object s_lock = new Object();
 #endif
 
-        static AssemblyLoaderHelper()
+        internal static void Initialize()
         {
 #if NETCOREAPP
             AssemblyLoader.LoadFromFile = AssemblyLoadContext.Default.LoadFromAssemblyPath;
@@ -40,7 +40,7 @@ namespace Microsoft.Spark.Worker.Utils
 #if NETCOREAPP
         internal static void RegisterAssemblyHandler(int stageId)
         {
-            if (!EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_REPL_MODE") ||l
+            if (!EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_REPL_MODE") ||
                 (stageId == s_stageId))
             {
                 return;

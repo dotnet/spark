@@ -7,6 +7,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Worker.Utils;
 
 namespace Microsoft.Spark.Worker.Processor
 {
@@ -16,6 +17,11 @@ namespace Microsoft.Spark.Worker.Processor
     internal class PayloadProcessor
     {
         private readonly Version _version;
+
+        static PayloadProcessor()
+        {
+            AssemblyLoaderHelper.Initialize();
+        }
 
         internal PayloadProcessor(Version version)
         {
@@ -70,7 +76,7 @@ namespace Microsoft.Spark.Worker.Processor
             payload.IncludeItems = ReadIncludeItems(stream);
 
 #if NETCOREAPP
-            Utils.AssemblyLoaderHelper.RegisterReplAssemblyHandler(payload.TaskContext.StageId);
+            Utils.AssemblyLoaderHelper.RegisterAssemblyHandler(payload.TaskContext.StageId);
 #endif
 
             payload.BroadcastVariables = new BroadcastVariableProcessor(_version).Process(stream);
