@@ -117,9 +117,11 @@ stages:
       DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)           
 
     steps:
-    - download: current
-      artifact: Microsoft.Spark.Binaries
-      path: $(Build.ArtifactStagingDirectory)
+    - task: DownloadBuildArtifacts@0
+      displayName: Download Build Artifacts and Binaries
+      inputs:
+        artifactName: Microsoft.Spark.Binaries
+        downloadPath: $(Build.ArtifactStagingDirectory)
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.0'
