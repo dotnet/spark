@@ -3,28 +3,25 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.IO;
 using Microsoft.Spark.Utils;
 
 #if NETCOREAPP
-using System.IO;
-using System.IO.Compression;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Loader;
-using System.Runtime.Serialization.Formatters.Binary;
-using Microsoft.DotNet.DependencyManager;
 #endif
 
 namespace Microsoft.Spark.Worker.Utils
 {
     internal static class AssemblyLoaderHelper
     {
-#if NETCOREAPP
+        private static readonly Lazy<bool> s_runningREPL = new Lazy<bool>(
+            () => !EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_RUNNING_REPL"));
+
         private static int s_stageId = int.MinValue;
         private static string s_lastFileRead;
         private static DependencyProvider s_dependencyProvider;
+
         private static readonly object s_lock = new object();
-#endif
 
         /// <summary>
         /// Register the AssemblyLoader.ResolveAssembly handler to handle the
@@ -42,7 +39,6 @@ namespace Microsoft.Spark.Worker.Utils
 #endif
         }
 
-#if NETCOREAPP
         /// <summary>
         /// In a dotnet-interactive REPL session (driver), nuget dependencies will be
         /// systematically added using <see cref="SparkContext.AddFile(string, bool)"/>.
@@ -50,26 +46,24 @@ namespace Microsoft.Spark.Worker.Utils
         /// These files include:
         /// - "{packagename}.{version}.nupkg"
         ///   The nuget packages
-        /// - <see cref="DependencyProviderUtils.FilePattern"/>
+        /// - <see cref="DependencyProviderUtils.CreateFileName(ulong)"/>
         ///   Serialized <see cref="DependencyProviderUtils.Metadata"/> object.
         ///
         /// On the Worker, in order to resolve the nuget dependencies referenced by
         /// the dotnet-interactive session, we instantiate a <see cref="DependencyProvider"/>.
-        /// This provider will register an event handler to the
-        /// <see cref="AssemblyLoadContext.Resolving"/> event.
+        /// This provider will register an event handler to the Assembly Load Resolving event.
         /// By using <see cref="SparkFiles.GetRootDirectory"/>, we can access the
         /// required files added to the <see cref="SparkContext"/>.
         ///
         /// Note: Because <see cref="SparkContext.AddFile(string, bool)"/> prevents
         /// overwriting/deleting files once they have been added to the
         /// <see cref="SparkContext"/>, numbered identifiers are added to relevant files:
-        /// - <see cref="DependencyProviderUtils.FilePattern"/>
+        /// - <see cref="DependencyProviderUtils.CreateFileName(ulong)"/>
         /// </summary>
         /// <param name="stageId">The current Stage ID</param>
         internal static void RegisterAssemblyHandler(int stageId)
         {
-            if (!EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_REPL_MODE") ||
-                (stageId == s_stageId))
+            if (s_runningREPL.Value || (stageId == s_stageId))
             {
                 return;
             }
@@ -87,8 +81,7 @@ namespace Microsoft.Spark.Worker.Utils
                 s_stageId = stageId;
 
                 string sparkFilesPath = SparkFiles.GetRootDirectory();
-                string metadataFile =
-                    FindHighestFile(sparkFilesPath, DependencyProviderUtils.FilePattern);
+                string metadataFile = DependencyProviderUtils.FindHighestFile(sparkFilesPath);
 
                 if (string.IsNullOrEmpty(metadataFile) || metadataFile.Equals(s_lastFileRead))
                 {
@@ -96,68 +89,20 @@ namespace Microsoft.Spark.Worker.Utils
                 }
                 s_lastFileRead = metadataFile;
 
-                using FileStream fileStream = File.OpenRead(metadataFile);
-                BinaryFormatter formatter = new BinaryFormatter();
                 DependencyProviderUtils.Metadata metadata =
-                    (DependencyProviderUtils.Metadata)formatter.Deserialize(fileStream);
+                    DependencyProviderUtils.Deserialize(metadataFile);
 
-                string unpackPath =
-                    Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(".nuget", "packages"));
+                string unpackPath = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    Path.Combine(".nuget", "packages"));
                 Directory.CreateDirectory(unpackPath);
 
-                IEnumerable<string> AssemblyProbingPaths()
-                {
-                    foreach (string dependency in metadata.AssemblyProbingPaths)
-                    {
-                        yield return Path.Combine(unpackPath, dependency);
-                    }
-                }
+                DependencyProvider.UnpackPackages(sparkFilesPath, unpackPath, metadata.NuGets);
 
-                IEnumerable<string> NativeProbingRoots()
-                {
-                    foreach (string dependency in metadata.NativeProbingPaths)
-                    {
-                        yield return Path.Combine(unpackPath, dependency);
-                    }
-                }
-
-                UnpackPackages(sparkFilesPath, unpackPath, metadata.NuGets);
-
-                (s_dependencyProvider as IDisposable)?.Dispose();
-                s_dependencyProvider = new DependencyProvider(AssemblyProbingPaths, NativeProbingRoots);
+                var dependencyProvider = new DependencyProvider(unpackPath, metadata);
+                s_dependencyProvider?.Dispose();
+                s_dependencyProvider = dependencyProvider;
             }
         }
-
-        private static string FindHighestFile(string src, string pattern)
-        {
-            string[] files = Directory.GetFiles(src, pattern);
-            if (files.Length > 0)
-            {
-                Array.Sort(files);
-                return files.Last();
-            }
-
-            return null;
-        }
-
-        private static void UnpackPackages(
-            string src,
-            string dst,
-            DependencyProviderUtils.NuGetMetadata[] nugetMetadata)
-        {
-            foreach (DependencyProviderUtils.NuGetMetadata metadata in nugetMetadata)
-            {
-                string relativePackagePath =
-                    Path.Combine(metadata.PackageName.ToLower(), metadata.PackageVersion);
-                var packageDirectory = new DirectoryInfo(Path.Combine(dst, relativePackagePath));
-                if (!packageDirectory.Exists)
-                {
-                    ZipFile.ExtractToDirectory(
-                        Path.Combine(src, metadata.FileName),
-                        packageDirectory.FullName);
-                }
-            }
-        }
-#endif
     }
 }

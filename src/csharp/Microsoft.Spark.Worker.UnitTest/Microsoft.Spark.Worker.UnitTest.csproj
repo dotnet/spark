@@ -16,6 +16,7 @@
   <ItemGroup>
     <Compile Include="..\Microsoft.Spark.UnitTest\SparkFixture.cs" />
     <Compile Include="..\Microsoft.Spark.UnitTest\TestUtils\ArrowTestUtils.cs" />
+    <Compile Include="..\Microsoft.Spark.UnitTest\TestUtils\TemporaryDirectory.cs" />
   </ItemGroup>
 
 </Project>

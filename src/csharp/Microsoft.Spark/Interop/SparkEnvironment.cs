@@ -51,7 +51,6 @@ namespace Microsoft.Spark.Interop
             s_jvmBridgeFactory = jvmBridgeFactory;
         }
 
-
         private static IJvmBridge s_jvmBridge;
         internal static IJvmBridge JvmBridge
         {

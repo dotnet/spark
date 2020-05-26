@@ -196,9 +196,10 @@ namespace Microsoft.Spark.Utils
                 "DOTNET_WORKER_SPARK_VERSION",
                 SparkEnvironment.SparkVersion.ToString());
 
-            string replMode =
-                EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_REPL_MODE").ToString();
-            environmentVars.Put("DOTNET_SPARK_REPL_MODE", replMode);
+            if (EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_RUNNING_REPL"))
+            {
+                environmentVars.Put("DOTNET_SPARK_RUNNING_REPL", "true");
+            }
 
             return environmentVars;
         }
