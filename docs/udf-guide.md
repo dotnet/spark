@@ -126,7 +126,7 @@ public class C {
 }
 ```
 
-The above C# code generates the following C# disassembly (credit source: [sharplab.io](sharplab.io)) code from the compiler:
+The above C# code generates the following C# disassembly (credit source: [sharplab.io](https://sharplab.io)) code from the compiler:
 
 ```csharp
 public class C
