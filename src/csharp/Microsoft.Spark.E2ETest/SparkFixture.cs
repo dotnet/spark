@@ -40,6 +40,8 @@ namespace Microsoft.Spark.E2ETest
 
         private readonly Process _process = new Process();
         private readonly TemporaryDirectory _tempDirectory = new TemporaryDirectory();
+        
+        public const string DefaultLogLevel = "ERROR";
 
         internal SparkSession Spark { get; }
 
@@ -106,6 +108,8 @@ namespace Microsoft.Spark.E2ETest
                 .Config("spark.ui.showConsoleProgress", false)
                 .AppName("Microsoft.Spark.E2ETest")
                 .GetOrCreate();
+                
+            Spark.SparkContext.SetLogLevel(DefaultLogLevel);
 
             Jvm = ((IJvmObjectReferenceProvider)Spark).Reference.Jvm;
         }
