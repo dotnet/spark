@@ -55,7 +55,7 @@ Since UDFs are functions that need to be executed on the workers, they have to b
 
 One behavior to be aware of while implementing UDFs in .NET for Apache Spark is how the target of the UDF gets serialized. .NET for Apache Spark uses .NET Core, which does not support serializing delegates, so it is instead done by using reflection to serialize the target where the delegate is defined. When multiple delegates are defined in a common scope, they have a shared closure that becomes the target of reflection for serialization. Let's take an example to illustrate what that means.
 
-The following code snippet defines two string variables that are being referenced in two function delegates, that just return the respective strings as result:
+The following code snippet defines two string variables that are being referenced in two function delegates that return the respective strings as result:
 
 ```csharp
 using System;
@@ -70,7 +70,7 @@ public class C {
 }
 ```
 
-The above C# code generates the following C# disassembly (credit source: [sharplab.io](sharplab.io)) code from the compiler:
+The above C# code generates the following C# disassembly (credit source: [sharplab.io](https://sharplab.io)) code from the compiler:
 
 ```csharp
 public class C
@@ -103,12 +103,11 @@ public class C
     }
 }
 ```
-As can be seen in the above IL code, both `func` and `func2` share the same closure `<>c__DisplayClass0_0`, which is the target that is serialized when serializing the delegates `func` and `func2`. Hence, even though `Func<string, string> a` is only referencing `s1`, `s2` also gets serialized when sending over the bytes to the workers.
+As can be seen in the above decompiled code, both `func` and `func2` share the same closure `<>c__DisplayClass0_0`, which is the target that is serialized when serializing the delegates `func` and `func2`. Hence, even though `Func<string, string> a` is only referencing `s1`, `s2` also gets serialized when sending over the bytes to the workers.
 
 This can lead to some unexpected behaviors at runtime (like in the case of using [broadcast variables](broadcast-guide.md)), which is why we recommend restricting the visibility of the variables used in a function to that function's scope.
-Taking the above example to better explain what that means:
 
-Recommended user code to implement desired behavior of previous code snippet:
+Going back to the above example, the following is the recommended way to implement the desired behavior of previous code snippet:
 
 ```csharp
 using System;
@@ -168,5 +167,5 @@ public class C
 
 Here we see that `func` and `func2` no longer share a closure and have their own separate closures `<>c__DisplayClass0_0` and `<>c__DisplayClass0_1` respectively. When used as the target for serialization, nothing other than the referenced variables will get serialized for the delegate.
 
-This above behavior is important to keep in mind while implementing multiple UDFs in a common scope. 
+This behavior is important to keep in mind while implementing multiple UDFs in a common scope. 
 To learn more about UDFs in general, please review the following articles that explain UDFs and how to use them: [UDFs in databricks(scala)](https://docs.databricks.com/spark/latest/spark-sql/udf-scala.html), [Spark UDFs and some gotchas](https://medium.com/@achilleus/spark-udfs-we-can-use-them-but-should-we-use-them-2c5a561fde6d).

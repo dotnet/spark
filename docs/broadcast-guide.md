@@ -8,7 +8,7 @@ This is a guide to show how to use broadcast variables in .NET for Apache Spark.
 
 ### How to use broadcast variables in .NET for Apache Spark
 
-Broadcast variables are created from a variable `v` by calling `SparkContext.Broadcast(v)`. The broadcast variable is a wrapper around `v`, and its value can be accessed by calling the `Value()` method on it. 
+Broadcast variables are created from a variable `v` by calling `SparkContext.Broadcast(v)`. The broadcast variable is a wrapper around `v`, and its value can be accessed by calling the `Value()` method. 
 
 Example:
 
@@ -18,21 +18,21 @@ Broadcast<string> bv = SparkContext.Broadcast(v);
 
 // Using the broadcast variable in a UDF:
 Func<Column, Column> udf = Udf<string, string>(
-	str => $"{str}: {bv.Value()}");
+str => $"{str}: {bv.Value()}");
 ```
 
-The type of broadcast variable is captured by using Generics in C#, as can be seen in the above example.
+The type parameter for `Broadcast` should be the type of the variable being broadcasted.
 
 ### Deleting broadcast variables
 
-The broadcast variable can be deleted from all executors by calling the `Destroy()` function on it.
+The broadcast variable can be deleted from all executors by calling the `Destroy()` method on it.
 
 ```csharp
 // Destroying the broadcast variable bv:
 bv.Destroy();
 ```
 
-> Note: `Destroy` deletes all data and metadata related to the broadcast variable. Use this with caution- once a broadcast variable has been destroyed, it cannot be used again.
+> Note: `Destroy()` deletes all data and metadata related to the broadcast variable. Use this with caution - once a broadcast variable has been destroyed, it cannot be used again.
 
 #### Caveat of using Destroy
 
@@ -89,4 +89,4 @@ df.Select(udf2(df["_1"])).Show();
 ```
  This ensures that destroying `bv` doesn't affect calling `udf2` because of unexpected serialization behavior. 
 
- Broadcast variables are very useful for transmitting read-only data to all executors, as the data is sent only once and this gives huge performance benefits when compared with using local variables that get shipped to the executors with each task. Please refer to the [official documentation](https://spark.apache.org/docs/2.2.0/rdd-programming-guide.html#broadcast-variables) to get a deeper understanding of broadcast variables and why they are used.
+ Broadcast variables are useful for transmitting read-only data to all executors, as the data is sent only once and this can give performance benefits when compared with using local variables that get shipped to the executors with each task. Please refer to the [official documentation](https://spark.apache.org/docs/2.2.0/rdd-programming-guide.html#broadcast-variables) to get a deeper understanding of broadcast variables and why they are used.
