@@ -46,7 +46,7 @@ Broadcast<string> bv = SparkContext.Broadcast(v);
 
 // Using the broadcast variable in a UDF:
 Func<Column, Column> udf1 = Udf<string, string>(
-	str => $"{str}: {bv.Value()}");
+    str => $"{str}: {bv.Value()}");
 
 // Destroying bv
 bv.Destroy();
@@ -57,7 +57,7 @@ df.Select(udf1(df["_1"])).Show();
 
 // Different UDF udf2 that is not referencing bv
 Func<Column, Column> udf2 = Udf<string, string>(
-	str => $"{str}: not referencing broadcast variable");
+    str => $"{str}: not referencing broadcast variable");
 
 // Calling udf2 throws the following (unexpected) exception:
 // [Error] [JvmBridge] org.apache.spark.SparkException: Task not serializable
@@ -74,7 +74,7 @@ string v = "Variable to be broadcasted";
 
 	// Using the broadcast variable in a UDF:
 	Func<Column, Column> udf1 = Udf<string, string>(
-		str => $"{str}: {bv.Value()}");
+	    str => $"{str}: {bv.Value()}");
 
 	// Destroying bv
 	bv.Destroy();
@@ -82,7 +82,7 @@ string v = "Variable to be broadcasted";
 
 // Different UDF udf2 that is not referencing bv
 Func<Column, Column> udf2 = Udf<string, string>(
-	str => $"{str}: not referencing broadcast variable");
+    str => $"{str}: not referencing broadcast variable");
 
 // Calling udf2 works fine as expected
 df.Select(udf2(df["_1"])).Show();
