@@ -2,11 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Net;
-using Microsoft.Spark.Network;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Microsoft.Spark.Utils;
 using Microsoft.Spark.Worker.Utils;

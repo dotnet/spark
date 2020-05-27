@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Text;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Microsoft.Spark.Utils;
 using Xunit;

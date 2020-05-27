@@ -7,13 +7,26 @@ using DepManager = Microsoft.DotNet.DependencyManager;
 
 namespace Microsoft.Spark.Worker.Utils
 {
+    /// <summary>
+    /// <see cref="DependencyProvider"/> sets up and creates a new
+    /// <see cref="DepManager.DependencyProvider"/>.
+    ///
+    /// The following steps outline the process:
+    /// - Deserializes a <see cref="DependencyProviderUtils.Metadata"/> using
+    ///   <see cref="DependencyProviderUtils.FindHighestFile(string)"/>
+    /// - Uses <see cref="DependencyProviderUtils.Metadata.NuGets"/> to unpack required
+    ///   nugets.
+    /// - Uses <see cref="DependencyProviderUtils.Metadata.AssemblyProbingPaths"/> and
+    ///   <see cref="DependencyProviderUtils.Metadata.NativeProbingPaths"/> to construct
+    ///   a <see cref="DepManager.DependencyProvider"/>.
+    /// </summary>
     internal class DependencyProvider : IDisposable
     {
         private static string s_lastFileRead;
 
         private DepManager.DependencyProvider _dependencyProvider;
-        private string _src;
-        private string _dst;
+        private readonly string _src;
+        private readonly string _dst;
 
         public DependencyProvider(string src, string dst)
         {
@@ -21,6 +34,13 @@ namespace Microsoft.Spark.Worker.Utils
             _dst = dst;
         }
 
+        /// <summary>
+        /// Try to load a <see cref="DepManager.DependencyProvider"/> if a new
+        /// <see cref="DependencyProviderUtils.Metadata"/> file exists.
+        /// </summary>
+        /// <returns>
+        /// true if new <see cref="DepManager.DependencyProvider"/> loaded, false otherwise.
+        /// </returns>
         public bool TryLoad()
         {
             string metadataFile = DependencyProviderUtils.FindHighestFile(_src);
