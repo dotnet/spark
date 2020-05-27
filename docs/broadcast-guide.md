@@ -70,14 +70,14 @@ The recommended way of implementing above desired behavior:
 string v = "Variable to be broadcasted";
 // Restricting the visibility of bv to only the UDF referencing it
 {
-	Broadcast<string> bv = SparkContext.Broadcast(v);
+    Broadcast<string> bv = SparkContext.Broadcast(v);
 
-	// Using the broadcast variable in a UDF:
-	Func<Column, Column> udf1 = Udf<string, string>(
+    // Using the broadcast variable in a UDF:
+    Func<Column, Column> udf1 = Udf<string, string>(
 	    str => $"{str}: {bv.Value()}");
 
-	// Destroying bv
-	bv.Destroy();
+    // Destroying bv
+    bv.Destroy();
 }
 
 // Different UDF udf2 that is not referencing bv
