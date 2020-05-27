@@ -15,10 +15,9 @@ namespace Microsoft.Spark.Worker.Utils
     internal static class AssemblyLoaderHelper
     {
         private static readonly Lazy<bool> s_runningREPL = new Lazy<bool>(
-            () => !EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_RUNNING_REPL"));
+            () => EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_RUNNING_REPL"));
 
         private static int s_stageId = int.MinValue;
-        private static string s_lastFileRead;
         private static DependencyProvider s_dependencyProvider;
 
         private static readonly object s_lock = new object();
@@ -50,7 +49,8 @@ namespace Microsoft.Spark.Worker.Utils
         ///   Serialized <see cref="DependencyProviderUtils.Metadata"/> object.
         ///
         /// On the Worker, in order to resolve the nuget dependencies referenced by
-        /// the dotnet-interactive session, we instantiate a <see cref="DependencyProvider"/>.
+        /// the dotnet-interactive session, we instantiate a
+        /// <see cref="DotNet.DependencyManager.DependencyProvider"/>.
         /// This provider will register an event handler to the Assembly Load Resolving event.
         /// By using <see cref="SparkFiles.GetRootDirectory"/>, we can access the
         /// required files added to the <see cref="SparkContext"/>.
@@ -63,7 +63,7 @@ namespace Microsoft.Spark.Worker.Utils
         /// <param name="stageId">The current Stage ID</param>
         internal static void RegisterAssemblyHandler(int stageId)
         {
-            if (s_runningREPL.Value || (stageId == s_stageId))
+            if (!s_runningREPL.Value || (stageId == s_stageId))
             {
                 return;
             }
@@ -80,28 +80,14 @@ namespace Microsoft.Spark.Worker.Utils
                 }
                 s_stageId = stageId;
 
-                string sparkFilesPath = SparkFiles.GetRootDirectory();
-                string metadataFile = DependencyProviderUtils.FindHighestFile(sparkFilesPath);
-
-                if (string.IsNullOrEmpty(metadataFile) || metadataFile.Equals(s_lastFileRead))
+                var dependencyProvider = new DependencyProvider(
+                    SparkFiles.GetRootDirectory(),
+                    Directory.GetCurrentDirectory());
+                if (dependencyProvider.TryLoad())
                 {
-                    return;
+                    s_dependencyProvider?.Dispose();
+                    s_dependencyProvider = dependencyProvider;
                 }
-                s_lastFileRead = metadataFile;
-
-                DependencyProviderUtils.Metadata metadata =
-                    DependencyProviderUtils.Deserialize(metadataFile);
-
-                string unpackPath = Path.Combine(
-                    Directory.GetCurrentDirectory(),
-                    Path.Combine(".nuget", "packages"));
-                Directory.CreateDirectory(unpackPath);
-
-                DependencyProvider.UnpackPackages(sparkFilesPath, unpackPath, metadata.NuGets);
-
-                var dependencyProvider = new DependencyProvider(unpackPath, metadata);
-                s_dependencyProvider?.Dispose();
-                s_dependencyProvider = dependencyProvider;
             }
         }
     }

@@ -31,10 +31,10 @@ namespace Microsoft.Spark.UnitTest
             };
 
             var serializedFilePath = Path.Combine(tempDir.Path, "serializedMetadata");
-            DependencyProviderUtils.Serialize(metadata, serializedFilePath);
+            metadata.Serialize(serializedFilePath);
 
             DependencyProviderUtils.Metadata deserializedMetadata =
-                DependencyProviderUtils.Deserialize(serializedFilePath);
+                DependencyProviderUtils.Metadata.Deserialize(serializedFilePath);
 
             Assert.Equal(metadata, deserializedMetadata);
         }

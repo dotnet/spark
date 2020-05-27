@@ -33,23 +33,49 @@ namespace Microsoft.Spark.Worker.UnitTest
                 emptyFileDir.Path,
                 Path.Combine(nupkgDir.Path, packageFileName));
 
-            var nugetMetadata = new DependencyProviderUtils.NuGetMetadata[]
+            var metadata = new DependencyProviderUtils.Metadata
             {
-                new DependencyProviderUtils.NuGetMetadata
+                AssemblyProbingPaths = new string[] { "/assembly/probe/path" },
+                NativeProbingPaths = new string[] { "/native/probe/path" },
+                NuGets = new DependencyProviderUtils.NuGetMetadata[]
                 {
-                    FileName = packageFileName,
-                    PackageName = packageName,
-                    PackageVersion = packageVersion
+                    new DependencyProviderUtils.NuGetMetadata
+                    {
+                        FileName = packageFileName,
+                        PackageName = packageName,
+                        PackageVersion = packageVersion
+                    }
                 }
             };
 
             using var unpackDir = new TemporaryDirectory();
-            DependencyProvider.UnpackPackages(nupkgDir.Path, unpackDir.Path, nugetMetadata);
+            {
+                var dependencyProvider = new DependencyProvider(nupkgDir.Path, unpackDir.Path);
+                Assert.False(dependencyProvider.TryLoad());
+            }
 
-            string expectedPackagePath =
-                Path.Combine(unpackDir.Path, Path.Combine(packageName, packageVersion));
-            string expectedFilePath = Path.Combine(expectedPackagePath, emptyFileName);
-            Assert.True(File.Exists(expectedFilePath));
+            metadata.Serialize(
+                Path.Combine(nupkgDir.Path, DependencyProviderUtils.CreateFileName(1)));
+            {
+                var dependencyProvider = new DependencyProvider(nupkgDir.Path, unpackDir.Path);
+                Assert.True(dependencyProvider.TryLoad());
+                string expectedPackagePath =
+                    Path.Combine(unpackDir.Path, ".nuget", "packages", packageName, packageVersion);
+                string expectedFilePath = Path.Combine(expectedPackagePath, emptyFileName);
+                Assert.True(File.Exists(expectedFilePath));
+            }
+
+            {
+                var dependencyProvider = new DependencyProvider(nupkgDir.Path, unpackDir.Path);
+                Assert.False(dependencyProvider.TryLoad());
+            }
+
+            {
+                metadata.Serialize(
+                    Path.Combine(nupkgDir.Path, DependencyProviderUtils.CreateFileName(2)));
+                var dependencyProvider = new DependencyProvider(nupkgDir.Path, unpackDir.Path);
+                Assert.True(dependencyProvider.TryLoad());
+            }
         }
     }
 }

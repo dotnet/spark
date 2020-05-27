@@ -67,6 +67,12 @@ namespace Microsoft.Spark.Worker.Processor
             payload.SparkFilesDir = SerDe.ReadString(stream);
             SparkFiles.SetRootDirectory(payload.SparkFilesDir);
 
+            // Register additional assembly handlers after SparkFilesDir has been set
+            // and before any deserialization occurs. BroadcastVariableProcessor may
+            // deserialize objects from assemblies that are not currently loaded within
+            // our current context.
+            AssemblyLoaderHelper.RegisterAssemblyHandler(payload.TaskContext.StageId);
+
             if (SettingUtils.IsDatabricks)
             {
                 SerDe.ReadString(stream);
@@ -74,13 +80,6 @@ namespace Microsoft.Spark.Worker.Processor
             }
 
             payload.IncludeItems = ReadIncludeItems(stream);
-
-            // Register additional assembly handlers after SparkFilesDir has been set
-            // and before any deserialization occurs. BroadcastVariableProcessor may
-            // deserialize objects from assemblies that are not currently loaded within
-            // our current context.
-            AssemblyLoaderHelper.RegisterAssemblyHandler(payload.TaskContext.StageId);
-
             payload.BroadcastVariables = new BroadcastVariableProcessor(_version).Process(stream);
 
             // TODO: Accumulate registration should be done here.

@@ -13,20 +13,6 @@ namespace Microsoft.Spark.Utils
     {
         internal static readonly string s_filePattern = "dependencyProviderMetadata_*";
 
-        internal static void Serialize(Metadata metadata, string path)
-        {
-            using FileStream fileStream = File.OpenWrite(path);
-            var formatter = new BinaryFormatter();
-            formatter.Serialize(fileStream, metadata);
-        }
-
-        internal static Metadata Deserialize(string path)
-        {
-            using FileStream fileStream = File.OpenRead(path);
-            var formatter = new BinaryFormatter();
-            return (Metadata)formatter.Deserialize(fileStream);
-        }
-
         internal static string FindHighestFile(string path)
         {
             string[] files = Directory.GetFiles(path, s_filePattern);
@@ -75,6 +61,20 @@ namespace Microsoft.Spark.Utils
             public string[] AssemblyProbingPaths { get; set; }
             public string[] NativeProbingPaths { get; set; }
             public NuGetMetadata[] NuGets { get; set; }
+
+            internal static Metadata Deserialize(string path)
+            {
+                using FileStream fileStream = File.OpenRead(path);
+                var formatter = new BinaryFormatter();
+                return (Metadata)formatter.Deserialize(fileStream);
+            }
+
+            internal void Serialize(string path)
+            {
+                using FileStream fileStream = File.OpenWrite(path);
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(fileStream, this);
+            }
 
             public override int GetHashCode()
             {
