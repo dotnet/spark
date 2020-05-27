@@ -18,7 +18,7 @@ Broadcast<string> bv = SparkContext.Broadcast(v);
 
 // Using the broadcast variable in a UDF:
 Func<Column, Column> udf = Udf<string, string>(
-str => $"{str}: {bv.Value()}");
+    str => $"{str}: {bv.Value()}");
 ```
 
 The type parameter for `Broadcast` should be the type of the variable being broadcasted.
