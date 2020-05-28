@@ -20,8 +20,8 @@ namespace Microsoft.Spark.Worker.Utils
             LoggerServiceFactory.GetLogger(typeof(AssemblyLoaderHelper));
 
         // A mapping between a metadata file's path to its respective DependencyProvider.
-        private static readonly ConcurrentDictionary<string, Lazy<DependencyProvider>> s_depProvs =
-            new ConcurrentDictionary<string, Lazy<DependencyProvider>>();
+        private static readonly ConcurrentDictionary<string, Lazy<DependencyProvider>>
+            s_dependencyProviders = new ConcurrentDictionary<string, Lazy<DependencyProvider>>();
 
         private static readonly bool s_runningREPL =
             EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_RUNNING_REPL");
@@ -75,7 +75,7 @@ namespace Microsoft.Spark.Worker.Utils
                 // Multiple Lazy objects may be created, but only one of them will be added to the
                 // ConcurrentDictionary. The Lazy value is retrieved to materialize the
                 // DependencyProvider object if it hasn't already been created.
-                Lazy<DependencyProvider> dependecyProvider = s_depProvs.GetOrAdd(
+                Lazy<DependencyProvider> dependecyProvider = s_dependencyProviders.GetOrAdd(
                     metdatafile,
                     mdf => new Lazy<DependencyProvider>(
                         () =>
