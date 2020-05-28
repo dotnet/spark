@@ -66,7 +66,7 @@ namespace Microsoft.Spark.Worker.Processor
             // and before any deserialization occurs. BroadcastVariableProcessor may
             // deserialize objects from assemblies that are not currently loaded within
             // our current context.
-            AssemblyLoaderHelper.RegisterAssemblyHandler(payload.TaskContext.StageId);
+            AssemblyLoaderHelper.RegisterAssemblyHandler();
 
             if (SettingUtils.IsDatabricks)
             {

@@ -3,7 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Concurrent;
 using System.IO;
+using Microsoft.Spark.Services;
 using Microsoft.Spark.Utils;
 
 #if NETCOREAPP
@@ -14,13 +16,15 @@ namespace Microsoft.Spark.Worker.Utils
 {
     internal static class AssemblyLoaderHelper
     {
+        private static readonly ILoggerService s_logger =
+            LoggerServiceFactory.GetLogger(typeof(AssemblyLoaderHelper));
+
+        // A mapping between a metadata file's path to its respective DependencyProvider.
+        private static readonly ConcurrentDictionary<string, Lazy<DependencyProvider>> s_depProvs =
+            new ConcurrentDictionary<string, Lazy<DependencyProvider>>();
+
         private static readonly bool s_runningREPL =
             EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_RUNNING_REPL");
-
-        private static int s_stageId = int.MinValue;
-        private static DependencyProvider s_dependencyProvider;
-
-        private static readonly object s_lock = new object();
 
         /// <summary>
         /// Register the AssemblyLoader.ResolveAssembly handler to handle the
@@ -54,40 +58,35 @@ namespace Microsoft.Spark.Worker.Utils
         /// This provider will register an event handler to the Assembly Load Resolving event.
         /// By using <see cref="SparkFiles.GetRootDirectory"/>, we can access the
         /// required files added to the <see cref="SparkContext"/>.
-        ///
-        /// Note: Because <see cref="SparkContext.AddFile(string, bool)"/> prevents
-        /// overwriting/deleting files once they have been added to the
-        /// <see cref="SparkContext"/>, numbered identifiers are added to relevant files:
-        /// - <see cref="DependencyProviderUtils.CreateFileName(ulong)"/>
         /// </summary>
-        /// <param name="stageId">The current Stage ID</param>
-        internal static void RegisterAssemblyHandler(int stageId)
+        internal static void RegisterAssemblyHandler()
         {
-            if (!s_runningREPL || (stageId == s_stageId))
+            if (!s_runningREPL)
             {
                 return;
             }
 
-            // For a given stage, it is sufficient to instantiate one DependencyProvider.
-            // However, the Worker process may be reused between stages. New nuget dependencies
-            // may be introduced between stages and a new DependencyProvider will need to be
-            // created that can resolve them.
-            lock (s_lock)
+            string sparkFilesPath = SparkFiles.GetRootDirectory();
+            string[] metadataFiles =
+                DependencyProviderUtils.GetMetadataFiles(sparkFilesPath);
+            foreach (string metdatafile in metadataFiles)
             {
-                if (stageId == s_stageId)
-                {
-                    return;
-                }
-                s_stageId = stageId;
-
-                var dependencyProvider = new DependencyProvider(
-                    SparkFiles.GetRootDirectory(),
-                    Directory.GetCurrentDirectory());
-                if (dependencyProvider.TryLoad())
-                {
-                    s_dependencyProvider?.Dispose();
-                    s_dependencyProvider = dependencyProvider;
-                }
+                // The execution of the delegate passed to GetOrAdd is not guaranteed to run once.
+                // Multiple Lazy objects may be created, but only one of them will be added to the
+                // ConcurrentDictionary. The Lazy value is retrieved to materialize the
+                // DependencyProvider object if it hasn't already been created.
+                Lazy<DependencyProvider> dependecyProvider = s_depProvs.GetOrAdd(
+                    metdatafile,
+                    mdf => new Lazy<DependencyProvider>(
+                        () =>
+                        {
+                            s_logger.LogInfo($"Creating {nameof(DependencyProvider)} using {mdf}");
+                            return new DependencyProvider(
+                                mdf,
+                                sparkFilesPath,
+                                Directory.GetCurrentDirectory());
+                        }));
+                _ = dependecyProvider.Value;
             }
         }
     }

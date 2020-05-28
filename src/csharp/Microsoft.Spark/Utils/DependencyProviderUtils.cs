@@ -4,7 +4,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Microsoft.Spark.Utils
@@ -13,17 +12,8 @@ namespace Microsoft.Spark.Utils
     {
         private static readonly string s_filePattern = "dependencyProviderMetadata_*";
 
-        internal static string FindLatestFile(string path)
-        {
-            string[] files = Directory.GetFiles(path, s_filePattern);
-            if (files.Length > 0)
-            {
-                Array.Sort(files);
-                return files.Last();
-            }
-
-            return null;
-        }
+        internal static string[] GetMetadataFiles(string path) =>
+            Directory.GetFiles(path, s_filePattern);
 
         // Create the dependency provider metadata filename based on the number passed into the
         // function.
@@ -70,6 +60,17 @@ namespace Microsoft.Spark.Utils
             public string[] NativeProbingPaths { get; set; }
             public NuGetMetadata[] NuGets { get; set; }
 
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                return (obj is Metadata metadata) &&
+                    Equals(metadata);
+            }
+
             internal static Metadata Deserialize(string path)
             {
                 using FileStream fileStream = File.OpenRead(path);
@@ -84,18 +85,7 @@ namespace Microsoft.Spark.Utils
                 formatter.Serialize(fileStream, this);
             }
 
-            public override int GetHashCode()
-            {
-                return base.GetHashCode();
-            }
-
-            public override bool Equals(object obj)
-            {
-                return (obj is Metadata metadata) &&
-                    Equals(metadata);
-            }
-
-            public bool Equals(Metadata other)
+            private bool Equals(Metadata other)
             {
                 return (other != null) &&
                     CollectionUtils.ArrayEquals(

@@ -12,8 +12,7 @@ namespace Microsoft.Spark.Worker.Utils
     /// <see cref="DepManager.DependencyProvider"/>.
     ///
     /// The following steps outline the process:
-    /// - Deserializes a <see cref="DependencyProviderUtils.Metadata"/> using
-    ///   <see cref="DependencyProviderUtils.FindLatestFile(string)"/>
+    /// - Deserializes a <see cref="DependencyProviderUtils.Metadata"/>.
     /// - Uses <see cref="DependencyProviderUtils.Metadata.NuGets"/> to unpack required
     ///   nugets.
     /// - Uses <see cref="DependencyProviderUtils.Metadata.AssemblyProbingPaths"/> and
@@ -22,46 +21,19 @@ namespace Microsoft.Spark.Worker.Utils
     /// </summary>
     internal class DependencyProvider : IDisposable
     {
-        private static string s_lastFileRead;
+        private readonly DepManager.DependencyProvider _dependencyProvider;
 
-        private DepManager.DependencyProvider _dependencyProvider;
-        private readonly string _src;
-        private readonly string _dst;
-
-        internal DependencyProvider(string src, string dst)
+        internal DependencyProvider(string metadataFile, string src, string dst)
         {
-            _src = src;
-            _dst = dst;
-        }
-
-        /// <summary>
-        /// Try to load a <see cref="DepManager.DependencyProvider"/> if a new
-        /// <see cref="DependencyProviderUtils.Metadata"/> file exists.
-        /// </summary>
-        /// <returns>
-        /// true if new <see cref="DepManager.DependencyProvider"/> loaded, false otherwise.
-        /// </returns>
-        internal bool TryLoad()
-        {
-            string metadataFile = DependencyProviderUtils.FindLatestFile(_src);
-
-            if (string.IsNullOrEmpty(metadataFile) || metadataFile.Equals(s_lastFileRead))
-            {
-                return false;
-            }
-            s_lastFileRead = metadataFile;
-
             DependencyProviderUtils.Metadata metadata =
                 DependencyProviderUtils.Metadata.Deserialize(metadataFile);
 
-            string unpackPath = Path.Combine(_dst, ".nuget", "packages");
+            string unpackPath = Path.Combine(dst, ".nuget", "packages");
             Directory.CreateDirectory(unpackPath);
 
-            UnpackPackages(_src, unpackPath, metadata.NuGets);
+            UnpackPackages(src, unpackPath, metadata.NuGets);
 
             _dependencyProvider = CreateDependencyProvider(unpackPath, metadata);
-
-            return true;
         }
 
         public void Dispose()

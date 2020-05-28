@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections;
+using System.IO;
 using System.Linq;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Microsoft.Spark.Utils;
@@ -40,17 +41,24 @@ namespace Microsoft.Spark.UnitTest
         public void TestFileNames()
         {
             using var tempDir = new TemporaryDirectory();
-            foreach (ulong num in Enumerable.Range(1, 20))
+            foreach (ulong num in Enumerable.Range(0, 3).Select(x => System.Math.Pow(10, x)))
             {
                 string filePath =
                     Path.Combine(tempDir.Path, DependencyProviderUtils.CreateFileName(num));
                 File.Create(filePath).Dispose();
             }
 
-            string expectedFile = "dependencyProviderMetadata_00000000000000000020";
-            string highestFile =
-                Path.GetFileName(DependencyProviderUtils.FindLatestFile(tempDir.Path));
-            Assert.Equal(expectedFile, Path.GetFileName(highestFile));
+            var expectedFiles = new string[] 
+            {
+                "dependencyProviderMetadata_00000000000000000001",
+                "dependencyProviderMetadata_00000000000000000010",
+                "dependencyProviderMetadata_00000000000000000100",
+            };
+            IOrderedEnumerable<string> actualFiles = DependencyProviderUtils
+                .GetMetadataFiles(tempDir.Path)
+                .Select(f => Path.GetFileName(f))
+                .OrderBy(s => s);
+            Assert.True(expectedFiles.SequenceEqual(actualFiles));
         }
     }
 }
