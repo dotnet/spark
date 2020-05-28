@@ -45,10 +45,17 @@ namespace Microsoft.Spark.Interop
             }
         }
 
-        private static IJvmBridgeFactory s_jvmBridgeFactory = new JvmBridgeFactory();
-        internal static void SetJvmBridgeFactory(IJvmBridgeFactory jvmBridgeFactory)
+        private static IJvmBridgeFactory s_jvmBridgeFactory;
+        internal static IJvmBridgeFactory JvmBridgeFactory
         {
-            s_jvmBridgeFactory = jvmBridgeFactory;
+            get
+            {
+                return s_jvmBridgeFactory ??= new JvmBridgeFactory();
+            }
+            set
+            {
+                s_jvmBridgeFactory = value;
+            }
         }
 
         private static IJvmBridge s_jvmBridge;
@@ -56,13 +63,8 @@ namespace Microsoft.Spark.Interop
         {
             get
             {
-                if (s_jvmBridge == null)
-                {
-                    s_jvmBridge =
-                        s_jvmBridgeFactory.Create(ConfigurationService.GetBackendPortNumber());
-                }
-
-                return s_jvmBridge;
+                return s_jvmBridge ??=
+                    JvmBridgeFactory.Create(ConfigurationService.GetBackendPortNumber());
             }
             set
             {
@@ -75,8 +77,7 @@ namespace Microsoft.Spark.Interop
         {
             get
             {
-                return s_configurationService ??
-                    (s_configurationService = new ConfigurationService());
+                return s_configurationService ??= new ConfigurationService();
             }
             set
             {

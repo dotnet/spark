@@ -9,7 +9,7 @@ namespace Microsoft.Spark.UnitTest
     public class DependencyProviderUtilsTests
     {
         [Fact]
-        public void TestSerDe()
+        public void TestMetadataSerDe()
         {
             using var tempDir = new TemporaryDirectory();
             var metadata = new DependencyProviderUtils.Metadata
@@ -27,7 +27,7 @@ namespace Microsoft.Spark.UnitTest
                 }
             };
 
-            var serializedFilePath = Path.Combine(tempDir.Path, "serializedMetadata");
+            string serializedFilePath = Path.Combine(tempDir.Path, "serializedMetadata");
             metadata.Serialize(serializedFilePath);
 
             DependencyProviderUtils.Metadata deserializedMetadata =
@@ -42,15 +42,15 @@ namespace Microsoft.Spark.UnitTest
             using var tempDir = new TemporaryDirectory();
             foreach (ulong num in Enumerable.Range(1, 20))
             {
-                var filePath =
+                string filePath =
                     Path.Combine(tempDir.Path, DependencyProviderUtils.CreateFileName(num));
                 File.Create(filePath).Dispose();
             }
 
-            var expecteFile = "dependencyProviderMetadata_00000000000000000020";
+            string expectedFile = "dependencyProviderMetadata_00000000000000000020";
             string highestFile =
-                Path.GetFileName(DependencyProviderUtils.FindHighestFile(tempDir.Path));
-            Assert.Equal(expecteFile, Path.GetFileName(highestFile));
+                Path.GetFileName(DependencyProviderUtils.FindLatestFile(tempDir.Path));
+            Assert.Equal(expectedFile, Path.GetFileName(highestFile));
         }
     }
 }

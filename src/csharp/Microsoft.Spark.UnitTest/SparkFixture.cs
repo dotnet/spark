@@ -31,7 +31,7 @@ namespace Microsoft.Spark.UnitTest
                 .Setup(m => m.Create(It.IsAny<int>()))
                 .Returns(MockJvm.Object);
 
-            SparkEnvironment.SetJvmBridgeFactory(mockJvmBridgeFactory.Object);
+            SparkEnvironment.JvmBridgeFactory = mockJvmBridgeFactory.Object;
         }
 
         public void Dispose()

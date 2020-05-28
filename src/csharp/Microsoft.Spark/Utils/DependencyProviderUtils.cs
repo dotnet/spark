@@ -11,9 +11,9 @@ namespace Microsoft.Spark.Utils
 {
     internal class DependencyProviderUtils
     {
-        internal static readonly string s_filePattern = "dependencyProviderMetadata_*";
+        private static readonly string s_filePattern = "dependencyProviderMetadata_*";
 
-        internal static string FindHighestFile(string path)
+        internal static string FindLatestFile(string path)
         {
             string[] files = Directory.GetFiles(path, s_filePattern);
             if (files.Length > 0)
@@ -25,6 +25,14 @@ namespace Microsoft.Spark.Utils
             return null;
         }
 
+        // Create the dependency provider metadata filename based on the number passed into the
+        // function.
+        // 
+        // number => filename
+        // 0      => dependencyProviderMetadata_00000000000000000000
+        // 1      => dependencyProviderMetadata_00000000000000000001
+        // ...
+        // 20     => dependencyProviderMetadata_00000000000000000020
         internal static string CreateFileName(ulong number) =>
             s_filePattern.Replace("*", $"{number:D20}");
 
@@ -90,15 +98,11 @@ namespace Microsoft.Spark.Utils
             public bool Equals(Metadata other)
             {
                 return (other != null) &&
-                    ArrayEquals(AssemblyProbingPaths, other.AssemblyProbingPaths) &&
-                    ArrayEquals(NativeProbingPaths, other.NativeProbingPaths) &&
-                    ArrayEquals(NuGets, other.NuGets);
-            }
-
-            private static bool ArrayEquals<T>(T[] array1, T[] array2)
-            {
-                return (array1?.Length == array2?.Length) &&
-                    ((array1 == null) || array1.SequenceEqual(array2));
+                    CollectionUtils.ArrayEquals(
+                        AssemblyProbingPaths,
+                        other.AssemblyProbingPaths) &&
+                    CollectionUtils.ArrayEquals(NativeProbingPaths, other.NativeProbingPaths) &&
+                    CollectionUtils.ArrayEquals(NuGets, other.NuGets);
             }
         }
     }

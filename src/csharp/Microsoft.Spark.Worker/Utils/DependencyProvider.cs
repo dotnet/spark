@@ -13,7 +13,7 @@ namespace Microsoft.Spark.Worker.Utils
     ///
     /// The following steps outline the process:
     /// - Deserializes a <see cref="DependencyProviderUtils.Metadata"/> using
-    ///   <see cref="DependencyProviderUtils.FindHighestFile(string)"/>
+    ///   <see cref="DependencyProviderUtils.FindLatestFile(string)"/>
     /// - Uses <see cref="DependencyProviderUtils.Metadata.NuGets"/> to unpack required
     ///   nugets.
     /// - Uses <see cref="DependencyProviderUtils.Metadata.AssemblyProbingPaths"/> and
@@ -28,7 +28,7 @@ namespace Microsoft.Spark.Worker.Utils
         private readonly string _src;
         private readonly string _dst;
 
-        public DependencyProvider(string src, string dst)
+        internal DependencyProvider(string src, string dst)
         {
             _src = src;
             _dst = dst;
@@ -41,9 +41,9 @@ namespace Microsoft.Spark.Worker.Utils
         /// <returns>
         /// true if new <see cref="DepManager.DependencyProvider"/> loaded, false otherwise.
         /// </returns>
-        public bool TryLoad()
+        internal bool TryLoad()
         {
-            string metadataFile = DependencyProviderUtils.FindHighestFile(_src);
+            string metadataFile = DependencyProviderUtils.FindLatestFile(_src);
 
             if (string.IsNullOrEmpty(metadataFile) || metadataFile.Equals(s_lastFileRead))
             {

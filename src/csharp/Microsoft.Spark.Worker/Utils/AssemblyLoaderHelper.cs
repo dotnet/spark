@@ -14,8 +14,8 @@ namespace Microsoft.Spark.Worker.Utils
 {
     internal static class AssemblyLoaderHelper
     {
-        private static readonly Lazy<bool> s_runningREPL = new Lazy<bool>(
-            () => EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_RUNNING_REPL"));
+        private static readonly bool s_runningREPL =
+            EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_RUNNING_REPL");
 
         private static int s_stageId = int.MinValue;
         private static DependencyProvider s_dependencyProvider;
@@ -26,7 +26,7 @@ namespace Microsoft.Spark.Worker.Utils
         /// Register the AssemblyLoader.ResolveAssembly handler to handle the
         /// event when assemblies fail to load in the current assembly load context.
         /// </summary>
-        internal static void Initialize()
+        static AssemblyLoaderHelper()
         {
 #if NETCOREAPP
             AssemblyLoader.LoadFromFile = AssemblyLoadContext.Default.LoadFromAssemblyPath;
@@ -63,7 +63,7 @@ namespace Microsoft.Spark.Worker.Utils
         /// <param name="stageId">The current Stage ID</param>
         internal static void RegisterAssemblyHandler(int stageId)
         {
-            if (!s_runningREPL.Value || (stageId == s_stageId))
+            if (!s_runningREPL || (stageId == s_stageId))
             {
                 return;
             }

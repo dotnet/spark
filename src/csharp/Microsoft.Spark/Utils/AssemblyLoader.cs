@@ -80,6 +80,7 @@ namespace Microsoft.Spark.Utils
         private static readonly Dictionary<string, Assembly> s_assemblyCache =
             new Dictionary<string, Assembly>();
 
+        // Lazily evaluate the assembly search paths because it has a dependency on SparkFiles.
         private static readonly Lazy<string[]> s_searchPaths =
             new Lazy<string[]>(() => AssemblySearchPathResolver.GetAssemblySearchPaths());
 

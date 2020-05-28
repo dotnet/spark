@@ -17,12 +17,12 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public void TestsUnpackPackages()
         {
-            var packageFileName = "package.name.1.0.0.nupkg";
-            var packageName = "package.name";
-            var packageVersion = "1.0.0";
+            string packageFileName = "package.name.1.0.0.nupkg";
+            string packageName = "package.name";
+            string packageVersion = "1.0.0";
 
             using var emptyFileDir = new TemporaryDirectory();
-            var emptyFileName = "emptyfile";
+            string emptyFileName = "emptyfile";
             File.Create(Path.Combine(emptyFileDir.Path, emptyFileName)).Dispose();
 
             using var nupkgDir = new TemporaryDirectory();
@@ -47,6 +47,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             using var unpackDir = new TemporaryDirectory();
             {
+                // No nugets or metadatafile located in nupkgDir
                 var dependencyProvider = new DependencyProvider(nupkgDir.Path, unpackDir.Path);
                 Assert.False(dependencyProvider.TryLoad());
             }
@@ -54,6 +55,9 @@ namespace Microsoft.Spark.Worker.UnitTest
             metadata.Serialize(
                 Path.Combine(nupkgDir.Path, DependencyProviderUtils.CreateFileName(1)));
             {
+                // New files located in nupkgDir
+                // nuget: package.name.1.0.0.nupkg
+                // metadata file: dependencyProviderMetadata_00000000000000000001
                 var dependencyProvider = new DependencyProvider(nupkgDir.Path, unpackDir.Path);
                 Assert.True(dependencyProvider.TryLoad());
                 string expectedPackagePath =
@@ -63,11 +67,18 @@ namespace Microsoft.Spark.Worker.UnitTest
             }
 
             {
+                // No updates to files located in nupkgDir
+                // nuget: package.name.1.0.0.nupkg
+                // metadata file: dependencyProviderMetadata_00000000000000000001
                 var dependencyProvider = new DependencyProvider(nupkgDir.Path, unpackDir.Path);
                 Assert.False(dependencyProvider.TryLoad());
             }
 
             {
+                // New metadata file located in nupkgDir
+                // nuget: package.name.1.0.0.nupkg
+                // metadata file: dependencyProviderMetadata_00000000000000000001
+                //                dependencyProviderMetadata_00000000000000000002
                 metadata.Serialize(
                     Path.Combine(nupkgDir.Path, DependencyProviderUtils.CreateFileName(2)));
                 var dependencyProvider = new DependencyProvider(nupkgDir.Path, unpackDir.Path);

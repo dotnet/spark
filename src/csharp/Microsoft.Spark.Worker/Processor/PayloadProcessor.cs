@@ -23,11 +23,6 @@ namespace Microsoft.Spark.Worker.Processor
             _version = version;
         }
 
-        static PayloadProcessor()
-        {
-            AssemblyLoaderHelper.Initialize();
-        }
-
         /// <summary>
         /// Processes the given stream to construct a Payload object.
         /// </summary>
