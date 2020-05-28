@@ -23,15 +23,15 @@ namespace Microsoft.Spark.Worker.Utils
     {
         private readonly DepManager.DependencyProvider _dependencyProvider;
 
-        internal DependencyProvider(string metadataFile, string src, string dst)
+        internal DependencyProvider(string metadataFilePath, string srcPath, string dstPath)
         {
             DependencyProviderUtils.Metadata metadata =
-                DependencyProviderUtils.Metadata.Deserialize(metadataFile);
+                DependencyProviderUtils.Metadata.Deserialize(metadataFilePath);
 
-            string unpackPath = Path.Combine(dst, ".nuget", "packages");
+            string unpackPath = Path.Combine(dstPath, ".nuget", "packages");
             Directory.CreateDirectory(unpackPath);
 
-            UnpackPackages(src, unpackPath, metadata.NuGets);
+            UnpackPackages(srcPath, unpackPath, metadata.NuGets);
 
             _dependencyProvider = CreateDependencyProvider(unpackPath, metadata);
         }
