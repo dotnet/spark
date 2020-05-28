@@ -34,7 +34,7 @@ namespace Microsoft.Spark.UnitTest
             DependencyProviderUtils.Metadata deserializedMetadata =
                 DependencyProviderUtils.Metadata.Deserialize(serializedFilePath);
 
-            Assert.Equal(metadata, deserializedMetadata);
+            Assert.True(metadata.Equals(deserializedMetadata));
         }
 
         [Fact]
