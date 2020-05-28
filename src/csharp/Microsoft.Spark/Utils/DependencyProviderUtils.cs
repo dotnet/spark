@@ -44,7 +44,7 @@ namespace Microsoft.Spark.Utils
                     Equals(nugetMetadata);
             }
 
-            public bool Equals(NuGetMetadata other)
+            private bool Equals(NuGetMetadata other)
             {
                 return (other != null) &&
                     (FileName == other.FileName) &&
