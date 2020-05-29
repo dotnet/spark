@@ -40,9 +40,8 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
                 kernelBase.AddMiddleware(async (command, context, next) =>
                 {
-                    if (command is SubmitCode)
+                    if ((context.HandlingKernel is CSharpKernel kernel) && command is SubmitCode)
                     {
-                        var kernel = context.HandlingKernel as CSharpKernel;
                         Compilation preCompilation = kernel.ScriptState.Script.GetCompilation();
 
                         string assemblyName =
@@ -55,7 +54,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                         }
 
                         PackagesHelper.GenerateAndAddFiles(
-                            tempDir,
+                            tempDir.FullName,
                             s => SparkSession.Active().SparkContext.AddFile(s, false));
                     }
 
