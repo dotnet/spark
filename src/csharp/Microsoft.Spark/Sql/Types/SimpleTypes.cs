@@ -81,6 +81,11 @@ namespace Microsoft.Spark.Sql.Types
         /// </summary>
         internal override object FromInternal(object obj)
         {
+            if (obj == null)
+            {
+                return null;
+            }
+
             return new Date(new DateTime((int)obj * TimeSpan.TicksPerDay + s_unixTimeEpoch.Ticks));
         }
     }
@@ -101,6 +106,11 @@ namespace Microsoft.Spark.Sql.Types
         /// </summary>
         internal override object FromInternal(object obj)
         {
+            if (obj == null)
+            {
+                return null;
+            }
+
             // Known issue that if the original type is "long" and its value can be fit into the
             // "int", Pickler will serialize the value as int.
             if (obj is long val)
