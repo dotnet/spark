@@ -56,18 +56,21 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                 fileAction(package.NuGetFile.FullName);
             }
 
-            var metadataPath =
-                Path.Combine(
-                    writePath,
-                    DependencyProviderUtils.CreateFileName(++s_metadataCounter));
-            new DependencyProviderUtils.Metadata
+            if (nugetMetadata.Count > 0)
             {
-                AssemblyProbingPaths = assemblyProbingPaths.ToArray(),
-                NativeProbingPaths = nativeProbingPaths.ToArray(),
-                NuGets = nugetMetadata.ToArray()
-            }.Serialize(metadataPath);
+                var metadataPath =
+                    Path.Combine(
+                        writePath,
+                        DependencyProviderUtils.CreateFileName(++s_metadataCounter));
+                new DependencyProviderUtils.Metadata
+                {
+                    AssemblyProbingPaths = assemblyProbingPaths.ToArray(),
+                    NativeProbingPaths = nativeProbingPaths.ToArray(),
+                    NuGets = nugetMetadata.ToArray()
+                }.Serialize(metadataPath);
 
-            fileAction(metadataPath);
+                fileAction(metadataPath);
+            }
         }
 
         private static IEnumerable<NuGetPackage> GetPackagesToCopy()
