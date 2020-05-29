@@ -10,6 +10,7 @@ using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Streaming;
 using Microsoft.Spark.Sql.Types;
+using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
 

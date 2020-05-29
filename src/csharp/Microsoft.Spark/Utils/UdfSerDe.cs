@@ -257,8 +257,21 @@ namespace Microsoft.Spark.Utils
         private static Type DeserializeType(TypeData typeData) =>
             s_typeCache.GetOrAdd(
                 typeData,
-                td => AssemblyLoader.LoadAssembly(
-                    td.AssemblyName,
-                    td.AssemblyFileName).GetType(td.Name));
+                td =>
+                {
+                    Type type = AssemblyLoader.LoadAssembly(
+                        td.AssemblyName,
+                        td.AssemblyFileName).GetType(td.Name);
+                    if (type == null)
+                    {
+                        throw new FileNotFoundException(
+                            string.Format(
+                                "Assembly '{0}' file not found '{1}'",
+                                td.AssemblyName,
+                                td.AssemblyFileName));
+                    }
+
+                    return type;
+                });
     }
 }
