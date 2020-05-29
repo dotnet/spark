@@ -30,6 +30,8 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
         {
             if (kernel is CompositeKernel kernelBase)
             {
+                Environment.SetEnvironmentVariable("DOTNET_SPARK_RUNNING_REPL", "true");
+
                 string home = Environment.GetEnvironmentVariable("HOME");
                 DirectoryInfo tempDir = Directory.CreateDirectory(
                     Path.Combine(
