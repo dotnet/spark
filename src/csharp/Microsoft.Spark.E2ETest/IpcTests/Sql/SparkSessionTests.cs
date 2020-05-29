@@ -94,7 +94,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Calling CreateDataFrame(IEnumerable<string> _) without schema
             {
-                var data = new List<string>(new string[] { "Alice", "Bob" });
+                var data = new List<string>(new string[] { "Alice", "Bob", null });
                 StructType schema = SchemaWithSingleColumn(new StringType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
