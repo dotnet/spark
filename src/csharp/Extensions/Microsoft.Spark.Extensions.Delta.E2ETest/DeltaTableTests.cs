@@ -11,6 +11,7 @@ using Microsoft.Spark.Extensions.Delta.Tables;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Streaming;
 using Microsoft.Spark.Sql.Types;
+using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
 namespace Microsoft.Spark.Extensions.Delta.E2ETest
