@@ -49,6 +49,8 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                 FileInfo nugetFile = package.NuGetFile;
                 if (!IsPathValid(nugetFile.FullName))
                 {
+                    // Copy the nuget file to a location that works with 
+                    // SparkContext.AddFiles(..)
                     string copyNugetPath =
                         Path.Combine(writePath, nugetFile.Name.Replace(" ", string.Empty));
                     File.Copy(nugetFile.FullName, copyNugetPath);
@@ -83,6 +85,16 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             }
         }
 
+        /// <summary>
+        /// In some versions of Spark, spaces is unsupported when using
+        /// <see cref="SparkContext.AddFile(string, bool)"/>.
+        /// 
+        /// For more details please see:
+        /// - https://issues.apache.org/jira/browse/SPARK-30126 
+        /// - https://github.com/apache/spark/pull/26773"
+        /// </summary>
+        /// <param name="path">The path to validate.</param>
+        /// <returns>true if the path is supported by Spark, false otherwise.</returns>
         internal static bool IsPathValid(string path)
         {
             if (!path.Contains(" "))
@@ -99,6 +111,11 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             };
         }
 
+        /// <summary>
+        /// Return the delta of the list of packages that have been introduced
+        /// since the last call.
+        /// </summary>
+        /// <returns>The delta of the list of packages.</returns>
         private static IEnumerable<NuGetPackage> GetPackagesToCopy()
         {
             PackageRestoreContext restoreContext =
