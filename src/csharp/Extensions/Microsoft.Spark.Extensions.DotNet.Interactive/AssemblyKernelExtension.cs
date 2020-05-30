@@ -67,12 +67,12 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                         if (!File.Exists(assemblyPath))
                         {
                             FileSystemExtensions.Emit(preCompilation, assemblyPath);
-                            SparkSession.Active().SparkContext.AddFile(assemblyPath);
+                            sparkSession.SparkContext.AddFile(assemblyPath);
                         }
 
                         PackagesHelper.GenerateAndAddFiles(
                             tempDir.FullName,
-                            s => SparkSession.Active().SparkContext.AddFile(s, false));
+                            s => sparkSession.SparkContext.AddFile(s, false));
                     }
 
                     await next(command, context);
