@@ -22,6 +22,9 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
     /// </summary>
     public class AssemblyKernelExtension : IKernelExtension
     {
+        private readonly string _runningReplEnvVar = "DOTNET_SPARK_RUNNING_REPL";
+        private readonly string _tempDirEnvVar = "DOTNET_SPARK_EXTENSION_INTERACTIVE_TMPDIR";
+
         /// <summary>
         /// Called by the Microsoft.DotNet.Interactive Assembly Extension Loader.
         /// </summary>
@@ -30,19 +33,31 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
         {
             if (kernel is CompositeKernel kernelBase)
             {
-                Environment.SetEnvironmentVariable("DOTNET_SPARK_RUNNING_REPL", "true");
+                Environment.SetEnvironmentVariable(_runningReplEnvVar, "true");
 
-                string home = Environment.GetEnvironmentVariable("HOME");
+                string envTempDir = Environment.GetEnvironmentVariable(_tempDirEnvVar);
+                string tempDirBasePath = string.IsNullOrEmpty(envTempDir) ?
+                    Directory.GetCurrentDirectory() :
+                    envTempDir;
+
+                if (!PackagesHelper.ValidPath(tempDirBasePath))
+                {
+                    throw new Exception($"[{GetType().Name}] Spaces in " +
+                            $"'{tempDirBasePath}' is unsupported. Set the {_tempDirEnvVar} " +
+                            "environment variable to control the base path. Please see " +
+                            "https://issues.apache.org/jira/browse/SPARK-30126 and " +
+                            "https://github.com/apache/spark/pull/26773 for more details");
+                }
+
                 DirectoryInfo tempDir = Directory.CreateDirectory(
-                    Path.Combine(
-                        string.IsNullOrEmpty(home) ? Directory.GetCurrentDirectory() : home,
-                        Path.GetRandomFileName()));
-
-                kernelBase.RegisterForDisposal(new DisposableDirectory(tempDir));
+                    Path.Combine(tempDirBasePath, Path.GetRandomFileName()));
+                kernelBase.RegisterForDisposal(new DisposableDirectory(tempDir));           
 
                 kernelBase.AddMiddleware(async (command, context, next) =>
                 {
-                    if ((context.HandlingKernel is CSharpKernel kernel) && command is SubmitCode)
+                    if ((context.HandlingKernel is CSharpKernel kernel) &&
+                        command is SubmitCode &&
+                        TryGetSparkSession(out SparkSession sparkSession))
                     {
                         Compilation preCompilation = kernel.ScriptState.Script.GetCompilation();
 
@@ -65,6 +80,12 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             }
 
             return Task.CompletedTask;
+        }
+
+        private bool TryGetSparkSession(out SparkSession sparkSession)
+        {
+            sparkSession = SparkSession.GetDefaultSession();
+            return sparkSession != null;
         }
     }
 }

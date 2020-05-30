@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Utility;
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Extensions.DotNet.Interactive
@@ -45,15 +46,24 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                             resolvedPackage.PackageRoot));
                 }
 
+                FileInfo nugetFile = package.NuGetFile;
+                if (!ValidPath(nugetFile.FullName))
+                {
+                    string copyNugetPath =
+                        Path.Combine(writePath, nugetFile.Name.Replace(" ", string.Empty));
+                    File.Copy(nugetFile.FullName, copyNugetPath);
+                    nugetFile = new FileInfo(copyNugetPath);
+                }
+
                 nugetMetadata.Add(
                     new DependencyProviderUtils.NuGetMetadata
                     {
-                        FileName = package.NuGetFile.Name,
+                        FileName = nugetFile.Name,
                         PackageName = resolvedPackage.PackageName,
                         PackageVersion = resolvedPackage.PackageVersion
                     });
 
-                fileAction(package.NuGetFile.FullName);
+                fileAction(nugetFile.FullName);
             }
 
             if (nugetMetadata.Count > 0)
@@ -71,6 +81,22 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
                 fileAction(metadataPath);
             }
+        }
+
+        internal static bool ValidPath(string path)
+        {
+            if (!path.Contains(" "))
+            {
+                return true;
+            }
+
+            Version version = SparkEnvironment.SparkVersion;
+            return (version.Major, version.Minor, version.Build) switch
+            {
+                (2, _, _) => false,
+                (3, 0, _) => true,
+                _ => throw new NotSupportedException($"Spark {version} not supported.")
+            };
         }
 
         private static IEnumerable<NuGetPackage> GetPackagesToCopy()
