@@ -17,7 +17,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 {
     /// <summary>
     /// A kernel extension when using .NET for Apache Spark with Microsoft.DotNet.Interactive
-    /// Adds nuget and assembly dependencies to the active <see cref="SparkSession"/>
+    /// Adds nuget and assembly dependencies to the default <see cref="SparkSession"/>
     /// using <see cref="SparkContext.AddFile(string, bool)"/>.
     /// </summary>
     public class AssemblyKernelExtension : IKernelExtension
