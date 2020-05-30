@@ -35,23 +35,8 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             {
                 Environment.SetEnvironmentVariable(_runningReplEnvVar, "true");
 
-                string envTempDir = Environment.GetEnvironmentVariable(_tempDirEnvVar);
-                string tempDirBasePath = string.IsNullOrEmpty(envTempDir) ?
-                    Directory.GetCurrentDirectory() :
-                    envTempDir;
-
-                if (!PackagesHelper.IsPathValid(tempDirBasePath))
-                {
-                    throw new Exception($"[{GetType().Name}] Spaces in " +
-                            $"'{tempDirBasePath}' is unsupported. Set the {_tempDirEnvVar} " +
-                            "environment variable to control the base path. Please see " +
-                            "https://issues.apache.org/jira/browse/SPARK-30126 and " +
-                            "https://github.com/apache/spark/pull/26773 for more details");
-                }
-
-                DirectoryInfo tempDir = Directory.CreateDirectory(
-                    Path.Combine(tempDirBasePath, Path.GetRandomFileName()));
-                kernelBase.RegisterForDisposal(new DisposableDirectory(tempDir));           
+                DirectoryInfo tempDir = CreateTempDirectory();
+                kernelBase.RegisterForDisposal(new DisposableDirectory(tempDir));
 
                 kernelBase.AddMiddleware(async (command, context, next) =>
                 {
@@ -80,6 +65,26 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             }
 
             return Task.CompletedTask;
+        }
+
+        private DirectoryInfo CreateTempDirectory()
+        {
+            string envTempDir = Environment.GetEnvironmentVariable(_tempDirEnvVar);
+            string tempDirBasePath = string.IsNullOrEmpty(envTempDir) ?
+                Directory.GetCurrentDirectory() :
+                envTempDir;
+
+            if (!PackagesHelper.IsPathValid(tempDirBasePath))
+            {
+                throw new Exception($"[{GetType().Name}] Spaces in " +
+                        $"'{tempDirBasePath}' is unsupported. Set the {_tempDirEnvVar} " +
+                        "environment variable to control the base path. Please see " +
+                        "https://issues.apache.org/jira/browse/SPARK-30126 and " +
+                        "https://github.com/apache/spark/pull/26773 for more details");
+            }
+
+            return Directory.CreateDirectory(
+                Path.Combine(tempDirBasePath, Path.GetRandomFileName()));
         }
 
         private bool TryGetSparkSession(out SparkSession sparkSession)
