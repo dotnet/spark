@@ -47,7 +47,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                 }
 
                 FileInfo nugetFile = package.NuGetFile;
-                if (!ValidPath(nugetFile.FullName))
+                if (!IsPathValid(nugetFile.FullName))
                 {
                     string copyNugetPath =
                         Path.Combine(writePath, nugetFile.Name.Replace(" ", string.Empty));
@@ -83,7 +83,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             }
         }
 
-        internal static bool ValidPath(string path)
+        internal static bool IsPathValid(string path)
         {
             if (!path.Contains(" "))
             {

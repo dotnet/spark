@@ -40,7 +40,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                     Directory.GetCurrentDirectory() :
                     envTempDir;
 
-                if (!PackagesHelper.ValidPath(tempDirBasePath))
+                if (!PackagesHelper.IsPathValid(tempDirBasePath))
                 {
                     throw new Exception($"[{GetType().Name}] Spaces in " +
                             $"'{tempDirBasePath}' is unsupported. Set the {_tempDirEnvVar} " +
