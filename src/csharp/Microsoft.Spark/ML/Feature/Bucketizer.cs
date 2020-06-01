@@ -151,7 +151,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the name of the column the output data will be written to. This is set by
         /// SetInputCol
         /// </summary>
-        // <returns>string, the output column</returns>
+        /// <returns>string, the output column</returns>
         public string GetOutputCol()
         {
             return (string)_jvmObject.Invoke("getOutputCol");
