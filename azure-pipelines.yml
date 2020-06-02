@@ -85,7 +85,7 @@ jobs:
     displayName: Publish Spark Distros
     inputs:
       sourceFolder: $(Build.BinariesDirectory)
-      targetFolder: $(Build.ArtifactStagingDirectory)/Distros
+      targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/distros
 
   - task: PublishBuildArtifacts@1
     inputs:
@@ -100,7 +100,7 @@ jobs:
   variables:
     ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
       _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-    HADOOP_HOME: $(Build.ArtifactStagingDirectory)\Distros\hadoop
+    HADOOP_HOME: $(Build.ArtifactStagingDirectory)\BuildArtifacts\artifacts\distros\hadoop
     DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)           
 
   steps:
@@ -117,4 +117,4 @@ jobs:
       projects: '**/Microsoft.Spark.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
     env:
-      SPARK_HOME: $(Build.ArtifactStagingDirectory)\Distros\spark-2.3.0-bin-hadoop2.7
+      SPARK_HOME: $(Build.ArtifactStagingDirectory)\BuildArtifacts\artifacts\distros\spark-2.3.0-bin-hadoop2.7
