@@ -87,7 +87,7 @@ jobs:
       sourceFolder: $(Build.BinariesDirectory)
       targetFolder: $(Build.ArtifactStagingDirectory)/Distros
 
-  - task: PublishBuildArtifacts@1git 
+  - task: PublishBuildArtifacts@1
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
       artifactName:  Microsoft.Spark.Binaries
