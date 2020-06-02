@@ -65,6 +65,8 @@ stages:
         filename: script\download-spark-distros.cmd
         arguments: $(Build.ArtifactStagingDirectory)\SparkDistros
 
+    - script: dir $(Build.ArtifactStagingDirectory)
+
     - script: build.cmd -pack
                 -c $(buildConfiguration)
                 -ci
@@ -102,6 +104,8 @@ stages:
         inputs:
           sourceFolder: $(Build.SourcesDirectory)/artifacts/log
           targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/log
+
+    - script: dir $(Build.ArtifactStagingDirectory)
 
     - task: PublishBuildArtifacts@1
       inputs:
