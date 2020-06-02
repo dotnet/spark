@@ -294,15 +294,13 @@ stages:
       DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)           
 
     steps:
-    - checkout: self
-      path: s\master
     - checkout: forwardCompatibleRelease
       path: s\$(forwardCompatibleRelease)
 
     - task: Maven@3
       displayName: 'Maven build src for forward compatible release v$(forwardCompatibleRelease)'
       inputs:
-        mavenPomFile: $(forwardCompatibleRelease)/src/scala/pom.xml
+        mavenPomFile: src/scala/pom.xml
 
     - task: DownloadBuildArtifacts@0
       displayName: Download Build Artifacts and Binaries
@@ -320,7 +318,7 @@ stages:
       displayName: 'E2E tests for Spark 2.3.0'
       inputs:
         command: test
-        projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+        projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
@@ -329,7 +327,7 @@ stages:
       displayName: 'E2E tests for Spark 2.3.1'
       inputs:
         command: test
-        projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+        projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
@@ -338,7 +336,7 @@ stages:
       displayName: 'E2E tests for Spark 2.3.2'
       inputs:
         command: test
-        projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+        projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
@@ -347,7 +345,7 @@ stages:
       displayName: 'E2E tests for Spark 2.3.3'
       inputs:
         command: test
-        projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+        projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
@@ -356,7 +354,7 @@ stages:
       displayName: 'E2E tests for Spark 2.3.4'
       inputs:
         command: test
-        projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+        projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.4-bin-hadoop2.7
@@ -365,7 +363,7 @@ stages:
       displayName: 'E2E tests for Spark 2.4.0'
       inputs:
         command: test
-        projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+        projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
@@ -374,7 +372,7 @@ stages:
       displayName: 'E2E tests for Spark 2.4.1'
       inputs:
         command: test
-        projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+        projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
@@ -383,7 +381,7 @@ stages:
       displayName: 'E2E tests for Spark 2.4.3'
       inputs:
         command: test
-        projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark*.E2ETest/*.csproj'
+        projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
@@ -392,7 +390,7 @@ stages:
       displayName: 'E2E tests for Spark 2.4.4'
       inputs:
         command: test
-        projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark*.E2ETest/*.csproj'
+        projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
@@ -401,7 +399,7 @@ stages:
       displayName: 'E2E tests for Spark 2.4.5'
       inputs:
         command: test
-        projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark*.E2ETest/*.csproj'
+        projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
