@@ -4,9 +4,9 @@
 
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature

@@ -7,9 +7,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest
