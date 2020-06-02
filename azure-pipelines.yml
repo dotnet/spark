@@ -10,10 +10,6 @@ variables:
   buildConfiguration: 'Release'
   _SignType: real
   _TeamName: DotNetSpark
-  MSBUILDSINGLELOADCONTEXT: 1
-  # backwardCompatibleRelease/forwardCompatibleRelease is the "oldest" releases that work with the current release
-  backwardCompatibleRelease: '0.9.0'
-  forwardCompatibleRelease: '0.9.0'
   TestsToFilterOut: "(FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameVectorUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestDestroy)&\
@@ -64,7 +60,7 @@ stages:
       displayName: Download Spark Distros & Winutils.exe
       inputs:
         filename: script\download-spark-distros.cmd
-        arguments: $(Build.BinariesDirectory)
+        arguments: $(Build.ArtifactStagingDirectory)/SparkDistros
 
     - script: build.cmd -pack
                 -c $(buildConfiguration)
@@ -82,15 +78,9 @@ stages:
         arguments: '--configuration $(buildConfiguration)'
 
     - task: CopyFiles@2
-      displayName: Stage Spark distros
-      inputs:
-        sourceFolder: $(Build.BinariesDirectory)
-        targetFolder: $(Build.ArtifactStagingDirectory)/SparkDistros
-
-    - task: CopyFiles@2
       displayName: Stage Maven build jars
       inputs:
-        sourceFolder: $(Build.SourcesDirectory)
+        sourceFolder: $(Build.SourcesDirectory)/src/scala
         contents: '**/*.jar'
         targetFolder: $(Build.ArtifactStagingDirectory)/Jars
 
@@ -188,14 +178,14 @@ stages:
       displayName: Copy jar file of Spark 2.3.x
       inputs:
         sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
-        contents: 'microsoft-spark-2.3.x*.jar'
+        contents: '**/microsoft-spark-2.3.x**'
         targetFolder: $(Build.SourcesDirectory)/src/scala/microsoft-spark-2.3.x/target
 
     - task: CopyFiles@2
       displayName: Copy jar file of Spark 2.4.x
       inputs:
         sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
-        contents: 'microsoft-spark-2.4.x*.jar'
+        contents: '**/microsoft-spark-2.4.x**'
         targetFolder: $(Build.SourcesDirectory)/src/scala/microsoft-spark-2.4.x/target
 
     - task: DotNetCoreCLI@2
@@ -291,6 +281,8 @@ stages:
 - stage: ForwardCompatibility
   displayName: Test Forward Compatibility
   dependsOn: Build
+  # forwardCompatibleRelease is the "oldest" releases that work with the current release
+  variables: forwardCompatibleRelease: '0.9.0'
   jobs:
   - job: ForwardCompatibility
     displayName: E2E tests from forward compatible release v$(forwardCompatibleRelease)
@@ -412,6 +404,8 @@ stages:
 - stage: BackwardCompatibility
   displayName: Test Backward Compatibility
   dependsOn: Build
+  # backwardCompatibleRelease is the "oldest" releases that work with the current release
+  variables: backwardCompatibleRelease: '0.9.0'
   jobs:
   - job: BackwardCompatibility
     displayName: E2E tests with backward compatible worker v$(backwardCompatibleRelease)
@@ -430,18 +424,18 @@ stages:
         artifactName: Microsoft.Spark.Binaries
         downloadPath: $(Build.ArtifactStagingDirectory)
 
-    - task: CopyFiles@2
+        - task: CopyFiles@2
       displayName: Copy jar file of Spark 2.3.x
       inputs:
         sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
-        contents: 'microsoft-spark-2.3.x*.jar'
+        contents: '**/microsoft-spark-2.3.x**'
         targetFolder: $(Build.SourcesDirectory)/src/scala/microsoft-spark-2.3.x/target
 
     - task: CopyFiles@2
       displayName: Copy jar file of Spark 2.4.x
       inputs:
         sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
-        contents: 'microsoft-spark-2.4.x*.jar'
+        contents: '**/microsoft-spark-2.4.x**'
         targetFolder: $(Build.SourcesDirectory)/src/scala/microsoft-spark-2.4.x/target
 
     - task: BatchScript@1
