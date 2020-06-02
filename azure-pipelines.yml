@@ -85,10 +85,17 @@ stages:
         arguments: '--configuration $(buildConfiguration)'
 
     - task: CopyFiles@2
-      displayName: Publish Spark Distros
+      displayName: Publish Spark distros
       inputs:
         sourceFolder: $(Build.BinariesDirectory)
-        targetFolder: $(Build.ArtifactStagingDirectory)/Distros
+        targetFolder: $(Build.ArtifactStagingDirectory)/distros
+
+    - task: CopyFiles@2
+      displayName: Publish maven build
+      inputs:
+        sourceFolder: $(Build.SourcesDirectory)
+	contents: **/microsoft-spark-2.3.x**/*.jar
+        targetFolder: $(Build.ArtifactStagingDirectory)/jars
 
     - task: PublishBuildArtifacts@1
       inputs:
@@ -106,7 +113,7 @@ stages:
     variables:
       ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
         _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-      HADOOP_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Distros\hadoop
+      HADOOP_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\distros\hadoop
       DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)           
 
     steps:
@@ -116,6 +123,12 @@ stages:
         artifactName: Microsoft.Spark.Binaries
         downloadPath: $(Build.ArtifactStagingDirectory)
 
+    - task: CopyFiles@2
+      displayName: Copy jar files
+      inputs:
+        sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/jars
+        targetFolder: $(Build.SourcesDirectory)/src/scala/microsoft-spark-2.3.x/target
+
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.0'
       inputs:
@@ -123,4 +136,4 @@ stages:
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Distros\spark-2.3.0-bin-hadoop2.7
+        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\distros\spark-2.3.0-bin-hadoop2.7
