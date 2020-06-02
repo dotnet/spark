@@ -59,13 +59,13 @@ stages:
       inputs:
         mavenPomFile: benchmark/scala/pom.xml
 
+    - script: mkdir $(Build.ArtifactStagingDirectory)\SparkDistros
+
     - task: BatchScript@1
       displayName: Download Spark Distros & Winutils.exe
       inputs:
         filename: script\download-spark-distros.cmd
         arguments: $(Build.ArtifactStagingDirectory)\SparkDistros
-
-    - script: dir $(Build.ArtifactStagingDirectory)
 
     - script: build.cmd -pack
                 -c $(buildConfiguration)
@@ -104,8 +104,6 @@ stages:
         inputs:
           sourceFolder: $(Build.SourcesDirectory)/artifacts/log
           targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/log
-
-    - script: dir $(Build.ArtifactStagingDirectory)
 
     - task: PublishBuildArtifacts@1
       inputs:
