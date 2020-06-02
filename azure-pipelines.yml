@@ -166,20 +166,20 @@ stages:
 
     steps:
     - task: DownloadBuildArtifacts@0
-      displayName: Download Build Artifacts and Binaries
+      displayName: Download Build Artifacts
       inputs:
         artifactName: Microsoft.Spark.Binaries
         downloadPath: $(Build.ArtifactStagingDirectory)
 
     - task: CopyFiles@2
-      displayName: Copy jar file of Spark 2.3.x
+      displayName: Copy microsoft-spark-2.3.x.jar
       inputs:
         sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
         contents: '**/microsoft-spark-2.3.x**'
         targetFolder: $(Build.SourcesDirectory)/src/scala
 
     - task: CopyFiles@2
-      displayName: Copy jar file of Spark 2.4.x
+      displayName: Copy microsoft-spark-2.4.x.jar
       inputs:
         sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
         contents: '**/microsoft-spark-2.4.x**'
@@ -304,7 +304,7 @@ stages:
         mavenPomFile: src/scala/pom.xml
 
     - task: DownloadBuildArtifacts@0
-      displayName: Download Build Artifacts and Binaries
+      displayName: Download Build Artifacts
       inputs:
         artifactName: Microsoft.Spark.Binaries
         downloadPath: $(Build.ArtifactStagingDirectory)
@@ -420,20 +420,20 @@ stages:
 
     steps:
     - task: DownloadBuildArtifacts@0
-      displayName: Download Build Artifacts and Binaries
+      displayName: Download Build Artifacts
       inputs:
         artifactName: Microsoft.Spark.Binaries
         downloadPath: $(Build.ArtifactStagingDirectory)
 
     - task: CopyFiles@2
-      displayName: Copy jar file of Spark 2.3.x
+      displayName: Copy microsoft-spark-2.3.x.jar
       inputs:
         sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
         contents: '**/microsoft-spark-2.3.x**'
         targetFolder: $(Build.SourcesDirectory)/src/scala
 
     - task: CopyFiles@2
-      displayName: Copy jar file of Spark 2.4.x
+      displayName: Copy microsoft-spark-2.4.x.jar
       inputs:
         sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
         contents: '**/microsoft-spark-2.4.x**'
