@@ -22,7 +22,7 @@ variables:
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithReturnAsTimestampType)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithTimestampType)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.SparkSessionTests.TestCreateDataFrameWithTimestamp)"
-  CurrentDotnetWorkerDir: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp3.1\win-x64'
+  CurrentDotnetWorkerDir: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Microsoft.Spark.Worker\netcoreapp3.1\win-x64'
   BackwardCompatibleDotnetWorkerDir: $(Build.BinariesDirectory)\Microsoft.Spark.Worker-$(backwardCompatibleRelease)
 
   # Azure DevOps variables are transformed into environment variables, with these variables we
@@ -49,8 +49,6 @@ stages:
     variables:
       ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
         _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-      HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
-      DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)
 
     steps:
     - task: Maven@3
