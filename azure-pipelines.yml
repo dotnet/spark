@@ -426,7 +426,7 @@ stages:
         artifactName: Microsoft.Spark.Binaries
         downloadPath: $(Build.ArtifactStagingDirectory)
 
-        - task: CopyFiles@2
+    - task: CopyFiles@2
       displayName: Copy jar file of Spark 2.3.x
       inputs:
         sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
