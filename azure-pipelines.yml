@@ -10,6 +10,7 @@ variables:
   buildConfiguration: 'Release'
   _SignType: real
   _TeamName: DotNetSpark
+  # forwardCompatibleRelease/backwardCompatibleRelease is the "oldest" releases that work with the current release
   forwardCompatibleRelease: '0.9.0'
   backwardCompatibleRelease: '0.9.0'
   TestsToFilterOut: "(FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
@@ -283,15 +284,13 @@ stages:
 - stage: ForwardCompatibility
   displayName: Test Forward Compatibility
   dependsOn: Build
-  # forwardCompatibleRelease is the "oldest" releases that work with the current release
-  variables:
-    forwardCompatibleRelease: '0.9.0'
   jobs:
   - job: ForwardCompatibility
     displayName: E2E tests from forward compatible release v$(forwardCompatibleRelease)
     pool: Hosted VS2017
 
     variables:
+      forwardCompatibleRelease: '0.9.0'
       ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
         _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
       HADOOP_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\hadoop
@@ -407,15 +406,13 @@ stages:
 - stage: BackwardCompatibility
   displayName: Test Backward Compatibility
   dependsOn: Build
-  # backwardCompatibleRelease is the "oldest" releases that work with the current release
-  variables:
-    backwardCompatibleRelease: '0.9.0'
   jobs:
   - job: BackwardCompatibility
     displayName: E2E tests with backward compatible worker v$(backwardCompatibleRelease)
     pool: Hosted VS2017
 
     variables:
+      backwardCompatibleRelease: '0.9.0'
       ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
         _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
       HADOOP_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\hadoop
