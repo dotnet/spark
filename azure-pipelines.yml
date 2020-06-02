@@ -63,7 +63,7 @@ stages:
       displayName: Download Spark Distros & Winutils.exe
       inputs:
         filename: script\download-spark-distros.cmd
-        arguments: $(Build.ArtifactStagingDirectory)/SparkDistros
+        arguments: $(Build.ArtifactStagingDirectory)\SparkDistros
 
     - script: build.cmd -pack
                 -c $(buildConfiguration)
@@ -161,7 +161,6 @@ stages:
   dependsOn: Build
   jobs:
   - job: Test
-    displayName: Test Sources
     pool: Hosted VS2017
 
     variables:
@@ -182,14 +181,14 @@ stages:
       inputs:
         sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
         contents: '**/microsoft-spark-2.3.x**'
-        targetFolder: $(Build.SourcesDirectory)/src/scala/microsoft-spark-2.3.x/target
+        targetFolder: $(Build.SourcesDirectory)/src/scala
 
     - task: CopyFiles@2
       displayName: Copy jar file of Spark 2.4.x
       inputs:
         sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
         contents: '**/microsoft-spark-2.4.x**'
-        targetFolder: $(Build.SourcesDirectory)/src/scala/microsoft-spark-2.4.x/target
+        targetFolder: $(Build.SourcesDirectory)/src/scala
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.0'
@@ -286,11 +285,9 @@ stages:
   dependsOn: Build
   jobs:
   - job: ForwardCompatibility
-    displayName: E2E tests from forward compatible release v$(forwardCompatibleRelease)
     pool: Hosted VS2017
 
     variables:
-      forwardCompatibleRelease: '0.9.0'
       ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
         _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
       HADOOP_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\hadoop
@@ -408,11 +405,9 @@ stages:
   dependsOn: Build
   jobs:
   - job: BackwardCompatibility
-    displayName: E2E tests with backward compatible worker v$(backwardCompatibleRelease)
     pool: Hosted VS2017
 
     variables:
-      backwardCompatibleRelease: '0.9.0'
       ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
         _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
       HADOOP_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\hadoop
@@ -430,14 +425,14 @@ stages:
       inputs:
         sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
         contents: '**/microsoft-spark-2.3.x**'
-        targetFolder: $(Build.SourcesDirectory)/src/scala/microsoft-spark-2.3.x/target
+        targetFolder: $(Build.SourcesDirectory)/src/scala
 
     - task: CopyFiles@2
       displayName: Copy jar file of Spark 2.4.x
       inputs:
         sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
         contents: '**/microsoft-spark-2.4.x**'
-        targetFolder: $(Build.SourcesDirectory)/src/scala/microsoft-spark-2.4.x/target
+        targetFolder: $(Build.SourcesDirectory)/src/scala
 
     - task: BatchScript@1
       displayName: Download backward compatible worker v$(backwardCompatibleRelease)
