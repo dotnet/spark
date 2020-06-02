@@ -38,68 +38,89 @@ resources:
     name: dotnet/spark
     ref: refs/tags/v$(forwardCompatibleRelease)
 
-jobs:
-- job: Build
+stages:
+- stage: Build
   displayName: Build and Test Sources
-  pool: Hosted VS2017
+  jobs:
+  - job: Build
+    displayName: Build and Test Sources
+    pool: Hosted VS2017
 
-  variables:
-    ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-      _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-    HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
-    DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)
+    variables:
+      ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+        _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+      HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
+      DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)
 
-  steps:
-  - task: Maven@3
-    displayName: 'Maven build src'
-    inputs:
-      mavenPomFile: src/scala/pom.xml
+    steps:
+    - task: Maven@3
+      displayName: 'Maven build src'
+      inputs:
+        mavenPomFile: src/scala/pom.xml
 
-  - task: Maven@3
-    displayName: 'Maven build benchmark'
-    inputs:
-      mavenPomFile: benchmark/scala/pom.xml
+    - task: Maven@3
+      displayName: 'Maven build benchmark'
+      inputs:
+        mavenPomFile: benchmark/scala/pom.xml
 
-  - task: BatchScript@1
-    displayName: Download Spark Distros & Winutils.exe
-    inputs:
-      filename: script\download-spark-distros.cmd
-      arguments: $(Build.BinariesDirectory)
+    - task: BatchScript@1
+      displayName: Download Spark Distros & Winutils.exe
+      inputs:
+        filename: script\download-spark-distros.cmd
+        arguments: $(Build.BinariesDirectory)
 
-  - script: build.cmd -pack
-              -c $(buildConfiguration)
-              -ci
-              $(_OfficialBuildIdArgs)
-              /p:PublishSparkWorker=true
-              /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
-    displayName: '.NET build'
+    - script: build.cmd -pack
+                -c $(buildConfiguration)
+                -ci
+                $(_OfficialBuildIdArgs)
+                /p:PublishSparkWorker=true
+                /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
+      displayName: '.NET build'
 
-  - task: DotNetCoreCLI@2
-    displayName: '.NET unit tests'
-    inputs:
-      command: test
-      projects: '**/*UnitTest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
+    - task: DotNetCoreCLI@2
+      displayName: '.NET unit tests'
+      inputs:
+        command: test
+        projects: '**/*UnitTest/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
 
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      artifactName:  Microsoft.Spark.Binaries
+    - task: CopyFiles@2
+      displayName: Publish Spark Distros
+      inputs:
+        sourceFolder: $(Build.BinariesDirectory)
+        targetFolder: $(Build.ArtifactStagingDirectory)/Distros
 
-- job: Test
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        artifactName:  Microsoft.Spark.Binaries
+
+- stage: Test
   displayName: Test Sources
   dependsOn: Build
-  pool: Hosted VS2017
+  jobs:
+  - job: Test
+    displayName: Test Sources
+    pool: Hosted VS2017
 
-  variables:
-    ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-      _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)          
+    variables:
+      ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+        _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+      HADOOP_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Distros\hadoop
+      DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)           
 
-  steps:
-  - task: DownloadBuildArtifacts@0
-    displayName: Download Build Artifacts and Binaries
-    inputs:
-      artifactName: Microsoft.Spark.Binaries
-      downloadPath: $(Build.ArtifactStagingDirectory)
+    steps:
+    - task: DownloadBuildArtifacts@0
+      displayName: Download Build Artifacts and Binaries
+      inputs:
+        artifactName: Microsoft.Spark.Binaries
+        downloadPath: $(Build.ArtifactStagingDirectory)
 
-  - script: dir $(Build.ArtifactStagingDirectory)
+    - task: DotNetCoreCLI@2
+      displayName: 'E2E tests for Spark 2.3.0'
+      inputs:
+        command: test
+        projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+      env:
+        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Distros\spark-2.3.0-bin-hadoop2.7
