@@ -40,10 +40,9 @@ resources:
 
 stages:
 - stage: Build
-  displayName: Build and Test Sources
+  displayName: Build Sources
   jobs:
   - job: Build
-    displayName: Build and Test Sources
     pool: Hosted VS2017
 
     variables:
@@ -83,13 +82,13 @@ stages:
         arguments: '--configuration $(buildConfiguration)'
 
     - task: CopyFiles@2
-      displayName: Publish Spark distros
+      displayName: Stage Spark distros
       inputs:
         sourceFolder: $(Build.BinariesDirectory)
         targetFolder: $(Build.ArtifactStagingDirectory)/distros
 
     - task: CopyFiles@2
-      displayName: Publish maven build
+      displayName: Stage Maven build jars
       inputs:
         sourceFolder: $(Build.SourcesDirectory)/src/scala/microsoft-spark-2.3.x/target
         contents: "**/*.jar"
@@ -105,7 +104,6 @@ stages:
   dependsOn: Build
   jobs:
   - job: Test
-    displayName: Test Sources
     pool: Hosted VS2017
 
     variables:
@@ -133,5 +131,87 @@ stages:
         command: test
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
+      env:
+        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\distros\spark-2.3.0-bin-hadoop2.7
+
+- stage: ForwardCompatibility
+  displayName: Test Forward Compatibility
+  dependsOn: Build
+  jobs:
+  - job: ForwardCompatibility
+    displayName: 'E2E tests from forward compatible release v$(forwardCompatibleRelease)'
+    pool: Hosted VS2017
+
+    variables:
+      ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+        _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+      HADOOP_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\distros\hadoop
+      DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)           
+
+    steps:
+    - checkout: self
+      path: s\master
+    - checkout: forwardCompatibleRelease
+      path: s\$(forwardCompatibleRelease)
+
+    - task: Maven@3
+      displayName: 'Maven build src for forward compatible release v$(forwardCompatibleRelease)'
+      inputs:
+        mavenPomFile: $(forwardCompatibleRelease)/src/scala/pom.xml
+
+    - task: DownloadBuildArtifacts@0
+      displayName: Download Build Artifacts and Binaries
+      inputs:
+        artifactName: Microsoft.Spark.Binaries
+        downloadPath: $(Build.ArtifactStagingDirectory)
+
+    - task: DotNetCoreCLI@2
+      displayName: 'E2E tests for Spark 2.3.0'
+      inputs:
+        command: test
+        projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+      env:
+        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\distros\spark-2.3.0-bin-hadoop2.7
+
+- stage: BackwardCompatibility
+  displayName: Test Backward Compatibility
+  dependsOn: Build
+  jobs:
+  - job: BackwardCompatibility
+    displayName: 'E2E tests with backward compatible worker v$(backwardCompatibleRelease)'
+    pool: Hosted VS2017
+
+    variables:
+      ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+        _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+      HADOOP_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\distros\hadoop
+      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)           
+
+    steps:
+    - task: DownloadBuildArtifacts@0
+      displayName: Download Build Artifacts and Binaries
+      inputs:
+        artifactName: Microsoft.Spark.Binaries
+        downloadPath: $(Build.ArtifactStagingDirectory)
+
+    - task: CopyFiles@2
+      displayName: Copy jar files
+      inputs:
+        sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/jars
+        targetFolder: $(Build.SourcesDirectory)/src/scala/microsoft-spark-2.3.x/target
+
+    - task: BatchScript@1
+      displayName: Download backward compatible worker v$(backwardCompatibleRelease)
+      inputs:
+        filename: script\download-worker-release.cmd
+        arguments: '$(Build.BinariesDirectory) $(backwardCompatibleRelease)'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'E2E tests for Spark 2.3.0'
+      inputs:
+        command: test
+        projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
         SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\distros\spark-2.3.0-bin-hadoop2.7
