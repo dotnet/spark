@@ -10,6 +10,8 @@ variables:
   buildConfiguration: 'Release'
   _SignType: real
   _TeamName: DotNetSpark
+  forwardCompatibleRelease: '0.9.0'
+  backwardCompatibleRelease: '0.9.0'
   TestsToFilterOut: "(FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameVectorUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestDestroy)&\
