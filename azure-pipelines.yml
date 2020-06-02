@@ -282,7 +282,8 @@ stages:
   displayName: Test Forward Compatibility
   dependsOn: Build
   # forwardCompatibleRelease is the "oldest" releases that work with the current release
-  variables: forwardCompatibleRelease: '0.9.0'
+  variables:
+    forwardCompatibleRelease: '0.9.0'
   jobs:
   - job: ForwardCompatibility
     displayName: E2E tests from forward compatible release v$(forwardCompatibleRelease)
@@ -405,7 +406,8 @@ stages:
   displayName: Test Backward Compatibility
   dependsOn: Build
   # backwardCompatibleRelease is the "oldest" releases that work with the current release
-  variables: backwardCompatibleRelease: '0.9.0'
+  variables:
+    backwardCompatibleRelease: '0.9.0'
   jobs:
   - job: BackwardCompatibility
     displayName: E2E tests with backward compatible worker v$(backwardCompatibleRelease)
