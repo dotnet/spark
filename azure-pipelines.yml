@@ -59,14 +59,6 @@ stages:
       inputs:
         mavenPomFile: benchmark/scala/pom.xml
 
-    - script: mkdir $(Build.ArtifactStagingDirectory)\SparkDistros
-
-    - task: BatchScript@1
-      displayName: Download Spark Distros & Winutils.exe
-      inputs:
-        filename: script\download-spark-distros.cmd
-        arguments: $(Build.ArtifactStagingDirectory)\SparkDistros
-
     - script: build.cmd -pack
                 -c $(buildConfiguration)
                 -ci
@@ -168,7 +160,7 @@ stages:
     variables:
       ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
         _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-      HADOOP_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\hadoop
+      HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
       DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)           
 
     steps:
@@ -192,6 +184,12 @@ stages:
         contents: '**/microsoft-spark-2.4.x**'
         targetFolder: $(Build.SourcesDirectory)/src/scala
 
+    - task: BatchScript@1
+      displayName: Download Spark Distros & Winutils.exe
+      inputs:
+        filename: script\download-spark-distros.cmd
+        arguments: $(Build.BinariesDirectory)
+
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.0'
       inputs:
@@ -199,7 +197,7 @@ stages:
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.3.0-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.1'
@@ -208,7 +206,7 @@ stages:
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.3.1-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.2'
@@ -217,7 +215,7 @@ stages:
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.3.2-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.3'
@@ -226,7 +224,7 @@ stages:
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.3.3-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.4'
@@ -235,7 +233,7 @@ stages:
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.3.4-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.4-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.4.0'
@@ -244,7 +242,7 @@ stages:
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.4.0-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.4.1'
@@ -253,7 +251,7 @@ stages:
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.4.1-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
   
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.4.3'
@@ -262,7 +260,7 @@ stages:
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.4.3-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.4.4'
@@ -271,7 +269,7 @@ stages:
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.4.4-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.4.5'
@@ -280,7 +278,7 @@ stages:
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.4.5-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
 
 - stage: ForwardCompatibility
   displayName: Test Forward Compatibility
@@ -292,7 +290,7 @@ stages:
     variables:
       ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
         _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-      HADOOP_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\hadoop
+      HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
       DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)           
 
     steps:
@@ -312,6 +310,12 @@ stages:
         artifactName: Microsoft.Spark.Binaries
         downloadPath: $(Build.ArtifactStagingDirectory)
 
+    - task: BatchScript@1
+      displayName: Download Spark Distros & Winutils.exe
+      inputs:
+        filename: script\download-spark-distros.cmd
+        arguments: $(Build.BinariesDirectory)
+
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.0'
       inputs:
@@ -319,7 +323,7 @@ stages:
         projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.3.0-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.1'
@@ -328,7 +332,7 @@ stages:
         projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.3.1-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.2'
@@ -337,7 +341,7 @@ stages:
         projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.3.2-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.3'
@@ -346,7 +350,7 @@ stages:
         projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.3.3-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.4'
@@ -355,7 +359,7 @@ stages:
         projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.3.4-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.4-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.4.0'
@@ -364,7 +368,7 @@ stages:
         projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.4.0-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.4.1'
@@ -373,7 +377,7 @@ stages:
         projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.4.1-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
   
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.4.3'
@@ -382,7 +386,7 @@ stages:
         projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark*.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.4.3-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.4.4'
@@ -391,7 +395,7 @@ stages:
         projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark*.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.4.4-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.4.5'
@@ -400,7 +404,7 @@ stages:
         projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark*.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.4.5-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
 
 - stage: BackwardCompatibility
   displayName: Test Backward Compatibility
@@ -412,7 +416,7 @@ stages:
     variables:
       ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
         _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-      HADOOP_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\hadoop
+      HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
       DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)           
 
     steps:
@@ -437,6 +441,12 @@ stages:
         targetFolder: $(Build.SourcesDirectory)/src/scala
 
     - task: BatchScript@1
+      displayName: Download Spark Distros & Winutils.exe
+      inputs:
+        filename: script\download-spark-distros.cmd
+        arguments: $(Build.BinariesDirectory)
+
+    - task: BatchScript@1
       displayName: Download backward compatible worker v$(backwardCompatibleRelease)
       inputs:
         filename: script\download-worker-release.cmd
@@ -449,7 +459,7 @@ stages:
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.3.0-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.1'
@@ -458,7 +468,7 @@ stages:
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.3.1-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.2'
@@ -467,7 +477,7 @@ stages:
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.3.2-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.3'
@@ -476,7 +486,7 @@ stages:
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.3.3-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.3.4'
@@ -485,7 +495,7 @@ stages:
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.3.4-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.4-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.4.0'
@@ -494,7 +504,7 @@ stages:
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.4.0-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.4.1'
@@ -503,7 +513,7 @@ stages:
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.4.1-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
   
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.4.3'
@@ -512,7 +522,7 @@ stages:
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.4.3-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.4.4'
@@ -521,7 +531,7 @@ stages:
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.4.4-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 2.4.5'
@@ -530,4 +540,4 @@ stages:
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
         arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
-        SPARK_HOME: $(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\SparkDistros\spark-2.4.5-bin-hadoop2.7
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
