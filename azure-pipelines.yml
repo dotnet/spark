@@ -81,12 +81,6 @@ jobs:
       projects: '**/*UnitTest/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
 
-  - task: CopyFiles@2
-    displayName: Publish Spark Distros
-    inputs:
-      sourceFolder: $(Build.BinariesDirectory)
-      targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/distros
-
   - task: PublishBuildArtifacts@1
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
@@ -99,9 +93,7 @@ jobs:
 
   variables:
     ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-      _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-    HADOOP_HOME: $(Build.ArtifactStagingDirectory)\BuildArtifacts\artifacts\distros\hadoop
-    DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)           
+      _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)          
 
   steps:
   - task: DownloadBuildArtifacts@0
@@ -110,11 +102,4 @@ jobs:
       artifactName: Microsoft.Spark.Binaries
       downloadPath: $(Build.ArtifactStagingDirectory)
 
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.0'
-    inputs:
-      command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.ArtifactStagingDirectory)\BuildArtifacts\artifacts\distros\spark-2.3.0-bin-hadoop2.7
+  - script: dir $(Build.ArtifactStagingDirectory)
