@@ -93,8 +93,7 @@ stages:
     - task: CopyFiles@2
       displayName: Publish maven build
       inputs:
-        sourceFolder: $(Build.SourcesDirectory)
-        contents: **/microsoft-spark-2.3.x**/*.jar
+        sourceFolder: $(Build.SourcesDirectory)/src/scala/microsoft-spark-2.3.x/target
         targetFolder: $(Build.ArtifactStagingDirectory)/jars
 
     - task: PublishBuildArtifacts@1
