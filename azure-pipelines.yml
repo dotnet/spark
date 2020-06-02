@@ -10,6 +10,7 @@ variables:
   buildConfiguration: 'Release'
   _SignType: real
   _TeamName: DotNetSpark
+  MSBUILDSINGLELOADCONTEXT: 1
   # forwardCompatibleRelease/backwardCompatibleRelease is the "oldest" releases that work with the current release
   forwardCompatibleRelease: '0.9.0'
   backwardCompatibleRelease: '0.9.0'
