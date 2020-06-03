@@ -2,36 +2,56 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Utility;
-using Microsoft.Spark.Interop;
 using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Extensions.DotNet.Interactive
 {
-    internal static class PackagesHelper
+    internal class PackageHelper
     {
-        private static readonly HashSet<string> s_filesCopied = new HashSet<string>();
-        private static ulong s_metadataCounter = 0;
+        private readonly IPackageResolver _packageResolver;
+        private ulong _metadataCounter = 0;
 
-        internal static void GenerateAndAddFiles(
-            string writePath,
-            Action<string> fileAction)
+        internal PackageHelper(IPackageResolver packageResolver)
         {
-            IEnumerable<NuGetPackage> nugetPackagesToCopy = GetPackagesToCopy();
+            _packageResolver = packageResolver;
+        }
+
+        /// <summary>
+        /// Generates and serializes a <see cref="DependencyProviderUtils.Metadata"/> to
+        /// <paramref name="writePath"/>. Returns a list of file paths which include the
+        /// the serialized <see cref="DependencyProviderUtils.Metadata"/> and nuget file
+        /// dependencies.
+        /// </summary>
+        /// <param name="writePath">Path to write metadata.</param>
+        /// <returns>
+        /// List of file paths of the serialized <see cref="DependencyProviderUtils.Metadata"/>
+        /// and nuget file dependencies.
+        /// </returns>
+        internal IEnumerable<string> GetFiles(string writePath)
+        {
+            IEnumerable<ResolvedNuGetPackage> nugetPackagesToCopy =
+                _packageResolver.GetPackagesToCopy();
 
             var assemblyProbingPaths = new List<string>();
             var nativeProbingPaths = new List<string>();
             var nugetMetadata = new List<DependencyProviderUtils.NuGetMetadata>();
 
-            foreach (NuGetPackage package in nugetPackagesToCopy)
+            foreach (ResolvedNuGetPackage package in nugetPackagesToCopy)
             {
                 ResolvedPackageReference resolvedPackage = package.ResolvedPackage;
+
+
                 foreach (FileInfo asmPath in resolvedPackage.AssemblyPaths)
                 {
+                    // asmPath.FullName
+                    //   /path/to/packages/package.name/package.version/lib/framework/1.dll
+                    // resolvedPackage.PackageRoot
+                    //   /path/to/packages/package.name/package.version/
+                    // GetRelativeToPackages(..)
+                    //   package.name/package.version/lib/framework/1.dll
                     assemblyProbingPaths.Add(
                         GetPathRelativeToPackages(
                             asmPath.FullName,
@@ -40,32 +60,27 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
                 foreach (DirectoryInfo probePath in resolvedPackage.ProbingPaths)
                 {
+                    // probePath.FullName
+                    //   /path/to/packages/package.name/package.version/
+                    // resolvedPackage.PackageRoot
+                    //   /path/to/packages/package.name/package.version/
+                    // GetRelativeToPackages(..)
+                    //   package.name/package.version
                     nativeProbingPaths.Add(
                         GetPathRelativeToPackages(
                             probePath.FullName,
                             resolvedPackage.PackageRoot));
                 }
 
-                FileInfo nugetFile = package.NuGetFile;
-                if (!IsPathValid(nugetFile.FullName))
-                {
-                    // Copy the nuget file to a location that works with 
-                    // SparkContext.AddFiles(..)
-                    string copyNugetPath =
-                        Path.Combine(writePath, nugetFile.Name.Replace(" ", string.Empty));
-                    File.Copy(nugetFile.FullName, copyNugetPath);
-                    nugetFile = new FileInfo(copyNugetPath);
-                }
-
                 nugetMetadata.Add(
                     new DependencyProviderUtils.NuGetMetadata
                     {
-                        FileName = nugetFile.Name,
+                        FileName = package.NuGetFile.Name,
                         PackageName = resolvedPackage.PackageName,
                         PackageVersion = resolvedPackage.PackageVersion
                     });
 
-                fileAction(nugetFile.FullName);
+                yield return package.NuGetFile.FullName;
             }
 
             if (nugetMetadata.Count > 0)
@@ -73,7 +88,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                 var metadataPath =
                     Path.Combine(
                         writePath,
-                        DependencyProviderUtils.CreateFileName(++s_metadataCounter));
+                        DependencyProviderUtils.CreateFileName(++_metadataCounter));
                 new DependencyProviderUtils.Metadata
                 {
                     AssemblyProbingPaths = assemblyProbingPaths.ToArray(),
@@ -81,86 +96,16 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                     NuGets = nugetMetadata.ToArray()
                 }.Serialize(metadataPath);
 
-                fileAction(metadataPath);
+                yield return metadataPath;
             }
         }
 
-        /// <summary>
-        /// In some versions of Spark, spaces is unsupported when using
-        /// <see cref="SparkContext.AddFile(string, bool)"/>.
-        /// 
-        /// For more details please see:
-        /// - https://issues.apache.org/jira/browse/SPARK-30126 
-        /// - https://github.com/apache/spark/pull/26773"
-        /// </summary>
-        /// <param name="path">The path to validate.</param>
-        /// <returns>true if the path is supported by Spark, false otherwise.</returns>
-        internal static bool IsPathValid(string path)
+        private string GetPathRelativeToPackages(string file, DirectoryInfo directory)
         {
-            if (!path.Contains(" "))
-            {
-                return true;
-            }
-
-            Version version = SparkEnvironment.SparkVersion;
-            return (version.Major, version.Minor, version.Build) switch
-            {
-                (2, _, _) => false,
-                (3, 0, _) => true,
-                _ => throw new NotSupportedException($"Spark {version} not supported.")
-            };
-        }
-
-        /// <summary>
-        /// Return the delta of the list of packages that have been introduced
-        /// since the last call.
-        /// </summary>
-        /// <returns>The delta of the list of packages.</returns>
-        private static IEnumerable<NuGetPackage> GetPackagesToCopy()
-        {
-            PackageRestoreContext restoreContext =
-                (KernelInvocationContext.Current.HandlingKernel as ISupportNuget)
-                .PackageRestoreContext;
-            IEnumerable<ResolvedPackageReference> packages =
-                restoreContext.ResolvedPackageReferences;
-            foreach (ResolvedPackageReference package in packages)
-            {
-                IEnumerable<FileInfo> files =
-                    package.PackageRoot.EnumerateFiles("*.nupkg", SearchOption.AllDirectories);
-
-                foreach (FileInfo file in files)
-                {
-                    if (!file.Exists || s_filesCopied.Contains(file.Name))
-                    {
-                        continue;
-                    }
-                    
-                    s_filesCopied.Add(file.Name);
-                    yield return new NuGetPackage { ResolvedPackage = package, NuGetFile = file };
-                }
-            }
-        }
-
-        private static string GetPathRelativeToPackages(string file, DirectoryInfo directory)
-        {
-            string strippedRoot = file.Substring(directory.FullName.Length);
-            string relativePath =
-                Path.Combine(
-                    Trim(directory.Parent.Name),
-                    Trim(directory.Name),
-                    Trim(strippedRoot));
-            return relativePath;
-
-            static string Trim(string path)
-            {
-                return path.Trim(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            }
-        }
-
-        private class NuGetPackage
-        {
-            public ResolvedPackageReference ResolvedPackage { get; set; }
-            public FileInfo NuGetFile { get; set; }
+            string strippedRoot = file
+                .Substring(directory.FullName.Length)
+                .Trim(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return Path.Combine(directory.Parent.Name, directory.Name, strippedRoot);
         }
     }
 }

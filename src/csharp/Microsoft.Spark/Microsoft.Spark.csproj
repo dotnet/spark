@@ -18,6 +18,7 @@
     <InternalsVisibleTo Include="Microsoft.Spark.Extensions.Delta" />
     <InternalsVisibleTo Include="Microsoft.Spark.Extensions.Delta.E2ETest" />
     <InternalsVisibleTo Include="Microsoft.Spark.Extensions.DotNet.Interactive" />
+    <InternalsVisibleTo Include="Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest" />
     <InternalsVisibleTo Include="Microsoft.Spark.UnitTest" />
     <InternalsVisibleTo Include="Microsoft.Spark.Worker" />
     <InternalsVisibleTo Include="Microsoft.Spark.Worker.UnitTest" />

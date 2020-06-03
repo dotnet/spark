@@ -10,6 +10,7 @@ using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.CSharp;
 using Microsoft.DotNet.Interactive.Utility;
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
 
@@ -22,18 +23,20 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
     /// </summary>
     public class AssemblyKernelExtension : IKernelExtension
     {
-        private readonly string _runningReplEnvVar = "DOTNET_SPARK_RUNNING_REPL";
-        private readonly string _tempDirEnvVar = "DOTNET_SPARK_EXTENSION_INTERACTIVE_TMPDIR";
+        private const string TempDirEnvVar = "DOTNET_SPARK_EXTENSION_INTERACTIVE_TMPDIR";
+
+        private readonly PackageHelper _packageHelper = new PackageHelper(new PackageResolver());
 
         /// <summary>
         /// Called by the Microsoft.DotNet.Interactive Assembly Extension Loader.
         /// </summary>
         /// <param name="kernel">The kernel calling this method.</param>
+        /// <returns><see cref="Task.CompletedTask"/> when extension is loaded.</returns>
         public Task OnLoadAsync(IKernel kernel)
         {
             if (kernel is CompositeKernel kernelBase)
             {
-                Environment.SetEnvironmentVariable(_runningReplEnvVar, "true");
+                Environment.SetEnvironmentVariable(Constants.RunningREPLEnvVar, "true");
 
                 DirectoryInfo tempDir = CreateTempDirectory();
                 kernelBase.RegisterForDisposal(new DisposableDirectory(tempDir));
@@ -41,7 +44,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                 kernelBase.AddMiddleware(async (command, context, next) =>
                 {
                     if ((context.HandlingKernel is CSharpKernel kernel) &&
-                        command is SubmitCode &&
+                        (command is SubmitCode) &&
                         TryGetSparkSession(out SparkSession sparkSession))
                     {
                         Compilation preCompilation = kernel.ScriptState.Script.GetCompilation();
@@ -49,15 +52,25 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                         string assemblyName =
                             AssemblyLoader.NormalizeAssemblyName(preCompilation.AssemblyName);
                         string assemblyPath = Path.Combine(tempDir.FullName, $"{assemblyName}.dll");
-                        if (!File.Exists(assemblyPath))
-                        {
-                            FileSystemExtensions.Emit(preCompilation, assemblyPath);
-                            sparkSession.SparkContext.AddFile(assemblyPath);
-                        }
+                        FileSystemExtensions.Emit(preCompilation, assemblyPath);
+                        sparkSession.SparkContext.AddFile(assemblyPath);
 
-                        PackagesHelper.GenerateAndAddFiles(
-                            tempDir.FullName,
-                            s => sparkSession.SparkContext.AddFile(s, false));
+                        foreach (string filePath in _packageHelper.GetFiles(tempDir.FullName))
+                        {
+                            if (IsPathValid(filePath))
+                            {
+                                sparkSession.SparkContext.AddFile(filePath);
+                            }
+                            else
+                            {
+                                // Copy file to a path without spaces.
+                                string fileDestPath = Path.Combine(
+                                    tempDir.FullName,
+                                    Path.GetFileName(filePath).Replace(" ", string.Empty));
+                                File.Copy(filePath, fileDestPath);
+                                sparkSession.SparkContext.AddFile(fileDestPath);
+                            }
+                        }
                     }
 
                     await next(command, context);
@@ -69,18 +82,18 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
         private DirectoryInfo CreateTempDirectory()
         {
-            string envTempDir = Environment.GetEnvironmentVariable(_tempDirEnvVar);
+            string envTempDir = Environment.GetEnvironmentVariable(TempDirEnvVar);
             string tempDirBasePath = string.IsNullOrEmpty(envTempDir) ?
                 Directory.GetCurrentDirectory() :
                 envTempDir;
 
-            if (!PackagesHelper.IsPathValid(tempDirBasePath))
+            if (!IsPathValid(tempDirBasePath))
             {
                 throw new Exception($"[{GetType().Name}] Spaces in " +
-                        $"'{tempDirBasePath}' is unsupported. Set the {_tempDirEnvVar} " +
-                        "environment variable to control the base path. Please see " +
-                        "https://issues.apache.org/jira/browse/SPARK-30126 and " +
-                        "https://github.com/apache/spark/pull/26773 for more details");
+                    $"'{tempDirBasePath}' is unsupported. Set the {TempDirEnvVar} " +
+                    "environment variable to control the base path. Please see " +
+                    "https://issues.apache.org/jira/browse/SPARK-30126 and " +
+                    "https://github.com/apache/spark/pull/26773 for more details");
             }
 
             return Directory.CreateDirectory(
@@ -91,6 +104,32 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
         {
             sparkSession = SparkSession.GetDefaultSession();
             return sparkSession != null;
+        }
+
+        /// <summary>
+        /// In some versions of Spark, spaces is unsupported when using
+        /// <see cref="SparkContext.AddFile(string, bool)"/>.
+        /// 
+        /// For more details please see:
+        /// - https://issues.apache.org/jira/browse/SPARK-30126 
+        /// - https://github.com/apache/spark/pull/26773"
+        /// </summary>
+        /// <param name="path">The path to validate.</param>
+        /// <returns>true if the path is supported by Spark, false otherwise.</returns>
+        private bool IsPathValid(string path)
+        {
+            if (!path.Contains(" "))
+            {
+                return true;
+            }
+
+            Version version = SparkEnvironment.SparkVersion;
+            return (version.Major, version.Minor, version.Build) switch
+            {
+                (2, _, _) => false,
+                (3, 0, _) => true,
+                _ => throw new NotSupportedException($"Spark {version} not supported.")
+            };
         }
     }
 }
