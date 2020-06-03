@@ -20,7 +20,6 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
         {
             string basePath = new FileInfo(".").FullName;
 
-            var mockPackageResolver = new Mock<IPackageResolver>();
             string packageName = "package.name";
             string packageVersion = "0.1.0";
             string packageRootPath =
@@ -38,6 +37,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
             IReadOnlyList<DirectoryInfo> probingPaths =
                 new List<DirectoryInfo> { new DirectoryInfo(packageRootPath) }.AsReadOnly();
 
+            var mockPackageResolver = new Mock<IPackageResolver>();
             mockPackageResolver
                 .Setup(m => m.GetPackagesToCopy())
                 .Returns(new ResolvedNuGetPackage[]
@@ -52,7 +52,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
                             probingPaths),
                         NuGetFile = nugetFile
                     }
-                }.AsEnumerable());
+                });
 
             using var tempDir = new TemporaryDirectory();
             PackageHelper packageHelper = new PackageHelper(mockPackageResolver.Object);
