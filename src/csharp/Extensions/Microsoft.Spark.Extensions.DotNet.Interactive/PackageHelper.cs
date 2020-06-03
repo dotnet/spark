@@ -43,7 +43,6 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             {
                 ResolvedPackageReference resolvedPackage = package.ResolvedPackage;
 
-
                 foreach (FileInfo asmPath in resolvedPackage.AssemblyPaths)
                 {
                     // asmPath.FullName
