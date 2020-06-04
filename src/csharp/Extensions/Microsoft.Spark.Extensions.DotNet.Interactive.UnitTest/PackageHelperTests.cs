@@ -57,7 +57,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
 
             PackageHelper packageHelper =
                 new PackageHelper(mockPackageRestoreContextWrapper.Object);
-            IEnumerable<string> files = packageHelper.GetFiles(tempDir.Path);
+            IEnumerable<string> actualFiles = packageHelper.GetFiles(tempDir.Path);
 
             string metadataFilePath =
                 Path.Combine(tempDir.Path, DependencyProviderUtils.CreateFileName(1));
@@ -66,7 +66,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
                 nugetFile.FullName,
                 metadataFilePath
             };
-            Assert.True(expectedFiles.SequenceEqual(files));
+            Assert.True(expectedFiles.SequenceEqual(actualFiles));
             Assert.True(File.Exists(metadataFilePath));
 
             DependencyProviderUtils.Metadata actualMetadata =

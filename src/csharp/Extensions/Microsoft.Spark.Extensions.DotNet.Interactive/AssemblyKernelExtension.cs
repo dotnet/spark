@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -51,21 +52,9 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                     {
                         sparkSession.SparkContext.AddFile(assemblyPath);
 
-                        foreach (string filePath in _packageHelper.GetFiles(tempDir.FullName))
+                        foreach (string filePath in GetPackageFiles(tempDir.FullName))
                         {
-                            if (IsPathValid(filePath))
-                            {
-                                sparkSession.SparkContext.AddFile(filePath);
-                            }
-                            else
-                            {
-                                // Copy file to a path without spaces.
-                                string fileDestPath = Path.Combine(
-                                    tempDir.FullName,
-                                    Path.GetFileName(filePath).Replace(" ", string.Empty));
-                                File.Copy(filePath, fileDestPath);
-                                sparkSession.SparkContext.AddFile(fileDestPath);
-                            }
+                            sparkSession.SparkContext.AddFile(filePath);
                         }
                     }
 
@@ -115,6 +104,26 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
         {
             sparkSession = SparkSession.GetDefaultSession();
             return sparkSession != null;
+        }
+
+        private IEnumerable<string> GetPackageFiles(string path)
+        {
+            foreach (string filePath in _packageHelper.GetFiles(path))
+            {
+                if (IsPathValid(filePath))
+                {
+                    yield return filePath;
+                }
+                else
+                {
+                    // Copy file to a path without spaces.
+                    string fileDestPath = Path.Combine(
+                        path,
+                        Path.GetFileName(filePath).Replace(" ", string.Empty));
+                    File.Copy(filePath, fileDestPath);
+                    yield return fileDestPath;
+                }
+            }
         }
 
         /// <summary>
