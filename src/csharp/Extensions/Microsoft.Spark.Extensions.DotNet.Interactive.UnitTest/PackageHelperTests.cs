@@ -18,16 +18,21 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
         [Fact]
         public void TestPackageHelper()
         {
-            string basePath = new FileInfo(".").FullName;
+            using var tempDir = new TemporaryDirectory();
 
             string packageName = "package.name";
             string packageVersion = "0.1.0";
             string packageRootPath =
-                Path.Combine(basePath, "path", "to", "packages", packageName, packageVersion);
+                Path.Combine(tempDir.Path, "path", "to", "packages", packageName, packageVersion);
             string packageFrameworkPath = Path.Combine(packageRootPath, "lib", "framework");
+
+            Directory.CreateDirectory(packageRootPath);
             FileInfo nugetFile = new FileInfo(
                 Path.Combine(packageRootPath, $"{packageName}.{packageVersion}.nupkg"));
-
+            using (File.Create(nugetFile.FullName))
+            {
+            }
+            
             IReadOnlyList<FileInfo> assemblyPaths = new List<FileInfo>
             {
                 new FileInfo(Path.Combine(packageFrameworkPath, "1.dll")),
@@ -37,25 +42,21 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
             IReadOnlyList<DirectoryInfo> probingPaths =
                 new List<DirectoryInfo> { new DirectoryInfo(packageRootPath) }.AsReadOnly();
 
-            var mockPackageResolver = new Mock<IPackageResolver>();
-            mockPackageResolver
-                .Setup(m => m.GetPackagesToCopy())
-                .Returns(new ResolvedNuGetPackage[]
+            var mockPackageRestoreContextWrapper = new Mock<PackageRestoreContextWrapper>();
+            mockPackageRestoreContextWrapper
+                .SetupGet(m => m.ResolvedPackageReferences)
+                .Returns(new ResolvedPackageReference[]
                 {
-                    new ResolvedNuGetPackage
-                    {
-                        ResolvedPackage = new ResolvedPackageReference(
-                            packageName,
-                            packageVersion,
-                            assemblyPaths,
-                            new DirectoryInfo(packageRootPath),
-                            probingPaths),
-                        NuGetFile = nugetFile
-                    }
+                    new ResolvedPackageReference(
+                        packageName,
+                        packageVersion,
+                        assemblyPaths,
+                        new DirectoryInfo(packageRootPath),
+                        probingPaths) 
                 });
 
-            using var tempDir = new TemporaryDirectory();
-            PackageHelper packageHelper = new PackageHelper(mockPackageResolver.Object);
+            PackageHelper packageHelper =
+                new PackageHelper(mockPackageRestoreContextWrapper.Object);
             IEnumerable<string> files = packageHelper.GetFiles(tempDir.Path);
 
             string metadataFilePath =

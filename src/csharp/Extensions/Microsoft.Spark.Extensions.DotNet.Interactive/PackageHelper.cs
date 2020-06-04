@@ -11,12 +11,15 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 {
     internal class PackageHelper
     {
-        private readonly IPackageResolver _packageResolver;
-        private ulong _metadataCounter = 0;
+        private readonly PackageRestoreContextWrapper _packageRestoreContextWrapper;
+        private readonly HashSet<string> _filesCopied;
+        private ulong _metadataCounter;
 
-        internal PackageHelper(IPackageResolver packageResolver)
+        internal PackageHelper(PackageRestoreContextWrapper packageRestoreContextWrapper)
         {
-            _packageResolver = packageResolver;
+            _packageRestoreContextWrapper = packageRestoreContextWrapper;
+            _filesCopied = new HashSet<string>();
+            _metadataCounter = 0;
         }
 
         /// <summary>
@@ -32,8 +35,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
         /// </returns>
         internal IEnumerable<string> GetFiles(string writePath)
         {
-            IEnumerable<ResolvedNuGetPackage> nugetPackagesToCopy =
-                _packageResolver.GetPackagesToCopy();
+            IEnumerable<ResolvedNuGetPackage> nugetPackagesToCopy = GetNewPackages();
 
             var assemblyProbingPaths = new List<string>();
             var nativeProbingPaths = new List<string>();
@@ -96,6 +98,34 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                 }.Serialize(metadataPath);
 
                 yield return metadataPath;
+            }
+        }
+
+        /// <summary>
+        /// Return the delta of the list of packages that have been introduced
+        /// since the last call.
+        /// </summary>
+        /// <returns>The delta of the list of packages.</returns>
+        private IEnumerable<ResolvedNuGetPackage> GetNewPackages()
+        {
+            IEnumerable<ResolvedPackageReference> packages =
+                _packageRestoreContextWrapper.ResolvedPackageReferences;
+            foreach (ResolvedPackageReference package in packages)
+            {
+                IEnumerable<FileInfo> files =
+                    package.PackageRoot.EnumerateFiles("*.nupkg", SearchOption.AllDirectories);
+
+                foreach (FileInfo file in files)
+                {
+                    if (_filesCopied.Add(file.Name))
+                    {
+                        yield return new ResolvedNuGetPackage
+                        {
+                            ResolvedPackage = package,
+                            NuGetFile = file
+                        };
+                    }
+                }
             }
         }
 
