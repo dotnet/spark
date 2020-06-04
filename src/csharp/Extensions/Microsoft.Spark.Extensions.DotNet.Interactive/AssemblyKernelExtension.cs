@@ -46,14 +46,9 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                 {
                     if ((context.HandlingKernel is CSharpKernel kernel) &&
                         (command is SubmitCode) &&
-                        TryGetSparkSession(out SparkSession sparkSession))
+                        TryGetSparkSession(out SparkSession sparkSession) &&
+                        TryEmitAssembly(kernel, tempDir.FullName, out string assemblyPath))
                     {
-                        Compilation preCompilation = kernel.ScriptState.Script.GetCompilation();
-
-                        string assemblyName =
-                            AssemblyLoader.NormalizeAssemblyName(preCompilation.AssemblyName);
-                        string assemblyPath = Path.Combine(tempDir.FullName, $"{assemblyName}.dll");
-                        FileSystemExtensions.Emit(preCompilation, assemblyPath);
                         sparkSession.SparkContext.AddFile(assemblyPath);
 
                         foreach (string filePath in _packageHelper.GetFiles(tempDir.FullName))
@@ -99,6 +94,21 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
             return Directory.CreateDirectory(
                 Path.Combine(tempDirBasePath, Path.GetRandomFileName()));
+        }
+
+        private bool TryEmitAssembly(CSharpKernel kernel, string dstPath, out string assemblyPath)
+        {
+            Compilation compilation = kernel.ScriptState.Script.GetCompilation();
+            string assemblyName =
+                AssemblyLoader.NormalizeAssemblyName(compilation.AssemblyName);
+            assemblyPath = Path.Combine(dstPath, $"{assemblyName}.dll");
+            if (!File.Exists(assemblyPath))
+            {
+                FileSystemExtensions.Emit(compilation, assemblyPath);
+                return true;
+            }
+
+            return false;
         }
 
         private bool TryGetSparkSession(out SparkSession sparkSession)
