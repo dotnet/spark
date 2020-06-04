@@ -131,8 +131,8 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
         /// <see cref="SparkContext.AddFile(string, bool)"/>.
         /// 
         /// For more details please see:
-        /// - https://issues.apache.org/jira/browse/SPARK-30126 
-        /// - https://github.com/apache/spark/pull/26773"
+        /// - https://issues.apache.org/jira/browse/SPARK-30126
+        /// - https://github.com/apache/spark/pull/26773
         /// </summary>
         /// <param name="path">The path to validate.</param>
         /// <returns>true if the path is supported by Spark, false otherwise.</returns>
