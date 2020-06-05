@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Services;
 using Microsoft.Spark.Utils;
 
@@ -29,7 +30,15 @@ namespace Microsoft.Spark.Network
         public DefaultSocketWrapper() :
             this(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
         {
-            _innerSocket.Bind(new IPEndPoint(IPAddress.Loopback, 0));
+            string dotnetBackendIPAddress = SparkEnvironment.ConfigurationService.GetBackendIPAddress();
+            if (dotnetBackendIPAddress == "localhost")
+            {
+                _innerSocket.Bind(new IPEndPoint(IPAddress.Loopback, 0));
+            }
+            else
+            {
+                _innerSocket.Bind(new IPEndPoint(IPAddress.Parse(dotnetBackendIPAddress), 0));
+            }
         }
 
         /// <summary>

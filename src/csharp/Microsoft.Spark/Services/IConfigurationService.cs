@@ -15,6 +15,11 @@ namespace Microsoft.Spark.Services
         int GetBackendPortNumber();
 
         /// <summary>
+        /// The IP address used for communicating with the .NET backend process.
+        /// </summary>
+        string GetBackendIPAddress();
+
+        /// <summary>
         /// The full path to the .NET worker executable.
         /// </summary>
         string GetWorkerExePath();

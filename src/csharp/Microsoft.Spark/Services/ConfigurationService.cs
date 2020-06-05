@@ -20,6 +20,7 @@ namespace Microsoft.Spark.Services
             "spark.dotnet.worker.writeBufferSize";
 
         private const string DotnetBackendPortEnvVarName = "DOTNETBACKEND_PORT";
+        private const string DotnetBackendIPAddressEnvVarName = "DOTNETBACKEND_IP_ADDRESS";
         private const int DotnetBackendDebugPort = 5567;
 
         private static readonly string s_procBaseFileName = "Microsoft.Spark.Worker";
@@ -49,6 +50,17 @@ namespace Microsoft.Spark.Services
             _logger.LogInfo($"Using port {portNumber} for connection.");
 
             return portNumber;
+        }
+
+        /// <summary>
+        /// Returns the IP address for socket communication between JVM and CLR.
+        /// </summary>
+        public string GetBackendIPAddress()
+        {
+            string ipAddress = Environment.GetEnvironmentVariable(DotnetBackendIPAddressEnvVarName);
+            _logger.LogInfo($"Using IP address {ipAddress} for connection.");
+
+            return ipAddress;
         }
 
         /// <summary>
