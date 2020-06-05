@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Microsoft.Spark.Interop.Ipc;
 using Newtonsoft.Json.Linq;
 
