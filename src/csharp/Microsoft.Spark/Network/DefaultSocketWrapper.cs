@@ -31,7 +31,7 @@ namespace Microsoft.Spark.Network
             this(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
         {
             string dotnetBackendIPAddress = SparkEnvironment.ConfigurationService.GetBackendIPAddress();
-            if (dotnetBackendIPAddress == "localhost")
+            if (dotnetBackendIPAddress == "localhost" || dotnetBackendIPAddress == null)
             {
                 _innerSocket.Bind(new IPEndPoint(IPAddress.Loopback, 0));
             }
