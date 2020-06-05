@@ -60,21 +60,63 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithReturnAsArrayType()
         {
-            // UDF with return as ArrayType throws a following exception:
-            // Unhandled Exception: System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation. 
-            // ---> System.NotImplementedException: The method or operation is not implemented.
-            // at Microsoft.Spark.Sql.Row.Convert() in Microsoft.Spark\Sql\Row.cs:line 169
-            // at Microsoft.Spark.Sql.Row..ctor(Object[] values, StructType schema) in Microsoft.Spark\Sql\Row.cs:line 34
-            // at Microsoft.Spark.Sql.RowConstructor.GetRow() in Microsoft.Spark\Sql\RowConstructor.cs:line 113
-            // at Microsoft.Spark.Sql.RowCollector.Collect(ISocketWrapper socket) + MoveNext() in Microsoft.Spark\Sql\RowCollector.cs:line 36
-            // at Microsoft.Spark.Sql.DataFrame.GetRows(String funcName) + MoveNext() in Microsoft.Spark\Sql\DataFrame.cs:line 891
-            Func<Column, Column> udf = Udf<string, string[]>(
+            {
+                Func<Column, Column> udf = Udf<string, string[]>(
                 str => new string[] { str, str + str });
-            Assert.Throws<NotImplementedException>(
-                () => _df.Select(udf(_df["name"])).Collect().ToArray());
 
-            // Show() works here. See the example below.
-            _df.Select(udf(_df["name"])).Show();
+                Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
+                Assert.Equal(3, rows.Length);
+
+                var expected = new string[][]
+                {
+                new string[] { "Michael", "MichaelMichael" },
+                new string[] { "Andy", "AndyAndy" },
+                new string[] { "Justin", "JustinJustin" }
+                };
+
+                for (int i = 0; i < rows.Length; ++i)
+                {
+                    Assert.Equal(1, rows[i].Size());
+                    Assert.Equal(expected[i], rows[i].Get(0));
+                }
+            }
+
+            {
+                Func<Column, Column> udf = Udf<int?, Date[]>(
+                i => new Date[]
+                {
+                    new Date(2020 + i.GetValueOrDefault(), 1, 1),
+                    new Date(2020 + i.GetValueOrDefault(), 1, 2)
+                });
+
+                Row[] rows = _df.Select(udf(_df["age"])).Collect().ToArray();
+                Assert.Equal(3, rows.Length);
+
+                var expected = new Date[][]
+                {
+                    new Date[]
+                    {
+                        new Date(2020, 1, 1),
+                        new Date(2020, 1, 2)
+                    },
+                    new Date[]
+                    {
+                        new Date(2050, 1, 1),
+                        new Date(2050, 1, 2)
+                    },
+                    new Date[]
+                    {
+                        new Date(2039, 1, 1),
+                        new Date(2039, 1, 2)
+                    }
+                };
+
+                for (int i = 0; i < rows.Length; ++i)
+                {
+                    Assert.Equal(1, rows[i].Size());
+                    Assert.Equal(expected[i], rows[i].Get(0));
+                }
+            }
         }
 
         /// <summary>

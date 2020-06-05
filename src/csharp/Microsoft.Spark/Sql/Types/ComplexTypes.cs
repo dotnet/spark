@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.Spark.Interop.Ipc;
 using Newtonsoft.Json.Linq;
 
@@ -69,9 +70,22 @@ namespace Microsoft.Spark.Sql.Types
             return this;
         }
 
-        internal override bool NeedConversion() => true;
+        internal override bool NeedConversion() => ElementType.NeedConversion();
 
-        internal override object FromInternal(object obj) => throw new NotImplementedException();
+        internal override object FromInternal(object obj)
+        {
+            if (!NeedConversion())
+            {
+                return obj;
+            }
+
+            var convertedObj = new List<object>();
+            foreach(object o in (dynamic)obj)
+            {
+                convertedObj.Add(ElementType.FromInternal(o));
+            }
+            return convertedObj;
+        }
     }
 
     /// <summary>
