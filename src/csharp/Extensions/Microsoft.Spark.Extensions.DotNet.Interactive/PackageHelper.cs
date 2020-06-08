@@ -2,8 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using Microsoft.DotNet.Interactive.Utility;
 using Microsoft.Spark.Utils;
 
@@ -12,13 +14,13 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
     internal class PackageHelper
     {
         private readonly PackageRestoreContextWrapper _packageRestoreContextWrapper;
-        private readonly HashSet<string> _filesCopied;
-        private ulong _metadataCounter;
+        private readonly ConcurrentDictionary<string, byte> _filesCopied;
+        private long _metadataCounter;
 
         internal PackageHelper(PackageRestoreContextWrapper packageRestoreContextWrapper)
         {
             _packageRestoreContextWrapper = packageRestoreContextWrapper;
-            _filesCopied = new HashSet<string>();
+            _filesCopied = new ConcurrentDictionary<string, byte>();
             _metadataCounter = 0;
         }
 
@@ -89,7 +91,8 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                 var metadataPath =
                     Path.Combine(
                         writePath,
-                        DependencyProviderUtils.CreateFileName(++_metadataCounter));
+                        DependencyProviderUtils.CreateFileName(
+                            Interlocked.Increment(ref _metadataCounter)));
                 new DependencyProviderUtils.Metadata
                 {
                     AssemblyProbingPaths = assemblyProbingPaths.ToArray(),
@@ -117,7 +120,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
                 foreach (FileInfo file in files)
                 {
-                    if (_filesCopied.Add(file.Name))
+                    if (_filesCopied.TryAdd(file.Name, 1))
                     {
                         yield return new ResolvedNuGetPackage
                         {
