@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
@@ -57,8 +56,6 @@ namespace Microsoft.Spark.E2ETest
                 throw new Exception(
                     $"Environment variable '{EnvironmentVariableNames.WorkerDir}' must be set.");
             }
-
-            Environment.SetEnvironmentVariable("DOTNETBACKEND_IP_ADDRESS", "localhost");
 
             BuildSparkCmd(out var filename, out var args);
 

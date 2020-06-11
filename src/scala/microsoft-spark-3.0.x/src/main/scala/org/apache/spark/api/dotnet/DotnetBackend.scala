@@ -30,7 +30,7 @@ class DotnetBackend extends Logging {
   private[this] var bootstrap: ServerBootstrap = _
   private[this] var bossGroup: EventLoopGroup = _
 
-  def init(portNumber: Int): Int = {
+  def init(portNumber: Int, ipAddress: String): Int = {
     // need at least 3 threads, use 10 here for safety
     bossGroup = new NioEventLoopGroup(10)
     val workerGroup = bossGroup
@@ -57,7 +57,7 @@ class DotnetBackend extends Logging {
       }
     })
 
-    channelFuture = bootstrap.bind(new InetSocketAddress("localhost", portNumber))
+    channelFuture = bootstrap.bind(new InetSocketAddress(ipAddress, portNumber))
     channelFuture.syncUninterruptibly()
     channelFuture.channel().localAddress().asInstanceOf[InetSocketAddress].getPort
   }

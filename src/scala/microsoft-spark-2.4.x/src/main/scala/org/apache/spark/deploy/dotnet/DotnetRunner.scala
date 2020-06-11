@@ -269,7 +269,7 @@ object DotnetRunner extends Logging {
   }
 
   private def initializeSettings(args: Array[String]): (Boolean, Int, String) = {
-    val runInDebugMode = (args.length == 1 || args.length == 2 || args.length == 3) && args(0).equalsIgnoreCase(
+    val runInDebugMode = (args.length == 1 || args.length == 2) && args(0).equalsIgnoreCase(
       "debug")
     var portNumber = 0
     var dotnetBackendIPAddress = "localhost"
@@ -277,21 +277,13 @@ object DotnetRunner extends Logging {
       if (args.length == 1) {
         portNumber = DEBUG_PORT
       } else if (args.length == 2) {
-        try {
           portNumber = Integer.parseInt(args(1))
         }
-        catch {
-          case e: Exception =>
-          portNumber = DEBUG_PORT
-          dotnetBackendIPAddress = args(1)
-        }
-      } else if (args.length == 3) {
-        portNumber = Integer.parseInt(args(1))
-        dotnetBackendIPAddress = args(2)
       }
-    } else {
+    else {
       try {
         var addr = InetAddress.getByName(args(0))
+	      dotnetBackendIPAddress = args(0)
       }
       catch {
         case e: UnknownHostException =>

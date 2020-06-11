@@ -25,7 +25,7 @@ namespace Microsoft.Spark.Network
         /// Default constructor that creates a new instance of DefaultSocket class which represents
         /// a traditional socket (System.Net.Socket.Socket).
         /// 
-        /// This socket is bound to Loopback with port 0.
+        /// This socket is bound to provided IP address with port 0.
         /// </summary>
         public DefaultSocketWrapper() :
             this(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
