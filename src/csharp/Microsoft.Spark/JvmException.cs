@@ -1,18 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Microsoft.Spark
 {
+    /// <summary>
+    /// Contains the message returned from the Jvm Bridge on an error
+    /// </summary>
     public class JvmException : Exception
     {
-        private readonly string _jvmFullException;
-
-        public JvmException(string jvmFullException)
-        {
-            _jvmFullException = jvmFullException;
-        }
-
-        public override string Message => _jvmFullException;
+        public JvmException(string message) 
+            : base(message) { }
     }
 }
