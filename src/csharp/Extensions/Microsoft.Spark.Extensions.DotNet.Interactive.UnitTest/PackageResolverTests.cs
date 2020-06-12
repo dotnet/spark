@@ -38,9 +38,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
                 new FileInfo(Path.Combine(packageFrameworkPath, "1.dll")),
                 new FileInfo(Path.Combine(packageFrameworkPath, "2.dll"))
             };
-
-            var probingPaths =
-                new List<DirectoryInfo> { new DirectoryInfo(packageRootPath) };
+            var probingPaths = new List<DirectoryInfo> { new DirectoryInfo(packageRootPath) };
 
             var mockPackageRestoreContextWrapper = new Mock<PackageRestoreContextWrapper>();
             mockPackageRestoreContextWrapper
@@ -55,8 +53,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
                         probingPaths) 
                 });
 
-            var packageResolver =
-                new PackageResolver(mockPackageRestoreContextWrapper.Object);
+            var packageResolver = new PackageResolver(mockPackageRestoreContextWrapper.Object);
             IEnumerable<string> actualFiles = packageResolver.GetFiles(tempDir.Path);
 
             string metadataFilePath =
