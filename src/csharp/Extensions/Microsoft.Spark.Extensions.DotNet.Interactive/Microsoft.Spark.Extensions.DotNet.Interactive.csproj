@@ -6,6 +6,7 @@
     <RootNamespace>Microsoft.Spark.Extensions.DotNet.Interactive</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
+    <!-- NU5100 warns that a dll was found outside the 'lib' folder while packaging. DotNet.Interactive expects extension dlls in the 'interactive-extensions/dotnet'. -->
     <NoWarn>NU5100;$(NoWarn)</NoWarn>
 
     <Description>DotNet Interactive Extension for .NET for Apache Spark</Description>

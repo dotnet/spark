@@ -13,10 +13,10 @@ using Xunit;
 
 namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
 {
-    public class PackageHelperTests
+    public class PackageResolverTests
     {
         [Fact]
-        public void TestPackageHelper()
+        public void TestPackageResolver()
         {
             using var tempDir = new TemporaryDirectory();
 
@@ -27,20 +27,20 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
             string packageFrameworkPath = Path.Combine(packageRootPath, "lib", "framework");
 
             Directory.CreateDirectory(packageRootPath);
-            FileInfo nugetFile = new FileInfo(
+            var nugetFile = new FileInfo(
                 Path.Combine(packageRootPath, $"{packageName}.{packageVersion}.nupkg"));
             using (File.Create(nugetFile.FullName))
             {
             }
             
-            IReadOnlyList<FileInfo> assemblyPaths = new List<FileInfo>
+            var assemblyPaths = new List<FileInfo>
             {
                 new FileInfo(Path.Combine(packageFrameworkPath, "1.dll")),
                 new FileInfo(Path.Combine(packageFrameworkPath, "2.dll"))
-            }.AsReadOnly();
+            };
 
-            IReadOnlyList<DirectoryInfo> probingPaths =
-                new List<DirectoryInfo> { new DirectoryInfo(packageRootPath) }.AsReadOnly();
+            var probingPaths =
+                new List<DirectoryInfo> { new DirectoryInfo(packageRootPath) };
 
             var mockPackageRestoreContextWrapper = new Mock<PackageRestoreContextWrapper>();
             mockPackageRestoreContextWrapper
@@ -55,9 +55,9 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
                         probingPaths) 
                 });
 
-            PackageHelper packageHelper =
-                new PackageHelper(mockPackageRestoreContextWrapper.Object);
-            IEnumerable<string> actualFiles = packageHelper.GetFiles(tempDir.Path);
+            var packageResolver =
+                new PackageResolver(mockPackageRestoreContextWrapper.Object);
+            IEnumerable<string> actualFiles = packageResolver.GetFiles(tempDir.Path);
 
             string metadataFilePath =
                 Path.Combine(tempDir.Path, DependencyProviderUtils.CreateFileName(1));

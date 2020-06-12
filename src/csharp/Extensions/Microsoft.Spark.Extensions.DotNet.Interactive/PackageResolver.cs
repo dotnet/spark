@@ -11,13 +11,13 @@ using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Extensions.DotNet.Interactive
 {
-    internal class PackageHelper
+    internal class PackageResolver
     {
         private readonly PackageRestoreContextWrapper _packageRestoreContextWrapper;
         private readonly ConcurrentDictionary<string, byte> _filesCopied;
         private long _metadataCounter;
 
-        internal PackageHelper(PackageRestoreContextWrapper packageRestoreContextWrapper)
+        internal PackageResolver(PackageRestoreContextWrapper packageRestoreContextWrapper)
         {
             _packageRestoreContextWrapper = packageRestoreContextWrapper;
             _filesCopied = new ConcurrentDictionary<string, byte>();
@@ -132,9 +132,31 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             }
         }
 
-        private string GetPathRelativeToPackages(string file, DirectoryInfo directory)
+        /// <summary>
+        /// Given a <paramref name="path"/>, get the relative path to the packages directory.
+        /// The package <paramref name="directory"/> is a subfolder within the packages directory.
+        /// 
+        /// Examples:
+        /// path:
+        ///  /path/to/packages/package.name/package.version/lib/framework/1.dll
+        /// directory:
+        ///  /path/to/packages/package.name/package.version/
+        /// relative path:
+        ///   package.name/package.version/lib/framework/1.dll
+        /// 
+        /// path:
+        ///   /path/to/packages/package.name/package.version/
+        /// directory:
+        ///   /path/to/packages/package.name/package.version/
+        /// relative path:
+        ///   package.name/package.version
+        /// </summary>
+        /// <param name="path">The full path used to determine the relative path.</param>
+        /// <param name="directory">The package directory.</param>
+        /// <returns></returns>
+        private string GetPathRelativeToPackages(string path, DirectoryInfo directory)
         {
-            string strippedRoot = file
+            string strippedRoot = path
                 .Substring(directory.FullName.Length)
                 .Trim(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             return Path.Combine(directory.Parent.Name, directory.Name, strippedRoot);

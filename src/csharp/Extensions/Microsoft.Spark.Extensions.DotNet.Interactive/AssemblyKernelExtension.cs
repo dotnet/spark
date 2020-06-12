@@ -26,8 +26,8 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
     {
         private const string TempDirEnvVar = "DOTNET_SPARK_EXTENSION_INTERACTIVE_TMPDIR";
 
-        private readonly PackageHelper _packageHelper =
-            new PackageHelper(new PackageRestoreContextWrapper());
+        private readonly PackageResolver _packageResolver =
+            new PackageResolver(new PackageRestoreContextWrapper());
 
         /// <summary>
         /// Called by the Microsoft.DotNet.Interactive Assembly Extension Loader.
@@ -78,7 +78,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                     $"'{tempDirBasePath}' is unsupported. Set the {TempDirEnvVar} " +
                     "environment variable to control the base path. Please see " +
                     "https://issues.apache.org/jira/browse/SPARK-30126 and " +
-                    "https://github.com/apache/spark/pull/26773 for more details");
+                    "https://github.com/apache/spark/pull/26773 for more details.");
             }
 
             return Directory.CreateDirectory(
@@ -97,7 +97,8 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                 return true;
             }
 
-            return false;
+            throw new Exception(
+                $"TryEmitAssembly() unexpected duplicate assembly: ${assemblyPath}");
         }
 
         private bool TryGetSparkSession(out SparkSession sparkSession)
@@ -108,7 +109,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
         private IEnumerable<string> GetPackageFiles(string path)
         {
-            foreach (string filePath in _packageHelper.GetFiles(path))
+            foreach (string filePath in _packageResolver.GetFiles(path))
             {
                 if (IsPathValid(filePath))
                 {
