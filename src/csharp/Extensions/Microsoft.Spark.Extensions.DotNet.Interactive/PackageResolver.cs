@@ -153,7 +153,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
         /// </summary>
         /// <param name="path">The full path used to determine the relative path.</param>
         /// <param name="directory">The package directory.</param>
-        /// <returns></returns>
+        /// <returns>The relative path to the packages directory.</returns>
         private string GetPathRelativeToPackages(string path, DirectoryInfo directory)
         {
             string strippedRoot = path
