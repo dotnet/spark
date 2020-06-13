@@ -22,7 +22,8 @@ variables:
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithReturnAsTimestampType)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithTimestampType)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.SparkSessionTests.TestCreateDataFrameWithTimestamp)"
-  CurrentDotnetWorkerDir: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Microsoft.Spark.Worker\netcoreapp3.1\win-x64'
+  ArtifactPath: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries'
+  CurrentDotnetWorkerDir: '$(ArtifactPath)\Microsoft.Spark.Worker\netcoreapp3.1\win-x64'
   BackwardCompatibleDotnetWorkerDir: $(Build.BinariesDirectory)\Microsoft.Spark.Worker-$(backwardCompatibleRelease)
 
   # Azure DevOps variables are transformed into environment variables, with these variables we
@@ -142,13 +143,13 @@ stages:
                      -ci
                      $(_OfficialBuildIdArgs)
                      /p:DotNetSignType=$(_SignType)
-                     /p:SparkPackagesDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\BuildArtifacts\artifacts\packages
-                     /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Microsoft.Spark.Worker
-                     /p:SparkWorkerPackageOutputDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries
+                     /p:SparkPackagesDir=$(ArtifactPath)\BuildArtifacts\artifacts\packages
+                     /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
+                     /p:SparkWorkerPackageOutputDir=$(ArtifactPath)
 
       - task: PublishBuildArtifacts@1
         inputs:
-          pathtoPublish: '$(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries'
+          pathtoPublish: '$(ArtifactPath)'
           artifactName:  Microsoft.Spark.Binaries
 
 - stage: Test
@@ -174,7 +175,7 @@ stages:
     - task: CopyFiles@2
       displayName: Copy jars
       inputs:
-        sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
+        sourceFolder: $(ArtifactPath)/Jars
         contents: '**/*.jar'
         targetFolder: $(Build.SourcesDirectory)/src/scala
 
@@ -421,7 +422,7 @@ stages:
     - task: CopyFiles@2
       displayName: Copy jars
       inputs:
-        sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
+        sourceFolder: $(ArtifactPath)/Jars
         contents: '**/*.jar'
         targetFolder: $(Build.SourcesDirectory)/src/scala
 
