@@ -152,10 +152,10 @@ stages:
           artifactName:  Microsoft.Spark.Binaries
 
 - stage: Test
-  displayName: Test Sources
+  displayName: E2E Tests
   dependsOn: Build
   jobs:
-  - job: Test
+  - job: Run
     pool: Hosted VS2017
 
     variables:
@@ -172,17 +172,10 @@ stages:
         downloadPath: $(Build.ArtifactStagingDirectory)
 
     - task: CopyFiles@2
-      displayName: Copy microsoft-spark-2.3.x.jar
+      displayName: Copy jars
       inputs:
         sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
-        contents: '**/microsoft-spark-2.3.x**'
-        targetFolder: $(Build.SourcesDirectory)/src/scala
-
-    - task: CopyFiles@2
-      displayName: Copy microsoft-spark-2.4.x.jar
-      inputs:
-        sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
-        contents: '**/microsoft-spark-2.4.x**'
+        contents: '**/*.jar'
         targetFolder: $(Build.SourcesDirectory)/src/scala
 
     - task: BatchScript@1
@@ -282,10 +275,10 @@ stages:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
 
 - stage: ForwardCompatibility
-  displayName: Test Forward Compatibility
+  displayName: E2E Forward Compatibility Tests
   dependsOn: Build
   jobs:
-  - job: ForwardCompatibility
+  - job: Run
     pool: Hosted VS2017
 
     variables:
@@ -406,10 +399,10 @@ stages:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
 
 - stage: BackwardCompatibility
-  displayName: Test Backward Compatibility
+  displayName: E2E Backward Compatibility Tests
   dependsOn: Build
   jobs:
-  - job: BackwardCompatibility
+  - job: Run
     pool: Hosted VS2017
 
     variables:
