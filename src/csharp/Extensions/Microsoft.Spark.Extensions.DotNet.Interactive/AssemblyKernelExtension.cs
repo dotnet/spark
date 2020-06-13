@@ -149,7 +149,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             {
                 (2, _, _) => false,
                 (3, 0, _) => true,
-                _ => throw new NotSupportedException($"Spark {version} not supported.")
+                _ => throw new NotSupportedException($"Spark {version} is not supported.")
             };
         }
     }
