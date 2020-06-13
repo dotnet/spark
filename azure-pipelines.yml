@@ -419,17 +419,10 @@ stages:
         downloadPath: $(Build.ArtifactStagingDirectory)
 
     - task: CopyFiles@2
-      displayName: Copy microsoft-spark-2.3.x.jar
+      displayName: Copy jars
       inputs:
         sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
-        contents: '**/microsoft-spark-2.3.x**'
-        targetFolder: $(Build.SourcesDirectory)/src/scala
-
-    - task: CopyFiles@2
-      displayName: Copy microsoft-spark-2.4.x.jar
-      inputs:
-        sourceFolder: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries/Jars
-        contents: '**/microsoft-spark-2.4.x**'
+        contents: '**/*.jar'
         targetFolder: $(Build.SourcesDirectory)/src/scala
 
     - task: BatchScript@1
