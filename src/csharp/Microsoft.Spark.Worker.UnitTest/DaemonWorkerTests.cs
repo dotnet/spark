@@ -42,7 +42,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             var ipEndpoint = (IPEndPoint)daemonSocket.LocalEndPoint;
             int port = ipEndpoint.Port;
             ISocketWrapper clientSocket = SocketFactory.CreateSocket();
-            clientSocket.Connect(ipEndpoint.Address, port);
+            clientSocket.Connect(IPAddress.Loopback, port);
 
             // Now process the bytes flowing in from the client.
             PayloadWriter payloadWriter = new PayloadWriterFactory().Create();
