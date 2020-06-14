@@ -275,6 +275,15 @@ stages:
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
 
+    - task: DotNetCoreCLI@2
+      displayName: 'E2E tests for Spark 2.4.6'
+      inputs:
+        command: test
+        projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+      env:
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.6-bin-hadoop2.7
+
 - stage: ForwardCompatibility
   displayName: E2E Forward Compatibility Tests
   dependsOn: Build
@@ -527,3 +536,13 @@ stages:
         arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
+
+    - task: DotNetCoreCLI@2
+      displayName: 'E2E tests for Spark 2.4.6'
+      inputs:
+        command: test
+        projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
+      env:
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.6-bin-hadoop2.7
+
