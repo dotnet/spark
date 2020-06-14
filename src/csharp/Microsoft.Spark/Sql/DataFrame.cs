@@ -886,9 +886,10 @@ namespace Microsoft.Spark.Sql
         private IEnumerable<Row> GetRows(string funcName)
         {
             (int port, string secret) = GetConnectionInfo(funcName);
+            IPEndPoint dotnetBackendIPEndpoint = SparkEnvironment.ConfigurationService.GetBackendIPEndpoint();
             using (ISocketWrapper socket = SocketFactory.CreateSocket())
             {
-                socket.Connect(IPAddress.Loopback, port, secret);
+                socket.Connect(dotnetBackendIPEndpoint.Address, port, secret);
                 foreach (Row row in new RowCollector().Collect(socket))
                 {
                     yield return row;

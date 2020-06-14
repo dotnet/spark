@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Utils;
@@ -262,7 +263,8 @@ namespace Microsoft.Spark
         {
             (int port, string secret) = CollectAndServe();
             using ISocketWrapper socket = SocketFactory.CreateSocket();
-            socket.Connect(IPAddress.Loopback, port, secret);
+            IPEndPoint dotnetBackendIPEndpoint = SparkEnvironment.ConfigurationService.GetBackendIPEndpoint();
+            socket.Connect(dotnetBackendIPEndpoint.Address, port, secret);
 
             var collector = new RDD.Collector();
             System.IO.Stream stream = socket.InputStream;

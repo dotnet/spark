@@ -30,15 +30,7 @@ namespace Microsoft.Spark.Network
         public DefaultSocketWrapper() :
             this(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
         {
-            string dotnetBackendIPAddress = SparkEnvironment.ConfigurationService.GetBackendIPAddress();
-            if (dotnetBackendIPAddress == "localhost" || dotnetBackendIPAddress == null)
-            {
-                _innerSocket.Bind(new IPEndPoint(IPAddress.Loopback, 0));
-            }
-            else
-            {
-                _innerSocket.Bind(new IPEndPoint(IPAddress.Parse(dotnetBackendIPAddress), 0));
-            }
+            _innerSocket.Bind(new IPEndPoint(IPAddress.Any, 0));
         }
 
         /// <summary>

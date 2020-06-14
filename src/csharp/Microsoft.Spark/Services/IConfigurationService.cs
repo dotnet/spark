@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Net;
+
 namespace Microsoft.Spark.Services
 {
     /// <summary>
@@ -13,6 +15,11 @@ namespace Microsoft.Spark.Services
         /// The port number used for communicating with the .NET backend process.
         /// </summary>
         int GetBackendPortNumber();
+
+        /// <summary>
+        /// The IP Endpoint used for communicating with the .NET backend process.
+        /// </summary>
+        IPEndPoint GetBackendIPEndpoint();
 
         /// <summary>
         /// The IP address used for communicating with the .NET backend process.

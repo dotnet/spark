@@ -4,6 +4,7 @@
 
 using System;
 using System.IO;
+using System.Net;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.Spark.Services
@@ -20,7 +21,7 @@ namespace Microsoft.Spark.Services
             "spark.dotnet.worker.writeBufferSize";
 
         private const string DotnetBackendPortEnvVarName = "DOTNETBACKEND_PORT";
-        private const string DotnetBackendIPAddressEnvVarName = "DOTNETBACKEND_IP_ADDRESS";
+        private const string DotnetBackendIPAddressEnvVarName = "DOTNET_SPARK_BACKEND_IP_ADDRESS";
         private const int DotnetBackendDebugPort = 5567;
 
         private static readonly string s_procBaseFileName = "Microsoft.Spark.Worker";
@@ -33,6 +34,29 @@ namespace Microsoft.Spark.Services
             LoggerServiceFactory.GetLogger(typeof(ConfigurationService));
 
         private string _workerPath;
+
+        /// <summary>
+        /// Returns the IP Endpoint for socket communication between JVM and CLR.
+        /// </summary>
+        public IPEndPoint GetBackendIPEndpoint()
+        {
+            if (!int.TryParse(
+                Environment.GetEnvironmentVariable(DotnetBackendPortEnvVarName),
+                out int portNumber))
+            {
+                _logger.LogInfo($"'{DotnetBackendPortEnvVarName}' environment variable is not set.");
+                portNumber = DotnetBackendDebugPort;
+            }
+            string ipAddress = Environment.GetEnvironmentVariable(DotnetBackendIPAddressEnvVarName);
+            if (ipAddress == null)
+            {
+                _logger.LogInfo($"'{DotnetBackendIPAddressEnvVarName}' environment variable is not set.");
+                ipAddress = "127.0.0.1";
+            }
+            _logger.LogInfo($"Using IP address {ipAddress} and port {portNumber} for connection.");
+            
+            return new IPEndPoint(IPAddress.Parse(ipAddress), portNumber);
+        }
 
         /// <summary>
         /// Returns the port number for socket communication between JVM and CLR.

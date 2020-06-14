@@ -51,8 +51,9 @@ namespace Microsoft.Spark.Interop.Ipc
         {
             if (!_sockets.TryDequeue(out ISocketWrapper socket))
             {
+                IPEndPoint dotnetBackendIPEndpoint = SparkEnvironment.ConfigurationService.GetBackendIPEndpoint();
                 socket = SocketFactory.CreateSocket();
-                socket.Connect(IPAddress.Loopback, _portNumber);
+                socket.Connect(dotnetBackendIPEndpoint.Address, dotnetBackendIPEndpoint.Port);
             }
 
             return socket;

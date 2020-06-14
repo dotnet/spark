@@ -30,7 +30,7 @@ class DotnetBackend extends Logging {
   private[this] var bootstrap: ServerBootstrap = _
   private[this] var bossGroup: EventLoopGroup = _
 
-  def init(portNumber: Int, ipAddress: String): Int = {
+  def init(ipAddress: String, portNumber: Int): Int = {
     // need at least 3 threads, use 10 here for safety
     bossGroup = new NioEventLoopGroup(10)
     val workerGroup = bossGroup

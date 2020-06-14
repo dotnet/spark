@@ -52,7 +52,6 @@ object DotnetRunner extends Logging {
     // In debug mode this runner will not launch a .NET process.
     val runInDebugMode = settings._1
     @volatile var dotnetBackendPortNumber = settings._2
-    val dotnetBackendIPAddress = settings._3
     var dotnetExecutable = ""
     var otherArgs: Array[String] = null
 
@@ -91,6 +90,7 @@ object DotnetRunner extends Logging {
 
     // Time to wait for DotnetBackend to initialize in seconds.
     val backendTimeout = sys.env.getOrElse("DOTNETBACKEND_TIMEOUT", "120").toInt
+    val dotnetBackendIPAddress = sys.env.getOrElse("DOTNET_SPARK_BACKEND_IP_ADDRESS", "127.0.0.1")
 
     // Launch a DotnetBackend server for the .NET process to connect to; this will let it see our
     // Java system properties etc.
@@ -100,7 +100,7 @@ object DotnetRunner extends Logging {
       override def run() {
         // need to get back dotnetBackendPortNumber because if the value passed to init is 0
         // the port number is dynamically assigned in the backend
-        dotnetBackendPortNumber = dotnetBackend.init(dotnetBackendPortNumber, dotnetBackendIPAddress)
+        dotnetBackendPortNumber = dotnetBackend.init(dotnetBackendIPAddress, dotnetBackendPortNumber)
         logInfo(s"Port number used by DotnetBackend is $dotnetBackendPortNumber on IP address " +
           s"$dotnetBackendIPAddress")
         initialized.release()
@@ -118,7 +118,6 @@ object DotnetRunner extends Logging {
           val builder = new ProcessBuilder(processParameters)
           val env = builder.environment()
           env.put("DOTNETBACKEND_PORT", dotnetBackendPortNumber.toString)
-          env.put("DOTNETBACKEND_IP_ADDRESS", dotnetBackendIPAddress)
 
           for ((key, value) <- Utils.getSystemProperties if key.startsWith("spark.")) {
             env.put(key, value)
@@ -268,11 +267,10 @@ object DotnetRunner extends Logging {
     returnCode
   }
 
-  private def initializeSettings(args: Array[String]): (Boolean, Int, String) = {
+  private def initializeSettings(args: Array[String]): (Boolean, Int) = {
     val runInDebugMode = (args.length == 1 || args.length == 2) && args(0).equalsIgnoreCase(
       "debug")
     var portNumber = 0
-    var dotnetBackendIPAddress = "localhost"
     if (runInDebugMode) {
       if (args.length == 1) {
         portNumber = DEBUG_PORT
@@ -280,18 +278,8 @@ object DotnetRunner extends Logging {
           portNumber = Integer.parseInt(args(1))
         }
       }
-    else {
-      try {
-        var addr = InetAddress.getByName(args(0))
-	      dotnetBackendIPAddress = args(0)
-      }
-      catch {
-        case e: UnknownHostException =>
-          dotnetBackendIPAddress = "localhost"
-      }
-    }
 
-    (runInDebugMode, portNumber, dotnetBackendIPAddress)
+    (runInDebugMode, portNumber)
   }
 
   private def logThrowable(throwable: Throwable): Unit =
