@@ -90,7 +90,7 @@ object DotnetRunner extends Logging {
 
     // Time to wait for DotnetBackend to initialize in seconds.
     val backendTimeout = sys.env.getOrElse("DOTNETBACKEND_TIMEOUT", "120").toInt
-    val dotnetBackendIPAddress = sys.env.getOrElse("DOTNET_SPARK_BACKEND_IP_ADDRESS", "127.0.0.1")
+    val dotnetBackendIPAddress = sys.env.getOrElse("DOTNET_SPARK_BACKEND_IP_ADDRESS", "0.0.0.0")
 
     // Launch a DotnetBackend server for the .NET process to connect to; this will let it see our
     // Java system properties etc.
