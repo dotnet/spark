@@ -19,12 +19,12 @@ namespace Microsoft.Spark.Utils
         // function.
         // 
         // number => filename
-        // 0      => dependencyProviderMetadata_00000000000000000000
-        // 1      => dependencyProviderMetadata_00000000000000000001
+        // 0      => dependencyProviderMetadata_0000000000000000000
+        // 1      => dependencyProviderMetadata_0000000000000000001
         // ...
-        // 20     => dependencyProviderMetadata_00000000000000000020
-        internal static string CreateFileName(ulong number) =>
-            s_filePattern.Replace("*", $"{number:D20}");
+        // 20     => dependencyProviderMetadata_0000000000000000020
+        internal static string CreateFileName(long number) =>
+            s_filePattern.Replace("*", $"{number:D19}");
 
         [Serializable]
         internal class NuGetMetadata
