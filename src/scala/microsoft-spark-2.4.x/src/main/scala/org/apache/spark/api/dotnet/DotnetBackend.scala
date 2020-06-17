@@ -6,8 +6,8 @@
 
 package org.apache.spark.api.dotnet
 
-import java.net.{InetSocketAddress, Socket}
-import java.util.concurrent.{BlockingQueue, CountDownLatch, LinkedBlockingQueue, Phaser, TimeUnit}
+import java.net.InetSocketAddress
+import java.util.concurrent.{Phaser, TimeUnit}
 
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.nio.NioEventLoopGroup
