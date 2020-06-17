@@ -7,7 +7,6 @@
 package org.apache.spark.api.dotnet
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream}
-import java.net.Socket
 
 import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import org.apache.spark.api.dotnet.SerDe._
@@ -67,32 +66,19 @@ class DotnetBackendHandler(server: DotnetBackend)
               writeInt(dos, -1)
           }
         case "connectCallback" =>
-          val t = readObjectType(dis)
+          var t = readObjectType(dis)
+          assert(t == 'c')
+          val address = readString(dis)
+          t = readObjectType(dis)
           assert(t == 'i')
           val port = readInt(dis)
-          logInfo(s"Connecting to a callback server at port $port")
-          DotnetBackend.callbackPort = port
+          logInfo(s"Connecting to a callback server at $address:$port")
+          DotnetBackend.setActiveCallbackClient(new CallbackClient(address, port))
           writeInt(dos, 0)
           writeType(dos, "void")
         case "closeCallback" =>
-          // Send close to .NET callback server.
-          logInfo("Requesting to close all call back sockets.")
-          var socket: Socket = null
-          do {
-            socket = DotnetBackend.callbackSockets.poll()
-            if (socket != null) {
-              val dataOutputStream = new DataOutputStream(socket.getOutputStream)
-              SerDe.writeString(dataOutputStream, "close")
-              try {
-                socket.close()
-                socket = null
-              } catch {
-                case e: Exception => logError("Exception when closing socket: ", e)
-              }
-            }
-          } while (socket != null)
-          DotnetBackend.callbackSocketShutdown = true
-
+          logInfo("Requesting to close callback client")
+          DotnetBackend.getActiveCallbackClient().shutdown()
           writeInt(dos, 0)
           writeType(dos, "void")
 

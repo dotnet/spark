@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Types;
@@ -202,6 +203,32 @@ namespace Microsoft.Spark.Sql.Streaming
                             CommandSerDe.SerializedMode.Row)),
                     DataType.FromJson(_jvmObject.Jvm, _df.Schema().Json)));
 
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the output of the streaming query to be processed using the provided
+        /// function. This is supported only in the micro-batch execution modes (that
+        /// is, when the trigger is not continuous). In every micro-batch, the provided
+        /// function will be called in every micro-batch with (i) the output rows as a
+        /// <see cref="DataFrame"/> and (ii) the batch identifier. The batchId can be used
+        /// to deduplicate and transactionally write the output (that is, the provided
+        /// Dataset) to external systems. The output <see cref="DataFrame"/> is guaranteed
+        /// to exactly same for the same batchId (assuming all operations are deterministic
+        /// in the query).
+        /// </summary>
+        /// <param name="func">The function to apply to the DataFrame</param>
+        /// <returns>This DataStreamWriter object</returns>
+        [Since(Versions.V2_4_0)]
+        public DataStreamWriter ForeachBatch(Action<DataFrame, long> func)
+        {
+            int callbackId = CallbackServer.Instance.RegisterCallback(
+                new ForeachBatchCallbackHandler(func));
+            _jvmObject.Jvm.CallStaticJavaMethod(
+                "org.apache.spark.sql.api.dotnet.DotnetForeachBatchHelper",
+                "callForeachBatch",
+                this,
+                callbackId);
             return this;
         }
 

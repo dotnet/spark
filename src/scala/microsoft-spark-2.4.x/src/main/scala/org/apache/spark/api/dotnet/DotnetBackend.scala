@@ -6,9 +6,8 @@
 
 package org.apache.spark.api.dotnet
 
-import java.io.DataOutputStream
 import java.net.{InetSocketAddress, Socket}
-import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue, TimeUnit}
+import java.util.concurrent.{BlockingQueue, CountDownLatch, LinkedBlockingQueue, Phaser, TimeUnit}
 
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.nio.NioEventLoopGroup
@@ -50,7 +49,6 @@ class DotnetBackend extends Logging {
             // lengthFieldLength = 4
             // lengthAdjustment = 0
             // initialBytesToStrip = 4, i.e.  strip out the length field itself
-            // new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4))
             new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4))
           .addLast("decoder", new ByteArrayDecoder())
           .addLast("handler", new DotnetBackendHandler(self))
@@ -81,30 +79,45 @@ class DotnetBackend extends Logging {
     bootstrap = null
 
     // Send close to .NET callback server.
-    logInfo("Requesting to close all call back sockets")
-    var socket: Socket = null
-    do {
-      socket = DotnetBackend.callbackSockets.poll()
-      if (socket != null) {
-        try {
-          val dos = new DataOutputStream(socket.getOutputStream)
-          SerDe.writeString(dos, "close")
-          socket.close()
-          socket = null
-        } catch {
-          case e: Exception => logError("Exception when closing socket: ", e)
-        }
-      }
-    } while (socket != null)
-    DotnetBackend.callbackSocketShutdown = true
+    DotnetBackend.getActiveCallbackClient().shutdown()
   }
 }
 
 object DotnetBackend {
-  // Channels to callback server.
-  private[spark] val callbackSockets: BlockingQueue[Socket] = new LinkedBlockingQueue[Socket]()
-  @volatile private[spark] var callbackPort: Int = 0
+  private[this] val phaser = new Phaser(1)
+  private[this] var callbackClient: CallbackClient = null
 
-  // flag to denote whether the callback socket is shutdown explicitly
-  @volatile private[spark] var callbackSocketShutdown: Boolean = false
+  // flag to denote whether the callback client is shutdown explicitly
+  @volatile private[spark] var callbackClientShutdown: Boolean = false
+
+  private[spark] def setActiveCallbackClient(client: CallbackClient): Unit = synchronized {
+    if (callbackClientShutdown) {
+      return
+    }
+
+    try {
+      if (callbackClient != null) {
+        phaser.register()
+        callbackClient.shutdown()
+      }
+
+      callbackClient = client
+    } finally {
+      phaser.arriveAndDeregister()
+    }
+  }
+
+  private[spark] def getActiveCallbackClient(): CallbackClient = {
+    phaser.arriveAndAwaitAdvance()
+    callbackClient
+  }
+
+  private[spark] def shutdownCallbackClient(): Unit = synchronized {
+    if (callbackClientShutdown || callbackClient == null) {
+      callbackClientShutdown = true
+      return
+    }
+
+    callbackClient.shutdown()
+  }
 }
