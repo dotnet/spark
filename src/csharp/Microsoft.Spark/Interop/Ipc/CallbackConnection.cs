@@ -209,7 +209,6 @@ namespace Microsoft.Spark.Interop.Ipc
                             "Unknown callback flag received. Expected: {0}, Received: {1}.",
                             CallbackFlags.CALLBACK,
                             requestFlag));
-
                 }
 
                 // Use callback id to get the registered handler.

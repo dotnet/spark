@@ -14,7 +14,7 @@ using Microsoft.Spark.Services;
 namespace Microsoft.Spark.Interop.Ipc
 {
     /// <summary>
-    /// CallbackServer 
+    /// CallbackServer services callback requests from the JVM.
     /// </summary>
     internal sealed class CallbackServer
     {
@@ -159,7 +159,7 @@ namespace Microsoft.Spark.Interop.Ipc
                     // Assume there were 5 worker tasks, each servicing a CallbackConnection
                     // (5 total healthy connections). If 2 CallbackConnection sockets closed
                     // unexpectedly, then there would be 5 worker tasks and 3 healthy
-                    // connections. If a new incoming connection request arrived, then the
+                    // connections. If a new connection request arrived, then the
                     // CallbackConnection would be added to the _waitingConnections collection
                     // and no new worker tasks would be started (2 worker tasks are already
                     // waiting to take CallbackConnections from _waitingConnections).
