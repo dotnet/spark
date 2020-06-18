@@ -261,7 +261,6 @@ namespace Microsoft.Spark
     /// </summary>
     internal static class JvmBroadcastRegistry
     {
-        [ThreadStatic]
         private static readonly List<JvmObjectReference> s_jvmBroadcastVariables =
             new List<JvmObjectReference>();
 
