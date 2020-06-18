@@ -21,9 +21,6 @@ namespace Microsoft.Spark.Interop.Ipc
         private static readonly ILoggerService s_logger =
             LoggerServiceFactory.GetLogger(typeof(CallbackServer));
 
-        private static readonly Lazy<CallbackServer> s_instance =
-            new Lazy<CallbackServer>(() => new CallbackServer());
-
         /// <summary>
         /// Keeps track of all <see cref="ICallbackHandler"/>s by its Id. This is accessed
         /// by the <see cref="CallbackServer"/> and the <see cref="CallbackConnection"/>
@@ -69,15 +66,14 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         private int _callbackCounter = 0;
 
-        private CallbackServer()
+        internal CallbackServer()
         {
+            AppDomain.CurrentDomain.ProcessExit += (s, e) => Shutdown();
+
             s_logger.LogInfo($"Starting CallbackServer.");
-            AppDomain.CurrentDomain.ProcessExit += (s, e) => Shutdown(s);
             ISocketWrapper listener = SocketFactory.CreateSocket();
             Run(listener);
         }
-
-        internal static CallbackServer Instance => s_instance.Value;
 
         /// <summary>
         /// Produce a unique id and register a <see cref="ICallbackHandler"/> with it.
@@ -122,7 +118,7 @@ namespace Microsoft.Spark.Interop.Ipc
             catch (Exception e)
             {
                 s_logger.LogError($"CallbackServer exiting with exception: {e}");
-                Shutdown(this);
+                Shutdown();
             }
         }
 
@@ -176,7 +172,7 @@ namespace Microsoft.Spark.Interop.Ipc
             catch (Exception e)
             {
                 s_logger.LogError($"StartServer() exits with exception: {e}");
-                Shutdown(this);
+                Shutdown();
             }
         }
 
@@ -212,7 +208,7 @@ namespace Microsoft.Spark.Interop.Ipc
             catch (Exception e)
             {
                 s_logger.LogError($"RunWorkerTask() exits with an exception: {e}");
-                Shutdown(this);
+                Shutdown();
             }
         }
 
@@ -220,16 +216,15 @@ namespace Microsoft.Spark.Interop.Ipc
         /// Shuts down the <see cref="CallbackServer"/> by canceling any running tasks
         /// and disposing of resources.
         /// </summary>
-        /// <param name="sender">The object that is calling <see cref="Shutdown(object)"/></param>
-        private void Shutdown(object sender)
+        private void Shutdown()
         {
             _tokenSource.Cancel();
             _waitingConnections.Dispose();
+            _connections.Clear();
+            _callbackHandlers.Clear();
+            _workerTasks.Clear();
 
-            if (sender is CallbackServer)
-            {
-                Environment.Exit(-1);
-            }
+            SparkEnvironment.JvmBridge.CallStaticJavaMethod("DotnetHandler", "closeCallback");
         }
     }
 }

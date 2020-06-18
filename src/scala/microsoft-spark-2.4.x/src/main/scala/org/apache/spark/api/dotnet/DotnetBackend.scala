@@ -79,45 +79,10 @@ class DotnetBackend extends Logging {
     bootstrap = null
 
     // Send close to .NET callback server.
-    DotnetBackend.getActiveCallbackClient().shutdown()
+    DotnetBackend.callbackClient.shutdown()
   }
 }
 
 object DotnetBackend {
-  private[this] val phaser = new Phaser(1)
-  private[this] var callbackClient: CallbackClient = null
-
-  // flag to denote whether the callback client is shutdown explicitly
-  @volatile private[spark] var callbackClientShutdown: Boolean = false
-
-  private[spark] def setActiveCallbackClient(client: CallbackClient): Unit = synchronized {
-    if (callbackClientShutdown) {
-      return
-    }
-
-    try {
-      if (callbackClient != null) {
-        phaser.register()
-        callbackClient.shutdown()
-      }
-
-      callbackClient = client
-    } finally {
-      phaser.arriveAndDeregister()
-    }
-  }
-
-  private[spark] def getActiveCallbackClient(): CallbackClient = {
-    phaser.arriveAndAwaitAdvance()
-    callbackClient
-  }
-
-  private[spark] def shutdownCallbackClient(): Unit = synchronized {
-    if (callbackClientShutdown || callbackClient == null) {
-      callbackClientShutdown = true
-      return
-    }
-
-    callbackClient.shutdown()
-  }
+  @volatile private[spark] var callbackClient: CallbackClient = null
 }

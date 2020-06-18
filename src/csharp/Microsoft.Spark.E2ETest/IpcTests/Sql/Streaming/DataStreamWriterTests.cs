@@ -76,6 +76,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // Temporary folder to write ForeachBatch output.
             using var dstTempDirectory = new TemporaryDirectory();
 
+            Func<Column, Column> outerUdf = Udf<int, int>(i => i + 100);
+
             // id column: [0, 1, ..., 9]
             WriteCsv(0, 10, Path.Combine(srcTempDirectory.Path, "input1.csv"));
 
@@ -86,13 +88,17 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 .WriteStream()
                 .ForeachBatch((df, id) =>
                 {
-                    df.Write().Csv(Path.Combine(dstTempDirectory.Path, id.ToString()));
+                    Func<Column, Column> innerUdf = Udf<int, int>(i => i + 200);
+                    df.Select(outerUdf(innerUdf(Col("id"))))
+                        .Write()
+                        .Csv(Path.Combine(dstTempDirectory.Path, id.ToString()));
                 });
 
             StreamingQuery sq = dsw.Start();
 
-            // Sleep to allow a streaming micro batch to execute.
-            Thread.Sleep(5000);
+            // Process until all available data in the source has been processed and committed
+            // to the ForeachBatch sink. 
+            sq.ProcessAllAvailable();
 
             // Add new file to the source path. The spark stream will read any new files
             // added to the source path.
@@ -102,10 +108,17 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // Process until all available data in the source has been processed and committed
             // to the ForeachBatch sink.
             sq.ProcessAllAvailable();
+            sq.Stop();
 
-            // Verify that 2 folders have been created in the destination path.
-            string[] csvPaths = Directory.GetDirectories(dstTempDirectory.Path);
-            Assert.Equal(2, csvPaths.Length);
+            // Verify that folders in the destination path.
+            string[] csvPaths =
+                Directory.GetDirectories(dstTempDirectory.Path).OrderBy(s => s).ToArray();
+            string[] expectedPaths = new string[]
+            {
+                Path.Combine(dstTempDirectory.Path, "0"),
+                Path.Combine(dstTempDirectory.Path, "1"),
+            };
+            Assert.True(expectedPaths.SequenceEqual(csvPaths));
 
             // Read the generated csv paths and verify contents.
             DataFrame df = _spark
@@ -115,7 +128,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 .Sort("id");
 
             IEnumerable<int> actualIds = df.Collect().ToArray().Select(r => r.GetAs<int>("id"));
-            Assert.True(Enumerable.Range(0, 20).SequenceEqual(actualIds));
+            Assert.True(Enumerable.Range(300, 20).SequenceEqual(actualIds));
         }
 
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]

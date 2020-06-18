@@ -42,13 +42,13 @@ class CallbackClient(address: String, port: Int) extends Logging {
         case CallbackResponse(ConnectionStatus.ERROR_WRITE, _) => {
           if (retries > 0) {
             logWarning("Error writing to connection, retrying callback.")
-            send(writeBody, readBody, retries - 1)
+            return send(writeBody, readBody, retries - 1)
           }
 
           throw new Exception("Error writing to connection.")
         }
-        case CallbackResponse(state, _) =>
-          throw new Exception(s"Error encountered with connection: '$state'")
+        case CallbackResponse(status, _) =>
+          throw new Exception(s"Error encountered with connection: '$status'")
       }
     } catch {
       case e: Exception => {

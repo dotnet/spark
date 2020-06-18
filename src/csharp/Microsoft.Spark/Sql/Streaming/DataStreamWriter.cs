@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.Utils;
@@ -222,7 +223,7 @@ namespace Microsoft.Spark.Sql.Streaming
         [Since(Versions.V2_4_0)]
         public DataStreamWriter ForeachBatch(Action<DataFrame, long> func)
         {
-            int callbackId = CallbackServer.Instance.RegisterCallback(
+            int callbackId = SparkEnvironment.CallbackServer.RegisterCallback(
                 new ForeachBatchCallbackHandler(func));
             _jvmObject.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.DotnetForeachBatchHelper",

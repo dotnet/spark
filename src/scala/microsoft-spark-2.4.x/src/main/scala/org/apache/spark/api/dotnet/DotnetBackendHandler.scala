@@ -66,19 +66,17 @@ class DotnetBackendHandler(server: DotnetBackend)
               writeInt(dos, -1)
           }
         case "connectCallback" =>
-          var t = readObjectType(dis)
-          assert(t == 'c')
+          assert(readObjectType(dis) == 'c')
           val address = readString(dis)
-          t = readObjectType(dis)
-          assert(t == 'i')
+          assert(readObjectType(dis) == 'i')
           val port = readInt(dis)
           logInfo(s"Connecting to a callback server at $address:$port")
-          DotnetBackend.setActiveCallbackClient(new CallbackClient(address, port))
+          DotnetBackend.callbackClient = new CallbackClient(address, port)
           writeInt(dos, 0)
           writeType(dos, "void")
         case "closeCallback" =>
           logInfo("Requesting to close callback client")
-          DotnetBackend.getActiveCallbackClient().shutdown()
+          DotnetBackend.callbackClient.shutdown()
           writeInt(dos, 0)
           writeType(dos, "void")
 

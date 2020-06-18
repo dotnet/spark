@@ -13,7 +13,7 @@ import org.apache.spark.sql.streaming.DataStreamWriter
 
 class DotnetForeachBatchFunction(callbackId: Int) extends Logging{
   def call(batchDF: DataFrame, batchId: Long): Unit = {
-    DotnetBackend.getActiveCallbackClient().send(
+    DotnetBackend.callbackClient.send(
       dos => {
         SerDe.writeInt(dos, callbackId)
         SerDe.writeJObj(dos, batchDF)

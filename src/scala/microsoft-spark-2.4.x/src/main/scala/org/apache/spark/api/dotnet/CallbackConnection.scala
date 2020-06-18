@@ -43,7 +43,6 @@ class CallbackConnection(address: String, port: Int) extends Logging {
       try {
         readBody match {
           case Some(body) => {
-            logInfo("Checking readBody return value flag")
             val returnValueFlag = checkForDotnetException(inputStream)
             if (returnValueFlag != CallbackFlags.CALLBACK_RETURN_VALUE) {
               throw new Exception("readBody defined, however flag to indicate return value not " +
@@ -141,4 +140,4 @@ object ConnectionStatus extends Enumeration {
   val OK, ERROR_WRITE, ERROR_READ, ERROR_END_OF_STREAM = Value
 }
 
-case class CallbackResponse[T](state: ConnectionStatus.ConnectionStatus, response: Option[T]);
+case class CallbackResponse[T](status: ConnectionStatus.ConnectionStatus, response: Option[T]);
