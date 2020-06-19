@@ -17,53 +17,95 @@ namespace Microsoft.Spark.UnitTest
     public class CallbackServerTests
     {
         [Fact]
-        public void TestsCallbackServerConnections()
+        public void TestsCallbackServerCallbackHandlers()
+        {
+            {
+                // Test CallbackServer using a ICallbackHandler that has a 
+                // return value.
+                var callbackServer = new CallbackServer();
+                var callbackHandler = new CallbackHandlerWithReturnValue();
+                TestCallbackServer(callbackServer, callbackHandler);
+            }
+            {
+                // Test CallbackServer using a ICallbackHandler that does
+                // not return a value.
+                var callbackServer = new CallbackServer();
+                var callbackHandler = new CallbackHandlerWithNoReturnValue();
+                TestCallbackServer(callbackServer, callbackHandler);
+            }
+        }
+
+        private void TestCallbackServer(CallbackServer callbackServer, ITestCallbackHandler callbackHandler)
         {
             ISocketWrapper callbackSocket = SocketFactory.CreateSocket();
 
             int connectionNumber = 10;
-            var callbackServer = new CallbackServer();
 
-            int callbackId = callbackServer.RegisterCallback(new CallbackHandler());
-            Assert.Equal(1, callbackId);
+            callbackHandler.Id =
+                callbackServer.RegisterCallback((ICallbackHandler)callbackHandler);
+            Assert.Equal(1, callbackHandler.Id);
 
             callbackServer.Run(callbackSocket);
 
             for (int i = 0; i < connectionNumber; ++i)
             {
-                CreateAndVerifyConnection(callbackSocket, i);
+                CreateAndVerifyConnection(callbackSocket, callbackHandler, i);
             }
 
             Assert.Equal(connectionNumber, callbackServer.CurrentNumConnections);
 
-            // [0, 1, 2, ..., connectionNumber - 1]
-            int[] actualValues = CallbackHandler.ConcurrentBag.OrderBy(i => i).ToArray();
-            Assert.Equal(connectionNumber, CallbackHandler.ConcurrentBag.Count);
-            Assert.True(Enumerable.Range(0, connectionNumber).SequenceEqual(actualValues));
+            int[] actualValues = callbackHandler.Inputs.OrderBy(i => i).ToArray();
+            int[] expectedValues = Enumerable
+                .Range(0, connectionNumber)
+                .Select(i => callbackHandler.ApplyToInput(i))
+                .ToArray();
+            Assert.Equal(connectionNumber, callbackHandler.Inputs.Count);
+            Assert.True(expectedValues.SequenceEqual(actualValues));
         }
 
-        private static void CreateAndVerifyConnection(ISocketWrapper socket, int i)
+        private static void CreateAndVerifyConnection(
+            ISocketWrapper socket,
+            ITestCallbackHandler callbackHandler,
+            int inputToHandler)
         {
             var ipEndpoint = (IPEndPoint)socket.LocalEndPoint;
             int port = ipEndpoint.Port;
             ISocketWrapper clientSocket = SocketFactory.CreateSocket();
             clientSocket.Connect(ipEndpoint.Address, port);
 
-            int callbackReturnValue = 
-                WriteAndReadTestData(clientSocket.InputStream, clientSocket.OutputStream, i);
+            int callbackReturnValue = WriteAndReadTestData(
+                clientSocket.InputStream,
+                clientSocket.OutputStream,
+                callbackHandler,
+                inputToHandler);
 
-            Assert.Equal(CallbackHandler.Double(i), callbackReturnValue);
+            if (callbackHandler.HasReturnValue)
+            {
+                Assert.Equal(callbackHandler.ApplyToOutput(inputToHandler), callbackReturnValue);
+            }
+            else
+            {
+                Assert.Equal(int.MinValue, callbackReturnValue);
+            }
         }
 
-        internal static int WriteAndReadTestData(Stream inputStream, Stream outputStream, int i)
+        private static int WriteAndReadTestData(
+            Stream inputStream,
+            Stream outputStream,
+            ITestCallbackHandler callbackHandler,
+            int inputToHandler)
         {
             SerDe.Write(outputStream, (int)CallbackFlags.CALLBACK);
-            SerDe.Write(outputStream, 1);
-            SerDe.Write(outputStream, i);
+            SerDe.Write(outputStream, callbackHandler.Id);
+            SerDe.Write(outputStream, inputToHandler);
             outputStream.Flush();
 
-            Assert.Equal((int)CallbackFlags.CALLBACK_RETURN_VALUE, SerDe.ReadInt32(inputStream));
-            int callbackReturnValue = SerDe.ReadInt32(inputStream);
+            int callbackReturnValue = int.MinValue;
+            if (callbackHandler.HasReturnValue)
+            {
+                Assert.Equal((int)CallbackFlags.CALLBACK_RETURN_VALUE, SerDe.ReadInt32(inputStream));
+                callbackReturnValue = SerDe.ReadInt32(inputStream);
+            }
 
             SerDe.Write(outputStream, (int)CallbackFlags.END_OF_STREAM);
             outputStream.Flush();
@@ -72,18 +114,56 @@ namespace Microsoft.Spark.UnitTest
             return callbackReturnValue;
         }
 
-        private class CallbackHandler : ICallbackHandler
+        private class CallbackHandlerWithReturnValue : ICallbackHandler, ITestCallbackHandler
         {
             public void Run(Stream inputStream, Stream outputStream)
             {
                 int i = SerDe.ReadInt32(inputStream);
-                ConcurrentBag.Add(i);
-                SerDe.Write(outputStream, Double(i));
+                Inputs.Add(ApplyToInput(i));
+                SerDe.Write(outputStream, ApplyToOutput(i));
             }
 
-            internal static ConcurrentBag<int> ConcurrentBag { get; } = new ConcurrentBag<int>();
+            public ConcurrentBag<int> Inputs { get; } = new ConcurrentBag<int>();
 
-            internal static int Double(int i) => i + i;
+            public int Id { get; set; }
+
+            public bool HasReturnValue { get; } = true;
+
+            public int ApplyToInput(int i) => 2 * i;
+
+            public int ApplyToOutput(int i) => 3 * i;
+        }
+
+        private class CallbackHandlerWithNoReturnValue : ICallbackHandler, ITestCallbackHandler
+        {
+            public void Run(Stream inputStream, Stream outputStream)
+            {
+                int i = SerDe.ReadInt32(inputStream);
+                Inputs.Add(ApplyToInput(i));
+            }
+
+            public ConcurrentBag<int> Inputs { get; } = new ConcurrentBag<int>();
+
+            public int Id { get; set; }
+
+            public bool HasReturnValue { get; } = false;
+
+            public int ApplyToInput(int i) => 10 * i;
+
+            public int ApplyToOutput(int i) => throw new NotImplementedException();
+        }
+
+        private interface ITestCallbackHandler
+        {
+            ConcurrentBag<int> Inputs { get; }
+
+            int Id { get; set; }
+
+            bool HasReturnValue { get; }
+
+            int ApplyToInput(int i);
+
+            int ApplyToOutput(int i);
         }
     }
 }
