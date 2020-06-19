@@ -19,7 +19,7 @@ namespace Microsoft.Spark.UnitTest
     public class CallbackServerTests
     {
         [Fact]
-        public void TestsCallbackServerCallbackHandlers()
+        public void TestCallbackHandlers()
         {
             {
                 // Test CallbackServer using a ICallbackHandler that has a 
