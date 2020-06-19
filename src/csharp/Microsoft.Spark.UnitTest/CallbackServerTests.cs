@@ -25,14 +25,14 @@ namespace Microsoft.Spark.UnitTest
                 // Test CallbackServer using a ICallbackHandler that has a 
                 // return value.
                 var callbackServer = new CallbackServer();
-                var callbackHandler = new CallbackHandlerWithReturnValue();
+                var callbackHandler = new ReturnValueHandler();
                 TestCallbackServer(callbackServer, callbackHandler);
             }
             {
                 // Test CallbackServer using a ICallbackHandler that does
                 // not return a value.
                 var callbackServer = new CallbackServer();
-                var callbackHandler = new CallbackHandlerWithNoReturnValue();
+                var callbackHandler = new NoReturnValueHandler();
                 TestCallbackServer(callbackServer, callbackHandler);
             }
         }
@@ -42,7 +42,7 @@ namespace Microsoft.Spark.UnitTest
         {
             int numToRegister = 100;
             var callbackServer = new CallbackServer();
-            var callbackHandler = new CallbackHandlerWithNoReturnValue();
+            var callbackHandler = new NoReturnValueHandler();
 
             var ids = new ConcurrentBag<int>();
             var tasks = new List<Task>();
@@ -138,7 +138,7 @@ namespace Microsoft.Spark.UnitTest
             return callbackReturnValue;
         }
 
-        private class CallbackHandlerWithReturnValue : ICallbackHandler, ITestCallbackHandler
+        private class ReturnValueHandler : ICallbackHandler, ITestCallbackHandler
         {
             public void Run(Stream inputStream, Stream outputStream)
             {
@@ -158,7 +158,7 @@ namespace Microsoft.Spark.UnitTest
             public int ApplyToOutput(int i) => 3 * i;
         }
 
-        private class CallbackHandlerWithNoReturnValue : ICallbackHandler, ITestCallbackHandler
+        private class NoReturnValueHandler : ICallbackHandler, ITestCallbackHandler
         {
             public void Run(Stream inputStream, Stream outputStream)
             {
