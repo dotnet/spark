@@ -186,7 +186,7 @@ namespace Microsoft.Spark.UnitTest
             {
                 string exceptionMessage = SerDe.ReadString(inputStream);
                 Assert.True(!string.IsNullOrEmpty(exceptionMessage));
-                Assert.Contains("ThrowsCallbackHandler", exceptionMessage);
+                Assert.Contains("ThrowsExceptionHandler", exceptionMessage);
                 return false;
             }
 
@@ -240,7 +240,7 @@ namespace Microsoft.Spark.UnitTest
         {
             public void Run(Stream inputStream, Stream outputStream)
             {
-                throw new Exception("ThrowsCallbackHandler");
+                throw new Exception("ThrowsExceptionHandler");
             }
 
             public ConcurrentBag<int> Inputs { get; } = new ConcurrentBag<int>();
