@@ -4,10 +4,8 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
 
@@ -24,7 +22,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <summary>
         /// Keeps track of all <see cref="ICallbackHandler"/>s by its Id. This is accessed
         /// by the <see cref="CallbackServer"/> and the <see cref="CallbackConnection"/>
-        /// running in the worker tasks.
+        /// running in the worker threads.
         /// </summary>
         private readonly ConcurrentDictionary<int, ICallbackHandler> _callbackHandlers =
             new ConcurrentDictionary<int, ICallbackHandler>();
@@ -34,29 +32,24 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <see cref="CallbackConnection.ConnectionId"/>. The main thread creates a
         /// <see cref="CallbackConnection"/> each time it receives a new socket connection
         /// from the JVM side and inserts it into <see cref="_connections"/>. Each worker
-        /// task calls <see cref="CallbackConnection.Run"/> and removes the connection
+        /// thread calls <see cref="CallbackConnection.Run"/> and removes the connection
         /// once this call is finished. <see cref="CallbackConnection.Run"/> will not return
         /// unless the <see cref="CallbackConnection"/> needs to be closed.
-        /// Also, <see cref="_connections"/> is used to bound the number of worker tasks
+        /// Also, <see cref="_connections"/> is used to bound the number of worker threads
         /// since it gives you the total number of active <see cref="CallbackConnection"/>s.
         /// </summary>
         private readonly ConcurrentDictionary<long, CallbackConnection> _connections =
             new ConcurrentDictionary<long, CallbackConnection>();
 
         /// <summary>
-        /// Each worker task picks up a CallbackConnection from _waitingConnections
+        /// Each worker thread picks up a CallbackConnection from _waitingConnections
         /// and runs it.
         /// </summary>
         private readonly BlockingCollection<CallbackConnection> _waitingConnections =
             new BlockingCollection<CallbackConnection>();
 
         /// <summary>
-        /// Maintains a list of all the worker tasks.
-        /// </summary>
-        private readonly IList<Task> _workerTasks = new List<Task>();
-
-        /// <summary>
-        /// A <see cref="CancellationTokenSource"/> used to notify Tasks that operations
+        /// A <see cref="CancellationTokenSource"/> used to notify threads that operations
         /// should be canceled.
         /// </summary>
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
@@ -66,14 +59,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         private int _callbackCounter = 0;
 
-        internal CallbackServer()
-        {
-            AppDomain.CurrentDomain.ProcessExit += (s, e) => Shutdown();
-
-            s_logger.LogInfo($"Starting CallbackServer.");
-            ISocketWrapper listener = SocketFactory.CreateSocket();
-            Run(listener);
-        }
+        internal int CurrentNumConnections => _connections.Count;
 
         /// <summary>
         /// Produce a unique id and register a <see cref="ICallbackHandler"/> with it.
@@ -91,8 +77,22 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <summary>
         /// Runs the callback server.
         /// </summary>
-        private void Run(ISocketWrapper listener)
+        internal void Run()
         {
+            ISocketWrapper listener = SocketFactory.CreateSocket();
+            Run(listener);
+        }
+
+        /// <summary>
+        /// Runs the callback server.
+        /// </summary>
+        /// <param name="listener">The listening socket.</param>
+        internal void Run(ISocketWrapper listener)
+        {
+            AppDomain.CurrentDomain.ProcessExit += (s, e) => Shutdown();
+
+            s_logger.LogInfo($"Starting CallbackServer.");
+
             try
             {
                 listener.Listen();
@@ -109,11 +109,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 s_logger.LogInfo($"Started CallbackServer on {localEndPoint}");
 
                 // Start accepting connections from JVM.
-                Task.Factory.StartNew(
-                    () => StartServer(listener),
-                    _tokenSource.Token,
-                    TaskCreationOptions.LongRunning,
-                    TaskScheduler.Default);
+                new Thread(() => StartServer(listener)).Start();
             }
             catch (Exception e)
             {
@@ -131,9 +127,12 @@ namespace Microsoft.Spark.Interop.Ipc
             try
             {
                 long connectionId = 1;
+                int numWorkerThreads = 0;
 
                 while (true)
                 {
+                    _tokenSource.Token.ThrowIfCancellationRequested();
+
                     ISocketWrapper socket = listener.Accept();
                     CallbackConnection connection =
                         new CallbackConnection(connectionId, socket, _callbackHandlers);
@@ -142,30 +141,31 @@ namespace Microsoft.Spark.Interop.Ipc
                     _connections[connectionId] = connection;
                     ++connectionId;
 
-                    int numConnections = _connections.Count;
+                    int numConnections = CurrentNumConnections;
 
-                    // Start worker tasks until there are at least as many worker tasks
+                    // Start worker thread until there are at least as many worker threads
                     // as there are CallbackConnections. CallbackConnections are expected
                     // to stay open and reuse the socket to service repeated callback
                     // requests. However, if there is an issue with a connection, then
-                    // CallbackConnection.Run will return, freeing up extra worker tasks
+                    // CallbackConnection.Run will return, freeing up extra worker threads
                     // to service any _waitingConnections.
                     //
                     // For example, 
-                    // Assume there were 5 worker tasks, each servicing a CallbackConnection
+                    // Assume there were 5 worker threads, each servicing a CallbackConnection
                     // (5 total healthy connections). If 2 CallbackConnection sockets closed
-                    // unexpectedly, then there would be 5 worker tasks and 3 healthy
+                    // unexpectedly, then there would be 5 worker threads and 3 healthy
                     // connections. If a new connection request arrived, then the
                     // CallbackConnection would be added to the _waitingConnections collection
-                    // and no new worker tasks would be started (2 worker tasks are already
+                    // and no new worker threads would be started (2 worker threads are already
                     // waiting to take CallbackConnections from _waitingConnections).
-                    while (_workerTasks.Count < numConnections)
+                    while (numWorkerThreads < numConnections)
                     {
-                        _workerTasks.Add(Task.Run(() => RunWorkerTask(), _tokenSource.Token));
+                        new Thread(RunWorkerThread).Start();
+                        ++numWorkerThreads;
                     }
 
                     s_logger.LogInfo(
-                        $"Pool snapshot: [NumTasks:{_workerTasks.Count}], " +
+                        $"Pool snapshot: [NumThreads:{numWorkerThreads}], " +
                         $"[NumConnections:{numConnections}]");
                 }
             }
@@ -177,12 +177,12 @@ namespace Microsoft.Spark.Interop.Ipc
         }
 
         /// <summary>
-        /// <see cref="RunWorkerTask"/> is called for each worker task when it starts.
-        /// <see cref="RunWorkerTask"/> doesn't return (except for the error cases), and
+        /// <see cref="RunWorkerThread"/> is called for each worker thread when it starts.
+        /// <see cref="RunWorkerThread"/> doesn't return (except for the error cases), and
         /// keeps pulling from <see cref="_waitingConnections"/> and runs the retrieved
         /// <see cref="CallbackConnection"/>.
         /// </summary>
-        private void RunWorkerTask()
+        private void RunWorkerThread()
         {
             try
             {
@@ -199,21 +199,21 @@ namespace Microsoft.Spark.Interop.Ipc
                         connection.Run(_tokenSource.Token);
 
                         // Assume the connection is in a bad state, and do not reuse it.
-                        // Remove it from _connections list to prevent the server task from
-                        // creating more tasks than needed.
+                        // Remove it from _connections list to prevent the server thread from
+                        // creating more threads than needed.
                         _connections.TryRemove(connection.ConnectionId, out CallbackConnection _);
                     }
                 }
             }
             catch (Exception e)
             {
-                s_logger.LogError($"RunWorkerTask() exits with an exception: {e}");
+                s_logger.LogError($"RunWorkerThread() exits with an exception: {e}");
                 Shutdown();
             }
         }
 
         /// <summary>
-        /// Shuts down the <see cref="CallbackServer"/> by canceling any running tasks
+        /// Shuts down the <see cref="CallbackServer"/> by canceling any running threads
         /// and disposing of resources.
         /// </summary>
         private void Shutdown()
@@ -222,7 +222,6 @@ namespace Microsoft.Spark.Interop.Ipc
             _waitingConnections.Dispose();
             _connections.Clear();
             _callbackHandlers.Clear();
-            _workerTasks.Clear();
 
             SparkEnvironment.JvmBridge.CallStaticJavaMethod("DotnetHandler", "closeCallback");
         }

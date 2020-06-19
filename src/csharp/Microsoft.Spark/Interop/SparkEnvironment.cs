@@ -90,7 +90,13 @@ namespace Microsoft.Spark.Interop
         {
             get
             {
-                return s_callbackServer ??= new CallbackServer();
+                if (s_callbackServer == null)
+                {
+                    s_callbackServer = new CallbackServer();
+                    s_callbackServer.Run();
+                }
+
+                return s_callbackServer;
             }
         }
     }

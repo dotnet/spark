@@ -47,34 +47,6 @@ namespace Microsoft.Spark.Interop.Ipc
                 $"[{ConnectionId}] Connected with RemoteEndPoint: {socket.RemoteEndPoint}");
         }
 
-        private enum CallbackFlags : int
-        {
-            /// <summary>
-            /// Flag to indicate connection should be closed.
-            /// </summary>
-            CLOSE = -1,
-
-            /// <summary>
-            /// Flag to indiciate callback should be called.
-            /// </summary>
-            CALLBACK = -2,
-
-            /// <summary>
-            /// Flag to indiciate callback has a return value.
-            /// </summary>
-            CALLBACK_RETURN_VALUE = -3,
-
-            /// <summary>
-            /// Flag to indicate an exception thrown from dotnet.
-            /// </summary>
-            DOTNET_EXCEPTION_THROWN = -4,
-
-            /// <summary>
-            /// Flag to indicate end of stream.
-            /// </summary>
-            END_OF_STREAM = -5
-        }
-
         private enum ConnectionStatus
         {
             /// <summary>
@@ -206,7 +178,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 {
                     throw new Exception(
                         string.Format(
-                            "Unknown callback flag received. Expected: {0}, Received: {1}.",
+                            "Unexpected callback flag received. Expected: {0}, Received: {1}.",
                             CallbackFlags.CALLBACK,
                             requestFlag));
                 }
@@ -284,5 +256,37 @@ namespace Microsoft.Spark.Interop.Ipc
                 throw;
             }
         }
+    }
+
+    /// <summary>
+    /// Enums with which the Dotnet CallbackConnection communicates with
+    /// the JVM CallbackConnection.
+    /// </summary>
+    internal enum CallbackFlags : int
+    {
+        /// <summary>
+        /// Flag to indicate connection should be closed.
+        /// </summary>
+        CLOSE = -1,
+
+        /// <summary>
+        /// Flag to indiciate callback should be called.
+        /// </summary>
+        CALLBACK = -2,
+
+        /// <summary>
+        /// Flag to indiciate callback has a return value.
+        /// </summary>
+        CALLBACK_RETURN_VALUE = -3,
+
+        /// <summary>
+        /// Flag to indicate an exception thrown from dotnet.
+        /// </summary>
+        DOTNET_EXCEPTION_THROWN = -4,
+
+        /// <summary>
+        /// Flag to indicate end of stream.
+        /// </summary>
+        END_OF_STREAM = -5
     }
 }

@@ -110,10 +110,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             sq.ProcessAllAvailable();
             sq.Stop();
 
-            // Verify that folders in the destination path.
+            // Verify folders in the destination path.
             string[] csvPaths =
                 Directory.GetDirectories(dstTempDirectory.Path).OrderBy(s => s).ToArray();
-            string[] expectedPaths = new string[]
+            var expectedPaths = new string[]
             {
                 Path.Combine(dstTempDirectory.Path, "0"),
                 Path.Combine(dstTempDirectory.Path, "1"),
