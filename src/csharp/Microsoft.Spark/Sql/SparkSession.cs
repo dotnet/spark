@@ -171,7 +171,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="data"><see cref="IEnumerable"/> of type <see cref="int"/></param>
         /// <returns>Dataframe object</returns>
-        public DataFrame CreateDataFrame(IEnumerable<int> data) =>
+        public DataFrame CreateDataFrame(IEnumerable<int?> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new IntegerType()));
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="data"><see cref="IEnumerable"/> of type <see cref="double"/></param>
         /// <returns>Dataframe object</returns>
-        public DataFrame CreateDataFrame(IEnumerable<double> data) =>
+        public DataFrame CreateDataFrame(IEnumerable<double?> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DoubleType()));
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="data"><see cref="IEnumerable"/> of type <see cref="bool"/></param>
         /// <returns>Dataframe object</returns>
-        public DataFrame CreateDataFrame(IEnumerable<bool> data) =>
+        public DataFrame CreateDataFrame(IEnumerable<bool?> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new BooleanType()));
 
         /// <summary>

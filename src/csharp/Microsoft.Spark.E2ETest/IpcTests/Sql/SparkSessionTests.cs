@@ -103,7 +103,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Calling CreateDataFrame(IEnumerable<int> _) without schema
             {
-                var data = new List<int>(new int[] { 1, 2 });
+                var data = new List<int?>(new int?[] { 1, 2, null });
                 StructType schema = SchemaWithSingleColumn(new IntegerType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
@@ -112,7 +112,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Calling CreateDataFrame(IEnumerable<double> _) without schema
             {
-                var data = new List<double>(new double[] { 1.2, 2.3 });
+                var data = new List<double?>(new double?[] { 1.2, 2.3, null });
                 StructType schema = SchemaWithSingleColumn(new DoubleType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
@@ -121,7 +121,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Calling CreateDataFrame(IEnumerable<bool> _) without schema
             {
-                var data = new List<bool>(new bool[] { true, false });
+                var data = new List<bool?>(new bool?[] { true, false, null });
                 StructType schema = SchemaWithSingleColumn(new BooleanType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
