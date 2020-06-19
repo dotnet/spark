@@ -27,7 +27,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
         private const string TempDirEnvVar = "DOTNET_SPARK_EXTENSION_INTERACTIVE_TMPDIR";
 
         private readonly PackageResolver _packageResolver =
-            new PackageResolver(new PackageRestoreContextWrapper());
+            new PackageResolver(new SupportNugetWrapper());
 
         /// <summary>
         /// Called by the Microsoft.DotNet.Interactive Assembly Extension Loader.
