@@ -38,7 +38,7 @@ namespace Microsoft.Spark.UnitTest
         }
 
         [Fact]
-        public async Task TestUniqueIds()
+        public async Task TestCallbackIds()
         {
             int numToRegister = 100;
             var callbackServer = new CallbackServer();
