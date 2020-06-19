@@ -100,7 +100,7 @@ namespace Microsoft.Spark.UnitTest
             {
                 // Test CallbackConnection using a ICallbackHandler that does
                 // not return a value.
-                var callbackHandler = new ThrowsCallbackHandler
+                var callbackHandler = new ThrowsExceptionHandler
                 {
                     Id = 3
                 };
@@ -237,7 +237,7 @@ namespace Microsoft.Spark.UnitTest
             public int ApplyToOutput(int i) => throw new NotImplementedException();
         }
 
-        private class ThrowsCallbackHandler : ICallbackHandler, ITestCallbackHandler
+        private class ThrowsExceptionHandler : ICallbackHandler, ITestCallbackHandler
         {
             public void Run(Stream inputStream, Stream outputStream)
             {
