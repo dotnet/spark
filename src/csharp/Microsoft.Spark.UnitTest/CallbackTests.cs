@@ -69,7 +69,6 @@ namespace Microsoft.Spark.UnitTest
             IEnumerable<int> expectedValues = Enumerable
                 .Range(0, connectionNumber)
                 .Select(i => callbackHandler.ApplyToInput(i));
-            Assert.Equal(connectionNumber, callbackHandler.Inputs.Count);
             Assert.True(expectedValues.SequenceEqual(actualValues));
         }
 
@@ -98,8 +97,8 @@ namespace Microsoft.Spark.UnitTest
                 TestCallbackConnection(callbackHandlersDict, callbackHandler);
             }
             {
-                // Test CallbackConnection using a ICallbackHandler that does
-                // not return a value.
+                // Test CallbackConnection using a ICallbackHandler that 
+                // throws an exception.
                 var callbackHandler = new ThrowsExceptionHandler
                 {
                     Id = 3
