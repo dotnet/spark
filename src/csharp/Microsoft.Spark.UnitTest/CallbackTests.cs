@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
@@ -16,27 +17,8 @@ using Xunit;
 namespace Microsoft.Spark.UnitTest
 {
     [Collection("Spark Unit Tests")]
-    public class CallbackServerTests
+    public class CallbackTests
     {
-        [Fact]
-        public void TestCallbackHandlers()
-        {
-            {
-                // Test CallbackServer using a ICallbackHandler that has a 
-                // return value.
-                var callbackServer = new CallbackServer();
-                var callbackHandler = new ReturnValueHandler();
-                TestCallbackServer(callbackServer, callbackHandler);
-            }
-            {
-                // Test CallbackServer using a ICallbackHandler that does
-                // not return a value.
-                var callbackServer = new CallbackServer();
-                var callbackHandler = new NoReturnValueHandler();
-                TestCallbackServer(callbackServer, callbackHandler);
-            }
-        }
-
         [Fact]
         public async Task TestCallbackIds()
         {
@@ -54,56 +36,110 @@ namespace Microsoft.Spark.UnitTest
 
             await Task.WhenAll(tasks);
 
-            int[] actualIds = ids.OrderBy(i => i).ToArray();
-            int[] expectedIds = Enumerable.Range(1, numToRegister).ToArray();
+            IOrderedEnumerable<int> actualIds = ids.OrderBy(i => i);
+            IEnumerable<int> expectedIds = Enumerable.Range(1, numToRegister);
             Assert.True(expectedIds.SequenceEqual(actualIds));
         }
 
-        private void TestCallbackServer(CallbackServer callbackServer, ITestCallbackHandler callbackHandler)
+        [Fact]
+        public void TestCallbackServer()
         {
-            ISocketWrapper callbackSocket = SocketFactory.CreateSocket();
+            var callbackServer = new CallbackServer();
+            var callbackHandler = new ReturnValueHandler();
 
-            int connectionNumber = 10;
-
-            callbackHandler.Id =
-                callbackServer.RegisterCallback((ICallbackHandler)callbackHandler);
+            callbackHandler.Id = callbackServer.RegisterCallback(callbackHandler);
             Assert.Equal(1, callbackHandler.Id);
 
+            using ISocketWrapper callbackSocket = SocketFactory.CreateSocket();
             callbackServer.Run(callbackSocket);
 
+            int connectionNumber = 10;
             for (int i = 0; i < connectionNumber; ++i)
             {
-                CreateAndVerifyConnection(callbackSocket, callbackHandler, i);
+                var ipEndpoint = (IPEndPoint)callbackSocket.LocalEndPoint;
+                ISocketWrapper clientSocket = SocketFactory.CreateSocket();
+                clientSocket.Connect(ipEndpoint.Address, ipEndpoint.Port);
+
+                CreateAndVerifyConnection(clientSocket, callbackHandler, i);
             }
 
             Assert.Equal(connectionNumber, callbackServer.CurrentNumConnections);
 
-            int[] actualValues = callbackHandler.Inputs.OrderBy(i => i).ToArray();
-            int[] expectedValues = Enumerable
+            IOrderedEnumerable<int> actualValues = callbackHandler.Inputs.OrderBy(i => i);
+            IEnumerable<int> expectedValues = Enumerable
                 .Range(0, connectionNumber)
-                .Select(i => callbackHandler.ApplyToInput(i))
-                .ToArray();
+                .Select(i => callbackHandler.ApplyToInput(i));
             Assert.Equal(connectionNumber, callbackHandler.Inputs.Count);
             Assert.True(expectedValues.SequenceEqual(actualValues));
         }
 
-        private static void CreateAndVerifyConnection(
+        [Fact]
+        public void TestCallbackHandlers()
+        {
+            var callbackHandlersDict = new ConcurrentDictionary<int, ICallbackHandler>();
+            {
+                // Test CallbackConnection using a ICallbackHandler that has a 
+                // return value.
+                var callbackHandler = new ReturnValueHandler
+                {
+                    Id = 1
+                };
+                callbackHandlersDict[callbackHandler.Id] = callbackHandler;
+                TestCallbackConnection(callbackHandlersDict, callbackHandler);
+            }
+            {
+                // Test CallbackConnection using a ICallbackHandler that does
+                // not return a value.
+                var callbackHandler = new NoReturnValueHandler
+                {
+                    Id = 2
+                };
+                callbackHandlersDict[callbackHandler.Id] = callbackHandler;
+                TestCallbackConnection(callbackHandlersDict, callbackHandler);
+            }
+            {
+                // Test CallbackConnection using a ICallbackHandler that does
+                // not return a value.
+                var callbackHandler = new ThrowsCallbackHandler
+                {
+                    Id = 3
+                };
+                callbackHandlersDict[callbackHandler.Id] = callbackHandler;
+                TestCallbackConnection(callbackHandlersDict, callbackHandler);
+            }
+        }
+
+        private void TestCallbackConnection(
+            ConcurrentDictionary<int, ICallbackHandler> callbackHandlersDict,
+            ITestCallbackHandler callbackHandler)
+        {
+            using ISocketWrapper serverListener = SocketFactory.CreateSocket();
+            serverListener.Listen();
+
+            var ipEndpoint = (IPEndPoint)serverListener.LocalEndPoint;
+            ISocketWrapper clientSocket = SocketFactory.CreateSocket();
+            clientSocket.Connect(ipEndpoint.Address, ipEndpoint.Port);
+
+            var cancellationToken = new CancellationToken();
+            var callbackConnection = new CallbackConnection(0, clientSocket, callbackHandlersDict);
+            Task connectionTask = Task.Run(() => callbackConnection.Run(cancellationToken));
+
+            using ISocketWrapper serverSocket = serverListener.Accept();
+            CreateAndVerifyConnection(serverSocket, callbackHandler, 1);
+        }
+
+        private void CreateAndVerifyConnection(
             ISocketWrapper socket,
             ITestCallbackHandler callbackHandler,
             int inputToHandler)
         {
-            var ipEndpoint = (IPEndPoint)socket.LocalEndPoint;
-            int port = ipEndpoint.Port;
-            ISocketWrapper clientSocket = SocketFactory.CreateSocket();
-            clientSocket.Connect(ipEndpoint.Address, port);
-
             int callbackReturnValue = WriteAndReadTestData(
-                clientSocket.InputStream,
-                clientSocket.OutputStream,
+                socket.InputStream,
+                socket.OutputStream,
                 callbackHandler,
                 inputToHandler);
 
-            if (callbackHandler.HasReturnValue)
+            if (callbackHandler.HasReturnValue && !callbackHandler.Throws)
             {
                 Assert.Equal(callbackHandler.ApplyToOutput(inputToHandler), callbackReturnValue);
             }
@@ -113,7 +149,7 @@ namespace Microsoft.Spark.UnitTest
             }
         }
 
-        private static int WriteAndReadTestData(
+        private int WriteAndReadTestData(
             Stream inputStream,
             Stream outputStream,
             ITestCallbackHandler callbackHandler,
@@ -125,17 +161,37 @@ namespace Microsoft.Spark.UnitTest
             outputStream.Flush();
 
             int callbackReturnValue = int.MinValue;
-            if (callbackHandler.HasReturnValue)
+            if (callbackHandler.HasReturnValue &&
+                TryGetCallbackFlag(inputStream, out int returnFlag))
             {
-                Assert.Equal((int)CallbackFlags.CALLBACK_RETURN_VALUE, SerDe.ReadInt32(inputStream));
+                Assert.Equal(
+                    (int)CallbackFlags.CALLBACK_RETURN_VALUE, returnFlag);
                 callbackReturnValue = SerDe.ReadInt32(inputStream);
             }
 
             SerDe.Write(outputStream, (int)CallbackFlags.END_OF_STREAM);
             outputStream.Flush();
-            Assert.Equal((int)CallbackFlags.END_OF_STREAM, SerDe.ReadInt32(inputStream));
+
+            if (TryGetCallbackFlag(inputStream, out int endOfStreamFlag))
+            {
+                Assert.Equal((int)CallbackFlags.END_OF_STREAM, endOfStreamFlag);
+            }
 
             return callbackReturnValue;
+        }
+
+        private bool TryGetCallbackFlag(Stream inputStream, out int callbackFlag)
+        {
+            callbackFlag = SerDe.ReadInt32(inputStream);
+            if (callbackFlag == (int)CallbackFlags.DOTNET_EXCEPTION_THROWN)
+            {
+                string exceptionMessage = SerDe.ReadString(inputStream);
+                Assert.True(!string.IsNullOrEmpty(exceptionMessage));
+                Assert.Contains("ThrowsCallbackHandler", exceptionMessage);
+                return false;
+            }
+
+            return true;
         }
 
         private class ReturnValueHandler : ICallbackHandler, ITestCallbackHandler
@@ -152,6 +208,8 @@ namespace Microsoft.Spark.UnitTest
             public int Id { get; set; }
 
             public bool HasReturnValue { get; } = true;
+
+            public bool Throws { get; } = false;
 
             public int ApplyToInput(int i) => 2 * i;
 
@@ -172,7 +230,29 @@ namespace Microsoft.Spark.UnitTest
 
             public bool HasReturnValue { get; } = false;
 
+            public bool Throws { get; } = false;
+
             public int ApplyToInput(int i) => 10 * i;
+
+            public int ApplyToOutput(int i) => throw new NotImplementedException();
+        }
+
+        private class ThrowsCallbackHandler : ICallbackHandler, ITestCallbackHandler
+        {
+            public void Run(Stream inputStream, Stream outputStream)
+            {
+                throw new Exception("ThrowsCallbackHandler");
+            }
+
+            public ConcurrentBag<int> Inputs { get; } = new ConcurrentBag<int>();
+
+            public int Id { get; set; }
+
+            public bool HasReturnValue { get; } = false;
+
+            public bool Throws { get; } = true;
+
+            public int ApplyToInput(int i) => throw new NotImplementedException();
 
             public int ApplyToOutput(int i) => throw new NotImplementedException();
         }
@@ -184,6 +264,8 @@ namespace Microsoft.Spark.UnitTest
             int Id { get; set; }
 
             bool HasReturnValue { get; }
+
+            bool Throws { get; }
 
             int ApplyToInput(int i);
 
