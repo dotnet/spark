@@ -4,9 +4,11 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
 using Xunit;
@@ -33,6 +35,28 @@ namespace Microsoft.Spark.UnitTest
                 var callbackHandler = new CallbackHandlerWithNoReturnValue();
                 TestCallbackServer(callbackServer, callbackHandler);
             }
+        }
+
+        [Fact]
+        public async Task TestUniqueIds()
+        {
+            int numToRegister = 100;
+            var callbackServer = new CallbackServer();
+            var callbackHandler = new CallbackHandlerWithNoReturnValue();
+
+            var ids = new ConcurrentBag<int>();
+            var tasks = new List<Task>();
+            for (int i = 0; i < numToRegister; ++i)
+            {
+                tasks.Add(
+                    Task.Run(() => ids.Add(callbackServer.RegisterCallback(callbackHandler))));
+            }
+
+            await Task.WhenAll(tasks);
+
+            int[] actualIds = ids.OrderBy(i => i).ToArray();
+            int[] expectedIds = Enumerable.Range(1, numToRegister).ToArray();
+            Assert.True(expectedIds.SequenceEqual(actualIds));
         }
 
         private void TestCallbackServer(CallbackServer callbackServer, ITestCallbackHandler callbackHandler)
