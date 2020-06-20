@@ -89,9 +89,9 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest.Index
         /// <summary>
         /// Helper method to test that 2 collections contain the same elements.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="expected"></param>
-        /// <param name="actual"></param>
+        /// <typeparam name="T">The type of the elements to compare.</typeparam>
+        /// <param name="expected">Expected collection of elements.</param>
+        /// <param name="actual">Actual collection of elements.</param>
         private void AssertCollectionEquals<T>(ICollection<T> expected, ICollection<T> actual) =>
             Assert.True(expected.OrderBy(c => c).SequenceEqual(actual.OrderBy(c => c)));
     }
