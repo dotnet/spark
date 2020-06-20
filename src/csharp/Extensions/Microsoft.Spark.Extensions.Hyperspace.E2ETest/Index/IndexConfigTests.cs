@@ -26,10 +26,10 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest.Index
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
         public void TestSignatures()
         {
-            var indexName = "testIndexName";
+            string indexName = "testIndexName";
             var indexConfig = new IndexConfig(
                 indexName,
-                new List<string> { "Id" },
+                new[] { "Id" },
                 new List<string>());
             Assert.IsType<string>(indexConfig.IndexName);
             Assert.IsType<List<string>>(indexConfig.IndexedColumns);

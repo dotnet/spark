@@ -16,9 +16,8 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
     /// Test suite for Hyperspace index management APIs.
     /// </summary>
     [Collection(Constants.HyperspaceTestContainerName)]
-    public class HyperspaceTests : IDisposable
+    public class HyperspaceTests
     {
-        private readonly HyperspaceFixture _fixture;
         private readonly SparkSession _spark;
         private readonly Hyperspace _hyperspace;
 
@@ -29,12 +28,11 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
 
         public HyperspaceTests(HyperspaceFixture fixture)
         {
-            _fixture = fixture;
             _spark = fixture.SparkFixture.Spark;
             _hyperspace = fixture.Hyperspace;
 
             // Make sure that any leftover indexes are removed before starting a test.
-            DeleteHyperspaceSystemData();
+            Directory.Delete(fixture.HyperspaceSystemPath, true);
 
             _sampleDataFrame = _spark.Read()
                 .Option("header", true)
@@ -44,17 +42,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
                 _sampleIndexName,
                 new List<string> { "c3" },
                 new List<string> { "c1" });
-            // Create a simple index.
-            _spark.EnableHyperspace();
             _hyperspace.CreateIndex(_sampleDataFrame, _sampleIndexConfig);
-        }
-
-        public void Dispose()
-        {
-            // Disable Hyperspace.
-            _spark.DisableHyperspace();
-            // Remove all indexes.
-            DeleteHyperspaceSystemData();
         }
 
         /// <summary>
@@ -134,18 +122,6 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
             string explainString = string.Empty;
             _hyperspace.Explain(queryDataFrame, true, s => explainString = s);
             Assert.False(string.IsNullOrEmpty(explainString));
-        }
-
-        /// <summary>
-        /// Delete all index directories in the Hyperspace system path.
-        /// </summary>
-        private void DeleteHyperspaceSystemData()
-        {
-            string[] directories = Directory.GetDirectories(_fixture.HyperspaceSystemPath);
-            foreach (string directoryName in directories)
-            {
-                Directory.Delete(directoryName, true);
-            }
         }
 
         /// <summary>
