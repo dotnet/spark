@@ -78,9 +78,10 @@ namespace Microsoft.Spark.Extensions.Hyperspace.Index
         /// </summary>
         /// <returns>An <see cref="Builder"/> object.</returns>
         public static Builder Builder() =>
-            new Builder((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                s_className,
-                "builder"));
+            new Builder(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_className,
+                    "builder"));
 
         public override bool Equals(object that) => (bool)_jvmObject.Invoke("equals", that);
 
