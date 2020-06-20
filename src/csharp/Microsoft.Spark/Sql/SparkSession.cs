@@ -171,6 +171,14 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="data"><see cref="IEnumerable"/> of type <see cref="int"/></param>
         /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<int> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new IntegerType()));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="Nullable{Int32}"/>
+        /// </summary>
+        /// <param name="data"><see cref="IEnumerable"/> of type <see cref="Nullable{Int32}"/></param>
+        /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<int?> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new IntegerType()));
 
@@ -187,6 +195,14 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="data"><see cref="IEnumerable"/> of type <see cref="double"/></param>
         /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<double> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DoubleType()));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="Nullable{Double}"/>
+        /// </summary>
+        /// <param name="data"><see cref="IEnumerable"/> of type <see cref="Nullable{Double}"/></param>
+        /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<double?> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DoubleType()));
 
@@ -194,6 +210,14 @@ namespace Microsoft.Spark.Sql
         /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="bool"/>
         /// </summary>
         /// <param name="data"><see cref="IEnumerable"/> of type <see cref="bool"/></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<bool> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new BooleanType()));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="Nullable{Boolean}"/>
+        /// </summary>
+        /// <param name="data"><see cref="IEnumerable"/> of type <see cref="Nullable{Boolean}"/></param>
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<bool?> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new BooleanType()));
