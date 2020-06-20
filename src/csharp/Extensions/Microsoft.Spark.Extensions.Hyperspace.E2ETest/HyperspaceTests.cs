@@ -36,9 +36,9 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
 
             _sampleDataFrame = _spark.Read()
                 .Option("header", true)
-                .Csv("Resources\\sample-data.csv");
+                .Csv("Resources\\people.csv");
             _sampleIndexName = "sample_dataframe";
-            _sampleIndexConfig = new IndexConfig(_sampleIndexName, new[] { "c3" }, new[] { "c1" });
+            _sampleIndexConfig = new IndexConfig(_sampleIndexName, new[] { "job" }, new[] { "name" });
             _hyperspace.CreateIndex(_sampleDataFrame, _sampleIndexConfig);
         }
 
@@ -113,8 +113,8 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
         {
             // Run a query that hits the index.
             DataFrame queryDataFrame = _sampleDataFrame
-                .Where("c3 == 'libraco'")
-                .Select("c1");
+                .Where("job == 'Developer'")
+                .Select("name");
 
             string explainString = string.Empty;
             _hyperspace.Explain(queryDataFrame, true, s => explainString = s);

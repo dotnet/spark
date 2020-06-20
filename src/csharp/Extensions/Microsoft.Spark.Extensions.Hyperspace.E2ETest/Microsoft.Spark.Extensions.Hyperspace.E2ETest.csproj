@@ -10,10 +10,4 @@
     <ProjectReference Include="..\..\Microsoft.Spark\Microsoft.Spark.csproj" />
     <ProjectReference Include="..\Microsoft.Spark.Extensions.Hyperspace\Microsoft.Spark.Extensions.Hyperspace.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Resources\sample-data.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 </Project>
