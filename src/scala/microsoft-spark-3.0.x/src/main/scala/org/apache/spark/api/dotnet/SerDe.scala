@@ -276,9 +276,6 @@ object SerDe {
             writeType(dos, "jobj")
             dos.writeInt(objArr.length)
             objArr.foreach(o => writeJObj(dos, o))
-          } else if (value.isInstanceOf[Seq[String]]) {
-            writeType(dos, "list")
-            writeStringArr(dos, value.asInstanceOf[Seq[String]].toArray)
           } else {
             writeType(dos, "jobj")
             writeJObj(dos, value)

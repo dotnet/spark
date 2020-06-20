@@ -58,8 +58,10 @@ namespace Microsoft.Spark.Extensions.Hyperspace.Index
         {
             _jvmObject = jvmObject;
             IndexName = (string)_jvmObject.Invoke("indexName");
-            IndexedColumns = new List<string>((string[])_jvmObject.Invoke("indexedColumns"));
-            IncludedColumns = new List<string>((string[])_jvmObject.Invoke("includedColumns"));
+            IndexedColumns = new List<string>(
+                new Seq<string>((JvmObjectReference)_jvmObject.Invoke("indexedColumns")));
+            IncludedColumns = new List<string>(
+                new Seq<string>((JvmObjectReference)_jvmObject.Invoke("includedColumns")));
         }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
