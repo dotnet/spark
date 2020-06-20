@@ -13,13 +13,13 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 {
     internal class PackageResolver
     {
-        private readonly PackageRestoreContextWrapper _packageRestoreContextWrapper;
+        private readonly SupportNugetWrapper _supportNugetWrapper;
         private readonly ConcurrentDictionary<string, byte> _filesCopied;
         private long _metadataCounter;
 
-        internal PackageResolver(PackageRestoreContextWrapper packageRestoreContextWrapper)
+        internal PackageResolver(SupportNugetWrapper supportNugetWrapper)
         {
-            _packageRestoreContextWrapper = packageRestoreContextWrapper;
+            _supportNugetWrapper = supportNugetWrapper;
             _filesCopied = new ConcurrentDictionary<string, byte>();
             _metadataCounter = 0;
         }
@@ -112,7 +112,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
         private IEnumerable<ResolvedNuGetPackage> GetNewPackages()
         {
             IEnumerable<ResolvedPackageReference> packages =
-                _packageRestoreContextWrapper.ResolvedPackageReferences;
+                _supportNugetWrapper.ResolvedPackageReferences;
             foreach (ResolvedPackageReference package in packages)
             {
                 IEnumerable<FileInfo> files =
