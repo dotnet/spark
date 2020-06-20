@@ -40,8 +40,8 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
             };
             var probingPaths = new List<DirectoryInfo> { new DirectoryInfo(packageRootPath) };
 
-            var mockPackageRestoreContextWrapper = new Mock<PackageRestoreContextWrapper>();
-            mockPackageRestoreContextWrapper
+            var mockSupportNugetWrapper = new Mock<SupportNugetWrapper>();
+            mockSupportNugetWrapper
                 .SetupGet(m => m.ResolvedPackageReferences)
                 .Returns(new ResolvedPackageReference[]
                 {
@@ -53,7 +53,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
                         probingPaths) 
                 });
 
-            var packageResolver = new PackageResolver(mockPackageRestoreContextWrapper.Object);
+            var packageResolver = new PackageResolver(mockSupportNugetWrapper.Object);
             IEnumerable<string> actualFiles = packageResolver.GetFiles(tempDir.Path);
 
             string metadataFilePath =
