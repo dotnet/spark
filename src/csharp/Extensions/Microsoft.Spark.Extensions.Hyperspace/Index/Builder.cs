@@ -26,8 +26,11 @@ namespace Microsoft.Spark.Extensions.Hyperspace.Index
         /// <param name="indexName">Index name for the <see cref="IndexConfig"/>.</param>
         /// <returns>An <see cref="Builder"/> object with updated indexname.
         /// </returns>
-        public Builder IndexName(string indexName) =>
-            new Builder((JvmObjectReference)_jvmObject.Invoke("indexName", indexName));
+        public Builder IndexName(string indexName)
+        {
+            _jvmObject.Invoke("indexName", indexName);
+            return this;
+        }
 
         /// <summary>
         /// Updates column names for <see cref="IndexConfig"/>.
@@ -40,9 +43,11 @@ namespace Microsoft.Spark.Extensions.Hyperspace.Index
         /// <see cref="IndexConfig"/>.</param>
         /// <returns>An <see cref="Builder"/> object with updated indexed
         /// columns.</returns>
-        public Builder IndexBy(string indexedColumn, params string[] indexedColumns) =>
-            new Builder(
-                (JvmObjectReference)_jvmObject.Invoke("indexBy", indexedColumn, indexedColumns));
+        public Builder IndexBy(string indexedColumn, params string[] indexedColumns)
+        {
+            _jvmObject.Invoke("indexBy", indexedColumn, indexedColumns);
+            return this;
+        }
 
         /// <summary>
         /// Updates included columns for <see cref="IndexConfig"/>.
@@ -55,9 +60,11 @@ namespace Microsoft.Spark.Extensions.Hyperspace.Index
         /// </param>
         /// <returns>An <see cref="Builder"/> object with updated included
         /// columns.</returns>
-        public Builder Include(string includedColumn, params string[] includedColumns) =>
-            new Builder(
-                (JvmObjectReference)_jvmObject.Invoke("include", includedColumn, includedColumns));
+        public Builder Include(string includedColumn, params string[] includedColumns)
+        {
+            _jvmObject.Invoke("include", includedColumn, includedColumns);
+            return this;
+        }
 
         /// <summary>
         /// Creates IndexConfig from supplied index name, indexed columns and included columns
