@@ -34,6 +34,10 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest.Index
             Assert.IsType<string>(indexConfig.IndexName);
             Assert.IsType<List<string>>(indexConfig.IndexedColumns);
             Assert.IsType<List<string>>(indexConfig.IncludedColumns);
+            Assert.IsType<Builder>(IndexConfig.Builder());
+            Assert.IsType<bool>(indexConfig.Equals(indexConfig));
+            Assert.IsType<int>(indexConfig.GetHashCode());
+            Assert.IsType<string>(indexConfig.ToString());
 
             Builder builder = IndexConfig.Builder();
             Assert.IsType<Builder>(builder);
