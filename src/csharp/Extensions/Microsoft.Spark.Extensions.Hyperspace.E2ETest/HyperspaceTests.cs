@@ -38,10 +38,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
                 .Option("header", true)
                 .Csv("Resources\\sample-data.csv");
             _sampleIndexName = "sample_dataframe";
-            _sampleIndexConfig = new IndexConfig(
-                _sampleIndexName,
-                new List<string> { "c3" },
-                new List<string> { "c1" });
+            _sampleIndexConfig = new IndexConfig(_sampleIndexName, new[] { "c3" }, new[] { "c1" });
             _hyperspace.CreateIndex(_sampleDataFrame, _sampleIndexConfig);
         }
 
