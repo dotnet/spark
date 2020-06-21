@@ -24,8 +24,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.Index
         /// Updates index name for <see cref="IndexConfig"/>.
         /// </summary>
         /// <param name="indexName">Index name for the <see cref="IndexConfig"/>.</param>
-        /// <returns>An <see cref="Builder"/> object with updated indexname.
-        /// </returns>
+        /// <returns>An <see cref="Builder"/> object with updated indexname.</returns>
         public Builder IndexName(string indexName)
         {
             _jvmObject.Invoke("indexName", indexName);
@@ -41,8 +40,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.Index
         /// <see cref="IndexConfig"/>.</param>
         /// <param name="indexedColumns">Indexed columns for the
         /// <see cref="IndexConfig"/>.</param>
-        /// <returns>An <see cref="Builder"/> object with updated indexed
-        /// columns.</returns>
+        /// <returns>An <see cref="Builder"/> object with updated indexed columns.</returns>
         public Builder IndexBy(string indexedColumn, params string[] indexedColumns)
         {
             _jvmObject.Invoke("indexBy", indexedColumn, indexedColumns);
@@ -58,8 +56,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.Index
         /// </param>
         /// <param name="includedColumns">Included columns for <see cref="IndexConfig"/>.
         /// </param>
-        /// <returns>An <see cref="Builder"/> object with updated included
-        /// columns.</returns>
+        /// <returns>An <see cref="Builder"/> object with updated included columns.</returns>
         public Builder Include(string includedColumn, params string[] includedColumns)
         {
             _jvmObject.Invoke("include", includedColumn, includedColumns);
