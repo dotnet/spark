@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Extensions.Hyperspace.Index;
@@ -36,6 +35,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
 
             _sampleDataFrame = _spark.Read()
                 .Option("header", true)
+                .Option("delimiter", ";")
                 .Csv("Resources\\people.csv");
             _sampleIndexName = "sample_dataframe";
             _sampleIndexConfig = new IndexConfig(_sampleIndexName, new[] { "job" }, new[] { "name" });
