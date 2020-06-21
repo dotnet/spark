@@ -27,7 +27,7 @@ namespace Microsoft.Spark.UnitTest
         [InlineData("1,2,3", 5567, false)]
         [InlineData("5567,5568,5569", 5567, true)]
         [InlineData("1234,5678", 1234, true)]
-        public void IsDotnetBackendPortUsingTest(string testRunningPorts, int backendport, bool expect)
+        public void IsDotnetBackendPortUsingTest(string testListeningPorts, int backendport, bool expect)
         {
             var envkey = "DOTNETBACKEND_PORT";
             var oldenvValue = Environment.GetEnvironmentVariable(envkey);
@@ -42,18 +42,12 @@ namespace Microsoft.Spark.UnitTest
                     Environment.SetEnvironmentVariable(envkey, backendport.ToString());
                 }
 
-                var runningports = testRunningPorts
-                    .Split(",").Select(x => Convert.ToInt32(x)).ToList();
-                var mockIpInfos = runningports
-                    .Select(p =>
-                    {
-                        var m_info = new Mock<TcpConnectionInformation>();
-                        m_info.SetupGet(m => m.LocalEndPoint).Returns(new IPEndPoint(0, p));
-                        return m_info.Object;
-                    }).ToArray();
+                var listeningEndpoints = testListeningPorts
+                    .Split(",").Select(x => new IPEndPoint(0, Convert.ToInt32(x))).ToArray();
+
                 var ipinfo = new Mock<IPGlobalProperties>();
-                ipinfo.Setup(m => m.GetActiveTcpConnections())
-                    .Returns(mockIpInfos);
+                ipinfo.Setup(m => m.GetActiveTcpListeners())
+                    .Returns(listeningEndpoints);
 
                 var ret = JVMBridgeHelper.IsDotnetBackendPortUsing(ipinfo.Object);
                 Assert.Equal(ret, expect);
@@ -75,7 +69,17 @@ namespace Microsoft.Spark.UnitTest
                 // now we should be able to connect to JVM bridge
                 // or if system environment is not good, we should not failed.
             }
-        }        
+        }
+
+        [Fact]
+        public void JVMBridgeHelperWithoutSpark()
+        {
+            var oldhome = Environment.GetEnvironmentVariable("SPARK_HOME");
+            Environment.SetEnvironmentVariable("SPARK_HOME", null);
+            using(var helper = new JVMBridgeHelper()) {
+            }
+            Environment.SetEnvironmentVariable("SPARK_HOME", oldhome);
+        }
 
         /// <summary>
         /// Test with case that already have jvm Bridge case
