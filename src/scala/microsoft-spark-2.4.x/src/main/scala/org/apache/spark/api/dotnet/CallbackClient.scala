@@ -37,7 +37,7 @@ class CallbackClient(address: String, port: Int) extends Logging {
               addConnection(connection)
             case ConnectionStatus.ERROR_WRITE =>
               if (retries > 0) {
-                logWarning(s"Error writing to connection, retrying callback $callbackId.")
+                logWarning(s"Error writing to connection, retrying callback [callback id = $callbackId].")
                 send(callbackId, writeBody, retries - 1)
               }
               else {
@@ -48,7 +48,7 @@ class CallbackClient(address: String, port: Int) extends Logging {
           }
         } catch {
           case e: Exception =>
-            logError(s"Error calling callback $callbackId.", e)
+            logError(s"Error calling callback [callback id = $callbackId].", e)
             connection.close()
             throw e
         }

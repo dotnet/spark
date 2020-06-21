@@ -26,7 +26,7 @@ class CallbackConnection(address: String, port: Int) extends Logging {
   def send(
       callbackId: Int,
       writeBody: DataOutputStream => Unit): ConnectionStatus.ConnectionStatus = {
-    logInfo(s"Calling callback $callbackId ...")
+    logInfo(s"Calling callback [callback id = $callbackId] ...")
 
     try {
       SerDe.writeInt(outputStream, CallbackFlags.CALLBACK)
@@ -48,7 +48,7 @@ class CallbackConnection(address: String, port: Int) extends Logging {
       val endOfStreamResponse = readFlag(inputStream)
       endOfStreamResponse match {
         case CallbackFlags.END_OF_STREAM =>
-          logInfo(s"Received END_OF_STREAM signal. Calling callback $callbackId successful.")
+          logInfo(s"Received END_OF_STREAM signal. Calling callback [callback id = $callbackId] successful.")
           return ConnectionStatus.ERROR_NONE
         case _ =>  {
           logError(s"Error verifying end of stream. Expected: ${CallbackFlags.END_OF_STREAM}, " +
