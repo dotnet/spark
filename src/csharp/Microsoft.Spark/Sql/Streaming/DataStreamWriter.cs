@@ -224,7 +224,7 @@ namespace Microsoft.Spark.Sql.Streaming
         public DataStreamWriter ForeachBatch(Action<DataFrame, long> func)
         {
             int callbackId = SparkEnvironment.CallbackServer.RegisterCallback(
-                new ForeachBatchCallbackHandler(func));
+                new ForeachBatchCallbackHandler(_jvmObject.Jvm, func));
             _jvmObject.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.DotnetForeachBatchHelper",
                 "callForeachBatch",

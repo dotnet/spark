@@ -21,68 +21,66 @@ import scala.collection.mutable.Queue
  * @param port The port of the Dotnet CallbackServer
  */
 class CallbackClient(address: String, port: Int) extends Logging {
-  private[this] val connectionPool = Queue[CallbackConnection]()
+  private[this] val connectionPool: Queue[CallbackConnection] = Queue[CallbackConnection]()
 
-  private[this] var isShutdown = false
+  private[this] var isShutdown: Boolean = false
 
-  final def send[T](writeBody: DataOutputStream => Unit,
-                    readBody: Option[DataInputStream => T],
-                    retries: Int = 3): Option[T] = {
-    val connection = getOrCreateConnection()
-    if (connection == null) {
-      throw new Exception("Unable to get or create connection.")
-    }
-
-    try {
-      connection.send(writeBody, readBody) match {
-        case CallbackResponse(ConnectionStatus.OK, response) => {
-          addConnection(connection)
-          response
-        }
-        case CallbackResponse(ConnectionStatus.ERROR_WRITE, _) => {
-          if (retries > 0) {
-            logWarning("Error writing to connection, retrying callback.")
-            return send(writeBody, readBody, retries - 1)
+  final def send[T](
+      callbackId: Int,
+      writeBody: DataOutputStream => Unit,
+      readBody: Option[DataInputStream => T],
+      retries: Int = 3): Option[T] = {
+    getOrCreateConnection() match {
+      case Some(connection) =>
+        try {
+          connection.send(callbackId, writeBody, readBody) match {
+            case CallbackResponse(ConnectionStatus.ERROR_NONE, response) =>
+              addConnection(connection)
+              response
+            case CallbackResponse(ConnectionStatus.ERROR_WRITE, _) =>
+              if (retries > 0) {
+                logWarning(s"Error writing to connection, retrying callback $callbackId.")
+                return send(callbackId, writeBody, readBody, retries - 1)
+              }
+              throw new Exception("Error writing to connection.")
+            case CallbackResponse(status, _) =>
+              throw new Exception(s"Error encountered with connection: '$status'")
           }
-
-          throw new Exception("Error writing to connection.")
+        } catch {
+          case e: Exception =>
+            logError(s"Error calling callback $callbackId.", e)
+            connection.close()
+            throw e
         }
-        case CallbackResponse(status, _) =>
-          throw new Exception(s"Error encountered with connection: '$status'")
-      }
-    } catch {
-      case e: Exception => {
-        logError("Error calling callback.", e)
-        connection.close()
-        throw e
-      }
+      case None => throw new Exception("Unable to get or create connection.")
     }
   }
 
-  private def getOrCreateConnection(): CallbackConnection = synchronized {
+  private def getOrCreateConnection(): Option[CallbackConnection] = synchronized {
     if (isShutdown) {
       logInfo("Cannot get or create connection while client is shutdown.")
-      return null
+      return None
     }
 
     if (connectionPool.nonEmpty) {
-      return connectionPool.dequeue()
+      return Some(connectionPool.dequeue())
     }
 
-    new CallbackConnection(address, port)
+    Some(new CallbackConnection(address, port))
   }
 
   private def addConnection(connection: CallbackConnection): Unit = synchronized {
-    if (connection != null) {
-      connectionPool.enqueue(connection)
-    }
+    assert(connection != null)
+    connectionPool.enqueue(connection)
   }
 
   def shutdown(): Unit = synchronized {
     if (isShutdown) {
+      logInfo("Shutdown called, but already shutdown.")
       return
     }
 
+    logInfo("Shutting down.")
     connectionPool.foreach(_.close)
     connectionPool.clear
     isShutdown = true

@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Spark.UnitTest
@@ -19,11 +20,18 @@ namespace Microsoft.Spark.UnitTest
     [Collection("Spark Unit Tests")]
     public class CallbackTests
     {
+        private readonly Mock<IJvmBridge> _mockJvm;
+
+        public CallbackTests(SparkFixture fixture)
+        {
+            _mockJvm = fixture.MockJvm;
+        }
+
         [Fact]
         public async Task TestCallbackIds()
         {
             int numToRegister = 100;
-            var callbackServer = new CallbackServer();
+            var callbackServer = new CallbackServer(_mockJvm.Object, false);
             var callbackHandler = new NoReturnValueHandler();
 
             var ids = new ConcurrentBag<int>();
@@ -44,7 +52,7 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestCallbackServer()
         {
-            var callbackServer = new CallbackServer();
+            var callbackServer = new CallbackServer(_mockJvm.Object, false);
             var callbackHandler = new ReturnValueHandler();
 
             callbackHandler.Id = callbackServer.RegisterCallback(callbackHandler);
@@ -68,7 +76,8 @@ namespace Microsoft.Spark.UnitTest
             IOrderedEnumerable<int> actualValues = callbackHandler.Inputs.OrderBy(i => i);
             IEnumerable<int> expectedValues = Enumerable
                 .Range(0, connectionNumber)
-                .Select(i => callbackHandler.ApplyToInput(i));
+                .Select(i => callbackHandler.ApplyToInput(i))
+                .OrderBy(i => i);
             Assert.True(expectedValues.SequenceEqual(actualValues));
         }
 

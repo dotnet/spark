@@ -19,17 +19,19 @@ import org.apache.spark.internal.Logging
  * @param port The port of the Dotnet CallbackServer
  */
 class CallbackConnection(address: String, port: Int) extends Logging {
-  private[this] val socket = new Socket(address, port)
-  private[this] val inputStream = new DataInputStream(socket.getInputStream)
-  private[this] val outputStream = new DataOutputStream(socket.getOutputStream)
+  private[this] val socket: Socket = new Socket(address, port)
+  private[this] val inputStream: DataInputStream = new DataInputStream(socket.getInputStream)
+  private[this] val outputStream: DataOutputStream = new DataOutputStream(socket.getOutputStream)
 
   def send[T](
-    writeBody: DataOutputStream => Unit,
-    readBody: Option[DataInputStream => T]): CallbackResponse[T] = {
-    logInfo("Calling callback...")
+      callbackId: Int,
+      writeBody: DataOutputStream => Unit,
+      readBody: Option[DataInputStream => T]): CallbackResponse[T] = {
+      logInfo(s"Calling callback $callbackId ...")
 
     try {
       SerDe.writeInt(outputStream, CallbackFlags.CALLBACK)
+      SerDe.writeInt(outputStream, callbackId)
       writeBody(outputStream)
       outputStream.flush()
     } catch {
@@ -43,7 +45,7 @@ class CallbackConnection(address: String, port: Int) extends Logging {
       try {
         readBody match {
           case Some(body) => {
-            val returnValueFlag = checkForDotnetException(inputStream)
+            val returnValueFlag = readFlag(inputStream)
             if (returnValueFlag != CallbackFlags.CALLBACK_RETURN_VALUE) {
               throw new Exception("readBody defined, however flag to indicate return value not " +
                 s"received. Expected: ${CallbackFlags.CALLBACK_RETURN_VALUE}, " +
@@ -65,11 +67,11 @@ class CallbackConnection(address: String, port: Int) extends Logging {
       SerDe.writeInt(outputStream, CallbackFlags.END_OF_STREAM)
       outputStream.flush()
 
-      val endOfStreamResponse = checkForDotnetException(inputStream)
+      val endOfStreamResponse = readFlag(inputStream)
       endOfStreamResponse match {
         case CallbackFlags.END_OF_STREAM =>
-          logInfo(s"Received END_OF_STREAM signal. Calling callback successful.")
-          return CallbackResponse(ConnectionStatus.OK, readBodyResponse)
+          logInfo(s"Received END_OF_STREAM signal. Calling callback $callbackId successful.")
+          return CallbackResponse(ConnectionStatus.ERROR_NONE, readBodyResponse)
         case _ =>  {
           logError(s"Error verifying end of stream. Expected: ${CallbackFlags.END_OF_STREAM}, " +
               s"Received: $endOfStreamResponse")
@@ -99,9 +101,8 @@ class CallbackConnection(address: String, port: Int) extends Logging {
 
   private def close(s: Socket): Unit = {
     try {
-      if (s != null) {
-        s.close()
-      }
+      assert(s != null)
+      s.close()
     } catch {
       case e: Exception => logInfo("Unable to close socket.", e)
     }
@@ -109,15 +110,14 @@ class CallbackConnection(address: String, port: Int) extends Logging {
 
   private def close(c: Closeable): Unit = {
     try {
-      if (c != null) {
-        c.close()
-      }
+      assert(c != null)
+      c.close()
     } catch {
       case e: Exception => logInfo("Unable to close closeable.", e)
     }
   }
 
-  private def checkForDotnetException(inputStream: DataInputStream): Int = {
+  private def readFlag(inputStream: DataInputStream): Int = {
     val callbackFlag = SerDe.readInt(inputStream)
     if (callbackFlag == CallbackFlags.DOTNET_EXCEPTION_THROWN) {
       val exceptionMessage = SerDe.readString(inputStream)
@@ -127,17 +127,17 @@ class CallbackConnection(address: String, port: Int) extends Logging {
   }
 
   private object CallbackFlags {
-    val CLOSE = -1
-    val CALLBACK = -2
-    val CALLBACK_RETURN_VALUE = -3
-    val DOTNET_EXCEPTION_THROWN = -4
-    val END_OF_STREAM = -5
+    val CLOSE: Int = -1
+    val CALLBACK: Int = -2
+    val CALLBACK_RETURN_VALUE: Int = -3
+    val DOTNET_EXCEPTION_THROWN: Int = -4
+    val END_OF_STREAM: Int = -5
   }
 }
 
 object ConnectionStatus extends Enumeration {
   type ConnectionStatus = Value
-  val OK, ERROR_WRITE, ERROR_READ, ERROR_END_OF_STREAM = Value
+  val ERROR_NONE, ERROR_WRITE, ERROR_READ, ERROR_END_OF_STREAM = Value
 }
 
 case class CallbackResponse[T](status: ConnectionStatus.ConnectionStatus, response: Option[T]);

@@ -14,16 +14,20 @@ namespace Microsoft.Spark.Interop.Ipc
     /// </summary>
     internal sealed class ForeachBatchCallbackHandler : ICallbackHandler
     {
+        private readonly IJvmBridge _jvm;
+
         private readonly Action<DataFrame, long> _func;
 
-        internal ForeachBatchCallbackHandler(Action<DataFrame, long> func) =>
+        internal ForeachBatchCallbackHandler(IJvmBridge jvm, Action<DataFrame, long> func)
+        {
+            _jvm = jvm;
             _func = func;
+        }
 
         public void Run(Stream inputStream, Stream outputStream)
         {
             DataFrame batchDf = new DataFrame(
-                new JvmObjectReference(SerDe.ReadString(inputStream),
-                SparkEnvironment.JvmBridge));
+                new JvmObjectReference(SerDe.ReadString(inputStream), _jvm));
             long batchId = SerDe.ReadInt64(inputStream);
 
             _func(batchDf, batchId);

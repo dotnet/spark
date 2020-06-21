@@ -7,7 +7,7 @@
 package org.apache.spark.api.dotnet
 
 import java.net.InetSocketAddress
-import java.util.concurrent.{Phaser, TimeUnit}
+import java.util.concurrent.TimeUnit
 
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.nio.NioEventLoopGroup
@@ -79,7 +79,10 @@ class DotnetBackend extends Logging {
     bootstrap = null
 
     // Send close to .NET callback server.
-    DotnetBackend.callbackClient.shutdown()
+    if (DotnetBackend.callbackClient != null) {
+      DotnetBackend.callbackClient.shutdown()
+      DotnetBackend.callbackClient = null;
+    }
   }
 }
 

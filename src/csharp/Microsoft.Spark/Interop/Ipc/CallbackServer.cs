@@ -19,6 +19,8 @@ namespace Microsoft.Spark.Interop.Ipc
         private static readonly ILoggerService s_logger =
             LoggerServiceFactory.GetLogger(typeof(CallbackServer));
 
+        private readonly IJvmBridge _jvm;
+
         /// <summary>
         /// Keeps track of all <see cref="ICallbackHandler"/>s by its Id. This is accessed
         /// by the <see cref="CallbackServer"/> and the <see cref="CallbackConnection"/>
@@ -61,6 +63,16 @@ namespace Microsoft.Spark.Interop.Ipc
 
         internal int CurrentNumConnections => _connections.Count;
 
+        internal CallbackServer(IJvmBridge jvm, bool run = true)
+        {
+            _jvm = jvm;
+
+            if (run)
+            {
+                Run();
+            }
+        }
+
         /// <summary>
         /// Produce a unique id and register a <see cref="ICallbackHandler"/> with it.
         /// </summary>
@@ -100,7 +112,7 @@ namespace Microsoft.Spark.Interop.Ipc
 
                 // Communicate with the JVM the callback server's address and port.
                 IPEndPoint localEndPoint = (IPEndPoint)listener.LocalEndPoint;
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                _jvm.CallStaticJavaMethod(
                     "DotnetHandler",
                     "connectCallback",
                     localEndPoint.Address.ToString(),
@@ -223,7 +235,7 @@ namespace Microsoft.Spark.Interop.Ipc
             _connections.Clear();
             _callbackHandlers.Clear();
 
-            SparkEnvironment.JvmBridge.CallStaticJavaMethod("DotnetHandler", "closeCallback");
+            _jvm.CallStaticJavaMethod("DotnetHandler", "closeCallback");
         }
     }
 }

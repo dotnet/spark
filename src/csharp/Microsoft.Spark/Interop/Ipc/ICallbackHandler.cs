@@ -6,6 +6,9 @@ using System.IO;
 
 namespace Microsoft.Spark.Interop.Ipc
 {
+    /// <summary>
+    /// Interface for handling callbacks between the JVM and Dotnet.
+    /// </summary>
     internal interface ICallbackHandler
     {
         void Run(Stream inputStream, Stream outputStream);

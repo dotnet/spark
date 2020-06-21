@@ -11,13 +11,13 @@ namespace Microsoft.Spark.UnitTest.TestUtils
     // Tests can subclass this to get Console output to display when using
     // xUnit testing framework.
     // Workaround found at https://github.com/microsoft/vstest/issues/799
-    public class MakeConsoleWork : IDisposable
+    public class XunitConsoleOutHelper : IDisposable
     {
         private readonly ITestOutputHelper _output;
         private readonly TextWriter _originalOut;
         private readonly TextWriter _textWriter;
 
-        public MakeConsoleWork(ITestOutputHelper output)
+        public XunitConsoleOutHelper(ITestOutputHelper output)
         {
             _output = output;
             _originalOut = Console.Out;

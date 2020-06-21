@@ -127,7 +127,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 .Csv(csvPaths[0], csvPaths[1])
                 .Sort("id");
 
-            IEnumerable<int> actualIds = df.Collect().ToArray().Select(r => r.GetAs<int>("id"));
+            IEnumerable<int> actualIds = df.Collect().Select(r => r.GetAs<int>("id"));
             Assert.True(Enumerable.Range(300, 20).SequenceEqual(actualIds));
         }
 
