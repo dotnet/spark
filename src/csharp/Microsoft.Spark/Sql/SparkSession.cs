@@ -28,6 +28,12 @@ namespace Microsoft.Spark.Sql
             "org.apache.spark.sql.SparkSession";
 
         /// <summary>
+        /// The created jvm process
+        /// </summary>
+        /// <returns>The created jvm bridge process helper.</returns>
+        private static JVMBridgeHelper s_jvmbridge = null;
+
+        /// <summary>
         /// Constructor for SparkSession.
         /// </summary>
         /// <param name="jvmObject">Reference to the JVM SparkSession object</param>
@@ -59,7 +65,17 @@ namespace Microsoft.Spark.Sql
         /// Creates a Builder object for SparkSession.
         /// </summary>
         /// <returns>Builder object</returns>
-        public static Builder Builder() => new Builder();
+        public static Builder Builder()
+        {
+            // We could try to detect if we don't have jvm bridge,
+            // call the helper to launch jvm bridge process.
+            if ((s_jvmbridge == null) && 
+                (JVMBridgeHelper.IsDotnetBackendPortUsing() == false))
+            {
+                s_jvmbridge = new JVMBridgeHelper();
+            }
+            return new Builder();
+        }
 
         /// Note that *ActiveSession() APIs are not exposed because these APIs work with a
         /// thread-local variable, which stores the session variable. Since the Netty server
@@ -293,7 +309,17 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Stops the underlying SparkContext.
         /// </summary>
-        public void Stop() => _jvmObject.Invoke("stop");
+        public void Stop()
+        {
+            _jvmObject.Invoke("stop");
+
+            // if we have created the jvm bridge process, dispose it now.
+            if (s_jvmbridge != null)
+            {
+                s_jvmbridge.Dispose();
+                s_jvmbridge = null;
+            }
+        }
 
         /// <summary>
         /// Returns a single column schema of the given datatype.
