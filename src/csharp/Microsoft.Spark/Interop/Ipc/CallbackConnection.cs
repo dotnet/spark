@@ -199,19 +199,8 @@ namespace Microsoft.Spark.Interop.Ipc
                         callbackId,
                         callbackHandler));
 
-                // Run callback handler. Add flag indicating a return value if handler
-                // writes to the output stream.
-                using (var memoryStream = new MemoryStream())
-                {
-                    callbackHandler.Run(inputStream, memoryStream);
-                    if (memoryStream.Position > 0)
-                    {
-                        SerDe.Write(outputStream, (int)CallbackFlags.CALLBACK_RETURN_VALUE);
-                        memoryStream.Position = 0;
-                        memoryStream.CopyTo(outputStream);
-                        outputStream.Flush();
-                    }
-                }
+                // Run callback handler.
+                callbackHandler.Run(inputStream);
 
                 // Check the end of stream.
                 int endOfStream = SerDe.ReadInt32(inputStream);
@@ -275,18 +264,13 @@ namespace Microsoft.Spark.Interop.Ipc
         CALLBACK = -2,
 
         /// <summary>
-        /// Flag to indiciate callback has a return value.
-        /// </summary>
-        CALLBACK_RETURN_VALUE = -3,
-
-        /// <summary>
         /// Flag to indicate an exception thrown from dotnet.
         /// </summary>
-        DOTNET_EXCEPTION_THROWN = -4,
+        DOTNET_EXCEPTION_THROWN = -3,
 
         /// <summary>
         /// Flag to indicate end of stream.
         /// </summary>
-        END_OF_STREAM = -5
+        END_OF_STREAM = -4
     }
 }

@@ -6,7 +6,7 @@
 
 package org.apache.spark.api.dotnet
 
-import java.io.{DataInputStream, DataOutputStream}
+import java.io.DataOutputStream
 
 import org.apache.spark.internal.Logging
 
@@ -25,25 +25,25 @@ class CallbackClient(address: String, port: Int) extends Logging {
 
   private[this] var isShutdown: Boolean = false
 
-  final def send[T](
+  final def send(
       callbackId: Int,
       writeBody: DataOutputStream => Unit,
-      readBody: Option[DataInputStream => T],
-      retries: Int = 3): Option[T] = {
+      retries: Int = 3): Unit =
     getOrCreateConnection() match {
       case Some(connection) =>
         try {
-          connection.send(callbackId, writeBody, readBody) match {
-            case CallbackResponse(ConnectionStatus.ERROR_NONE, response) =>
+          connection.send(callbackId, writeBody) match {
+            case ConnectionStatus.ERROR_NONE =>
               addConnection(connection)
-              response
-            case CallbackResponse(ConnectionStatus.ERROR_WRITE, _) =>
+            case ConnectionStatus.ERROR_WRITE =>
               if (retries > 0) {
                 logWarning(s"Error writing to connection, retrying callback $callbackId.")
-                return send(callbackId, writeBody, readBody, retries - 1)
+                send(callbackId, writeBody, retries - 1)
               }
-              throw new Exception("Error writing to connection.")
-            case CallbackResponse(status, _) =>
+              else {
+                throw new Exception("Error writing to connection.")
+              }
+            case status =>
               throw new Exception(s"Error encountered with connection: '$status'")
           }
         } catch {
@@ -54,7 +54,6 @@ class CallbackClient(address: String, port: Int) extends Logging {
         }
       case None => throw new Exception("Unable to get or create connection.")
     }
-  }
 
   private def getOrCreateConnection(): Option[CallbackConnection] = synchronized {
     if (isShutdown) {

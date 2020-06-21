@@ -24,7 +24,7 @@ namespace Microsoft.Spark.Interop.Ipc
             _func = func;
         }
 
-        public void Run(Stream inputStream, Stream outputStream)
+        public void Run(Stream inputStream)
         {
             DataFrame batchDf = new DataFrame(
                 new JvmObjectReference(SerDe.ReadString(inputStream), _jvm));

@@ -23,11 +23,10 @@ class CallbackConnection(address: String, port: Int) extends Logging {
   private[this] val inputStream: DataInputStream = new DataInputStream(socket.getInputStream)
   private[this] val outputStream: DataOutputStream = new DataOutputStream(socket.getOutputStream)
 
-  def send[T](
+  def send(
       callbackId: Int,
-      writeBody: DataOutputStream => Unit,
-      readBody: Option[DataInputStream => T]): CallbackResponse[T] = {
-      logInfo(s"Calling callback $callbackId ...")
+      writeBody: DataOutputStream => Unit): ConnectionStatus.ConnectionStatus = {
+    logInfo(s"Calling callback $callbackId ...")
 
     try {
       SerDe.writeInt(outputStream, CallbackFlags.CALLBACK)
@@ -37,30 +36,9 @@ class CallbackConnection(address: String, port: Int) extends Logging {
     } catch {
       case e: Exception => {
         logError("Error writing to stream.", e)
-        return CallbackResponse(ConnectionStatus.ERROR_WRITE, None)
+        return ConnectionStatus.ERROR_WRITE
       }
     }
-
-    val readBodyResponse: Option[T] =
-      try {
-        readBody match {
-          case Some(body) => {
-            val returnValueFlag = readFlag(inputStream)
-            if (returnValueFlag != CallbackFlags.CALLBACK_RETURN_VALUE) {
-              throw new Exception("readBody defined, however flag to indicate return value not " +
-                s"received. Expected: ${CallbackFlags.CALLBACK_RETURN_VALUE}, " +
-                s"Received: $returnValueFlag")
-            }
-            Some(body(inputStream))
-          }
-          case None => None
-        }
-      } catch {
-        case e: Exception => {
-          logError("Error reading stream while checking callback return value.", e)
-          return CallbackResponse(ConnectionStatus.ERROR_READ, None)
-        }
-      }
 
     logInfo(s"Signaling END_OF_STREAM.")
     try {
@@ -71,7 +49,7 @@ class CallbackConnection(address: String, port: Int) extends Logging {
       endOfStreamResponse match {
         case CallbackFlags.END_OF_STREAM =>
           logInfo(s"Received END_OF_STREAM signal. Calling callback $callbackId successful.")
-          return CallbackResponse(ConnectionStatus.ERROR_NONE, readBodyResponse)
+          return ConnectionStatus.ERROR_NONE
         case _ =>  {
           logError(s"Error verifying end of stream. Expected: ${CallbackFlags.END_OF_STREAM}, " +
               s"Received: $endOfStreamResponse")
@@ -83,7 +61,7 @@ class CallbackConnection(address: String, port: Int) extends Logging {
       }
     }
 
-    CallbackResponse(ConnectionStatus.ERROR_END_OF_STREAM, readBodyResponse)
+    ConnectionStatus.ERROR_END_OF_STREAM
   }
 
   def close(): Unit = {
@@ -129,9 +107,8 @@ class CallbackConnection(address: String, port: Int) extends Logging {
   private object CallbackFlags {
     val CLOSE: Int = -1
     val CALLBACK: Int = -2
-    val CALLBACK_RETURN_VALUE: Int = -3
-    val DOTNET_EXCEPTION_THROWN: Int = -4
-    val END_OF_STREAM: Int = -5
+    val DOTNET_EXCEPTION_THROWN: Int = -3
+    val END_OF_STREAM: Int = -4
   }
 }
 
@@ -139,5 +116,3 @@ object ConnectionStatus extends Enumeration {
   type ConnectionStatus = Value
   val ERROR_NONE, ERROR_WRITE, ERROR_READ, ERROR_END_OF_STREAM = Value
 }
-
-case class CallbackResponse[T](status: ConnectionStatus.ConnectionStatus, response: Option[T]);

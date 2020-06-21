@@ -11,6 +11,6 @@ namespace Microsoft.Spark.Interop.Ipc
     /// </summary>
     internal interface ICallbackHandler
     {
-        void Run(Stream inputStream, Stream outputStream);
+        void Run(Stream inputStream);
     }
 }

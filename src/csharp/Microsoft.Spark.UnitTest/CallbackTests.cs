@@ -32,7 +32,7 @@ namespace Microsoft.Spark.UnitTest
         {
             int numToRegister = 100;
             var callbackServer = new CallbackServer(_mockJvm.Object, false);
-            var callbackHandler = new NoReturnValueHandler();
+            var callbackHandler = new TestCallbackHandler();
 
             var ids = new ConcurrentBag<int>();
             var tasks = new List<Task>();
@@ -53,7 +53,7 @@ namespace Microsoft.Spark.UnitTest
         public void TestCallbackServer()
         {
             var callbackServer = new CallbackServer(_mockJvm.Object, false);
-            var callbackHandler = new ReturnValueHandler();
+            var callbackHandler = new TestCallbackHandler();
 
             callbackHandler.Id = callbackServer.RegisterCallback(callbackHandler);
             Assert.Equal(1, callbackHandler.Id);
@@ -68,7 +68,7 @@ namespace Microsoft.Spark.UnitTest
                 ISocketWrapper clientSocket = SocketFactory.CreateSocket();
                 clientSocket.Connect(ipEndpoint.Address, ipEndpoint.Port);
 
-                CreateAndVerifyConnection(clientSocket, callbackHandler, i);
+                WriteAndReadTestData(clientSocket, callbackHandler, i, new CancellationToken());
             }
 
             Assert.Equal(connectionNumber, callbackServer.CurrentNumConnections);
@@ -76,7 +76,7 @@ namespace Microsoft.Spark.UnitTest
             IOrderedEnumerable<int> actualValues = callbackHandler.Inputs.OrderBy(i => i);
             IEnumerable<int> expectedValues = Enumerable
                 .Range(0, connectionNumber)
-                .Select(i => callbackHandler.ApplyToInput(i))
+                .Select(i => callbackHandler.Apply(i))
                 .OrderBy(i => i);
             Assert.True(expectedValues.SequenceEqual(actualValues));
         }
@@ -84,42 +84,44 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestCallbackHandlers()
         {
+            var tokenSource = new CancellationTokenSource();
             var callbackHandlersDict = new ConcurrentDictionary<int, ICallbackHandler>();
             {
-                // Test CallbackConnection using a ICallbackHandler that has a 
-                // return value.
-                var callbackHandler = new ReturnValueHandler
+                // Test CallbackConnection using a ICallbackHandler that runs
+                // normally without error.
+                var callbackHandler = new TestCallbackHandler
                 {
                     Id = 1
                 };
                 callbackHandlersDict[callbackHandler.Id] = callbackHandler;
-                TestCallbackConnection(callbackHandlersDict, callbackHandler);
-            }
-            {
-                // Test CallbackConnection using a ICallbackHandler that does
-                // not return a value.
-                var callbackHandler = new NoReturnValueHandler
-                {
-                    Id = 2
-                };
-                callbackHandlersDict[callbackHandler.Id] = callbackHandler;
-                TestCallbackConnection(callbackHandlersDict, callbackHandler);
+                TestCallbackConnection(callbackHandlersDict, callbackHandler, tokenSource.Token);
             }
             {
                 // Test CallbackConnection using a ICallbackHandler that 
                 // throws an exception.
                 var callbackHandler = new ThrowsExceptionHandler
                 {
+                    Id = 2
+                };
+                callbackHandlersDict[callbackHandler.Id] = callbackHandler;
+                TestCallbackConnection(callbackHandlersDict, callbackHandler, tokenSource.Token);
+            }
+            {
+                // Test CallbackConnection when cancellation has been requested for the token.
+                tokenSource.Cancel();
+                var callbackHandler = new TestCallbackHandler
+                {
                     Id = 3
                 };
                 callbackHandlersDict[callbackHandler.Id] = callbackHandler;
-                TestCallbackConnection(callbackHandlersDict, callbackHandler);
+                TestCallbackConnection(callbackHandlersDict, callbackHandler, tokenSource.Token);
             }
         }
 
         private void TestCallbackConnection(
             ConcurrentDictionary<int, ICallbackHandler> callbackHandlersDict,
-            ITestCallbackHandler callbackHandler)
+            ITestCallbackHandler callbackHandler,
+            CancellationToken token)
         {
             using ISocketWrapper serverListener = SocketFactory.CreateSocket();
             serverListener.Listen();
@@ -128,126 +130,68 @@ namespace Microsoft.Spark.UnitTest
             ISocketWrapper clientSocket = SocketFactory.CreateSocket();
             clientSocket.Connect(ipEndpoint.Address, ipEndpoint.Port);
 
-            var cancellationToken = new CancellationToken();
             var callbackConnection = new CallbackConnection(0, clientSocket, callbackHandlersDict);
-            Task connectionTask = Task.Run(() => callbackConnection.Run(cancellationToken));
+            Task.Run(() => callbackConnection.Run(token));
 
             using ISocketWrapper serverSocket = serverListener.Accept();
-            CreateAndVerifyConnection(serverSocket, callbackHandler, 1);
+            WriteAndReadTestData(serverSocket, callbackHandler, 1, token);
         }
 
-        private void CreateAndVerifyConnection(
+        private void WriteAndReadTestData(
             ISocketWrapper socket,
             ITestCallbackHandler callbackHandler,
-            int inputToHandler)
+            int inputToHandler,
+            CancellationToken token)
         {
-            int callbackReturnValue = WriteAndReadTestData(
-                socket.InputStream,
-                socket.OutputStream,
-                callbackHandler,
-                inputToHandler);
+            Stream inputStream = socket.InputStream;
+            Stream outputStream = socket.OutputStream;
 
-            if (callbackHandler.HasReturnValue && !callbackHandler.Throws)
-            {
-                Assert.Equal(callbackHandler.ApplyToOutput(inputToHandler), callbackReturnValue);
-            }
-            else
-            {
-                Assert.Equal(int.MinValue, callbackReturnValue);
-            }
-        }
-
-        private int WriteAndReadTestData(
-            Stream inputStream,
-            Stream outputStream,
-            ITestCallbackHandler callbackHandler,
-            int inputToHandler)
-        {
             SerDe.Write(outputStream, (int)CallbackFlags.CALLBACK);
             SerDe.Write(outputStream, callbackHandler.Id);
             SerDe.Write(outputStream, inputToHandler);
-            outputStream.Flush();
-
-            int callbackReturnValue = int.MinValue;
-            if (callbackHandler.HasReturnValue &&
-                TryGetCallbackFlag(inputStream, out int returnFlag))
-            {
-                Assert.Equal(
-                    (int)CallbackFlags.CALLBACK_RETURN_VALUE, returnFlag);
-                callbackReturnValue = SerDe.ReadInt32(inputStream);
-            }
-
             SerDe.Write(outputStream, (int)CallbackFlags.END_OF_STREAM);
             outputStream.Flush();
 
-            if (TryGetCallbackFlag(inputStream, out int endOfStreamFlag))
+            if (token.IsCancellationRequested)
             {
-                Assert.Equal((int)CallbackFlags.END_OF_STREAM, endOfStreamFlag);
+                Assert.Throws<IOException>(() => SerDe.ReadInt32(inputStream));
             }
+            else
+            {
+                int callbackFlag = SerDe.ReadInt32(inputStream);
+                if (callbackFlag == (int)CallbackFlags.DOTNET_EXCEPTION_THROWN)
+                {
+                    string exceptionMessage = SerDe.ReadString(inputStream);
+                    Assert.False(string.IsNullOrEmpty(exceptionMessage));
+                    Assert.Contains("ThrowsExceptionHandler", exceptionMessage);
 
-            return callbackReturnValue;
+                }
+                else
+                {
+                    Assert.Equal((int)CallbackFlags.END_OF_STREAM, callbackFlag);
+                }
+            }
         }
 
-        private bool TryGetCallbackFlag(Stream inputStream, out int callbackFlag)
+        private class TestCallbackHandler : ICallbackHandler, ITestCallbackHandler
         {
-            callbackFlag = SerDe.ReadInt32(inputStream);
-            if (callbackFlag == (int)CallbackFlags.DOTNET_EXCEPTION_THROWN)
+            public void Run(Stream inputStream)
             {
-                string exceptionMessage = SerDe.ReadString(inputStream);
-                Assert.True(!string.IsNullOrEmpty(exceptionMessage));
-                Assert.Contains("ThrowsExceptionHandler", exceptionMessage);
-                return false;
-            }
-
-            return true;
-        }
-
-        private class ReturnValueHandler : ICallbackHandler, ITestCallbackHandler
-        {
-            public void Run(Stream inputStream, Stream outputStream)
-            {
-                int i = SerDe.ReadInt32(inputStream);
-                Inputs.Add(ApplyToInput(i));
-                SerDe.Write(outputStream, ApplyToOutput(i));
+                Inputs.Add(Apply(SerDe.ReadInt32(inputStream)));
             }
 
             public ConcurrentBag<int> Inputs { get; } = new ConcurrentBag<int>();
 
             public int Id { get; set; }
 
-            public bool HasReturnValue { get; } = true;
-
             public bool Throws { get; } = false;
 
-            public int ApplyToInput(int i) => 2 * i;
-
-            public int ApplyToOutput(int i) => 3 * i;
-        }
-
-        private class NoReturnValueHandler : ICallbackHandler, ITestCallbackHandler
-        {
-            public void Run(Stream inputStream, Stream outputStream)
-            {
-                int i = SerDe.ReadInt32(inputStream);
-                Inputs.Add(ApplyToInput(i));
-            }
-
-            public ConcurrentBag<int> Inputs { get; } = new ConcurrentBag<int>();
-
-            public int Id { get; set; }
-
-            public bool HasReturnValue { get; } = false;
-
-            public bool Throws { get; } = false;
-
-            public int ApplyToInput(int i) => 10 * i;
-
-            public int ApplyToOutput(int i) => throw new NotImplementedException();
+            public int Apply(int i) => 10 * i;
         }
 
         private class ThrowsExceptionHandler : ICallbackHandler, ITestCallbackHandler
         {
-            public void Run(Stream inputStream, Stream outputStream)
+            public void Run(Stream inputStream)
             {
                 throw new Exception("ThrowsExceptionHandler");
             }
@@ -256,13 +200,9 @@ namespace Microsoft.Spark.UnitTest
 
             public int Id { get; set; }
 
-            public bool HasReturnValue { get; } = false;
-
             public bool Throws { get; } = true;
 
-            public int ApplyToInput(int i) => throw new NotImplementedException();
-
-            public int ApplyToOutput(int i) => throw new NotImplementedException();
+            public int Apply(int i) => throw new NotImplementedException();
         }
 
         private interface ITestCallbackHandler
@@ -271,13 +211,9 @@ namespace Microsoft.Spark.UnitTest
 
             int Id { get; set; }
 
-            bool HasReturnValue { get; }
-
             bool Throws { get; }
 
-            int ApplyToInput(int i);
-
-            int ApplyToOutput(int i);
+            int Apply(int i);
         }
     }
 }

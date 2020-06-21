@@ -18,8 +18,7 @@ class DotnetForeachBatchFunction(callbackClient: CallbackClient, callbackId: Int
       dos => {
         SerDe.writeJObj(dos, batchDF)
         SerDe.writeLong(dos, batchId)
-      },
-      None)
+      })
   }
 }
 
