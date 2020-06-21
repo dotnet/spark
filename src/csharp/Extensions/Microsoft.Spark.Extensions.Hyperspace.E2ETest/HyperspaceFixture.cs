@@ -38,7 +38,6 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
         public SparkFixture SparkFixture { get; private set; }
 
         public string HyperspaceSystemPath => _temporaryDirectory.Path;
-
     }
 
     [CollectionDefinition(Constants.HyperspaceTestContainerName)]

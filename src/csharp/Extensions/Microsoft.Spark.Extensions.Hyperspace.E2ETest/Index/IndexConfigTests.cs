@@ -57,8 +57,8 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest.Index
 
             // Validate that the config was built correctly.
             Assert.Equal(indexName, config.IndexName);
-            AssertCollectionEquals(indexedColumns, config.IndexedColumns);
-            AssertCollectionEquals(includedColumns, config.IncludedColumns);
+            Assert.True(indexedColumns.SequenceEqual(config.IndexedColumns));
+            Assert.True(includedColumns.SequenceEqual(config.IncludedColumns));
         }
 
         /// <summary>
@@ -79,17 +79,8 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest.Index
             // Validate that the config was built correctly.
             IndexConfig config = builder.Create();
             Assert.Equal(indexName, config.IndexName);
-            AssertCollectionEquals(indexedColumns, config.IndexedColumns);
-            AssertCollectionEquals(includedColumns, config.IncludedColumns);
+            Assert.True(indexedColumns.SequenceEqual(config.IndexedColumns));
+            Assert.True(includedColumns.SequenceEqual(config.IncludedColumns));
         }
-
-        /// <summary>
-        /// Helper method to test that 2 collections contain the same elements.
-        /// </summary>
-        /// <typeparam name="T">The type of the elements to compare.</typeparam>
-        /// <param name="expected">Expected collection of elements.</param>
-        /// <param name="actual">Actual collection of elements.</param>
-        private void AssertCollectionEquals<T>(ICollection<T> expected, ICollection<T> actual) =>
-            Assert.True(expected.OrderBy(c => c).SequenceEqual(actual.OrderBy(c => c)));
     }
 }
