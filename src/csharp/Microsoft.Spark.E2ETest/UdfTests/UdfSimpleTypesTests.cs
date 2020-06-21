@@ -189,6 +189,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             Thread t1 = new Thread(Method1);
             Thread t2 = new Thread(Method2);
             t1.Start();
+            t1.Join();
             t2.Start();
         }
     }
