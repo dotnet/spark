@@ -27,10 +27,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest.Index
         public void TestSignatures()
         {
             string indexName = "testIndexName";
-            var indexConfig = new IndexConfig(
-                indexName,
-                new[] { "Id" },
-                new List<string>());
+            var indexConfig = new IndexConfig(indexName, new[] { "Id" }, new string[] { });
             Assert.IsType<string>(indexConfig.IndexName);
             Assert.IsType<List<string>>(indexConfig.IndexedColumns);
             Assert.IsType<List<string>>(indexConfig.IncludedColumns);
