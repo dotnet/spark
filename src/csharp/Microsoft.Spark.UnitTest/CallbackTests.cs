@@ -86,6 +86,7 @@ namespace Microsoft.Spark.UnitTest
         {
             var tokenSource = new CancellationTokenSource();
             var callbackHandlersDict = new ConcurrentDictionary<int, ICallbackHandler>();
+            int inputToHandler = 1;
             {
                 // Test CallbackConnection using a ICallbackHandler that runs
                 // normally without error.
@@ -94,7 +95,15 @@ namespace Microsoft.Spark.UnitTest
                     Id = 1
                 };
                 callbackHandlersDict[callbackHandler.Id] = callbackHandler;
-                TestCallbackConnection(callbackHandlersDict, callbackHandler, tokenSource.Token);
+                TestCallbackConnection(
+                    callbackHandlersDict,
+                    callbackHandler,
+                    inputToHandler,
+                    tokenSource.Token);
+                Assert.Single(callbackHandler.Inputs);
+                Assert.Equal(
+                    callbackHandler.Apply(inputToHandler),
+                    callbackHandler.Inputs.First());
             }
             {
                 // Test CallbackConnection using a ICallbackHandler that 
@@ -104,7 +113,12 @@ namespace Microsoft.Spark.UnitTest
                     Id = 2
                 };
                 callbackHandlersDict[callbackHandler.Id] = callbackHandler;
-                TestCallbackConnection(callbackHandlersDict, callbackHandler, tokenSource.Token);
+                TestCallbackConnection(
+                    callbackHandlersDict,
+                    callbackHandler,
+                    inputToHandler,
+                    tokenSource.Token);
+                Assert.Empty(callbackHandler.Inputs);
             }
             {
                 // Test CallbackConnection when cancellation has been requested for the token.
@@ -114,13 +128,19 @@ namespace Microsoft.Spark.UnitTest
                     Id = 3
                 };
                 callbackHandlersDict[callbackHandler.Id] = callbackHandler;
-                TestCallbackConnection(callbackHandlersDict, callbackHandler, tokenSource.Token);
+                TestCallbackConnection(
+                    callbackHandlersDict,
+                    callbackHandler,
+                    inputToHandler,
+                    tokenSource.Token);
+                Assert.Empty(callbackHandler.Inputs);
             }
         }
 
         private void TestCallbackConnection(
             ConcurrentDictionary<int, ICallbackHandler> callbackHandlersDict,
             ITestCallbackHandler callbackHandler,
+            int inputToHandler,
             CancellationToken token)
         {
             using ISocketWrapper serverListener = SocketFactory.CreateSocket();
@@ -134,7 +154,7 @@ namespace Microsoft.Spark.UnitTest
             Task.Run(() => callbackConnection.Run(token));
 
             using ISocketWrapper serverSocket = serverListener.Accept();
-            WriteAndReadTestData(serverSocket, callbackHandler, 1, token);
+            WriteAndReadTestData(serverSocket, callbackHandler, inputToHandler, token);
         }
 
         private void WriteAndReadTestData(
