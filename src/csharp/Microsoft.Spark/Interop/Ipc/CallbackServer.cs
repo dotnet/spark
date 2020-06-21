@@ -121,7 +121,10 @@ namespace Microsoft.Spark.Interop.Ipc
                 s_logger.LogInfo($"Started CallbackServer on {localEndPoint}");
 
                 // Start accepting connections from JVM.
-                new Thread(() => StartServer(listener)).Start();
+                new Thread(() => StartServer(listener))
+                {
+                    IsBackground = true
+                }.Start();
             }
             catch (Exception e)
             {
@@ -172,7 +175,10 @@ namespace Microsoft.Spark.Interop.Ipc
                     // waiting to take CallbackConnections from _waitingConnections).
                     while (numWorkerThreads < numConnections)
                     {
-                        new Thread(RunWorkerThread).Start();
+                        new Thread(RunWorkerThread)
+                        {
+                            IsBackground = true
+                        }.Start();
                         ++numWorkerThreads;
                     }
 
