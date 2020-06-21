@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Xunit;
@@ -165,6 +166,30 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                     Assert.Equal(expected[i], rows[i].GetAs<string>(0));
                 }
             }
+        }
+
+        /// <summary>
+        /// UDFs defined in separate threads to validate ThreadStatic bug fix.
+        /// </summary>
+        [Fact]
+        public void TestUdfWithMultipleThreads()
+        {
+            static void Method1()
+            {
+                Func<Column, Column> udf1 = Udf<string, string>(
+                str => $"{str} - test udf1");
+            }
+
+            static void Method2()
+            {
+                Func<Column, Column> udf2 = Udf<string, string>(
+                str => $"{str} - test udf2");
+            }
+
+            Thread t1 = new Thread(Method1);
+            Thread t2 = new Thread(Method2);
+            t1.Start();
+            t2.Start();
         }
     }
 }
