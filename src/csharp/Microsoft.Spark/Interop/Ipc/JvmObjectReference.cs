@@ -112,6 +112,7 @@ namespace Microsoft.Spark.Interop.Ipc
     /// <summary>
     /// Reference to object created in JVM.
     /// </summary>
+    [Serializable]
     internal sealed class JvmObjectReference : IJvmObjectReferenceProvider
     {
         /// <summary>
