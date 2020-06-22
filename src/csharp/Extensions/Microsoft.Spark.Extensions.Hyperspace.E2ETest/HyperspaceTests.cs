@@ -3,10 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Extensions.Hyperspace.Index;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
 namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
@@ -18,6 +18,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
     public class HyperspaceTests
     {
         private readonly SparkSession _spark;
+        private readonly TemporaryDirectory _hyperspaceSystemDirectory;
         private readonly Hyperspace _hyperspace;
 
         // Fields needed for sample DataFrame.
@@ -28,10 +29,9 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
         public HyperspaceTests(HyperspaceFixture fixture)
         {
             _spark = fixture.SparkFixture.Spark;
-            _hyperspace = fixture.Hyperspace;
-
-            // Make sure that any leftover indexes are removed before starting a test.
-            Directory.Delete(fixture.HyperspaceSystemPath, true);
+            _hyperspaceSystemDirectory = new TemporaryDirectory();
+            _spark.Conf().Set("spark.hyperspace.system.path", _hyperspaceSystemDirectory.Path);
+            _hyperspace = new Hyperspace(_spark);
 
             _sampleDataFrame = _spark.Read()
                 .Option("header", true)

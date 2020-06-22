@@ -4,40 +4,22 @@
 
 using System;
 using Microsoft.Spark.E2ETest;
-using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
 namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
 {
-    public class HyperspaceFixture : IDisposable
+    public class HyperspaceFixture
     {
-        private readonly TemporaryDirectory _temporaryDirectory;
-
         public HyperspaceFixture()
         {
-            // Save Hyperspace system data in a temporary directory so that 
-            // indexes aren't persisted between runs.
-            _temporaryDirectory = new TemporaryDirectory();
-
             Environment.SetEnvironmentVariable(
                 SparkFixture.EnvironmentVariableNames.ExtraSparkSubmitArgs,
-                "--packages com.microsoft.hyperspace:hyperspace-core_2.11:0.0.1 " +
-                $"--conf spark.hyperspace.system.path={_temporaryDirectory.Path}");
+                "--packages com.microsoft.hyperspace:hyperspace-core_2.11:0.1.0");
 
             SparkFixture = new SparkFixture();
-            Hyperspace = new Hyperspace(SparkFixture.Spark);
         }
-
-        public void Dispose()
-        {
-            _temporaryDirectory.Dispose();
-        }
-
-        public Hyperspace Hyperspace { get; private set; }
 
         public SparkFixture SparkFixture { get; private set; }
-
-        public string HyperspaceSystemPath => _temporaryDirectory.Path;
     }
 
     [CollectionDefinition(Constants.HyperspaceTestContainerName)]
