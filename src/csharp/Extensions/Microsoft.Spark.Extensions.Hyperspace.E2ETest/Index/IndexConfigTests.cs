@@ -57,8 +57,8 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest.Index
 
             // Validate that the config was built correctly.
             Assert.Equal(indexName, config.IndexName);
-            Assert.True(indexedColumns.SequenceEqual(config.IndexedColumns));
-            Assert.True(includedColumns.SequenceEqual(config.IncludedColumns));
+            Assert.Equal(indexedColumns, config.IndexedColumns);
+            Assert.Equal(includedColumns, config.IncludedColumns);
         }
 
         /// <summary>
@@ -79,8 +79,8 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest.Index
             // Validate that the config was built correctly.
             IndexConfig config = builder.Create();
             Assert.Equal(indexName, config.IndexName);
-            Assert.True(indexedColumns.SequenceEqual(config.IndexedColumns));
-            Assert.True(includedColumns.SequenceEqual(config.IncludedColumns));
+            Assert.Equal(indexedColumns, config.IndexedColumns);
+            Assert.Equal(includedColumns, config.IncludedColumns);
         }
     }
 }
