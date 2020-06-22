@@ -176,7 +176,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         {
             try
             {
-                static void DefineUdf() => Udf<string, string>(str => str);
+                void DefineUdf() => Udf<string, string>(str => str);
 
                 // Define a UDF in the main thread.
                 Udf<string, string>(str => str);
