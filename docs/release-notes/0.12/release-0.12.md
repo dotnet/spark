@@ -2,7 +2,7 @@
 
 ### New Features and Improvements
 
-* Improve build pipeline ([#510](https://github.com/dotnet/spark/pull/510)) ([#511](https://github.com/dotnet/spark/pull/511)) ([#512](https://github.com/dotnet/spark/pull/512)) ([#513](https://github.com/dotnet/spark/pull/513)) ([#524](https://github.com/dotnet/spark/pull/524)) ([]()) ([]())
+* Improve build pipeline ([#510](https://github.com/dotnet/spark/pull/510)) ([#511](https://github.com/dotnet/spark/pull/511)) ([#512](https://github.com/dotnet/spark/pull/512)) ([#513](https://github.com/dotnet/spark/pull/513)) ([#524](https://github.com/dotnet/spark/pull/524))
 * Support for [dotnet-interactive](https://github.com/dotnet/interactive) ([#515](https://github.com/dotnet/spark/pull/515)) ([#517](https://github.com/dotnet/spark/pull/517)) ([#554](https://github.com/dotnet/spark/pull/554))
 * Update `Microsoft.Data.Analysis` to v`0.4.0` ([#528](https://github.com/dotnet/spark/pull/528))
 * Support for Spark 2.4.6 ([#547](https://github.com/dotnet/spark/pull/547))
