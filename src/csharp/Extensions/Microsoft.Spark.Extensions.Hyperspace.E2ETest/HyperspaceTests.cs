@@ -15,7 +15,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
     /// Test suite for Hyperspace index management APIs.
     /// </summary>
     [Collection(Constants.HyperspaceTestContainerName)]
-    public class HyperspaceTests
+    public class HyperspaceTests : IDisposable
     {
         private readonly SparkSession _spark;
         private readonly TemporaryDirectory _hyperspaceSystemDirectory;
@@ -40,6 +40,14 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
             _sampleIndexName = "sample_dataframe";
             _sampleIndexConfig = new IndexConfig(_sampleIndexName, new[] { "job" }, new[] { "name" });
             _hyperspace.CreateIndex(_sampleDataFrame, _sampleIndexConfig);
+        }
+
+        /// <summary>
+        /// Clean up the Hyperspace system directory in between tests.
+        /// </summary>
+        public void Dispose()
+        {
+            _hyperspaceSystemDirectory.Dispose();
         }
 
         /// <summary>
