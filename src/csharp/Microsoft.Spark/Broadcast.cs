@@ -263,7 +263,7 @@ namespace Microsoft.Spark
     internal static class JvmBroadcastRegistry
     {
         private static ThreadLocal<List<JvmObjectReference>> s_jvmBroadcastVariables = 
-            new ThreadLocal<List<JvmObjectReference>>( () => new List<JvmObjectReference>() );
+            new ThreadLocal<List<JvmObjectReference>>(() => new List<JvmObjectReference>());
 
         /// <summary>
         /// Adds a JVMObjectReference object of type <see cref="Broadcast{T}"/> to the list.
@@ -285,4 +285,3 @@ namespace Microsoft.Spark
         internal static List<JvmObjectReference> GetAll() => s_jvmBroadcastVariables.Value;
     }
 }
-
