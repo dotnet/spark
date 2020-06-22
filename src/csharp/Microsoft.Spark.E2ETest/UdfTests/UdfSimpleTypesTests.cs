@@ -176,18 +176,17 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         {
             try
             {
-                static void Method1() => Udf<string, string>(str => str);
+                static void DefineUdf() => Udf<string, string>(str => str);
 
-                Thread t1 = new Thread(Method1);
+                Thread t1 = new Thread(DefineUdf);
                 t1.Start();
                 t1.Join();
                 Func<Column, Column> udf = Udf<string, string>(str => str);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Assert.IsNotType<NullReferenceException>(e);
+                Assert.True(false);
             }
-            Assert.True(true);
         }
     }
 }
