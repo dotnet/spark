@@ -180,21 +180,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 {
                     try
                     {
-                        Func<Column, Column> udf1 = Udf<string, string>(
-                        str => $"{str} - test udf1");
-                    }
-                    catch (Exception e)
-                    {
-                        throw new Exception(e.ToString());
-                    }
-                }
-
-                static void Method2()
-                {
-                    try
-                    {
-                        Func<Column, Column> udf2 = Udf<string, string>(
-                        str => $"{str} - test udf2");
+                        Func<Column, Column> udf1 = Udf<string, string>(str => str);
                     }
                     catch (Exception e)
                     {
@@ -203,15 +189,15 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 }
 
                 Thread t1 = new Thread(Method1);
-                Thread t2 = new Thread(Method2);
                 t1.Start();
                 t1.Join();
-                t2.Start();
+                Func<Column, Column> udf2 = Udf<string, string>(str => str);
             }
             catch (Exception e)
             {
-                Assert.NotNull(e);
+                Assert.IsNotType<NullReferenceException>(e);
             }
+            Assert.True(true);
         }
     }
 }
