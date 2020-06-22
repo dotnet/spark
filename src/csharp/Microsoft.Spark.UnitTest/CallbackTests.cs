@@ -184,7 +184,7 @@ namespace Microsoft.Spark.UnitTest
                 {
                     string exceptionMessage = SerDe.ReadString(inputStream);
                     Assert.False(string.IsNullOrEmpty(exceptionMessage));
-                    Assert.Contains("ThrowsExceptionHandler.Run", exceptionMessage);
+                    Assert.Contains(callbackHandler.ExceptionMessage, exceptionMessage);
                 }
                 else
                 {
@@ -203,19 +203,22 @@ namespace Microsoft.Spark.UnitTest
 
             public bool Throws { get; } = false;
 
+            public string ExceptionMessage => throw new NotImplementedException();
+
             public int Apply(int i) => 10 * i;
         }
 
         private class ThrowsExceptionHandler : ICallbackHandler, ITestCallbackHandler
         {               
-            public void Run(Stream inputStream) =>
-                throw new Exception("ThrowsExceptionHandler.Run");
+            public void Run(Stream inputStream) => throw new Exception(ExceptionMessage);
 
             public ConcurrentBag<int> Inputs { get; } = new ConcurrentBag<int>();
 
             public int Id { get; set; }
 
             public bool Throws { get; } = true;
+
+            public string ExceptionMessage { get; } = "Dotnet Callback Handler Exception Message";
 
             public int Apply(int i) => throw new NotImplementedException();
         }
@@ -227,6 +230,8 @@ namespace Microsoft.Spark.UnitTest
             int Id { get; set; }
 
             bool Throws { get; }
+
+            string ExceptionMessage { get; }
 
             int Apply(int i);
         }
