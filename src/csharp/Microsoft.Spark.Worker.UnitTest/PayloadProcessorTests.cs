@@ -14,6 +14,7 @@ using Xunit;
 
 namespace Microsoft.Spark.Worker.UnitTest
 {
+    [Collection("Spark Unit Tests")]
     public class PayloadProcessorTests
     {
         [Theory]

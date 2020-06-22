@@ -8,6 +8,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using Microsoft.Spark.Services;
 
 namespace Microsoft.Spark.Utils
 {
@@ -20,8 +21,10 @@ namespace Microsoft.Spark.Utils
         /// precedence:
         /// 1) Comma-separated paths specified in DOTNET_ASSEMBLY_SEARCH_PATHS environment
         /// variable. Note that if a path starts with ".", the working directory will be prepended.
-        /// 2) The working directory.
-        /// 3) The directory of the application.
+        /// 2) The path of the files added through
+        /// <see cref="SparkContext.AddFile(string, bool)"/>.
+        /// 3) The working directory.
+        /// 4) The directory of the application.
         /// </summary>
         /// <remarks>
         /// The reason that the working directory has higher precedence than the directory
@@ -54,6 +57,12 @@ namespace Microsoft.Spark.Utils
                 }
             }
 
+            string sparkFilesPath = SparkFiles.GetRootDirectory();
+            if (!string.IsNullOrWhiteSpace(sparkFilesPath))
+            {
+                searchPaths.Add(sparkFilesPath);
+            }
+
             searchPaths.Add(Directory.GetCurrentDirectory());
             searchPaths.Add(AppDomain.CurrentDomain.BaseDirectory);
 
@@ -65,13 +74,15 @@ namespace Microsoft.Spark.Utils
     {
         internal static Func<string, Assembly> LoadFromFile { get; set; } = Assembly.LoadFrom;
 
-        internal static Func<string, Assembly> LoadFromName { get; set; } = Assembly.Load;
+        private static readonly ILoggerService s_logger =
+            LoggerServiceFactory.GetLogger(typeof(AssemblyLoader));
 
         private static readonly Dictionary<string, Assembly> s_assemblyCache =
             new Dictionary<string, Assembly>();
 
-        private static readonly string[] s_searchPaths =
-            AssemblySearchPathResolver.GetAssemblySearchPaths();
+        // Lazily evaluate the assembly search paths because it has a dependency on SparkFiles.
+        private static readonly Lazy<string[]> s_searchPaths =
+            new Lazy<string[]>(() => AssemblySearchPathResolver.GetAssemblySearchPaths());
 
         private static readonly string[] s_extensions =
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
@@ -95,9 +106,7 @@ namespace Microsoft.Spark.Utils
         /// </summary>
         /// <param name="assemblyName">The full name of the assembly</param>
         /// <param name="assemblyFileName">Name of the file that contains the assembly</param>
-        /// <returns>Cached or Loaded Assembly</returns>
-        /// <exception cref="FileNotFoundException">Thrown if the assembly is not
-        /// found.</exception>
+        /// <returns>Cached or Loaded Assembly or null if not found</returns>
         internal static Assembly LoadAssembly(string assemblyName, string assemblyFileName)
         {
             // assemblyFileName is empty when serializing a UDF from within the REPL.
@@ -119,7 +128,14 @@ namespace Microsoft.Spark.Utils
                     return assembly;
                 }
 
-                throw new FileNotFoundException($"Assembly '{assemblyName}' file not found '{assemblyFileName}' in '{string.Join(",", s_searchPaths)}'");
+                s_logger.LogWarn(
+                    string.Format(
+                        "Assembly '{0}' file not found '{1}' in '{2}'",
+                        assemblyName,
+                        assemblyFileName,
+                        string.Join(",", s_searchPaths.Value)));
+
+                return null;
             }
         }
 
@@ -129,9 +145,7 @@ namespace Microsoft.Spark.Utils
         /// s_extension combination.
         /// </summary>
         /// <param name="assemblyName">The fullname of the assembly to load</param>
-        /// <returns>The loaded assembly</returns>
-        /// <exception cref="FileNotFoundException">Thrown if the assembly is not
-        /// found.</exception>
+        /// <returns>The loaded assembly or null if not found</returns>
         internal static Assembly ResolveAssembly(string assemblyName)
         {
             lock (s_cacheLock)
@@ -153,7 +167,15 @@ namespace Microsoft.Spark.Utils
                     }
                 }
 
-                throw new FileNotFoundException($"Assembly '{assemblyName}' file not found '{simpleAsmName}[{string.Join(",", s_extensions)}]' in '{string.Join(",", s_searchPaths)}'");
+                s_logger.LogWarn(
+                    string.Format(
+                        "Assembly '{0}' file not found '{1}[{2}]' in '{3}'",
+                        assemblyName,
+                        simpleAsmName,
+                        string.Join(",", s_extensions),
+                        string.Join(",", s_searchPaths.Value)));
+
+                return null;
             }
         }
 
@@ -165,7 +187,7 @@ namespace Microsoft.Spark.Utils
         /// <returns>True if assembly is loaded, false otherwise.</returns>
         private static bool TryLoadAssembly(string assemblyFileName, ref Assembly assembly)
         {
-            foreach (string searchPath in s_searchPaths)
+            foreach (string searchPath in s_searchPaths.Value)
             {
                 string assemblyPath = Path.Combine(searchPath, assemblyFileName);
                 if (File.Exists(assemblyPath))
@@ -195,7 +217,7 @@ namespace Microsoft.Spark.Utils
         /// </summary>
         /// <param name="assemblyName">Assembly name</param>
         /// <returns>Normalized assembly name</returns>
-        private static string NormalizeAssemblyName(string assemblyName)
+        internal static string NormalizeAssemblyName(string assemblyName)
         {
             // Check if the assembly name follows the Roslyn naming convention.
             // Roslyn assembly name: "\u211B*4b31b71b-d4bd-4642-9f63-eef5f5d99197#1-14"
