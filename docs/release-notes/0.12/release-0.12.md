@@ -1,4 +1,4 @@
-# .NET for Apache Spark 0.11 Release Notes
+# .NET for Apache Spark 0.12 Release Notes
 
 ### New Features and Improvements
 
@@ -6,10 +6,11 @@
 * Support for [dotnet-interactive](https://github.com/dotnet/interactive) ([#515](https://github.com/dotnet/spark/pull/515)) ([#517](https://github.com/dotnet/spark/pull/517)) ([#554](https://github.com/dotnet/spark/pull/554))
 * Update `Microsoft.Data.Analysis` to v`0.4.0` ([#528](https://github.com/dotnet/spark/pull/528))
 * Support for Spark 2.4.6 ([#547](https://github.com/dotnet/spark/pull/547))
-* Update AppName for the C# Spark Examples ([548](https://github.com/dotnet/spark/pull/548))
-* Support for [Hyperspace v0.1.0](https://github.com/microsoft/hyperspace) APIs ([555](https://github.com/dotnet/spark/pull/555))
-* Update maven links in build documentation ([558](https://github.com/dotnet/spark/pull/558)) ([560](https://github.com/dotnet/spark/pull/560))
-* Bug fix caused by `BroadcastVariablesRegistry` ([551](https://github.com/dotnet/spark/pull/551))
+* Update AppName for the C# Spark Examples ([#548](https://github.com/dotnet/spark/pull/548))
+* Support for [Hyperspace v0.1.0](https://github.com/microsoft/hyperspace) APIs ([#555](https://github.com/dotnet/spark/pull/555))
+* Update maven links in build documentation ([#558](https://github.com/dotnet/spark/pull/558)) ([#560](https://github.com/dotnet/spark/pull/560))
+* Bug fix caused by `BroadcastVariablesRegistry` ([#551](https://github.com/dotnet/spark/pull/551))
+* Expose `DataStreamWriter.ForeachBatch` API ([#549](https://github.com/dotnet/spark/pull/549))
 
 ### Breaking Changes
 
@@ -41,10 +42,6 @@ The following table describes the oldest version of the worker that the current 
         </tr>
         <tr>
             <td>Support for TimestampType <a href="https://github.com/dotnet/spark/pull/428">(#428)</a></td>
-        </tr>
-        <tr>
-            <td rowspan=1>v0.12.0</td>
-            <td>Support for dotnet-interactive <a href="https://github.com/dotnet/spark/pull/515">(#515)</a> <a href="https://github.com/dotnet/spark/pull/517">(#517)</a> <a href="https://github.com/dotnet/spark/pull/554">(#554)</a></td>
         </tr>
     </tbody>
 </table>
