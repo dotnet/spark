@@ -63,9 +63,10 @@ namespace Microsoft.Spark.UnitTest
         /// is simply run it and close it.
         /// </summary>
         [Fact]
-        public void JVMBridgeHelperMainPathTest() 
+        public void JVMBridgeHelperMainPathTest()
         {
-            using(var helper = new JVMBridgeHelper()) {
+            using (var helper = new JVMBridgeHelper())
+            {
                 // now we should be able to connect to JVM bridge
                 // or if system environment is not good, we should not failed.
             }
@@ -76,30 +77,10 @@ namespace Microsoft.Spark.UnitTest
         {
             var oldhome = Environment.GetEnvironmentVariable("SPARK_HOME");
             Environment.SetEnvironmentVariable("SPARK_HOME", null);
-            using(var helper = new JVMBridgeHelper()) {
+            using (var helper = new JVMBridgeHelper())
+            {
             }
             Environment.SetEnvironmentVariable("SPARK_HOME", oldhome);
-        }
-
-        /// <summary>
-        /// Test with case that already have jvm Bridge case
-        /// </summary>
-        [Fact]
-        public void JVMBridgeHelperTestsWithSparkSessionWithBridgeReady() 
-        {
-            using(var helper = new JVMBridgeHelper()) {
-                // now we should be able to connect to JVM bridge
-                var spark = SparkSession.Builder().Master("local").GetOrCreate();
-                spark.Stop();
-            }
-        }
-
-        [Fact]
-        public void JVMBridgeHelperTestsWithSparkSessionWithBridgeNotReady() 
-        {
-            // now we should be able to connect to JVM bridge anytime
-            var spark = SparkSession.Builder().Master("local").GetOrCreate();
-            spark.Stop();
         }
     }
 }
