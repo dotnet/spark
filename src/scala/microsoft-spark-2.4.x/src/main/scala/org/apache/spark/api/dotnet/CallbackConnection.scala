@@ -6,7 +6,7 @@
 
 package org.apache.spark.api.dotnet
 
-import java.io.{Closeable, DataInputStream, DataOutputStream}
+import java.io.{ByteArrayOutputStream, Closeable, DataInputStream, DataOutputStream}
 import java.net.Socket
 
 import org.apache.spark.internal.Logging
@@ -31,8 +31,11 @@ class CallbackConnection(address: String, port: Int) extends Logging {
     try {
       SerDe.writeInt(outputStream, CallbackFlags.CALLBACK)
       SerDe.writeInt(outputStream, callbackId)
-      writeBody(outputStream)
-      outputStream.flush()
+
+      val byteArrayOutputStream = new ByteArrayOutputStream()
+      writeBody(new DataOutputStream(byteArrayOutputStream))
+      SerDe.writeInt(outputStream, byteArrayOutputStream.size)
+      byteArrayOutputStream.writeTo(outputStream);
     } catch {
       case e: Exception => {
         logError("Error writing to stream.", e)

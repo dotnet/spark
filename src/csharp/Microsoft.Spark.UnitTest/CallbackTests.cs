@@ -168,6 +168,7 @@ namespace Microsoft.Spark.UnitTest
 
             SerDe.Write(outputStream, (int)CallbackFlags.CALLBACK);
             SerDe.Write(outputStream, callbackHandler.Id);
+            SerDe.Write(outputStream, sizeof(int));
             SerDe.Write(outputStream, inputToHandler);
             SerDe.Write(outputStream, (int)CallbackFlags.END_OF_STREAM);
             outputStream.Flush();
@@ -183,8 +184,7 @@ namespace Microsoft.Spark.UnitTest
                 {
                     string exceptionMessage = SerDe.ReadString(inputStream);
                     Assert.False(string.IsNullOrEmpty(exceptionMessage));
-                    Assert.Contains("ThrowsExceptionHandler.Read", exceptionMessage);
-
+                    Assert.Contains("ThrowsExceptionHandler.Run", exceptionMessage);
                 }
                 else
                 {
@@ -195,11 +195,7 @@ namespace Microsoft.Spark.UnitTest
 
         private class TestCallbackHandler : ICallbackHandler, ITestCallbackHandler
         {
-            private int _input;
-
-            public void Read(Stream inputStream) => _input = SerDe.ReadInt32(inputStream);
-
-            public void Run() => Inputs.Add(Apply(_input));
+            public void Run(Stream inputStream) => Inputs.Add(Apply(SerDe.ReadInt32(inputStream)));
 
             public ConcurrentBag<int> Inputs { get; } = new ConcurrentBag<int>();
 
@@ -211,11 +207,9 @@ namespace Microsoft.Spark.UnitTest
         }
 
         private class ThrowsExceptionHandler : ICallbackHandler, ITestCallbackHandler
-        {
-            public void Read(Stream inputStream) =>
-                throw new Exception("ThrowsExceptionHandler.Read");
-
-            public void Run() => throw new NotImplementedException();
+        {               
+            public void Run(Stream inputStream) =>
+                throw new Exception("ThrowsExceptionHandler.Run");
 
             public ConcurrentBag<int> Inputs { get; } = new ConcurrentBag<int>();
 

@@ -18,22 +18,19 @@ namespace Microsoft.Spark.Interop.Ipc
 
         private readonly Action<DataFrame, long> _func;
 
-        private DataFrame _batchDf;
-
-        private long _batchId;
-
         internal ForeachBatchCallbackHandler(IJvmBridge jvm, Action<DataFrame, long> func)
         {
             _jvm = jvm;
             _func = func;
         }
 
-        public void Read(Stream inputStream)
+        public void Run(Stream inputStream)
         {
-            _batchDf = new DataFrame(new JvmObjectReference(SerDe.ReadString(inputStream), _jvm));
-            _batchId = SerDe.ReadInt64(inputStream);
-        }
+            var batchDf =
+                new DataFrame(new JvmObjectReference(SerDe.ReadString(inputStream), _jvm));
+            long batchId = SerDe.ReadInt64(inputStream);
 
-        public void Run() => _func(_batchDf, _batchId);
+            _func(batchDf, batchId);
+        }
     }
 }

@@ -199,8 +199,9 @@ namespace Microsoft.Spark.Interop.Ipc
                         callbackId,
                         callbackHandler));
 
-                // Read callback handler data.
-                callbackHandler.Read(inputStream);
+                // Save contents of callback handler data to be used later.
+                using var callbackDataStream =
+                    new MemoryStream(SerDe.ReadBytes(inputStream, SerDe.ReadInt32(inputStream)));
 
                 // Check the end of stream.
                 int endOfStream = SerDe.ReadInt32(inputStream);
@@ -209,7 +210,7 @@ namespace Microsoft.Spark.Interop.Ipc
                     s_logger.LogDebug($"[{ConnectionId}] Received END_OF_STREAM signal.");
 
                     // Run callback handler.
-                    callbackHandler.Run();
+                    callbackHandler.Run(callbackDataStream);
 
                     SerDe.Write(outputStream, (int)CallbackFlags.END_OF_STREAM);
                     readComplete = true;
