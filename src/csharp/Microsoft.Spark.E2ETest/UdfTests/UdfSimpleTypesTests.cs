@@ -185,7 +185,6 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Thread t = new Thread(DefineUdf);
                 t.Start();
                 t.Join();
-                Assert.True(true);
             }
             catch (Exception)
             {
