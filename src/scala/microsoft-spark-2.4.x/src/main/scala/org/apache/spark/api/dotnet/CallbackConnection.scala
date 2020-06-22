@@ -49,7 +49,7 @@ class CallbackConnection(address: String, port: Int) extends Logging {
       endOfStreamResponse match {
         case CallbackFlags.END_OF_STREAM =>
           logInfo(s"Received END_OF_STREAM signal. Calling callback [callback id = $callbackId] successful.")
-          return ConnectionStatus.ERROR_NONE
+          return ConnectionStatus.SUCCESS
         case _ =>  {
           logError(s"Error verifying end of stream. Expected: ${CallbackFlags.END_OF_STREAM}, " +
               s"Received: $endOfStreamResponse")
@@ -114,5 +114,5 @@ class CallbackConnection(address: String, port: Int) extends Logging {
 
 object ConnectionStatus extends Enumeration {
   type ConnectionStatus = Value
-  val ERROR_NONE, ERROR_WRITE, ERROR_READ, ERROR_END_OF_STREAM = Value
+  val SUCCESS, ERROR_WRITE, ERROR_END_OF_STREAM = Value
 }

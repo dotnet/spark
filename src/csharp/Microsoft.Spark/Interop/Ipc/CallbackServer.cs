@@ -61,10 +61,15 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         private int _callbackCounter = 0;
 
+        private bool _isRunning = false;
+
+        private ISocketWrapper _listener;
+
         internal int CurrentNumConnections => _connections.Count;
 
         internal CallbackServer(IJvmBridge jvm, bool run = true)
         {
+            AppDomain.CurrentDomain.ProcessExit += (s, e) => Shutdown();
             _jvm = jvm;
 
             if (run)
@@ -91,8 +96,8 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         internal void Run()
         {
-            ISocketWrapper listener = SocketFactory.CreateSocket();
-            Run(listener);
+            _listener = SocketFactory.CreateSocket();
+            Run(_listener);
         }
 
         /// <summary>
@@ -101,17 +106,21 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <param name="listener">The listening socket.</param>
         internal void Run(ISocketWrapper listener)
         {
-            AppDomain.CurrentDomain.ProcessExit += (s, e) => Shutdown();
+            if (_isRunning)
+            {
+                s_logger.LogWarn("CallbackServer is already running.");
+                return;
+            }
 
             s_logger.LogInfo($"Starting CallbackServer.");
+            _isRunning = true;
 
             try
             {
                 listener.Listen();
-                _tokenSource.Token.Register(() => listener.Dispose());
 
                 // Communicate with the JVM the callback server's address and port.
-                IPEndPoint localEndPoint = (IPEndPoint)listener.LocalEndPoint;
+                var localEndPoint = (IPEndPoint)listener.LocalEndPoint;
                 _jvm.CallStaticJavaMethod(
                     "DotnetHandler",
                     "connectCallback",
@@ -144,12 +153,10 @@ namespace Microsoft.Spark.Interop.Ipc
                 long connectionId = 1;
                 int numWorkerThreads = 0;
 
-                while (true)
+                while (_isRunning)
                 {
-                    _tokenSource.Token.ThrowIfCancellationRequested();
-
                     ISocketWrapper socket = listener.Accept();
-                    CallbackConnection connection =
+                    var connection =
                         new CallbackConnection(connectionId, socket, _callbackHandlers);
 
                     _waitingConnections.Add(connection);
@@ -204,10 +211,8 @@ namespace Microsoft.Spark.Interop.Ipc
         {
             try
             {
-                while (true)
+                while (_isRunning)
                 {
-                    _tokenSource.Token.ThrowIfCancellationRequested();
-
                     if (_waitingConnections.TryTake(
                         out CallbackConnection connection,
                         Timeout.Infinite))
@@ -236,10 +241,14 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         private void Shutdown()
         {
+            s_logger.LogInfo("Shutting down CallbackServer");
+
             _tokenSource.Cancel();
             _waitingConnections.Dispose();
             _connections.Clear();
             _callbackHandlers.Clear();
+            _listener?.Dispose();
+            _isRunning = false;
 
             _jvm.CallStaticJavaMethod("DotnetHandler", "closeCallback");
         }

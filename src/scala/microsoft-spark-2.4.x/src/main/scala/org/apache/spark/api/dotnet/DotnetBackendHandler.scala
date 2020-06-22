@@ -73,15 +73,14 @@ class DotnetBackendHandler(server: DotnetBackend)
           if (DotnetBackend.callbackClient == null) {
             logInfo(s"Connecting to a callback server at $address:$port")
             DotnetBackend.callbackClient = new CallbackClient(address, port)
+          } else {
+            throw new Exception("Callback client already set.")
           }
           writeInt(dos, 0)
           writeType(dos, "void")
         case "closeCallback" =>
           logInfo("Requesting to close callback client")
-          if (DotnetBackend.callbackClient != null) {
-            DotnetBackend.callbackClient.shutdown()
-            DotnetBackend.callbackClient = null;
-          }
+          DotnetBackend.shutdownCallbackClient()
           writeInt(dos, 0)
           writeType(dos, "void")
 

@@ -27,22 +27,13 @@ class CallbackClient(address: String, port: Int) extends Logging {
 
   final def send(
       callbackId: Int,
-      writeBody: DataOutputStream => Unit,
-      retries: Int = 3): Unit =
+      writeBody: DataOutputStream => Unit): Unit =
     getOrCreateConnection() match {
       case Some(connection) =>
         try {
           connection.send(callbackId, writeBody) match {
-            case ConnectionStatus.ERROR_NONE =>
+            case ConnectionStatus.SUCCESS =>
               addConnection(connection)
-            case ConnectionStatus.ERROR_WRITE =>
-              if (retries > 0) {
-                logWarning(s"Error writing to connection, retrying callback [callback id = $callbackId].")
-                send(callbackId, writeBody, retries - 1)
-              }
-              else {
-                throw new Exception("Error writing to connection.")
-              }
             case status =>
               throw new Exception(s"Error encountered with connection: '$status'")
           }

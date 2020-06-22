@@ -199,14 +199,17 @@ namespace Microsoft.Spark.Interop.Ipc
                         callbackId,
                         callbackHandler));
 
-                // Run callback handler.
-                callbackHandler.Run(inputStream);
+                // Read callback handler data.
+                callbackHandler.Read(inputStream);
 
                 // Check the end of stream.
                 int endOfStream = SerDe.ReadInt32(inputStream);
                 if (endOfStream == (int)CallbackFlags.END_OF_STREAM)
                 {
                     s_logger.LogDebug($"[{ConnectionId}] Received END_OF_STREAM signal.");
+
+                    // Run callback handler.
+                    callbackHandler.Run();
 
                     SerDe.Write(outputStream, (int)CallbackFlags.END_OF_STREAM);
                     readComplete = true;

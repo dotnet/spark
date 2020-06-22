@@ -79,13 +79,17 @@ class DotnetBackend extends Logging {
     bootstrap = null
 
     // Send close to .NET callback server.
-    if (DotnetBackend.callbackClient != null) {
-      DotnetBackend.callbackClient.shutdown()
-      DotnetBackend.callbackClient = null;
-    }
+    DotnetBackend.shutdownCallbackClient()
   }
 }
 
 object DotnetBackend {
   @volatile private[spark] var callbackClient: CallbackClient = null
+
+  private[spark] def shutdownCallbackClient(): Unit = {
+    if (callbackClient != null) {
+      callbackClient.shutdown()
+      callbackClient = null
+    }
+  }
 }
