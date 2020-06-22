@@ -40,6 +40,9 @@ namespace Microsoft.Spark.Sql
 
         private static int maxWaitTimeoutMS = 60000;
 
+        private readonly ILoggerService _logger =
+            LoggerServiceFactory.GetLogger(typeof(JVMBridgeHelper));        
+
         /// <summary>
         /// The running jvm bridge process , null means no such process
         /// </summary>
@@ -82,6 +85,7 @@ namespace Microsoft.Spark.Sql
             };
 
             jvmBridge = new Process() { StartInfo = startupinfo };
+            _logger.LogInfo($"Launch JVM Bridge : {sparksubmit} {arguments}");
             jvmBridge.Start();
 
             // wait until we see .net backend started
@@ -98,6 +102,7 @@ namespace Microsoft.Spark.Sql
                 {
                     // launched successfully!
                     jvmBridge.StandardOutput.ReadToEndAsync();
+                    _logger.LogInfo($"Launch JVM Bridge ready");
                     return;
                 }
                 if (message.Result.Contains(RunnerAddressInUseMsg))
@@ -163,6 +168,7 @@ namespace Microsoft.Spark.Sql
             {
                 jvmBridge.StandardInput.WriteLine("\n");
                 jvmBridge.WaitForExit(maxWaitTimeoutMS);
+                _logger.LogInfo($"JVM Bridge disposed.");
             }
         }
     }
