@@ -174,23 +174,44 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithMultipleThreads()
         {
-            static void Method1()
+            try
             {
-                Func<Column, Column> udf1 = Udf<string, string>(
-                str => $"{str} - test udf1");
-            }
+                static void Method1()
+                {
+                    try
+                    {
+                        Func<Column, Column> udf1 = Udf<string, string>(
+                        str => $"{str} - test udf1");
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception(e.ToString());
+                    }
+                }
 
-            static void Method2()
+                static void Method2()
+                {
+                    try
+                    {
+                        Func<Column, Column> udf2 = Udf<string, string>(
+                        str => $"{str} - test udf2");
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception(e.ToString());
+                    }
+                }
+
+                Thread t1 = new Thread(Method1);
+                Thread t2 = new Thread(Method2);
+                t1.Start();
+                t1.Join();
+                t2.Start();
+            }
+            catch (Exception e)
             {
-                Func<Column, Column> udf2 = Udf<string, string>(
-                str => $"{str} - test udf2");
+                Assert.NotNull(e);
             }
-
-            Thread t1 = new Thread(Method1);
-            Thread t2 = new Thread(Method2);
-            t1.Start();
-            t1.Join();
-            t2.Start();
         }
     }
 }
