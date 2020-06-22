@@ -182,9 +182,9 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Udf<string, string>(str => str);
 
                 // Verify a UDF can be defined in a separate thread.
-                Thread t1 = new Thread(DefineUdf);
-                t1.Start();
-                t1.Join();
+                Thread t = new Thread(DefineUdf);
+                t.Start();
+                t.Join();
                 Assert.True(true);
             }
             catch (Exception)
