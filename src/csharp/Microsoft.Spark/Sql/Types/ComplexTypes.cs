@@ -69,22 +69,9 @@ namespace Microsoft.Spark.Sql.Types
             return this;
         }
 
-        internal override bool NeedConversion() => ElementType.NeedConversion();
+        internal override bool NeedConversion() => true;
 
-        internal override object FromInternal(object obj)
-        {
-            if (!NeedConversion())
-            {
-                return obj;
-            }
-
-            var convertedObj = new List<object>();
-            foreach(object o in (dynamic)obj)
-            {
-                convertedObj.Add(ElementType.FromInternal(o));
-            }
-            return convertedObj;
-        }
+        internal override object FromInternal(object obj) => throw new NotImplementedException();
     }
 
     /// <summary>
@@ -155,21 +142,9 @@ namespace Microsoft.Spark.Sql.Types
             return this;
         }
 
-        internal override bool NeedConversion() => KeyType.NeedConversion() && ValueType.NeedConversion();
+        internal override bool NeedConversion() => true;
 
-        internal override object FromInternal(object obj)
-        {
-            if (!NeedConversion())
-            {
-                return obj;
-            }
-            var convertedObj = new Dictionary<object, object>();
-            foreach(dynamic kv in (dynamic)obj)
-            {
-                convertedObj[kv.Key] = kv.Value;
-            }
-            return convertedObj;
-        }
+        internal override object FromInternal(object obj) => throw new NotImplementedException();
     }
 
     /// <summary>
