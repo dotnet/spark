@@ -6,7 +6,9 @@
 * Support for [dotnet-interactive](https://github.com/dotnet/interactive) ([#515](https://github.com/dotnet/spark/pull/515)) ([#517](https://github.com/dotnet/spark/pull/517)) ([#554](https://github.com/dotnet/spark/pull/554))
 * Support for [Hyperspace v0.1.0](https://github.com/microsoft/hyperspace) APIs ([#555](https://github.com/dotnet/spark/pull/555))
 * Support for Spark 2.4.6 ([#547](https://github.com/dotnet/spark/pull/547))
-* Bug fix caused by `BroadcastVariablesRegistry` ([#551](https://github.com/dotnet/spark/pull/551))
+* Bug fixes:
+    * Udf bug caused by `BroadcastVariablesRegistry` ([#551](https://github.com/dotnet/spark/pull/551))
+    * Null checks for `TimestampType` and `DateType` ([#530](https://github.com/dotnet/spark/pull/530))
 * Update `Microsoft.Data.Analysis` to v`0.4.0` ([#528](https://github.com/dotnet/spark/pull/528))
 
 ### Infrastructure / Documentation / Etc.
