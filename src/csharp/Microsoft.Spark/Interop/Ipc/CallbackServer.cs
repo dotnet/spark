@@ -94,15 +94,6 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <summary>
         /// Runs the callback server.
         /// </summary>
-        internal void Run()
-        {
-            _listener = SocketFactory.CreateSocket();
-            Run(_listener);
-        }
-
-        /// <summary>
-        /// Runs the callback server.
-        /// </summary>
         /// <param name="listener">The listening socket.</param>
         internal void Run(ISocketWrapper listener)
         {
@@ -117,10 +108,11 @@ namespace Microsoft.Spark.Interop.Ipc
 
             try
             {
-                listener.Listen();
+                _listener = listener;
+                _listener.Listen();
 
                 // Communicate with the JVM the callback server's address and port.
-                var localEndPoint = (IPEndPoint)listener.LocalEndPoint;
+                var localEndPoint = (IPEndPoint)_listener.LocalEndPoint;
                 _jvm.CallStaticJavaMethod(
                     "DotnetHandler",
                     "connectCallback",
@@ -130,7 +122,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 s_logger.LogInfo($"Started CallbackServer on {localEndPoint}");
 
                 // Start accepting connections from JVM.
-                new Thread(() => StartServer(listener))
+                new Thread(() => StartServer(_listener))
                 {
                     IsBackground = true
                 }.Start();
@@ -140,6 +132,14 @@ namespace Microsoft.Spark.Interop.Ipc
                 s_logger.LogError($"CallbackServer exiting with exception: {e}");
                 Shutdown();
             }
+        }
+
+        /// <summary>
+        /// Runs the callback server.
+        /// </summary>
+        private void Run()
+        {
+            Run(SocketFactory.CreateSocket());
         }
 
         /// <summary>

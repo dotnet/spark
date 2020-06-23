@@ -70,12 +70,7 @@ class DotnetBackendHandler(server: DotnetBackend)
           val address = readString(dis)
           assert(readObjectType(dis) == 'i')
           val port = readInt(dis)
-          if (DotnetBackend.callbackClient == null) {
-            logInfo(s"Connecting to a callback server at $address:$port")
-            DotnetBackend.callbackClient = new CallbackClient(address, port)
-          } else {
-            throw new Exception("Callback client already set.")
-          }
+          DotnetBackend.setCallbackClient(address, port);
           writeInt(dos, 0)
           writeType(dos, "void")
         case "closeCallback" =>

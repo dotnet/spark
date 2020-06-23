@@ -83,10 +83,19 @@ class DotnetBackend extends Logging {
   }
 }
 
-object DotnetBackend {
+object DotnetBackend extends Logging {
   @volatile private[spark] var callbackClient: CallbackClient = null
 
-  private[spark] def shutdownCallbackClient(): Unit = {
+  private[spark] def setCallbackClient(address: String, port: Int) = synchronized {
+    if (DotnetBackend.callbackClient == null) {
+      logInfo(s"Connecting to a callback server at $address:$port")
+      DotnetBackend.callbackClient = new CallbackClient(address, port)
+    } else {
+      throw new Exception("Callback client already set.")
+    }
+  }
+
+  private[spark] def shutdownCallbackClient(): Unit = synchronized {
     if (callbackClient != null) {
       callbackClient.shutdown()
       callbackClient = null

@@ -31,12 +31,7 @@ class CallbackClient(address: String, port: Int) extends Logging {
     getOrCreateConnection() match {
       case Some(connection) =>
         try {
-          connection.send(callbackId, writeBody) match {
-            case ConnectionStatus.SUCCESS =>
-              addConnection(connection)
-            case status =>
-              throw new Exception(s"Error encountered with connection: '$status'")
-          }
+          connection.send(callbackId, writeBody)
         } catch {
           case e: Exception =>
             logError(s"Error calling callback [callback id = $callbackId].", e)

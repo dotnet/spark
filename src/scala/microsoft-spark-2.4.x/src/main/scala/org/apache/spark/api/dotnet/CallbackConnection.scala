@@ -25,7 +25,7 @@ class CallbackConnection(address: String, port: Int) extends Logging {
 
   def send(
       callbackId: Int,
-      writeBody: DataOutputStream => Unit): ConnectionStatus.ConnectionStatus = {
+      writeBody: DataOutputStream => Unit): Unit = {
     logInfo(s"Calling callback [callback id = $callbackId] ...")
 
     try {
@@ -38,8 +38,7 @@ class CallbackConnection(address: String, port: Int) extends Logging {
       byteArrayOutputStream.writeTo(outputStream);
     } catch {
       case e: Exception => {
-        logError("Error writing to stream.", e)
-        return ConnectionStatus.ERROR_WRITE
+        throw new Exception("Error writing to stream.", e)
       }
     }
 
@@ -52,19 +51,16 @@ class CallbackConnection(address: String, port: Int) extends Logging {
       endOfStreamResponse match {
         case CallbackFlags.END_OF_STREAM =>
           logInfo(s"Received END_OF_STREAM signal. Calling callback [callback id = $callbackId] successful.")
-          return ConnectionStatus.SUCCESS
         case _ =>  {
-          logError(s"Error verifying end of stream. Expected: ${CallbackFlags.END_OF_STREAM}, " +
+          throw new Exception(s"Error verifying end of stream. Expected: ${CallbackFlags.END_OF_STREAM}, " +
               s"Received: $endOfStreamResponse")
         }
       }
     } catch {
       case e: Exception => {
-        logError("Error while verifying end of stream.", e)
+        throw new Exception("Error while verifying end of stream.", e)
       }
     }
-
-    ConnectionStatus.ERROR_END_OF_STREAM
   }
 
   def close(): Unit = {
@@ -113,9 +109,4 @@ class CallbackConnection(address: String, port: Int) extends Logging {
     val DOTNET_EXCEPTION_THROWN: Int = -3
     val END_OF_STREAM: Int = -4
   }
-}
-
-object ConnectionStatus extends Enumeration {
-  type ConnectionStatus = Value
-  val SUCCESS, ERROR_WRITE, ERROR_END_OF_STREAM = Value
 }
