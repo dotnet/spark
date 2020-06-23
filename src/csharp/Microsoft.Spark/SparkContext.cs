@@ -19,11 +19,11 @@ namespace Microsoft.Spark
     /// Only one `SparkContext` should be active per JVM. You must `stop()` the
     /// active `SparkContext` before creating a new one.
     /// </summary>
-    [Serializable]
     public sealed class SparkContext : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
 
+        [NonSerialized]
         private readonly SparkConf _conf;
 
         /// <summary>

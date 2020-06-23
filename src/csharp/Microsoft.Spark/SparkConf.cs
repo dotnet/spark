@@ -17,7 +17,6 @@ namespace Microsoft.Spark
     /// Note that once a SparkConf object is passed to Spark, it is cloned and can no longer be
     /// modified by the user. Spark does not support modifying the configuration at runtime.
     /// </remarks>
-    [Serializable]
     public sealed class SparkConf : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;

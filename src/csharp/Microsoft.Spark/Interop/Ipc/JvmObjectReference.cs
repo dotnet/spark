@@ -14,6 +14,7 @@ namespace Microsoft.Spark.Interop.Ipc
     /// The reason for having another layer on top of string id is
     /// so that JvmObjectReference can be copied.
     /// </summary>
+    [Serializable]
     internal sealed class JvmObjectId
     {
         private static readonly ILoggerService s_logger =
@@ -150,6 +151,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <summary>
         /// An unique identifier for an object created on the JVM.
         /// </summary>
+        ///
         internal JvmObjectId Id { get; }
 
         /// <summary>

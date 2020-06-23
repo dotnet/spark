@@ -22,7 +22,9 @@ namespace Microsoft.Spark.Sql
     {
         private readonly JvmObjectReference _jvmObject;
 
+        [NonSerialized]
         private readonly Lazy<SparkContext> _sparkContext;
+        [NonSerialized]
         private readonly Lazy<Catalog.Catalog> _catalog;
 
         private static readonly string s_sparkSessionClassName =

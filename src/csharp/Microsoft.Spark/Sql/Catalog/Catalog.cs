@@ -10,7 +10,6 @@ namespace Microsoft.Spark.Sql.Catalog
     /// <summary>
     /// Catalog interface for Spark. To access this, use SparkSession.Catalog.
     /// </summary>
-    [Serializable]
     public sealed class Catalog : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;

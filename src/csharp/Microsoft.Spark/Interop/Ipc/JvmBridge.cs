@@ -18,6 +18,7 @@ namespace Microsoft.Spark.Interop.Ipc
     /// Using a concurrent socket connection queue (lightweight synchronization mechanism)
     /// supporting async JVM calls like StreamingContext.AwaitTermination()
     /// </summary>
+    [Serializable]
     internal sealed class JvmBridge : IJvmBridge
     {
         // TODO: On .NET Core 2.1, Span<object> could be used with a stack-based
@@ -28,10 +29,13 @@ namespace Microsoft.Spark.Interop.Ipc
         [ThreadStatic]
         private static object[] s_twoArgArray;
         [ThreadStatic]
+        [NonSerialized]
         private static MemoryStream s_payloadMemoryStream;
 
+        [NonSerialized]
         private readonly ConcurrentQueue<ISocketWrapper> _sockets =
             new ConcurrentQueue<ISocketWrapper>();
+        [NonSerialized]
         private readonly ILoggerService _logger =
             LoggerServiceFactory.GetLogger(typeof(JvmBridge));
         private readonly int _portNumber;
