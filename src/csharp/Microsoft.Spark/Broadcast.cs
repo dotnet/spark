@@ -185,6 +185,7 @@ namespace Microsoft.Spark
                     IPAddress.Loopback,
                     (int)pair[0].Invoke("intValue"),
                     (string)pair[1].Invoke("toString"));
+                ChunkedStream bdrcstChunked = new ChunkedStream(socket.OutputStream, 8192);
                 Dump(value, socket.OutputStream);
                 socket.OutputStream.Flush();
                 pythonBroadcast.Invoke("waitTillDataReceived");
