@@ -45,6 +45,8 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
                 kernelBase.AddMiddleware(async (command, context, next) =>
                 {
+                    await next(command, context);
+
                     if ((context.HandlingKernel is CSharpKernel kernel) &&
                         (command is SubmitCode) &&
                         TryGetSparkSession(out SparkSession sparkSession) &&
@@ -57,8 +59,6 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                             sparkSession.SparkContext.AddFile(filePath);
                         }
                     }
-
-                    await next(command, context);
                 });
             }
 
