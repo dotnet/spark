@@ -172,7 +172,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="data"><see cref="IEnumerable"/> of type <see cref="int"/></param>
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<int> data) =>
-            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new IntegerType()));
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new IntegerType(), false));
 
         /// <summary>
         /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="Nullable{Int32}"/>
@@ -196,7 +196,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="data"><see cref="IEnumerable"/> of type <see cref="double"/></param>
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<double> data) =>
-            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DoubleType()));
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DoubleType(), false));
 
         /// <summary>
         /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="Nullable{Double}"/>
@@ -212,7 +212,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="data"><see cref="IEnumerable"/> of type <see cref="bool"/></param>
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<bool> data) =>
-            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new BooleanType()));
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new BooleanType(), false));
 
         /// <summary>
         /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="Nullable{Boolean}"/>
@@ -323,9 +323,10 @@ namespace Microsoft.Spark.Sql
         /// Returns a single column schema of the given datatype.
         /// </summary>
         /// <param name="dataType">Datatype of the column</param>
+        /// <param name="isNullable">Indicates if values of the column can be null</param>
         /// <returns>Schema as StructType</returns>
-        private StructType SchemaWithSingleColumn(DataType dataType) =>
-            new StructType(new[] { new StructField("_1", dataType) });
+        private StructType SchemaWithSingleColumn(DataType dataType, bool isNullable = true) =>
+            new StructType(new[] { new StructField("_1", dataType, isNullable) });
 
         /// <summary>
         /// This method is transforming each element of IEnumerable of type T input into a single 

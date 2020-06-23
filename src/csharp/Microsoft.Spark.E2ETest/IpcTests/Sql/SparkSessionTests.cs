@@ -103,6 +103,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Calling CreateDataFrame(IEnumerable<int> _) without schema
             {
+                var data = new List<int>(new int[] { 1, 2 });
+                StructType schema = SchemaWithSingleColumn(new IntegerType(), false);
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
+            }
+
+            // Calling CreateDataFrame(IEnumerable<int?> _) without schema
+            {
                 var data = new List<int?>(new int?[] { 1, 2, null });
                 StructType schema = SchemaWithSingleColumn(new IntegerType());
 
@@ -111,6 +120,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
 
             // Calling CreateDataFrame(IEnumerable<double> _) without schema
+            {
+                var data = new List<double>(new double[] { 1.2, 2.3 });
+                StructType schema = SchemaWithSingleColumn(new DoubleType(), false);
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
+            }
+
+            // Calling CreateDataFrame(IEnumerable<double?> _) without schema
             {
                 var data = new List<double?>(new double?[] { 1.2, 2.3, null });
                 StructType schema = SchemaWithSingleColumn(new DoubleType());
@@ -121,13 +139,22 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Calling CreateDataFrame(IEnumerable<bool> _) without schema
             {
+                var data = new List<bool>(new bool[] { true, false });
+                StructType schema = SchemaWithSingleColumn(new BooleanType(), false);
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
+            }
+
+            // Calling CreateDataFrame(IEnumerable<bool?> _) without schema
+            {
                 var data = new List<bool?>(new bool?[] { true, false, null });
                 StructType schema = SchemaWithSingleColumn(new BooleanType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
                 ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
             }
-            
+
             // Calling CreateDataFrame(IEnumerable<Date> _) without schema
             {
                 var data = new Date[]
@@ -174,8 +201,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// Returns a single column schema of the given datatype.
         /// </summary>
         /// <param name="dataType">Datatype of the column</param>
+        /// <param name="isNullable">Indicates if values of the column can be null</param>
         /// <returns>Schema as StructType</returns>
-        private StructType SchemaWithSingleColumn(DataType dataType) =>
-            new StructType(new[] { new StructField("_1", dataType) });
+        private StructType SchemaWithSingleColumn(DataType dataType, bool isNullable = true) =>
+            new StructType(new[] { new StructField("_1", dataType, isNullable) });
     }
 }
