@@ -6,14 +6,12 @@
     <RootNamespace>Microsoft.Spark.Extensions.DotNet.Interactive</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
-    <!-- NU5100 warns that a dll was found outside the 'lib' folder while packaging. DotNet.Interactive expects extension dlls in the 'interactive-extensions/dotnet'. -->
+    <!-- NU5100 warns that a dll was found outside the 'lib' folder while packaging. DotNet.Interactive expects extension dlls in 'interactive-extensions/dotnet'. -->
     <NoWarn>NU5100;$(NoWarn)</NoWarn>
 
     <Description>DotNet Interactive Extension for .NET for Apache Spark</Description>
     <PackageReleaseNotes>https://github.com/dotnet/spark/tree/master/docs/release-notes</PackageReleaseNotes>
     <PackageTags>spark;dotnet;csharp;interactive;dotnet-interactive</PackageTags>
-
-    <RestoreAdditionalProjectSources>https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet3.1/nuget/v3/index.json</RestoreAdditionalProjectSources>
   </PropertyGroup>
   
   <ItemGroup>
@@ -22,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.DotNet.Interactive.CSharp" Version="1.0.0-beta.20262.1">
+    <PackageReference Include="Microsoft.DotNet.Interactive.CSharp" Version="1.0.0-beta.20319.1">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
