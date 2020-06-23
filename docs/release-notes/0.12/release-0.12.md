@@ -1,16 +1,19 @@
 # .NET for Apache Spark 0.12 Release Notes
 
-### New Features and Improvements
+### New Features/Improvements and Bug Fixes
+
+* Expose `DataStreamWriter.ForeachBatch` API ([#549](https://github.com/dotnet/spark/pull/549))
+* Support for [dotnet-interactive](https://github.com/dotnet/interactive) ([#515](https://github.com/dotnet/spark/pull/515)) ([#517](https://github.com/dotnet/spark/pull/517)) ([#554](https://github.com/dotnet/spark/pull/554))
+* Support for [Hyperspace v0.1.0](https://github.com/microsoft/hyperspace) APIs ([#555](https://github.com/dotnet/spark/pull/555))
+* Support for Spark 2.4.6 ([#547](https://github.com/dotnet/spark/pull/547))
+* Bug fix caused by `BroadcastVariablesRegistry` ([#551](https://github.com/dotnet/spark/pull/551))
+* Update `Microsoft.Data.Analysis` to v`0.4.0` ([#528](https://github.com/dotnet/spark/pull/528))
+
+### Infrastructure / Documentation / Etc.
 
 * Improve build pipeline ([#510](https://github.com/dotnet/spark/pull/510)) ([#511](https://github.com/dotnet/spark/pull/511)) ([#512](https://github.com/dotnet/spark/pull/512)) ([#513](https://github.com/dotnet/spark/pull/513)) ([#524](https://github.com/dotnet/spark/pull/524))
-* Support for [dotnet-interactive](https://github.com/dotnet/interactive) ([#515](https://github.com/dotnet/spark/pull/515)) ([#517](https://github.com/dotnet/spark/pull/517)) ([#554](https://github.com/dotnet/spark/pull/554))
-* Update `Microsoft.Data.Analysis` to v`0.4.0` ([#528](https://github.com/dotnet/spark/pull/528))
-* Support for Spark 2.4.6 ([#547](https://github.com/dotnet/spark/pull/547))
 * Update AppName for the C# Spark Examples ([#548](https://github.com/dotnet/spark/pull/548))
-* Support for [Hyperspace v0.1.0](https://github.com/microsoft/hyperspace) APIs ([#555](https://github.com/dotnet/spark/pull/555))
 * Update maven links in build documentation ([#558](https://github.com/dotnet/spark/pull/558)) ([#560](https://github.com/dotnet/spark/pull/560))
-* Bug fix caused by `BroadcastVariablesRegistry` ([#551](https://github.com/dotnet/spark/pull/551))
-* Expose `DataStreamWriter.ForeachBatch` API ([#549](https://github.com/dotnet/spark/pull/549))
 
 ### Breaking Changes
 
