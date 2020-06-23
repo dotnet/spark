@@ -20,6 +20,7 @@ namespace Microsoft.Spark.Sql
     [Serializable]
     public sealed class SparkSession : IDisposable, IJvmObjectReferenceProvider
     {
+        [NonSerialized]
         private readonly JvmObjectReference _jvmObject;
 
         [NonSerialized]
