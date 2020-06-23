@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Microsoft.Spark.Extensions.Delta.E2ETest" />
+    <InternalsVisibleTo Include="Microsoft.Spark.Extensions.Hyperspace.E2ETest" />
   </ItemGroup>
 
   <ItemGroup>
