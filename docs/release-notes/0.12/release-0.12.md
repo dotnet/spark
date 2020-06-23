@@ -19,6 +19,10 @@
 
 * None
 
+### Known Issues
+
+* Broadcast variables do not work with [dotnet-interactive](https://github.com/dotnet/interactive) ([#561](https://github.com/dotnet/spark/pull/561))
+
 ### Compatibility
 
 #### Backward compatibility
