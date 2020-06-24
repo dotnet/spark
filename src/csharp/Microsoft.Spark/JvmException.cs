@@ -8,6 +8,8 @@ namespace Microsoft.Spark
     public class JvmException : Exception
     {
         public JvmException(string message) 
-            : base(message) { }
+            : base(message)
+        {
+        }
     }
 }
