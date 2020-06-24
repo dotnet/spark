@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Services;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
@@ -21,6 +22,10 @@ namespace Microsoft.Spark.E2ETest
     /// </summary>
     public sealed class SparkFixture : IDisposable
     {
+        
+        private readonly ILoggerService _logger =
+            LoggerServiceFactory.GetLogger(typeof(SparkFixture));   
+
         /// <summary>
         /// The names of environment variables used by the SparkFixture.
         /// </summary>
@@ -112,11 +117,14 @@ namespace Microsoft.Spark.E2ETest
             Spark.SparkContext.SetLogLevel(DefaultLogLevel);
 
             Jvm = ((IJvmObjectReferenceProvider)Spark).Reference.Jvm;
+
+            _logger.LogInfo("SparkSession created.");
         }
 
         public void Dispose()
         {
             Spark.Dispose();
+            _logger.LogInfo("SparkSession disposed.");
 
             // CSparkRunner will exit upon receiving newline from
             // the standard input stream.
