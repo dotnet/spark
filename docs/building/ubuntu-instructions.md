@@ -35,14 +35,14 @@ If you already have all the pre-requisites, skip to the [build](ubuntu-instructi
        ```bash
        sudo update-alternatives --config java
        ```
-  3. Install **[Apache Maven 3.6.3+](https://maven.apache.org/download.cgi)**
+  3. Install **[Apache Maven 3.6.0+](https://maven.apache.org/download.cgi)**
      - Run the following command:
        ```bash
        mkdir -p ~/bin/maven
        cd ~/bin/maven
-       wget https://www-us.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
-       tar -xvzf apache-maven-3.6.3-bin.tar.gz
-       ln -s apache-maven-3.6.3 current
+       wget https://www-us.apache.org/dist/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz
+       tar -xvzf apache-maven-3.6.0-bin.tar.gz
+       ln -s apache-maven-3.6.0 current
        export M2_HOME=~/bin/maven/current
        export PATH=${M2_HOME}/bin:${PATH}
        source ~/.bashrc
@@ -54,11 +54,11 @@ If you already have all the pre-requisites, skip to the [build](ubuntu-instructi
        <summary>&#x1F4D9; Click to see sample mvn -version output</summary>
        
        ```
-       Apache Maven 3.6.3 (cecedd343002696d0abb50b32b541b8a6ba2883f)
-       Maven home: ~/bin/apache-maven-3.6.3
-       Java version: 1.8.0_242, vendor: Oracle Corporation, runtime: /usr/lib/jvm/java-8-openjdk-amd64/jre
-       Default locale: en_US, platform encoding: ANSI_X3.4-1968
-       OS name: "linux", version: "4.4.0-142-generic", arch: "amd64", family: "unix"
+       Apache Maven 3.6.0 (97c98ec64a1fdfee7767ce5ffb20918da4f719f3; 2018-10-24T18:41:47Z)
+       Maven home: ~/bin/apache-maven-3.6.0
+       Java version: 1.8.0_191, vendor: Oracle Corporation, runtime: /usr/lib/jvm/java-8-openjdk-amd64/jre
+       Default locale: en, platform encoding: UTF-8
+       OS name: "linux", version: "4.4.0-17763-microsoft", arch: "amd64", family: "unix"
        ```
   4. Install **[Apache Spark 2.3+](https://spark.apache.org/downloads.html)**
      - Download [Apache Spark 2.3+](https://spark.apache.org/downloads.html) and extract it into a local folder (e.g., `~/bin/spark-2.3.2-bin-hadoop2.7`)

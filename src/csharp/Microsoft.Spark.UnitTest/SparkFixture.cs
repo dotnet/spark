@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.IO;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Moq;

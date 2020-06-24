@@ -29,7 +29,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
                 .Builder()
                 // Lower the shuffle partitions to speed up groupBy() operations.
                 .Config("spark.sql.shuffle.partitions", "3")
-                .AppName("SQL VectorUdfs example using .NET for Apache Spark")
+                .AppName(".NET Spark SQL VectorUdfs example")
                 .GetOrCreate();
 
             DataFrame df = spark.Read().Schema("age INT, name STRING").Json(args[0]);

@@ -84,14 +84,5 @@ namespace Microsoft.Spark.Interop
                 s_configurationService = value;
             }
         }
-
-        private static CallbackServer s_callbackServer;
-        internal static CallbackServer CallbackServer
-        {
-            get
-            {
-                return s_callbackServer ??= new CallbackServer(JvmBridge);
-            }
-        }
     }
 }

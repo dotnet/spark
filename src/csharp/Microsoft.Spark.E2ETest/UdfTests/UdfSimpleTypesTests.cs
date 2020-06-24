@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Xunit;
@@ -165,30 +164,6 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                     Assert.Equal(1, rows[i].Size());
                     Assert.Equal(expected[i], rows[i].GetAs<string>(0));
                 }
-            }
-        }
-
-        /// <summary>
-        /// Test to validate UDFs defined in separate threads work.
-        /// </summary>
-        [Fact]
-        public void TestUdfWithMultipleThreads()
-        {
-            try
-            {
-                void DefineUdf() => Udf<string, string>(str => str);
-
-                // Define a UDF in the main thread.
-                Udf<string, string>(str => str);
-
-                // Verify a UDF can be defined in a separate thread.
-                Thread t = new Thread(DefineUdf);
-                t.Start();
-                t.Join();
-            }
-            catch (Exception)
-            {
-                Assert.True(false);
             }
         }
     }

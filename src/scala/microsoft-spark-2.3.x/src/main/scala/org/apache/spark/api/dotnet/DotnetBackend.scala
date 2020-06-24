@@ -6,8 +6,9 @@
 
 package org.apache.spark.api.dotnet
 
-import java.net.InetSocketAddress
-import java.util.concurrent.TimeUnit
+import java.io.DataOutputStream
+import java.net.{InetSocketAddress, Socket}
+import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue, TimeUnit}
 
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.nio.NioEventLoopGroup
@@ -49,6 +50,7 @@ class DotnetBackend extends Logging {
             // lengthFieldLength = 4
             // lengthAdjustment = 0
             // initialBytesToStrip = 4, i.e.  strip out the length field itself
+            // new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4))
             new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4))
           .addLast("decoder", new ByteArrayDecoder())
           .addLast("handler", new DotnetBackendHandler(self))
@@ -79,26 +81,30 @@ class DotnetBackend extends Logging {
     bootstrap = null
 
     // Send close to .NET callback server.
-    DotnetBackend.shutdownCallbackClient()
+    logInfo("Requesting to close all call back sockets")
+    var socket: Socket = null
+    do {
+      socket = DotnetBackend.callbackSockets.poll()
+      if (socket != null) {
+        try {
+          val dos = new DataOutputStream(socket.getOutputStream)
+          SerDe.writeString(dos, "close")
+          socket.close()
+          socket = null
+        } catch {
+          case e: Exception => logError("Exception when closing socket: ", e)
+        }
+      }
+    } while (socket != null)
+    DotnetBackend.callbackSocketShutdown = true
   }
 }
 
-object DotnetBackend extends Logging {
-  @volatile private[spark] var callbackClient: CallbackClient = null
+object DotnetBackend {
+  // Channels to callback server.
+  private[spark] val callbackSockets: BlockingQueue[Socket] = new LinkedBlockingQueue[Socket]()
+  @volatile private[spark] var callbackPort: Int = 0
 
-  private[spark] def setCallbackClient(address: String, port: Int) = synchronized {
-    if (DotnetBackend.callbackClient == null) {
-      logInfo(s"Connecting to a callback server at $address:$port")
-      DotnetBackend.callbackClient = new CallbackClient(address, port)
-    } else {
-      throw new Exception("Callback client already set.")
-    }
-  }
-
-  private[spark] def shutdownCallbackClient(): Unit = synchronized {
-    if (callbackClient != null) {
-      callbackClient.shutdown()
-      callbackClient = null
-    }
-  }
+  // flag to denote whether the callback socket is shutdown explicitly
+  @volatile private[spark] var callbackSocketShutdown: Boolean = false
 }

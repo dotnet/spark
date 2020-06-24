@@ -27,7 +27,7 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
 
             SparkSession spark = SparkSession
                 .Builder()
-                .AppName("Sentiment Analysis using .NET for Apache Spark")
+                .AppName(".NET for Apache Spark Sentiment Analysis")
                 .GetOrCreate();
 
             // Read in and display Yelp reviews

@@ -26,7 +26,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             SparkSession spark = SparkSession
                 .Builder()
-                .AppName("SQL basic example using .NET for Apache Spark")
+                .AppName(".NET Spark SQL basic example")
                 .Config("spark.some.config.option", "some-value")
                 .GetOrCreate();
 

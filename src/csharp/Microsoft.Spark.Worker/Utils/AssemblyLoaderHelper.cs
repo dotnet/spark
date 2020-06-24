@@ -24,7 +24,7 @@ namespace Microsoft.Spark.Worker.Utils
             s_dependencyProviders = new ConcurrentDictionary<string, Lazy<DependencyProvider>>();
 
         private static readonly bool s_runningREPL =
-            EnvironmentUtils.GetEnvironmentVariableAsBool(Constants.RunningREPLEnvVar);
+            EnvironmentUtils.GetEnvironmentVariableAsBool("DOTNET_SPARK_RUNNING_REPL");
 
         /// <summary>
         /// Register the AssemblyLoader.ResolveAssembly handler to handle the
@@ -49,7 +49,7 @@ namespace Microsoft.Spark.Worker.Utils
         /// These files include:
         /// - "{packagename}.{version}.nupkg"
         ///   The nuget packages
-        /// - <see cref="DependencyProviderUtils.CreateFileName(long)"/>
+        /// - <see cref="DependencyProviderUtils.CreateFileName(ulong)"/>
         ///   Serialized <see cref="DependencyProviderUtils.Metadata"/> object.
         ///
         /// On the Worker, in order to resolve the nuget dependencies referenced by
