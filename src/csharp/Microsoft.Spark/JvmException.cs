@@ -3,7 +3,7 @@
 namespace Microsoft.Spark
 {
     /// <summary>
-    /// Contains the message returned from the <see cref="JvmBridge"/> on an error
+    /// Contains the message returned from the <see cref="Interop.Ipc.JvmBridge"/> on an error
     /// </summary>
     public class JvmException : Exception
     {
