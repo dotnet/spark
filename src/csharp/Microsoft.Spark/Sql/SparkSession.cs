@@ -11,6 +11,7 @@ using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Streaming;
 using Microsoft.Spark.Sql.Types;
+using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Sql
 {

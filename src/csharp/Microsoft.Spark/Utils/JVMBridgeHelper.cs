@@ -12,18 +12,23 @@ using System.Runtime.InteropServices;
 using Microsoft.Spark.Services;
 using Microsoft.Spark.Interop;
 
-namespace Microsoft.Spark.Sql
+namespace Microsoft.Spark.Utils
 {
     /// <summary>
     /// An helper to launch dotnet jvm if needed
     /// </summary>    
-    public class JVMBridgeHelper : IDisposable
+    internal class JVMBridgeHelper : IDisposable
     {
         /// <summary>
         /// Customization for JVM Bridge jar file
         /// If not exists, the helper will find out the jar in $DOTNET_WORKER_DIR folder.
         /// </summary>
-        public static string JVMBridgeJarEnvName = "DOTNET_BRIDGE_JAR";
+        internal static string JVMBridgeJarEnvName = "DOTNET_BRIDGE_JAR";
+
+        /// <summary>
+        /// Generate spark settings for the running system
+        /// </summary>
+        internal static SparkSettings sparkSettings = new SparkSettings();
 
         /// <summary>
         /// DotnetRunner classname
@@ -53,7 +58,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="customIPGlobalProperties">custom IPGlobalProperties, null for System.Net.NetworkInformation</param>
         /// <returns> True means backend port is occupied by the runner.</returns>
-        public static bool IsDotnetBackendPortUsing(
+        internal static bool IsDotnetBackendPortUsing(
             IPGlobalProperties customIPGlobalProperties = null)
         {
             var backendport = SparkEnvironment.ConfigurationService.GetBackendPortNumber();
@@ -63,12 +68,11 @@ namespace Microsoft.Spark.Sql
             return listeningEndpoints.Any(p => p.Port == backendport);
         }
 
-        public JVMBridgeHelper()
+        internal JVMBridgeHelper()
         {
             var jarpath = locateBridgeJar();
-            var sparksubmit = locateSparkSubmit();
             if (string.IsNullOrWhiteSpace(jarpath) ||
-                string.IsNullOrWhiteSpace(sparksubmit))
+                string.IsNullOrWhiteSpace(sparkSettings.SPARK_SUBMIT))
             {
                 // Cannot find correct launch informations, give up.
                 return;
@@ -76,7 +80,7 @@ namespace Microsoft.Spark.Sql
             var arguments = $"--class {RunnerClassname} {jarpath} debug";
             var startupinfo = new ProcessStartInfo
             {
-                FileName = sparksubmit,
+                FileName = sparkSettings.SPARK_SUBMIT,
                 Arguments = arguments,
                 RedirectStandardOutput = true,
                 RedirectStandardInput = true,
@@ -85,7 +89,7 @@ namespace Microsoft.Spark.Sql
             };
 
             jvmBridge = new Process() { StartInfo = startupinfo };
-            _logger.LogInfo($"Launch JVM Bridge : {sparksubmit} {arguments}");
+            _logger.LogInfo($"Launch JVM Bridge : {sparkSettings.SPARK_SUBMIT} {arguments}");
             jvmBridge.Start();
 
             // wait until we see .net backend started
@@ -118,25 +122,9 @@ namespace Microsoft.Spark.Sql
             jvmBridge = null;
         }
 
-        private string locateSparkSubmit()
-        {
-            var sparkHome = Environment.GetEnvironmentVariable("SPARK_HOME");
-            if (string.IsNullOrWhiteSpace(sparkHome))
-            {
-                return string.Empty;
-            }
-            var filename = Path.Combine(sparkHome, "bin", "spark-submit");
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                filename += ".cmd";
-            }
-            if (!File.Exists(filename))
-            {
-                return string.Empty;
-            }
-            return filename;
-        }
-
+        /// <summary>
+        /// Locate 
+        /// </summary>
         private string locateBridgeJar()
         {
             var jarpath = Environment.GetEnvironmentVariable(JVMBridgeJarEnvName);
