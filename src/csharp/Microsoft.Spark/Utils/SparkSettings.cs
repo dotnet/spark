@@ -54,6 +54,7 @@ namespace Microsoft.Spark.Utils
             SPARK_HOME = Environment.GetEnvironmentVariable(SPARK_HOME_ENV_KEY);
             if (string.IsNullOrWhiteSpace(SPARK_HOME) == false)
             {
+                SPARK_HOME = string.Empty;
                 return;
             }
             foreach (var possiblehome in possible_spark_home())
@@ -89,7 +90,7 @@ namespace Microsoft.Spark.Utils
         /// </summary>
         private string locateSparkSubmit(string sparkhome)
         {
-            var fn = Path.Combine(sparkhome, "bin", sparksubmitcmd);
+            var fn = Path.Combine(sparkhome ?? string.Empty, "bin", sparksubmitcmd);
             return File.Exists(fn)
                 ? fn : string.Empty;
         }
