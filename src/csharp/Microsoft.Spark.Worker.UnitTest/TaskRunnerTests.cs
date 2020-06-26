@@ -2,13 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
-using Razorvine.Pickle;
 using Xunit;
 
 namespace Microsoft.Spark.Worker.UnitTest

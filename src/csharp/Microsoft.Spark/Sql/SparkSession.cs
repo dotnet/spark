@@ -22,6 +22,7 @@ namespace Microsoft.Spark.Sql
         private readonly JvmObjectReference _jvmObject;
 
         private readonly Lazy<SparkContext> _sparkContext;
+        private readonly Lazy<Catalog.Catalog> _catalog;
 
         private static readonly string s_sparkSessionClassName =
             "org.apache.spark.sql.SparkSession";
@@ -36,6 +37,8 @@ namespace Microsoft.Spark.Sql
             _sparkContext = new Lazy<SparkContext>(
                 () => new SparkContext(
                     (JvmObjectReference)_jvmObject.Invoke("sparkContext")));
+            _catalog = new Lazy<Catalog.Catalog>(
+                () => new Catalog.Catalog((JvmObjectReference)_jvmObject.Invoke("catalog")));
         }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
@@ -44,6 +47,13 @@ namespace Microsoft.Spark.Sql
         /// Returns SparkContext object associated with this SparkSession.
         /// </summary>
         public SparkContext SparkContext => _sparkContext.Value;
+
+        /// <summary>
+        /// Interface through which the user may create, drop, alter or query underlying databases,
+        /// tables, functions etc.
+        /// </summary>
+        /// <returns>Catalog object</returns>
+        public Catalog.Catalog Catalog => _catalog.Value;
 
         /// <summary>
         /// Creates a Builder object for SparkSession.
@@ -141,9 +151,9 @@ namespace Microsoft.Spark.Sql
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("table", tableName));
 
         /// <summary>
-        /// Creates a <see cref="DataFrame"/> from an <see cref="IEnumerable"/> containing 
+        /// Creates a <see cref="DataFrame"/> from an <see cref="IEnumerable"/> containing
         /// <see cref="GenericRow"/>s using the given schema.
-        /// It is important to make sure that the structure of every <see cref="GenericRow"/> of 
+        /// It is important to make sure that the structure of every <see cref="GenericRow"/> of
         /// the provided <see cref="IEnumerable"/> matches
         /// the provided schema. Otherwise, there will be runtime exception.
         /// </summary>
@@ -162,10 +172,21 @@ namespace Microsoft.Spark.Sql
         /// <param name="data"><see cref="IEnumerable"/> of type <see cref="int"/></param>
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<int> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new IntegerType(), false));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type
+        /// <see cref="Nullable{Int32}"/>
+        /// </summary>
+        /// <param name="data"><see cref="IEnumerable"/> of type
+        /// <see cref="Nullable{Int32}"/></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<int?> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new IntegerType()));
 
         /// <summary>
-        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="string"/>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type
+        /// <see cref="string"/>
         /// </summary>
         /// <param name="data"><see cref="IEnumerable"/> of type <see cref="string"/></param>
         /// <returns>Dataframe object</returns>
@@ -173,11 +194,22 @@ namespace Microsoft.Spark.Sql
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new StringType()));
 
         /// <summary>
-        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="double"/>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type
+        /// <see cref="double"/>
         /// </summary>
         /// <param name="data"><see cref="IEnumerable"/> of type <see cref="double"/></param>
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<double> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DoubleType(), false));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type
+        /// <see cref="Nullable{Double}"/>
+        /// </summary>
+        /// <param name="data"><see cref="IEnumerable"/> of type
+        /// <see cref="Nullable{Double}"/></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<double?> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DoubleType()));
 
         /// <summary>
@@ -186,6 +218,16 @@ namespace Microsoft.Spark.Sql
         /// <param name="data"><see cref="IEnumerable"/> of type <see cref="bool"/></param>
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<bool> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new BooleanType(), false));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type
+        /// <see cref="Nullable{Boolean}"/>
+        /// </summary>
+        /// <param name="data"><see cref="IEnumerable"/> of type
+        /// <see cref="Nullable{Boolean}"/></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<bool?> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new BooleanType()));
 
         /// <summary>
@@ -281,14 +323,6 @@ namespace Microsoft.Spark.Sql
             new UdfRegistration((JvmObjectReference)_jvmObject.Invoke("udf"));
 
         /// <summary>
-        /// Interface through which the user may create, drop, alter or query underlying databases,
-        /// tables, functions etc.
-        /// </summary>
-        /// <returns>Catalog object</returns>
-        public Catalog.Catalog Catalog() =>
-            new Catalog.Catalog((JvmObjectReference)_jvmObject.Invoke("catalog"));
-
-        /// <summary>
         /// Stops the underlying SparkContext.
         /// </summary>
         public void Stop() => _jvmObject.Invoke("stop");
@@ -297,9 +331,10 @@ namespace Microsoft.Spark.Sql
         /// Returns a single column schema of the given datatype.
         /// </summary>
         /// <param name="dataType">Datatype of the column</param>
+        /// <param name="isNullable">Indicates if values of the column can be null</param>
         /// <returns>Schema as StructType</returns>
-        private StructType SchemaWithSingleColumn(DataType dataType) =>
-            new StructType(new[] { new StructField("_1", dataType) });
+        private StructType SchemaWithSingleColumn(DataType dataType, bool isNullable = true) =>
+            new StructType(new[] { new StructField("_1", dataType, isNullable) });
 
         /// <summary>
         /// This method is transforming each element of IEnumerable of type T input into a single 

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
-using static Microsoft.Spark.Sql.Functions;
 using Xunit;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
