@@ -1,5 +1,10 @@
 # .Net for Spark Extensions
 
+## Table of Contents
+- [NuGet Packages](#nuget-packages)
+
+## NuGet Packages
+
 The following .Net for Spark extensions are available as NuGet packages:
 
 * [Microsoft.Spark.Extensions.Azure.Synapse.Analytics](https://www.nuget.org/packages/Microsoft.Spark.Extensions.Azure.Synapse.Analytics/)
