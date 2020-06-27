@@ -66,7 +66,10 @@ namespace Microsoft.Spark.UnitTest
                 .Returns(".");
 
             AssemblyLoader.LoadFromFile = AssemblyLoadContext.Default.LoadFromAssemblyPath;
-            AssemblyLoader.ResolveAssembly(Assembly.GetExecutingAssembly().FullName);
+            Assembly expectedAssembly = Assembly.GetExecutingAssembly();
+            Assembly actualAssembly = AssemblyLoader.ResolveAssembly(expectedAssembly.FullName);
+
+            Assert.Equal(expectedAssembly, actualAssembly);
         }
     }
 }
