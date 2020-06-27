@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Services;
@@ -261,28 +262,26 @@ namespace Microsoft.Spark
     /// </summary>
     internal static class JvmBroadcastRegistry
     {
-        [ThreadStatic]
-        private static readonly List<JvmObjectReference> s_jvmBroadcastVariables =
-            new List<JvmObjectReference>();
+        private static ThreadLocal<List<JvmObjectReference>> s_jvmBroadcastVariables = 
+            new ThreadLocal<List<JvmObjectReference>>(() => new List<JvmObjectReference>());
 
         /// <summary>
         /// Adds a JVMObjectReference object of type <see cref="Broadcast{T}"/> to the list.
         /// </summary>
         /// <param name="broadcastJvmObject">JVMObjectReference of the Broadcast variable</param>
         internal static void Add(JvmObjectReference broadcastJvmObject) =>
-            s_jvmBroadcastVariables.Add(broadcastJvmObject);
+            s_jvmBroadcastVariables.Value.Add(broadcastJvmObject);
 
         /// <summary>
         /// Clears s_jvmBroadcastVariables of all the JVMObjectReference objects of type
         /// <see cref="Broadcast{T}"/>.
         /// </summary>
-        internal static void Clear() => s_jvmBroadcastVariables.Clear();
+        internal static void Clear() => s_jvmBroadcastVariables.Value.Clear();
 
         /// <summary>
         /// Returns the static member s_jvmBroadcastVariables.
         /// </summary>
         /// <returns>A list of all broadcast objects of type <see cref="JvmObjectReference"/></returns>
-        internal static List<JvmObjectReference> GetAll() => s_jvmBroadcastVariables;
+        internal static List<JvmObjectReference> GetAll() => s_jvmBroadcastVariables.Value;
     }
 }
-

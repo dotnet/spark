@@ -50,5 +50,10 @@ namespace Microsoft.Spark.Network
         /// Returns the local endpoint.
         /// </summary>
         EndPoint LocalEndPoint { get; }
+
+        /// <summary>
+        /// Returns the remote endpoint.
+        /// </summary>
+        EndPoint RemoteEndPoint { get; }
     }
 }
