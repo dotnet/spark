@@ -4,7 +4,11 @@
 
 using System;
 using System.IO;
+using System.Reflection;
+using System.Runtime.Loader;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Utils;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Spark.UnitTest
@@ -12,6 +16,14 @@ namespace Microsoft.Spark.UnitTest
     [Collection("Spark Unit Tests")]
     public class AssemblyLoaderTests
     {
+        private readonly Mock<IJvmBridge> _mockJvm;
+
+        public AssemblyLoaderTests(SparkFixture _fixture)
+        {
+            _mockJvm = _fixture.MockJvm;
+        }
+
+
         [Fact]
         public void TestAssemblySearchPathResolver()
         {
@@ -44,6 +56,18 @@ namespace Microsoft.Spark.UnitTest
             Environment.SetEnvironmentVariable(
                 AssemblySearchPathResolver.AssemblySearchPathsEnvVarName,
                 null);
+        }
+
+        [Fact]
+        public void TestResolveAssemblyWithRelativePath()
+        {
+            _mockJvm.Setup(m => m.CallStaticJavaMethod(
+                "org.apache.spark.SparkFiles",
+                "getRootDirectory"))
+                .Returns(".");
+
+            AssemblyLoader.LoadFromFile = AssemblyLoadContext.Default.LoadFromAssemblyPath;
+            AssemblyLoader.ResolveAssembly(Assembly.GetExecutingAssembly().FullName);
         }
     }
 }
