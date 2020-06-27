@@ -23,7 +23,6 @@ namespace Microsoft.Spark.UnitTest
             _mockJvm = _fixture.MockJvm;
         }
 
-
         [Fact]
         public void TestAssemblySearchPathResolver()
         {

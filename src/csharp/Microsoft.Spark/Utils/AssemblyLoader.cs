@@ -189,7 +189,7 @@ namespace Microsoft.Spark.Utils
         {
             foreach (string searchPath in s_searchPaths.Value)
             {
-                FileInfo assemblyFile = new FileInfo(Path.Combine(searchPath, assemblyFileName));
+                var assemblyFile = new FileInfo(Path.Combine(searchPath, assemblyFileName));
                 if (assemblyFile.Exists)
                 {
                     try
