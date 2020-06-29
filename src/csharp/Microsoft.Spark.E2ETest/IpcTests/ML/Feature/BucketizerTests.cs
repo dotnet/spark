@@ -2,9 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.ML.Feature;
+using Microsoft.Spark.ML.Feature.Param;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
@@ -59,7 +61,18 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 Assert.Equal(bucketizer.Uid(), loadedBucketizer.Uid());
             }
 
-            System.Console.WriteLine(bucketizer.ExplainParams());
+            Assert.NotEmpty(bucketizer.ExplainParams());
+            
+            Param handleInvalidParam = bucketizer.GetParam("handleInvalid");
+            Assert.NotEmpty(handleInvalidParam.Doc());
+            Assert.NotEmpty(handleInvalidParam.Name());
+            Assert.Equal(handleInvalidParam.Parent(), bucketizer.Uid());
+            
+            Assert.NotEmpty(bucketizer.ExplainParam(handleInvalidParam));
+            bucketizer.Set(handleInvalidParam, "keep");
+            Assert.Equal("keep", bucketizer.GetHandleInvalid());
+            
+            Assert.Equal("error", bucketizer.Clear(handleInvalidParam).GetHandleInvalid());
         }
 
         [Fact]

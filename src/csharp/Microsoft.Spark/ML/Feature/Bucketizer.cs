@@ -41,10 +41,9 @@ namespace Microsoft.Spark.ML.Feature
         {
         }
         
-        internal Bucketizer(JvmObjectReference jvmObject) : base(jvmObject)
+        internal Bucketizer(JvmObjectReference jvmObject) : base(jvmObject, s_bucketizerClassName)
         {
         }
-        
         
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
         
@@ -196,16 +195,6 @@ namespace Microsoft.Spark.ML.Feature
                     s_bucketizerClassName,"load", path));
         }
         
-        /// <summary>
-        /// Saves the <see cref="Bucketizer"/> so that it can be loaded later using Load
-        /// </summary>
-        /// <param name="path">The path to save the <see cref="Bucketizer"/> to</param>
-        /// <returns>New <see cref="Bucketizer"/> object</returns>
-        public Bucketizer Save(string path)
-        {
-            return WrapAsBucketizer(_jvmObject.Invoke("save", path));
-        }
-
         /// <summary>
         /// Executes the <see cref="Bucketizer"/> and transforms the DataFrame to include the new
         /// column or columns with the bucketed data.

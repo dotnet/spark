@@ -7,6 +7,16 @@ using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark.ML.Feature.Param
 {
+    /// <summary>
+    /// A <see cref="Param"/> with self-contained documentation and optionally default value.
+    ///
+    /// A <see cref="Param"/> references an individual parameter that includes documentation, the
+    /// name of the parameter and optionally a default value. Params can either be set using the
+    /// generic <see cref="Param"/> methods or by using explicit methods. For example
+    /// <see cref="Bucketizer"/> has SetHandleInvalid or you can call GetParam("handleInvalid")
+    /// and then <see cref="Bucketizer"/>.Set using the <see cref="Param"/> and the value you want
+    /// to use.
+    /// </summary>
     public class Param : IJvmObjectReferenceProvider
     {
         private static readonly string s_ParamClassName = 
@@ -17,7 +27,7 @@ namespace Microsoft.Spark.ML.Feature.Param
         public Param(Identifiable parent, string name, string doc)
         {
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                    s_ParamClassName, parent.Uid(), name, doc);
+                s_ParamClassName, parent.Uid(), name, doc);
         }
         
         public Param(string parent, string name, string doc)
@@ -47,26 +57,29 @@ namespace Microsoft.Spark.ML.Feature.Param
         
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
         
+        /// <summary>
+        /// The description of what the <see cref="Param"/> does and how it works including any
+        /// defaults and the current value
+        /// </summary>
+        /// <returns>A description of how the <see cref="Param"/> works</returns>
         public string Doc()
         {
             return (string)_jvmObject.Invoke("doc");
         }
-        
-        public object JsonDecode(string json)
-        {
-            return _jvmObject.Invoke("jsonDecode", json);
-        }
-        
-        public string JsonEncode(object value)
-        {
-            return (string)_jvmObject.Invoke("jsonEncode", value);
-        }
-        
+
+        /// <summary>
+        /// The name of the <see cref="Param"/>
+        /// </summary>
+        /// <returns></returns>
         public string Name()
         {
             return (string)_jvmObject.Invoke("name");
         }
         
+        /// <summary>
+        /// The object that contains the <see cref="Param"/>
+        /// </summary>
+        /// <returns></returns>
         public string Parent()
         {
             return (string)_jvmObject.Invoke("parent");

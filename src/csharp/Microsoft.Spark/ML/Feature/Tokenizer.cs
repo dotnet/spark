@@ -12,19 +12,16 @@ namespace Microsoft.Spark.ML.Feature
     /// A <see cref="Tokenizer"/> that converts the input string to lowercase and then splits it by
     /// white spaces.
     /// </summary>
-    public class Tokenizer : IJvmObjectReferenceProvider
+    public class Tokenizer : FeatureBase<Tokenizer>, IJvmObjectReferenceProvider
     {
         private static readonly string s_tokenizerClassName = 
             "org.apache.spark.ml.feature.Tokenizer";
         
-        private readonly JvmObjectReference _jvmObject;
-        
         /// <summary>
         /// Create a <see cref="Tokenizer"/> without any parameters
         /// </summary>
-        public Tokenizer()
+        public Tokenizer() : base(s_tokenizerClassName)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_tokenizerClassName);
         }
 
         /// <summary>
@@ -32,14 +29,12 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="Tokenizer"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public Tokenizer(string uid)
+        public Tokenizer(string uid) : base(s_tokenizerClassName, uid)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_tokenizerClassName, uid);
         }
         
-        internal Tokenizer(JvmObjectReference jvmObject)
+        internal Tokenizer(JvmObjectReference jvmObject) : base(jvmObject, s_tokenizerClassName)
         {
-            _jvmObject = jvmObject;
         }
         
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
@@ -98,17 +93,6 @@ namespace Microsoft.Spark.ML.Feature
         }
 
         /// <summary>
-        /// The uid that was used to create the <see cref="Tokenizer"/>. If no UID is passed in
-        /// when creating the <see cref="Tokenizer"/> then a random UID is created when the
-        /// <see cref="Tokenizer"/> is created.
-        /// </summary>
-        /// <returns>string UID identifying the <see cref="Tokenizer"/></returns>
-        public string Uid()
-        {
-            return (string)_jvmObject.Invoke("uid");
-        }
-        
-        /// <summary>
         /// Loads the <see cref="Tokenizer"/> that was previously saved using Save
         /// </summary>
         /// <param name="path">The path the previous <see cref="Tokenizer"/> was saved to</param>
@@ -118,16 +102,6 @@ namespace Microsoft.Spark.ML.Feature
             return WrapAsTokenizer(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_tokenizerClassName, "load", path));
-        }
-        
-        /// <summary>
-        /// Saves the <see cref="Tokenizer"/> so that it can be loaded later using Load
-        /// </summary>
-        /// <param name="path">The path to save the <see cref="Tokenizer"/> to</param>
-        /// <returns>New <see cref="Tokenizer"/> object</returns>
-        public Tokenizer Save(string path)
-        {
-            return WrapAsTokenizer(_jvmObject.Invoke("save", path));
         }
         
         private static Tokenizer WrapAsTokenizer(object obj) => 
