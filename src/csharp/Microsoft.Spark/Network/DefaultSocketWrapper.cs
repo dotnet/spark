@@ -137,5 +137,10 @@ namespace Microsoft.Spark.Network
         /// Returns the local endpoint.
         /// </summary>
         public EndPoint LocalEndPoint => _innerSocket.LocalEndPoint;
+
+        /// <summary>
+        /// Returns the remote endpoint.
+        /// </summary>
+        public EndPoint RemoteEndPoint => _innerSocket.RemoteEndPoint;
     }
 }

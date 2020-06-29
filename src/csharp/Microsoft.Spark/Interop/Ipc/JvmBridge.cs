@@ -189,7 +189,7 @@ namespace Microsoft.Spark.Interop.Ipc
                         args);
                     _logger.LogError(errorMessage);
                     _logger.LogError(jvmFullStackTrace);
-                    throw new Exception(errorMessage);
+                    throw new Exception(errorMessage, new JvmException(jvmFullStackTrace));
                 }
 
                 char typeAsChar = Convert.ToChar(inputStream.ReadByte());
