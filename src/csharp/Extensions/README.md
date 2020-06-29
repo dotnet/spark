@@ -2,8 +2,6 @@
 
 ## Table of Contents
 * [NuGet Packages](#nuget-packages)
-    * [First-Party](#first-party)
-    * [Third-Party](#third-party)
 
 ## NuGet Packages
 
