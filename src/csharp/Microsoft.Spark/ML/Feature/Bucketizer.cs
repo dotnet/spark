@@ -241,11 +241,6 @@ namespace Microsoft.Spark.ML.Feature
             return WrapAsBucketizer(_jvmObject.Invoke("setHandleInvalid", value.ToString()));
         }
 
-        public Bucketizer Set(Param.Param parameter, object value)
-        {
-            return WrapAsBucketizer(_jvmObject.Invoke("set", parameter, value));
-        }
-        
         private static Bucketizer WrapAsBucketizer(object obj) => 
             new Bucketizer((JvmObjectReference)obj);
     }

@@ -64,5 +64,10 @@ namespace Microsoft.Spark.ML.Feature
             return new Param.Param((JvmObjectReference)_jvmObject.Invoke("getPram", paramName));
         }
 
+        public T Set(Param.Param param, object value)
+        {
+            return (T)_jvmObject.Invoke("set", param, value);
+        }
+
     }
 }

@@ -49,16 +49,17 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Equal(expectedInputCol, bucketizer.GetInputCol());
             Assert.Equal(expectedOutputCol, bucketizer.GetOutputCol());
             Assert.Equal(expectedSplits, bucketizer.GetSplits());
-            
+
             using (var tempDirectory = new TemporaryDirectory())
             {
                 string savePath = Path.Join(tempDirectory.Path, "bucket");
                 bucketizer.Save(savePath);
-                
+
                 Bucketizer loadedBucketizer = Bucketizer.Load(savePath);
                 Assert.Equal(bucketizer.Uid(), loadedBucketizer.Uid());
             }
-            
+
+            System.Console.WriteLine(bucketizer.ExplainParams());
         }
 
         [Fact]
