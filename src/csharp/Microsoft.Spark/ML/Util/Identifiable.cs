@@ -6,7 +6,10 @@ namespace Microsoft.Spark.ML.Feature
 {
     public interface Identifiable
     {
+        /// <summary>
+        /// The UID of the object.
+        /// </summary>
+        /// <returns></returns>
         string Uid();
-        
     }
 }
