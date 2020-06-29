@@ -189,12 +189,12 @@ namespace Microsoft.Spark.Utils
         {
             foreach (string searchPath in s_searchPaths.Value)
             {
-                string assemblyPath = Path.Combine(searchPath, assemblyFileName);
-                if (File.Exists(assemblyPath))
+                var assemblyFile = new FileInfo(Path.Combine(searchPath, assemblyFileName));
+                if (assemblyFile.Exists)
                 {
                     try
                     {
-                        assembly = LoadFromFile(assemblyPath);
+                        assembly = LoadFromFile(assemblyFile.FullName);
                         return true;
                     }
                     catch (Exception ex) when (

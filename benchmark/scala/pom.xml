@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.microsoft.spark</groupId>
   <artifactId>microsoft-spark-benchmark</artifactId>
-  <version>0.12.0</version>
+  <version>0.12.1</version>
   <inceptionYear>2019</inceptionYear>
   <properties>
     <encoding>UTF-8</encoding>
