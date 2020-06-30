@@ -12,19 +12,16 @@ namespace Microsoft.Spark.ML.Feature
     /// A <see cref="IDFModel"/> that converts the input string to lowercase and then splits it by
     /// white spaces.
     /// </summary>
-    public class IDFModel : IJvmObjectReferenceProvider
+    public class IDFModel : FeatureBase<IDFModel>, IJvmObjectReferenceProvider
     {
         private static readonly string s_IDFModelClassName = 
             "org.apache.spark.ml.feature.IDFModel";
         
-        private readonly JvmObjectReference _jvmObject;
-
         /// <summary>
         /// Create a <see cref="IDFModel"/> without any parameters
         /// </summary>
-        public IDFModel()
+        public IDFModel() : base(s_IDFModelClassName)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_IDFModelClassName);
         }
 
         /// <summary>
@@ -32,14 +29,12 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="IDFModel"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public IDFModel(string uid)
+        public IDFModel(string uid) : base(s_IDFModelClassName, uid)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_IDFModelClassName, uid);
         }
         
-        internal IDFModel(JvmObjectReference jvmObject)
+        internal IDFModel(JvmObjectReference jvmObject) : base(jvmObject, s_IDFModelClassName)
         {
-            _jvmObject = jvmObject;
         }
         
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
@@ -107,17 +102,6 @@ namespace Microsoft.Spark.ML.Feature
         }
 
         /// <summary>
-        /// The uid that was used to create the <see cref="IDFModel"/>. If no UID is passed in
-        /// when creating the <see cref="IDFModel"/> then a random UID is created when the
-        /// <see cref="IDFModel"/> is created.
-        /// </summary>
-        /// <returns>string UID identifying the <see cref="IDFModel"/></returns>
-        public string Uid()
-        {
-            return (string)_jvmObject.Invoke("uid");
-        }
-        
-        /// <summary>
         /// Loads the <see cref="IDFModel"/> that was previously saved using Save
         /// </summary>
         /// <param name="path">The path the previous <see cref="IDFModel"/> was saved to</param>
@@ -128,17 +112,7 @@ namespace Microsoft.Spark.ML.Feature
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_IDFModelClassName, "load", path));
         }
-        
-        /// <summary>
-        /// Saves the <see cref="IDFModel"/> so that it can be loaded later using Load
-        /// </summary>
-        /// <param name="path">The path to save the <see cref="IDFModel"/> to</param>
-        /// <returns>New <see cref="IDFModel"/> object</returns>
-        public IDFModel Save(string path)
-        {
-            return WrapAsIDFModel(_jvmObject.Invoke("save", path));
-        }
-        
+
         private static IDFModel WrapAsIDFModel(object obj) => 
             new IDFModel((JvmObjectReference)obj);
     }
