@@ -44,7 +44,6 @@ namespace Microsoft.Spark.ML.Feature
         internal Bucketizer(JvmObjectReference jvmObject) : base(jvmObject, s_bucketizerClassName)
         {
         }
-        
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
         
         /// <summary>
