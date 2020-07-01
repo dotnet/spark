@@ -17,13 +17,19 @@ namespace Microsoft.Spark.ML.Feature
         private readonly string _className;
         internal readonly JvmObjectReference _jvmObject;
         
-        protected FeatureBase(string className)
+        internal FeatureBase(string className)
+            : this(SparkEnvironment.JvmBridge.CallConstructor(className), className)
+        {
+        }
         {
             _className = className;
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(className);
         }
         
-        protected FeatureBase(string className, string uid)
+        internal FeatureBase(string className, string uid)
+            : this(SparkEnvironment.JvmBridge.CallConstructor(className, uid), className)
+        {
+        }
         {
             _className = className;
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(className, uid);
@@ -36,17 +42,14 @@ namespace Microsoft.Spark.ML.Feature
         }
 
         /// <summary>
-        /// Returns the JVM toString value rather than the .Net ToString default
+        /// Returns the JVM toString value rather than the .NET ToString default
         /// </summary>
         /// <returns>JVM toString() value</returns>
-        public override string ToString()
-        {
-            return (string)_jvmObject.Invoke("toString");
-        }
+        public override string ToString() => (string)_jvmObject.Invoke("toString");
         
         /// <summary>
         /// The uid that was used to create the object. If no UID is passed in when creating the
-        /// object then a random UID is created when the object  is created.
+        /// object then a random UID is created when the object is created.
         /// </summary>
         /// <returns>string UID identifying the object</returns>
         public string Uid()
@@ -60,10 +63,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="path">The path to save the object to</param>
         /// <returns>New object</returns>
-        public T Save(string path)
-        {
-            return WrapAsType((JvmObjectReference)_jvmObject.Invoke("save", path));
-        }
+        public T Save(string path) => WrapAsType((JvmObjectReference)_jvmObject.Invoke("save", path));
 
         private T WrapAsType(JvmObjectReference reference)
         {
