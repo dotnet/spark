@@ -47,70 +47,52 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the column that the <see cref="IDF"/> should read from
         /// </summary>
         /// <returns>string, input column</returns>
-        public string GetInputCol()
-        {
-            return (string)(_jvmObject.Invoke("getInputCol"));
-        }
-        
+        public string GetInputCol() => (string)(_jvmObject.Invoke("getInputCol"));
+
         /// <summary>
         /// Sets the column that the <see cref="IDF"/> should read from
         /// </summary>
         /// <param name="value">The name of the column to as the source</param>
         /// <returns>New <see cref="IDF"/> object</returns>
-        public IDF SetInputCol(string value)
-        {
-            return WrapAsIDF(_jvmObject.Invoke("setInputCol", value));
-        }
+        public IDF SetInputCol(string value) => WrapAsIDF(_jvmObject.Invoke("setInputCol", value));
 
         /// <summary>
         /// The <see cref="IDF"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
         /// </summary>
         /// <returns>string, the output column</returns>
-        public string GetOutputCol()
-        {
-            return (string)(_jvmObject.Invoke("getOutputCol"));
-        }
-        
+        public string GetOutputCol() => (string)(_jvmObject.Invoke("getOutputCol"));
+
         /// <summary>
         /// The <see cref="IDF"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
         /// </summary>
         /// <param name="value">The name of the new column</param>
         /// <returns>New <see cref="IDF"/> object</returns>
-        public IDF SetOutputCol(string value)
-        {
-            return WrapAsIDF(_jvmObject.Invoke("setOutputCol", value));
-        }
+        public IDF SetOutputCol(string value) => 
+            WrapAsIDF(_jvmObject.Invoke("setOutputCol", value));
 
         /// <summary>
         /// Minimum of documents in which a term should appear for filtering
         /// </summary>
         /// <returns>int, minimum number of documents in which a term should appear</returns>
-        public int GetMinDocFreq()
-        {
-            return (int)_jvmObject.Invoke("getMinDocFreq");
-        }
-        
+        public int GetMinDocFreq() => (int)_jvmObject.Invoke("getMinDocFreq");
+
         /// <summary>
         /// Minimum of documents in which a term should appear for filtering
         /// </summary>
         /// <param name="value">int, the minimum of documents a term should appear in</param>
         /// <returns>New <see cref="IDF"/> object</returns>
-        public IDF SetMinDocFreq(int value)
-        {
-            return WrapAsIDF(_jvmObject.Invoke("setMinDocFreq", value));
-        }
-        
+        public IDF SetMinDocFreq(int value) => 
+            WrapAsIDF(_jvmObject.Invoke("setMinDocFreq", value));
+
         /// <summary>
         /// Fits a model to the input data.
         /// </summary>
         /// <param name="source">The <see cref="DataFrame"/> to fit the model to</param>
         /// <returns>New <see cref="IDFModel"/> object</returns>
-        public IDFModel Fit(DataFrame source)
-        {
-            return new IDFModel((JvmObjectReference)_jvmObject.Invoke("fit", source));
-        }
+        public IDFModel Fit(DataFrame source) => 
+            new IDFModel((JvmObjectReference)_jvmObject.Invoke("fit", source));
 
         /// <summary>
         /// Loads the <see cref="IDF"/> that was previously saved using Save

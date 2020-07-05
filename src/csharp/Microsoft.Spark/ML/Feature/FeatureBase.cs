@@ -11,8 +11,11 @@ namespace Microsoft.Spark.ML.Feature
     /// interfaces that the Scala code implements across all of the objects. This should help to
     /// write the extra objects faster.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class FeatureBase<T> : Identifiable where T: new()
+    /// <typeparam name="T">
+    /// The class that implements FeatureBase, this is needed so we can create new objects where
+    /// spark returns new objects rather than update existing objects.
+    /// </typeparam>
+    public class FeatureBase<T> : Identifiable
     {
         private readonly string _className;
         internal readonly JvmObjectReference _jvmObject;
@@ -20,16 +23,12 @@ namespace Microsoft.Spark.ML.Feature
         internal FeatureBase(string className)
             : this(SparkEnvironment.JvmBridge.CallConstructor(className), className)
         {
-        }
-        {
             _className = className;
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(className);
         }
         
         internal FeatureBase(string className, string uid)
             : this(SparkEnvironment.JvmBridge.CallConstructor(className, uid), className)
-        {
-        }
         {
             _className = className;
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(className, uid);
@@ -48,14 +47,11 @@ namespace Microsoft.Spark.ML.Feature
         public override string ToString() => (string)_jvmObject.Invoke("toString");
         
         /// <summary>
-        /// The uid that was used to create the object. If no UID is passed in when creating the
+        /// The UID that was used to create the object. If no UID is passed in when creating the
         /// object then a random UID is created when the object is created.
         /// </summary>
         /// <returns>string UID identifying the object</returns>
-        public string Uid()
-        {
-            return (string)_jvmObject.Invoke("uid");
-        }
+        public string Uid() => (string)_jvmObject.Invoke("uid");
 
         /// <summary>
         /// Saves the object so that it can be loaded later using Load. Note that these objects
@@ -69,7 +65,7 @@ namespace Microsoft.Spark.ML.Feature
         {
             var constructor = typeof(T)
                 .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
-                .FirstOrDefault(p =>
+                .Single(p =>
                     p.GetParameters()
                         .All(p => p.ParameterType == typeof(JvmObjectReference)));
 
