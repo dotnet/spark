@@ -17,26 +17,22 @@ namespace Microsoft.Spark.ML.Feature
     /// </typeparam>
     public class FeatureBase<T> : Identifiable
     {
-        private readonly string _className;
         internal readonly JvmObjectReference _jvmObject;
         
         internal FeatureBase(string className)
             : this(SparkEnvironment.JvmBridge.CallConstructor(className), className)
         {
-            _className = className;
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(className);
         }
         
         internal FeatureBase(string className, string uid)
             : this(SparkEnvironment.JvmBridge.CallConstructor(className, uid), className)
         {
-            _className = className;
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(className, uid);
         }
         
         internal FeatureBase(JvmObjectReference jvmObject, string className)
         {
-            _className = className;
             _jvmObject = jvmObject;
         }
 
@@ -59,7 +55,8 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="path">The path to save the object to</param>
         /// <returns>New object</returns>
-        public T Save(string path) => WrapAsType((JvmObjectReference)_jvmObject.Invoke("save", path));
+        public T Save(string path) => 
+            WrapAsType((JvmObjectReference)_jvmObject.Invoke("save", path));
 
         private T WrapAsType(JvmObjectReference reference)
         {
