@@ -37,6 +37,7 @@ namespace Microsoft.Spark.Interop.Ipc
 
         internal static void BuildPayload(
             MemoryStream destination,
+            int sparkSessionHashCode,
             bool isStaticMethod,
             object classNameOrJvmObjectReference,
             string methodName,
@@ -45,7 +46,8 @@ namespace Microsoft.Spark.Interop.Ipc
             // Reserve space for total length.
             long originalPosition = destination.Position;
             destination.Position += sizeof(int);
-
+            
+            SerDe.Write(destination, sparkSessionHashCode);
             SerDe.Write(destination, isStaticMethod);
             SerDe.Write(destination, classNameOrJvmObjectReference.ToString());
             SerDe.Write(destination, methodName);

@@ -119,6 +119,8 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         private readonly DateTime _creationTime;
 
+        internal int SparkSessionId { get; set; } = 0;
+
         /// <summary>
         /// Constructor for the JvmObjectReference class.
         /// </summary>

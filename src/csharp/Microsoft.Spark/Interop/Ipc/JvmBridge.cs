@@ -29,6 +29,8 @@ namespace Microsoft.Spark.Interop.Ipc
         private static object[] s_twoArgArray;
         [ThreadStatic]
         private static MemoryStream s_payloadMemoryStream;
+        [ThreadStatic] 
+        private static int s_sparkSessionHashCode = 0;
 
         private readonly ConcurrentQueue<ISocketWrapper> _sockets =
             new ConcurrentQueue<ISocketWrapper>();
@@ -163,13 +165,13 @@ namespace Microsoft.Spark.Interop.Ipc
                 payloadMemoryStream.Position = 0;
                 PayloadHelper.BuildPayload(
                     payloadMemoryStream,
+                    s_sparkSessionHashCode,
                     isStatic,
                     classNameOrJvmObjectReference,
                     methodName,
                     args);
 
                 socket = GetConnection();
-
                 Stream outputStream = socket.OutputStream;
                 outputStream.Write(
                     payloadMemoryStream.GetBuffer(),
@@ -178,7 +180,10 @@ namespace Microsoft.Spark.Interop.Ipc
                 outputStream.Flush();
 
                 Stream inputStream = socket.InputStream;
-                int isMethodCallFailed = SerDe.ReadInt32(inputStream);
+          
+                s_sparkSessionHashCode = SerDe.ReadInt32(inputStream);
+                
+             int isMethodCallFailed = SerDe.ReadInt32(inputStream);
                 if (isMethodCallFailed != 0)
                 {
                     string jvmFullStackTrace = SerDe.ReadString(inputStream);

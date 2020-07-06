@@ -11,6 +11,7 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, Da
 import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import org.apache.spark.api.dotnet.SerDe._
 import org.apache.spark.internal.Logging
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.util.Utils
 
 import scala.collection.mutable.HashMap
@@ -40,7 +41,10 @@ class DotnetBackendHandler(server: DotnetBackend)
     val bos = new ByteArrayOutputStream()
     val dos = new DataOutputStream(bos)
 
-    // First bit is isStatic
+    // First bit is spark session id (if set)
+    val sparkSessionId = getSparkSessionID(dis)
+
+
     val isStatic = readBoolean(dis)
     val objId = readString(dis)
     val methodName = readString(dis)
@@ -49,6 +53,7 @@ class DotnetBackendHandler(server: DotnetBackend)
     if (objId == "DotnetHandler") {
       methodName match {
         case "stopBackend" =>
+            writeInt(dos, getSparkSession)
           writeInt(dos, 0)
           writeType(dos, "void")
           server.close()
@@ -58,11 +63,13 @@ class DotnetBackendHandler(server: DotnetBackend)
             assert(t == 'c')
             val objToRemove = readString(dis)
             JVMObjectTracker.remove(objToRemove)
+              writeInt(dos, getSparkSession)
             writeInt(dos, 0)
             writeObject(dos, null)
           } catch {
             case e: Exception =>
               logError(s"Removing $objId failed", e)
+                writeInt(dos, getSparkSession)
               writeInt(dos, -1)
           }
         case "connectCallback" =>
@@ -71,18 +78,22 @@ class DotnetBackendHandler(server: DotnetBackend)
           assert(readObjectType(dis) == 'i')
           val port = readInt(dis)
           DotnetBackend.setCallbackClient(address, port);
+          writeInt(dos, getSparkSession)
           writeInt(dos, 0)
           writeType(dos, "void")
         case "closeCallback" =>
           logInfo("Requesting to close callback client")
           DotnetBackend.shutdownCallbackClient()
+          writeInt(dos, getSparkSession)
           writeInt(dos, 0)
           writeType(dos, "void")
 
-        case _ => dos.writeInt(-1)
+        case _ =>
+            writeInt(dos, getSparkSession)
+            dos.writeInt(-1)
       }
     } else {
-      handleMethodCall(isStatic, objId, methodName, numArgs, dis, dos)
+      handleMethodCall(sparkSessionId, isStatic, objId, methodName, numArgs, dis, dos)
     }
 
     bos.toByteArray
@@ -103,6 +114,7 @@ class DotnetBackendHandler(server: DotnetBackend)
   }
 
   def handleMethodCall(
+      sparkSessionID: Int,
       isStatic: Boolean,
       objId: String,
       methodName: String,
@@ -141,9 +153,16 @@ class DotnetBackendHandler(server: DotnetBackend)
           }
           throw new Exception(s"No matched method found for $cls.$methodName")
         }
+        SparkSessionStore.setSession(sparkSessionID)
 
         val ret = selectedMethods(index.get).invoke(obj, args: _*)
 
+        var newSession = getSparkSession
+        if( methodName == "getOrCreate" && ret.isInstanceOf[SparkSession] ){   //s"${ret.getClass.getCanonicalName}$$" == SparkSession.getClass.getCanonicalName
+            newSession = getSparkSession(ret.asInstanceOf[SparkSession])
+        }
+
+        writeInt(dos, newSession)
         // Write status bit
         writeInt(dos, 0)
         writeObject(dos, ret.asInstanceOf[AnyRef])
@@ -155,6 +174,7 @@ class DotnetBackendHandler(server: DotnetBackend)
 
         val obj = ctor.newInstance(args: _*)
 
+        writeInt(dos, getSparkSession)
         writeInt(dos, 0)
         writeObject(dos, obj.asInstanceOf[AnyRef])
       } else {
@@ -176,13 +196,14 @@ class DotnetBackendHandler(server: DotnetBackend)
           }
         }).mkString(", ")
 
-        logError(s"Failed to execute '$methodName' on '$jvmObjName' with args=($argsStr)")
+        logError(s"${Thread.currentThread().getId} :: Failed to execute '$methodName' on '$jvmObjName' with args=($argsStr)")
 
         if (methods != null) {
           logDebug(s"All methods for $jvmObjName:")
           methods.foreach(m => logDebug(m.toString))
         }
 
+        writeInt(dos, getSparkSession)
         writeInt(dos, -1)
         writeString(dos, Utils.exceptionString(e.getCause))
     }
@@ -193,6 +214,18 @@ class DotnetBackendHandler(server: DotnetBackend)
     (0 until numArgs).map { arg =>
       readObject(dis)
     }.toArray
+  }
+
+  def getSparkSessionID(dis: DataInputStream): Int = {
+    readInt(dis)
+  }
+
+  def getSparkSession(): Int = {
+    SparkSessionStore.saveSession
+  }
+
+  def getSparkSession(possibleSession : SparkSession): Int = {
+    SparkSessionStore.saveSession(possibleSession)
   }
 
   // Checks if the arguments passed in args matches the parameter types.
@@ -343,7 +376,16 @@ private object JVMObjectTracker {
 
   def remove(id: String): Option[Object] = {
     synchronized {
-      objMap.remove(id)
+      val item = objMap.remove(id)
+
+      if(item.isInstanceOf[SparkSession]){
+          SparkSessionStore.removeSession(item.asInstanceOf[SparkSession])
+      }
+
+
+      item
     }
+
+
   }
 }
