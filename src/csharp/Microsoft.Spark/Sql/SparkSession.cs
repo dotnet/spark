@@ -345,13 +345,6 @@ namespace Microsoft.Spark.Sql
         public void Stop()
         {
             _jvmObject.Invoke("stop");
-
-            // if we have created the jvm bridge process, dispose it now.
-            if (s_jvmbridge != null)
-            {
-                s_jvmbridge.Dispose();
-                s_jvmbridge = null;
-            }
         }
 
         /// <summary>
