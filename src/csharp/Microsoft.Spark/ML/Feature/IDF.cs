@@ -37,7 +37,7 @@ namespace Microsoft.Spark.ML.Feature
         {
         }
         
-        internal IDF(JvmObjectReference jvmObject) : base(jvmObject, s_IDFClassName)
+        internal IDF(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
         

@@ -33,7 +33,7 @@ namespace Microsoft.Spark.ML.Feature
         {
         }
         
-        internal Tokenizer(JvmObjectReference jvmObject) : base(jvmObject, s_tokenizerClassName)
+        internal Tokenizer(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
         

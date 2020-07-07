@@ -29,8 +29,7 @@ namespace Microsoft.Spark.ML.Feature
         {
         }
         
-        internal Word2VecModel(JvmObjectReference jvmObject) : 
-            base(jvmObject, s_word2VecModelClassName)
+        internal Word2VecModel(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
         

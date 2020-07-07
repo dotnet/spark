@@ -20,16 +20,16 @@ namespace Microsoft.Spark.ML.Feature
         internal readonly JvmObjectReference _jvmObject;
         
         internal FeatureBase(string className)
-            : this(SparkEnvironment.JvmBridge.CallConstructor(className), className)
+            : this(SparkEnvironment.JvmBridge.CallConstructor(className))
         {
         }
         
         internal FeatureBase(string className, string uid)
-            : this(SparkEnvironment.JvmBridge.CallConstructor(className, uid), className)
+            : this(SparkEnvironment.JvmBridge.CallConstructor(className, uid))
         {
         }
         
-        internal FeatureBase(JvmObjectReference jvmObject, string className)
+        internal FeatureBase(JvmObjectReference jvmObject)
         {
             _jvmObject = jvmObject;
         }
@@ -61,11 +61,11 @@ namespace Microsoft.Spark.ML.Feature
             ConstructorInfo constructor = typeof(T)
                 .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
                 .Single(c =>
-                    {
-                        ParameterInfo[] parameters = c.GetParameters();
-                        return (parameters.Length == 1) &&
-                            (parameters[0].ParameterType == typeof(JvmObjectReference));
-                    }
+                {
+                    ParameterInfo[] parameters = c.GetParameters();
+                    return (parameters.Length == 1) &&
+                           (parameters[0].ParameterType == typeof(JvmObjectReference));
+                });
 
             return (T)constructor.Invoke(new object[] {reference});
         }

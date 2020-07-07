@@ -29,7 +29,7 @@ namespace Microsoft.Spark.ML.Feature
         {
         }
         
-        internal Word2Vec(JvmObjectReference jvmObject) : base(jvmObject, s_word2VecClassName)
+        internal Word2Vec(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
         

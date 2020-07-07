@@ -40,7 +40,7 @@ namespace Microsoft.Spark.ML.Feature
         {
         }
         
-        internal HashingTF(JvmObjectReference jvmObject) : base(jvmObject, s_hashingTfClassName)
+        internal HashingTF(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
 
