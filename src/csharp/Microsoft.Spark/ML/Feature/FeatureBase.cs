@@ -19,13 +19,13 @@ namespace Microsoft.Spark.ML.Feature
     {
         internal readonly JvmObjectReference _jvmObject;
         
-        internal FeatureBase(string className)
-            : this(SparkEnvironment.JvmBridge.CallConstructor(className))
+        internal FeatureBase()
+            : this(SparkEnvironment.JvmBridge.CallConstructor(ImplementingJavaClassName))
         {
         }
         
-        internal FeatureBase(string className, string uid)
-            : this(SparkEnvironment.JvmBridge.CallConstructor(className, uid))
+        internal FeatureBase(string uid)
+            : this(SparkEnvironment.JvmBridge.CallConstructor(ImplementingJavaClassName, uid))
         {
         }
         
@@ -33,6 +33,8 @@ namespace Microsoft.Spark.ML.Feature
         {
             _jvmObject = jvmObject;
         }
+
+        protected static string ImplementingJavaClassName;
 
         /// <summary>
         /// Returns the JVM toString value rather than the .NET ToString default
@@ -48,6 +50,16 @@ namespace Microsoft.Spark.ML.Feature
         public string Uid() => (string)_jvmObject.Invoke("uid");
 
         /// <summary>
+        /// Loads the object that was previously saved using Save
+        /// </summary>
+        /// <param name="path">The path the previous object was saved to</param>
+        /// <returns>New object</returns>
+        public static T Load(string path) =>
+            WrapAsType((JvmObjectReference)
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    ImplementingJavaClassName,"load", path));
+        
+        /// <summary>
         /// Saves the object so that it can be loaded later using Load. Note that these objects
         /// can be shared with Scala by Loading or Saving in Scala.
         /// </summary>
@@ -56,7 +68,7 @@ namespace Microsoft.Spark.ML.Feature
         public T Save(string path) => 
             WrapAsType((JvmObjectReference)_jvmObject.Invoke("save", path));
 
-        private T WrapAsType(JvmObjectReference reference)
+        private static T WrapAsType(JvmObjectReference reference)
         {
             ConstructorInfo constructor = typeof(T)
                 .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)

@@ -14,13 +14,15 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public class Tokenizer : FeatureBase<Tokenizer>, IJvmObjectReferenceProvider
     {
-        private static readonly string s_tokenizerClassName = 
-            "org.apache.spark.ml.feature.Tokenizer";
-        
+        static Tokenizer()
+        {
+            ImplementingJavaClassName = "org.apache.spark.ml.feature.Tokenizer";
+        }
+
         /// <summary>
         /// Create a <see cref="Tokenizer"/> without any parameters
         /// </summary>
-        public Tokenizer() : base(s_tokenizerClassName)
+        public Tokenizer()
         {
         }
 
@@ -29,7 +31,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="Tokenizer"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public Tokenizer(string uid) : base(s_tokenizerClassName, uid)
+        public Tokenizer(string uid) : base(uid)
         {
         }
         
@@ -79,18 +81,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </returns>
         public DataFrame Transform(DataFrame source) => 
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
-
-        /// <summary>
-        /// Loads the <see cref="Tokenizer"/> that was previously saved using Save
-        /// </summary>
-        /// <param name="path">The path the previous <see cref="Tokenizer"/> was saved to</param>
-        /// <returns>New <see cref="Tokenizer"/> object, loaded from path</returns>
-        public static Tokenizer Load(string path)
-        {
-            return WrapAsTokenizer(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_tokenizerClassName, "load", path));
-        }
+        
         
         private static Tokenizer WrapAsTokenizer(object obj) => 
             new Tokenizer((JvmObjectReference)obj);

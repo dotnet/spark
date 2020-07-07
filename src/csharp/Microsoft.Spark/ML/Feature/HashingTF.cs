@@ -21,13 +21,15 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public class HashingTF : FeatureBase<HashingTF>, IJvmObjectReferenceProvider
     {
-        private static readonly string s_hashingTfClassName = 
-            "org.apache.spark.ml.feature.HashingTF";
-
-        /// <summary>
+        static HashingTF()
+        {
+            ImplementingJavaClassName = "org.apache.spark.ml.feature.HashingTF";
+        }
+        
+         /// <summary>
         /// Create a <see cref="HashingTF"/> without any parameters
         /// </summary>
-        public HashingTF() : base(s_hashingTfClassName)
+        public HashingTF()
         {
         }
 
@@ -36,7 +38,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="HashingTF"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public HashingTF(string uid) : base(s_hashingTfClassName, uid)
+        public HashingTF(string uid) : base(uid)
         {
         }
         
@@ -45,17 +47,7 @@ namespace Microsoft.Spark.ML.Feature
         }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-
-        /// <summary>
-        /// Loads the <see cref="HashingTF"/> that was previously saved using Save
-        /// </summary>
-        /// <param name="path">The path the previous <see cref="HashingTF"/> was saved to</param>
-        /// <returns>New <see cref="HashingTF"/> object</returns>
-        public static HashingTF Load(string path) =>
-            WrapAsHashingTF(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_hashingTfClassName, "load", path));
-
+        
         /// <summary>
         /// Gets the binary toggle that controls term frequency counts
         /// </summary>
