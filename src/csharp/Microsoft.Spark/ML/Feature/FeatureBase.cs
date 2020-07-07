@@ -22,13 +22,11 @@ namespace Microsoft.Spark.ML.Feature
         internal FeatureBase(string className)
             : this(SparkEnvironment.JvmBridge.CallConstructor(className), className)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(className);
         }
         
         internal FeatureBase(string className, string uid)
             : this(SparkEnvironment.JvmBridge.CallConstructor(className, uid), className)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(className, uid);
         }
         
         internal FeatureBase(JvmObjectReference jvmObject, string className)
@@ -60,11 +58,14 @@ namespace Microsoft.Spark.ML.Feature
 
         private T WrapAsType(JvmObjectReference reference)
         {
-            var constructor = typeof(T)
+            ConstructorInfo constructor = typeof(T)
                 .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Single(p =>
-                    p.GetParameters()
-                        .All(p => p.ParameterType == typeof(JvmObjectReference)));
+                .Single(c =>
+                    {
+                        ParameterInfo[] parameters = c.GetParameters();
+                        return (parameters.Length == 1) &&
+                            (parameters[0].ParameterType == typeof(JvmObjectReference));
+                    }
 
             return (T)constructor.Invoke(new object[] {reference});
         }
