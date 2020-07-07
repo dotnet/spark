@@ -342,10 +342,7 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Stops the underlying SparkContext.
         /// </summary>
-        public void Stop()
-        {
-            _jvmObject.Invoke("stop");
-        }
+        public void Stop() => _jvmObject.Invoke("stop");
 
         /// <summary>
         /// Returns a single column schema of the given datatype.
