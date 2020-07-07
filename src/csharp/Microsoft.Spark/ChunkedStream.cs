@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Spark.Interop.Ipc;
 
@@ -23,8 +25,27 @@ namespace Microsoft.Spark
             _wrapped = wrapped;
         }
 
-        public void Write(byte[] bytes)
+        internal void WriteInt(int value, Stream stream)
         {
+            byte[] bytes = BitConverter.GetBytes(value);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+            stream.Write(bytes, 0, bytes.Length);
+        }
+
+        internal byte[] ConvertToByteArray(object value)
+        {
+            var formatter = new BinaryFormatter();
+            using (var ms = new MemoryStream())
+            {
+                formatter.Serialize(ms, value);
+                return ms.ToArray();
+            }
+        }
+
+        public void Write(object value)
+        {
+            byte[] bytes = ConvertToByteArray(value);
             int bytePos = 0;
             int bytesRemaining = bytes.Length;
             while (bytesRemaining > 0)
@@ -32,18 +53,36 @@ namespace Microsoft.Spark
                 int newPos = bytesRemaining + _currentPos;
                 if (newPos < _bufferSize)
                 {
-                    Array.Copy(_buffer, _currentPos, bytes, bytePos, bytesRemaining);
+                    Array.Copy(bytes, bytePos, _buffer, _currentPos, bytesRemaining);
                     _currentPos = newPos;
                     bytesRemaining = 0;
                 }
                 else
                 {
-                    // fill the buffer, send the length then the contents, and start filling again
+                    // Fill the buffer, send the length then the contents, and start filling again.
                     int spaceLeft = _bufferSize - _currentPos;
                     int newBytePos = bytePos + spaceLeft;
-                    Array.Copy(_buffer, _currentPos, bytes, bytePos, spaceLeft);
+                    Array.Copy(bytes, bytePos, _buffer, _currentPos, spaceLeft);
+                    WriteInt(_bufferSize, _wrapped);
+                    _wrapped.Write(_buffer, 0, _bufferSize);
+                    bytesRemaining -= spaceLeft;
+                    bytePos = newBytePos;
+                    _currentPos = 0;
                 }
             }
+        }
+
+        public void Close()
+        {
+            // If there is anything left in the buffer, write it out first.
+            if (_currentPos > 0)
+            {
+                WriteInt(_currentPos, _wrapped);
+                _wrapped.Write(_buffer, 0, _currentPos + 1);
+            }
+            // -1 length indicates to the receiving end that we're done.
+            WriteInt(-1, _wrapped);
+            _wrapped.Close();
         }
     }
 }

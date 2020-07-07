@@ -187,8 +187,9 @@ namespace Microsoft.Spark
                     (int)pair[0].Invoke("intValue"),
                     (string)pair[1].Invoke("toString"));
                 ChunkedStream bdrcstChunked = new ChunkedStream(socket.OutputStream, 8192);
-                Dump(value, socket.OutputStream);
-                socket.OutputStream.Flush();
+                bdrcstChunked.Write(value);
+                bdrcstChunked.Close();
+                //socket.OutputStream.Flush();
                 pythonBroadcast.Invoke("waitTillDataReceived");
             }
             else
