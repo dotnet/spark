@@ -10,15 +10,13 @@ namespace Microsoft.Spark.ML.Feature
 {
     public class Word2VecModel : FeatureBase<Word2VecModel>, IJvmObjectReferenceProvider
     {
-        static Word2VecModel()
-        {
-            ImplementingJavaClassName = "org.apache.spark.ml.feature.Word2VecModel";
-        }
+        private static readonly string s_word2VecModelClassName = 
+            "org.apache.spark.ml.feature.Word2VecModel";
 
         /// <summary>
         /// Create a <see cref="Word2VecModel"/> without any parameters
         /// </summary>
-        public Word2VecModel()
+        public Word2VecModel() : base(s_word2VecModelClassName)
         {
         }
 
@@ -27,7 +25,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="Word2VecModel"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public Word2VecModel(string uid) : base(uid)
+        public Word2VecModel(string uid) : base(s_word2VecModelClassName, uid)
         {
         }
         
@@ -55,7 +53,18 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="num">The number of words to find that are similar to "word"</param>
         public DataFrame FindSynonyms(string word, int num) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("findSynonyms", word, num));
-
+        
+        /// <summary>
+        /// Loads the <see cref="Word2VecModel"/> that was previously saved using Save(string).
+        /// </summary>
+        /// <param name="path">
+        /// The path the previous <see cref="Word2VecModel"/> was saved to
+        /// </param>
+        /// <returns>New <see cref="Word2VecModel"/> object, loaded from path.</returns>
+        public static Word2VecModel Load(string path) => WrapAsWord2VecModel(
+            SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                s_word2VecModelClassName, "load", path));
+        
         private static Word2VecModel WrapAsWord2VecModel(object obj) => 
             new Word2VecModel((JvmObjectReference)obj);
     }

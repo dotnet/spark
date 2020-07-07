@@ -19,15 +19,12 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public class IDF : FeatureBase<IDF>, IJvmObjectReferenceProvider
     {
-        static IDF()
-        {
-            ImplementingJavaClassName = "org.apache.spark.ml.feature.IDF";
-        }
+        private static readonly string s_IDFClassName = "org.apache.spark.ml.feature.IDF";
         
         /// <summary>
         /// Create a <see cref="IDF"/> without any parameters
         /// </summary>
-        public IDF()
+        public IDF() : base(s_IDFClassName)
         {
         }
 
@@ -36,7 +33,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="IDF"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public IDF(string uid) : base(uid)
+        public IDF(string uid) : base(s_IDFClassName, uid)
         {
         }
         
@@ -97,6 +94,17 @@ namespace Microsoft.Spark.ML.Feature
         public IDFModel Fit(DataFrame source) => 
             new IDFModel((JvmObjectReference)_jvmObject.Invoke("fit", source));
 
+        /// <summary>
+        /// Loads the <see cref="IDF"/> that was previously saved using Save
+        /// </summary>
+        /// <param name="path">The path the previous <see cref="IDF"/> was saved to</param>
+        /// <returns>New <see cref="IDF"/> object, loaded from path</returns>
+        public static IDF Load(string path)
+        {
+            return WrapAsIDF(
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_IDFClassName, "load", path));
+        }
+ 
         private static IDF WrapAsIDF(object obj) => new IDF((JvmObjectReference)obj);
     }
 }

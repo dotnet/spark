@@ -22,15 +22,13 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public class Bucketizer : FeatureBase<Bucketizer>, IJvmObjectReferenceProvider
     {
-        static Bucketizer()
-        {
-            ImplementingJavaClassName = "org.apache.spark.ml.feature.Bucketizer";
-        }
+        private static readonly string s_bucketizerClassName = 
+            "org.apache.spark.ml.feature.Bucketizer";
         
         /// <summary>
         /// Create a <see cref="Bucketizer"/> without any parameters
         /// </summary>
-        public Bucketizer()
+        public Bucketizer() : base(s_bucketizerClassName)
         {
         }
 
@@ -39,7 +37,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="Bucketizer"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public Bucketizer(string uid) : base(uid)
+        public Bucketizer(string uid) : base(s_bucketizerClassName, uid)
         {
         }
         
@@ -157,15 +155,15 @@ namespace Microsoft.Spark.ML.Feature
         public Bucketizer SetOutputCols(List<string> value) => 
             WrapAsBucketizer(_jvmObject.Invoke("setOutputCols", value));
 
-        // /// <summary>
-        // /// Loads the <see cref="Bucketizer"/> that was previously saved using Save
-        // /// </summary>
-        // /// <param name="path">The path the previous <see cref="Bucketizer"/> was saved to</param>
-        // /// <returns>New <see cref="Bucketizer"/> object</returns>
-        // public static Bucketizer Load(string path) =>
-        //     WrapAsBucketizer(
-        //         SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-        //             s_bucketizerClassName,"load", path));
+        /// <summary>
+        /// Loads the <see cref="Bucketizer"/> that was previously saved using Save
+        /// </summary>
+        /// <param name="path">The path the previous <see cref="Bucketizer"/> was saved to</param>
+        /// <returns>New <see cref="Bucketizer"/> object</returns>
+        public static Bucketizer Load(string path) =>
+            WrapAsBucketizer(
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_bucketizerClassName,"load", path));
 
         /// <summary>
         /// Executes the <see cref="Bucketizer"/> and transforms the DataFrame to include the new

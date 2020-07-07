@@ -10,15 +10,13 @@ namespace Microsoft.Spark.ML.Feature
 {
     public class Word2Vec : FeatureBase<Word2Vec>, IJvmObjectReferenceProvider
     {
-        static Word2Vec()
-        {
-            ImplementingJavaClassName = "org.apache.spark.ml.feature.Word2Vec";
-        }
-        
+        private static readonly string s_word2VecClassName = 
+            "org.apache.spark.ml.feature.Word2Vec";
+
         /// <summary>
         /// Create a <see cref="Word2Vec"/> without any parameters
         /// </summary>
-        public Word2Vec()
+        public Word2Vec() : base(s_word2VecClassName)
         {
         }
 
@@ -27,7 +25,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="Word2Vec"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public Word2Vec(string uid) : base(uid)
+        public Word2Vec(string uid) : base(s_word2VecClassName, uid)
         {
         }
         
@@ -183,6 +181,14 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns><see cref="Word2VecModel"/></returns>
         public Word2VecModel Fit(DataFrame dataFrame) => 
             new Word2VecModel((JvmObjectReference)_jvmObject.Invoke("fit", dataFrame));
+
+        /// <summary>
+        /// Loads the <see cref="Word2Vec"/> that was previously saved using Save(string).
+        /// </summary>
+        /// <param name="path">The path the previous <see cref="Word2Vec"/> was saved to</param>
+        /// <returns>New <see cref="Word2Vec"/> object, loaded from path.</returns>
+        public static Word2Vec Load(string path) => WrapAsWord2Vec(
+            SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_word2VecClassName, "load", path));
         
         private static Word2Vec WrapAsWord2Vec(object obj) => 
             new Word2Vec((JvmObjectReference)obj);
