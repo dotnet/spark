@@ -9,7 +9,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// The UID of the object.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>string UID identifying the object</returns>
         string Uid();
     }
 }
