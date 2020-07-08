@@ -66,8 +66,7 @@ namespace Microsoft.Spark.ML.Feature
             WrapAsType((JvmObjectReference)_jvmObject.Invoke("clear", param));
 
         /// <summary>
-        /// Returns a description of how a specific <see cref="Param"/> works and is currently
-        /// set.
+        /// Returns a description of how a specific <see cref="Param"/> works and is currently set.
         /// </summary>
         /// <param name="param"></param>
         /// <returns>Description of the <see cref="Param"/></returns>
