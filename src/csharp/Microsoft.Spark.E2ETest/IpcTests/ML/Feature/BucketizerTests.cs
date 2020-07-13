@@ -63,14 +63,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.NotEmpty(bucketizer.ExplainParams());
             
             Param handleInvalidParam = bucketizer.GetParam("handleInvalid");
-            Assert.NotEmpty(handleInvalidParam.Doc());
-            Assert.NotEmpty(handleInvalidParam.Name());
-            Assert.Equal(handleInvalidParam.Parent(), bucketizer.Uid());
+            Assert.NotEmpty(handleInvalidParam.Doc);
+            Assert.NotEmpty(handleInvalidParam.Name);
+            Assert.Equal(handleInvalidParam.Parent, bucketizer.Uid());
 
             Assert.NotEmpty(bucketizer.ExplainParam(handleInvalidParam));
             bucketizer.Set(handleInvalidParam, "keep");
             Assert.Equal("keep", bucketizer.GetHandleInvalid());
-            
+             
             Assert.Equal("error", bucketizer.Clear(handleInvalidParam).GetHandleInvalid());
         }
 

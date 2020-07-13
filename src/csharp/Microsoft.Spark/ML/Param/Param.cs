@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 
@@ -35,21 +36,7 @@ namespace Microsoft.Spark.ML.Feature.Param
             _jvmObject = 
                 SparkEnvironment.JvmBridge.CallConstructor(s_ParamClassName, parent, name, doc);
         }
-        
-        public Param(Identifiable parent, string name, string doc, bool isValid)
-        {
-            _jvmObject = 
-                SparkEnvironment.JvmBridge.CallConstructor(
-                    s_ParamClassName, parent, name, doc, isValid);
-        }
-        
-        public Param(string parent, string name, string doc, bool isValid)
-        {
-            _jvmObject = 
-                SparkEnvironment.JvmBridge.CallConstructor(
-                    s_ParamClassName, parent, name, doc, isValid);
-        }
-        
+
         internal Param(JvmObjectReference jvmObject)
         {
             _jvmObject = jvmObject;
@@ -62,18 +49,27 @@ namespace Microsoft.Spark.ML.Feature.Param
         /// defaults and the current value
         /// </summary>
         /// <returns>A description of how the <see cref="Param"/> works</returns>
-        public string Doc() => (string)_jvmObject.Invoke("doc");
-
+        public string Doc
+        {
+            get => (string)_jvmObject.Invoke("doc");
+        }
+        
         /// <summary>
         /// The name of the <see cref="Param"/>
         /// </summary>
         /// <returns></returns>
-        public string Name() => (string)_jvmObject.Invoke("name");
+        public string Name 
+        {
+            get => (string)_jvmObject.Invoke("name");  
+        }
 
         /// <summary>
         /// The object that contains the <see cref="Param"/>
         /// </summary>
         /// <returns></returns>
-        public string Parent() => (string)_jvmObject.Invoke("parent");
+        public string Parent
+        {
+            get => (string)_jvmObject.Invoke("parent");
+        }
     }
 }
