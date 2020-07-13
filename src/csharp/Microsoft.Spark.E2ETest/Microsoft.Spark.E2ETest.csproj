@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Microsoft.Spark.Extensions.Delta.E2ETest" />
+    <InternalsVisibleTo Include="Microsoft.Spark.Extensions.Hyperspace.E2ETest" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,6 +24,7 @@
 
   <ItemGroup>
     <Compile Include="..\Microsoft.Spark.UnitTest\TestUtils\ArrowTestUtils.cs" />
+    <Compile Include="..\Microsoft.Spark.UnitTest\TestUtils\TemporaryDirectory.cs" />
   </ItemGroup>
 
 </Project>

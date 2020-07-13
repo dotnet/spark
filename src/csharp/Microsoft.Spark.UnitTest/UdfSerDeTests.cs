@@ -11,6 +11,7 @@ using Xunit;
 
 namespace Microsoft.Spark.UnitTest
 {
+    [Collection("Spark Unit Tests")]
     public class UdfSerDeTests
     {
         [Serializable]

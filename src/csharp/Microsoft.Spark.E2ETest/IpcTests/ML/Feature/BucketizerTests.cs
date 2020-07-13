@@ -3,8 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
@@ -47,6 +49,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Equal(expectedInputCol, bucketizer.GetInputCol());
             Assert.Equal(expectedOutputCol, bucketizer.GetOutputCol());
             Assert.Equal(expectedSplits, bucketizer.GetSplits());
+            
+            using (var tempDirectory = new TemporaryDirectory())
+            {
+                string savePath = Path.Join(tempDirectory.Path, "bucket");
+                bucketizer.Save(savePath);
+                
+                Bucketizer loadedBucketizer = Bucketizer.Load(savePath);
+                Assert.Equal(bucketizer.Uid(), loadedBucketizer.Uid());
+            }
         }
 
         [Fact]

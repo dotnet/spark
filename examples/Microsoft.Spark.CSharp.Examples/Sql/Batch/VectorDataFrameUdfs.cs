@@ -31,7 +31,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
                 .Builder()
                 // Lower the shuffle partitions to speed up groupBy() operations.
                 .Config("spark.sql.shuffle.partitions", "3")
-                .AppName(".NET Spark SQL VectorUdfs example")
+                .AppName("SQL VectorUdfs example using .NET for Apache Spark")
                 .GetOrCreate();
 
             DataFrame df = spark.Read().Schema("age INT, name STRING").Json(args[0]);
@@ -62,9 +62,9 @@ namespace Microsoft.Spark.Examples.Sql.Batch
         {
             int characterCount = 0;
 
-            var characterCountColumn = new PrimitiveDataFrameColumn<int>("nameCharCount");
-            var ageColumn = new PrimitiveDataFrameColumn<int>("age");
-            ArrowStringDataFrameColumn nameColumn = dataFrame["name"] as ArrowStringDataFrameColumn;
+            var characterCountColumn = new Int32DataFrameColumn("nameCharCount");
+            var ageColumn = new Int32DataFrameColumn("age");
+            ArrowStringDataFrameColumn nameColumn = dataFrame.Columns.GetArrowStringColumn("name");
             for (long i = 0; i < dataFrame.Rows.Count; ++i)
             {
                 characterCount += nameColumn[i].Length;
@@ -73,7 +73,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             if (dataFrame.Rows.Count > 0)
             {
                 characterCountColumn.Append(characterCount);
-                ageColumn.Append((int?)dataFrame["age"][0]);
+                ageColumn.Append(dataFrame.Columns.GetInt32Column("age")[0]);
             }
 
             return new FxDataFrame(ageColumn, characterCountColumn);

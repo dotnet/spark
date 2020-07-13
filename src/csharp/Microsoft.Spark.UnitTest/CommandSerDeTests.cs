@@ -14,6 +14,7 @@ using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
 
 namespace Microsoft.Spark.UnitTest
 {
+    [Collection("Spark Unit Tests")]
     public class CommandSerDeTests
     {
         [Fact]
@@ -85,14 +86,7 @@ namespace Microsoft.Spark.UnitTest
         public void TestCommandSerDeForSqlArrowDataFrame()
         {
             var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
-                (strings) =>
-                {
-                    var stringColumn = (StringArray)ToArrowArray(
-                        Enumerable.Range(0, (int)strings.Length)
-                            .Select(i => $"hello {strings[i]}")
-                            .ToArray());
-                    return ToArrowStringDataFrameColumn(stringColumn);
-                });
+                (strings) => strings.Apply(cur => $"hello {cur}"));
 
             var workerFunction = new DataFrameWorkerFunction(udfWrapper.Execute);
 

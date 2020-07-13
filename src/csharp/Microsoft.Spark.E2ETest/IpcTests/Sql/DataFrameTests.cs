@@ -3,13 +3,13 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Apache.Arrow;
 using Microsoft.Data.Analysis;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
+using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
 using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
@@ -226,14 +226,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestDataFrameVectorUdf()
         {
-            Func<PrimitiveDataFrameColumn<int>, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn> udf1Func =
+            Func<Int32DataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn> udf1Func =
                 (ages, names) =>
                 {
-                    var stringArray = (StringArray)ToArrowArray(
-                        Enumerable.Range(0, (int)names.Length)
-                            .Select(i => $"{names[i]} is {ages[i] ?? 0}")
-                            .ToArray());
-                    return ToArrowStringDataFrameColumn(stringArray);
+                    long i = 0;
+                    return names.Apply(cur => $"{cur} is {ages[i++] ?? 0}");
                 };
 
             // Single UDF.
@@ -249,14 +246,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Chained UDFs.
             Func<Column, Column> udf2 = ExperimentalDataFrameFunctions.VectorUdf<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
-                (strings) =>
-                {
-                    var stringArray = (StringArray)ToArrowArray(
-                        Enumerable.Range(0, (int)strings.Length)
-                            .Select(i => $"hello {strings[i]}!")
-                            .ToArray());
-                    return ToArrowStringDataFrameColumn(stringArray);
-                });
+                (strings) => strings.Apply(cur => $"hello {cur}!"));
             {
                 Row[] rows = _df
                     .Select(udf2(udf1(_df["age"], _df["name"])))
@@ -429,9 +419,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {
             int characterCount = 0;
 
-            var characterCountColumn = new PrimitiveDataFrameColumn<int>("nameCharCount");
-            var ageColumn = new PrimitiveDataFrameColumn<int>("age");
-            ArrowStringDataFrameColumn fieldColumn = dataFrame["name"] as ArrowStringDataFrameColumn;
+            var characterCountColumn = new Int32DataFrameColumn("nameCharCount");
+            var ageColumn = new Int32DataFrameColumn("age");
+            ArrowStringDataFrameColumn fieldColumn = dataFrame.Columns.GetArrowStringColumn("name");
             for (long i = 0; i < dataFrame.Rows.Count; ++i)
             {
                 characterCount += fieldColumn[i].Length;
@@ -440,7 +430,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             if (dataFrame.Rows.Count > 0)
             {
                 characterCountColumn.Append(characterCount);
-                ageColumn.Append((int?)dataFrame["age"][0]);
+                ageColumn.Append(dataFrame.Columns.GetInt32Column("age")[0]);
             }
 
             return new FxDataFrame(ageColumn, characterCountColumn);
