@@ -60,7 +60,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Clears any value that was previously set for this <see cref="Param"/>. The value is
         /// reset to the default value.
         /// </summary>
-        /// <param name="param"></param>
+        /// <param name="param">The <see cref="Param"/> to set back to its original value</param>
         /// <returns>Object reference that was used to clear the <see cref="Param"/></returns>
         public T Clear(Param.Param param) => 
             WrapAsType((JvmObjectReference)_jvmObject.Invoke("clear", param));
@@ -68,13 +68,13 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Returns a description of how a specific <see cref="Param"/> works and is currently set.
         /// </summary>
-        /// <param name="param"></param>
+        /// <param name="param">The <see cref="Param"/> to explain</param>
         /// <returns>Description of the <see cref="Param"/></returns>
         public string ExplainParam(Param.Param param) => 
             (string)_jvmObject.Invoke("explainParam", param);
 
         /// <summary>
-        /// Returns a description of how all of the <see cref="Param"/> that apply to this object
+        /// Returns a description of how all of the <see cref="Param"/>'s that apply to this object
         /// work and how they are currently set.
         /// </summary>
         /// <returns>Description of all the applicable <see cref="Param"/>'s</returns>
@@ -84,7 +84,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Retrieves a <see cref="Param"/> so that it can be used to set the value of the
         /// <see cref="Param"/> on the object.
         /// </summary>
-        /// <param name="paramName"></param>
+        /// <param name="paramName">The name of the <see cref="Param"/> to get.</param>
         /// <returns><see cref="Param"/> that can be used to set the actual value</returns>
         public Param.Param GetParam(string paramName) => 
             new Param.Param((JvmObjectReference)_jvmObject.Invoke("getParam", paramName));
