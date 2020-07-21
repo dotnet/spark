@@ -21,7 +21,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.ParamTests
             const string expectedName = "name";
             const string expectedDoc = "doc";
             
-            var param = new Param(expectedParent, expectedName, expectedDoc );
+            var param = new Param(expectedParent, expectedName, expectedDoc);
             
             Assert.Equal(expectedParent, param.Parent);
             Assert.Equal(expectedDoc, param.Doc);

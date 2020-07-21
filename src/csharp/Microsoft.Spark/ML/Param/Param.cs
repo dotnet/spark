@@ -14,8 +14,8 @@ namespace Microsoft.Spark.ML.Feature.Param
     /// A <see cref="Param"/> references an individual parameter that includes documentation, the
     /// name of the parameter and optionally a default value. Params can either be set using the
     /// generic <see cref="Param"/> methods or by using explicit methods. For example
-    /// <see cref="Bucketizer"/> has SetHandleInvalid or you can call GetParam("handleInvalid")
-    /// and then <see cref="Bucketizer"/>.Set using the <see cref="Param"/> and the value you want
+    /// <see cref="Bucketizer"/> has <c>SetHandleInvalid</c> or you can call <c>GetParam("handleInvalid")</c>
+    /// and then <see cref="Bucketizer"/>. Set using the <see cref="Param"/> and the value you want
     /// to use.
     /// </summary>
     public class Param : IJvmObjectReferenceProvider
@@ -26,15 +26,14 @@ namespace Microsoft.Spark.ML.Feature.Param
         private readonly JvmObjectReference _jvmObject;
         
         public Param(Identifiable parent, string name, string doc)
+            : this(SparkEnvironment.JvmBridge.CallConstructor(
+                s_ParamClassName, parent.Uid(), name, doc)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                s_ParamClassName, parent.Uid(), name, doc);
         }
         
         public Param(string parent, string name, string doc)
+            : this(SparkEnvironment.JvmBridge.CallConstructor(s_ParamClassName, parent, name, doc)
         {
-            _jvmObject = 
-                SparkEnvironment.JvmBridge.CallConstructor(s_ParamClassName, parent, name, doc);
         }
 
         internal Param(JvmObjectReference jvmObject)
@@ -49,27 +48,18 @@ namespace Microsoft.Spark.ML.Feature.Param
         /// defaults and the current value
         /// </summary>
         /// <returns>A description of how the <see cref="Param"/> works</returns>
-        public string Doc
-        {
-            get => (string)_jvmObject.Invoke("doc");
-        }
+        public string Doc => (string)_jvmObject.Invoke("doc");
         
         /// <summary>
         /// The name of the <see cref="Param"/>
         /// </summary>
         /// <returns></returns>
-        public string Name 
-        {
-            get => (string)_jvmObject.Invoke("name");  
-        }
+        public string Name => (string)_jvmObject.Invoke("name");
 
         /// <summary>
         /// The object that contains the <see cref="Param"/>
         /// </summary>
         /// <returns></returns>
-        public string Parent
-        {
-            get => (string)_jvmObject.Invoke("parent");
-        }
+        public string Parent => (string)_jvmObject.Invoke("parent");
     }
 }
