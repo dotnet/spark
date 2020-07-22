@@ -85,6 +85,40 @@ namespace Microsoft.Spark.Sql
         public DataFrame Sum(params string[] colNames) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("sum", (object)colNames));
 
+        /// <summary>
+        /// Pivots a column of the current DataFrame and performs the specified aggregation.
+        /// </summary>
+        /// <param name="pivotColumn">Name of the column to pivot</param>
+        /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
+        public RelationalGroupedDataset Pivot(string pivotColumn) =>
+            new RelationalGroupedDataset((JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn), _dataFrame);
+
+        /// <summary>
+        /// Pivots a column of the current DataFrame and performs the specified aggregation.
+        /// </summary>
+        /// <param name="pivotColumn">Name of the column to pivot</param>
+        /// <param name="values">List of values that will be translated to columns in the output DataFrame</param>
+        /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
+        public RelationalGroupedDataset Pivot(string pivotColumn, params object[] values) =>
+            new RelationalGroupedDataset((JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn, values), _dataFrame);
+
+        /// <summary>
+        /// Pivots a column of the current DataFrame and performs the specified aggregation.
+        /// </summary>
+        /// <param name="pivotColumn">The column to pivot</param>
+        /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
+        public RelationalGroupedDataset Pivot(Column pivotColumn) =>
+            new RelationalGroupedDataset((JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn), _dataFrame);
+
+        /// <summary>
+        /// Pivots a column of the current DataFrame and performs the specified aggregation.
+        /// </summary>
+        /// <param name="pivotColumn">The column to pivot</param>
+        /// <param name="values">List of values that will be translated to columns in the output DataFrame</param>
+        /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
+        public RelationalGroupedDataset Pivot(Column pivotColumn, params object[] values) =>
+            new RelationalGroupedDataset((JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn, values), _dataFrame);
+
         internal DataFrame Apply(StructType returnType, Func<FxDataFrame, FxDataFrame> func)
         {
             DataFrameGroupedMapWorkerFunction.ExecuteDelegate wrapper =
