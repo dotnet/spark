@@ -14,9 +14,9 @@ namespace Microsoft.Spark.ML.Feature.Param
     /// A <see cref="Param"/> references an individual parameter that includes documentation, the
     /// name of the parameter and optionally a default value. Params can either be set using the
     /// generic <see cref="Param"/> methods or by using explicit methods. For example
-    /// <see cref="Bucketizer"/> has <c>SetHandleInvalid</c> or you can call <c>GetParam("handleInvalid")</c>
-    /// and then <see cref="Bucketizer"/>. Set using the <see cref="Param"/> and the value you want
-    /// to use.
+    /// <see cref="Bucketizer"/> has <c>SetHandleInvalid</c> or you can call 
+    /// <c>GetParam("handleInvalid")</c>and then <see cref="Bucketizer"/>. Set using the
+    /// <see cref="Param"/> and the value you want to use.
     /// </summary>
     public class Param : IJvmObjectReferenceProvider
     {
@@ -32,7 +32,7 @@ namespace Microsoft.Spark.ML.Feature.Param
         }
         
         public Param(string parent, string name, string doc)
-            : this(SparkEnvironment.JvmBridge.CallConstructor(s_ParamClassName, parent, name, doc)
+            : this(SparkEnvironment.JvmBridge.CallConstructor(s_ParamClassName, parent, name, doc))
         {
         }
 
