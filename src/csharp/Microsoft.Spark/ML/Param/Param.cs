@@ -25,12 +25,30 @@ namespace Microsoft.Spark.ML.Feature.Param
         
         private readonly JvmObjectReference _jvmObject;
         
+        /// <summary>
+        /// Creates a new instance of a <see cref="Param"/> which will be attached to the parent
+        /// specified. The most likely use case for a <see cref="Param"/> is being read from a 
+        /// parent object such as <see cref="Bucketizer"/> rather than independently
+        /// <param name="parent">The parent object to assign the <see cref="Param"/> to</param>
+        /// <param name="name">The name of this <see cref="Param"/></param>
+        /// <param name="doc">The documentation for this <see cref="Param"/></param>
+        /// </summary>
         public Param(Identifiable parent, string name, string doc)
             : this(SparkEnvironment.JvmBridge.CallConstructor(
                 s_ParamClassName, parent.Uid(), name, doc))
         {
         }
         
+        /// <summary>
+        /// Creates a new instance of a <see cref="Param"/> which will be attached to the parent 
+        /// with the UID specified. The most likely use case for a <see cref="Param"/> is being 
+        /// read from a parent object such as <see cref="Bucketizer"/> rather than independently
+        /// <param name="parent">
+        /// The UID of the  parent object to assign the <see cref="Param"/> to
+        /// </param>
+        /// <param name="name">The name of this <see cref="Param"/></param>
+        /// <param name="doc">The documentation for this <see cref="Param"/></param>
+        /// </summary>
         public Param(string parent, string name, string doc)
             : this(SparkEnvironment.JvmBridge.CallConstructor(s_ParamClassName, parent, name, doc))
         {
@@ -53,13 +71,13 @@ namespace Microsoft.Spark.ML.Feature.Param
         /// <summary>
         /// The name of the <see cref="Param"/>
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The name of the <see cref="Param"/></returns>
         public string Name => (string)_jvmObject.Invoke("name");
 
         /// <summary>
         /// The object that contains the <see cref="Param"/>
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The UID of the parent oject that this <see cref="Param"/> belongs to</returns>
         public string Parent => (string)_jvmObject.Invoke("parent");
     }
 }
