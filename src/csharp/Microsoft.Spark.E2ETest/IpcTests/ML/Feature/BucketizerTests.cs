@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.ML.Feature;
+using Microsoft.Spark.ML.Feature.Param;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
@@ -58,6 +59,19 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 Bucketizer loadedBucketizer = Bucketizer.Load(savePath);
                 Assert.Equal(bucketizer.Uid(), loadedBucketizer.Uid());
             }
+            
+            Assert.NotEmpty(bucketizer.ExplainParams());
+            
+            Param handleInvalidParam = bucketizer.GetParam("handleInvalid");
+            Assert.NotEmpty(handleInvalidParam.Doc);
+            Assert.NotEmpty(handleInvalidParam.Name);
+            Assert.Equal(handleInvalidParam.Parent, bucketizer.Uid());
+
+            Assert.NotEmpty(bucketizer.ExplainParam(handleInvalidParam));
+            bucketizer.Set(handleInvalidParam, "keep");
+            Assert.Equal("keep", bucketizer.GetHandleInvalid());
+             
+            Assert.Equal("error", bucketizer.Clear(handleInvalidParam).GetHandleInvalid());
         }
 
         [Fact]
