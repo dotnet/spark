@@ -71,9 +71,6 @@ namespace Microsoft.Spark.ML.Feature
         public CountVectorizer SetBinary(bool value) =>
             WrapAsCountVectorizer((JvmObjectReference)_jvmObject.Invoke("setBinary", value));
 
-        private static CountVectorizer WrapAsCountVectorizer(object obj) => 
-            new CountVectorizer((JvmObjectReference)obj);
-
         /// <summary>
         /// Gets the column that the <see cref="CountVectorizer"/> should read from and convert
         /// into buckets. This would have been set by SetInputCol
@@ -191,5 +188,8 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns><see cref="CountVectorizer"/> with the max vocab value set</returns>
         public CountVectorizer SetVocabSize(int value) => 
             WrapAsCountVectorizer(_jvmObject.Invoke("setVocabSize", value));
+        
+        private static CountVectorizer WrapAsCountVectorizer(object obj) => 
+            new CountVectorizer((JvmObjectReference)obj);
     }
 }
