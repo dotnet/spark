@@ -49,7 +49,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </param>
         /// <returns>New <see cref="CountVectorizer"/> object</returns>
         public static CountVectorizer Load(string path) =>
-            WrapAsType((JvmObjectReference)
+            WrapAsCountVectorizer((JvmObjectReference)
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_countVectorizerClassName,"load", path));
         
