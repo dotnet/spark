@@ -56,7 +56,49 @@ namespace Microsoft.Spark.ML.Feature
         public T Save(string path) => 
             WrapAsType((JvmObjectReference)_jvmObject.Invoke("save", path));
 
-        private T WrapAsType(JvmObjectReference reference)
+        /// <summary>
+        /// Clears any value that was previously set for this <see cref="Param"/>. The value is
+        /// reset to the default value.
+        /// </summary>
+        /// <param name="param">The <see cref="Param"/> to set back to its original value</param>
+        /// <returns>Object reference that was used to clear the <see cref="Param"/></returns>
+        public T Clear(Param.Param param) => 
+            WrapAsType((JvmObjectReference)_jvmObject.Invoke("clear", param));
+
+        /// <summary>
+        /// Returns a description of how a specific <see cref="Param"/> works and is currently set.
+        /// </summary>
+        /// <param name="param">The <see cref="Param"/> to explain</param>
+        /// <returns>Description of the <see cref="Param"/></returns>
+        public string ExplainParam(Param.Param param) => 
+            (string)_jvmObject.Invoke("explainParam", param);
+
+        /// <summary>
+        /// Returns a description of how all of the <see cref="Param"/>'s that apply to this object
+        /// work and how they are currently set.
+        /// </summary>
+        /// <returns>Description of all the applicable <see cref="Param"/>'s</returns>
+        public string ExplainParams() => (string)_jvmObject.Invoke("explainParams");
+
+        /// <summary>
+        /// Retrieves a <see cref="Param"/> so that it can be used to set the value of the
+        /// <see cref="Param"/> on the object.
+        /// </summary>
+        /// <param name="paramName">The name of the <see cref="Param"/> to get.</param>
+        /// <returns><see cref="Param"/> that can be used to set the actual value</returns>
+        public Param.Param GetParam(string paramName) => 
+            new Param.Param((JvmObjectReference)_jvmObject.Invoke("getParam", paramName));
+
+        /// <summary>
+        /// Sets the value of a specific <see cref="Param"/>.
+        /// </summary>
+        /// <param name="param"><see cref="Param"/> to set the value of</param>
+        /// <param name="value">The value to use</param>
+        /// <returns>The object that contains the newly set <see cref="Param"/></returns>
+        public T Set(Param.Param param, object value) => 
+            WrapAsType((JvmObjectReference)_jvmObject.Invoke("set", param, value));
+
+        private static T WrapAsType(JvmObjectReference reference)
         {
             ConstructorInfo constructor = typeof(T)
                 .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
