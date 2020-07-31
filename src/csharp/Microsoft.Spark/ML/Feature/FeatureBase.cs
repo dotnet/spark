@@ -98,7 +98,7 @@ namespace Microsoft.Spark.ML.Feature
         public T Set(Param.Param param, object value) => 
             WrapAsType((JvmObjectReference)_jvmObject.Invoke("set", param, value));
 
-        internal static T WrapAsType(JvmObjectReference reference)
+        private static T WrapAsType(JvmObjectReference reference)
         {
             ConstructorInfo constructor = typeof(T)
                 .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
