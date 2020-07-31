@@ -4,6 +4,7 @@
 
 using System;
 using System.IO;
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
@@ -30,7 +31,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             const string inputColumn = "input";
             const string outputColumn = "output";
             const double minDf = 1;
-            const double maxDf = 100;
             const double minTf = 10;
             const int vocabSize = 10000;
             const bool binary = false;
@@ -41,7 +41,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .SetInputCol(inputColumn)
                 .SetOutputCol(outputColumn)
                 .SetMinDF(minDf)
-                .SetMaxDF(maxDf)
                 .SetMinTF(minTf)
                 .SetVocabSize(vocabSize);
                 
@@ -49,7 +48,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Equal(inputColumn, countVectorizer.GetInputCol());
             Assert.Equal(outputColumn, countVectorizer.GetOutputCol());
             Assert.Equal(minDf, countVectorizer.GetMinDF());
-            Assert.Equal(maxDf, countVectorizer.GetMaxDF());
             Assert.Equal(minTf, countVectorizer.GetMinTF());
             Assert.Equal(vocabSize, countVectorizer.GetVocabSize());
             Assert.Equal(binary, countVectorizer.GetBinary());
@@ -65,6 +63,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             
             Assert.NotEmpty(countVectorizer.ExplainParams());
             Assert.NotEmpty(countVectorizer.ToString());
-        } 
+        }
+
+        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
+        public void CountVectorizer_MaxDF()
+        {
+            const double maxDf = 100;
+            CountVectorizer countVectorizer = new CountVectorizer().SetMaxDF(maxDf);
+            Assert.Equal(maxDf, countVectorizer.GetMaxDF());
+        }
     }
 }

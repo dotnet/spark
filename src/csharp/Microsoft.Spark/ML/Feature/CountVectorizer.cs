@@ -110,6 +110,7 @@ namespace Microsoft.Spark.ML.Feature
         /// fraction of documents the term could appear in.
         /// </summary>
         /// <returns>The maximum document term frequency</returns>
+        [Since(Versions.V2_4_0)]
         public double GetMaxDF() => (double)_jvmObject.Invoke("getMaxDF");
 
         /// <summary>
@@ -121,6 +122,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">The maximum document term frequency</param>
         /// <returns>New <see cref="CountVectorizer"/> with the max df value set</returns>
+        [Since(Versions.V2_4_0)]
         public CountVectorizer SetMaxDF(double value) =>
             WrapAsCountVectorizer((JvmObjectReference)_jvmObject.Invoke("setMaxDF", value));
         
