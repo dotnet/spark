@@ -367,3 +367,6 @@ hs_err_pid*
 
 # The target folder contains the output of building
 **/target/**
+
+# F# vs code 
+.ionide/
