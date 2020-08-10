@@ -8,36 +8,29 @@ using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class Word2Vec : IJvmObjectReferenceProvider
+    public class Word2Vec : FeatureBase<Word2Vec>, IJvmObjectReferenceProvider
     {
         private static readonly string s_word2VecClassName = 
             "org.apache.spark.ml.feature.Word2Vec";
-        
-        private readonly JvmObjectReference _jvmObject;
-        
+
         /// <summary>
-        /// Create a <see cref="Word2Vec"/> without any parameters. Once you have created a
-        /// <see cref="Word2Vec"/> you must call <see cref="SetInputCol(string)"/>,
-        /// <see cref="SetOutputCol(string)"/>, and <see cref="SetMinCount(int)"/>.
+        /// Create a <see cref="Word2Vec"/> without any parameters
         /// </summary>
-        public Word2Vec()
+        public Word2Vec() : base(s_word2VecClassName)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_word2VecClassName);
         }
 
         /// <summary>
         /// Create a <see cref="Word2Vec"/> with a UID that is used to give the
-        /// <see cref="Word2Vec"/> a unique ID.
+        /// <see cref="Word2Vec"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public Word2Vec(string uid)
+        public Word2Vec(string uid) : base(s_word2VecClassName, uid)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_word2VecClassName, uid);
         }
         
-        internal Word2Vec(JvmObjectReference jvmObject)
+        internal Word2Vec(JvmObjectReference jvmObject) : base(jvmObject)
         {
-            _jvmObject = jvmObject;
         }
         
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
@@ -190,30 +183,13 @@ namespace Microsoft.Spark.ML.Feature
             new Word2VecModel((JvmObjectReference)_jvmObject.Invoke("fit", dataFrame));
 
         /// <summary>
-        /// The uid that was used to create the <see cref="Word2Vec"/>. If no UID is passed in
-        /// when creating the <see cref="Word2Vec"/> then a random UID is created when the
-        /// <see cref="Word2Vec"/> is created.
-        /// </summary>
-        /// <returns>string UID identifying the <see cref="Word2Vec"/>.</returns>
-        public string Uid() => (string)_jvmObject.Invoke("uid");
-
-        /// <summary>
-        /// Loads the <see cref="Word2Vec"/> that was previously saved using
-        /// <see cref="Save(string)"/>.
+        /// Loads the <see cref="Word2Vec"/> that was previously saved using Save(string).
         /// </summary>
         /// <param name="path">The path the previous <see cref="Word2Vec"/> was saved to</param>
         /// <returns>New <see cref="Word2Vec"/> object, loaded from path.</returns>
         public static Word2Vec Load(string path) => WrapAsWord2Vec(
             SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_word2VecClassName, "load", path));
-
-        /// <summary>
-        /// Saves the <see cref="Word2Vec"/> so that it can be loaded later using
-        /// <see cref="Load(string)"/>.
-        /// </summary>
-        /// <param name="path">The path to save the <see cref="Word2Vec"/> to.</param>
-        /// <returns>New <see cref="Word2Vec"/> object.</returns>
-        public Word2Vec Save(string path) => WrapAsWord2Vec(_jvmObject.Invoke("save", path));
-
+        
         private static Word2Vec WrapAsWord2Vec(object obj) => 
             new Word2Vec((JvmObjectReference)obj);
     }
