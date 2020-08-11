@@ -20,19 +20,16 @@ namespace Microsoft.Spark.ML.Feature
     /// will be thrown. The splits parameter is only used for single column usage, and splitsArray
     /// is for multiple columns.
     /// </summary>
-    public class Bucketizer : IJvmObjectReferenceProvider
+    public class Bucketizer : FeatureBase<Bucketizer>, IJvmObjectReferenceProvider
     {
         private static readonly string s_bucketizerClassName = 
             "org.apache.spark.ml.feature.Bucketizer";
         
-        private readonly JvmObjectReference _jvmObject;
-
         /// <summary>
         /// Create a <see cref="Bucketizer"/> without any parameters
         /// </summary>
-        public Bucketizer()
+        public Bucketizer() : base(s_bucketizerClassName)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_bucketizerClassName);
         }
 
         /// <summary>
@@ -40,14 +37,12 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="Bucketizer"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public Bucketizer(string uid)
+        public Bucketizer(string uid) : base(s_bucketizerClassName, uid)
         {
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(s_bucketizerClassName, uid);
         }
         
-        internal Bucketizer(JvmObjectReference jvmObject)
+        internal Bucketizer(JvmObjectReference jvmObject) : base(jvmObject)
         {
-            _jvmObject = jvmObject;
         }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
@@ -56,11 +51,8 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the splits that were set using SetSplits
         /// </summary>
         /// <returns>double[], the splits to be used to bucket the input column</returns>
-        public double[] GetSplits()
-        {
-            return (double[])_jvmObject.Invoke("getSplits");
-        }
-        
+        public double[] GetSplits() => (double[])_jvmObject.Invoke("getSplits");
+
         /// <summary>
         /// Split points for splitting a single column into buckets. To split multiple columns use
         /// SetSplitsArray. You cannot use both SetSplits and SetSplitsArray at the same time
@@ -72,20 +64,15 @@ namespace Microsoft.Spark.ML.Feature
         /// increasing. Values outside the splits specified will be treated as errors.
         /// </param>
         /// <returns>New <see cref="Bucketizer"/> object</returns>
-        public Bucketizer SetSplits(double[] value)
-        {
-            return WrapAsBucketizer(_jvmObject.Invoke("setSplits", value));
-        }
+        public Bucketizer SetSplits(double[] value) => 
+            WrapAsBucketizer(_jvmObject.Invoke("setSplits", value));
 
         /// <summary>
         /// Gets the splits that were set by SetSplitsArray
         /// </summary>
         /// <returns>double[][], the splits to be used to bucket the input columns</returns>
-        public double[][] GetSplitsArray()
-        {
-            return (double[][])_jvmObject.Invoke("getSplitsArray");
-        } 
-        
+        public double[][] GetSplitsArray() => (double[][])_jvmObject.Invoke("getSplitsArray");
+
         /// <summary>
         /// Split points fot splitting multiple columns into buckets. To split a single column use
         /// SetSplits. You cannot use both SetSplits and SetSplitsArray at the same time.
@@ -97,41 +84,32 @@ namespace Microsoft.Spark.ML.Feature
         /// includes y. The splits should be of length &gt;= 3 and strictly increasing.
         /// Values outside the splits specified will be treated as errors.</param>
         /// <returns>New <see cref="Bucketizer"/> object</returns>
-        public Bucketizer SetSplitsArray(double[][] value)
-        {
-            return WrapAsBucketizer(_jvmObject.Invoke("setSplitsArray", (object)value));
-        }
+        public Bucketizer SetSplitsArray(double[][] value) => 
+            WrapAsBucketizer(_jvmObject.Invoke("setSplitsArray", (object)value));
 
         /// <summary>
         /// Gets the column that the <see cref="Bucketizer"/> should read from and convert into
         /// buckets. This would have been set by SetInputCol
         /// </summary>
         /// <returns>string, the input column</returns>
-        public string GetInputCol()
-        {
-            return (string)_jvmObject.Invoke("getInputCol");
-        }
-        
+        public string GetInputCol() => (string)_jvmObject.Invoke("getInputCol");
+
         /// <summary>
         /// Sets the column that the <see cref="Bucketizer"/> should read from and convert into
         /// buckets
         /// </summary>
         /// <param name="value">The name of the column to as the source of the buckets</param>
         /// <returns>New <see cref="Bucketizer"/> object</returns>
-        public Bucketizer SetInputCol(string value)
-        {
-            return WrapAsBucketizer(_jvmObject.Invoke("setInputCol", value));
-        }
-        
+        public Bucketizer SetInputCol(string value) => 
+            WrapAsBucketizer(_jvmObject.Invoke("setInputCol", value));
+
         /// <summary>
         /// Gets the columns that <see cref="Bucketizer"/> should read from and convert into
         /// buckets. This is set by SetInputCol
         /// </summary>
        /// <returns>IEnumerable&lt;string&gt;, list of input columns</returns>
-        public IEnumerable<string> GetInputCols()
-        {
-            return ((string[])(_jvmObject.Invoke("getInputCols"))).ToList();
-        }
+        public IEnumerable<string> GetInputCols() => 
+            ((string[])(_jvmObject.Invoke("getInputCols"))).ToList();
 
         /// <summary>
         /// Sets the columns that <see cref="Bucketizer"/> should read from and convert into
@@ -142,73 +120,50 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">List of input columns to use as sources for buckets</param>
         /// <returns>New <see cref="Bucketizer"/> object</returns>
-        public Bucketizer SetInputCols(IEnumerable<string> value)
-        {
-            return WrapAsBucketizer(_jvmObject.Invoke("setInputCols", value));
-        }
-        
+        public Bucketizer SetInputCols(IEnumerable<string> value) => 
+            WrapAsBucketizer(_jvmObject.Invoke("setInputCols", value));
+
         /// <summary>
         /// Gets the name of the column the output data will be written to. This is set by
         /// SetInputCol
         /// </summary>
         /// <returns>string, the output column</returns>
-        public string GetOutputCol()
-        {
-            return (string)_jvmObject.Invoke("getOutputCol");
-        }
-        
+        public string GetOutputCol() => (string)_jvmObject.Invoke("getOutputCol");
+
         /// <summary>
         /// The <see cref="Bucketizer"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
         /// </summary>
         /// <param name="value">The name of the new column which contains the bucket ID</param>
         /// <returns>New <see cref="Bucketizer"/> object</returns>
-        public Bucketizer SetOutputCol(string value)
-        {
-            return WrapAsBucketizer(_jvmObject.Invoke("setOutputCol", value));
-        }
+        public Bucketizer SetOutputCol(string value) => 
+            WrapAsBucketizer(_jvmObject.Invoke("setOutputCol", value));
 
         /// <summary>
         /// The list of columns that the <see cref="Bucketizer"/> will create in the DataFrame.
         /// This is set by SetOutputCols
         /// </summary>
         /// <returns>IEnumerable&lt;string&gt;, list of output columns</returns>
-        public IEnumerable<string> GetOutputCols()
-        {
-            return ((string[])_jvmObject.Invoke("getOutputCols")).ToList();
-        }
-        
+        public IEnumerable<string> GetOutputCols() => 
+            ((string[])_jvmObject.Invoke("getOutputCols")).ToList();
+
         /// <summary>
         /// The list of columns that the <see cref="Bucketizer"/> will create in the DataFrame.
         /// </summary>
         /// <param name="value">List of column names which will contain the bucket ID</param>
         /// <returns>New <see cref="Bucketizer"/> object</returns>
-        public Bucketizer SetOutputCols(List<string> value)
-        {
-            return WrapAsBucketizer(_jvmObject.Invoke("setOutputCols", value));
-        }
-        
+        public Bucketizer SetOutputCols(List<string> value) => 
+            WrapAsBucketizer(_jvmObject.Invoke("setOutputCols", value));
+
         /// <summary>
         /// Loads the <see cref="Bucketizer"/> that was previously saved using Save
         /// </summary>
         /// <param name="path">The path the previous <see cref="Bucketizer"/> was saved to</param>
         /// <returns>New <see cref="Bucketizer"/> object</returns>
-        public static Bucketizer Load(string path)
-        {
-            return WrapAsBucketizer(
+        public static Bucketizer Load(string path) =>
+            WrapAsBucketizer(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_bucketizerClassName,"load", path));
-        }
-        
-        /// <summary>
-        /// Saves the <see cref="Bucketizer"/> so that it can be loaded later using Load
-        /// </summary>
-        /// <param name="path">The path to save the <see cref="Bucketizer"/> to</param>
-        /// <returns>New <see cref="Bucketizer"/> object</returns>
-        public Bucketizer Save(string path)
-        {
-            return WrapAsBucketizer(_jvmObject.Invoke("save", path));
-        }
 
         /// <summary>
         /// Executes the <see cref="Bucketizer"/> and transforms the DataFrame to include the new
@@ -218,31 +173,15 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>
         /// <see cref="DataFrame"/> containing the original data and the new bucketed columns
         /// </returns>
-        public DataFrame Transform(DataFrame source)
-        {
-            return new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
-        }
-
-        /// <summary>
-        /// The uid that was used to create the <see cref="Bucketizer"/>. If no UID is passed in
-        /// when creating the <see cref="Bucketizer"/> then a random UID is created when the
-        /// <see cref="Bucketizer"/> is created.
-        /// </summary>
-        /// <returns>string UID identifying the <see cref="Bucketizer"/></returns>
-        public string Uid()
-        {
-            return (string)_jvmObject.Invoke("uid");
-        }
+        public DataFrame Transform(DataFrame source) => 
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
 
         /// <summary>
         /// How should the <see cref="Bucketizer"/> handle invalid data, choices are "skip",
         /// "error" or "keep"
         /// </summary>
         /// <returns>string showing the way Spark will handle invalid data</returns>
-        public string GetHandleInvalid()
-        {
-            return (string)_jvmObject.Invoke("getHandleInvalid");
-        }
+        public string GetHandleInvalid() => (string)_jvmObject.Invoke("getHandleInvalid");
 
         /// <summary>
         /// Tells the <see cref="Bucketizer"/> what to do with invalid data.
@@ -251,11 +190,9 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">"skip", "error" or "keep"</param>
         /// <returns>New <see cref="Bucketizer"/> object</returns>
-        public Bucketizer SetHandleInvalid(string value)
-        {
-            return WrapAsBucketizer(_jvmObject.Invoke("setHandleInvalid", value.ToString()));
-        }
-        
+        public Bucketizer SetHandleInvalid(string value) => 
+            WrapAsBucketizer(_jvmObject.Invoke("setHandleInvalid", value.ToString()));
+
         private static Bucketizer WrapAsBucketizer(object obj) => 
             new Bucketizer((JvmObjectReference)obj);
     }
