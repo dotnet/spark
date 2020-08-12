@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
 using System.Threading;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
@@ -187,7 +188,9 @@ namespace Microsoft.Spark
                     (int)pair[0].Invoke("intValue"),
                     (string)pair[1].Invoke("toString"));
                 ChunkedStream bdrcstChunked = new ChunkedStream(socket.OutputStream, 8192);
-                bdrcstChunked.Write(value);
+                byte[] values = new byte[] { 0x80, 0x02, (byte)'X', 0x05, 0x00, 0x00, 0x00,
+                (byte)'h', (byte)'e', (byte)'l', (byte)'l', (byte)'o', (byte)'q', 0x00, (byte)'.' };
+                bdrcstChunked.Write(values);
                 bdrcstChunked.Close();
                 //socket.OutputStream.Flush();
                 pythonBroadcast.Invoke("waitTillDataReceived");
