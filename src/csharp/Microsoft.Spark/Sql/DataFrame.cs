@@ -583,6 +583,8 @@ namespace Microsoft.Spark.Sql
             return dataFrames.Select(jvmObject => new DataFrame(jvmObject)).ToArray();
         }
 
+        // dtypes returns a list: TODO
+
         /// <summary>
         /// Returns a new `DataFrame` by adding a column or replacing the existing column that
         /// has the same name.
@@ -806,10 +808,26 @@ namespace Microsoft.Spark.Sql
         public DataFrame Persist() => WrapAsDataFrame(_jvmObject.Invoke("persist"));
 
         /// <summary>
+        /// Persist this `DataFrame` with the given storage level.
+        /// </summary>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Persist(StorageLevel storageLevel) => 
+            WrapAsDataFrame(_jvmObject.Invoke(
+                "persist",
+                ((IJvmObjectReferenceProvider)storageLevel).Reference));
+
+        /// <summary>
         /// Persist this `DataFrame` with the default storage level (`MEMORY_AND_DISK`).
         /// </summary>
         /// <returns>DataFrame object</returns>
         public DataFrame Cache() => WrapAsDataFrame(_jvmObject.Invoke("cache"));
+
+        /// <summary>
+        /// Get the `DataFrame`'s current storage level.
+        /// </summary>
+        /// <returns><see cref="StorageLevel"/> object</returns>
+        public StorageLevel StorageLevel() =>
+            new StorageLevel((JvmObjectReference)_jvmObject.Invoke("storageLevel"));
 
         /// <summary>
         /// Mark the Dataset as non-persistent, and remove all blocks for it from memory and disk.

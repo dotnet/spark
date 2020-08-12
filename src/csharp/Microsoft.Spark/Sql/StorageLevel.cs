@@ -15,12 +15,13 @@ using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql
 {
-    /// TODO:
-    /// Missing APIs:
-    /// Persist() with "StorageLevel"
-
     /// <summary>
-    ///  A distributed collection of data organized into named columns.
+    /// Flags for controlling the storage of an RDD. Each StorageLevel records whether to use
+    /// memory, whether to drop the RDD to disk if it falls out of memory, whether to keep the
+    /// data in memory in a JAVA-specific serialized format, and whether to replicate the RDD
+    /// partitions on multiple nodes.Also contains static constants for some commonly used storage
+    /// levels, MEMORY_ONLY. Since the data is always serialized on the Python side, all the
+    /// constants use the serialized formats.
     /// </summary>
     public sealed class StorageLevel : IJvmObjectReferenceProvider
     {
@@ -50,7 +51,27 @@ namespace Microsoft.Spark.Sql
             _useOffHeap = useOffHeap;
             _deserialized = deserialized;
             _replication = replication;
+            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
+                "org.apache.spark.storage.StorageLevel",
+                _useDisk,
+                _useMemory,
+                _useOffHeap,
+                _deserialized,
+                _replication);
         }
+
+        public string Description() => (string)_jvmObject.Invoke("description");
+
+        public override string ToString() => (string)_jvmObject.Invoke("toString");
+
+        // TODO: expose these as static APIs
+        //public StorageLevel.DISK_ONLY => new StorageLevel(true, false, false, false);
+        //public StorageLevel.DISK_ONLY_2 => new StorageLevel(true, false, false, false, 2);
+        //public StorageLevel.MEMORY_ONLY => new StorageLevel(false, true, false, false);
+        //public StorageLevel.MEMORY_ONLY_2 => new StorageLevel(false, true, false, false, 2);
+        //public StorageLevel.MEMORY_AND_DISK => new StorageLevel(true, true, false, false);
+        //public StorageLevel.MEMORY_AND_DISK_2 => new StorageLevel(true, true, false, false, 2);
+        //public StorageLevel.OFF_HEAP => new StorageLevel(true, true, true, false, 1);
     }
 
 }

@@ -27,6 +27,11 @@ namespace Microsoft.Spark.Sql
             _dataFrame = dataFrame;
         }
 
+        internal RelationalGroupedDataset(JvmObjectReference jvmObject)
+        {
+            _jvmObject = jvmObject;
+        }
+
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
@@ -84,6 +89,25 @@ namespace Microsoft.Spark.Sql
         /// <returns>New DataFrame object with sum applied</returns>
         public DataFrame Sum(params string[] colNames) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("sum", (object)colNames));
+
+        /// <summary>
+        /// Pivots a column of the current `DataFrame` and performs the specified aggregation.
+        /// </summary>
+        /// <param name="colName">Name of column to pivot on</param>
+        /// <returns>New DataFrame object with pivot applied</returns>
+        public RelationalGroupedDataset Pivot(string colName) =>
+            new RelationalGroupedDataset(
+                (JvmObjectReference)_jvmObject.Invoke("pivot", colName));
+
+        /// <summary>
+        /// Pivots a column of the current `DataFrame` and performs the specified aggregation.
+        /// </summary>
+        /// <param name="colName">Name of column to pivot on</param>
+        /// <param name="values">Name of distinct values to pivot</param>
+        /// <returns>New DataFrame object with pivot applied</returns>
+        public RelationalGroupedDataset Pivot(string colName, params string[] values) =>
+            new RelationalGroupedDataset(
+                (JvmObjectReference)_jvmObject.Invoke("pivot", colName, values));
 
         internal DataFrame Apply(StructType returnType, Func<FxDataFrame, FxDataFrame> func)
         {
