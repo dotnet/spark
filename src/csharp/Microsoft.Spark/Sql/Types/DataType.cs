@@ -78,7 +78,7 @@ namespace Microsoft.Spark.Sql.Types
         /// JSON value of this data type.
         /// </summary>
         internal virtual object JsonValue => TypeName;
-        
+
         /// <summary>
         /// Parses a JSON string to create a <see cref="JvmObjectReference"/>.
         /// It references a <see cref="StructType"/> on the JVM side.
@@ -93,7 +93,7 @@ namespace Microsoft.Spark.Sql.Types
                 "fromJson",
                 json);
         }
-        
+
         /// <summary>
         /// Parses a JSON string to construct a DataType.
         /// </summary>
@@ -160,6 +160,14 @@ namespace Microsoft.Spark.Sql.Types
                     }
                     else if (typeName == "udt")
                     {
+                        if (typeJObject.TryGetValue("class", out JToken classToken))
+                        {
+                            if (typeJObject.TryGetValue("sqlType", out JToken sqlTypeToken))
+                            {
+                                return new StructType((JObject)sqlTypeToken);
+                            }
+                        }
+
                         throw new NotImplementedException();
                     }
                 }
@@ -172,6 +180,16 @@ namespace Microsoft.Spark.Sql.Types
             }
 
         }
+
+        /// <summary>
+        /// Does this type need to conversion between C# object and internal SQL object.
+        /// </summary>
+        internal virtual bool NeedConversion() => false;
+
+        /// <summary>
+        /// Converts an internal SQL object into a native C# object.
+        /// </summary>
+        internal virtual object FromInternal(object obj) => obj;
 
         /// <summary>
         /// Parses a JToken object that represents a simple type.
