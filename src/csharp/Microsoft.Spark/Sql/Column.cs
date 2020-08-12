@@ -887,6 +887,12 @@ namespace Microsoft.Spark.Sql
         public override int GetHashCode() => _jvmObject.GetHashCode();
 
         /// <summary>
+        /// Returns the name of the column
+        /// </summary>
+        /// <returns>The column name</returns>
+        public override string ToString() => (string) _jvmObject.Invoke("toString");
+
+        /// <summary>
         /// Invokes a method under "org.apache.spark.sql.functions" with the given column.
         /// </summary>
         /// <param name="column">Column to apply function</param>
