@@ -60,7 +60,10 @@ object DotnetRunner extends Logging {
         var zipFileName = args(0)
         val zipFileUri = Try(new URI(zipFileName)).getOrElse(new File(zipFileName).toURI)
         val workingDir = new File("").getAbsoluteFile
-        val driverDir = new File(workingDir, FilenameUtils.getBaseName(zipFileUri.getPath()))
+        //val driverDir = new File(workingDir, FilenameUtils.getBaseName(zipFileUri.getPath()))
+		// ZZ: By unzipping into the working directory, this ensures currentdir is the dir containing the files that is needed to properly handle UDF's, without the need to set ASSEMBLY_PATHS
+		// The alternative here would be to change current working directory to the subdirectory path, but that seems like it could have more unintended side effects
+		val driverDir = workingDir
 
         // Standalone cluster mode where .NET application is remotely located.
         if (zipFileUri.getScheme() != "file") {
