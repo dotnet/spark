@@ -1,7 +1,7 @@
 C# Coding Style
 ===============
 
-We use the same [coding style](https://github.com/dotnet/corefx/blob/master/Documentation/coding-guidelines/coding-style.md) and [EditorConfig](https://editorconfig.org "EditorConfig homepage") file (`.editorconfig`) used by [dotnet/corefx](https://github.com/dotnet/corefx) with the following differences:
+We use the same [coding style](https://github.com/dotnet/runtime/blob/master/docs/coding-guidelines/coding-style.md) and [EditorConfig](https://editorconfig.org "EditorConfig homepage") file (`.editorconfig`) used by [dotnet/runtime](https://github.com/dotnet/runtime) with the following differences:
 
 * **`var` must be used when `new`, `as`, or cast operator is used (and it can be used only with these operators).**
     ```C#

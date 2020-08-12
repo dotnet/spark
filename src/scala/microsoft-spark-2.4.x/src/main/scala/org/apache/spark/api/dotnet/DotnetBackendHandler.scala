@@ -7,7 +7,6 @@
 package org.apache.spark.api.dotnet
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream}
-import java.net.Socket
 
 import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import org.apache.spark.api.dotnet.SerDe._
@@ -67,32 +66,16 @@ class DotnetBackendHandler(server: DotnetBackend)
               writeInt(dos, -1)
           }
         case "connectCallback" =>
-          val t = readObjectType(dis)
-          assert(t == 'i')
+          assert(readObjectType(dis) == 'c')
+          val address = readString(dis)
+          assert(readObjectType(dis) == 'i')
           val port = readInt(dis)
-          logInfo(s"Connecting to a callback server at port $port")
-          DotnetBackend.callbackPort = port
+          DotnetBackend.setCallbackClient(address, port);
           writeInt(dos, 0)
           writeType(dos, "void")
         case "closeCallback" =>
-          // Send close to .NET callback server.
-          logInfo("Requesting to close all call back sockets.")
-          var socket: Socket = null
-          do {
-            socket = DotnetBackend.callbackSockets.poll()
-            if (socket != null) {
-              val dataOutputStream = new DataOutputStream(socket.getOutputStream)
-              SerDe.writeString(dataOutputStream, "close")
-              try {
-                socket.close()
-                socket = null
-              } catch {
-                case e: Exception => logError("Exception when closing socket: ", e)
-              }
-            }
-          } while (socket != null)
-          DotnetBackend.callbackSocketShutdown = true
-
+          logInfo("Requesting to close callback client")
+          DotnetBackend.shutdownCallbackClient()
           writeInt(dos, 0)
           writeType(dos, "void")
 
@@ -185,21 +168,21 @@ class DotnetBackendHandler(server: DotnetBackend)
           case Some(jObj) => jObj.getClass.getName
           case None => "NullObject"
         }
-        logError(s"On object of type $jvmObjName failed", e)
+        val argsStr = args.map(arg => {
+          if (arg != null) {
+            s"[Type=${arg.getClass.getCanonicalName}, Value: $arg]"
+          } else {
+            "[Value: NULL]"
+          }
+        }).mkString(", ")
+
+        logError(s"Failed to execute '$methodName' on '$jvmObjName' with args=($argsStr)")
+
         if (methods != null) {
-          logError("methods:")
-          methods.foreach(m => logError(m.toString))
+          logDebug(s"All methods for $jvmObjName:")
+          methods.foreach(m => logDebug(m.toString))
         }
-        if (args != null) {
-          logError("args:")
-          args.foreach(arg => {
-            if (arg != null) {
-              logError(s"argType: ${arg.getClass.getCanonicalName}, argValue: $arg")
-            } else {
-              logError("arg: NULL")
-            }
-          })
-        }
+
         writeInt(dos, -1)
         writeString(dos, Utils.exceptionString(e.getCause))
     }

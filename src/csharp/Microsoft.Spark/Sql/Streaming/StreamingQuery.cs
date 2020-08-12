@@ -47,6 +47,16 @@ namespace Microsoft.Spark.Sql.Streaming
             (bool)_jvmObject.Invoke("awaitTermination", timeoutMs);
 
         /// <summary>
+        /// Blocks until all available data in the source has been processed and committed to the
+        /// sink. This method is intended for testing. Note that in the case of continually
+        /// arriving data, this method may block forever. Additionally, this method is only
+        /// guaranteed to block until data that has been synchronously appended data to a
+        /// `org.apache.spark.sql.execution.streaming.Source` prior to invocation.
+        /// (i.e. `getOffset` must immediately reflect the addition).
+        /// </summary>
+        public void ProcessAllAvailable() => _jvmObject.Invoke("processAllAvailable");
+
+        /// <summary>
         /// Stops the execution of this query if it is running. This method blocks until the
         /// threads performing execution stop.
         /// </summary>

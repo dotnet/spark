@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using Razorvine.Pickle;
 using Razorvine.Pickle.Objects;
 
@@ -39,6 +40,8 @@ namespace Microsoft.Spark.Utils
             // Register custom picklers.
             Pickler.registerCustomPickler(typeof(Row), new RowPickler());
             Pickler.registerCustomPickler(typeof(GenericRow), new GenericRowPickler());
+            Pickler.registerCustomPickler(typeof(Date), new DatePickler());
+            Pickler.registerCustomPickler(typeof(Timestamp), new TimestampPickler());
         }
 
         /// <summary>

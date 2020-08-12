@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using Apache.Arrow;
 using Apache.Arrow.Types;
+using Microsoft.Data.Analysis;
 
 namespace Microsoft.Spark.Sql
 {
@@ -38,10 +39,61 @@ namespace Microsoft.Spark.Sql
             ArrowTypeId.Binary,
         };
 
-        public static IArrowArray CreateEmptyArray<T>()
+        public static DataFrameColumn CreateEmptyColumn<T>()
         {
-            ArrayData data = BuildEmptyArrayDataFromArrayType<T>();
-            return ArrowArrayFactory.BuildArray(data);
+            Type type = typeof(T);
+            if (type == typeof(BooleanDataFrameColumn))
+            {
+                return new BooleanDataFrameColumn("Empty");
+            }
+            else if (type == typeof(SByteDataFrameColumn))
+            {
+                return new SByteDataFrameColumn("Empty");
+            }
+            else if (type == typeof(ByteDataFrameColumn))
+            {
+                return new ByteDataFrameColumn("Empty");
+            }
+            else if (type == typeof(Int16DataFrameColumn))
+            {
+                return new Int16DataFrameColumn("Empty");
+            }
+            else if (type == typeof(UInt16DataFrameColumn))
+            {
+                return new UInt16DataFrameColumn("Empty");
+            }
+            else if (type == typeof(Int32DataFrameColumn))
+            {
+                return new Int32DataFrameColumn("Empty");
+            }
+            else if (type == typeof(UInt32DataFrameColumn))
+            {
+                return new UInt32DataFrameColumn("Empty");
+            }
+            else if (type == typeof(Int64DataFrameColumn))
+            {
+                return new Int64DataFrameColumn("Empty");
+            }
+            else if (type == typeof(UInt64DataFrameColumn))
+            {
+                return new UInt64DataFrameColumn("Empty");
+            }
+            else if (type == typeof(SingleDataFrameColumn))
+            {
+                return new SingleDataFrameColumn("Empty");
+            }
+            else if (type == typeof(DoubleDataFrameColumn))
+            {
+                return new DoubleDataFrameColumn("Empty");
+            }
+            else if (type == typeof(ArrowStringDataFrameColumn))
+            {
+                return new ArrowStringDataFrameColumn("Empty");
+            }
+            else
+            {
+                throw new NotSupportedException($"Unknown type: {typeof(T)}");
+            }
         }
 
         public static IArrowArray CreateEmptyArray(IArrowType arrowType)
@@ -50,21 +102,10 @@ namespace Microsoft.Spark.Sql
             return ArrowArrayFactory.BuildArray(data);
         }
 
-        private static ArrayData BuildEmptyArrayDataFromArrowType(IArrowType arrowType)
+        public static IArrowArray CreateEmptyArray<T>()
         {
-            if (s_twoBufferArrowTypes.Contains(arrowType.TypeId))
-            {
-                return new ArrayData(arrowType, 0,
-                    buffers: new[] { ArrowBuffer.Empty, ArrowBuffer.Empty });
-            }
-
-            if (s_threeBufferArrowTypes.Contains(arrowType.TypeId))
-            {
-                return new ArrayData(arrowType, 0,
-                    buffers: new[] { ArrowBuffer.Empty, ArrowBuffer.Empty, ArrowBuffer.Empty });
-            }
-
-            throw new NotSupportedException($"Unsupported type: {arrowType.TypeId}");
+            ArrayData data = BuildEmptyArrayDataFromArrayType<T>();
+            return ArrowArrayFactory.BuildArray(data);
         }
 
         private static ArrayData BuildEmptyArrayDataFromArrayType<T>()
@@ -142,6 +183,23 @@ namespace Microsoft.Spark.Sql
             }
 
             throw new NotSupportedException($"Unknown type: {typeof(T)}");
+        }
+
+        private static ArrayData BuildEmptyArrayDataFromArrowType(IArrowType arrowType)
+        {
+            if (s_twoBufferArrowTypes.Contains(arrowType.TypeId))
+            {
+                return new ArrayData(arrowType, 0,
+                    buffers: new[] { ArrowBuffer.Empty, ArrowBuffer.Empty });
+            }
+
+            if (s_threeBufferArrowTypes.Contains(arrowType.TypeId))
+            {
+                return new ArrayData(arrowType, 0,
+                    buffers: new[] { ArrowBuffer.Empty, ArrowBuffer.Empty, ArrowBuffer.Empty });
+            }
+
+            throw new NotSupportedException($"Unsupported type: {arrowType.TypeId}");
         }
     }
 }

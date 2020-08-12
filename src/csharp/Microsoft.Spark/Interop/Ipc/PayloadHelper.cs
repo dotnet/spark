@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Interop.Ipc
 {
@@ -22,6 +23,8 @@ namespace Microsoft.Spark.Interop.Ipc
         private static readonly byte[] s_stringTypeId = new[] { (byte)'c' };
         private static readonly byte[] s_boolTypeId = new[] { (byte)'b' };
         private static readonly byte[] s_doubleTypeId = new[] { (byte)'d' };
+        private static readonly byte[] s_dateTypeId = new[] { (byte)'D' };
+        private static readonly byte[] s_timestampTypeId = new[] { (byte)'t' };
         private static readonly byte[] s_jvmObjectTypeId = new[] { (byte)'j' };
         private static readonly byte[] s_byteArrayTypeId = new[] { (byte)'r' };
         private static readonly byte[] s_doubleArrayArrayTypeId = new[] { ( byte)'A' };
@@ -263,6 +266,14 @@ namespace Microsoft.Spark.Interop.Ipc
                                 SerDe.Write(destination, argProvider.Reference.Id);
                                 break;
 
+                            case Date argDate:
+                                SerDe.Write(destination, argDate.ToString());
+                                break;
+
+                            case Timestamp argTimestamp:
+                                SerDe.Write(destination, argTimestamp.GetIntervalInSeconds());
+                                break;
+
                             default:
                                 throw new NotSupportedException(
                                     string.Format($"Type {arg.GetType()} is not supported"));
@@ -320,6 +331,16 @@ namespace Microsoft.Spark.Interop.Ipc
                     if (typeof(IEnumerable<GenericRow>).IsAssignableFrom(type))
                     {
                         return s_rowArrTypeId;
+                    }
+
+                    if (typeof(Date).IsAssignableFrom(type))
+                    {
+                        return s_dateTypeId;
+                    }
+
+                    if (typeof(Timestamp).IsAssignableFrom(type))
+                    {
+                        return s_timestampTypeId;
                     }
                     break;
             }

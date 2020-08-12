@@ -189,7 +189,7 @@ namespace Microsoft.Spark.Interop.Ipc
                         args);
                     _logger.LogError(errorMessage);
                     _logger.LogError(jvmFullStackTrace);
-                    throw new Exception(errorMessage);
+                    throw new Exception(errorMessage, new JvmException(jvmFullStackTrace));
                 }
 
                 char typeAsChar = Convert.ToChar(inputStream.ReadByte());
@@ -244,9 +244,9 @@ namespace Microsoft.Spark.Interop.Ipc
             object[] args)
         {
             var errorMessage = new StringBuilder("JVM method execution failed: ");
-            const string ConstructorFormat = "Constructor failed for class {0}";
-            const string StaticMethodFormat = "Static method {0} failed for class {1}";
-            const string NonStaticMethodFormat = "Nonstatic method {0} failed for class {1}";
+            const string ConstructorFormat = "Constructor failed for class '{0}'";
+            const string StaticMethodFormat = "Static method '{0}' failed for class '{1}'";
+            const string NonStaticMethodFormat = "Nonstatic method '{0}' failed for class '{1}'";
 
             try
             {
