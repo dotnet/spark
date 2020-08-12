@@ -887,9 +887,9 @@ namespace Microsoft.Spark.Sql
         public override int GetHashCode() => _jvmObject.GetHashCode();
 
         /// <summary>
-        /// Returns the name of the column
+        /// Invoke the toString method of the column instance
         /// </summary>
-        /// <returns>The column name</returns>
+        /// <returns>Column name of this column</returns>
         public override string ToString() => (string) _jvmObject.Invoke("toString");
 
         /// <summary>
