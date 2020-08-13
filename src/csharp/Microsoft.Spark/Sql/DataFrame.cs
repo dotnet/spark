@@ -808,6 +808,7 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Persist this `DataFrame` with the given storage level.
         /// </summary>
+        /// <param name="storageLevel">Storage level to persist the dataframe to.</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Persist(StorageLevel storageLevel) => 
             WrapAsDataFrame(_jvmObject.Invoke(
