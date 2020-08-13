@@ -583,9 +583,6 @@ namespace Microsoft.Spark.Sql
             return dataFrames.Select(jvmObject => new DataFrame(jvmObject)).ToArray();
         }
 
-        //public List<List<string>> DTypes() => _jvmObject.Invoke("dtypes");
-
-
         /// <summary>
         /// Returns a new `DataFrame` by adding a column or replacing the existing column that
         /// has the same name.

@@ -26,18 +26,24 @@ namespace Microsoft.Spark.Sql
     public sealed class StorageLevel : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
-        private readonly bool _useDisk;
-        private readonly bool _useMemory;
-        private readonly bool _useOffHeap;
-        private readonly bool _deserialized;
-        private readonly int _replication;
+
+        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+
+        public bool UseDisk { get; private set; }
+        public bool UseMemory { get; private set; }
+        public bool UseOffHeap { get; private set; }
+        public bool Deserialized { get; private set; }
+        public int Replication { get; private set; }
 
         internal StorageLevel(JvmObjectReference jvmObject)
         {
+            UseDisk = (bool)jvmObject.Invoke("useDisk");
+            UseMemory = (bool)jvmObject.Invoke("useMemory");
+            UseOffHeap = (bool)jvmObject.Invoke("useOffHeap");
+            Deserialized = (bool)jvmObject.Invoke("deserialized");
+            Replication = (int)jvmObject.Invoke("replication");
             _jvmObject = jvmObject;
         }
-
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         public StorageLevel(
             bool useDisk,
@@ -46,32 +52,40 @@ namespace Microsoft.Spark.Sql
             bool deserialized,
             int replication = 1)
         {
-            _useDisk = useDisk;
-            _useMemory = useMemory;
-            _useOffHeap = useOffHeap;
-            _deserialized = deserialized;
-            _replication = replication;
+            UseDisk = useDisk;
+            UseMemory = useMemory;
+            UseOffHeap = useOffHeap;
+            Deserialized = deserialized;
+            Replication = replication;
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
                 "org.apache.spark.storage.StorageLevel",
-                _useDisk,
-                _useMemory,
-                _useOffHeap,
-                _deserialized,
-                _replication);
+                UseDisk,
+                UseMemory,
+                UseOffHeap,
+                Deserialized,
+                Replication);
         }
 
         public string Description() => (string)_jvmObject.Invoke("description");
 
         public override string ToString() => (string)_jvmObject.Invoke("toString");
 
-        // TODO: expose these as static APIs
-        //public StorageLevel.DISK_ONLY => new StorageLevel(true, false, false, false);
-        //public StorageLevel.DISK_ONLY_2 => new StorageLevel(true, false, false, false, 2);
-        //public StorageLevel.MEMORY_ONLY => new StorageLevel(false, true, false, false);
-        //public StorageLevel.MEMORY_ONLY_2 => new StorageLevel(false, true, false, false, 2);
-        //public StorageLevel.MEMORY_AND_DISK => new StorageLevel(true, true, false, false);
-        //public StorageLevel.MEMORY_AND_DISK_2 => new StorageLevel(true, true, false, false, 2);
-        //public StorageLevel.OFF_HEAP => new StorageLevel(true, true, true, false, 1);
+        public static StorageLevel DISK_ONLY { get; } = 
+            new StorageLevel(true, false, false, false);
+        public static StorageLevel DISK_ONLY_2 { get; } = 
+            new StorageLevel(true, false, false, false, 2);
+        public static StorageLevel MEMORY_ONLY { get; } = 
+            new StorageLevel(false, true, false, false);
+        public static StorageLevel MEMORY_ONLY_2 { get; } = 
+            new StorageLevel(false, true, false, false, 2);
+        public static StorageLevel MEMORY_AND_DISK { get; } = 
+            new StorageLevel(true, true, false, false);
+        public static StorageLevel MEMORY_AND_DISK_2 { get; } = 
+            new StorageLevel(true, true, false, false, 2);
+        public static StorageLevel OFF_HEAP { get; } = 
+            new StorageLevel(true, true, true, false, 1);
     }
 
 }
+
+
