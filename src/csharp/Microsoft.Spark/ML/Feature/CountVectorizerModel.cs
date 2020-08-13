@@ -15,7 +15,7 @@ namespace Microsoft.Spark.ML.Feature
             "org.apache.spark.ml.feature.CountVectorizerModel";
         
         /// <summary>
-        /// Create a <see cref="CountVectorizerModel"/> without any parameters
+        /// Creates a <see cref="CountVectorizerModel"/> without any parameters
         /// </summary>
         /// <param name="vocabulary">The vocabulary to use</param>
         public CountVectorizerModel(List<string> vocabulary) : 
@@ -25,7 +25,7 @@ namespace Microsoft.Spark.ML.Feature
         }
 
         /// <summary>
-        /// Create a <see cref="CountVectorizerModel"/> with a UID that is used to give the
+        /// Creates a <see cref="CountVectorizerModel"/> with a UID that is used to give the
         /// <see cref="CountVectorizerModel"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
@@ -52,14 +52,14 @@ namespace Microsoft.Spark.ML.Feature
         public static CountVectorizerModel Load(string path) =>
             WrapAsCountVectorizerModel((JvmObjectReference)
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_countVectorizerModelClassName,"load", path));
+                    s_countVectorizerModelClassName, "load", path));
         
         /// <summary>
         /// Gets the binary toggle to control the output vector values. If True, all nonzero counts
         /// (after minTF filter applied) are set to 1. This is useful for discrete probabilistic
         /// models that model binary events rather than integer counts. Default: false
         /// </summary>
-        /// <returns>boolean</returns>
+        /// <returns>Toggle value of type boolean</returns>
         public bool GetBinary() => (bool)_jvmObject.Invoke("getBinary");
 
         /// <summary>
@@ -79,27 +79,27 @@ namespace Microsoft.Spark.ML.Feature
         /// convert into buckets. This would have been set by SetInputCol
         /// </summary>
         /// <returns>string, the input column</returns>
-        public string GetInputCol() => _jvmObject.Invoke("getInputCol") as string;
+        public string GetInputCol() => (string)_jvmObject.Invoke("getInputCol");
         
         /// <summary>
         /// Sets the column that the <see cref="CountVectorizerModel"/> should read from.
         /// </summary>
-        /// <param name="value">The name of the column to as the source.</param>
+        /// <param name="value">The name of the column to use as the source.</param>
         /// <returns><see cref="CountVectorizerModel"/> with the input column set</returns>
         public CountVectorizerModel SetInputCol(string value) =>
             WrapAsCountVectorizerModel(
                 (JvmObjectReference)_jvmObject.Invoke("setInputCol", value));
         
         /// <summary>
-        /// The <see cref="CountVectorizerModel"/> will create a new column in the DataFrame, this
-        /// is the name of the new column.
+        /// Gets the name of the new column the <see cref="CountVectorizerModel"/> will create in
+        /// the DataFrame.
         /// </summary>
         /// <returns>The name of the output column.</returns>
-        public string GetOutputCol() => _jvmObject.Invoke("getOutputCol") as string;
+        public string GetOutputCol() => (string)_jvmObject.Invoke("getOutputCol");
         
         /// <summary>
-        /// The <see cref="CountVectorizerModel"/> will create a new column in the DataFrame,
-        /// this is the name of the new column.
+        /// Sets the name of the new column the <see cref="CountVectorizerModel"/> will create in
+        /// the DataFrame.
         /// </summary>
         /// <param name="value">The name of the output column which will be created.</param>
         /// <returns>New <see cref="CountVectorizerModel"/> with the output column set</returns>
@@ -127,7 +127,7 @@ namespace Microsoft.Spark.ML.Feature
         public double GetMinDF() => (double)_jvmObject.Invoke("getMinDF");
 
         /// <summary>
-        /// Filter to ignore rare words in a document. For each document, terms with
+        /// Gets the filter to ignore rare words in a document. For each document, terms with
         /// frequency/count less than the given threshold are ignored. If this is an integer
         /// greater than or equal to 1, then this specifies a count (of times the term must appear
         /// in the document); if this is a double in [0,1), then this specifies a fraction (out of
@@ -136,11 +136,11 @@ namespace Microsoft.Spark.ML.Feature
         /// Note that the parameter is only used in transform of CountVectorizerModel and does not
         /// affect fitting.
         /// </summary>
-        /// <returns>Minimum term frequency</returns>
+        /// <returns>Minimum term frequency of type double.</returns>
         public double GetMinTF() => (double)_jvmObject.Invoke("getMinTF");
 
         /// <summary>
-        /// Filter to ignore rare words in a document. For each document, terms with
+        /// Sets the filter to ignore rare words in a document. For each document, terms with
         /// frequency/count less than the given threshold are ignored. If this is an integer
         /// greater than or equal to 1, then this specifies a count (of times the term must appear
         /// in the document); if this is a double in [0,1), then this specifies a fraction (out of
@@ -149,7 +149,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Note that the parameter is only used in transform of CountVectorizerModel and does not
         /// affect fitting.
         /// </summary>
-        /// <param name="value">Minimum term frequency</param>
+        /// <param name="value">Minimum term frequency of type double.</param>
         /// <returns>
         /// New <see cref="CountVectorizerModel"/> with the min term frequency set
         /// </returns>
@@ -161,7 +161,7 @@ namespace Microsoft.Spark.ML.Feature
         /// vocabulary that only considers the top vocabSize terms ordered by term frequency across
         /// the corpus.
         /// </summary>
-        /// <returns>The max size of the vocabulary</returns>
+        /// <returns>The max size of the vocabulary of type int.</returns>
         public int GetVocabSize() => (int)_jvmObject.Invoke("getVocabSize");
         
         private static CountVectorizerModel WrapAsCountVectorizerModel(object obj) => 

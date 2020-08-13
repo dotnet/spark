@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.ML.Feature;
@@ -22,12 +21,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             _spark = fixture.Spark;
         }
 
+        /// <summary>
+        /// Test that we can create a CountVectorizerModel, pass in a specifc vocabulary to use
+        /// when creating the model. Verify the standard features methods as well as load/save.
+        /// </summary>
         [Fact]
         public void Test_CountVectorizerModel()
         {
-            DataFrame input = _spark.Sql("SELECT array('hello', 'I', 'AM', 'a', 'string', 'TO', " +
-                                         "'TOKENIZE') as input from range(100)");
-
             const string inputColumn = "input";
             const string outputColumn = "output";
             const double minTf = 10.0;

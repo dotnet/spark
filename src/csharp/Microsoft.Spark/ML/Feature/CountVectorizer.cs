@@ -14,14 +14,14 @@ namespace Microsoft.Spark.ML.Feature
             "org.apache.spark.ml.feature.CountVectorizer";
         
         /// <summary>
-        /// Create a <see cref="CountVectorizer"/> without any parameters
+        /// Creates a <see cref="CountVectorizer"/> without any parameters
         /// </summary>
         public CountVectorizer() : base(s_countVectorizerClassName)
         {
         }
 
         /// <summary>
-        /// Create a <see cref="CountVectorizer"/> with a UID that is used to give the
+        /// Creates a <see cref="CountVectorizer"/> with a UID that is used to give the
         /// <see cref="CountVectorizer"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
@@ -42,7 +42,7 @@ namespace Microsoft.Spark.ML.Feature
             new CountVectorizerModel((JvmObjectReference)_jvmObject.Invoke("fit", dataFrame));
 
         /// <summary>
-        /// Loads the <see cref="CountVectorizer"/> that was previously saved using Save
+        /// Loads the <see cref="CountVectorizer"/> that was previously saved using Save.
         /// </summary>
         /// <param name="path">
         /// The path the previous <see cref="CountVectorizer"/> was saved to
@@ -73,29 +73,29 @@ namespace Microsoft.Spark.ML.Feature
 
         /// <summary>
         /// Gets the column that the <see cref="CountVectorizer"/> should read from and convert
-        /// into buckets. This would have been set by SetInputCol
+        /// into buckets. This would have been set by SetInputCol.
         /// </summary>
-        /// <returns>string, the input column</returns>
-        public string GetInputCol() => _jvmObject.Invoke("getInputCol") as string;
+        /// <returns>The input column of type string</returns>
+        public string GetInputCol() => (string)_jvmObject.Invoke("getInputCol");
         
         /// <summary>
         /// Sets the column that the <see cref="CountVectorizer"/> should read from.
         /// </summary>
-        /// <param name="value">The name of the column to as the source.</param>
+        /// <param name="value">The name of the column to use as the source.</param>
         /// <returns><see cref="CountVectorizer"/> with the input column set</returns>
         public CountVectorizer SetInputCol(string value) =>
             WrapAsCountVectorizer((JvmObjectReference)_jvmObject.Invoke("setInputCol", value));
         
         /// <summary>
-        /// The <see cref="CountVectorizer"/> will create a new column in the DataFrame, this is
-        /// the name of the new column.
+        /// Gets the name of the new column the <see cref="CountVectorizer"/> creates in the
+        /// DataFrame.
         /// </summary>
         /// <returns>The name of the output column.</returns>
-        public string GetOutputCol() => _jvmObject.Invoke("getOutputCol") as string;
+        public string GetOutputCol() => (string)_jvmObject.Invoke("getOutputCol");
         
         /// <summary>
-        /// The <see cref="CountVectorizer"/> will create a new column in the DataFrame, this
-        /// is the name of the new column.
+        /// Sets the name of the new column the <see cref="CountVectorizer"/> creates in the
+        /// DataFrame.
         /// </summary>
         /// <param name="value">The name of the output column which will be created.</param>
         /// <returns>New <see cref="CountVectorizer"/> with the output column set</returns>
@@ -147,7 +147,7 @@ namespace Microsoft.Spark.ML.Feature
             WrapAsCountVectorizer((JvmObjectReference)_jvmObject.Invoke("setMinDF", value));
         
         /// <summary>
-        /// Filter to ignore rare words in a document. For each document, terms with
+        /// Gets the filter to ignore rare words in a document. For each document, terms with
         /// frequency/count less than the given threshold are ignored. If this is an integer
         /// greater than or equal to 1, then this specifies a count (of times the term must appear
         /// in the document); if this is a double in [0,1), then this specifies a fraction (out of
@@ -160,7 +160,7 @@ namespace Microsoft.Spark.ML.Feature
         public double GetMinTF() => (double)_jvmObject.Invoke("getMinTF");
 
         /// <summary>
-        /// Filter to ignore rare words in a document. For each document, terms with
+        /// Sets the filter to ignore rare words in a document. For each document, terms with
         /// frequency/count less than the given threshold are ignored. If this is an integer
         /// greater than or equal to 1, then this specifies a count (of times the term must appear
         /// in the document); if this is a double in [0,1), then this specifies a fraction (out of
@@ -175,8 +175,9 @@ namespace Microsoft.Spark.ML.Feature
             WrapAsCountVectorizer((JvmObjectReference)_jvmObject.Invoke("setMinTF", value));
         
         /// <summary>
-        /// Gets the max size of the vocabulary. CountVectorizer will build a vocabulary that only
-        /// considers the top vocabSize terms ordered by term frequency across the corpus.
+        /// Gets the max size of the vocabulary. <see cref="CountVectorizer"/> will build a
+        /// vocabulary that only considers the top vocabSize terms ordered by term frequency across
+        /// the corpus.
         /// </summary>
         /// <returns>The max size of the vocabulary</returns>
         public int GetVocabSize() => (int)_jvmObject.Invoke("getVocabSize");

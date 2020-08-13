@@ -22,6 +22,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             _spark = fixture.Spark;
         }
 
+        /// <summary>
+        /// Test that we can create a CountVectorizer. Verify the standard features methods as well
+        /// as load/save. 
+        /// </summary>
         [Fact]
         public void Test_CountVectorizer()
         {
@@ -64,7 +68,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.NotEmpty(countVectorizer.ExplainParams());
             Assert.NotEmpty(countVectorizer.ToString());
         }
-
+        
+        /// <summary>
+        /// From Spark 2.4.0 CountVectorizer also has SetMaxDF, verify that works.
+        /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
         public void CountVectorizer_MaxDF()
         {
