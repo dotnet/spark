@@ -890,7 +890,7 @@ namespace Microsoft.Spark.Sql
         /// Invoke the toString method of the column instance
         /// </summary>
         /// <returns>Column name of this column</returns>
-        public override string ToString() => (string) _jvmObject.Invoke("toString");
+        public override string ToString() => (string)_jvmObject.Invoke("toString");
 
         /// <summary>
         /// Invokes a method under "org.apache.spark.sql.functions" with the given column.
