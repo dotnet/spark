@@ -541,8 +541,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<RelationalGroupedDataset>(_df.GroupBy());
             Assert.IsType<RelationalGroupedDataset>(_df.GroupBy(_df["age"]));
             Assert.IsType<RelationalGroupedDataset>(_df.GroupBy(_df["age"], _df["name"]));
-            Assert.IsType<RelationalGroupedDataset>(_df.GroupBy(_df["age"]).Pivot("name"));
-            Assert.IsType<DataFrame>(_df.GroupBy(_df["age"]).Pivot("name").Sum("age"));
 
             {
                 RelationalGroupedDataset df =
