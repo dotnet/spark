@@ -105,8 +105,8 @@ namespace Microsoft.Spark.ML.Feature
                 .Single(c =>
                 {
                     ParameterInfo[] parameters = c.GetParameters();
-                    return (parameters.Length == 1) &&
-                        (parameters[0].ParameterType == typeof(JvmObjectReference));
+                    return (parameters.Length == 1) && 
+                           (parameters[0].ParameterType == typeof(JvmObjectReference));
                 });
 
             return (T)constructor.Invoke(new object[] {reference});
