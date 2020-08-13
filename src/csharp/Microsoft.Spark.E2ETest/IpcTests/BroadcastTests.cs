@@ -32,6 +32,29 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
+        /// Test Broadcast support by using multiple broadcast variables in a UDF with
+        /// encryption enabled.
+        /// </summary>
+        [Fact]
+        public void TestMultipleBroadcastWithEncryption()
+        {
+            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", "true");
+            var obj1 = new TestBroadcastVariable(1, "first");
+            var obj2 = new TestBroadcastVariable(2, "second");
+            Broadcast<int> bc = _spark.SparkContext.Broadcast(5);
+            Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
+            Broadcast<TestBroadcastVariable> bc2 = _spark.SparkContext.Broadcast(obj2);
+
+            Func<Column, Column> udf = Udf<string, string>(
+                str => $"{str} {bc1.Value().StringValue} and {bc2.Value().StringValue}");
+
+            var expected = new string[] { "hello first and second", "world first and second" };
+
+            string[] actual = ToStringArray(_df.Select(udf(_df["_1"])));
+            Assert.Equal(expected, actual);
+        }
+
+        /// <summary>
         /// Test Broadcast support by using multiple broadcast variables in a UDF.
         /// </summary>
         [Fact]
