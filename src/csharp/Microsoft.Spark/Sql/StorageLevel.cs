@@ -85,7 +85,5 @@ namespace Microsoft.Spark.Sql
         public static StorageLevel OFF_HEAP { get; } = 
             new StorageLevel(true, true, true, false, 1);
     }
-
 }
-
 
