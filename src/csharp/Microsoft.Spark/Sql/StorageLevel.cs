@@ -78,4 +78,3 @@ namespace Microsoft.Spark.Sql
     }
 }
 
-

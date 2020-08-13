@@ -813,7 +813,7 @@ namespace Microsoft.Spark.Sql
         public DataFrame Persist(StorageLevel storageLevel) => 
             WrapAsDataFrame(_jvmObject.Invoke(
                 "persist",
-                ((IJvmObjectReferenceProvider)storageLevel).Reference));
+                storageLevel));
 
         /// <summary>
         /// Persist this `DataFrame` with the default storage level (`MEMORY_AND_DISK`).
