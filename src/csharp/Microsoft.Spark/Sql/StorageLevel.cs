@@ -18,6 +18,15 @@ namespace Microsoft.Spark.Sql
     public sealed class StorageLevel : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
+        private static readonly string s_storageLevelClassName =
+            "org.apache.spark.storage.StorageLevel";
+        private static StorageLevel s_diskOnly;
+        private static StorageLevel s_diskOnly2;
+        private static StorageLevel s_memoryOnly;
+        private static StorageLevel s_memoryOnly2;
+        private static StorageLevel s_memoryAndDisk;
+        private static StorageLevel s_memoryAndDisk2;
+        private static StorageLevel s_offHeap;
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
@@ -44,7 +53,7 @@ namespace Microsoft.Spark.Sql
             Deserialized = deserialized;
             Replication = replication;
             _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
-                "org.apache.spark.storage.StorageLevel",
+                s_storageLevelClassName,
                 UseDisk,
                 UseMemory,
                 UseOffHeap,
@@ -58,35 +67,61 @@ namespace Microsoft.Spark.Sql
         public bool Deserialized { get; private set; }
         public int Replication { get; private set; }
 
-        public static StorageLevel DISK_ONLY => s_diskOnly.Value;
-        public static StorageLevel DISK_ONLY_2 => s_diskOnly2.Value;
-        public static StorageLevel MEMORY_ONLY => s_memoryOnly.Value;
-        public static StorageLevel MEMORY_ONLY_2 => s_memoryOnly2.Value;
-        public static StorageLevel MEMORY_AND_DISK => s_memoryAndDisk.Value;
-        public static StorageLevel MEMORY_AND_DISK_2 => s_memoryAndDisk2.Value;
-        public static StorageLevel OFF_HEAP => s_offHeap.Value;
+        public static StorageLevel DISK_ONLY
+        {
+            get => s_diskOnly ??= new StorageLevel(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_storageLevelClassName,
+                    "DISK_ONLY"));
+        }
 
-        // Option 1
-        private static readonly Lazy<StorageLevel> s_diskOnly = new Lazy<StorageLevel>(() =>
-            new StorageLevel(true, false, false, false));
-        private static readonly Lazy<StorageLevel> s_diskOnly2 = new Lazy<StorageLevel>(() =>
-            new StorageLevel(true, false, false, false, 2));
-        private static readonly Lazy<StorageLevel> s_memoryOnly = new Lazy<StorageLevel>(() =>
-            new StorageLevel(false, true, false, false));
-        private static readonly Lazy<StorageLevel> s_memoryOnly2 = new Lazy<StorageLevel>(() =>
-            new StorageLevel(false, true, false, false, 2));
-        private static readonly Lazy<StorageLevel> s_memoryAndDisk = new Lazy<StorageLevel>(() =>
-            new StorageLevel(true, true, false, false));
-        private static readonly Lazy<StorageLevel> s_memoryAndDisk2 = new Lazy<StorageLevel>(() =>
-            new StorageLevel(true, true, false, false, 2));
-        private static readonly Lazy<StorageLevel> s_offHeap = new Lazy<StorageLevel>(() =>
-            new StorageLevel(true, true, true, false, 1));
+        public static StorageLevel DISK_ONLY_2
+        {
+            get => s_diskOnly2 ??= new StorageLevel(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_storageLevelClassName,
+                    "DISK_ONLY_2"));
+        }
 
-        ////Option 2 - calling scala object
-        //private static readonly Lazy<StorageLevel> s_memory_only = new Lazy<StorageLevel>(() =>
-        //    new StorageLevel(SparkEnvironment.JvmBridge.CallConstructor(
-        //        "org.apache.spark.storage.StorageLevel.MEMORY_ONLY")));
-        //public static StorageLevel MEMORY_ONLY => s_memory_only.Value;
+        public static StorageLevel MEMORY_ONLY
+        {
+            get => s_memoryOnly ??= new StorageLevel(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_storageLevelClassName,
+                    "MEMORY_ONLY"));
+        }
+
+        public static StorageLevel MEMORY_ONLY_2
+        {
+            get => s_memoryOnly2 ??= new StorageLevel(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_storageLevelClassName,
+                    "MEMORY_ONLY_2"));
+        }
+
+        public static StorageLevel MEMORY_AND_DISK
+        {
+            get => s_memoryAndDisk ??= new StorageLevel(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_storageLevelClassName,
+                    "MEMORY_AND_DISK"));
+        }
+
+        public static StorageLevel MEMORY_AND_DISK_2
+        {
+            get => s_memoryAndDisk2 ??= new StorageLevel(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_storageLevelClassName,
+                    "MEMORY_AND_DISK_2"));
+        }
+
+        public static StorageLevel OFF_HEAP
+        {
+            get => s_offHeap ??= new StorageLevel(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_storageLevelClassName,
+                    "OFF_HEAP"));
+        }
 
         public string Description() => (string)_jvmObject.Invoke("description");
 
