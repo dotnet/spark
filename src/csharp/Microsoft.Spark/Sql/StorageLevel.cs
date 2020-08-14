@@ -57,20 +57,36 @@ namespace Microsoft.Spark.Sql
         public bool UseOffHeap { get; private set; }
         public bool Deserialized { get; private set; }
         public int Replication { get; private set; }
-        public static Lazy<StorageLevel> DISK_ONLY { get; } =
-            new Lazy<StorageLevel>(() => new StorageLevel(true, false, false, false));
-        public static Lazy<StorageLevel> DISK_ONLY_2 { get; } =
-            new Lazy<StorageLevel>(() => new StorageLevel(true, false, false, false, 2));
-        public static Lazy<StorageLevel> MEMORY_ONLY { get; } =
-            new Lazy<StorageLevel>(() => new StorageLevel(false, true, false, false));
-        public static Lazy<StorageLevel> MEMORY_ONLY_2 { get; } =
-            new Lazy<StorageLevel>(() => new StorageLevel(false, true, false, false, 2));
-        public static Lazy<StorageLevel> MEMORY_AND_DISK { get; } =
-            new Lazy<StorageLevel>(() => new StorageLevel(true, true, false, false));
-        public static Lazy<StorageLevel> MEMORY_AND_DISK_2 { get; } =
-            new Lazy<StorageLevel>(() => new StorageLevel(true, true, false, false, 2));
-        public static Lazy<StorageLevel> OFF_HEAP { get; } =
-            new Lazy<StorageLevel>(() => new StorageLevel(true, true, true, false, 1));
+
+        public static StorageLevel DISK_ONLY => s_diskOnly.Value;
+        public static StorageLevel DISK_ONLY_2 => s_diskOnly2.Value;
+        public static StorageLevel MEMORY_ONLY => s_memoryOnly.Value;
+        public static StorageLevel MEMORY_ONLY_2 => s_memoryOnly2.Value;
+        public static StorageLevel MEMORY_AND_DISK => s_memoryAndDisk.Value;
+        public static StorageLevel MEMORY_AND_DISK_2 => s_memoryAndDisk2.Value;
+        public static StorageLevel OFF_HEAP => s_offHeap.Value;
+
+        // Option 1
+        private static readonly Lazy<StorageLevel> s_diskOnly = new Lazy<StorageLevel>(() =>
+            new StorageLevel(true, false, false, false));
+        private static readonly Lazy<StorageLevel> s_diskOnly2 = new Lazy<StorageLevel>(() =>
+            new StorageLevel(true, false, false, false, 2));
+        private static readonly Lazy<StorageLevel> s_memoryOnly = new Lazy<StorageLevel>(() =>
+            new StorageLevel(false, true, false, false));
+        private static readonly Lazy<StorageLevel> s_memoryOnly2 = new Lazy<StorageLevel>(() =>
+            new StorageLevel(false, true, false, false, 2));
+        private static readonly Lazy<StorageLevel> s_memoryAndDisk = new Lazy<StorageLevel>(() =>
+            new StorageLevel(true, true, false, false));
+        private static readonly Lazy<StorageLevel> s_memoryAndDisk2 = new Lazy<StorageLevel>(() =>
+            new StorageLevel(true, true, false, false, 2));
+        private static readonly Lazy<StorageLevel> s_offHeap = new Lazy<StorageLevel>(() =>
+            new StorageLevel(true, true, true, false, 1));
+
+        ////Option 2 - calling scala object
+        //private static readonly Lazy<StorageLevel> s_memory_only = new Lazy<StorageLevel>(() =>
+        //    new StorageLevel(SparkEnvironment.JvmBridge.CallConstructor(
+        //        "org.apache.spark.storage.StorageLevel.MEMORY_ONLY")));
+        //public static StorageLevel MEMORY_ONLY => s_memory_only.Value;
 
         public string Description() => (string)_jvmObject.Invoke("description");
 
