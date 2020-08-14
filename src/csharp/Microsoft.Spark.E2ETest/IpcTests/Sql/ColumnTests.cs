@@ -137,7 +137,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(col1.BitwiseXOR(col2));
 
             Assert.IsType<Column>(col1.Over(PartitionBy(col1)));
-            Assert.IsType<Column>(col1.Over());          
+            Assert.IsType<Column>(col1.Over());
+            
+            Assert.Equal("col1", col1.ToString());
+            Assert.Equal("col2", col2.ToString());
         }
 
     }
