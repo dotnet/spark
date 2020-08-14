@@ -67,61 +67,47 @@ namespace Microsoft.Spark.Sql
         public bool Deserialized { get; private set; }
         public int Replication { get; private set; }
 
-        public static StorageLevel DISK_ONLY
-        {
-            get => s_diskOnly ??= new StorageLevel(
+        public static StorageLevel DISK_ONLY =>
+            s_diskOnly ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "DISK_ONLY"));
-        }
 
-        public static StorageLevel DISK_ONLY_2
-        {
-            get => s_diskOnly2 ??= new StorageLevel(
+        public static StorageLevel DISK_ONLY_2 =>
+            s_diskOnly2 ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "DISK_ONLY_2"));
-        }
 
-        public static StorageLevel MEMORY_ONLY
-        {
-            get => s_memoryOnly ??= new StorageLevel(
+        public static StorageLevel MEMORY_ONLY =>
+            s_memoryOnly ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
-                    "MEMORY_ONLY"));
-        }
+                    "MEMORY_ONLY_SER"));
 
-        public static StorageLevel MEMORY_ONLY_2
-        {
-            get => s_memoryOnly2 ??= new StorageLevel(
+        public static StorageLevel MEMORY_ONLY_2 =>
+            s_memoryOnly2 ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
-                    "MEMORY_ONLY_2"));
-        }
+                    "MEMORY_ONLY_SER_2"));
 
-        public static StorageLevel MEMORY_AND_DISK
-        {
-            get => s_memoryAndDisk ??= new StorageLevel(
+        public static StorageLevel MEMORY_AND_DISK =>
+            s_memoryAndDisk ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
-                    "MEMORY_AND_DISK"));
-        }
+                    "MEMORY_AND_DISK_SER"));
 
-        public static StorageLevel MEMORY_AND_DISK_2
-        {
-            get => s_memoryAndDisk2 ??= new StorageLevel(
+        public static StorageLevel MEMORY_AND_DISK_2 =>
+            s_memoryAndDisk2 ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
-                    "MEMORY_AND_DISK_2"));
-        }
+                    "MEMORY_AND_DISK_SER_2"));
 
-        public static StorageLevel OFF_HEAP
-        {
-            get => s_offHeap ??= new StorageLevel(
+        public static StorageLevel OFF_HEAP =>
+            s_offHeap ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "OFF_HEAP"));
-        }
 
         public string Description() => (string)_jvmObject.Invoke("description");
 
