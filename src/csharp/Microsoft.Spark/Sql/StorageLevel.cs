@@ -20,12 +20,17 @@ namespace Microsoft.Spark.Sql
         private readonly JvmObjectReference _jvmObject;
         private static readonly string s_storageLevelClassName =
             "org.apache.spark.storage.StorageLevel";
+        private static StorageLevel s_none;
         private static StorageLevel s_diskOnly;
         private static StorageLevel s_diskOnly2;
         private static StorageLevel s_memoryOnly;
         private static StorageLevel s_memoryOnly2;
+        private static StorageLevel s_memoryOnlySer;
+        private static StorageLevel s_memoryOnlySer2;
         private static StorageLevel s_memoryAndDisk;
         private static StorageLevel s_memoryAndDisk2;
+        private static StorageLevel s_memoryAndDiskSer;
+        private static StorageLevel s_memoryAndDiskSer2;
         private static StorageLevel s_offHeap;
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
@@ -67,6 +72,12 @@ namespace Microsoft.Spark.Sql
         public bool Deserialized { get; private set; }
         public int Replication { get; private set; }
 
+        public static StorageLevel NONE =>
+            s_none ??= new StorageLevel(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_storageLevelClassName,
+                    "NONE"));
+
         public static StorageLevel DISK_ONLY =>
             s_diskOnly ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
@@ -83,10 +94,22 @@ namespace Microsoft.Spark.Sql
             s_memoryOnly ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
-                    "MEMORY_ONLY_SER"));
+                    "MEMORY_ONLY"));
 
         public static StorageLevel MEMORY_ONLY_2 =>
             s_memoryOnly2 ??= new StorageLevel(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_storageLevelClassName,
+                    "MEMORY_ONLY_2"));
+
+        public static StorageLevel MEMORY_ONLY_SER =>
+            s_memoryOnlySer ??= new StorageLevel(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_storageLevelClassName,
+                    "MEMORY_ONLY_SER"));
+
+        public static StorageLevel MEMORY_ONLY_SER_2 =>
+            s_memoryOnlySer2 ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "MEMORY_ONLY_SER_2"));
@@ -95,10 +118,22 @@ namespace Microsoft.Spark.Sql
             s_memoryAndDisk ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
-                    "MEMORY_AND_DISK_SER"));
+                    "MEMORY_AND_DISK"));
 
         public static StorageLevel MEMORY_AND_DISK_2 =>
             s_memoryAndDisk2 ??= new StorageLevel(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_storageLevelClassName,
+                    "MEMORY_AND_DISK_2"));
+
+        public static StorageLevel MEMORY_AND_DISK_SER =>
+            s_memoryAndDiskSer ??= new StorageLevel(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_storageLevelClassName,
+                    "MEMORY_AND_DISK_SER"));
+
+        public static StorageLevel MEMORY_AND_DISK_SER_2 =>
+            s_memoryAndDiskSer2 ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "MEMORY_AND_DISK_SER_2"));
