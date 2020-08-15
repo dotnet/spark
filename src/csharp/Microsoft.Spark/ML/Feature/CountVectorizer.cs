@@ -14,7 +14,7 @@ namespace Microsoft.Spark.ML.Feature
             "org.apache.spark.ml.feature.CountVectorizer";
         
         /// <summary>
-        /// Creates a <see cref="CountVectorizer"/> without any parameters
+        /// Creates a <see cref="CountVectorizer"/> without any parameters.
         /// </summary>
         public CountVectorizer() : base(s_countVectorizerClassName)
         {
@@ -22,7 +22,7 @@ namespace Microsoft.Spark.ML.Feature
 
         /// <summary>
         /// Creates a <see cref="CountVectorizer"/> with a UID that is used to give the
-        /// <see cref="CountVectorizer"/> a unique ID
+        /// <see cref="CountVectorizer"/> a unique ID.
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
         public CountVectorizer(string uid) : base(s_countVectorizerClassName, uid)
@@ -45,7 +45,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Loads the <see cref="CountVectorizer"/> that was previously saved using Save.
         /// </summary>
         /// <param name="path">
-        /// The path the previous <see cref="CountVectorizer"/> was saved to
+        /// The path the previous <see cref="CountVectorizer"/> was saved to.
         /// </param>
         /// <returns>New <see cref="CountVectorizer"/> object</returns>
         public static CountVectorizer Load(string path) =>
@@ -179,7 +179,7 @@ namespace Microsoft.Spark.ML.Feature
         /// vocabulary that only considers the top vocabSize terms ordered by term frequency across
         /// the corpus.
         /// </summary>
-        /// <returns>The max size of the vocabulary</returns>
+        /// <returns>The max size of the vocabulary of type int.</returns>
         public int GetVocabSize() => (int)_jvmObject.Invoke("getVocabSize");
         
         /// <summary>

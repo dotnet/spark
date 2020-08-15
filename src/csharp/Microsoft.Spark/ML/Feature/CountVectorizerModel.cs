@@ -8,8 +8,8 @@ using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class CountVectorizerModel : FeatureBase<CountVectorizerModel>
-        , IJvmObjectReferenceProvider
+    public class CountVectorizerModel
+        : FeatureBase<CountVectorizerModel>, IJvmObjectReferenceProvider
     {
         private static readonly string s_countVectorizerModelClassName = 
             "org.apache.spark.ml.feature.CountVectorizerModel";
@@ -18,8 +18,8 @@ namespace Microsoft.Spark.ML.Feature
         /// Creates a <see cref="CountVectorizerModel"/> without any parameters
         /// </summary>
         /// <param name="vocabulary">The vocabulary to use</param>
-        public CountVectorizerModel(List<string> vocabulary) : 
-            this(SparkEnvironment.JvmBridge.CallConstructor(
+        public CountVectorizerModel(List<string> vocabulary) 
+            : this(SparkEnvironment.JvmBridge.CallConstructor(
                 s_countVectorizerModelClassName, vocabulary))
         {
         }
@@ -30,8 +30,8 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
         /// <param name="vocabulary">The vocabulary to use</param>
-        public CountVectorizerModel(string uid, List<string> vocabulary) : 
-            this(SparkEnvironment.JvmBridge.CallConstructor(
+        public CountVectorizerModel(string uid, List<string> vocabulary) 
+            : this(SparkEnvironment.JvmBridge.CallConstructor(
                 s_countVectorizerModelClassName, uid, vocabulary))
         {
         }
@@ -114,7 +114,7 @@ namespace Microsoft.Spark.ML.Feature
         /// the term could appear in; if this is a double in [0,1), then this specifies the maximum
         /// fraction of documents the term could appear in.
         /// </summary>
-        /// <returns>The maximum document term frequency</returns>
+        /// <returns>The maximum document term frequency of type double.</returns>
         public double GetMaxDF() => (double)_jvmObject.Invoke("getMaxDF");
         
         /// <summary>
