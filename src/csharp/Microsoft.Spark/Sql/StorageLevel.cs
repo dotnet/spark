@@ -17,7 +17,6 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     public sealed class StorageLevel : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
         private static readonly string s_storageLevelClassName =
             "org.apache.spark.storage.StorageLevel";
         private static StorageLevel s_none;
@@ -32,6 +31,7 @@ namespace Microsoft.Spark.Sql
         private static StorageLevel s_memoryAndDiskSer;
         private static StorageLevel s_memoryAndDiskSer2;
         private static StorageLevel s_offHeap;
+        private readonly JvmObjectReference _jvmObject;
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
@@ -65,12 +65,6 @@ namespace Microsoft.Spark.Sql
                 Deserialized,
                 Replication);
         }
-
-        public bool UseDisk { get; private set; }
-        public bool UseMemory { get; private set; }
-        public bool UseOffHeap { get; private set; }
-        public bool Deserialized { get; private set; }
-        public int Replication { get; private set; }
 
         public static StorageLevel NONE =>
             s_none ??= new StorageLevel(
@@ -143,6 +137,12 @@ namespace Microsoft.Spark.Sql
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "OFF_HEAP"));
+
+        public bool UseDisk { get; private set; }
+        public bool UseMemory { get; private set; }
+        public bool UseOffHeap { get; private set; }
+        public bool Deserialized { get; private set; }
+        public int Replication { get; private set; }
 
         public string Description() => (string)_jvmObject.Invoke("description");
 
