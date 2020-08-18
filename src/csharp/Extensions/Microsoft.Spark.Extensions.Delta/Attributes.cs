@@ -6,13 +6,13 @@ namespace Microsoft.Spark.Extensions.Delta
     /// Custom attribute to denote the Delta Lake version in which an API is introduced.
     /// </summary>
     [AttributeUsage(AttributeTargets.All)]
-    public sealed class DeltaSinceAttribute : VersionAttribute
+    public sealed class DeltaLakeSinceAttribute : VersionAttribute
     {
         /// <summary>
-        /// Constructor for DeltaSinceAttribute class.
+        /// Constructor for DeltaLakeSinceAttribute class.
         /// </summary>
         /// <param name="version">Delta Lake version</param>
-        public DeltaSinceAttribute(string version)
+        public DeltaLakeSinceAttribute(string version)
             : base(version)
         {
         }
