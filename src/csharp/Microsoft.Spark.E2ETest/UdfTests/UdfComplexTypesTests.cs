@@ -34,19 +34,10 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithArrayType()
         {
-            // UDF with ArrayType throws a following exception:
-            // [] [] [Error] [TaskRunner] [0] ProcessStream() failed with exception: System.InvalidCastException: Unable to cast object of type 'System.Collections.ArrayList' to type 'System.Int32[]'.
-            //  at Microsoft.Spark.Sql.PicklingUdfWrapper`2.Execute(Int32 splitIndex, Object[] input, Int32[] argOffsets) in Microsoft.Spark\Sql\PicklingUdfWrapper.cs:line 44
-            //  at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.SingleCommandRunner.Run(Int32 splitId, Object input) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 239
-            //  at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.ExecuteCore(Stream inputStream, Stream outputStream, SqlCommand[] commands) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 139
-            Func<Column, Column> udf = Udf<int[], string>(array => string.Join(',', array));
-            Assert.Throws<Exception>(() => _df.Select(udf(_df["ids"])).Show());
-
-            // Currently, there is a workaround to support ArrayType using ArrayList.
-            Func<Column, Column> workingUdf = Udf<ArrayList, string>(
+            Func<Column, Column> udf = Udf<int[], string>(
                 array => string.Join(',', array.ToArray()));
 
-            Row[] rows = _df.Select(workingUdf(_df["ids"])).Collect().ToArray();
+            Row[] rows = _df.Select(udf(_df["ids"])).Collect().ToArray();
             Assert.Equal(3, rows.Length);
 
             var expected = new string[] { "1", "3,5", "2,4" };

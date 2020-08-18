@@ -4,6 +4,7 @@
 
 using System;
 using System.Buffers;
+using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Spark.Interop.Ipc;
@@ -67,7 +68,23 @@ namespace Microsoft.Spark.Utils
                     stackCapacity: 102); // Spark sends batches of 100 rows, and +2 is for markers.
                 s_rowConstructor.Reset();
                 Debug.Assert(unpickledItems != null);
-                return (unpickledItems as object[]);
+                // Cast unpickledItems if necessary.
+                foreach (object objArr in (object[])unpickledItems)
+                {
+                    if (objArr.GetType() == typeof(object[]))
+                    {
+                        object obj = ((object[])objArr)[0];
+                        if (obj == null)
+                        {
+                            continue;
+                        }
+                        if (obj.GetType() == typeof(ArrayList))
+                        {
+                            return CastUnpickledItems.UnpickleArray(unpickledItems);
+                        }
+                    }
+                }
+                return unpickledItems as object[];
             }
             finally
             {
