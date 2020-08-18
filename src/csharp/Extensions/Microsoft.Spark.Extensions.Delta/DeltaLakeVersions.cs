@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Microsoft.Spark.Extensions.Delta
+﻿namespace Microsoft.Spark.Extensions.Delta
 {
     internal static class DeltaLakeVersions
     {
