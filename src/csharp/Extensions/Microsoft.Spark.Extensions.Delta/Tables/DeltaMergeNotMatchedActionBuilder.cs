@@ -15,7 +15,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     /// 
     /// See <see cref="DeltaMergeBuilder"/> for more information.
     /// </summary>
-    [DeltaSince(DeltaLakeVersions.V0_3_0)]
+    [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
     public class DeltaMergeNotMatchedActionBuilder : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
@@ -33,7 +33,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="values">Rules to insert a row as a map between target column names and
         /// corresponding expressions as Column objects.</param>
         /// <returns>DeltaMergeBuilder object.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder Insert(Dictionary<string, Column> values) =>
             new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("insert", values));
 
@@ -43,7 +43,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="values">Rules to insert a row as a map between target column names and
         /// corresponding expressions as SQL formatted strings.</param>
         /// <returns>DeltaMergeBuilder object.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder InsertExpr(Dictionary<string, string> values) =>
             new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("insertExpr", values));
 
@@ -52,7 +52,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// corresponding columns in the source row.
         /// </summary>
         /// <returns>DeltaMergeBuilder object.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder InsertAll() =>
             new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("insertAll"));
     }

@@ -18,7 +18,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     /// DeltaTable.ForPath(sparkSession, pathToTheDeltaTable)
     /// </code>
     /// </summary>
-    [DeltaSince(DeltaLakeVersions.V0_3_0)]
+    [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
     public class DeltaTable : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
@@ -57,7 +57,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="identifier">String used to identify the parquet table.</param>
         /// <param name="partitionSchema">StructType representing the partition schema.</param>
         /// <returns>The converted DeltaTable.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_4_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_4_0)]
         public static DeltaTable ConvertToDelta(
             SparkSession spark,
             string identifier,
@@ -88,7 +88,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="identifier">String used to identify the parquet table.</param>
         /// <param name="partitionSchema">String representing the partition schema.</param>
         /// <returns>The converted DeltaTable.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_4_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_4_0)]
         public static DeltaTable ConvertToDelta(
             SparkSession spark,
             string identifier,
@@ -117,7 +117,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="spark">The relevant session.</param>
         /// <param name="identifier">String used to identify the parquet table.</param>
         /// <returns>The converted DeltaTable.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_4_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_4_0)]
         public static DeltaTable ConvertToDelta(SparkSession spark, string identifier) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
@@ -135,7 +135,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </summary>
         /// <param name="path">The path to the data.</param>
         /// <returns>DeltaTable loaded from the path.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public static DeltaTable ForPath(string path) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
@@ -150,7 +150,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="sparkSession">The active SparkSession.</param>
         /// <param name="path">The path to the data.</param>
         /// <returns>DeltaTable loaded from the path.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public static DeltaTable ForPath(SparkSession sparkSession, string path) =>
             new DeltaTable(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
@@ -171,7 +171,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="sparkSession">The relevant session.</param>
         /// <param name="identifier">String that identifies the table, e.g. path to table.</param>
         /// <returns>True if the table is a DeltaTable.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_4_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_4_0)]
         public static bool IsDeltaTable(SparkSession sparkSession, string identifier) =>
             (bool)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 s_deltaTableClassName,
@@ -194,7 +194,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </summary>
         /// <param name="identifier">String that identifies the table, e.g. path to table.</param>
         /// <returns>True if the table is a DeltaTable.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_4_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_4_0)]
         public static bool IsDeltaTable(string identifier) =>
             (bool)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 s_deltaTableClassName,
@@ -207,7 +207,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </summary>
         /// <param name="alias">The table alias.</param>
         /// <returns>Aliased DeltaTable.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaTable As(string alias) =>
             new DeltaTable((JvmObjectReference)_jvmObject.Invoke("as", alias));
 
@@ -217,7 +217,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </summary>
         /// <param name="alias">The table alias.</param>
         /// <returns>Aliased DeltaTable.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaTable Alias(string alias) =>
             new DeltaTable((JvmObjectReference)_jvmObject.Invoke("alias", alias));
 
@@ -225,7 +225,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// Get a DataFrame (that is, Dataset[Row]) representation of this Delta table.
         /// </summary>
         /// <returns>DataFrame representation of Delta table.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DataFrame ToDF() => new DataFrame((JvmObjectReference)_jvmObject.Invoke("toDF"));
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// table for reading versions earlier than this will be preserved and the rest of them
         /// will be deleted.</param>
         /// <returns>Vacuumed DataFrame.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DataFrame Vacuum(double retentionHours) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("vacuum", retentionHours));
 
@@ -249,7 +249,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// Note: This will use the default retention period of 7 days.
         /// </summary>
         /// <returns>Vacuumed DataFrame.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DataFrame Vacuum() =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("vacuum"));
 
@@ -259,7 +259,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </summary>
         /// <param name="limit">The number of previous commands to get history for.</param>
         /// <returns>History DataFrame.</returns>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DataFrame History(int limit) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("history", limit));
 
@@ -268,7 +268,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// information is in reverse chronological order.
         /// </summary>
         /// <returns>History DataFrame</returns>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DataFrame History() =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("history"));
 
@@ -280,27 +280,27 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// - "symlink_format_manifest" : This will generate manifests in symlink format
         /// for Presto and Athena read support.
         /// See the online documentation for more information.</param>
-        [DeltaSince(DeltaLakeVersions.V0_5_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_5_0)]
         public void Generate(string mode) => _jvmObject.Invoke("generate", mode);
 
         /// <summary>
         /// Delete data from the table that match the given <c>condition</c>.
         /// </summary>
         /// <param name="condition">Boolean SQL expression.</param>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public void Delete(string condition) => _jvmObject.Invoke("delete", condition);
 
         /// <summary>
         /// Delete data from the table that match the given <c>condition</c>.
         /// </summary>
         /// <param name="condition">Boolean SQL expression.</param>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public void Delete(Column condition) => _jvmObject.Invoke("delete", condition);
 
         /// <summary>
         /// Delete data from the table.
         /// </summary>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public void Delete() => _jvmObject.Invoke("delete");
 
         /// <summary>
@@ -316,7 +316,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </example>
         /// <param name="set">Pules to update a row as a Scala map between target column names
         /// and corresponding update expressions as Column objects.</param>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public void Update(Dictionary<string, Column> set) => _jvmObject.Invoke("update", set);
 
         /// <summary>
@@ -337,7 +337,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// to update.</param>
         /// <param name="set">Rules to update a row as a Scala map between target column names and
         /// corresponding update expressions as Column objects.</param>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public void Update(Column condition, Dictionary<string, Column> set) =>
             _jvmObject.Invoke("update", condition, set);
 
@@ -355,7 +355,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// </example>
         /// <param name="set">Rules to update a row as a Scala map between target column names and
         /// corresponding update expressions as SQL formatted strings.</param>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public void UpdateExpr(Dictionary<string, string> set) =>
             _jvmObject.Invoke("updateExpr", set);
 
@@ -377,7 +377,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// which rows to update.</param>
         /// <param name="set">Rules to update a row as a map between target column names and
         /// corresponding update expressions as SQL formatted strings.</param>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public void UpdateExpr(string condition, Dictionary<string, string> set) =>
             _jvmObject.Invoke("updateExpr", condition, set);
 
@@ -418,7 +418,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="source">Source Dataframe to be merged.</param>
         /// <param name="condition">Boolean expression as SQL formatted string.</param>
         /// <returns>DeltaMergeBuilder</returns>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder Merge(DataFrame source, string condition) =>
             new DeltaMergeBuilder(
                 (JvmObjectReference)_jvmObject.Invoke(
@@ -460,7 +460,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="source">Source Dataframe to be merged.</param>
         /// <param name="condition">Coolean expression as a Column object</param>
         /// <returns>DeltaMergeBuilder</returns>
-        [DeltaSince(DeltaLakeVersions.V0_3_0)]
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder Merge(DataFrame source, Column condition) =>
             new DeltaMergeBuilder(
                 (JvmObjectReference)_jvmObject.Invoke(
