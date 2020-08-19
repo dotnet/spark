@@ -12,6 +12,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     /// Builder class to specify the actions to perform when a target table row has matched a
     /// source row based on the given merge condition and optional match condition.
     /// </summary>
+    [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
     public class DeltaMergeMatchedActionBuilder : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
@@ -29,6 +30,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="set">Rules to update a row as amap between target column names and
         /// corresponding update expressions as Column objects.</param>
         /// <returns>DeltaMergeBuilder object.</returns>
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder Update(Dictionary<string, Column> set) =>
             new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("update", set));
 
@@ -38,6 +40,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <param name="set">Rules to update a row as a map between target column names and
         /// corresponding update expressions as SQL formatted strings.</param>
         /// <returns>DeltaMergeBuilder object.</returns>
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder UpdateExpr(Dictionary<string, string> set) =>
             new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("updateExpr", set));
 
@@ -46,6 +49,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// columns in the source row.
         /// </summary>
         /// <returns>DeltaMergeBuilder object.</returns>
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder UpdateAll() =>
             new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("updateAll"));
 
@@ -53,6 +57,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// Delete a matched row from the table.
         /// </summary>
         /// <returns>DeltaMergeBuilder object.</returns>
+        [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder Delete() =>
             new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("delete"));
     }
