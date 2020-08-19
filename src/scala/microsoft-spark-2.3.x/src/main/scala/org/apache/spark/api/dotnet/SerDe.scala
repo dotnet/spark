@@ -196,6 +196,7 @@ object SerDe {
       case "character" => dos.writeByte('c')
       case "double" => dos.writeByte('d')
       case "doublearray" => dos.writeByte('A')
+      case "stringarray" => dos.writeByte('S')
       case "long" => dos.writeByte('g')
       case "integer" => dos.writeByte('i')
       case "logical" => dos.writeByte('b')

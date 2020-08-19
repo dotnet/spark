@@ -666,5 +666,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             _df.ExceptAll(_df);
         }
+
+        [Fact]
+        public void TestDTypes()
+        {
+            _df.DTypes();
+        }
     }
 }

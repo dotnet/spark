@@ -85,6 +85,19 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Returns all column names and their data types as an array.
+        /// </summary>
+        public void DTypes()
+        {
+            var dtypesJvm = (JvmObjectReference[])_jvmObject.Invoke("dtypes");
+            //List<List<string>> dtypes = new List<List<string>>();
+            //foreach (JvmObjectReference type in dtypesJvm)
+            //{
+            //    dtypes.Add(new List<string>(string)type.Invoke("toString")]);
+            //}
+        }
+
+        /// <summary>
         /// Returns all column names.
         /// </summary>
         /// <returns>Column names</returns>
