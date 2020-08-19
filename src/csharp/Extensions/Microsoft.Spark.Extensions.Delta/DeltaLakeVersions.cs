@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Spark.Extensions.Delta
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+namespace Microsoft.Spark.Extensions.Delta
 {
     internal static class DeltaLakeVersions
     {
@@ -11,4 +15,3 @@
         internal const string V0_6_1 = "0.6.1";
     }
 }
-
