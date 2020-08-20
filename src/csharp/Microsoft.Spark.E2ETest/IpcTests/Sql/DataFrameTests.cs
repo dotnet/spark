@@ -458,6 +458,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _df.Explain(false);
 
             Assert.Equal(2, _df.Columns().ToArray().Length);
+            Assert.IsType<string[][]>(_df.DTypes());
 
             Assert.IsType<bool>(_df.IsLocal());
 

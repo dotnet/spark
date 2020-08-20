@@ -379,7 +379,7 @@ object SerDe {
   def writeStringArrArr(out: DataOutputStream, value: Array[(String, String)]): Unit = {
     writeType(out, "stringarray")
     out.writeInt(value.length)
-    value.foreach(v => writeStringArr(out, v))
+    value.foreach(v => writeStringArr(out, v.productIterator.toArray.map(x => x.toString)))
   }
 }
 
