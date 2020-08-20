@@ -67,7 +67,8 @@ namespace Microsoft.Spark.Worker.Processor
                     else
                     {
                         string path = SerDe.ReadString(stream);
-                        using FileStream fStream = File.Open(path, FileMode.Open, FileAccess.Read);
+                        using FileStream fStream = 
+                            File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
                         object value = formatter.Deserialize(fStream);
                         BroadcastRegistry.Add(bid, value);
                     }
