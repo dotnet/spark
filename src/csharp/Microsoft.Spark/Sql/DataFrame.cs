@@ -85,7 +85,7 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
-        /// Returns all column names and their data types as an array.
+        /// Returns all column names and their data types as an IEnumerable of Tuples.
         /// </summary>
         /// <returns>IEnumerable of Tuple of strings</returns>
         public IEnumerable<Tuple<string, string>> DTypes() =>
