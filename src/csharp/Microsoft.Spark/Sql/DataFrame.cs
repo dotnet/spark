@@ -88,10 +88,9 @@ namespace Microsoft.Spark.Sql
         /// Returns all column names and their data types as an array.
         /// </summary>
         /// <returns>Array of Array of Strings</returns>
-        public string[][] DTypes()
-        {
-            return (string[][])_jvmObject.Invoke("dtypes");
-        }
+        public IEnumerable<Tuple<string, string>> DTypes() =>
+            Schema().Fields.Select(
+                f => new Tuple<string, string>(f.Name, f.DataType.SimpleString));
 
         /// <summary>
         /// Returns all column names.

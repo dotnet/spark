@@ -400,14 +400,6 @@ namespace Microsoft.Spark.Interop.Ipc
                     }
                     returnValue = jvmObjectReferenceArray;
                     break;
-                case 'S':
-                    var stringArrayArray = new string[numOfItemsInList][];
-                    for (int itemIndex = 0; itemIndex < numOfItemsInList; ++itemIndex)
-                    {
-                        stringArrayArray[itemIndex] = ReadCollection(s) as string[];
-                    }
-                    returnValue = stringArrayArray;
-                    break;
                 default:
                     // convert listItemTypeAsChar to UInt32 because the char may be non-printable
                     throw new NotSupportedException(

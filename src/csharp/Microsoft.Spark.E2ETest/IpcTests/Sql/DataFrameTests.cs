@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Apache.Arrow;
 using Microsoft.Data.Analysis;
@@ -458,7 +459,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _df.Explain(false);
 
             Assert.Equal(2, _df.Columns().ToArray().Length);
-            Assert.IsType<string[][]>(_df.DTypes());
+            Assert.IsAssignableFrom<IEnumerable<Tuple<string, string>>>(_df.DTypes());
 
             Assert.IsType<bool>(_df.IsLocal());
 
