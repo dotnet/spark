@@ -113,7 +113,6 @@ namespace Microsoft.Spark.Sql
             IArrowType arrowType = null;
 
             Type type = typeof(T);
-
             if (type == typeof(BooleanArray))
             {
                 arrowType = BooleanType.Default;
