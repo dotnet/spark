@@ -36,11 +36,9 @@ namespace Microsoft.Spark
         internal byte[] ConvertToByteArray(object value)
         {
             var formatter = new BinaryFormatter();
-            using (var ms = new MemoryStream())
-            {
-                formatter.Serialize(ms, value);
-                return ms.ToArray();
-            }
+            using var ms = new MemoryStream();
+            formatter.Serialize(ms, value);
+            return ms.ToArray();
         }
 
         public void Write(object value)
@@ -78,7 +76,7 @@ namespace Microsoft.Spark
             if (_currentPos > 0)
             {
                 WriteInt(_currentPos, _wrapped);
-                _wrapped.Write(_buffer, 0, _currentPos + 1);
+                _wrapped.Write(_buffer, 0, _currentPos);
             }
             // -1 length indicates to the receiving end that we're done.
             WriteInt(-1, _wrapped);

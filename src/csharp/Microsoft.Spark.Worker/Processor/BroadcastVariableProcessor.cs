@@ -79,6 +79,7 @@ namespace Microsoft.Spark.Worker.Processor
                     BroadcastRegistry.Remove(bid);
                 }
             }
+            socket.Dispose();
             return broadcastVars;
         }
     }

@@ -5,13 +5,11 @@ using System.IO;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Security.Cryptography;
 using System.Threading;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
-
 
 namespace Microsoft.Spark
 {
@@ -29,6 +27,10 @@ namespace Microsoft.Spark
         private readonly string _path;
         [NonSerialized]
         private readonly JvmObjectReference _jvmObject;
+        [NonSerialized]
+        private readonly SparkContext _sc;
+        [NonSerialized]
+        private JvmObjectReference _pythonBroadcast;
 
         private readonly long _bid;
 
@@ -36,6 +38,7 @@ namespace Microsoft.Spark
         {
             _path = CreateTempFilePath(sc.GetConf());
             _jvmObject = CreateBroadcast(sc, value);
+            _sc = sc;
             _bid = (long)_jvmObject.Invoke("id");
         }
 
@@ -173,34 +176,31 @@ namespace Microsoft.Spark
             bool encryptionEnabled = bool.Parse(
                 sc.GetConf().Get("spark.io.encryption.enabled", "false"));
 
-            var pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
+            _pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.api.python.PythonRDD",
                 "setupBroadcast",
                 _path);
 
             if (encryptionEnabled)
             {
-                var pair = (JvmObjectReference[])pythonBroadcast.Invoke("setupEncryptionServer");
+                var pair = (JvmObjectReference[])_pythonBroadcast.Invoke("setupEncryptionServer");
 
                 using ISocketWrapper socket = SocketFactory.CreateSocket();
                 socket.Connect(
                     IPAddress.Loopback,
                     (int)pair[0].Invoke("intValue"),
                     (string)pair[1].Invoke("toString"));
-                ChunkedStream bdrcstChunked = new ChunkedStream(socket.OutputStream, 8192);
-                byte[] values = new byte[] { 0x80, 0x02, (byte)'X', 0x05, 0x00, 0x00, 0x00,
-                (byte)'h', (byte)'e', (byte)'l', (byte)'l', (byte)'o', (byte)'q', 0x00, (byte)'.' };
-                bdrcstChunked.Write(values);
-                bdrcstChunked.Close();
-                //socket.OutputStream.Flush();
-                pythonBroadcast.Invoke("waitTillDataReceived");
+                ChunkedStream chunked = new ChunkedStream(socket.OutputStream, 8192);
+                chunked.Write(value);
+                chunked.Close();
+                _pythonBroadcast.Invoke("waitTillDataReceived");
             }
             else
             {
                 WriteToFile(value);
             }
 
-            return (JvmObjectReference)javaSparkContext.Invoke("broadcast", pythonBroadcast);
+            return (JvmObjectReference)javaSparkContext.Invoke("broadcast", _pythonBroadcast);
         }
 
         /// <summary>
