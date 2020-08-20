@@ -196,6 +196,7 @@ object SerDe {
       case "character" => dos.writeByte('c')
       case "double" => dos.writeByte('d')
       case "doublearray" => dos.writeByte('A')
+      case "stringarray" => dos.writeByte('S')
       case "long" => dos.writeByte('g')
       case "integer" => dos.writeByte('i')
       case "logical" => dos.writeByte('b')
@@ -268,6 +269,9 @@ object SerDe {
         case "[[B" =>
           writeType(dos, "list")
           writeBytesArr(dos, value.asInstanceOf[Array[Array[Byte]]])
+        case "[Lscala.Tuple2;" =>
+            writeType(dos, "list")
+            writeStringArrArr(dos, value.asInstanceOf[Array[(String, String)]])
         case otherName =>
           // Handle array of objects
           if (otherName.startsWith("[L")) {
@@ -369,6 +373,12 @@ object SerDe {
     writeType(out, "raw")
     out.writeInt(value.length)
     value.foreach(v => writeBytes(out, v))
+  }
+
+  def writeStringArrArr(out: DataOutputStream, value: Array[(String, String)]): Unit = {
+    writeType(out, "stringarray")
+    out.writeInt(value.length)
+    value.foreach(v => writeStringArr(out, v.productIterator.toArray.map(x => x.toString)))
   }
 }
 

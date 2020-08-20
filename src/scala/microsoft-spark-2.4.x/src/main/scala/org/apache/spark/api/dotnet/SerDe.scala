@@ -213,7 +213,6 @@ object SerDe {
     if (value == null || value == Unit) {
       writeType(dos, "void")
     } else {
-        val name = value.getClass.getName
       value.getClass.getName match {
         case "java.lang.String" =>
           writeType(dos, "character")
