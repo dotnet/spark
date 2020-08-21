@@ -812,10 +812,8 @@ namespace Microsoft.Spark.Sql
         /// <see cref="StorageLevel"/> to persist the <see cref="DataFrame"/> to.
         /// </param>
         /// <returns>DataFrame object</returns>
-        public DataFrame Persist(StorageLevel storageLevel) => 
-            WrapAsDataFrame(_jvmObject.Invoke(
-                "persist",
-                storageLevel));
+        public DataFrame Persist(StorageLevel storageLevel) =>
+            WrapAsDataFrame(_jvmObject.Invoke("persist", storageLevel));
 
         /// <summary>
         /// Persist this <see cref="DataFrame"/> with the default storage level (`MEMORY_AND_DISK`).
