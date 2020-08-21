@@ -800,15 +800,17 @@ namespace Microsoft.Spark.Sql
         public DataFrame Distinct() => WrapAsDataFrame(_jvmObject.Invoke("distinct"));
 
         /// <summary>
-        /// Persist this `DataFrame` with the default storage level (`MEMORY_AND_DISK`).
+        /// Persist this <see cref="DataFrame"/> with the default storage level (`MEMORY_AND_DISK`).
         /// </summary>
         /// <returns>DataFrame object</returns>
         public DataFrame Persist() => WrapAsDataFrame(_jvmObject.Invoke("persist"));
 
         /// <summary>
-        /// Persist this `DataFrame` with the given storage level.
+        /// Persist this <see cref="DataFrame"/> with the given storage level.
         /// </summary>
-        /// <param name="storageLevel">Storage level to persist the dataframe to.</param>
+        /// <param name="storageLevel">
+        /// <see cref="StorageLevel"/> to persist the <see cref="DataFrame"/> to.
+        /// </param>
         /// <returns>DataFrame object</returns>
         public DataFrame Persist(StorageLevel storageLevel) => 
             WrapAsDataFrame(_jvmObject.Invoke(
@@ -816,13 +818,13 @@ namespace Microsoft.Spark.Sql
                 storageLevel));
 
         /// <summary>
-        /// Persist this `DataFrame` with the default storage level (`MEMORY_AND_DISK`).
+        /// Persist this <see cref="DataFrame"/> with the default storage level (`MEMORY_AND_DISK`).
         /// </summary>
         /// <returns>DataFrame object</returns>
         public DataFrame Cache() => WrapAsDataFrame(_jvmObject.Invoke("cache"));
 
         /// <summary>
-        /// Get the `DataFrame`'s current storage level.
+        /// Get the <see cref="DataFrame"/>'s current <see cref="StorageLevel"/>.
         /// </summary>
         /// <returns><see cref="StorageLevel"/> object</returns>
         public StorageLevel StorageLevel() =>
