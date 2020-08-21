@@ -14,13 +14,14 @@ namespace Microsoft.Spark.Worker.UnitTest
     [Collection("Spark Unit Tests")]
     public class DaemonWorkerTests
     {
-        [Fact]
-        public void TestsDaemonWorkerTaskRunners()
+        [Theory]
+        [MemberData(nameof(TestData.versionTests), MemberType = typeof(TestData))]
+        public void TestsDaemonWorkerTaskRunners(string version)
         {
             ISocketWrapper daemonSocket = SocketFactory.CreateSocket();
             
             int taskRunnerNumber = 3;
-            var typedVersion = new Version(Versions.V2_4_0);
+            var typedVersion = new Version(version);
             var daemonWorker = new DaemonWorker(typedVersion);
             
             Task.Run(() => daemonWorker.Run(daemonSocket));
