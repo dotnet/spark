@@ -195,6 +195,5 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // Needs to be unpersisted so other Persists can take effect.
             _df.Unpersist();
         }
-
     }
 }
