@@ -459,7 +459,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _df.Explain(false);
 
             Assert.Equal(2, _df.Columns().ToArray().Length);
-            Assert.IsAssignableFrom<IEnumerable<Tuple<string, string>>>(_df.DTypes());
+
+            // Testing DataFrame.DTypes()
+            {
+                List<Tuple<string, string>> expected = new List<Tuple<string, string>>
+                {
+                    new Tuple<string, string>("age", "integer"),
+                    new Tuple<string, string>("name", "string")
+                };
+                Assert.Equal(expected, _df.DTypes().ToList());
+            }
 
             Assert.IsType<bool>(_df.IsLocal());
 
