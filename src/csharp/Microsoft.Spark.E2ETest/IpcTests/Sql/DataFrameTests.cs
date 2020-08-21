@@ -465,7 +465,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 new Tuple<string, string>("age", "integer"),
                 new Tuple<string, string>("name", "string")
             };
-            Assert.Equal(expected, _df.DTypes().ToList());
+            Assert.Equal(expected, _df.DTypes());
 
             Assert.IsType<bool>(_df.IsLocal());
 
