@@ -18,7 +18,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
         /// <summary>
         /// Test setting Storage Level as NONE, persisting a <see cref="DataFrame"/> and then
-        /// verifying the new Storage Level of the <see cref="DataFrame"/>.
+        /// verifying the new Storage Level of the DataFrame.
         /// </summary>
         [Fact]
         public void TestStorageLevelNone()
@@ -32,8 +32,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test setting Storage Level as DISK_ONLY, persisting a <see cref="DataFrame"/> and then
-        /// verifying the new Storage Level of the <see cref="DataFrame"/>.
+        /// Test setting Storage Level as DISK_ONLY, persisting a <see cref="DataFrame"/> and
+        /// verifying the new Storage Level of the DataFrame.
         /// </summary>
         [Fact]
         public void TestStorageLevelDiskOnly()
@@ -47,8 +47,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test setting Storage Level as DISK_ONLY_2, persisting a <see cref="DataFrame"/> and then
-        /// verifying the new Storage Level of the <see cref="DataFrame"/>.
+        /// Test setting Storage Level as DISK_ONLY_2, persisting a <see cref="DataFrame"/> and
+        /// verifying the new Storage Level of the DataFrame.
         /// </summary>
         [Fact]
         public void TestStorageLevelDiskOnly2()
@@ -62,8 +62,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test setting Storage Level as MEMORY_ONLY, persisting a <see cref="DataFrame"/> and then
-        /// verifying the new Storage Level of the <see cref="DataFrame"/>.
+        /// Test setting Storage Level as MEMORY_ONLY, persisting a <see cref="DataFrame"/> and
+        /// verifying the new Storage Level of the DataFrame.
         /// </summary>
         [Fact]
         public void TestStorageLevelMemoryOnly()
@@ -77,8 +77,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test setting Storage Level as MEMORY_ONLY_2, persisting a <see cref="DataFrame"/> and then
-        /// verifying the new Storage Level of the <see cref="DataFrame"/>.
+        /// Test setting Storage Level as MEMORY_ONLY_2, persisting a <see cref="DataFrame"/> and
+        /// verifying the new Storage Level of the DataFrame.
         /// </summary>
         [Fact]
         public void TestStorageLevelMemoryOnly2()
@@ -92,8 +92,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test setting Storage Level as MEMORY_ONLY_SER, persisting a <see cref="DataFrame"/> and then
-        /// verifying the new Storage Level of the <see cref="DataFrame"/>.
+        /// Test setting Storage Level as MEMORY_ONLY_SER, persisting a <see cref="DataFrame"/> and
+        /// verifying the new Storage Level of the DataFrame.
         /// </summary>
         [Fact]
         public void TestStorageLevelMemoryOnlySer()
@@ -107,8 +107,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test setting Storage Level as MEMORY_ONLY_SER_2, persisting a <see cref="DataFrame"/> and then
-        /// verifying the new Storage Level of the <see cref="DataFrame"/>.
+        /// Test setting Storage Level as MEMORY_ONLY_SER_2, persisting a <see cref="DataFrame"/>
+        /// and verifying the new Storage Level of the DataFrame.
         /// </summary>
         [Fact]
         public void TestStorageLevelMemoryOnlySer2()
@@ -122,8 +122,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test setting Storage Level as MEMORY_AND_DISK, persisting a <see cref="DataFrame"/> and then
-        /// verifying the new Storage Level of the <see cref="DataFrame"/>.
+        /// Test setting Storage Level as MEMORY_AND_DISK, persisting a <see cref="DataFrame"/> and
+        /// verifying the new Storage Level of the DataFrame.
         /// </summary>
         [Fact]
         public void TestStorageLevelMemoryAndDisk()
@@ -137,8 +137,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test setting Storage Level as MEMORY_AND_DISK_2, persisting a <see cref="DataFrame"/> and then
-        /// verifying the new Storage Level of the <see cref="DataFrame"/>.
+        /// Test setting Storage Level as MEMORY_AND_DISK_2, persisting a <see cref="DataFrame"/>
+        /// and verifying the new Storage Level of the DataFrame.
         /// </summary>
         [Fact]
         public void TestStorageLevelMemoryAndDisk2()
@@ -152,8 +152,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test setting Storage Level as MEMORY_AND_DISK_SER, persisting a <see cref="DataFrame"/> and then
-        /// verifying the new Storage Level of the <see cref="DataFrame"/>.
+        /// Test setting Storage Level as MEMORY_AND_DISK_SER, persisting a <see cref="DataFrame"/>
+        /// and verifying the new Storage Level of the DataFrame.
         /// </summary>
         [Fact]
         public void TestStorageLevelMemoryAndDiskSer()
@@ -167,8 +167,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test setting Storage Level as MEMORY_AND_DISK_SER_2, persisting a <see cref="DataFrame"/> and then
-        /// verifying the new Storage Level of the <see cref="DataFrame"/>.
+        /// Test setting Storage Level as MEMORY_AND_DISK_SER_2, persisting a
+        /// <see cref="DataFrame"/> and verifying the new Storage Level of the DataFrame.
         /// </summary>
         [Fact]
         public void TestStorageLevelMemoryAndDiskSer2()
@@ -182,8 +182,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test setting Storage Level as OFF_HEAP, persisting a <see cref="DataFrame"/> and then
-        /// verifying the new Storage Level of the <see cref="DataFrame"/>.
+        /// Test setting Storage Level as OFF_HEAP, persisting a <see cref="DataFrame"/> and
+        /// verifying the new Storage Level of the DataFrame.
         /// </summary>
         [Fact]
         public void TestStorageLevelOffHeap()
