@@ -671,11 +671,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                 Assert.IsType<RelationalGroupedDataset>(df.Pivot("age"));
 
-                Assert.IsType<RelationalGroupedDataset>(df.Pivot("age", 19));
-
                 Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age")));
-
-                Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age"), 19));
             }
         }
     }
