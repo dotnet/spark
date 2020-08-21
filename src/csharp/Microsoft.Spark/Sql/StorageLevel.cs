@@ -195,7 +195,7 @@ namespace Microsoft.Spark.Sql
         public bool Deserialized { get; private set; }
 
         /// <summary>
-        /// Returns bool value of Replication of this StorageLevel.
+        /// Returns int value of Replication of this StorageLevel.
         /// </summary>
         public int Replication { get; private set; }
 
