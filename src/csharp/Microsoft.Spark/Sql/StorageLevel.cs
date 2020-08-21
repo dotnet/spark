@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 
@@ -57,8 +56,9 @@ namespace Microsoft.Spark.Sql
             UseOffHeap = useOffHeap;
             Deserialized = deserialized;
             Replication = replication;
-            _jvmObject = SparkEnvironment.JvmBridge.CallConstructor(
+            _jvmObject = (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 s_storageLevelClassName,
+                "apply",
                 UseDisk,
                 UseMemory,
                 UseOffHeap,
@@ -66,87 +66,177 @@ namespace Microsoft.Spark.Sql
                 Replication);
         }
 
+        /// <summary>
+        /// Returns the StorageLevel object with all parameters set to false.
+        /// </summary>
         public static StorageLevel NONE =>
             s_none ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "NONE"));
 
+        /// <summary>
+        /// Returns the StorageLevel to Disk, serialized and replicated once.
+        /// </summary>
         public static StorageLevel DISK_ONLY =>
             s_diskOnly ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "DISK_ONLY"));
 
+        /// <summary>
+        /// Returns the StorageLevel to Disk, serialized and replicated twice.
+        /// </summary>
         public static StorageLevel DISK_ONLY_2 =>
             s_diskOnly2 ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "DISK_ONLY_2"));
 
+        /// <summary>
+        /// Returns the StorageLevel to Memory, deserialized and replicated once.
+        /// </summary>
         public static StorageLevel MEMORY_ONLY =>
             s_memoryOnly ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "MEMORY_ONLY"));
 
+        /// <summary>
+        /// Returns the StorageLevel to Memory, deserialized and replicated twice.
+        /// </summary>
         public static StorageLevel MEMORY_ONLY_2 =>
             s_memoryOnly2 ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "MEMORY_ONLY_2"));
 
+        /// <summary>
+        /// Returns the StorageLevel to Memory, serialized and replicated once.
+        /// </summary>
         public static StorageLevel MEMORY_ONLY_SER =>
             s_memoryOnlySer ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "MEMORY_ONLY_SER"));
 
+        /// <summary>
+        /// Returns the StorageLevel to Memory, serialized and replicated twice.
+        /// </summary>
         public static StorageLevel MEMORY_ONLY_SER_2 =>
             s_memoryOnlySer2 ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "MEMORY_ONLY_SER_2"));
 
+        /// <summary>
+        /// Returns the StorageLevel to Disk and Memory, deserialized and replicated once.
+        /// </summary>
         public static StorageLevel MEMORY_AND_DISK =>
             s_memoryAndDisk ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "MEMORY_AND_DISK"));
 
+        /// <summary>
+        /// Returns the StorageLevel to Disk and Memory, deserialized and replicated twice.
+        /// </summary>
         public static StorageLevel MEMORY_AND_DISK_2 =>
             s_memoryAndDisk2 ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "MEMORY_AND_DISK_2"));
 
+        /// <summary>
+        /// Returns the StorageLevel to Disk and Memory, serialized and replicated once.
+        /// </summary>
         public static StorageLevel MEMORY_AND_DISK_SER =>
             s_memoryAndDiskSer ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "MEMORY_AND_DISK_SER"));
 
+        /// <summary>
+        /// Returns the StorageLevel to Disk and Memory, serialized and replicated twice.
+        /// </summary>
         public static StorageLevel MEMORY_AND_DISK_SER_2 =>
             s_memoryAndDiskSer2 ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "MEMORY_AND_DISK_SER_2"));
 
+        /// <summary>
+        /// Returns the StorageLevel to Disk, Memory and Offheap, serialized and replicated once.
+        /// </summary>
         public static StorageLevel OFF_HEAP =>
             s_offHeap ??= new StorageLevel(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_storageLevelClassName,
                     "OFF_HEAP"));
 
+        /// <summary>
+        /// Returns bool value of UseDisk of this StorageLevel.
+        /// </summary>
         public bool UseDisk { get; private set; }
+
+        /// <summary>
+        /// Returns bool value of UseMemory of this StorageLevel.
+        /// </summary>
         public bool UseMemory { get; private set; }
+
+        /// <summary>
+        /// Returns bool value of UseOffHeap of this StorageLevel.
+        /// </summary>
         public bool UseOffHeap { get; private set; }
+
+        /// <summary>
+        /// Returns bool value of Deserialized of this StorageLevel.
+        /// </summary>
         public bool Deserialized { get; private set; }
+
+        /// <summary>
+        /// Returns bool value of Replication of this StorageLevel.
+        /// </summary>
         public int Replication { get; private set; }
 
+        /// <summary>
+        /// Returns the description string of this StorageLevel.
+        /// </summary>
+        /// <returns>Description as string.</returns>
         public string Description() => (string)_jvmObject.Invoke("description");
 
+        /// <summary>
+        /// Returns the string representation of this StorageLevel.
+        /// </summary>
+        /// <returns>representation as string value.</returns>
         public override string ToString() => (string)_jvmObject.Invoke("toString");
+
+        /// <summary>
+        /// Checks if the given object is same as the current object.
+        /// </summary>
+        /// <param name="obj">Other object to compare against</param>
+        /// <returns>True if the other object is equal.</returns>
+        public override bool Equals(object obj)
+        {
+            //Check for null and compare run-time types.
+            if ((obj == null) || !GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+            else
+            {
+                StorageLevel s = (StorageLevel)obj;
+                return (s.UseDisk == UseDisk) && (s.UseMemory == UseMemory) &&
+                    (s.UseOffHeap == UseOffHeap) && (s.Deserialized == Deserialized) &&
+                    (s.Replication == Replication);
+            }
+        }
+
+        /// <summary>
+        /// Returns the hash code of the current object.
+        /// </summary>
+        /// <returns>The hash code of the current object</returns>
+        public override int GetHashCode() => base.GetHashCode();
     }
 }
 

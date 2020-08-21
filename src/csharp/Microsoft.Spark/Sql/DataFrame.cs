@@ -800,7 +800,7 @@ namespace Microsoft.Spark.Sql
         public DataFrame Distinct() => WrapAsDataFrame(_jvmObject.Invoke("distinct"));
 
         /// <summary>
-        /// Persist this <see cref="DataFrame"/> with the default storage level (`MEMORY_AND_DISK`).
+        /// Persist this <see cref="DataFrame"/> with the default storage level MEMORY_AND_DISK.
         /// </summary>
         /// <returns>DataFrame object</returns>
         public DataFrame Persist() => WrapAsDataFrame(_jvmObject.Invoke("persist"));
@@ -816,7 +816,7 @@ namespace Microsoft.Spark.Sql
             WrapAsDataFrame(_jvmObject.Invoke("persist", storageLevel));
 
         /// <summary>
-        /// Persist this <see cref="DataFrame"/> with the default storage level (`MEMORY_AND_DISK`).
+        /// Persist this <see cref="DataFrame"/> with the default storage level MEMORY_AND_DISK.
         /// </summary>
         /// <returns>DataFrame object</returns>
         public DataFrame Cache() => WrapAsDataFrame(_jvmObject.Invoke("cache"));
