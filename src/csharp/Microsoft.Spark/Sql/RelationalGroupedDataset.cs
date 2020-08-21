@@ -90,16 +90,16 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="pivotColumn">Name of the column to pivot</param>
         /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
-        public RelationalGroupedDataset Pivot(string pivotColumn) =>
-            new RelationalGroupedDataset((JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn), _dataFrame);
+        public RelationalGroupedDataset Pivot(string pivotColumn) => new RelationalGroupedDataset(
+            (JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn), _dataFrame);
 
         /// <summary>
         /// Pivots a column of the current DataFrame and performs the specified aggregation.
         /// </summary>
         /// <param name="pivotColumn">The column to pivot</param>
         /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
-        public RelationalGroupedDataset Pivot(Column pivotColumn) =>
-            new RelationalGroupedDataset((JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn), _dataFrame);
+        public RelationalGroupedDataset Pivot(Column pivotColumn) => new RelationalGroupedDataset(
+            (JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn), _dataFrame);
 
         internal DataFrame Apply(StructType returnType, Func<FxDataFrame, FxDataFrame> func)
         {
