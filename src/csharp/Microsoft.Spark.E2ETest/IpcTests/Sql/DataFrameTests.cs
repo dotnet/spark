@@ -460,15 +460,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.Equal(2, _df.Columns().ToArray().Length);
 
-            // Testing DataFrame.DTypes()
+            var expected = new List<Tuple<string, string>>
             {
-                List<Tuple<string, string>> expected = new List<Tuple<string, string>>
-                {
-                    new Tuple<string, string>("age", "integer"),
-                    new Tuple<string, string>("name", "string")
-                };
-                Assert.Equal(expected, _df.DTypes().ToList());
-            }
+                new Tuple<string, string>("age", "integer"),
+                new Tuple<string, string>("name", "string")
+            };
+            Assert.Equal(expected, _df.DTypes().ToList());
 
             Assert.IsType<bool>(_df.IsLocal());
 
