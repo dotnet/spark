@@ -673,6 +673,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _df.IntersectAll(_df);
 
             _df.ExceptAll(_df);
+
+            {
+                RelationalGroupedDataset df = _df.GroupBy("name");
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot("age"));
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age")));
+            }
         }
     }
 }
