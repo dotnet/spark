@@ -33,7 +33,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             const double minTf = 10.0;
             const bool binary = false;
             
-            List<string> vocabulary = new List<string>()
+            var vocabulary = new List<string>()
             {
                 "hello",
                 "I",
