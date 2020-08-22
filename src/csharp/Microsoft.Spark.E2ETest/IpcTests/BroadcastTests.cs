@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
@@ -35,7 +36,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// Test Broadcast support by using multiple broadcast variables in a UDF with
         /// encryption enabled.
         /// </summary>
-        [Fact]
+        [SkipIfSparkVersionIsLessThan(Versions.V2_3_2)]
         public void TestMultipleBroadcastWithEncryption()
         {
             _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", "true");
