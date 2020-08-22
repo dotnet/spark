@@ -28,13 +28,13 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             for (int i = 0; i < taskRunnerNumber; ++i)
             {
-                CreateAndVerifyConnection(daemonSocket);
+                CreateAndVerifyConnection(daemonSocket, typedVersion);
             }
             
             Assert.Equal(taskRunnerNumber, daemonWorker.CurrentNumTaskRunners);
         }
 
-        private static void CreateAndVerifyConnection(ISocketWrapper daemonSocket)
+        private static void CreateAndVerifyConnection(ISocketWrapper daemonSocket, Version version)
         {
             var ipEndpoint = (IPEndPoint)daemonSocket.LocalEndPoint;
             int port = ipEndpoint.Port;
@@ -42,7 +42,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             clientSocket.Connect(ipEndpoint.Address, port);
 
             // Now process the bytes flowing in from the client.
-            PayloadWriter payloadWriter = new PayloadWriterFactory().Create();
+            PayloadWriter payloadWriter = new PayloadWriterFactory().Create(version);
             payloadWriter.WriteTestData(clientSocket.OutputStream);
             List<object[]> rowsReceived = PayloadReader.Read(clientSocket.InputStream);
 

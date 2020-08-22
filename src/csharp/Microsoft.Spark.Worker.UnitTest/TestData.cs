@@ -16,10 +16,10 @@ namespace Microsoft.Spark.Worker.UnitTest
     {
         public static IEnumerable<object[]> versionTests()
         {
-         //   yield return new object[] { Versions.V2_3_0 };
-         //   yield return new object[] { Versions.V2_3_1 };
-         //   yield return new object[] { Versions.V2_3_2 };
-         //   yield return new object[] { Versions.V2_3_3 };
+            yield return new object[] { Versions.V2_3_0 };
+            yield return new object[] { Versions.V2_3_1 };
+            yield return new object[] { Versions.V2_3_2 };
+            yield return new object[] { Versions.V2_3_3 };
             yield return new object[] { Versions.V2_4_0 };
             yield return new object[] { Versions.V3_0_0 };
         }
