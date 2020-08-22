@@ -40,11 +40,14 @@ namespace Microsoft.Spark.Worker.Processor
             {
                 broadcastVars.DecryptionServerPort = SerDe.ReadInt32(stream);
                 broadcastVars.Secret = SerDe.ReadString(stream);
-                socket = SocketFactory.CreateSocket();
-                socket.Connect(
-                    IPAddress.Loopback,
-                    broadcastVars.DecryptionServerPort,
-                    broadcastVars.Secret);
+                if (broadcastVars.Count > 0)
+                {
+                    socket = SocketFactory.CreateSocket();
+                    socket.Connect(
+                        IPAddress.Loopback,
+                        broadcastVars.DecryptionServerPort,
+                        broadcastVars.Secret);
+                }
             }
 
             var formatter = new BinaryFormatter();
@@ -79,7 +82,6 @@ namespace Microsoft.Spark.Worker.Processor
                     BroadcastRegistry.Remove(bid);
                 }
             }
-            socket.Dispose();
             return broadcastVars;
         }
     }
