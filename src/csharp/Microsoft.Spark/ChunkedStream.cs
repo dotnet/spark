@@ -1,30 +1,39 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Security.Cryptography;
-using System.Text;
-using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark
 {
+    /// <summary>
+    /// This is a stream-like object that takes a stream of data, of unknown length, and breaks it
+    /// into fixed length frames.The intended use case is serializing large data and sending it
+    /// immediately over a socket -- we do not want to buffer the entire data before sending it,
+    /// but the receiving end needs to know whether or not there is more data coming.
+    /// It works by buffering the incoming data in some fixed-size chunks.  If the buffer is full,
+    /// it first sends the buffer size, then the data. This repeats as long as there is more data
+    /// to send. When this is closed, it sends the length of whatever data is in the buffer, then
+    /// that data, and finally a "length" of -1 to indicate the stream has completed.
+    /// </summary>
     public class ChunkedStream
     {
         private readonly int _bufferSize;
-        private byte[] _buffer;
+        private readonly byte[] _buffer;
         private int _currentPos;
-        private Stream _wrapped;
+        private readonly Stream _stream;
 
-        internal ChunkedStream(Stream wrapped, int bufferSize)
+        internal ChunkedStream(Stream stream, int bufferSize)
         {
             _bufferSize = bufferSize;
             _buffer = new byte[_bufferSize];
             _currentPos = 0;
-            _wrapped = wrapped;
+            _stream = stream;
         }
 
+        /// <summary>
+        /// Writes the given integer value into the stream in Big Endian format.
+        /// </summary>
+        /// <param name="value">Int value to write to stream.</param>
+        /// <param name="stream">Stream to write value into.</param>
         internal void WriteInt(int value, Stream stream)
         {
             byte[] bytes = BitConverter.GetBytes(value);
@@ -33,6 +42,11 @@ namespace Microsoft.Spark
             stream.Write(bytes, 0, bytes.Length);
         }
 
+        /// <summary>
+        /// Converts the given object value into array of bytes.
+        /// </summary>
+        /// <param name="value">Value of type object to convert to byte array.</param>
+        /// <returns>Array of bytes</returns>
         internal byte[] ConvertToByteArray(object value)
         {
             var formatter = new BinaryFormatter();
@@ -41,6 +55,10 @@ namespace Microsoft.Spark
             return ms.ToArray();
         }
 
+        /// <summary>
+        /// Writes the value into the stream of type <see cref="Stream"/> in fixed chunks.
+        /// </summary>
+        /// <param name="value">Value of type object to write.</param>
         public void Write(object value)
         {
             byte[] bytes = ConvertToByteArray(value);
@@ -61,8 +79,8 @@ namespace Microsoft.Spark
                     int spaceLeft = _bufferSize - _currentPos;
                     int newBytePos = bytePos + spaceLeft;
                     Array.Copy(bytes, bytePos, _buffer, _currentPos, spaceLeft);
-                    WriteInt(_bufferSize, _wrapped);
-                    _wrapped.Write(_buffer, 0, _bufferSize);
+                    WriteInt(_bufferSize, _stream);
+                    _stream.Write(_buffer, 0, _bufferSize);
                     bytesRemaining -= spaceLeft;
                     bytePos = newBytePos;
                     _currentPos = 0;
@@ -70,17 +88,21 @@ namespace Microsoft.Spark
             }
         }
 
+        /// <summary>
+        /// Writes the remaining bytes left in _buffer and finishes it by writing -1 to the _stream
+        /// and then closing it.
+        /// </summary>
         public void Close()
         {
             // If there is anything left in the buffer, write it out first.
             if (_currentPos > 0)
             {
-                WriteInt(_currentPos, _wrapped);
-                _wrapped.Write(_buffer, 0, _currentPos);
+                WriteInt(_currentPos, _stream);
+                _stream.Write(_buffer, 0, _currentPos);
             }
             // -1 length indicates to the receiving end that we're done.
-            WriteInt(-1, _wrapped);
-            _wrapped.Close();
+            WriteInt(-1, _stream);
+            _stream.Close();
         }
     }
 }
