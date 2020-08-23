@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 
@@ -31,16 +32,14 @@ namespace Microsoft.Spark.Sql
         private static StorageLevel s_memoryAndDiskSer2;
         private static StorageLevel s_offHeap;
         private readonly JvmObjectReference _jvmObject;
-
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        private bool? _useDisk;
+        private bool? _useMemory;
+        private bool? _useOffHeap;
+        private bool? _deserialized;
+        private int? _replication;
 
         internal StorageLevel(JvmObjectReference jvmObject)
         {
-            UseDisk = (bool)jvmObject.Invoke("useDisk");
-            UseMemory = (bool)jvmObject.Invoke("useMemory");
-            UseOffHeap = (bool)jvmObject.Invoke("useOffHeap");
-            Deserialized = (bool)jvmObject.Invoke("deserialized");
-            Replication = (int)jvmObject.Invoke("replication");
             _jvmObject = jvmObject;
         }
 
@@ -51,20 +50,17 @@ namespace Microsoft.Spark.Sql
             bool deserialized,
             int replication = 1)
         {
-            UseDisk = useDisk;
-            UseMemory = useMemory;
-            UseOffHeap = useOffHeap;
-            Deserialized = deserialized;
-            Replication = replication;
             _jvmObject = (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 s_storageLevelClassName,
                 "apply",
-                UseDisk,
-                UseMemory,
-                UseOffHeap,
-                Deserialized,
-                Replication);
+                useDisk,
+                useMemory,
+                useOffHeap,
+                deserialized,
+                replication);
         }
+
+        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
         /// Returns the StorageLevel object with all parameters set to false.
@@ -177,27 +173,27 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Returns bool value of UseDisk of this StorageLevel.
         /// </summary>
-        public bool UseDisk { get; private set; }
+        public bool UseDisk => _useDisk ??= (bool)_jvmObject.Invoke("useDisk");
 
         /// <summary>
         /// Returns bool value of UseMemory of this StorageLevel.
         /// </summary>
-        public bool UseMemory { get; private set; }
+        public bool UseMemory => _useMemory ??= (bool)_jvmObject.Invoke("useMemory");
 
         /// <summary>
         /// Returns bool value of UseOffHeap of this StorageLevel.
         /// </summary>
-        public bool UseOffHeap { get; private set; }
+        public bool UseOffHeap => _useOffHeap ??= (bool)_jvmObject.Invoke("useOffHeap");
 
         /// <summary>
         /// Returns bool value of Deserialized of this StorageLevel.
         /// </summary>
-        public bool Deserialized { get; private set; }
+        public bool Deserialized => _deserialized ??= (bool)_jvmObject.Invoke("deserialized");
 
         /// <summary>
         /// Returns int value of Replication of this StorageLevel.
         /// </summary>
-        public int Replication { get; private set; }
+        public int Replication => _replication ??= (int)_jvmObject.Invoke("replication");
 
         /// <summary>
         /// Returns the description string of this StorageLevel.
@@ -218,14 +214,14 @@ namespace Microsoft.Spark.Sql
         /// <returns>True if the other object is equal.</returns>
         public override bool Equals(object obj)
         {
-            //Check for null and compare run-time types.
+            // Check for null and compare run-time types.
             if ((obj == null) || !GetType().Equals(obj.GetType()))
             {
                 return false;
             }
             else
             {
-                StorageLevel s = (StorageLevel)obj;
+                var s = (StorageLevel)obj;
                 return (s.UseDisk == UseDisk) && (s.UseMemory == UseMemory) &&
                     (s.UseOffHeap == UseOffHeap) && (s.Deserialized == Deserialized) &&
                     (s.Replication == Replication);
