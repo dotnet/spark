@@ -25,15 +25,16 @@ namespace Microsoft.Spark.Worker
         {
             try
             {
-                int port = Utils.SettingUtils.GetWorkerFactoryPort(_version);
                 string secret = Utils.SettingUtils.GetWorkerFactorySecret(_version);
+                ISocketWrapper clientSocket = SocketFactory.CreateSocket();
+                var ipEndpoint = (IPEndPoint)clientSocket.LocalEndPoint;
+                int port = ipEndpoint.Port;
 
                 s_logger.LogInfo($"RunSimpleWorker() is starting with port = {port}.");
 
-                ISocketWrapper socket = SocketFactory.CreateSocket();
-                socket.Connect(IPAddress.Loopback, port, secret);
+                clientSocket.Connect(ipEndpoint.Address, port, secret);
 
-                new TaskRunner(0, socket, false, _version).Run();
+                new TaskRunner(0, clientSocket, false, _version).Run();
             }
             catch (Exception e)
             {
