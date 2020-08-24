@@ -48,17 +48,15 @@ namespace Microsoft.Spark.Sql
             bool useMemory,
             bool useOffHeap,
             bool deserialized,
-            int replication = 1)
-        {
-            _jvmObject = (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+            int replication = 1) :
+            this((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 s_storageLevelClassName,
                 "apply",
                 useDisk,
                 useMemory,
                 useOffHeap,
                 deserialized,
-                replication);
-        }
+                replication)){ }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
@@ -215,17 +213,14 @@ namespace Microsoft.Spark.Sql
         public override bool Equals(object obj)
         {
             // Check for null and compare run-time types.
-            if ((obj == null) || !GetType().Equals(obj.GetType()))
+            if (!(obj is StorageLevel that))
             {
                 return false;
             }
-            else
-            {
-                var s = (StorageLevel)obj;
-                return (s.UseDisk == UseDisk) && (s.UseMemory == UseMemory) &&
-                    (s.UseOffHeap == UseOffHeap) && (s.Deserialized == Deserialized) &&
-                    (s.Replication == Replication);
-            }
+            
+            return (UseDisk == that.UseDisk) && (UseMemory == that.UseMemory) &&
+                (UseOffHeap == that.UseOffHeap) && (Deserialized == that.Deserialized) &&
+                (Replication == that.Replication);
         }
 
         /// <summary>

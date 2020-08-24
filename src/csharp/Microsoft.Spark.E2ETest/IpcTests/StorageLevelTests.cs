@@ -5,7 +5,6 @@ using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
-
     [Collection("Spark E2E Tests")]
     public class StorageLevelTests
     {
@@ -39,11 +38,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 StorageLevel.MEMORY_AND_DISK_SER_2,
                 StorageLevel.OFF_HEAP
             };
-            foreach (StorageLevel s in storageLevels)
+            foreach (StorageLevel expected in storageLevels)
             {
-                _df.Persist(s);
-                StorageLevel dfNewStorageLevel = _df.StorageLevel();
-                Assert.Equal(s, dfNewStorageLevel);
+                _df.Persist(expected);
+                StorageLevel actual = _df.StorageLevel();
+                Assert.Equal(expected, actual);
                 // Needs to be unpersisted so other Persists can take effect.
                 _df.Unpersist();
             }
