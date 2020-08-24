@@ -68,7 +68,8 @@ namespace Microsoft.Spark.Utils
                     stackCapacity: 102); // Spark sends batches of 100 rows, and +2 is for markers.
                 s_rowConstructor.Reset();
                 Debug.Assert(unpickledItems != null);
-                // Cast unpickledItems if necessary.
+                // Check if unpickler returns ArrayList.
+                // If so, it needs to be cast to the appropriate array type using UnpickleArray.
                 foreach (object objArr in (object[])unpickledItems)
                 {
                     if (objArr.GetType() == typeof(object[]))
@@ -82,6 +83,14 @@ namespace Microsoft.Spark.Utils
                         {
                             return CastUnpickledItems.UnpickleArray(unpickledItems);
                         }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
                 return unpickledItems as object[];
