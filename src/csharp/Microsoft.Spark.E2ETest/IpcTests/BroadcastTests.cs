@@ -61,6 +61,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestMultipleBroadcastWithoutEncryption()
         {
+            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", "false");
             var obj1 = new TestBroadcastVariable(1, "first");
             var obj2 = new TestBroadcastVariable(2, "second");
             Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);

@@ -27,10 +27,6 @@ namespace Microsoft.Spark
         private readonly string _path;
         [NonSerialized]
         private readonly JvmObjectReference _jvmObject;
-        [NonSerialized]
-        private readonly SparkContext _sc;
-        [NonSerialized]
-        private JvmObjectReference _pythonBroadcast;
 
         private readonly long _bid;
 
@@ -38,7 +34,6 @@ namespace Microsoft.Spark
         {
             _path = CreateTempFilePath(sc.GetConf());
             _jvmObject = CreateBroadcast(sc, value);
-            _sc = sc;
             _bid = (long)_jvmObject.Invoke("id");
         }
 
@@ -176,7 +171,7 @@ namespace Microsoft.Spark
             bool encryptionEnabled = bool.Parse(
                 sc.GetConf().Get("spark.io.encryption.enabled", "false"));
 
-            _pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
+            var _pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.api.python.PythonRDD",
                 "setupBroadcast",
                 _path);
@@ -190,7 +185,7 @@ namespace Microsoft.Spark
                     IPAddress.Loopback,
                     (int)pair[0].Invoke("intValue"),
                     (string)pair[1].Invoke("toString"));
-                ChunkedStream chunked = new ChunkedStream(socket.OutputStream, 8192);
+                var chunked = new ChunkedStream(socket.OutputStream, 8192);
                 chunked.Write(value);
                 chunked.Close();
                 _pythonBroadcast.Invoke("waitTillDataReceived");
