@@ -18,7 +18,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="unpickledItems">Unpickled items</param>
         /// <returns>Cast unpickled items</returns>
-        public static object[] UnpickleArray(object unpickledItems)
+        public static object[] CastToArray(object unpickledItems)
         {
             var castUnpickledItems = new List<object>();
             foreach (object[] objArr in (object[])unpickledItems)
