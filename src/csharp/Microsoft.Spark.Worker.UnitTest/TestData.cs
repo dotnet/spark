@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
@@ -14,15 +13,16 @@ namespace Microsoft.Spark.Worker.UnitTest
     /// </summary>
     internal static class TestData
     {
-        public static IEnumerable<object[]> versionTests()
-        {
-            yield return new object[] { Versions.V2_3_0 };
-            yield return new object[] { Versions.V2_3_1 };
-            yield return new object[] { Versions.V2_3_2 };
-            yield return new object[] { Versions.V2_3_3 };
-            yield return new object[] { Versions.V2_4_0 };
-            yield return new object[] { Versions.V3_0_0 };
-        }
+        public static IEnumerable<object[]> VersionData() =>
+            new List<object[]>
+            {
+                new object[] { Versions.V2_3_0 },
+                new object[] { Versions.V2_3_1 },
+                new object[] { Versions.V2_3_2 },
+                new object[] { Versions.V2_3_3 },
+                new object[] { Versions.V2_4_0 },
+                new object[] { Versions.V3_0_0 },
+            };
 
         internal static Payload GetDefaultPayload()
         {

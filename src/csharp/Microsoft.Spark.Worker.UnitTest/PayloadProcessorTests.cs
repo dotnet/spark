@@ -18,7 +18,7 @@ namespace Microsoft.Spark.Worker.UnitTest
     public class PayloadProcessorTests
     {
         [Theory]
-        [MemberData(nameof(TestData.versionTests), MemberType = typeof(TestData))]
+        [MemberData(nameof(TestData.VersionData), MemberType = typeof(TestData))]
         public void TestPayloadProcessor(string version)
         {
             CommandPayload commandPayload = TestData.GetDefaultCommandPayload();

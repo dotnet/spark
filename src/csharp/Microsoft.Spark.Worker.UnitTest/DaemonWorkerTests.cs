@@ -15,7 +15,7 @@ namespace Microsoft.Spark.Worker.UnitTest
     public class DaemonWorkerTests
     {
         [Theory]
-        [MemberData(nameof(TestData.versionTests), MemberType = typeof(TestData))]
+        [MemberData(nameof(TestData.VersionData), MemberType = typeof(TestData))]
         public void TestsDaemonWorkerTaskRunners(string version)
         {
             ISocketWrapper daemonSocket = SocketFactory.CreateSocket();
