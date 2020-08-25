@@ -56,7 +56,14 @@ namespace Microsoft.Spark.Sql
                 useMemory,
                 useOffHeap,
                 deserialized,
-                replication)){ }
+                replication))
+        {
+            _useDisk = useDisk;
+            _useMemory = useMemory;
+            _useOffHeap = useOffHeap;
+            _deserialized = deserialized;
+            _replication = replication;
+        }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
