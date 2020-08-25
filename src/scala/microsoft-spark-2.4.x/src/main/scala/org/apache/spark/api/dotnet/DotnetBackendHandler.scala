@@ -68,7 +68,9 @@ class DotnetBackendHandler(server: DotnetBackend)
           }
         case "rmThread" =>
           try {
-            ThreadPool.deleteThread(threadId)
+            assert(readObjectType(dis) == 'i')
+            val threadToDelete = readInt(dis)
+            ThreadPool.deleteThread(threadToDelete)
             writeInt(dos, 0)
             writeObject(dos, null)
           } catch {

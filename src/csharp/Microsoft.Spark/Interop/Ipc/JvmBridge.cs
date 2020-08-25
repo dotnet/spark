@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
 
@@ -35,6 +36,8 @@ namespace Microsoft.Spark.Interop.Ipc
         private readonly ILoggerService _logger =
             LoggerServiceFactory.GetLogger(typeof(JvmBridge));
         private readonly int _portNumber;
+        private readonly HashSet<Thread> _activeThreads;
+        private readonly Timer _activeThreadMonitor;
 
         internal JvmBridge(int portNumber)
         {
@@ -45,6 +48,18 @@ namespace Microsoft.Spark.Interop.Ipc
 
             _portNumber = portNumber;
             _logger.LogInfo($"JvMBridge port is {portNumber}");
+
+            _activeThreads = new HashSet<Thread>();
+            _activeThreadMonitor = new Timer((state) =>
+            {
+                foreach (Thread thread in _activeThreads)
+                {
+                    if (!thread.IsAlive)
+                    {
+                        CallStaticJavaMethod("DotnetHandler", "rmThread", thread.ManagedThreadId);
+                    }
+                }
+            }, null, 0, 10000);
         }
 
         private ISocketWrapper GetConnection()
@@ -158,12 +173,14 @@ namespace Microsoft.Spark.Interop.Ipc
             ISocketWrapper socket = null;
             try
             {
+                Thread thread = Thread.CurrentThread;
                 MemoryStream payloadMemoryStream = s_payloadMemoryStream ??
                     (s_payloadMemoryStream = new MemoryStream());
                 payloadMemoryStream.Position = 0;
                 PayloadHelper.BuildPayload(
                     payloadMemoryStream,
                     isStatic,
+                    thread.ManagedThreadId,
                     classNameOrJvmObjectReference,
                     methodName,
                     args);
@@ -176,6 +193,8 @@ namespace Microsoft.Spark.Interop.Ipc
                     0,
                     (int)payloadMemoryStream.Position);
                 outputStream.Flush();
+
+                _activeThreads.Add(thread);
 
                 Stream inputStream = socket.InputStream;
                 int isMethodCallFailed = SerDe.ReadInt32(inputStream);
@@ -418,6 +437,8 @@ namespace Microsoft.Spark.Interop.Ipc
                     socket.Dispose();
                 }
             }
+
+            _activeThreadMonitor.Dispose();
         }
     }
 }
