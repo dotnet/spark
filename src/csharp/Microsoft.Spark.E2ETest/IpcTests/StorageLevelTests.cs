@@ -23,7 +23,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestStorageLevelProperties()
         {
-            // Testing all Static StorageLevel properties
             var storageLevels = new List<StorageLevel> {
                 StorageLevel.NONE,
                 StorageLevel.DISK_ONLY,
@@ -47,7 +46,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 _df.Unpersist();
             }
 
-            // Testing properties of StorageLevel objects
             StorageLevel storageLevel = StorageLevel.MEMORY_AND_DISK;
             Assert.True(storageLevel.UseDisk);
             Assert.True(storageLevel.UseMemory);
@@ -55,7 +53,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.True(storageLevel.Deserialized);
             Assert.Equal(1, storageLevel.Replication);
 
-            // Testing methods of StorageLevel objects
             Assert.IsType<string>(storageLevel.Description());
             Assert.IsType<string>(storageLevel.ToString());
         }

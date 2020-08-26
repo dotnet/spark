@@ -219,7 +219,6 @@ namespace Microsoft.Spark.Sql
         /// <returns>True if the other object is equal.</returns>
         public override bool Equals(object obj)
         {
-            // Check for null and compare run-time types.
             if (!(obj is StorageLevel that))
             {
                 return false;

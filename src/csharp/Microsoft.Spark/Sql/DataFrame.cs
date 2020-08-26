@@ -14,10 +14,6 @@ using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql
 {
-    /// TODO:
-    /// Missing APIs:
-    /// Persist() with "StorageLevel"
-
     /// <summary>
     ///  A distributed collection of data organized into named columns.
     /// </summary>
