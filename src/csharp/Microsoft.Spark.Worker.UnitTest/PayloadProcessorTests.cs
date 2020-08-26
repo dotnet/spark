@@ -18,12 +18,7 @@ namespace Microsoft.Spark.Worker.UnitTest
     public class PayloadProcessorTests
     {
         [Theory]
-        [InlineData(Versions.V2_3_0)]
-        [InlineData(Versions.V2_3_1)]
-        [InlineData(Versions.V2_3_2)]
-        [InlineData(Versions.V2_3_3)]
-        [InlineData(Versions.V2_4_0)]
-        [InlineData(Versions.V3_0_0)]
+        [MemberData(nameof(TestData.VersionData), MemberType = typeof(TestData))]
         public void TestPayloadProcessor(string version)
         {
             CommandPayload commandPayload = TestData.GetDefaultCommandPayload();
