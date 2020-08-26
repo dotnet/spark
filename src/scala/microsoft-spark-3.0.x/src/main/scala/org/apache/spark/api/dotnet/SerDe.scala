@@ -141,7 +141,7 @@ object SerDe {
 
   def readAnyArr(in: DataInputStream): Seq[Any] = {
     val len = readInt(in)
-    (0 until len).map(_ => readObject(in).asInstanceOf[Any])
+    (0 until len).map(_ => readObject(in))
   }
 
   def readList(dis: DataInputStream): Array[_] = {

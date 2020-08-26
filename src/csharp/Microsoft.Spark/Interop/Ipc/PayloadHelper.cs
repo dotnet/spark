@@ -223,10 +223,15 @@ namespace Microsoft.Spark.Interop.Ipc
                                 posBeforeEnumerable = destination.Position;
                                 destination.Position += sizeof(int);
                                 itemCount = 0;
+                                if (convertArgs == null)
+                                {
+                                    convertArgs = new object[1];
+                                }
                                 foreach (object o in argObjectEnumerable)
                                 {
                                     ++itemCount;
-                                    ConvertArgsToBytes(destination, new object[] { o }, true);
+                                    convertArgs[0] = o;
+                                    ConvertArgsToBytes(destination, convertArgs, true);
                                 }
                                 posAfterEnumerable = destination.Position;
                                 destination.Position = posBeforeEnumerable;
