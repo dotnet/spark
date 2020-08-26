@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark
 {
@@ -27,19 +28,6 @@ namespace Microsoft.Spark
             _buffer = new byte[_bufferSize];
             _currentPos = 0;
             _stream = stream;
-        }
-
-        /// <summary>
-        /// Writes the given integer value into the stream in Big Endian format.
-        /// </summary>
-        /// <param name="value">Int value to write to stream.</param>
-        /// <param name="stream">Stream to write value into.</param>
-        internal void WriteInt(int value, Stream stream)
-        {
-            byte[] bytes = BitConverter.GetBytes(value);
-            if (BitConverter.IsLittleEndian)
-                Array.Reverse(bytes);
-            stream.Write(bytes, 0, bytes.Length);
         }
 
         /// <summary>
@@ -79,7 +67,7 @@ namespace Microsoft.Spark
                     int spaceLeft = _bufferSize - _currentPos;
                     int newBytePos = bytePos + spaceLeft;
                     Array.Copy(bytes, bytePos, _buffer, _currentPos, spaceLeft);
-                    WriteInt(_bufferSize, _stream);
+                    SerDe.Write(_stream, _bufferSize);
                     _stream.Write(_buffer, 0, _bufferSize);
                     bytesRemaining -= spaceLeft;
                     bytePos = newBytePos;
@@ -97,11 +85,11 @@ namespace Microsoft.Spark
             // If there is anything left in the buffer, write it out first.
             if (_currentPos > 0)
             {
-                WriteInt(_currentPos, _stream);
+                SerDe.Write(_stream, _currentPos);
                 _stream.Write(_buffer, 0, _currentPos);
             }
             // -1 length indicates to the receiving end that we're done.
-            WriteInt(-1, _stream);
+            SerDe.Write(_stream, -1);
             _stream.Close();
         }
     }
