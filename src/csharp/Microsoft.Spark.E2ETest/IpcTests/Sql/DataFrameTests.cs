@@ -651,7 +651,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<DataFrame>(_df.Persist());
 
+            Assert.IsType<DataFrame>(_df.Persist(StorageLevel.DISK_ONLY));
+
             Assert.IsType<DataFrame>(_df.Cache());
+
+            Assert.IsType<StorageLevel>(_df.StorageLevel());
 
             Assert.IsType<DataFrame>(_df.Unpersist());
 
