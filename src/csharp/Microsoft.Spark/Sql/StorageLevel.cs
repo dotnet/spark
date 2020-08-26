@@ -48,15 +48,16 @@ namespace Microsoft.Spark.Sql
             bool useMemory,
             bool useOffHeap,
             bool deserialized,
-            int replication = 1) :
-            this((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                s_storageLevelClassName,
-                "apply",
-                useDisk,
-                useMemory,
-                useOffHeap,
-                deserialized,
-                replication))
+            int replication = 1)
+            : this(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_storageLevelClassName,
+                    "apply",
+                    useDisk,
+                    useMemory,
+                    useOffHeap,
+                    deserialized,
+                    replication))
         {
             _useDisk = useDisk;
             _useMemory = useMemory;
@@ -236,4 +237,3 @@ namespace Microsoft.Spark.Sql
         public override int GetHashCode() => base.GetHashCode();
     }
 }
-
