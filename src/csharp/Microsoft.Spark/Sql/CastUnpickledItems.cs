@@ -11,7 +11,7 @@ namespace Microsoft.Spark.Sql
     /// <summary>
     /// Cast UnpickledItems.
     /// </summary>
-    internal class CastUnpickledItems
+    internal static class CastUnpickledItems
     {
         /// <summary>
         /// Cast UnpickledItems from ArrayList to Array.
@@ -24,7 +24,7 @@ namespace Microsoft.Spark.Sql
             foreach (object[] objArr in (object[])unpickledItems)
             {
                 var castObjArr = new List<object>();
-                ArrayList arrList = (ArrayList)objArr[0];
+                var arrList = (ArrayList)objArr[0];
                 if (arrList.Count == 0)
                 {
                     castObjArr.Add(null);
