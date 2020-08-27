@@ -14,10 +14,6 @@ using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql
 {
-    /// TODO:
-    /// Missing APIs:
-    /// Persist() with "StorageLevel"
-
     /// <summary>
     ///  A distributed collection of data organized into named columns.
     /// </summary>
@@ -808,16 +804,33 @@ namespace Microsoft.Spark.Sql
         public DataFrame Distinct() => WrapAsDataFrame(_jvmObject.Invoke("distinct"));
 
         /// <summary>
-        /// Persist this `DataFrame` with the default storage level (`MEMORY_AND_DISK`).
+        /// Persist this <see cref="DataFrame"/> with the default storage level MEMORY_AND_DISK.
         /// </summary>
         /// <returns>DataFrame object</returns>
         public DataFrame Persist() => WrapAsDataFrame(_jvmObject.Invoke("persist"));
 
         /// <summary>
-        /// Persist this `DataFrame` with the default storage level (`MEMORY_AND_DISK`).
+        /// Persist this <see cref="DataFrame"/> with the given storage level.
+        /// </summary>
+        /// <param name="storageLevel">
+        /// <see cref="StorageLevel"/> to persist the <see cref="DataFrame"/> to.
+        /// </param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Persist(StorageLevel storageLevel) =>
+            WrapAsDataFrame(_jvmObject.Invoke("persist", storageLevel));
+
+        /// <summary>
+        /// Persist this <see cref="DataFrame"/> with the default storage level MEMORY_AND_DISK.
         /// </summary>
         /// <returns>DataFrame object</returns>
         public DataFrame Cache() => WrapAsDataFrame(_jvmObject.Invoke("cache"));
+
+        /// <summary>
+        /// Get the <see cref="DataFrame"/>'s current <see cref="StorageLevel"/>.
+        /// </summary>
+        /// <returns><see cref="StorageLevel"/> object</returns>
+        public StorageLevel StorageLevel() =>
+            new StorageLevel((JvmObjectReference)_jvmObject.Invoke("storageLevel"));
 
         /// <summary>
         /// Mark the Dataset as non-persistent, and remove all blocks for it from memory and disk.
