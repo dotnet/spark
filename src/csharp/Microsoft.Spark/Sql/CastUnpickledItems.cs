@@ -17,37 +17,37 @@ namespace Microsoft.Spark.Sql
         /// Cast UnpickledItems from ArrayList to Array.
         /// </summary>
         /// <param name="unpickledItems">Unpickled items</param>
-        /// <returns>Cast unpickled items</returns>
+        /// <returns>Array after casting</returns>
         public static object[] CastToArray(object unpickledItems)
         {
             var castUnpickledItems = new List<object>();
             foreach (object[] objArr in (object[])unpickledItems)
             {
                 var castObjArr = new List<object>();
-                ArrayList arrli = (ArrayList)objArr[0];
-                if (arrli.Count == 0)
+                ArrayList arrList = (ArrayList)objArr[0];
+                if (arrList.Count == 0)
                 {
                     castObjArr.Add(null);
                 }
                 else
                 {
-                    Type type = arrli[0].GetType();
+                    Type type = arrList[0].GetType();
                     switch (Type.GetTypeCode(type))
                     {
                         case TypeCode.Int32:
-                            castObjArr.Add((int[])arrli.ToArray(typeof(int)));
+                            castObjArr.Add((int[])arrList.ToArray(typeof(int)));
                             break;
                         case TypeCode.Int64:
-                            castObjArr.Add((long[])arrli.ToArray(typeof(long)));
+                            castObjArr.Add((long[])arrList.ToArray(typeof(long)));
                             break;
                         case TypeCode.Double:
-                            castObjArr.Add((double[])arrli.ToArray(typeof(double)));
+                            castObjArr.Add((double[])arrList.ToArray(typeof(double)));
                             break;
                         case TypeCode.Byte:
-                            castObjArr.Add((byte[])arrli.ToArray(typeof(byte)));
+                            castObjArr.Add((byte[])arrList.ToArray(typeof(byte)));
                             break;
                         case TypeCode.String:
-                            castObjArr.Add((string[])arrli.ToArray(typeof(string)));
+                            castObjArr.Add((string[])arrList.ToArray(typeof(string)));
                             break;
                         default:
                             throw new NotSupportedException(
