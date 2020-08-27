@@ -42,7 +42,7 @@ object SerDe {
       case 't' => readTime(dis)
       case 'j' => JVMObjectTracker.getObject(readString(dis))
       case 'R' => readRowArr(dis)
-      case 'O' => readAnyArr(dis)
+      case 'O' => readObjectArr(dis)
       case _ => throw new IllegalArgumentException(s"Invalid type $dataType")
     }
   }
@@ -139,7 +139,7 @@ object SerDe {
     (0 until len).map(_ => readRow(in)).toList.asJava
   }
 
-  def readAnyArr(in: DataInputStream): Seq[Any] = {
+  def readObjectArr(in: DataInputStream): Seq[Any] = {
     val len = readInt(in)
     (0 until len).map(_ => readObject(in))
   }
