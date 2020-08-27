@@ -14,12 +14,12 @@ namespace Microsoft.Spark.Worker.UnitTest
         {
             var typedVersion = new Version(Versions.V2_4_0);
             var simpleWorker = new SimpleWorker(typedVersion);
-
+            int port = Utils.SettingUtils.GetWorkerFactoryPort(typedVersion);
             ISocketWrapper serverListent = SocketFactory.CreateSocket();
             serverListent.Listen();
 
             PayloadWriter payloadWriter = new PayloadWriterFactory().Create();
-            Task clientTask = Task.Run(() => simpleWorker.Run(serverListent));
+            Task clientTask = Task.Run(() => simpleWorker.Run(serverListent, port));
 
             using (ISocketWrapper serverSocket = serverListent.Accept())
             {

@@ -24,16 +24,15 @@ namespace Microsoft.Spark.Worker
         internal void Run()
         {
             ISocketWrapper serverSocket = SocketFactory.CreateSocket();
-            Run(serverSocket);
+            int port = Utils.SettingUtils.GetWorkerFactoryPort(_version);
+            Run(serverSocket, port);
         }
 
-        internal void Run(ISocketWrapper serverSocket)
+        internal void Run(ISocketWrapper serverSocket, int port)
         {
             try
             {
                 string secret = Utils.SettingUtils.GetWorkerFactorySecret(_version);
-                var ipEndpoint = (IPEndPoint)serverSocket.LocalEndPoint;
-                int port = ipEndpoint.Port;
 
                 ISocketWrapper clientSocket = SocketFactory.CreateSocket();
 
