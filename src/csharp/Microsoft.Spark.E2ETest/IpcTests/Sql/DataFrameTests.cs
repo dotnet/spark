@@ -680,7 +680,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             {
                 RelationalGroupedDataset df = _df.GroupBy("name");
-                var values = new List<object> { 19 };
+                var values = new List<object> { 19, "twenty" };
 
                 Assert.IsType<RelationalGroupedDataset>(df.Pivot("age"));
 
