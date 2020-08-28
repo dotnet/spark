@@ -23,12 +23,11 @@ namespace Microsoft.Spark.Worker
 
         internal void Run()
         {
-            ISocketWrapper serverSocket = SocketFactory.CreateSocket();
             int port = Utils.SettingUtils.GetWorkerFactoryPort(_version);
-            Run(serverSocket, port);
+            Run(port);
         }
 
-        internal void Run(ISocketWrapper serverSocket, int port)
+        internal void Run(int port)
         {
             try
             {
