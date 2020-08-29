@@ -172,6 +172,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
         /// <summary>
         /// Test CreateDataFrame API with Timestamp as data
+        /// This test is filtered out when backward compatibility tests are run.
         /// </summary>
         [Fact]
         public void TestCreateDataFrameWithTimestamp()

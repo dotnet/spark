@@ -225,6 +225,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         [Fact]
+        // This test is filtered out when backward compatibility tests are run.
         public void TestDataFrameVectorUdf()
         {
             Func<Int32DataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn> udf1Func =
@@ -370,6 +371,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
 
         [Fact]
+        // This test is filtered out when backward compatibility tests are run.
         public void TestDataFrameGroupedMapUdf()
         {
             DataFrame df = _spark

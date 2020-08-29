@@ -61,8 +61,8 @@ namespace Microsoft.Spark.Worker.Processor
                         var readBid = SerDe.ReadInt64(socket.InputStream);
                         if (bid != readBid)
                         {
-                            throw new Exception($"Encrypted broadcast id {readBid} does not " +
-                                $"match regular stream broadcast id {bid}");
+                            throw new Exception($"Broadcast id {readBid} from encrypted stream" +
+                                $" does not " + $"match broadcast id {bid} from normal stream.");
                         }
                         object value = formatter.Deserialize(socket.InputStream);
                         BroadcastRegistry.Add(bid, value);
@@ -83,7 +83,9 @@ namespace Microsoft.Spark.Worker.Processor
                 }
             }
             if (socket != null)
+            {
                 socket.Dispose();
+            }
             return broadcastVars;
         }
     }
