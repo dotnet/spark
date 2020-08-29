@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -185,9 +186,8 @@ namespace Microsoft.Spark
                     IPAddress.Loopback,
                     (int)pair[0].Invoke("intValue"),
                     (string)pair[1].Invoke("toString"));
-                var chunked = new ChunkedStream(socket.OutputStream, 8192);
-                chunked.Write(value);
-                chunked.Close();
+                WriteInChunks(value, 8192, socket.OutputStream);
+                socket.OutputStream.Close();
                 _pythonBroadcast.Invoke("waitTillDataReceived");
             }
             else
@@ -196,6 +196,41 @@ namespace Microsoft.Spark
             }
 
             return (JvmObjectReference)javaSparkContext.Invoke("broadcast", _pythonBroadcast);
+        }
+
+        /// TODO: This is not performant as it writes to stream only after serializing the whole
+        /// value, instead of serializing and writing in chunks like Python.
+        /// <summary>
+        /// Function to write the broadcast value into the stream in fixed size chunks.
+        /// </summary>
+        /// <param name="value">Broadcast value to be written to the stream</param>
+        /// <param name="chunkSize">Size of chunk to write values in</param>
+        /// <param name="stream">Stream connecting to encryption server to write value to</param>
+        private void WriteInChunks(object value, int chunkSize, Stream stream)
+        {
+            var formatter = new BinaryFormatter();
+            using var ms = new MemoryStream();
+            formatter.Serialize(ms, value);
+            byte[] valueBytes = ms.ToArray();
+            int bytesRemaining = valueBytes.Length;
+            int bytePos = 0;
+            while (bytesRemaining > 0)
+            {
+                if (bytesRemaining < chunkSize)
+                {
+                    SerDe.Write(stream, bytesRemaining);
+                    SerDe.Write(stream, valueBytes, bytePos, bytesRemaining);
+                    bytesRemaining = 0;
+                }
+                else
+                {
+                    SerDe.Write(stream, chunkSize);
+                    SerDe.Write(stream, valueBytes, bytePos, chunkSize);
+                    bytePos += chunkSize;
+                    bytesRemaining -= chunkSize;
+                }
+            }
+            SerDe.Write(stream, -1);
         }
 
         /// <summary>

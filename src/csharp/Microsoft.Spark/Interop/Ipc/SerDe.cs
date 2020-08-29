@@ -283,6 +283,17 @@ namespace Microsoft.Spark.Interop.Ipc
             s.Write(value, 0, count);
 
         /// <summary>
+        /// Writes a byte array to a stream
+        /// </summary>
+        /// <param name="s">The stream to write</param>
+        /// <param name="value">The byte array to write</param>
+        /// <param name="offset">The zero-based byte offset in array at which to begin copying
+        /// bytes</param>
+        /// <param name="count">The number of bytes in the array to write.</param>
+        public static void Write(Stream s, byte[] value, int offset, int count) =>
+            s.Write(value, offset, count);
+
+        /// <summary>
         /// Writes a boolean to a stream
         /// </summary>
         /// <param name="s">The stream to write</param>
