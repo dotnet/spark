@@ -85,8 +85,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [SkipIfSparkVersionIsLessThan(Versions.V2_3_2)]
         public void TestLargeBroadcastValueWithEncryption()
         {
-            var broadcastValue = new byte[104858000];
-            Broadcast<byte[]> bc1 = _spark.SparkContext.Broadcast(broadcastValue);
+            var obj1 = new byte[104858000];
+            Broadcast<byte[]> bc1 = _spark.SparkContext.Broadcast(obj1);
 
             Func<Column, Column> udf = Udf<string, string>(
                 str => $"{str}: length of broadcast array = {bc1.Value().Length}");
