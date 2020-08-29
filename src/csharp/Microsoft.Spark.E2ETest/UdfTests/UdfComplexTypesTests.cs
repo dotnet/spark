@@ -34,15 +34,44 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithArrayType()
         {
-            Func<Column, Column> udf = Udf<int[], string>(
+            // Int Array.
+            {
+                Func<Column, Column> udf = Udf<int[], string>(
                 array => string.Join(',', array.ToArray()));
 
-            Row[] rows = _df.Select(udf(_df["ids"])).Collect().ToArray();
-            Assert.Equal(3, rows.Length);
+                Row[] rows = _df.Select(udf(_df["ids"])).Collect().ToArray();
+                Assert.Equal(3, rows.Length);
 
-            var expected = new string[] { "1", "3,5", "2,4" };
-            string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
-            Assert.Equal(expected, rowsToArray);
+                var expected = new string[] { "1", "3,5", "2,4" };
+                string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
+                Assert.Equal(expected, rowsToArray);
+            }
+
+            // Double Array Array.
+            {
+                Func<Column, Column> udf = Udf<double[][], double>(
+                doubleArrArr => doubleArrArr[0][0] + 100);
+
+                Row[] rows = _df.Select(udf(_df["scores"])).Collect().ToArray();
+                Assert.Equal(3, rows.Length);
+
+                var expected = new string[] { "101", "101.1", "101.2" };
+                string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
+                Assert.Equal(expected, rowsToArray);
+            }
+
+            // Array of Rows.
+            {
+                Func<Column, Column> udf = Udf<Row[], string>(
+                rowArr => rowArr[0].GetAs<string>("city"));
+
+                Row[] rows = _df.Select(udf(_df["info4"])).Collect().ToArray();
+                Assert.Equal(3, rows.Length);
+
+                var expected = new string[] { "Burdwan", "Los Angeles", "Seattle" };
+                string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
+                Assert.Equal(expected, rowsToArray);
+            }
         }
 
         /// <summary>

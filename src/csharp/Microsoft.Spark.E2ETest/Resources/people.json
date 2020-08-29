@@ -1,3 +1,3 @@
-{"name":"Michael", "ids":[1], "info1":{"city":"Burdwan"}, "info2":{"state":"Paschimbanga"}, "info3":{"company":{"job":"Developer"}}}"
-{"name":"Andy", "age":30, "ids":[3,5], "info1":{"city":"Los Angeles"}, "info2":{"state":"California"}, "info3":{"company":{"job":"Developer"}}}
-{"name":"Justin", "age":19, "ids":[2,4], "info1":{"city":"Seattle"}, "info2":{"state":"Washington"}, "info3":{"company":{"job":"Developer"}}}
+{"name":"Michael", "ids":[1], "scores": [[1.0, 2.2], [3.0, 4.5]], "info1":{"city":"Burdwan"}, "info2":{"state":"Paschimbanga"}, "info3":{"company":{"job":"Developer"}}, "info4": [{"city":"Burdwan"}, {"state":"Paschimbanga"}]}
+{"name":"Andy", "age":30, "ids":[3,5], "scores": [[1.1, 3.2], [3.1, 5.5]], "info1":{"city":"Los Angeles"}, "info2":{"state":"California"}, "info3":{"company":{"job":"Developer"}}, "info4": [{"city":"Los Angeles"}, {"state":"California"}]}
+{"name":"Justin", "age":19, "ids":[2,4], "scores": [[1.2, 4.2], [3.2, 6.5]], "info1":{"city":"Seattle"}, "info2":{"state":"Washington"}, "info3":{"company":{"job":"Developer"}}, "info4": [{"city":"Seattle"}, {"state":"Washington"}]}
