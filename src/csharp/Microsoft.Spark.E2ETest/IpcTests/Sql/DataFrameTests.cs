@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Apache.Arrow;
 using Microsoft.Data.Analysis;
@@ -459,6 +460,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.Equal(2, _df.Columns().ToArray().Length);
 
+            var expected = new List<Tuple<string, string>>
+            {
+                new Tuple<string, string>("age", "integer"),
+                new Tuple<string, string>("name", "string")
+            };
+            Assert.Equal(expected, _df.DTypes());
+
             Assert.IsType<bool>(_df.IsLocal());
 
             Assert.IsType<bool>(_df.IsStreaming());
@@ -643,7 +651,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<DataFrame>(_df.Persist());
 
+            Assert.IsType<DataFrame>(_df.Persist(StorageLevel.DISK_ONLY));
+
             Assert.IsType<DataFrame>(_df.Cache());
+
+            Assert.IsType<StorageLevel>(_df.StorageLevel());
 
             Assert.IsType<DataFrame>(_df.Unpersist());
 
@@ -665,6 +677,19 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _df.IntersectAll(_df);
 
             _df.ExceptAll(_df);
+
+            {
+                RelationalGroupedDataset df = _df.GroupBy("name");
+                var values = new List<object> { 19, "twenty" };
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot("age"));
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age")));
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot("age", values));
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age"), values));
+            }
         }
     }
 }

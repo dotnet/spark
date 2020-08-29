@@ -31,6 +31,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private static readonly byte[] s_arrayTypeId = new[] { (byte)'l' };
         private static readonly byte[] s_dictionaryTypeId = new[] { (byte)'e' };
         private static readonly byte[] s_rowArrTypeId = new[] { (byte)'R' };
+        private static readonly byte[] s_objectArrTypeId = new[] { (byte)'O' };
 
         private static readonly ConcurrentDictionary<Type, bool> s_isDictionaryTable =
             new ConcurrentDictionary<Type, bool>();
@@ -218,6 +219,26 @@ namespace Microsoft.Spark.Interop.Ipc
                                 destination.Position = posAfterEnumerable;
                                 break;
 
+                            case IEnumerable<object> argObjectEnumerable:
+                                posBeforeEnumerable = destination.Position;
+                                destination.Position += sizeof(int);
+                                itemCount = 0;
+                                if (convertArgs == null)
+                                {
+                                    convertArgs = new object[1];
+                                }
+                                foreach (object o in argObjectEnumerable)
+                                {
+                                    ++itemCount;
+                                    convertArgs[0] = o;
+                                    ConvertArgsToBytes(destination, convertArgs, true);
+                                }
+                                posAfterEnumerable = destination.Position;
+                                destination.Position = posBeforeEnumerable;
+                                SerDe.Write(destination, itemCount);
+                                destination.Position = posAfterEnumerable;
+                                break;
+
                             case var _ when IsDictionary(arg.GetType()):
                                 // Generic dictionary, but we don't have it strongly typed as
                                 // Dictionary<T,U>
@@ -331,6 +352,11 @@ namespace Microsoft.Spark.Interop.Ipc
                     if (typeof(IEnumerable<GenericRow>).IsAssignableFrom(type))
                     {
                         return s_rowArrTypeId;
+                    }
+
+                    if (typeof(IEnumerable<object>).IsAssignableFrom(type))
+                    {
+                        return s_objectArrTypeId;
                     }
 
                     if (typeof(Date).IsAssignableFrom(type))
