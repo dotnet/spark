@@ -39,6 +39,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             SparkSession.ClearDefaultSession();
             SparkSession.SetDefaultSession(_spark);
             Assert.IsType<SparkSession>(SparkSession.GetDefaultSession());
+            Assert.IsType<SparkSession>(SparkSession.GetActiveSession());
 
             Assert.IsType<RuntimeConfig>(_spark.Conf());
 

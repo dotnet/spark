@@ -703,6 +703,14 @@ namespace Microsoft.Spark.Sql
         public IEnumerable<Row> Take(int n) => Head(n);
 
         /// <summary>
+        /// Returns the last `n` rows in the `DataFrame`.
+        /// </summary>
+        /// <param name="n">Number of rows</param>
+        /// <returns>Last `n` rows</returns>
+        public IEnumerable<Row> Tail(int n) =>
+            ((IEnumerable<Row>)_jvmObject.Invoke("tail", n));
+
+        /// <summary>
         /// Returns an array that contains all rows in this `DataFrame`.
         /// </summary>
         /// <remarks>

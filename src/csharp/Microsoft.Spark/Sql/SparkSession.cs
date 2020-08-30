@@ -82,6 +82,13 @@ namespace Microsoft.Spark.Sql
                 s_sparkSessionClassName, "clearDefaultSession");
 
         /// <summary>
+        /// Returns the active SparkSession for the current thread, returned by the builder.
+        /// </summary>
+        public static SparkSession GetActiveSession() =>
+            new SparkSession((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                s_sparkSessionClassName, "getActiveSession"));
+
+        /// <summary>
         /// Returns the default SparkSession that is returned by the builder.
         /// </summary>
         /// <returns>SparkSession object or null if called on executors</returns>
@@ -254,6 +261,29 @@ namespace Microsoft.Spark.Sql
         /// <returns>DataFrame object</returns>
         public DataFrame Sql(string sqlText) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("sql", sqlText));
+
+        /// <summary>
+        /// Execute an arbitrary string command inside an external execution engine rather than
+        /// Spark. This could be useful when user wants to execute some commands out of Spark. For
+        /// example, executing custom DDL/DML command for JDBC, creating index for ElasticSearch,
+        /// creating cores for Solr and so on.
+        /// The command will be eagerly executed after this method is called and the returned
+        /// DataFrame will contain the output of the command(if any).
+        /// </summary>
+        /// <param name="runner">The class name of the runner that implements
+        /// `ExternalCommandRunner`</param>
+        /// <param name="command">The target command to be executed</param>
+        /// <param name="options">The options for the runner</param>
+        /// <returns>>DataFrame object</returns>
+        public DataFrame ExecuteCommand(
+            string runner,
+            string command,
+            Dictionary<string, string> options) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+                "executeCommand",
+                runner,
+                command,
+                options));
 
         /// <summary>
         /// Returns a DataFrameReader that can be used to read non-streaming data in
