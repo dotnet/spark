@@ -82,22 +82,22 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// Test Broadcast with encryption support by broadcasting a large (>100MB) object.
         /// This test is filtered out when backward compatibility tests are run.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_3_2)]
-        public void TestLargeBroadcastValueWithEncryption()
-        {
-            var obj1 = new byte[104858000];
-            Broadcast<byte[]> bc1 = _spark.SparkContext.Broadcast(obj1);
+        //[SkipIfSparkVersionIsLessThan(Versions.V2_3_2)]
+        //public void TestLargeBroadcastValueWithEncryption()
+        //{
+        //    var obj1 = new byte[104858000];
+        //    Broadcast<byte[]> bc1 = _spark.SparkContext.Broadcast(obj1);
 
-            Func<Column, Column> udf = Udf<string, string>(
-                str => $"{str}: length of broadcast array = {bc1.Value().Length}");
+        //    Func<Column, Column> udf = Udf<string, string>(
+        //        str => $"{str}: length of broadcast array = {bc1.Value().Length}");
 
-            var expected = new string[] {
-                "hello: length of broadcast array = 104858000",
-                "world: length of broadcast array = 104858000" };
+        //    var expected = new string[] {
+        //        "hello: length of broadcast array = 104858000",
+        //        "world: length of broadcast array = 104858000" };
 
-            string[] actual = ToStringArray(_df.Select(udf(_df["_1"])));
-            Assert.Equal(expected, actual);
-        }
+        //    string[] actual = ToStringArray(_df.Select(udf(_df["_1"])));
+        //    Assert.Equal(expected, actual);
+        //}
 
         /// <summary>
         /// Test Broadcast.Destroy() that destroys all data and metadata related to the broadcast
