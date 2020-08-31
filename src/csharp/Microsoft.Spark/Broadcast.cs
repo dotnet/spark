@@ -185,7 +185,7 @@ namespace Microsoft.Spark
                     IPAddress.Loopback,
                     (int)pair[0].Invoke("intValue"),
                     (string)pair[1].Invoke("toString"));
-                WriteInChunks(value, socket.OutputStream);
+                WriteEncrypted(value, socket.OutputStream);
                 socket.OutputStream.Close();
                 _pythonBroadcast.Invoke("waitTillDataReceived");
             }
@@ -204,7 +204,7 @@ namespace Microsoft.Spark
         /// </summary>
         /// <param name="value">Broadcast value to be written to the stream</param>
         /// <param name="stream">Stream connecting to encryption server to write value to</param>
-        private void WriteInChunks(object value, Stream stream)
+        private void WriteEncrypted(object value, Stream stream)
         {
             var formatter = new BinaryFormatter();
             using var ms = new MemoryStream();
