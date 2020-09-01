@@ -50,7 +50,8 @@ namespace Microsoft.Spark.ML.Feature
         /// </param>
         /// <returns>New <see cref="CountVectorizerModel"/> object</returns>
         public static CountVectorizerModel Load(string path) =>
-            WrapAsCountVectorizerModel(SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+            WrapAsCountVectorizerModel(
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_countVectorizerModelClassName, "load", path));
         
         /// <summary>

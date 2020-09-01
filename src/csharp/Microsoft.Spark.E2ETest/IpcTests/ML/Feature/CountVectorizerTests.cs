@@ -70,10 +70,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         }
         
         /// <summary>
-        /// Test APIs introduced since Spark 2.4.0
+        /// Test signatures for APIs introduced in Spark 2.4.*.
         /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
-        public void CountVectorizer_Since_v2_4_0()
+        public void TestSignaturesV2_4_X()
         {
             const double maxDf = 100;
             CountVectorizer countVectorizer = new CountVectorizer().SetMaxDF(maxDf);
