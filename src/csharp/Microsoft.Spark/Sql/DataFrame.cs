@@ -71,6 +71,14 @@ namespace Microsoft.Spark.Sql
                 (string)((JvmObjectReference)_jvmObject.Invoke("schema")).Invoke("treeString"));
 
         /// <summary>
+        /// Prints the schema up to the given level to the console in a nice tree format.
+        /// </summary>
+        public void PrintSchema(int level) =>
+            Console.WriteLine(
+                (string)((JvmObjectReference)_jvmObject.Invoke("schema"))
+                .Invoke("treeString", level));
+
+        /// <summary>
         /// Prints the plans (logical and physical) to the console for debugging purposes.
         /// </summary>
         /// <param name="extended">prints only physical if set to false</param>
@@ -78,6 +86,25 @@ namespace Microsoft.Spark.Sql
         {
             var execution = (JvmObjectReference)_jvmObject.Invoke("queryExecution");
             Console.WriteLine((string)execution.Invoke(extended ? "toString" : "simpleString"));
+        }
+
+        /// <summary>
+        /// Prints the plans (logical and physical) with a format specified by a given explain
+        /// mode.
+        /// 
+        /// </summary>
+        /// <param name="mode">Specifies the expected output format of plans.
+        /// 1. `simple` Print only a physical plan.
+        /// 2. `extended`: Print both logical and physical plans.
+        /// 3. `codegen`: Print a physical plan and generated codes if they are available.
+        /// 4. `cost`: Print a logical plan and statistics if they are available.
+        /// 5. `formatted`: Split explain output into two sections: a physical plan outline and
+        /// node details.
+        /// </param>
+        public void Explain(string mode)
+        {
+            var execution = (JvmObjectReference)_jvmObject.Invoke("queryExecution");
+            Console.WriteLine((string)execution.Invoke("explainString", mode)); // implement ExplainMode class?
         }
 
         /// <summary>
@@ -481,6 +508,26 @@ namespace Microsoft.Spark.Sql
             WrapAsDataFrame(_jvmObject.Invoke("agg", expr, exprs));
 
         /// <summary>
+        /// Define (named) metrics to observe on the Dataset. This method returns an 'observed'
+        /// DataFrame that returns the same result as the input, with the following guarantees:
+        /// 
+        /// 1. It will compute the defined aggregates(metrics) on all the data that is flowing
+        /// through the Dataset at that point.
+        /// 2. It will report the value of the defined aggregate columns as soon as we reach a
+        /// completion point.A completion point is either the end of a query(batch mode) or the end
+        /// of a streaming epoch. The value of the aggregates only reflects the data processed
+        /// since the previous completion point.
+        /// 
+        /// Please note that continuous execution is currently not supported.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="expr"></param>
+        /// <param name="exprs"></param>
+        /// <returns></returns>
+        public DataFrame Observe(string name, Column expr, params Column[] exprs) =>
+            WrapAsDataFrame(_jvmObject.Invoke("observe", name, expr, exprs));
+
+        /// <summary>
         /// Returns a new `DataFrame` by taking the first `number` rows.
         /// </summary>
         /// <param name="n">Number of rows to take</param>
@@ -707,8 +754,17 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="n">Number of rows</param>
         /// <returns>Last `n` rows</returns>
-        public IEnumerable<Row> Tail(int n) =>
-            ((IEnumerable<Row>)_jvmObject.Invoke("tail", n));
+        public IEnumerable<Row> Tail(int n)
+        {
+            var rows = (List<object[]>)_jvmObject.Invoke("tail", n);
+            StructType schema = Schema();
+            var tailRows = new List<Row>();
+            foreach (object[] row in rows)
+            {
+                tailRows.Add(new Row(row, schema));
+            }
+            return tailRows;
+        }
 
         /// <summary>
         /// Returns an array that contains all rows in this `DataFrame`.

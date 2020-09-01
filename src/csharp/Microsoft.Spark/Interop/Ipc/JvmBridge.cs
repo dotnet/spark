@@ -6,10 +6,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
+using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.Interop.Ipc
 {
@@ -154,8 +156,8 @@ namespace Microsoft.Spark.Interop.Ipc
             string methodName,
             object[] args)
         {
-            object returnValue = null;
             ISocketWrapper socket = null;
+            object returnValue;
             try
             {
                 MemoryStream payloadMemoryStream = s_payloadMemoryStream ??
@@ -192,39 +194,7 @@ namespace Microsoft.Spark.Interop.Ipc
                     throw new Exception(errorMessage, new JvmException(jvmFullStackTrace));
                 }
 
-                char typeAsChar = Convert.ToChar(inputStream.ReadByte());
-                switch (typeAsChar) // TODO: Add support for other types.
-                {
-                    case 'n':
-                        break;
-                    case 'j':
-                        returnValue = new JvmObjectReference(SerDe.ReadString(inputStream), this);
-                        break;
-                    case 'c':
-                        returnValue = SerDe.ReadString(inputStream);
-                        break;
-                    case 'i':
-                        returnValue = SerDe.ReadInt32(inputStream);
-                        break;
-                    case 'g':
-                        returnValue = SerDe.ReadInt64(inputStream);
-                        break;
-                    case 'd':
-                        returnValue = SerDe.ReadDouble(inputStream);
-                        break;
-                    case 'b':
-                        returnValue = Convert.ToBoolean(inputStream.ReadByte());
-                        break;
-                    case 'l':
-                        returnValue = ReadCollection(inputStream);
-                        break;
-                    default:
-                        // Convert typeAsChar to UInt32 because the char may be non-printable.
-                        throw new NotSupportedException(
-                            string.Format(
-                                "Identifier for type 0x{0:X} not supported",
-                                Convert.ToUInt32(typeAsChar)));
-                }
+                returnValue = getObject(inputStream);
                 _sockets.Enqueue(socket);
             }
             catch (Exception e)
@@ -234,6 +204,45 @@ namespace Microsoft.Spark.Interop.Ipc
                 throw;
             }
 
+            return returnValue;
+        }
+
+        private object getObject(Stream inputStream)
+        {
+            object returnValue = null;
+            char typeAsChar = Convert.ToChar(inputStream.ReadByte());
+            switch (typeAsChar) // TODO: Add support for other types.
+            {
+                case 'n':
+                    break;
+                case 'j':
+                    returnValue = new JvmObjectReference(SerDe.ReadString(inputStream), this);
+                    break;
+                case 'c':
+                    returnValue = SerDe.ReadString(inputStream);
+                    break;
+                case 'i':
+                    returnValue = SerDe.ReadInt32(inputStream);
+                    break;
+                case 'g':
+                    returnValue = SerDe.ReadInt64(inputStream);
+                    break;
+                case 'd':
+                    returnValue = SerDe.ReadDouble(inputStream);
+                    break;
+                case 'b':
+                    returnValue = Convert.ToBoolean(inputStream.ReadByte());
+                    break;
+                case 'l':
+                    returnValue = ReadCollection(inputStream);
+                    break;
+                default:
+                    // Convert typeAsChar to UInt32 because the char may be non-printable.
+                    throw new NotSupportedException(
+                        string.Format(
+                            "Identifier for type 0x{0:X} not supported",
+                            Convert.ToUInt32(typeAsChar)));
+            }
             return returnValue;
         }
 
@@ -389,6 +398,20 @@ namespace Microsoft.Spark.Interop.Ipc
                         byteArrayArray[itemIndex] = SerDe.ReadBytes(s, byteArrayLen);
                     }
                     returnValue = byteArrayArray;
+                    break;
+                case 'l':
+                    var listObjArray = new List<object[]>();
+                    for (int itemIndex = 0; itemIndex < numOfItemsInList; ++itemIndex)
+                    {
+                        int numOfValuesInRow = SerDe.ReadInt32(s);
+                        var objectArray = new object[numOfValuesInRow];
+                        listObjArray.Add(objectArray);
+                        for (int valueIndex = 0; valueIndex < numOfValuesInRow; ++valueIndex)
+                        {
+                            listObjArray[itemIndex][valueIndex] = getObject(s);
+                        }
+                    }
+                    returnValue = listObjArray;
                     break;
                 case 'j':
                     var jvmObjectReferenceArray = new JvmObjectReference[numOfItemsInList];

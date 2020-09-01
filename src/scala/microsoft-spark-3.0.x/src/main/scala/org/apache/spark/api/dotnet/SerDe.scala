@@ -209,6 +209,7 @@ object SerDe {
       case "time" => dos.writeByte('t')
       case "raw" => dos.writeByte('r')
       case "list" => dos.writeByte('l')
+      case "row" => dos.writeByte('R')
       case "jobj" => dos.writeByte('j')
       case _ => throw new IllegalArgumentException(s"Invalid type $typeStr")
     }
@@ -274,6 +275,9 @@ object SerDe {
         case "[[B" =>
           writeType(dos, "list")
           writeBytesArr(dos, value.asInstanceOf[Array[Array[Byte]]])
+        case "[Lorg.apache.spark.sql.Row;" =>
+          writeType(dos, "list")
+          writeRowsArr(dos, value.asInstanceOf[Array[Row]])
         case otherName =>
           // Handle array of objects
           if (otherName.startsWith("[L")) {
@@ -375,6 +379,18 @@ object SerDe {
     writeType(out, "raw")
     out.writeInt(value.length)
     value.foreach(v => writeBytes(out, v))
+  }
+
+  def writeRowsArr(out: DataOutputStream, value: Array[Row]): Unit = {
+    writeType(out, "list")
+    out.writeInt(value.length)
+    value.foreach(v => writeRow(out, v))
+  }
+
+  def writeRow(out: DataOutputStream, value: Row): Unit = {
+    val rList = value.toSeq
+    out.writeInt(rList.length)
+    rList.foreach(v => writeObject(out, v.asInstanceOf[AnyRef]))
   }
 }
 
