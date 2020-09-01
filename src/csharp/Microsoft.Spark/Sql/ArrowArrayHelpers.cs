@@ -42,57 +42,34 @@ namespace Microsoft.Spark.Sql
         public static DataFrameColumn CreateEmptyColumn<T>()
         {
             Type type = typeof(T);
-            if (type == typeof(BooleanDataFrameColumn))
+            switch (type)
             {
-                return new BooleanDataFrameColumn("Empty");
-            }
-            else if (type == typeof(SByteDataFrameColumn))
-            {
-                return new SByteDataFrameColumn("Empty");
-            }
-            else if (type == typeof(ByteDataFrameColumn))
-            {
-                return new ByteDataFrameColumn("Empty");
-            }
-            else if (type == typeof(Int16DataFrameColumn))
-            {
-                return new Int16DataFrameColumn("Empty");
-            }
-            else if (type == typeof(UInt16DataFrameColumn))
-            {
-                return new UInt16DataFrameColumn("Empty");
-            }
-            else if (type == typeof(Int32DataFrameColumn))
-            {
-                return new Int32DataFrameColumn("Empty");
-            }
-            else if (type == typeof(UInt32DataFrameColumn))
-            {
-                return new UInt32DataFrameColumn("Empty");
-            }
-            else if (type == typeof(Int64DataFrameColumn))
-            {
-                return new Int64DataFrameColumn("Empty");
-            }
-            else if (type == typeof(UInt64DataFrameColumn))
-            {
-                return new UInt64DataFrameColumn("Empty");
-            }
-            else if (type == typeof(SingleDataFrameColumn))
-            {
-                return new SingleDataFrameColumn("Empty");
-            }
-            else if (type == typeof(DoubleDataFrameColumn))
-            {
-                return new DoubleDataFrameColumn("Empty");
-            }
-            else if (type == typeof(ArrowStringDataFrameColumn))
-            {
-                return new ArrowStringDataFrameColumn("Empty");
-            }
-            else
-            {
-                throw new NotSupportedException($"Unknown type: {typeof(T)}");
+                case Type t when t == typeof(BooleanDataFrameColumn):
+                        return new BooleanDataFrameColumn("Empty");
+                case Type t when t == typeof(SByteDataFrameColumn):
+                    return new SByteDataFrameColumn("Empty");
+                case Type t when t == typeof(ByteDataFrameColumn):
+                    return new ByteDataFrameColumn("Empty");
+                case Type t when t == typeof(Int16DataFrameColumn):
+                    return new Int16DataFrameColumn("Empty");
+                case Type t when t == typeof(UInt16DataFrameColumn):
+                    return new UInt16DataFrameColumn("Empty");
+                case Type t when t == typeof(Int32DataFrameColumn):
+                    return new Int32DataFrameColumn("Empty");
+                case Type t when t == typeof(UInt32DataFrameColumn):
+                    return new UInt32DataFrameColumn("Empty");
+                case Type t when t == typeof(Int64DataFrameColumn):
+                    return new Int64DataFrameColumn("Empty");
+                case Type t when t == typeof(UInt64DataFrameColumn):
+                    return new UInt64DataFrameColumn("Empty");
+                case Type t when t == typeof(SingleDataFrameColumn):
+                    return new SingleDataFrameColumn("Empty");
+                case Type t when t == typeof(DoubleDataFrameColumn):
+                    return new DoubleDataFrameColumn("Empty");
+                case Type t when t == typeof(ArrowStringDataFrameColumn):
+                    return new ArrowStringDataFrameColumn("Empty");
+                default:
+                    throw new NotSupportedException($"Unknown type: {typeof(T)}");
             }
         }
 
@@ -113,74 +90,59 @@ namespace Microsoft.Spark.Sql
             IArrowType arrowType = null;
 
             Type type = typeof(T);
-            if (type == typeof(BooleanArray))
+            switch (type)
             {
-                arrowType = BooleanType.Default;
-            }
-            else if (type == typeof(Int8Array))
-            {
-                arrowType = Int8Type.Default;
-            }
-            else if (type == typeof(UInt8Array))
-            {
-                arrowType = UInt8Type.Default;
-            }
-            else if (type == typeof(Int16Array))
-            {
-                arrowType = Int16Type.Default;
-            }
-            else if (type == typeof(UInt16Array))
-            {
-                arrowType = UInt16Type.Default;
-            }
-            else if (type == typeof(Int32Array))
-            {
-                arrowType = Int32Type.Default;
-            }
-            else if (type == typeof(UInt32Array))
-            {
-                arrowType = UInt32Type.Default;
-            }
-            else if (type == typeof(Int64Array))
-            {
-                arrowType = Int64Type.Default;
-            }
-            else if (type == typeof(UInt64Array))
-            {
-                arrowType = UInt64Type.Default;
-            }
-            else if (type == typeof(FloatArray))
-            {
-                arrowType = FloatType.Default;
-            }
-            else if (type == typeof(DoubleArray))
-            {
-                arrowType = DoubleType.Default;
-            }
-            else if (type == typeof(Date64Array))
-            {
-                arrowType = Date64Type.Default;
-            }
-            else if (type == typeof(TimestampArray))
-            {
-                arrowType = TimestampType.Default;
+                case Type t when t == typeof(BooleanArray):
+                    arrowType = BooleanType.Default;
+                    break;
+                case Type t when t == typeof(Int8Array):
+                    arrowType = Int8Type.Default;
+                    break;
+                case Type t when t == typeof(UInt8Array):
+                    arrowType = UInt8Type.Default;
+                    break;
+                case Type t when t == typeof(Int16Array):
+                    arrowType = Int16Type.Default;
+                    break;
+                case Type t when t == typeof(UInt16Array):
+                    arrowType = UInt16Type.Default;
+                    break;
+                case Type t when t == typeof(Int32Array):
+                    arrowType = Int32Type.Default;
+                    break;
+                case Type t when t == typeof(UInt32Array):
+                    arrowType = UInt32Type.Default;
+                    break;
+                case Type t when t == typeof(Int64Array):
+                    arrowType = Int64Type.Default;
+                    break;
+                case Type t when t == typeof(UInt64Array):
+                    arrowType = UInt64Type.Default;
+                    break;
+                case Type t when t == typeof(FloatArray):
+                    arrowType = FloatType.Default;
+                    break;
+                case Type t when t == typeof(DoubleArray):
+                    arrowType = DoubleType.Default;
+                    break;
+                case Type t when t == typeof(Date64Array):
+                    arrowType = Date64Type.Default;
+                    break;
+                case Type t when t == typeof(TimestampArray):
+                    arrowType = TimestampType.Default;
+                    break;
+                case Type t when t == typeof(StringArray):
+                    return new ArrayData(StringType.Default, 0,
+                    buffers: new[] { ArrowBuffer.Empty, ArrowBuffer.Empty, ArrowBuffer.Empty });
+                case Type t when t == typeof(BinaryArray):
+                    return new ArrayData(BinaryType.Default, 0,
+                    buffers: new[] { ArrowBuffer.Empty, ArrowBuffer.Empty, ArrowBuffer.Empty });
             }
 
             if (arrowType != null)
             {
                 return new ArrayData(arrowType, 0,
                     buffers: new[] { ArrowBuffer.Empty, ArrowBuffer.Empty });
-            }
-
-            if (type == typeof(StringArray))
-            {
-                return new ArrayData(StringType.Default, 0,
-                    buffers: new[] { ArrowBuffer.Empty, ArrowBuffer.Empty, ArrowBuffer.Empty });
-            }
-            else if (type == typeof(BinaryArray))
-            {
-                return new ArrayData(BinaryType.Default, 0,
-                    buffers: new[] { ArrowBuffer.Empty, ArrowBuffer.Empty, ArrowBuffer.Empty });
             }
 
             throw new NotSupportedException($"Unknown type: {type}");
