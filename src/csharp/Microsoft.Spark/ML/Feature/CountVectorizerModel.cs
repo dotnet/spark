@@ -50,8 +50,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </param>
         /// <returns>New <see cref="CountVectorizerModel"/> object</returns>
         public static CountVectorizerModel Load(string path) =>
-            WrapAsCountVectorizerModel((JvmObjectReference)
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+            WrapAsCountVectorizerModel(SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_countVectorizerModelClassName, "load", path));
         
         /// <summary>
@@ -72,7 +71,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="CountVectorizerModel"/> with the new binary toggle value set
         /// </returns>
         public CountVectorizerModel SetBinary(bool value) =>
-            WrapAsCountVectorizerModel((JvmObjectReference)_jvmObject.Invoke("setBinary", value));
+            WrapAsCountVectorizerModel(_jvmObject.Invoke("setBinary", value));
 
         /// <summary>
         /// Gets the column that the <see cref="CountVectorizerModel"/> should read from and
@@ -87,8 +86,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">The name of the column to use as the source.</param>
         /// <returns><see cref="CountVectorizerModel"/> with the input column set</returns>
         public CountVectorizerModel SetInputCol(string value) =>
-            WrapAsCountVectorizerModel(
-                (JvmObjectReference)_jvmObject.Invoke("setInputCol", value));
+            WrapAsCountVectorizerModel(_jvmObject.Invoke("setInputCol", value));
         
         /// <summary>
         /// Gets the name of the new column the <see cref="CountVectorizerModel"/> will create in
@@ -104,8 +102,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">The name of the output column which will be created.</param>
         /// <returns>New <see cref="CountVectorizerModel"/> with the output column set</returns>
         public CountVectorizerModel SetOutputCol(string value) =>
-            WrapAsCountVectorizerModel(
-                (JvmObjectReference)_jvmObject.Invoke("setOutputCol", value));
+            WrapAsCountVectorizerModel(_jvmObject.Invoke("setOutputCol", value));
         
         /// <summary>
         /// Gets the maximum number of different documents a term could appear in to be included in
@@ -154,7 +151,7 @@ namespace Microsoft.Spark.ML.Feature
         /// New <see cref="CountVectorizerModel"/> with the min term frequency set
         /// </returns>
         public CountVectorizerModel SetMinTF(double value) =>
-            WrapAsCountVectorizerModel((JvmObjectReference)_jvmObject.Invoke("setMinTF", value));
+            WrapAsCountVectorizerModel(_jvmObject.Invoke("setMinTF", value));
         
         /// <summary>
         /// Gets the max size of the vocabulary. <see cref="CountVectorizerModel"/> will build a

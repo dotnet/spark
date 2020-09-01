@@ -26,7 +26,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         /// when creating the model. Verify the standard features methods as well as load/save.
         /// </summary>
         [Fact]
-        public void Test_CountVectorizerModel()
+        public void TestCountVectorizerModel()
         {
             const string inputColumn = "input";
             const string outputColumn = "output";

@@ -27,7 +27,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         /// as load/save. 
         /// </summary>
         [Fact]
-        public void Test_CountVectorizer()
+        public void TestCountVectorizer()
         {
             DataFrame input = _spark.Sql("SELECT array('hello', 'I', 'AM', 'a', 'string', 'TO', " +
                 "'TOKENIZE') as input from range(100)");
@@ -70,10 +70,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         }
         
         /// <summary>
-        /// From Spark 2.4.0 CountVectorizer also has SetMaxDF, verify that works.
+        /// Test APIs introduced since Spark 2.4.0
         /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
-        public void CountVectorizer_MaxDF()
+        public void CountVectorizer_Since_v2_4_0()
         {
             const double maxDf = 100;
             CountVectorizer countVectorizer = new CountVectorizer().SetMaxDF(maxDf);
