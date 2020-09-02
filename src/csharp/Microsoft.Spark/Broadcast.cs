@@ -186,7 +186,7 @@ namespace Microsoft.Spark
                         IPAddress.Loopback,
                         (int)pair[0].Invoke("intValue"), // port number
                         (string)pair[1].Invoke("toString")); // secret
-                    WriteToStream(value, socket.OutputStream, true);
+                    WriteToStream(value, socket.OutputStream);
                 }
                 _pythonBroadcast.Invoke("waitTillDataReceived");
             }
