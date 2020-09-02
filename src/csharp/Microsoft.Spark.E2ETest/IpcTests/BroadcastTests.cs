@@ -143,7 +143,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
         /// <summary>
         /// Test Broadcast.Destroy() that destroys all data and metadata related to the broadcast
-        /// variable and makes it inaccessible from workers, with Broadcast encryption on.
+        /// variable and makes it inaccessible from workers, with Broadcast encryption set to true.
         /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V2_3_2)]
         public void TestDestroyWithEncryption()
