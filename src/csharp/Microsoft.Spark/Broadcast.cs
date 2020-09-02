@@ -208,9 +208,8 @@ namespace Microsoft.Spark
         /// <param name="stream">Stream to write value to</param>
         private void WriteToStream(object value, Stream stream)
         {
-            var formatter = new BinaryFormatter();
             using var ms = new MemoryStream();
-            formatter.Serialize(ms, value);
+            Dump(value, ms);
             SerDe.Write(stream, ms.Length);
             ms.WriteTo(stream);
             // -1 length indicates to the receiving end that we're done.
