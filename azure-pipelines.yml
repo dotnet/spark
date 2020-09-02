@@ -14,6 +14,7 @@ variables:
   # forwardCompatibleRelease/backwardCompatibleRelease is the "oldest" releases that work with the current release
   forwardCompatibleRelease: '0.9.0'
   backwardCompatibleRelease: '0.9.0'
+  # TestsToFilterOut are tests filtered out when backward compatibility tests are run.
   TestsToFilterOut: "(FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameVectorUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestDestroy)&\

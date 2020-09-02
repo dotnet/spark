@@ -144,7 +144,7 @@ namespace Microsoft.Spark
             JvmObjectReference javaSparkContext,
             object value)
         {
-            WriteToFile(value);
+            WriteToStream(value, null, false);
             return (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.api.python.PythonRDD",
                 "readBroadcastFromFile",
@@ -180,18 +180,20 @@ namespace Microsoft.Spark
             {
                 var pair = (JvmObjectReference[])_pythonBroadcast.Invoke("setupEncryptionServer");
 
-                using ISocketWrapper socket = SocketFactory.CreateSocket();
-                socket.Connect(
-                    IPAddress.Loopback,
-                    (int)pair[0].Invoke("intValue"),
-                    (string)pair[1].Invoke("toString"));
-                WriteEncrypted(value, socket.OutputStream);
-                socket.OutputStream.Close();
+                using (ISocketWrapper socket = SocketFactory.CreateSocket())
+                {
+                    socket.Connect(
+                        IPAddress.Loopback,
+                        (int)pair[0].Invoke("intValue"), // port number
+                        (string)pair[1].Invoke("toString")); // secret
+                    WriteToStream(value, socket.OutputStream, true);
+                    socket.OutputStream.Flush();
+                }
                 _pythonBroadcast.Invoke("waitTillDataReceived");
             }
             else
             {
-                WriteToFile(value);
+                WriteToStream(value, null, false);
             }
 
             return (JvmObjectReference)javaSparkContext.Invoke("broadcast", _pythonBroadcast);
@@ -204,17 +206,18 @@ namespace Microsoft.Spark
         /// </summary>
         /// <param name="value">Broadcast value to be written to the stream</param>
         /// <param name="stream">Stream connecting to encryption server to write value to</param>
-        private void WriteEncrypted(object value, Stream stream)
+        /// <param name="isEncrypted">Boolean value to check if broadcast encrytion is set</param>
+        private void WriteToStream(object value, Stream stream, bool isEncrypted)
         {
-            var formatter = new BinaryFormatter();
-            using var ms = new MemoryStream();
-            formatter.Serialize(ms, value);
-            byte[] valueBytes = ms.ToArray();
-            int bytesRemaining = valueBytes.Length;
-            SerDe.Write(stream, bytesRemaining);
-            SerDe.Write(stream, valueBytes, 0, bytesRemaining);
-            // -1 length indicates to the receiving end that we're done.
-            SerDe.Write(stream, -1);
+            if (!isEncrypted)
+            {
+                using FileStream f = File.Create(_path);
+                Dump(value, f, isEncrypted);
+            }
+            else
+            {
+                Dump(value, stream, isEncrypted);
+            }
         }
 
         /// <summary>
@@ -224,7 +227,7 @@ namespace Microsoft.Spark
         private void WriteToFile(object value)
         {
             using FileStream f = File.Create(_path);
-            Dump(value, f);
+            Dump(value, f, false);
         }
 
         /// <summary>
@@ -232,10 +235,23 @@ namespace Microsoft.Spark
         /// </summary>
         /// <param name="value">Serializable object</param>
         /// <param name="stream">Stream to which the object is serialized</param>
-        private void Dump(object value, Stream stream)
+        /// <param name="isEncrypted">Stream to which the object is serialized</param>
+        private void Dump(object value, Stream stream, bool isEncrypted)
         {
             var formatter = new BinaryFormatter();
-            formatter.Serialize(stream, value);
+            if (isEncrypted)
+            {
+                using var ms = new MemoryStream();
+                formatter.Serialize(ms, value);
+                SerDe.Write(stream, ms.Length);
+                ms.WriteTo(stream);
+                // -1 length indicates to the receiving end that we're done.
+                SerDe.Write(stream, -1);
+            }
+            else
+            {
+                formatter.Serialize(stream, value);
+            }
         }
     }
 

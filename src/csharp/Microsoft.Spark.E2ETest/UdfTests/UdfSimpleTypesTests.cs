@@ -105,7 +105,6 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
         /// <summary>
         /// UDF that takes in Timestamp type.
-        /// This test is filtered out when backward compatibility tests are run.
         /// </summary>
         [Fact]
         public void TestUdfWithTimestampType()
@@ -126,7 +125,6 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
         /// <summary>
         /// UDF that returns Timestamp type.
-        /// This test is filtered out when backward compatibility tests are run.
         /// </summary>
         [Fact]
         public void TestUdfWithReturnAsTimestampType()

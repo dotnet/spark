@@ -35,7 +35,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// <summary>
         /// Test Broadcast support by using multiple broadcast variables in a UDF with
         /// encryption enabled.
-        /// This test is filtered out when backward compatibility tests are run.
         /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V2_3_2)]
         public void TestMultipleBroadcastWithEncryption()
@@ -58,7 +57,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
         /// <summary>
         /// Test Broadcast support by using multiple broadcast variables in a UDF.
-        /// This test is filtered out when backward compatibility tests are run.
         /// </summary>
         [Fact]
         public void TestMultipleBroadcastWithoutEncryption()
@@ -80,7 +78,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
         /// <summary>
         /// Test Broadcast with encryption support by broadcasting a large (>100MB) object.
-        /// This test is filtered out when backward compatibility tests are run.
         /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V2_3_2)]
         public void TestLargeBroadcastValueWithEncryption()
@@ -104,7 +101,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// <summary>
         /// Test Broadcast.Destroy() that destroys all data and metadata related to the broadcast
         /// variable and makes it inaccessible from workers.
-        /// This test is filtered out when backward compatibility tests are run.
         /// </summary>
         [Fact]
         public void TestDestroy()
@@ -146,7 +142,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// <summary>
         /// Test Broadcast.Unpersist() deletes cached copies of the broadcast on the executors. If
         /// the broadcast is used after unpersist is called, it is re-sent to the executors.
-        /// This test is filtered out when backward compatibility tests are run.
         /// </summary>
         [Fact]
         public void TestUnpersist()
