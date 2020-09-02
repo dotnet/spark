@@ -796,5 +796,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             col = MapConcat(col);
             col = MapConcat(col, col);
         }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.0.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
+        public void TestSignaturesV3_0_X()
+        {
+            Column col = XXHash64(Column("col"), Column("col2"));
+        }
     }
 }

@@ -3611,6 +3611,18 @@ namespace Microsoft.Spark.Sql
         {
             return ApplyFunction("map_concat", (object)columns);
         }
+        
+        /// <summary>
+        /// Calculates the hash code of given columns using the 64-bit variant of the xxHash
+        /// algorithm, and returns the result as a long column.
+        /// </summary>
+        /// <param name="columns">Columns to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column XXHash64(params Column[] columns)
+        {
+            return ApplyFunction("xxhash64", (object)columns);
+        }
 
         /////////////////////////////////////////////////////////////////////////////////
         // UDF helper functions
