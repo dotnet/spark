@@ -144,7 +144,7 @@ namespace Microsoft.Spark
             JvmObjectReference javaSparkContext,
             object value)
         {
-            WriteToStream(value, null, false);
+            WriteToFile(value);
             return (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.api.python.PythonRDD",
                 "readBroadcastFromFile",
@@ -187,13 +187,12 @@ namespace Microsoft.Spark
                         (int)pair[0].Invoke("intValue"), // port number
                         (string)pair[1].Invoke("toString")); // secret
                     WriteToStream(value, socket.OutputStream, true);
-                    socket.OutputStream.Flush();
                 }
                 _pythonBroadcast.Invoke("waitTillDataReceived");
             }
             else
             {
-                WriteToStream(value, null, false);
+                WriteToFile(value);
             }
 
             return (JvmObjectReference)javaSparkContext.Invoke("broadcast", _pythonBroadcast);
@@ -207,18 +206,25 @@ namespace Microsoft.Spark
         /// </summary>
         /// <param name="value">Broadcast value to be written to the stream</param>
         /// <param name="stream">Stream to write value to</param>
-        /// <param name="isEncrypted">Boolean value to check if broadcast encrytion is set</param>
-        private void WriteToStream(object value, Stream stream, bool isEncrypted)
+        private void WriteToStream(object value, Stream stream)
         {
-            if (isEncrypted)
-            {
-                Dump(value, stream, isEncrypted);
-            }
-            else
-            {
-                using FileStream f = File.Create(_path);
-                Dump(value, f, isEncrypted);
-            }
+            var formatter = new BinaryFormatter();
+            using var ms = new MemoryStream();
+            formatter.Serialize(ms, value);
+            SerDe.Write(stream, ms.Length);
+            ms.WriteTo(stream);
+            // -1 length indicates to the receiving end that we're done.
+            SerDe.Write(stream, -1);
+        }
+
+        /// <summary>
+        /// Function that creates a file in _path to store the broadcast value in the given path.
+        /// </summary>
+        /// <param name="value">Broadcast value to be written to the file</param>
+        private void WriteToFile(object value)
+        {
+            using FileStream f = File.Create(_path);
+            Dump(value, f);
         }
 
         /// <summary>
@@ -226,23 +232,10 @@ namespace Microsoft.Spark
         /// </summary>
         /// <param name="value">Serializable object</param>
         /// <param name="stream">Stream to which the object is serialized</param>
-        /// <param name="isEncrypted">Boolean value to check if broadcast encrytion is set</param>
-        private void Dump(object value, Stream stream, bool isEncrypted)
+        private void Dump(object value, Stream stream)
         {
             var formatter = new BinaryFormatter();
-            if (isEncrypted)
-            {
-                using var ms = new MemoryStream();
-                formatter.Serialize(ms, value);
-                SerDe.Write(stream, ms.Length);
-                ms.WriteTo(stream);
-                // -1 length indicates to the receiving end that we're done.
-                SerDe.Write(stream, -1);
-            }
-            else
-            {
-                formatter.Serialize(stream, value);
-            }
+            formatter.Serialize(stream, value);
         }
     }
 
