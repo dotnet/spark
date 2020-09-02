@@ -199,35 +199,26 @@ namespace Microsoft.Spark
             return (JvmObjectReference)javaSparkContext.Invoke("broadcast", _pythonBroadcast);
         }
 
-        /// TODO: This is not performant as it writes to stream only after serializing the whole
-        /// value, instead of serializing and writing in chunks like Python.
+        /// TODO: This is not performant in the case of Broadcast encryption as it writes to stream
+        /// only after serializing the whole value, instead of serializing and writing in chunks
+        /// like Python.
         /// <summary>
-        /// Function to write the broadcast value into the encrypted stream.
+        /// Function to write the broadcast value into the stream.
         /// </summary>
         /// <param name="value">Broadcast value to be written to the stream</param>
-        /// <param name="stream">Stream connecting to encryption server to write value to</param>
+        /// <param name="stream">Stream to write value to</param>
         /// <param name="isEncrypted">Boolean value to check if broadcast encrytion is set</param>
         private void WriteToStream(object value, Stream stream, bool isEncrypted)
         {
-            if (!isEncrypted)
+            if (isEncrypted)
+            {
+                Dump(value, stream, isEncrypted);
+            }
+            else
             {
                 using FileStream f = File.Create(_path);
                 Dump(value, f, isEncrypted);
             }
-            else
-            {
-                Dump(value, stream, isEncrypted);
-            }
-        }
-
-        /// <summary>
-        /// Function that creates a file in _path to store the broadcast value in the given path.
-        /// </summary>
-        /// <param name="value">Broadcast value to be written to the file</param>
-        private void WriteToFile(object value)
-        {
-            using FileStream f = File.Create(_path);
-            Dump(value, f, false);
         }
 
         /// <summary>
@@ -235,7 +226,7 @@ namespace Microsoft.Spark
         /// </summary>
         /// <param name="value">Serializable object</param>
         /// <param name="stream">Stream to which the object is serialized</param>
-        /// <param name="isEncrypted">Stream to which the object is serialized</param>
+        /// <param name="isEncrypted">Boolean value to check if broadcast encrytion is set</param>
         private void Dump(object value, Stream stream, bool isEncrypted)
         {
             var formatter = new BinaryFormatter();
