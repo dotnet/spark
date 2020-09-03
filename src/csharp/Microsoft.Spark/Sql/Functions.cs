@@ -2192,7 +2192,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columns">Columns to apply</param>
         /// <returns>Column object</returns>
         [Since(Versions.V3_0_0)]
-        public static Column Xxhash64(params Column[] columns)
+        public static Column XXHash64(params Column[] columns)
         {
             return ApplyFunction("xxhash64", (object)columns);
         }

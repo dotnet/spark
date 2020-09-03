@@ -805,9 +805,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {
             Column col = Column("col");
 
-            Assert.IsType<Column>(Xxhash64());
-            Assert.IsType<Column>(Xxhash64(col));
-            Assert.IsType<Column>(Xxhash64(col, col));
+            Assert.IsType<Column>(XXHash64());
+            Assert.IsType<Column>(XXHash64(col));
+            Assert.IsType<Column>(XXHash64(col, col));
 
             Assert.IsType<Column>(Split(col, "\t", 1));
             Assert.IsType<Column>(Split(col, "\t", -1));
