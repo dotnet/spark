@@ -826,14 +826,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<Column>(MapEntries(col));
 
-            var schema = new StructType(new[]
-                {
-                    new StructField("col1", new IntegerType())
-                });
-            //Assert.IsType<Column>(FromCsv(col, schema, options));
-            //Assert.IsType<Column>(FromCsv(col, schemaCol, options));
+            Column schemaCol = SchemaOfCsv("[{\"col\":0}]");
+            Assert.IsType<Column>(FromCsv(col, schemaCol, options));
 
-            Assert.IsType<Column>(SchemaOfCsv("col"));
             Assert.IsType<Column>(SchemaOfCsv(col));
             Assert.IsType<Column>(SchemaOfCsv(col, options));
 
