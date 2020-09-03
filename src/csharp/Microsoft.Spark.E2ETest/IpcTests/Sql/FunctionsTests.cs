@@ -848,8 +848,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<Column>(Hours(col));
 
-            Column numBuckets = Column("1");
-            //Assert.IsType<Column>(Bucket(numBuckets, col));
+            Assert.IsType<Column>(Bucket(Lit(1), col));
             Assert.IsType<Column>(Bucket(1, col));
         }
     }

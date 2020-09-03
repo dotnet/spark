@@ -3744,7 +3744,11 @@ namespace Microsoft.Spark.Sql
             StructType schema,
             Dictionary<string, string> options)
         {
-            return ApplyFunction("from_csv", column, schema, options);
+            return ApplyFunction(
+                "from_csv",
+                column,
+                DataType.FromJson(Jvm, schema.Json),
+                options);
         }
 
         /// <summary>
