@@ -39,7 +39,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             SparkSession.ClearDefaultSession();
             SparkSession.SetDefaultSession(_spark);
             Assert.IsType<SparkSession>(SparkSession.GetDefaultSession());
-            Assert.IsType<SparkSession>(SparkSession.GetActiveSession());
 
             Assert.IsType<RuntimeConfig>(_spark.Conf());
 
@@ -69,6 +68,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         public void TestSignaturesV2_4_X()
         {
             Assert.IsType<SparkSession>(SparkSession.Active());
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.0.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
+        public void TestSignaturesV3_0_X()
+        {
+            Assert.IsType<SparkSession>(SparkSession.GetActiveSession());
         }
 
         /// <summary>

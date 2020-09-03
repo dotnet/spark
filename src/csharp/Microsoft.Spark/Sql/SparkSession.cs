@@ -84,6 +84,7 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Returns the active SparkSession for the current thread, returned by the builder.
         /// </summary>
+        [Since(Versions.V3_0_0)]
         public static SparkSession GetActiveSession() =>
             new SparkSession((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 s_sparkSessionClassName, "getActiveSession"));
@@ -275,6 +276,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="command">The target command to be executed</param>
         /// <param name="options">The options for the runner</param>
         /// <returns>>DataFrame object</returns>
+        [Since(Versions.V3_0_0)]
         public DataFrame ExecuteCommand(
             string runner,
             string command,

@@ -630,7 +630,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Row>(_df.First());
 
             Assert.IsType<Row[]>(_df.Take(3).ToArray());
-            Assert.IsType<Row[]>(_df.Tail(1).ToArray());
 
             Assert.IsType<Row[]>(_df.Collect().ToArray());
 
@@ -691,6 +690,17 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                 Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age"), values));
             }
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.0.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
+        public void TestSignaturesV3_0_X()
+        {
+            Assert.IsType<Row[]>(_df.Tail(1).ToArray());
+
+            _df.PrintSchema(1);
         }
     }
 }

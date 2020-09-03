@@ -133,6 +133,7 @@ namespace Microsoft.Spark.Sql
         /// </param>
         /// <param name="seed">Random seed</param>
         /// <returns>DataFrame object</returns>
+        [Since(Versions.V3_0_0)]
         public DataFrame SampleBy<T>(
             Column column,
             IDictionary<T, double> fractions,
