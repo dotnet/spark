@@ -22,7 +22,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             serverListen.Listen();
 
-            PayloadWriter payloadWriter = new PayloadWriterFactory().Create();
+            PayloadWriter payloadWriter = new PayloadWriterFactory().Create(typedVersion);
             Task clientTask = Task.Run(() => simpleWorker.Run(port));
 
             using (ISocketWrapper serverSocket = serverListen.Accept())
