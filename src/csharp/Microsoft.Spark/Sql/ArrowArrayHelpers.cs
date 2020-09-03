@@ -55,6 +55,8 @@ namespace Microsoft.Spark.Sql
                     new UInt16DataFrameColumn("Empty"),
                 Type t when t == typeof(Int32DataFrameColumn) =>
                     new Int32DataFrameColumn("Empty"),
+                Type t when t == typeof(UInt32DataFrameColumn) =>
+                    new UInt32DataFrameColumn("Empty"),
                 Type t when t == typeof(Int64DataFrameColumn) =>
                     new Int64DataFrameColumn("Empty"),
                 Type t when t == typeof(UInt64DataFrameColumn) =>
