@@ -145,45 +145,45 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// Test Broadcast.Destroy() that destroys all data and metadata related to the broadcast
         /// variable and makes it inaccessible from workers, with Broadcast encryption set to true.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_3_2)]
-        public void TestDestroyWithEncryption()
-        {
-            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", "true");
-            var obj1 = new TestBroadcastVariable(6, "destroy encryption");
-            Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
+        //[SkipIfSparkVersionIsLessThan(Versions.V2_3_2)]
+        //public void TestDestroyWithEncryption()
+        //{
+        //    _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", "true");
+        //    var obj1 = new TestBroadcastVariable(6, "destroy encryption");
+        //    Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
 
-            Func<Column, Column> udf = Udf<string, string>(
-                str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
+        //    Func<Column, Column> udf = Udf<string, string>(
+        //        str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
 
-            var expected = new string[] {
-                "hello destroy encryption, 6",
-                "world destroy encryption, 6" };
+        //    var expected = new string[] {
+        //        "hello destroy encryption, 6",
+        //        "world destroy encryption, 6" };
 
-            string[] actual = ToStringArray(_df.Select(udf(_df["_1"])));
-            Assert.Equal(expected, actual);
+        //    string[] actual = ToStringArray(_df.Select(udf(_df["_1"])));
+        //    Assert.Equal(expected, actual);
 
-            bc1.Destroy();
+        //    bc1.Destroy();
 
-            // Throws the following exception:
-            // ERROR Utils: Exception encountered
-            //  org.apache.spark.SparkException: Attempted to use Broadcast(0) after it was destroyed(destroy at NativeMethodAccessorImpl.java:0)
-            //  at org.apache.spark.broadcast.Broadcast.assertValid(Broadcast.scala:144)
-            //  at org.apache.spark.broadcast.TorrentBroadcast$$anonfun$writeObject$1.apply$mcV$sp(TorrentBroadcast.scala:203)
-            //  at org.apache.spark.broadcast.TorrentBroadcast$$anonfun$writeObject$1.apply(TorrentBroadcast.scala:202)
-            //  at org.apache.spark.broadcast.TorrentBroadcast$$anonfun$writeObject$1.apply(TorrentBroadcast.scala:202)
-            //  at org.apache.spark.util.Utils$.tryOrIOException(Utils.scala:1326)
-            //  at org.apache.spark.broadcast.TorrentBroadcast.writeObject(TorrentBroadcast.scala:202)
-            //  at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-            try
-            {
-                _df.Select(udf(_df["_1"])).Collect().ToArray();
-                Assert.True(false);
-            }
-            catch (Exception e)
-            {
-                Assert.NotNull(e);
-            }
-        }
+        //    // Throws the following exception:
+        //    // ERROR Utils: Exception encountered
+        //    //  org.apache.spark.SparkException: Attempted to use Broadcast(0) after it was destroyed(destroy at NativeMethodAccessorImpl.java:0)
+        //    //  at org.apache.spark.broadcast.Broadcast.assertValid(Broadcast.scala:144)
+        //    //  at org.apache.spark.broadcast.TorrentBroadcast$$anonfun$writeObject$1.apply$mcV$sp(TorrentBroadcast.scala:203)
+        //    //  at org.apache.spark.broadcast.TorrentBroadcast$$anonfun$writeObject$1.apply(TorrentBroadcast.scala:202)
+        //    //  at org.apache.spark.broadcast.TorrentBroadcast$$anonfun$writeObject$1.apply(TorrentBroadcast.scala:202)
+        //    //  at org.apache.spark.util.Utils$.tryOrIOException(Utils.scala:1326)
+        //    //  at org.apache.spark.broadcast.TorrentBroadcast.writeObject(TorrentBroadcast.scala:202)
+        //    //  at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        //    try
+        //    {
+        //        _df.Select(udf(_df["_1"])).Collect().ToArray();
+        //        Assert.True(false);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Assert.NotNull(e);
+        //    }
+        //}
 
         /// <summary>
         /// Test Broadcast.Unpersist() deletes cached copies of the broadcast on the executors. If
