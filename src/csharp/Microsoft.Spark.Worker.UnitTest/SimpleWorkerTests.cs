@@ -7,14 +7,16 @@ using Xunit;
 
 namespace Microsoft.Spark.Worker.UnitTest
 {
+    [Collection("Spark Unit Tests")]
     public class SimpleWorkerTests
     {
-        [Fact]
-        public void TestsSimpleWorkerTaskRunners()
+        [Theory]
+        [MemberData(nameof(TestData.VersionData), MemberType = typeof(TestData))]
+        public void TestsSimpleWorkerTaskRunners(string version)
         {
-            var typedVersion = new Version(Versions.V2_4_0);
+            var typedVersion = new Version(version);
             var simpleWorker = new SimpleWorker(typedVersion);
-            ISocketWrapper serverListen = SocketFactory.CreateSocket();
+            using ISocketWrapper serverListen = SocketFactory.CreateSocket();
             var ipEndpoint = (IPEndPoint)serverListen.LocalEndPoint;
             int port = ipEndpoint.Port;
 
