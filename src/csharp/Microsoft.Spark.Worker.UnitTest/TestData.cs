@@ -21,10 +21,6 @@ namespace Microsoft.Spark.Worker.UnitTest
                 new object[] { Versions.V2_3_2 },
                 new object[] { Versions.V2_3_3 },
                 new object[] { Versions.V2_4_0 },
-                new object[] { Versions.V2_4_2 },
-                new object[] { Versions.V2_4_4 },
-                new object[] { Versions.V2_4_5 },
-                new object[] { Versions.V2_4_6 },
                 new object[] { Versions.V3_0_0 },
             };
 
