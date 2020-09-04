@@ -62,7 +62,7 @@ namespace Microsoft.Spark.ML.Feature
         /// hashes. This would have been set by SetInputCol.
         /// </summary>
         /// <returns>string, the input column</returns>
-        public string GetInputCols() => (string)_jvmObject.Invoke("getInputCols");
+        public IEnumerable<string> GetInputCols() => (string[])_jvmObject.Invoke("getInputCols");
 
         /// <summary>
         /// Sets the column that the <see cref="FeatureHasher"/> should read from and convert into
@@ -95,7 +95,7 @@ namespace Microsoft.Spark.ML.Feature
         
         /// <summary>
         /// Gets the name of the column the output data will be written to. This is set by
-        /// SetInputCol
+        /// SetInputCol.
         /// </summary>
         /// <returns>string, the output column</returns>
         public string GetOutputCol() => (string)_jvmObject.Invoke("getOutputCol");
@@ -120,19 +120,18 @@ namespace Microsoft.Spark.ML.Feature
         
         /// <summary>
         /// Check transform validity and derive the output schema from the input schema.
-        /// We check validity for interactions between parameters during transformSchema and
-        /// raise an exception if any parameter value is invalid. Parameter value checks which do
-        /// not depend on other parameters are handled by Param.validate().    
+        /// This checks for validity of interactions between parameters during transformSchema and
+        /// raises an exception if any parameter value is invalid.   
         ///
         /// Typical implementation should first conduct verification on schema change and parameter
         /// validity, including complex parameter interaction checks.
         /// </summary>
         /// <param name="value">
-        /// The <see cref="StructType"/> of the <see cref="DataFrame"/> which will be transformed
+        /// The <see cref="StructType"/> of the <see cref="DataFrame"/> which will be transformed.
         /// </param>
         /// <returns>
-        /// The <see cref="StructType"/> of the output schema that would have been derived form the
-        /// input schema, if Transform had been called
+        /// The <see cref="StructType"/> of the output schema that would have been derived from the
+        /// input schema, if Transform had been called.
         /// </returns>
         public StructType TransformSchema(StructType value) => 
             new StructType(
