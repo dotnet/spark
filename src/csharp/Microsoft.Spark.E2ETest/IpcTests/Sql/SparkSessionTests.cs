@@ -77,6 +77,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         public void TestSignaturesV3_0_X()
         {
             Assert.IsType<SparkSession>(SparkSession.GetActiveSession());
+            // SparkSession.ExecuteCommand() is run on an external execution enginer rather than
+            // Spark, hence this cannot be tested in this suite.
         }
 
         /// <summary>

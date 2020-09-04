@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.ML.Feature.Param;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Sql.Streaming;
 using Microsoft.Spark.Sql.Types;
@@ -102,6 +103,7 @@ namespace Microsoft.Spark.Sql
         /// 5. `formatted`: Split explain output into two sections: a physical plan outline and
         /// node details.
         /// </param>
+        [Since(Versions.V3_0_0)]
         public void Explain(string mode)
         {
             var execution = (JvmObjectReference)_jvmObject.Invoke("queryExecution");
@@ -521,10 +523,11 @@ namespace Microsoft.Spark.Sql
         /// 
         /// Please note that continuous execution is currently not supported.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="expr"></param>
-        /// <param name="exprs"></param>
-        /// <returns></returns>
+        /// <param name="name">Named metrics to observe</param>
+        /// <param name="expr">Defined aggregate to observe</param>
+        /// <param name="exprs">Defined aggregates to observe</param>
+        /// <returns>DataFrame object</returns>
+        [Since(Versions.V3_0_0)]
         public DataFrame Observe(string name, Column expr, params Column[] exprs) =>
             WrapAsDataFrame(_jvmObject.Invoke("observe", name, expr, exprs));
 
@@ -758,14 +761,7 @@ namespace Microsoft.Spark.Sql
         [Since(Versions.V3_0_0)]
         public IEnumerable<Row> Tail(int n)
         {
-            var rows = (List<object[]>)_jvmObject.Invoke("tail", n);
-            StructType schema = Schema();
-            var tailRows = new List<Row>();
-            foreach (object[] row in rows)
-            {
-                tailRows.Add(new Row(row, schema));
-            }
-            return tailRows;
+            return GetRows("tailToPython", n);
         }
 
         /// <summary>
@@ -968,11 +964,12 @@ namespace Microsoft.Spark.Sql
         /// Returns row objects based on the function (either "toPythonIterator" or
         /// "collectToPython").
         /// </summary>
-        /// <param name="funcName"></param>
-        /// <returns></returns>
-        private IEnumerable<Row> GetRows(string funcName)
+        /// <param name="funcName">String name of function to call</param>
+        /// <param name="args">Argumetns to the function</param>
+        /// <returns>IEnumerable of Rows from Spark</returns>
+        private IEnumerable<Row> GetRows(string funcName, params object[] args)
         {
-            (int port, string secret) = GetConnectionInfo(funcName);
+            (int port, string secret) = GetConnectionInfo(funcName, args);
             using (ISocketWrapper socket = SocketFactory.CreateSocket())
             {
                 socket.Connect(IPAddress.Loopback, port, secret);
@@ -988,9 +985,9 @@ namespace Microsoft.Spark.Sql
         /// used for connecting with Spark to receive rows for this `DataFrame`.
         /// </summary>
         /// <returns>A tuple of port number and secret string</returns>
-        private (int, string) GetConnectionInfo(string funcName)
+        private (int, string) GetConnectionInfo(string funcName, params object[] args)
         {
-            object result = _jvmObject.Invoke(funcName);
+            object result = _jvmObject.Invoke(funcName, args);
             Version version = SparkEnvironment.SparkVersion;
             return (version.Major, version.Minor, version.Build) switch
             {
