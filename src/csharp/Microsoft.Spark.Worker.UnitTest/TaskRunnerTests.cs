@@ -26,6 +26,13 @@ namespace Microsoft.Spark.Worker.UnitTest
             var taskRunner = new TaskRunner(0, clientSocket, false, payloadWriter.Version);
             Task clientTask = Task.Run(() => taskRunner.Run());
 
+            TestTaskRunnerReadWrite(serverListener, payloadWriter);
+
+            Assert.True(clientTask.Wait(5000));
+        }
+
+        static internal void TestTaskRunnerReadWrite(ISocketWrapper serverListener, PayloadWriter payloadWriter)
+        {
             using (ISocketWrapper serverSocket = serverListener.Accept())
             {
                 System.IO.Stream inputStream = serverSocket.InputStream;
@@ -47,8 +54,6 @@ namespace Microsoft.Spark.Worker.UnitTest
                     Assert.Equal(i + i, row[1]);
                 }
             }
-
-            Assert.True(clientTask.Wait(5000));
         }
     }
 }
