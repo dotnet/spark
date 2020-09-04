@@ -45,14 +45,14 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Gets a list of the columns which have been specified as categorical columns.
         /// </summary>
-        /// <returns>List of categorical columns, set by `SetCategoricalCols`</returns>
+        /// <returns>List of categorical columns, set by SetCategoricalCols</returns>
         public IEnumerable<string> GetCategoricalCols() => 
             ((string[])_jvmObject.Invoke("getCategoricalCols")).ToList();
         
         /// <summary>
         /// Marks columns as categorical columns.
         /// </summary>
-        /// <param name="value">List of column names to mark as a categorical column</param>
+        /// <param name="value">List of column names to mark as categorical columns</param>
         /// <returns>New <see cref="FeatureHasher"/> object</returns>
         public FeatureHasher SetCategoricalCols(IEnumerable<string> value) => 
             WrapAsFeatureHasher(_jvmObject.Invoke("setCategoricalCols", value));
@@ -68,7 +68,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Sets the column that the <see cref="FeatureHasher"/> should read from and convert into
         /// hashes.
         /// </summary>
-        /// <param name="value">The name of the column to as the source of the buckets</param>
+        /// <param name="value">The name of the column to as use the source of the hash</param>
         /// <returns>New <see cref="FeatureHasher"/> object</returns>
         public FeatureHasher SetInputCols(IEnumerable<string> value) => 
             WrapAsFeatureHasher(_jvmObject.Invoke("setInputCols", value));
@@ -104,14 +104,14 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="FeatureHasher"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
         /// </summary>
-        /// <param name="value">The name of the new column which contains the hash</param>
+        /// <param name="value">The name of the new column which will contain the hash</param>
         /// <returns>New <see cref="FeatureHasher"/> object</returns>
         public FeatureHasher SetOutputCol(string value) => 
             WrapAsFeatureHasher(_jvmObject.Invoke("setOutputCol", value));
         
         /// <summary>
         /// Transforms the input <see cref="DataFrame"/>. It is recommended that you validate that
-        /// the transform will succeed by calling `TransformSchema`.
+        /// the transform will succeed by calling TransformSchema.
         /// </summary>
         /// <param name="value">Input <see cref="DataFrame"/> to transform</param>
         /// <returns>Transformed <see cref="DataFrame"/></returns>
@@ -120,7 +120,8 @@ namespace Microsoft.Spark.ML.Feature
         
         /// <summary>
         /// Check transform validity and derive the output schema from the input schema.
-        /// This checks for validity of interactions between parameters during transformSchema and
+        /// 
+        /// This checks for validity of interactions between parameters during Transform and
         /// raises an exception if any parameter value is invalid.   
         ///
         /// Typical implementation should first conduct verification on schema change and parameter
