@@ -13,7 +13,18 @@ namespace Microsoft.Spark.E2ETest.Utils
         {
             if (SparkSettings.Version < new Version(version))
             {
-                Skip = $"Ignore on Spark version ({SparkSettings.Version}) <= {version}";
+                Skip = $"Ignore on Spark version ({SparkSettings.Version}) < {version}";
+            }
+        }
+    }
+
+    public sealed class SkipIfSparkVersionIsGreaterOrEqualTo : FactAttribute
+    {
+        public SkipIfSparkVersionIsGreaterOrEqualTo(string version)
+        {
+            if (SparkSettings.Version >= new Version(version))
+            {
+                Skip = $"Ignore on Spark version ({SparkSettings.Version}) >= {version}";
             }
         }
     }

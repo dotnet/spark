@@ -12,6 +12,7 @@ using Apache.Arrow;
 using Apache.Arrow.Ipc;
 using Apache.Arrow.Types;
 using Microsoft.Data.Analysis;
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
@@ -298,6 +299,33 @@ namespace Microsoft.Spark.Worker.Command
 
     internal abstract class ArrowBasedCommandExecutor : SqlCommandExecutor
     {
+        private static IpcOptions s_arrowIpcOptions;
+
+        internal static IpcOptions ArrowIpcOptions
+        {
+            get
+            {
+                if (s_arrowIpcOptions == null)
+                {
+                    Version version = SparkEnvironment.SparkVersion;
+
+                    s_arrowIpcOptions = new IpcOptions
+                    {
+                        WriteLegacyIpcFormat = (version.Major, version.Minor) switch
+                        {
+                            (2, 3) => true,
+                            (2, 4) => true,
+                            (3, 0) => false,
+                            _ => throw new NotSupportedException(
+                                $"Spark {SparkEnvironment.SparkVersion} not supported.")
+                        }
+                    };
+                }
+
+                return s_arrowIpcOptions;
+            }
+        }
+
         protected IEnumerable<RecordBatch> GetInputIterator(Stream inputStream)
         {
             using (var reader = new ArrowStreamReader(inputStream, leaveOpen: true))
@@ -387,7 +415,7 @@ namespace Microsoft.Spark.Worker.Command
                     Debug.Assert(resultSchema == null);
                     resultSchema = BuildSchema(results);
 
-                    writer = new ArrowStreamWriter(outputStream, resultSchema, leaveOpen: true);
+                    writer = new ArrowStreamWriter(outputStream, resultSchema, true, ArrowIpcOptions);
                 }
 
                 var recordBatch = new RecordBatch(resultSchema, results, numEntries);
@@ -396,7 +424,7 @@ namespace Microsoft.Spark.Worker.Command
                 writer.WriteRecordBatchAsync(recordBatch).GetAwaiter().GetResult();
             }
 
-            SerDe.Write(outputStream, 0);
+            writer.WriteEndAsync().GetAwaiter().GetResult();
 
             if (writer != null)
             {
@@ -437,7 +465,7 @@ namespace Microsoft.Spark.Worker.Command
 
                     if (writer == null)
                     {
-                        writer = new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true);
+                        writer = new ArrowStreamWriter(outputStream, result.Schema, true, ArrowIpcOptions);
                     }
 
                     // TODO: Remove sync-over-async once WriteRecordBatch exists.
@@ -445,7 +473,7 @@ namespace Microsoft.Spark.Worker.Command
                 }
             }
 
-            SerDe.Write(outputStream, 0);
+            writer.WriteEndAsync().GetAwaiter().GetResult();
 
             if (writer != null)
             {
@@ -677,6 +705,19 @@ namespace Microsoft.Spark.Worker.Command
 
     internal class ArrowOrDataFrameGroupedMapCommandExecutor : ArrowOrDataFrameSqlCommandExecutor
     {
+        private readonly Lazy<Func<RecordBatch, RecordBatch>> _transformRecord =
+            new Lazy<Func<RecordBatch, RecordBatch>>(() =>
+            {
+                Version version = SparkEnvironment.SparkVersion;
+                return (version.Major, version.Minor) switch
+                {
+                    (2, 3) => (RecordBatch r) => r,
+                    (2, 4) => (RecordBatch r) => r,
+                    _ => throw new NotSupportedException(
+                        $"Spark {SparkEnvironment.SparkVersion} not supported.")
+                };
+            });
+
         protected internal override CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
@@ -726,21 +767,21 @@ namespace Microsoft.Spark.Worker.Command
             ArrowStreamWriter writer = null;
             foreach (RecordBatch input in GetInputIterator(inputStream))
             {
-                RecordBatch result = worker.Func(input);
+                RecordBatch result = _transformRecord.Value(worker.Func(input));
 
                 int numEntries = result.Length;
                 stat.NumEntriesProcessed += numEntries;
 
                 if (writer == null)
                 {
-                    writer = new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true);
+                    writer = new ArrowStreamWriter(outputStream, result.Schema, true, ArrowIpcOptions);
                 }
 
                 // TODO: Remove sync-over-async once WriteRecordBatch exists.
                 writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
             }
 
-            SerDe.Write(outputStream, 0);
+            writer.WriteEndAsync().GetAwaiter().GetResult();
 
             if (writer != null)
             {
@@ -770,13 +811,14 @@ namespace Microsoft.Spark.Worker.Command
                 FxDataFrame resultDataFrame = worker.Func(dataFrame);
                 IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToArrowRecordBatches();
 
-                foreach (RecordBatch result in recordBatches)
+                foreach (RecordBatch record in recordBatches)
                 {
+                    RecordBatch result = _transformRecord.Value(record);
                     stat.NumEntriesProcessed += result.Length;
 
                     if (writer == null)
                     {
-                        writer = new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true);
+                        writer = new ArrowStreamWriter(outputStream, result.Schema, true, ArrowIpcOptions);
                     }
 
                     // TODO: Remove sync-over-async once WriteRecordBatch exists.
@@ -784,7 +826,7 @@ namespace Microsoft.Spark.Worker.Command
                 }
             }
 
-            SerDe.Write(outputStream, 0);
+            writer.WriteEndAsync().GetAwaiter().GetResult();
 
             if (writer != null)
             {

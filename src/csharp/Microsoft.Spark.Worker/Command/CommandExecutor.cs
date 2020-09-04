@@ -59,7 +59,6 @@ namespace Microsoft.Spark.Worker.Command
                 outputStream,
                 commandPayload.EvalType,
                 commandPayload.Commands.Cast<SqlCommand>().ToArray());
-
         }
     }
 }

@@ -246,6 +246,8 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command }
             };
 
+            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
+
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             int numRows = 10;
@@ -254,7 +256,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             Schema schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -323,6 +325,8 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command }
             };
 
+            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
+
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             int numRows = 10;
@@ -331,7 +335,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             Schema schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -417,6 +421,8 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command1, command2 }
             };
 
+            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
+
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             int numRows = 10;
@@ -427,7 +433,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 .Field(b => b.Name("arg2").DataType(Int32Type.Default))
                 .Field(b => b.Name("arg3").DataType(Int32Type.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -511,6 +517,8 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command1, command2 }
             };
 
+            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
+
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             int numRows = 10;
@@ -521,7 +529,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 .Field(b => b.Name("arg2").DataType(Int32Type.Default))
                 .Field(b => b.Name("arg3").DataType(Int32Type.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -601,13 +609,15 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command }
             };
 
+            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
+
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             // Write test data to the input stream.
             Schema schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
 
             // The .NET ArrowStreamWriter doesn't currently support writing just a 
             // schema with no batches - but Java does. We use Reflection to simulate
@@ -683,13 +693,15 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command }
             };
 
+            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
+
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             // Write test data to the input stream.
             Schema schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
 
             // The .NET ArrowStreamWriter doesn't currently support writing just a 
             // schema with no batches - but Java does. We use Reflection to simulate
@@ -788,6 +800,8 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command }
             };
 
+            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
+
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             int numRows = 10;
@@ -797,7 +811,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Field(b => b.Name("arg2").DataType(Int64Type.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -891,6 +905,8 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command }
             };
 
+            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
+
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             int numRows = 10;
@@ -900,7 +916,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Field(b => b.Name("arg2").DataType(Int64Type.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
