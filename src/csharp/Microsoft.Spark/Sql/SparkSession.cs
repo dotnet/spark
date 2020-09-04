@@ -84,6 +84,7 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Returns the active SparkSession for the current thread, returned by the builder.
         /// </summary>
+        /// <returns>SparkSession object</returns>
         [Since(Versions.V3_0_0)]
         public static SparkSession GetActiveSession() =>
             new SparkSession((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(

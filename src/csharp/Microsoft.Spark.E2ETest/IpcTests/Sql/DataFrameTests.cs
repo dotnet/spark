@@ -701,6 +701,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Row[]>(_df.Tail(1).ToArray());
 
             _df.PrintSchema(1);
+
+            _df.Explain("simple");
+            _df.Explain("extended");
+            _df.Explain("codegen");
+            _df.Explain("cost");
+            _df.Explain("formatted");
         }
     }
 }

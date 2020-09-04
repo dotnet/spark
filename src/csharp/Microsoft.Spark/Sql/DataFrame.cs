@@ -107,7 +107,11 @@ namespace Microsoft.Spark.Sql
         public void Explain(string mode)
         {
             var execution = (JvmObjectReference)_jvmObject.Invoke("queryExecution");
-            Console.WriteLine((string)execution.Invoke("explainString", mode)); // implement ExplainMode class?
+            var modeJvm = (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
+                "org.apache.spark.sql.execution.ExplainMode",
+                "fromString",
+                mode);
+            Console.WriteLine((string)execution.Invoke("explainString", modeJvm));
         }
 
         /// <summary>
