@@ -14,7 +14,6 @@ namespace Microsoft.Spark
         internal const string V2_4_2 = "2.4.2";
         internal const string V2_4_4 = "2.4.4";
         internal const string V2_4_5 = "2.4.5";
-        internal const string V2_4_6 = "2.4.6";
         internal const string V3_0_0 = "3.0.0";
 
         // The following is used to check the compatibility of UDFs between
