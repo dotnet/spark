@@ -8,7 +8,6 @@ using System.Linq;
 using System.Net;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.ML.Feature.Param;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Sql.Streaming;
 using Microsoft.Spark.Sql.Types;
