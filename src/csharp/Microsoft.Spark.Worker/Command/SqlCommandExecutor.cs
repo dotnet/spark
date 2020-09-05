@@ -307,14 +307,12 @@ namespace Microsoft.Spark.Worker.Command
             {
                 if (s_arrowIpcOptions == null)
                 {
-                    Version version = SparkEnvironment.SparkVersion;
-
                     s_arrowIpcOptions = new IpcOptions
                     {
-                        WriteLegacyIpcFormat = (version.Major, version.Minor) switch
+                        WriteLegacyIpcFormat = SparkEnvironment.SparkVersion.Major switch
                         {
-                            (2, _) => true,
-                            (3, 0) => false,
+                            2 => true,
+                            3 => false,
                             _ => throw new NotSupportedException(
                                 $"Spark {SparkEnvironment.SparkVersion} not supported.")
                         }
@@ -719,11 +717,9 @@ namespace Microsoft.Spark.Worker.Command
             {
                 if (s_recordBatchFunc == null)
                 {
-                    Version version = SparkEnvironment.SparkVersion;
-
-                    s_recordBatchFunc = (version.Major, version.Minor) switch
+                    s_recordBatchFunc = SparkEnvironment.SparkVersion.Major switch
                     {
-                        (2, _) => (RecordBatch r) => r,
+                        2 => (RecordBatch r) => r,
                         _ => throw new NotSupportedException(
                             $"Spark {SparkEnvironment.SparkVersion} not supported.")
                     };
