@@ -54,8 +54,6 @@ namespace Microsoft.Spark.Sql
         private class SynchronousRowCollector : IEnumerable<Row>
         {
             private readonly ISocketWrapper _socket;
-            private readonly Stream _inputStream;
-            private readonly Stream _outputStream;
             private readonly JvmObjectReference _server;
 
             private int _readStatus = 1;
@@ -64,8 +62,6 @@ namespace Microsoft.Spark.Sql
             internal SynchronousRowCollector(ISocketWrapper socket, JvmObjectReference server)
             {
                 _socket = socket;
-                _inputStream = socket.InputStream;
-                _outputStream = socket.OutputStream;
                 _server = server;
             }
 
@@ -80,21 +76,25 @@ namespace Microsoft.Spark.Sql
                     }
 
                     // Tell Java to stop sending data and close connection
-                    SerDe.Write(_outputStream, 0);
-                    _outputStream.Flush();
+                    Stream outputStream = _socket.OutputStream;
+                    SerDe.Write(outputStream, 0);
+                    outputStream.Flush();
                 }
             }
 
             public IEnumerator<Row> GetEnumerator()
             {
+                Stream inputStream = _socket.InputStream;
+                Stream outputStream = _socket.OutputStream;
+
                 while (_readStatus == 1)
                 {
                     // Request next partition data from Java
-                    SerDe.Write(_outputStream, 1);
-                    _outputStream.Flush();
+                    SerDe.Write(outputStream, 1);
+                    outputStream.Flush();
 
                     // If response is 1 then there is a partition to read, if 0 then fully consumed
-                    _readStatus = SerDe.ReadInt32(_inputStream);
+                    _readStatus = SerDe.ReadInt32(inputStream);
                     if (_readStatus == 1)
                     {
                         // Load the partition data from stream and read each item
