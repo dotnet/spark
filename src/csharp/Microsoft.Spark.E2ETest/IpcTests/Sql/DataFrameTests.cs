@@ -691,5 +691,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age"), values));
             }
         }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.*
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
+        public void TestSignaturesV3_X_X()
+        {
+            Assert.IsType<Row[]>(_df.ToLocalIterator(true).ToArray());
+        }
     }
 }
