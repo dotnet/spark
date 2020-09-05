@@ -68,8 +68,7 @@ namespace Microsoft.Spark.Sql
                     new DoubleDataFrameColumn("Empty"),
                 _ when type == typeof(ArrowStringDataFrameColumn) =>
                     new ArrowStringDataFrameColumn("Empty"),
-
-                _ => throw new NotSupportedException($"Unknown type: {typeof(T)}")
+                _ => throw new NotSupportedException($"Unknown type: {type}")
             };
         }
 
