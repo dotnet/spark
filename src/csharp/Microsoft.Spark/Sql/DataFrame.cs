@@ -722,8 +722,27 @@ namespace Microsoft.Spark.Sql
         /// <returns>Row objects</returns>
         public IEnumerable<Row> ToLocalIterator()
         {
-            return GetRows("toPythonIterator");
+            Version version = SparkEnvironment.SparkVersion;
+            return version.Major switch
+            {
+                2 => GetRows("toPythonIterator"),
+                3 => ToLocalIterator(false),
+                _ => throw new NotSupportedException($"Spark {version} not supported.")
+            };
         }
+
+        /// <summary>
+        /// Returns an iterator that contains all of the rows in this `DataFrame`.
+        /// The iterator will consume as much memory as the largest partition in this `DataFrame`.
+        /// With prefetch it may consume up to the memory of the 2 largest partitions.
+        /// </summary>
+        /// <param name="prefetchPartitions">
+        /// If Spark should pre-fetch the next partition before it is needed.
+        /// </param>
+        /// <returns>Row objects</returns>
+        [Since(Versions.V3_0_0)]
+        public IEnumerable<Row> ToLocalIterator(bool prefetchPartitions) =>
+            GetRowsV3_0_0(_jvmObject.Invoke("toPythonIterator", prefetchPartitions));
 
         /// <summary>
         /// Returns the number of rows in the `DataFrame`.
@@ -914,6 +933,27 @@ namespace Microsoft.Spark.Sql
                 {
                     yield return row;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Returns row objects based on the info returned from calling
+        /// <see cref="ToLocalIterator(bool)"/>
+        /// </summary>
+        /// <param name="info">The object to extract the connection info from.</param>
+        /// <returns></returns>
+        private IEnumerable<Row> GetRowsV3_0_0(object info)
+        {
+            var infos = (JvmObjectReference[])info;
+            var port = (int)infos[0].Invoke("intValue");
+            var secret = (string)infos[1].Invoke("toString");
+            JvmObjectReference server = infos[2];
+
+            using ISocketWrapper socket = SocketFactory.CreateSocket();
+            socket.Connect(IPAddress.Loopback, port, secret);
+            foreach (Row row in new RowCollector().SynchronousCollect(socket, server))
+            {
+                yield return row;
             }
         }
 
