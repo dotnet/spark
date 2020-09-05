@@ -120,7 +120,7 @@ namespace Microsoft.Spark.Sql
                 _ when type == typeof(BinaryArray) =>
                     BuildEmptyArrayDataFromArrowType(BinaryType.Default),
 
-                _ => throw new NotSupportedException($"Unknown type: {type}")
+                _ => throw new NotSupportedException($"Unknown type: {typeof(T)}")
             };
         }
 
