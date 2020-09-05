@@ -741,8 +741,21 @@ namespace Microsoft.Spark.Sql
         /// </param>
         /// <returns>Row objects</returns>
         [Since(Versions.V3_0_0)]
-        public IEnumerable<Row> ToLocalIterator(bool prefetchPartitions) =>
-            GetRowsV3_0_0(_jvmObject.Invoke("toPythonIterator", prefetchPartitions));
+        public IEnumerable<Row> ToLocalIterator(bool prefetchPartitions)
+        {
+            var info =
+                (JvmObjectReference[])_jvmObject.Invoke("toPythonIterator", prefetchPartitions);
+            var port = (int)info[0].Invoke("intValue");
+            var secret = (string)info[1].Invoke("toString");
+            JvmObjectReference server = info[2];
+
+            using ISocketWrapper socket = SocketFactory.CreateSocket();
+            socket.Connect(IPAddress.Loopback, port, secret);
+            foreach (Row row in new RowCollector().SynchronousCollect(socket, server))
+            {
+                yield return row;
+            }
+        }
 
         /// <summary>
         /// Returns the number of rows in the `DataFrame`.
@@ -933,27 +946,6 @@ namespace Microsoft.Spark.Sql
                 {
                     yield return row;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Returns row objects based on the info returned from calling
-        /// <see cref="ToLocalIterator(bool)"/>
-        /// </summary>
-        /// <param name="info">The object to extract the connection info from.</param>
-        /// <returns><see cref="Row"/> objects</returns>
-        private IEnumerable<Row> GetRowsV3_0_0(object info)
-        {
-            var infos = (JvmObjectReference[])info;
-            var port = (int)infos[0].Invoke("intValue");
-            var secret = (string)infos[1].Invoke("toString");
-            JvmObjectReference server = infos[2];
-
-            using ISocketWrapper socket = SocketFactory.CreateSocket();
-            socket.Connect(IPAddress.Loopback, port, secret);
-            foreach (Row row in new RowCollector().SynchronousCollect(socket, server))
-            {
-                yield return row;
             }
         }
 
