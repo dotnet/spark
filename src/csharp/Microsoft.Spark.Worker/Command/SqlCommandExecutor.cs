@@ -313,8 +313,7 @@ namespace Microsoft.Spark.Worker.Command
                     {
                         WriteLegacyIpcFormat = (version.Major, version.Minor) switch
                         {
-                            (2, 3) => true,
-                            (2, 4) => true,
+                            (2, _) => true,
                             (3, 0) => false,
                             _ => throw new NotSupportedException(
                                 $"Spark {SparkEnvironment.SparkVersion} not supported.")
@@ -323,6 +322,11 @@ namespace Microsoft.Spark.Worker.Command
                 }
 
                 return s_arrowIpcOptions;
+            }
+            set
+            {
+                // For Tests
+                s_arrowIpcOptions = value;
             }
         }
 
@@ -705,18 +709,34 @@ namespace Microsoft.Spark.Worker.Command
 
     internal class ArrowOrDataFrameGroupedMapCommandExecutor : ArrowOrDataFrameSqlCommandExecutor
     {
-        private readonly Lazy<Func<RecordBatch, RecordBatch>> _transformRecord =
-            new Lazy<Func<RecordBatch, RecordBatch>>(() =>
+        private static Func<RecordBatch, RecordBatch> s_recordBatchFunc;
+
+        // Transforms the RecordBatch to something that is compatible with the
+        // current version of Spark.
+        internal static Func<RecordBatch, RecordBatch> RecordBatchFunc
+        {
+            get
             {
-                Version version = SparkEnvironment.SparkVersion;
-                return (version.Major, version.Minor) switch
+                if (s_recordBatchFunc == null)
                 {
-                    (2, 3) => (RecordBatch r) => r,
-                    (2, 4) => (RecordBatch r) => r,
-                    _ => throw new NotSupportedException(
-                        $"Spark {SparkEnvironment.SparkVersion} not supported.")
-                };
-            });
+                    Version version = SparkEnvironment.SparkVersion;
+
+                    s_recordBatchFunc = (version.Major, version.Minor) switch
+                    {
+                        (2, _) => (RecordBatch r) => r,
+                        _ => throw new NotSupportedException(
+                            $"Spark {SparkEnvironment.SparkVersion} not supported.")
+                    };
+                }
+
+                return s_recordBatchFunc;
+            }
+            set
+            {
+                // For Tests
+                s_recordBatchFunc = value;
+            }
+        }
 
         protected internal override CommandExecutorStat ExecuteCore(
             Stream inputStream,
@@ -767,7 +787,7 @@ namespace Microsoft.Spark.Worker.Command
             ArrowStreamWriter writer = null;
             foreach (RecordBatch input in GetInputIterator(inputStream))
             {
-                RecordBatch result = _transformRecord.Value(worker.Func(input));
+                RecordBatch result = RecordBatchFunc(worker.Func(input));
 
                 int numEntries = result.Length;
                 stat.NumEntriesProcessed += numEntries;
@@ -813,7 +833,7 @@ namespace Microsoft.Spark.Worker.Command
 
                 foreach (RecordBatch record in recordBatches)
                 {
-                    RecordBatch result = _transformRecord.Value(record);
+                    RecordBatch result = RecordBatchFunc(record);
                     stat.NumEntriesProcessed += result.Length;
 
                     if (writer == null)

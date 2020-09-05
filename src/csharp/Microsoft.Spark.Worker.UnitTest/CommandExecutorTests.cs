@@ -25,6 +25,19 @@ namespace Microsoft.Spark.Worker.UnitTest
 {
     public class CommandExecutorTests
     {
+        IpcOptions _ipcOptions;
+
+        public CommandExecutorTests()
+        {
+            _ipcOptions = new IpcOptions
+            {
+                WriteLegacyIpcFormat = false
+            };
+
+            ArrowBasedCommandExecutor.ArrowIpcOptions = _ipcOptions;
+            ArrowOrDataFrameGroupedMapCommandExecutor.RecordBatchFunc = (RecordBatch r) => r;
+        }
+
         [Fact]
         public void TestPicklingSqlCommandExecutorWithSingleCommand()
         {
@@ -246,8 +259,6 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command }
             };
 
-            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
-
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             int numRows = 10;
@@ -256,7 +267,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             Schema schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, _ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -296,6 +307,9 @@ namespace Microsoft.Spark.Worker.UnitTest
             {
                 Assert.Equal($"udf: {i}", array.GetString(i));
             }
+
+            int continuationToken = SerDe.ReadInt32(outputStream);
+            Assert.Equal(-1, continuationToken);
 
             int end = SerDe.ReadInt32(outputStream);
             Assert.Equal(0, end);
@@ -325,8 +339,6 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command }
             };
 
-            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
-
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             int numRows = 10;
@@ -335,7 +347,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             Schema schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, _ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -375,6 +387,9 @@ namespace Microsoft.Spark.Worker.UnitTest
             {
                 Assert.Equal($"udf: {i}", array.GetString(i));
             }
+
+            int continuationToken = SerDe.ReadInt32(outputStream);
+            Assert.Equal(-1, continuationToken);
 
             int end = SerDe.ReadInt32(outputStream);
             Assert.Equal(0, end);
@@ -421,8 +436,6 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command1, command2 }
             };
 
-            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
-
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             int numRows = 10;
@@ -433,7 +446,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 .Field(b => b.Name("arg2").DataType(Int32Type.Default))
                 .Field(b => b.Name("arg3").DataType(Int32Type.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, _ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -477,6 +490,9 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Assert.Equal(i * i, array2.Values[i]);
             }
 
+            int continuationToken = SerDe.ReadInt32(outputStream);
+            Assert.Equal(-1, continuationToken);
+
             int end = SerDe.ReadInt32(outputStream);
             Assert.Equal(0, end);
 
@@ -517,8 +533,6 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command1, command2 }
             };
 
-            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
-
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             int numRows = 10;
@@ -529,7 +543,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 .Field(b => b.Name("arg2").DataType(Int32Type.Default))
                 .Field(b => b.Name("arg3").DataType(Int32Type.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, _ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -573,6 +587,9 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Assert.Equal(i * i, array2.Values[i]);
             }
 
+            int continuationToken = SerDe.ReadInt32(outputStream);
+            Assert.Equal(-1, continuationToken);
+
             int end = SerDe.ReadInt32(outputStream);
             Assert.Equal(0, end);
 
@@ -609,15 +626,13 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command }
             };
 
-            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
-
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             // Write test data to the input stream.
             Schema schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, _ipcOptions);
 
             // The .NET ArrowStreamWriter doesn't currently support writing just a 
             // schema with no batches - but Java does. We use Reflection to simulate
@@ -659,6 +674,9 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             var array = (StringArray)outputBatch.Arrays.ElementAt(0);
             Assert.Equal(0, array.Length);
+
+            int continuationToken = SerDe.ReadInt32(outputStream);
+            Assert.Equal(-1, continuationToken);
 
             int end = SerDe.ReadInt32(outputStream);
             Assert.Equal(0, end);
@@ -693,15 +711,13 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command }
             };
 
-            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
-
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             // Write test data to the input stream.
             Schema schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, _ipcOptions);
 
             // The .NET ArrowStreamWriter doesn't currently support writing just a 
             // schema with no batches - but Java does. We use Reflection to simulate
@@ -743,6 +759,9 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             var array = (StringArray)outputBatch.Arrays.ElementAt(0);
             Assert.Equal(0, array.Length);
+
+            int continuationToken = SerDe.ReadInt32(outputStream);
+            Assert.Equal(-1, continuationToken);
 
             int end = SerDe.ReadInt32(outputStream);
             Assert.Equal(0, end);
@@ -800,8 +819,6 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command }
             };
 
-            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
-
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             int numRows = 10;
@@ -811,7 +828,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Field(b => b.Name("arg2").DataType(Int64Type.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, _ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -862,6 +879,9 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Assert.Equal(100 + i, longArray.Values[i]);
             }
 
+            int continuationToken = SerDe.ReadInt32(outputStream); ;
+            Assert.Equal(-1, continuationToken);
+
             int end = SerDe.ReadInt32(outputStream);
             Assert.Equal(0, end);
 
@@ -905,8 +925,6 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Commands = new[] { command }
             };
 
-            IpcOptions ipcOptions = ArrowBasedCommandExecutor.ArrowIpcOptions;
-
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             int numRows = 10;
@@ -916,7 +934,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Field(b => b.Name("arg2").DataType(Int64Type.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
+            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, _ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -966,6 +984,9 @@ namespace Microsoft.Spark.Worker.UnitTest
             {
                 Assert.Equal(100 + i, doubleArray.Values[i]);
             }
+
+            int continuationToken = SerDe.ReadInt32(outputStream);
+            Assert.Equal(-1, continuationToken);
 
             int end = SerDe.ReadInt32(outputStream);
             Assert.Equal(0, end);
