@@ -922,7 +922,7 @@ namespace Microsoft.Spark.Sql
         /// "collectToPython").
         /// </summary>
         /// <param name="funcName"></param>
-        /// <returns></returns>
+        /// <returns><see cref="Row"/> objects</returns>
         private IEnumerable<Row> GetRows(string funcName)
         {
             (int port, string secret) = GetConnectionInfo(funcName);
@@ -941,7 +941,7 @@ namespace Microsoft.Spark.Sql
         /// <see cref="ToLocalIterator(bool)"/>
         /// </summary>
         /// <param name="info">The object to extract the connection info from.</param>
-        /// <returns></returns>
+        /// <returns><see cref="Row"/> objects</returns>
         private IEnumerable<Row> GetRowsV3_0_0(object info)
         {
             var infos = (JvmObjectReference[])info;
