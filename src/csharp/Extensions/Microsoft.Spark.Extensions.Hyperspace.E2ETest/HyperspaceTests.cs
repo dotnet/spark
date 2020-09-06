@@ -53,7 +53,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
         /// <summary>
         /// Test the method signatures for all Hyperspace APIs.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
+        [SkipIfSparkVersionIsNotInRange(Versions.V2_4_0, Versions.V3_0_0)]
         public void TestSignatures()
         {
             // Indexes API.
@@ -116,7 +116,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
         /// <summary>
         /// Test that the explain API generates the expected string.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
+        [SkipIfSparkVersionIsNotInRange(Versions.V2_4_0, Versions.V3_0_0)]
         public void TestExplainAPI()
         {
             // Run a query that hits the index.
