@@ -19,6 +19,7 @@ using DataFrame = Microsoft.Spark.Sql.DataFrame;
 using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 using Int32Type = Apache.Arrow.Types.Int32Type;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
     [Collection("Spark E2E Tests")]

@@ -6,6 +6,7 @@ using System;
 using System.Buffers.Binary;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Microsoft.Spark.Interop.Ipc
 {
@@ -283,6 +284,15 @@ namespace Microsoft.Spark.Interop.Ipc
             s.Write(value, 0, count);
 
         /// <summary>
+        /// Asynchronously writes a byte array to a stream
+        /// </summary>
+        /// <param name="s">The stream to write</param>
+        /// <param name="value">The byte array to write</param>
+        /// <param name="count">The number of bytes in the array to write.</param>
+        public static async Task WriteAsync(Stream s, byte[] value, int count) =>
+            await s.WriteAsync(value, 0, count);
+
+        /// <summary>
         /// Writes a boolean to a stream
         /// </summary>
         /// <param name="s">The stream to write</param>
@@ -300,6 +310,18 @@ namespace Microsoft.Spark.Interop.Ipc
             byte[] buffer = GetThreadLocalBuffer(sizeof(int));
             BinaryPrimitives.WriteInt32BigEndian(buffer, value);
             Write(s, buffer, sizeof(int));
+        }
+
+        /// <summary>
+        /// Asynchronously writes an integer to a stream (big-endian).
+        /// </summary>
+        /// <param name="s">The stream to write</param>
+        /// <param name="value">The integer to write</param>
+        public static async Task WriteAsync(Stream s, int value)
+        {
+            byte[] buffer = GetThreadLocalBuffer(sizeof(int));
+            BinaryPrimitives.WriteInt32BigEndian(buffer, value);
+            await WriteAsync(s, buffer, sizeof(int));
         }
 
         /// <summary>
