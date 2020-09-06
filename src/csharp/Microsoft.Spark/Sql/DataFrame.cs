@@ -743,15 +743,13 @@ namespace Microsoft.Spark.Sql
         [Since(Versions.V3_0_0)]
         public IEnumerable<Row> ToLocalIterator(bool prefetchPartitions)
         {
-            var info =
-                (JvmObjectReference[])_jvmObject.Invoke("toPythonIterator", prefetchPartitions);
-            var port = (int)info[0].Invoke("intValue");
-            var secret = (string)info[1].Invoke("toString");
-            JvmObjectReference server = info[2];
-
+            (int port, string secret, JvmObjectReference server) =
+                ParseConnectionInfo(
+                    _jvmObject.Invoke("toPythonIterator", prefetchPartitions),
+                    true);
             using ISocketWrapper socket = SocketFactory.CreateSocket();
             socket.Connect(IPAddress.Loopback, port, secret);
-            foreach (Row row in new RowCollector().SynchronousCollect(socket, server))
+            foreach (Row row in new RowCollector().Collect(socket, server))
             {
                 yield return row;
             }
@@ -934,18 +932,18 @@ namespace Microsoft.Spark.Sql
         /// Returns row objects based on the function (either "toPythonIterator" or
         /// "collectToPython").
         /// </summary>
-        /// <param name="funcName"></param>
+        /// <param name="funcName">
+        /// The name of the function to call, either "toPythonIterator" or "collectToPython".
+        /// </param>
         /// <returns><see cref="Row"/> objects</returns>
         private IEnumerable<Row> GetRows(string funcName)
         {
-            (int port, string secret) = GetConnectionInfo(funcName);
-            using (ISocketWrapper socket = SocketFactory.CreateSocket())
+            (int port, string secret, JvmObjectReference _) = GetConnectionInfo(funcName);
+            using ISocketWrapper socket = SocketFactory.CreateSocket();
+            socket.Connect(IPAddress.Loopback, port, secret);
+            foreach (Row row in new RowCollector().Collect(socket))
             {
-                socket.Connect(IPAddress.Loopback, port, secret);
-                foreach (Row row in new RowCollector().Collect(socket))
-                {
-                    yield return row;
-                }
+                yield return row;
             }
         }
 
@@ -954,28 +952,32 @@ namespace Microsoft.Spark.Sql
         /// used for connecting with Spark to receive rows for this `DataFrame`.
         /// </summary>
         /// <returns>A tuple of port number and secret string</returns>
-        private (int, string) GetConnectionInfo(string funcName)
+        private (int, string, JvmObjectReference) GetConnectionInfo(string funcName)
         {
             object result = _jvmObject.Invoke(funcName);
             Version version = SparkEnvironment.SparkVersion;
             return (version.Major, version.Minor, version.Build) switch
             {
                 // In spark 2.3.0, PythonFunction.serveIterator() returns a port number.
-                (2, 3, 0) => ((int)result, string.Empty),
+                (2, 3, 0) => ((int)result, string.Empty, null),
                 // From spark >= 2.3.1, PythonFunction.serveIterator() returns a pair
                 // where the first is a port number and the second is the secret
                 // string to use for the authentication.
-                (2, 3, _) => ParseConnectionInfo(result),
-                (2, 4, _) => ParseConnectionInfo(result),
-                (3, 0, _) => ParseConnectionInfo(result),
+                (2, 3, _) => ParseConnectionInfo(result, false),
+                (2, 4, _) => ParseConnectionInfo(result, false),
+                (3, 0, _) => ParseConnectionInfo(result, false),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
         }
 
-        private (int, string) ParseConnectionInfo(object info)
+        private (int, string, JvmObjectReference) ParseConnectionInfo(
+            object info,
+            bool parseServer)
         {
-            var pair = (JvmObjectReference[])info;
-            return ((int)pair[0].Invoke("intValue"), (string)pair[1].Invoke("toString"));
+            var infos = (JvmObjectReference[])info;
+            return ((int)infos[0].Invoke("intValue"),
+                (string)infos[1].Invoke("toString"),
+                parseServer ? infos[2] : null);
         }
 
         private DataFrame WrapAsDataFrame(object obj) => new DataFrame((JvmObjectReference)obj);
