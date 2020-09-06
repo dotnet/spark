@@ -938,7 +938,7 @@ namespace Microsoft.Spark.Sql
         /// <returns><see cref="Row"/> objects</returns>
         private IEnumerable<Row> GetRows(string funcName)
         {
-            (int port, string secret, JvmObjectReference _) = GetConnectionInfo(funcName);
+            (int port, string secret, _) = GetConnectionInfo(funcName);
             using ISocketWrapper socket = SocketFactory.CreateSocket();
             socket.Connect(IPAddress.Loopback, port, secret);
             foreach (Row row in new RowCollector().Collect(socket))
@@ -951,7 +951,7 @@ namespace Microsoft.Spark.Sql
         /// Returns a tuple of port number and secret string which are
         /// used for connecting with Spark to receive rows for this `DataFrame`.
         /// </summary>
-        /// <returns>A tuple of port number and secret string</returns>
+        /// <returns>A tuple of port number, secret string, and JVM socket auth server.</returns>
         private (int, string, JvmObjectReference) GetConnectionInfo(string funcName)
         {
             object result = _jvmObject.Invoke(funcName);

@@ -121,8 +121,8 @@ namespace Microsoft.Spark.Sql
                     }
                     else if (_readStatus == -1)
                     {
-                        // An error occurred, join serving thread and raise any exceptions
-                        // from the JVM.
+                        // An error occurred, join serving thread and raise any exceptions from
+                        // the JVM. The exception stack trace will appear in the driver logs.
                         _server.Invoke("getResult");
                     }
                     else
