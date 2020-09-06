@@ -691,5 +691,28 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age"), values));
             }
         }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.*
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
+        public void TestSignaturesV3_X_X()
+        {
+            // Validate ToLocalIterator
+            var data = new List<GenericRow>
+            {
+                new GenericRow(new object[] { "Alice", 20}),
+                new GenericRow(new object[] { "Bob", 30})
+            };
+            var schema = new StructType(new List<StructField>()
+            {
+                new StructField("Name", new StringType()),
+                new StructField("Age", new IntegerType())
+            });
+            DataFrame df = _spark.CreateDataFrame(data, schema);
+            IEnumerable<Row> actual = df.ToLocalIterator(true).ToArray();
+            IEnumerable<Row> expected = data.Select(r => new Row(r.Values, schema));
+            Assert.Equal(expected, actual);
+        }
     }
 }
