@@ -417,15 +417,6 @@ stages:
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
 
-    - task: DotNetCoreCLI@2
-      displayName: 'E2E tests for Spark 3.0.0'
-      inputs:
-        command: test
-        projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration)'
-      env:
-        SPARK_HOME: $(Build.BinariesDirectory)\spark-3.0.0-bin-hadoop2.7
-
 - stage: BackwardCompatibility
   displayName: E2E Backward Compatibility Tests
   dependsOn: Build
