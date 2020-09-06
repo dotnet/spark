@@ -86,7 +86,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
         /// <summary>
         /// Test E2E functionality of index CRUD APIs.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
+        [SkipIfSparkVersionIsNotInRange(Versions.V2_4_0, Versions.V3_0_0)]
         public void TestIndexCreateAndDelete()
         {
             // Should be one active index.
