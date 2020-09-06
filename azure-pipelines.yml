@@ -563,7 +563,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration)'
+        arguments: '--configuration $(buildConfiguration)' --filter $(TestsToFilterOut)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-3.0.0-bin-hadoop2.7
 
