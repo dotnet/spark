@@ -156,7 +156,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
+        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
         public void TestVectorUdf()
         {
             Func<Int32Array, StringArray, StringArray> udf1Func =
