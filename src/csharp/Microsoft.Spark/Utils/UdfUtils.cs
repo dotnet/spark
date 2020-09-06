@@ -5,8 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Apache.Arrow;
+using Microsoft.Data.Analysis;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Internal.Java.Util;
 using Microsoft.Spark.Interop.Ipc;
@@ -94,6 +94,7 @@ namespace Microsoft.Spark.Utils
                 {typeof(long), "long"},
                 {typeof(short), "short"},
                 {typeof(Date), "date"},
+                {typeof(Timestamp), "timestamp"},
 
                 // Arrow array types
                 {typeof(BooleanArray), "boolean"},
@@ -105,6 +106,15 @@ namespace Microsoft.Spark.Utils
                 {typeof(DoubleArray), "double"},
                 {typeof(StringArray), "string"},
                 {typeof(BinaryArray), "binary"},
+
+                {typeof(BooleanDataFrameColumn), "boolean"},
+                {typeof(ByteDataFrameColumn), "byte"},
+                {typeof(Int16DataFrameColumn), "short"},
+                {typeof(Int32DataFrameColumn), "integer"},
+                {typeof(Int64DataFrameColumn), "long"},
+                {typeof(SingleDataFrameColumn), "float"},
+                {typeof(DoubleDataFrameColumn), "double"},
+                {typeof(ArrowStringDataFrameColumn), "string"},
             };
 
         /// <summary>
@@ -153,6 +163,9 @@ namespace Microsoft.Spark.Utils
         internal static JvmObjectReference CreatePythonFunction(IJvmBridge jvm, byte[] command)
         {
             var arrayList = new ArrayList(jvm);
+            var broadcastVariables = new ArrayList(jvm);
+            broadcastVariables.AddAll(JvmBroadcastRegistry.GetAll());
+            JvmBroadcastRegistry.Clear();
 
             return (JvmObjectReference)jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.SQLUtils",
@@ -162,29 +175,31 @@ namespace Microsoft.Spark.Utils
                 arrayList, // Python includes
                 SparkEnvironment.ConfigurationService.GetWorkerExePath(),
                 Versions.CurrentVersion,
-                arrayList, // Broadcast variables
+                broadcastVariables,
                 null); // Accumulator
         }
 
         private static IJvmObjectReferenceProvider CreateEnvVarsForPythonFunction(IJvmBridge jvm)
         {
             var environmentVars = new Hashtable(jvm);
-            string assemblySearchPath = string.Join(",",
-                new[]
-                {
-                    Environment.GetEnvironmentVariable(
-                        AssemblySearchPathResolver.AssemblySearchPathsEnvVarName),
-                    SparkFiles.GetRootDirectory()
-                }.Where(s => !string.IsNullOrWhiteSpace(s)));
-
+            string assemblySearchPath = Environment.GetEnvironmentVariable(
+                AssemblySearchPathResolver.AssemblySearchPathsEnvVarName);
             if (!string.IsNullOrEmpty(assemblySearchPath))
             {
                 environmentVars.Put(
                     AssemblySearchPathResolver.AssemblySearchPathsEnvVarName,
                     assemblySearchPath);
             }
-            // DOTNET_WORKER_SPARK_VERSION is used to handle different versions of Spark on the worker.
-            environmentVars.Put("DOTNET_WORKER_SPARK_VERSION", SparkEnvironment.SparkVersion.ToString());
+            // DOTNET_WORKER_SPARK_VERSION is used to handle different versions
+            // of Spark on the worker.
+            environmentVars.Put(
+                "DOTNET_WORKER_SPARK_VERSION",
+                SparkEnvironment.SparkVersion.ToString());
+
+            if (EnvironmentUtils.GetEnvironmentVariableAsBool(Constants.RunningREPLEnvVar))
+            {
+                environmentVars.Put(Constants.RunningREPLEnvVar, "true");
+            }
 
             return environmentVars;
         }

@@ -160,6 +160,14 @@ namespace Microsoft.Spark.Sql.Types
                     }
                     else if (typeName == "udt")
                     {
+                        if (typeJObject.TryGetValue("class", out JToken classToken))
+                        {
+                            if (typeJObject.TryGetValue("sqlType", out JToken sqlTypeToken))
+                            {
+                                return new StructType((JObject)sqlTypeToken);
+                            }
+                        }
+
                         throw new NotImplementedException();
                     }
                 }

@@ -19,7 +19,7 @@ namespace Microsoft.Spark.Worker
         internal string Secret { get; set; }
 
         // Broadcast variables are currently not supported. Default to 0.
-        internal int Count { get; } = 0;
+        internal int Count { get; set; }
 
         public override bool Equals(object obj)
         {

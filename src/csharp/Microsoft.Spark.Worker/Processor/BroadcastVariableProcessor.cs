@@ -4,6 +4,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark.Worker.Processor
@@ -11,7 +12,6 @@ namespace Microsoft.Spark.Worker.Processor
     internal sealed class BroadcastVariableProcessor
     {
         private readonly Version _version;
-
         internal BroadcastVariableProcessor(Version version)
         {
             _version = version;
@@ -31,18 +31,17 @@ namespace Microsoft.Spark.Worker.Processor
                 broadcastVars.DecryptionServerNeeded = SerDe.ReadBool(stream);
             }
 
-            // Note that broadcast variables are currently ignored.
-            // Thus, just read the info from stream without handling them.
-            int numBroadcastVariables = Math.Max(SerDe.ReadInt32(stream), 0);
+            broadcastVars.Count = Math.Max(SerDe.ReadInt32(stream), 0);
+
             if (broadcastVars.DecryptionServerNeeded)
             {
                 broadcastVars.DecryptionServerPort = SerDe.ReadInt32(stream);
                 broadcastVars.Secret = SerDe.ReadString(stream);
-
                 // TODO: Handle the authentication.
             }
 
-            for (int i = 0; i < numBroadcastVariables; ++i)
+            var formatter = new BinaryFormatter();
+            for (int i = 0; i < broadcastVars.Count; ++i)
             {
                 long bid = SerDe.ReadInt64(stream);
                 if (bid >= 0)
@@ -55,16 +54,18 @@ namespace Microsoft.Spark.Worker.Processor
                     else
                     {
                         string path = SerDe.ReadString(stream);
-                        // TODO: Register new broadcast variable.
+                        using FileStream fStream = 
+                            File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                        object value = formatter.Deserialize(fStream);
+                        BroadcastRegistry.Add(bid, value);
                     }
                 }
                 else
                 {
                     bid = -bid - 1;
-                    // TODO: Remove registered broadcast variable.
+                    BroadcastRegistry.Remove(bid);
                 }
             }
-
             return broadcastVars;
         }
     }

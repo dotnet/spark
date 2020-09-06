@@ -7,9 +7,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest
@@ -40,6 +40,8 @@ namespace Microsoft.Spark.E2ETest
 
         private readonly Process _process = new Process();
         private readonly TemporaryDirectory _tempDirectory = new TemporaryDirectory();
+        
+        public const string DefaultLogLevel = "ERROR";
 
         internal SparkSession Spark { get; }
 
@@ -106,6 +108,8 @@ namespace Microsoft.Spark.E2ETest
                 .Config("spark.ui.showConsoleProgress", false)
                 .AppName("Microsoft.Spark.E2ETest")
                 .GetOrCreate();
+                
+            Spark.SparkContext.SetLogLevel(DefaultLogLevel);
 
             Jvm = ((IJvmObjectReferenceProvider)Spark).Reference.Jvm;
         }

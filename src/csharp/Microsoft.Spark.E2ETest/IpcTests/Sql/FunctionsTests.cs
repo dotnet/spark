@@ -652,6 +652,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Udf<long, long>((arg) => arg);
             Udf<short, short>((arg) => arg);
             Udf<Date, Date>((arg) => arg);
+            Udf<Timestamp, Timestamp>((arg) => arg);
 
             // Test array type.
             Udf<string, string[]>((arg) => new[] { arg });
@@ -671,7 +672,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// Tests for the Catclog Functions - returned from SparkSession.Catalog
         public void CatalogFunctions()
         {
-            Catalog catalog = _spark.Catalog();
+            Catalog catalog = _spark.Catalog;
 
             Assert.IsType<DataFrame>(catalog.ListDatabases());
             Assert.IsType<DataFrame>(catalog.ListFunctions());

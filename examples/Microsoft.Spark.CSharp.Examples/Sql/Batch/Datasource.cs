@@ -32,7 +32,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             SparkSession spark = SparkSession
                 .Builder()
-                .AppName(".NET Spark SQL Datasource example")
+                .AppName("SQL Datasource example using .NET for Apache Spark")
                 .Config("spark.some.config.option", "some-value")
                 .GetOrCreate();
 

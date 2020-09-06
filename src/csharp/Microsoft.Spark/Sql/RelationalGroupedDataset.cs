@@ -9,6 +9,7 @@ using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Expressions;
 using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.Utils;
+using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 
 namespace Microsoft.Spark.Sql
 {
@@ -83,6 +84,75 @@ namespace Microsoft.Spark.Sql
         /// <returns>New DataFrame object with sum applied</returns>
         public DataFrame Sum(params string[] colNames) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("sum", (object)colNames));
+
+        /// <summary>
+        /// Pivots a column of the current DataFrame and performs the specified aggregation.
+        /// </summary>
+        /// <param name="pivotColumn">Name of the column to pivot</param>
+        /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
+        public RelationalGroupedDataset Pivot(string pivotColumn) => 
+            new RelationalGroupedDataset(
+                (JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn), _dataFrame);
+
+        /// <summary>
+        /// Pivots a column of the current DataFrame and performs the specified aggregation.
+        /// </summary>
+        /// <param name="pivotColumn">Name of the column to pivot of type string</param>
+        /// <param name="values">List of values that will be translated to columns in the
+        /// output DataFrame.</param>
+        /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
+        public RelationalGroupedDataset Pivot(string pivotColumn, IEnumerable<object> values) =>
+            new RelationalGroupedDataset(
+                (JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn, values), _dataFrame);
+
+        /// <summary>
+        /// Pivots a column of the current DataFrame and performs the specified aggregation.
+        /// </summary>
+        /// <param name="pivotColumn">The column to pivot</param>
+        /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
+        public RelationalGroupedDataset Pivot(Column pivotColumn) => 
+            new RelationalGroupedDataset(
+                (JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn), _dataFrame);
+
+        /// <summary>
+        /// Pivots a column of the current DataFrame and performs the specified aggregation.
+        /// </summary>
+        /// <param name="pivotColumn">The column to pivot of type <see cref="Column"/></param>
+        /// <param name="values">List of values that will be translated to columns in the
+        /// output DataFrame.</param>
+        /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
+        public RelationalGroupedDataset Pivot(Column pivotColumn, IEnumerable<object> values) =>
+            new RelationalGroupedDataset(
+                (JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn, values), _dataFrame);
+
+        internal DataFrame Apply(StructType returnType, Func<FxDataFrame, FxDataFrame> func)
+        {
+            DataFrameGroupedMapWorkerFunction.ExecuteDelegate wrapper =
+                new DataFrameGroupedMapUdfWrapper(func).Execute;
+
+            var udf = UserDefinedFunction.Create(
+                _jvmObject.Jvm,
+                func.Method.ToString(),
+                CommandSerDe.Serialize(
+                    wrapper,
+                    CommandSerDe.SerializedMode.Row,
+                    CommandSerDe.SerializedMode.Row),
+                UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF,
+                returnType.Json);
+
+            IReadOnlyList<string> columnNames = _dataFrame.Columns();
+            var columns = new Column[columnNames.Count];
+            for (int i = 0; i < columnNames.Count; ++i)
+            {
+                columns[i] = _dataFrame[columnNames[i]];
+            }
+
+            Column udfColumn = udf.Apply(columns);
+
+            return new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+                "flatMapGroupsInPandas",
+                udfColumn.Expr()));
+        }
 
         internal DataFrame Apply(StructType returnType, Func<RecordBatch, RecordBatch> func)
         {
