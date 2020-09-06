@@ -426,12 +426,12 @@ namespace Microsoft.Spark.Worker.Command
                 writer.WriteRecordBatchAsync(recordBatch).GetAwaiter().GetResult();
             }
 
-            writer.WriteEndAsync().GetAwaiter().GetResult();
-
-            if (writer != null)
+            if (!ArrowIpcOptions.WriteLegacyIpcFormat)
             {
-                writer.Dispose();
+                SerDe.Write(outputStream, -1);
             }
+            SerDe.Write(outputStream, 0);
+            writer?.Dispose();
 
             return stat;
         }
@@ -475,12 +475,12 @@ namespace Microsoft.Spark.Worker.Command
                 }
             }
 
-            writer.WriteEndAsync().GetAwaiter().GetResult();
-
-            if (writer != null)
+            if (!ArrowIpcOptions.WriteLegacyIpcFormat)
             {
-                writer.Dispose();
+                SerDe.Write(outputStream, -1);
             }
+            SerDe.Write(outputStream, 0);
+            writer?.Dispose();
 
             return stat;
         }
@@ -733,7 +733,6 @@ namespace Microsoft.Spark.Worker.Command
                 s_recordBatchFunc = value;
             }
         }
-
         protected internal override CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
@@ -797,12 +796,12 @@ namespace Microsoft.Spark.Worker.Command
                 writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
             }
 
-            writer.WriteEndAsync().GetAwaiter().GetResult();
-
-            if (writer != null)
+            if (!ArrowIpcOptions.WriteLegacyIpcFormat)
             {
-                writer.Dispose();
+                SerDe.Write(outputStream, -1);
             }
+            SerDe.Write(outputStream, 0);
+            writer?.Dispose();
 
             return stat;
         }
@@ -842,12 +841,12 @@ namespace Microsoft.Spark.Worker.Command
                 }
             }
 
-            writer.WriteEndAsync().GetAwaiter().GetResult();
-
-            if (writer != null)
+            if (!ArrowIpcOptions.WriteLegacyIpcFormat)
             {
-                writer.Dispose();
+                SerDe.Write(outputStream, -1);
             }
+            SerDe.Write(outputStream, 0);
+            writer?.Dispose();
 
             return stat;
         }
