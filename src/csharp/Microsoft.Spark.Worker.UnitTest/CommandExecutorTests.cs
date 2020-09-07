@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -25,17 +26,17 @@ namespace Microsoft.Spark.Worker.UnitTest
 {
     public class CommandExecutorTests
     {
-        IpcOptions _ipcOptions;
+        private readonly Version _version;
+        private readonly IpcOptions _ipcOptions;
 
         public CommandExecutorTests()
         {
+            // Spark 3.x and tests use ArrowStreamReader 0.15.1+
+            _version = new Version(Versions.V3_0_0);
             _ipcOptions = new IpcOptions
             {
                 WriteLegacyIpcFormat = false
             };
-
-            ArrowBasedCommandExecutor.ArrowIpcOptions = _ipcOptions;
-            ArrowOrDataFrameGroupedMapCommandExecutor.RecordBatchFunc = (RecordBatch r) => r;
         }
 
         [Fact]
@@ -74,7 +75,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             SerDe.Write(inputStream, (int)SpecialLengths.END_OF_DATA_SECTION);
             inputStream.Seek(0, SeekOrigin.Begin);
 
-            CommandExecutorStat stat = new CommandExecutor().Execute(
+            CommandExecutorStat stat = new CommandExecutor(_version).Execute(
                 inputStream,
                 outputStream,
                 0,
@@ -158,7 +159,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             SerDe.Write(inputStream, (int)SpecialLengths.END_OF_DATA_SECTION);
             inputStream.Seek(0, SeekOrigin.Begin);
 
-            CommandExecutorStat stat = new CommandExecutor().Execute(
+            CommandExecutorStat stat = new CommandExecutor(_version).Execute(
                 inputStream,
                 outputStream,
                 0,
@@ -221,7 +222,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             SerDe.Write(inputStream, (int)SpecialLengths.END_OF_DATA_SECTION);
             inputStream.Seek(0, SeekOrigin.Begin);
 
-            CommandExecutorStat stat = new CommandExecutor().Execute(
+            CommandExecutorStat stat = new CommandExecutor(_version).Execute(
                 inputStream,
                 outputStream,
                 0,
@@ -282,7 +283,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             inputStream.Seek(0, SeekOrigin.Begin);
 
-            CommandExecutorStat stat = new CommandExecutor().Execute(
+            CommandExecutorStat stat = new CommandExecutor(_version).Execute(
                 inputStream,
                 outputStream,
                 0,
@@ -362,7 +363,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             inputStream.Seek(0, SeekOrigin.Begin);
 
-            CommandExecutorStat stat = new CommandExecutor().Execute(
+            CommandExecutorStat stat = new CommandExecutor(_version).Execute(
                 inputStream,
                 outputStream,
                 0,
@@ -463,7 +464,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             inputStream.Seek(0, SeekOrigin.Begin);
 
-            CommandExecutorStat stat = new CommandExecutor().Execute(
+            CommandExecutorStat stat = new CommandExecutor(_version).Execute(
                 inputStream,
                 outputStream,
                 0,
@@ -560,7 +561,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             inputStream.Seek(0, SeekOrigin.Begin);
 
-            CommandExecutorStat stat = new CommandExecutor().Execute(
+            CommandExecutorStat stat = new CommandExecutor(_version).Execute(
                 inputStream,
                 outputStream,
                 0,
@@ -649,7 +650,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             inputStream.Seek(0, SeekOrigin.Begin);
 
-            CommandExecutorStat stat = new CommandExecutor().Execute(
+            CommandExecutorStat stat = new CommandExecutor(_version).Execute(
                 inputStream,
                 outputStream,
                 0,
@@ -734,7 +735,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             inputStream.Seek(0, SeekOrigin.Begin);
 
-            CommandExecutorStat stat = new CommandExecutor().Execute(
+            CommandExecutorStat stat = new CommandExecutor(_version).Execute(
                 inputStream,
                 outputStream,
                 0,
@@ -847,7 +848,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             inputStream.Seek(0, SeekOrigin.Begin);
 
-            CommandExecutorStat stat = new CommandExecutor().Execute(
+            CommandExecutorStat stat = new CommandExecutor(_version).Execute(
                 inputStream,
                 outputStream,
                 0,
@@ -953,7 +954,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             inputStream.Seek(0, SeekOrigin.Begin);
 
-            CommandExecutorStat stat = new CommandExecutor().Execute(
+            CommandExecutorStat stat = new CommandExecutor(_version).Execute(
                 inputStream,
                 outputStream,
                 0,
@@ -1039,7 +1040,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             inputStream.Seek(0, SeekOrigin.Begin);
 
             // Execute the command.
-            CommandExecutorStat stat = new CommandExecutor().Execute(
+            CommandExecutorStat stat = new CommandExecutor(_version).Execute(
                 inputStream,
                 outputStream,
                 0,

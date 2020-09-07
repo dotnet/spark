@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Apache.Arrow;
 using Apache.Arrow.Ipc;
 using Apache.Arrow.Types;
@@ -32,12 +31,14 @@ namespace Microsoft.Spark.Worker.Command
         /// Executes the commands on the input data read from input stream
         /// and writes results to the output stream.
         /// </summary>
+        /// <param name="version">Spark version.</param>
         /// <param name="inputStream">Input stream to read data from</param>
         /// <param name="outputStream">Output stream to write results to</param>
         /// <param name="evalType">Evaluation type for the current commands</param>
         /// <param name="commands">Contains the commands to execute</param>
         /// <returns>Statistics captured during the Execute() run</returns>
-        internal static async Task<CommandExecutorStat> Execute(
+        internal static CommandExecutorStat Execute(
+            Version version,
             Stream inputStream,
             Stream outputStream,
             UdfUtils.PythonEvalType evalType,
@@ -62,21 +63,21 @@ namespace Microsoft.Spark.Worker.Command
             }
             else if (evalType == UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF)
             {
-                executor = new ArrowOrDataFrameSqlCommandExecutor();
+                executor = new ArrowOrDataFrameSqlCommandExecutor(version);
             }
             else if (evalType == UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF)
             {
-                executor = new ArrowOrDataFrameGroupedMapCommandExecutor();
+                executor = new ArrowOrDataFrameGroupedMapCommandExecutor(version);
             }
             else
             {
                 throw new NotSupportedException($"{evalType} is not supported.");
             }
 
-            return await executor.ExecuteCore(inputStream, outputStream, commands);
+            return executor.ExecuteCore(inputStream, outputStream, commands);
         }
 
-        protected internal abstract Task<CommandExecutorStat> ExecuteCore(
+        protected internal abstract CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands);
@@ -94,7 +95,7 @@ namespace Microsoft.Spark.Worker.Command
         [ThreadStatic]
         private static byte[] s_outputBuffer;
 
-        protected internal override async Task<CommandExecutorStat> ExecuteCore(
+        protected internal override CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands)
@@ -155,7 +156,7 @@ namespace Microsoft.Spark.Worker.Command
                     // The initial (estimated) buffer size for pickling rows is set to the size of
                     // input pickled rows because the number of rows are the same for both input
                     // and output.
-                    await WriteOutputAsync(outputStream, outputRows, messageLength);
+                    WriteOutput(outputStream, outputRows, messageLength);
                     stat.NumEntriesProcessed += inputRows.Length;
                     outputRows.Clear();
                 }
@@ -165,7 +166,7 @@ namespace Microsoft.Spark.Worker.Command
         }
 
         /// <summary>
-        /// Asynchronously writes the given message to the stream.
+        /// Writes the given message to the stream.
         /// </summary>
         /// <param name="stream">Stream to write to</param>
         /// <param name="rows">Rows to write to</param>
@@ -173,7 +174,7 @@ namespace Microsoft.Spark.Worker.Command
         /// Estimated max size of the serialized output.
         /// If it's not big enough, pickler increases the buffer.
         /// </param>
-        private async Task WriteOutputAsync(Stream stream, IEnumerable<object> rows, int sizeHint)
+        private void WriteOutput(Stream stream, IEnumerable<object> rows, int sizeHint)
         {
             if (s_outputBuffer == null)
                 s_outputBuffer = new byte[sizeHint];
@@ -186,8 +187,8 @@ namespace Microsoft.Spark.Worker.Command
                 throw new Exception($"Serialized output size must be positive. Was {bytesWritten}.");
             }
 
-            await SerDe.WriteAsync(stream, bytesWritten);
-            await SerDe.WriteAsync(stream, s_outputBuffer, bytesWritten);
+            SerDe.Write(stream, bytesWritten);
+            SerDe.Write(stream, s_outputBuffer, bytesWritten);
         }
 
         /// <summary>
@@ -300,34 +301,20 @@ namespace Microsoft.Spark.Worker.Command
 
     internal abstract class ArrowBasedCommandExecutor : SqlCommandExecutor
     {
-        private static IpcOptions s_arrowIpcOptions;
+        protected Version _version;
 
-        internal static IpcOptions ArrowIpcOptions
-        {
-            get
+        protected IpcOptions ArrowIpcOptions() =>
+            new IpcOptions
             {
-                if (s_arrowIpcOptions == null)
+                //WriteLegacyIpcFormat = true
+                WriteLegacyIpcFormat = _version.Major switch
                 {
-                    s_arrowIpcOptions = new IpcOptions
-                    {
-                        WriteLegacyIpcFormat = SparkEnvironment.SparkVersion.Major switch
-                        {
-                            2 => true,
-                            3 => false,
-                            _ => throw new NotSupportedException(
-                                $"Spark {SparkEnvironment.SparkVersion} not supported.")
-                        }
-                    };
+                    2 => true,
+                    3 => false,
+                    _ => throw new NotSupportedException(
+                        $"Spark {SparkEnvironment.SparkVersion} not supported.")
                 }
-
-                return s_arrowIpcOptions;
-            }
-            set
-            {
-                // For Tests
-                s_arrowIpcOptions = value;
-            }
-        }
+            };
 
         protected IEnumerable<RecordBatch> GetInputIterator(Stream inputStream)
         {
@@ -357,12 +344,17 @@ namespace Microsoft.Spark.Worker.Command
                     yield return new RecordBatch(reader.Schema, arrays, 0);
                 }
             }
-        }
+        }            
     }
 
     internal class ArrowOrDataFrameSqlCommandExecutor : ArrowBasedCommandExecutor
     {
-        protected internal override async Task<CommandExecutorStat> ExecuteCore(
+        internal ArrowOrDataFrameSqlCommandExecutor(Version version)
+        {
+            _version = version;
+        }
+
+        protected internal override CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands)
@@ -388,12 +380,12 @@ namespace Microsoft.Spark.Worker.Command
             }
             if (useDataFrameCommandExecutor)
             {
-                return await ExecuteDataFrameSqlCommand(inputStream, outputStream, commands);
+                return ExecuteDataFrameSqlCommand(inputStream, outputStream, commands);
             }
-            return await ExecuteArrowSqlCommand(inputStream, outputStream, commands);
+            return ExecuteArrowSqlCommand(inputStream, outputStream, commands);
         }
 
-        private async Task<CommandExecutorStat> ExecuteArrowSqlCommand(
+        private CommandExecutorStat ExecuteArrowSqlCommand(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands)
@@ -403,6 +395,7 @@ namespace Microsoft.Spark.Worker.Command
 
             SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
 
+            IpcOptions ipcOptions = ArrowIpcOptions();
             ArrowStreamWriter writer = null;
             Schema resultSchema = null;
             foreach (ReadOnlyMemory<IArrowArray> input in GetArrowInputIterator(inputStream))
@@ -418,21 +411,21 @@ namespace Microsoft.Spark.Worker.Command
                     Debug.Assert(resultSchema == null);
                     resultSchema = BuildSchema(results);
 
-                    writer = new ArrowStreamWriter(outputStream, resultSchema, true, ArrowIpcOptions);
+                    writer = new ArrowStreamWriter(outputStream, resultSchema, true, ipcOptions);
                 }
 
                 var recordBatch = new RecordBatch(resultSchema, results, numEntries);
 
-                await writer.WriteRecordBatchAsync(recordBatch);
+                writer.WriteRecordBatchAsync(recordBatch).GetAwaiter().GetResult();
             }
 
-            await writer.WriteEndAsync();
+            writer.WriteEndAsync().GetAwaiter().GetResult();
             writer?.Dispose();
 
             return stat;
         }
 
-        private async Task<CommandExecutorStat> ExecuteDataFrameSqlCommand(
+        private CommandExecutorStat ExecuteDataFrameSqlCommand(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands)
@@ -442,6 +435,7 @@ namespace Microsoft.Spark.Worker.Command
 
             SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
 
+            IpcOptions ipcOptions = ArrowIpcOptions();
             ArrowStreamWriter writer = null;
             foreach (RecordBatch input in GetInputIterator(inputStream))
             {
@@ -463,14 +457,14 @@ namespace Microsoft.Spark.Worker.Command
 
                     if (writer == null)
                     {
-                        writer = new ArrowStreamWriter(outputStream, result.Schema, true, ArrowIpcOptions);
+                        writer = new ArrowStreamWriter(outputStream, result.Schema, true, ipcOptions);
                     }
 
-                    await writer.WriteRecordBatchAsync(result);
+                    writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
                 }
             }
 
-            await writer.WriteEndAsync();
+            writer.WriteEndAsync().GetAwaiter().GetResult();
             writer?.Dispose();
 
             return stat;
@@ -698,33 +692,12 @@ namespace Microsoft.Spark.Worker.Command
 
     internal class ArrowOrDataFrameGroupedMapCommandExecutor : ArrowOrDataFrameSqlCommandExecutor
     {
-        private static Func<RecordBatch, RecordBatch> s_recordBatchFunc;
-
-        // Transforms the RecordBatch to something that is compatible with the
-        // current version of Spark.
-        internal static Func<RecordBatch, RecordBatch> RecordBatchFunc
+        internal ArrowOrDataFrameGroupedMapCommandExecutor(Version version)
+            : base(version)
         {
-            get
-            {
-                if (s_recordBatchFunc == null)
-                {
-                    s_recordBatchFunc = SparkEnvironment.SparkVersion.Major switch
-                    {
-                        2 => (RecordBatch r) => r,
-                        _ => throw new NotSupportedException(
-                            $"Spark {SparkEnvironment.SparkVersion} not supported.")
-                    };
-                }
-
-                return s_recordBatchFunc;
-            }
-            set
-            {
-                // For Tests
-                s_recordBatchFunc = value;
-            }
         }
-        protected internal override async Task<CommandExecutorStat> ExecuteCore(
+
+        protected internal override CommandExecutorStat ExecuteCore(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands)
@@ -752,12 +725,12 @@ namespace Microsoft.Spark.Worker.Command
             }
             if (useDataFrameGroupedMapCommandExecutor)
             {
-                return await ExecuteDataFrameGroupedMapCommand(inputStream, outputStream, commands);
+                return ExecuteDataFrameGroupedMapCommand(inputStream, outputStream, commands);
             }
-            return await ExecuteArrowGroupedMapCommand(inputStream, outputStream, commands);
-        }
+            return ExecuteArrowGroupedMapCommand(inputStream, outputStream, commands);
+        }            
 
-        private async Task<CommandExecutorStat> ExecuteArrowGroupedMapCommand(
+        private CommandExecutorStat ExecuteArrowGroupedMapCommand(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands)
@@ -770,29 +743,30 @@ namespace Microsoft.Spark.Worker.Command
 
             SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
 
+            IpcOptions ipcOptions = ArrowIpcOptions();
             ArrowStreamWriter writer = null;
             foreach (RecordBatch input in GetInputIterator(inputStream))
             {
-                RecordBatch result = RecordBatchFunc(worker.Func(input));
+                RecordBatch result = worker.Func(input);
 
                 int numEntries = result.Length;
                 stat.NumEntriesProcessed += numEntries;
 
                 if (writer == null)
                 {
-                    writer = new ArrowStreamWriter(outputStream, result.Schema, true, ArrowIpcOptions);
+                    writer = new ArrowStreamWriter(outputStream, result.Schema, true, ipcOptions);
                 }
 
-                await writer.WriteRecordBatchAsync(result);
+                writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
             }
 
-            await writer.WriteEndAsync();
+            writer.WriteEndAsync().GetAwaiter().GetResult();
             writer?.Dispose();
 
             return stat;
         }
 
-        private async Task<CommandExecutorStat> ExecuteDataFrameGroupedMapCommand(
+        private CommandExecutorStat ExecuteDataFrameGroupedMapCommand(
             Stream inputStream,
             Stream outputStream,
             SqlCommand[] commands)
@@ -805,6 +779,7 @@ namespace Microsoft.Spark.Worker.Command
 
             SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
 
+            IpcOptions ipcOptions = ArrowIpcOptions();
             ArrowStreamWriter writer = null;
             foreach (RecordBatch input in GetInputIterator(inputStream))
             {
@@ -814,19 +789,19 @@ namespace Microsoft.Spark.Worker.Command
 
                 foreach (RecordBatch record in recordBatches)
                 {
-                    RecordBatch result = RecordBatchFunc(record);
+                    RecordBatch result = record;
                     stat.NumEntriesProcessed += result.Length;
 
                     if (writer == null)
                     {
-                        writer = new ArrowStreamWriter(outputStream, result.Schema, true, ArrowIpcOptions);
+                        writer = new ArrowStreamWriter(outputStream, result.Schema, true, ipcOptions);
                     }
 
-                    await writer.WriteRecordBatchAsync(result);
+                    writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
                 }
             }
 
-            await writer.WriteEndAsync();
+            writer.WriteEndAsync().GetAwaiter().GetResult();
             writer?.Dispose();
 
             return stat;
