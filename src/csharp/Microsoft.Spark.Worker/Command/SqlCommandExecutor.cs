@@ -306,7 +306,6 @@ namespace Microsoft.Spark.Worker.Command
         protected IpcOptions ArrowIpcOptions() =>
             new IpcOptions
             {
-                //WriteLegacyIpcFormat = true
                 WriteLegacyIpcFormat = _version.Major switch
                 {
                     2 => true,
