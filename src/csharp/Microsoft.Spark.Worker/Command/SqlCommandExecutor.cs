@@ -343,7 +343,7 @@ namespace Microsoft.Spark.Worker.Command
                     yield return new RecordBatch(reader.Schema, arrays, 0);
                 }
             }
-        }            
+        }
     }
 
     internal class ArrowOrDataFrameSqlCommandExecutor : ArrowBasedCommandExecutor
@@ -727,7 +727,7 @@ namespace Microsoft.Spark.Worker.Command
                 return ExecuteDataFrameGroupedMapCommand(inputStream, outputStream, commands);
             }
             return ExecuteArrowGroupedMapCommand(inputStream, outputStream, commands);
-        }            
+        }
 
         private CommandExecutorStat ExecuteArrowGroupedMapCommand(
             Stream inputStream,
