@@ -310,8 +310,7 @@ namespace Microsoft.Spark.Worker.Command
                 {
                     2 => true,
                     3 => false,
-                    _ => throw new NotSupportedException(
-                        $"Spark {SparkEnvironment.SparkVersion} not supported.")
+                    _ => throw new NotSupportedException($"Spark {_version} not supported.")
                 }
             };
 
