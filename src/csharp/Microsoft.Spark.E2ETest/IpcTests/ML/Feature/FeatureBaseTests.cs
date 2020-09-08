@@ -17,14 +17,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         {
             Assert.NotEmpty(testObject.ExplainParams());
             
-            Param handleInvalidParam = testObject.GetParam(paramName);
-            Assert.NotEmpty(handleInvalidParam.Doc);
-            Assert.NotEmpty(handleInvalidParam.Name);
-            Assert.Equal(handleInvalidParam.Parent, testObject.Uid());
+            Param param = testObject.GetParam(paramName);
+            Assert.NotEmpty(param.Doc);
+            Assert.NotEmpty(param.Name);
+            Assert.Equal(param.Parent, testObject.Uid());
 
-            Assert.NotEmpty(testObject.ExplainParam(handleInvalidParam));
-            testObject.Set(handleInvalidParam, paramValue);
-            Assert.IsAssignableFrom<Identifiable>(testObject.Clear(handleInvalidParam));
+            Assert.NotEmpty(testObject.ExplainParam(param));
+            testObject.Set(param, paramValue);
+            Assert.IsAssignableFrom<Identifiable>(testObject.Clear(param));
 
             Assert.IsType<string>(testObject.Uid());
         }
