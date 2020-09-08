@@ -12,9 +12,17 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
     {
         public HyperspaceFixture()
         {
+            Version sparkVersion = SparkSettings.Version;
+            string hyperspaceVersion = sparkVersion.Major switch
+            {
+                2 => "hyperspace-core_2.11:0.2.0",
+                3 => "hyperspace-core_2.12:0.2.0",
+                _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
+            };
+
             Environment.SetEnvironmentVariable(
                 SparkFixture.EnvironmentVariableNames.ExtraSparkSubmitArgs,
-                "--packages com.microsoft.hyperspace:hyperspace-core_2.11:0.1.0");
+                $"--packages com.microsoft.hyperspace:{hyperspaceVersion}");
 
             SparkFixture = new SparkFixture();
         }
