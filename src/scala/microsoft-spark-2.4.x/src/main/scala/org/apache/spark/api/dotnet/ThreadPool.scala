@@ -23,10 +23,10 @@ object ThreadPool {
    * @param task
    */
   def run(threadId: Int, task: () => Unit): Unit = {
-    val runnable = new Runnable {
+    val executor = getOrCreateExecutor(threadId)
+    val future = executor.submit(new Runnable {
       override def run(): Unit = task()
-    }
-    val future = getOrCreateExecutor(threadId).submit(runnable)
+    })
     while (!future.isDone) {
       Thread.sleep(1000)
     }
