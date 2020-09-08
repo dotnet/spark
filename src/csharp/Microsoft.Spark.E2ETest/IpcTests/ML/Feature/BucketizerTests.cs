@@ -25,7 +25,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestBucketizer()
         {
-            var expectedSplits = new double[]{ double.MinValue, 0.0, 10.0, 50.0, double.MaxValue };
+            var expectedSplits =
+                new double[] { double.MinValue, 0.0, 10.0, 50.0, double.MaxValue };
 
             string expectedHandle = "skip";
             string expectedUid = "uid";
