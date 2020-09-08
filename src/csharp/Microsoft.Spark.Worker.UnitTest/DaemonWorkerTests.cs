@@ -14,26 +14,27 @@ namespace Microsoft.Spark.Worker.UnitTest
     [Collection("Spark Unit Tests")]
     public class DaemonWorkerTests
     {
-        [Fact]
-        public void TestsDaemonWorkerTaskRunners()
+        [Theory]
+        [MemberData(nameof(TestData.VersionData), MemberType = typeof(TestData))]
+        public void TestsDaemonWorkerTaskRunners(string version)
         {
             ISocketWrapper daemonSocket = SocketFactory.CreateSocket();
             
             int taskRunnerNumber = 3;
-            var typedVersion = new Version(Versions.V2_4_0);
+            var typedVersion = new Version(version);
             var daemonWorker = new DaemonWorker(typedVersion);
             
             Task.Run(() => daemonWorker.Run(daemonSocket));
 
             for (int i = 0; i < taskRunnerNumber; ++i)
             {
-                CreateAndVerifyConnection(daemonSocket);
+                CreateAndVerifyConnection(daemonSocket, typedVersion);
             }
             
             Assert.Equal(taskRunnerNumber, daemonWorker.CurrentNumTaskRunners);
         }
 
-        private static void CreateAndVerifyConnection(ISocketWrapper daemonSocket)
+        private static void CreateAndVerifyConnection(ISocketWrapper daemonSocket, Version version)
         {
             var ipEndpoint = (IPEndPoint)daemonSocket.LocalEndPoint;
             int port = ipEndpoint.Port;
@@ -41,7 +42,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             clientSocket.Connect(ipEndpoint.Address, port);
 
             // Now process the bytes flowing in from the client.
-            PayloadWriter payloadWriter = new PayloadWriterFactory().Create();
+            PayloadWriter payloadWriter = new PayloadWriterFactory().Create(version);
             payloadWriter.WriteTestData(clientSocket.OutputStream);
             List<object[]> rowsReceived = PayloadReader.Read(clientSocket.InputStream);
 
