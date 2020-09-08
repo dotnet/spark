@@ -13,7 +13,32 @@ namespace Microsoft.Spark.E2ETest.Utils
         {
             if (SparkSettings.Version < new Version(version))
             {
-                Skip = $"Ignore on Spark version ({SparkSettings.Version}) <= {version}";
+                Skip = $"Ignore on Spark version ({SparkSettings.Version}) < {version}";
+            }
+        }
+    }
+
+    public sealed class SkipIfSparkVersionIsGreaterOrEqualTo : FactAttribute
+    {
+        public SkipIfSparkVersionIsGreaterOrEqualTo(string version)
+        {
+            if (SparkSettings.Version >= new Version(version))
+            {
+                Skip = $"Ignore on Spark version ({SparkSettings.Version}) >= {version}";
+            }
+        }
+    }
+
+    // Skip if the spark version is not in range [minVersion, maxVersion).
+    public sealed class SkipIfSparkVersionIsNotInRange : FactAttribute
+    {
+        public SkipIfSparkVersionIsNotInRange(string minInclusive, string maxExclusive)
+        {
+            if (SparkSettings.Version < new Version(minInclusive) ||
+                SparkSettings.Version >= new Version(maxExclusive))
+            {
+                Skip = $"Ignore on Spark version ({SparkSettings.Version}) not in range of " +
+                    $"[{minInclusive}, {maxExclusive})";
             }
         }
     }
