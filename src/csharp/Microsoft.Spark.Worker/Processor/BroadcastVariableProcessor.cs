@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -59,11 +60,7 @@ namespace Microsoft.Spark.Worker.Processor
                     if (broadcastVars.DecryptionServerNeeded)
                     {
                         var readBid = SerDe.ReadInt64(socket.InputStream);
-                        if (bid != readBid)
-                        {
-                            throw new Exception($"Broadcast id {readBid} from encrypted stream" +
-                                $" does not " + $"match broadcast id {bid} from normal stream.");
-                        }
+                        Debug.Assert(bid == readBid);
                         object value = formatter.Deserialize(socket.InputStream);
                         BroadcastRegistry.Add(bid, value);
                     }
@@ -82,10 +79,7 @@ namespace Microsoft.Spark.Worker.Processor
                     BroadcastRegistry.Remove(bid);
                 }
             }
-            if (socket != null)
-            {
-                socket.Dispose();
-            }
+            socket?.Dispose();
             return broadcastVars;
         }
     }
