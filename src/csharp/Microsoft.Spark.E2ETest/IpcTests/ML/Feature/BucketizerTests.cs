@@ -25,7 +25,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestBucketizer()
         {
-            var expectedSplits = new double[] { double.MinValue, 0.0, 10.0, 50.0, double.MaxValue };
+            var expectedSplits = new double[]{ double.MinValue, 0.0, 10.0, 50.0, double.MaxValue };
 
             string expectedHandle = "skip";
             string expectedUid = "uid";
@@ -60,18 +60,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 Assert.Equal(bucketizer.Uid(), loadedBucketizer.Uid());
             }
             
-            Assert.NotEmpty(bucketizer.ExplainParams());
-            
-            Param handleInvalidParam = bucketizer.GetParam("handleInvalid");
-            Assert.NotEmpty(handleInvalidParam.Doc);
-            Assert.NotEmpty(handleInvalidParam.Name);
-            Assert.Equal(handleInvalidParam.Parent, bucketizer.Uid());
-
-            Assert.NotEmpty(bucketizer.ExplainParam(handleInvalidParam));
-            bucketizer.Set(handleInvalidParam, "keep");
-            Assert.Equal("keep", bucketizer.GetHandleInvalid());
-             
-            Assert.Equal("error", bucketizer.Clear(handleInvalidParam).GetHandleInvalid());
+            FeatureBaseTests<Bucketizer>.TestBase(bucketizer, "handleInvalid", "keep");
         }
 
         [Fact]

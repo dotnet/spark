@@ -67,6 +67,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             
             Assert.NotEmpty(countVectorizer.ExplainParams());
             Assert.NotEmpty(countVectorizer.ToString());
+            
+            FeatureBaseTests<CountVectorizer>.TestBase(countVectorizer, "minDF", 0.4);
         }
         
         /// <summary>

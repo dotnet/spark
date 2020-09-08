@@ -67,6 +67,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 Word2Vec loadedWord2Vec = Word2Vec.Load(savePath);
                 Assert.Equal(word2vec.Uid(), loadedWord2Vec.Uid());
             }
+            
+            FeatureBaseTests<Word2Vec>.TestBase(word2vec, "maxIter", 2);
         }
     }
 }

@@ -50,6 +50,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.IsType<int>(hasher.GetNumFeatures());
             Assert.IsType<StructType>(hasher.TransformSchema(dataFrame.Schema()));
             Assert.IsType<DataFrame>(hasher.Transform(dataFrame));
+            
+            FeatureBaseTests<FeatureHasher>.TestBase(hasher, "numFeatures", 1000);
         }
     }
 }

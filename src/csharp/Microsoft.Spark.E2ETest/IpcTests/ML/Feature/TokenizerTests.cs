@@ -50,6 +50,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             }
             
             Assert.Equal(expectedUid, tokenizer.Uid());
+            
+            FeatureBaseTests<Tokenizer>.TestBase(tokenizer, "inputCol", "input_col");
         }
     }
 }

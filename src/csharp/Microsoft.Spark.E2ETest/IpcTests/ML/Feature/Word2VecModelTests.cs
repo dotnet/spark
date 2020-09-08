@@ -47,6 +47,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 Word2VecModel loadedModel = Word2VecModel.Load(savePath);
                 Assert.Equal(model.Uid(), loadedModel.Uid());
             }
+            
+            FeatureBaseTests<Word2VecModel>.TestBase(model, "maxIter", 2);
         }
     }
 }

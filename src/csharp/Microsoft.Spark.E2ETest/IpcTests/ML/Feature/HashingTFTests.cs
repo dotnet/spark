@@ -57,6 +57,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             hashingTf.SetBinary(true);
             Assert.True(hashingTf.GetBinary());
+            
+            FeatureBaseTests<HashingTF>.TestBase(hashingTf, "numFeatures", 1000);
         }
     }
 }

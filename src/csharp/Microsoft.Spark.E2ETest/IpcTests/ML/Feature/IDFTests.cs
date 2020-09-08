@@ -44,6 +44,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 IDF loadedIdf = IDF.Load(savePath);
                 Assert.Equal(idf.Uid(), loadedIdf.Uid());
             }
+            
+            FeatureBaseTests<IDF>.TestBase(idf, "minDocFreq", 1000);
         }
     }
 }
