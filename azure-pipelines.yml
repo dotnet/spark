@@ -284,6 +284,15 @@ stages:
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.6-bin-hadoop2.7
 
+    - task: DotNetCoreCLI@2
+      displayName: 'E2E tests for Spark 3.0.0'
+      inputs:
+        command: test
+        projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+      env:
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-3.0.0-bin-hadoop2.7
+
 - stage: ForwardCompatibility
   displayName: E2E Forward Compatibility Tests
   dependsOn: Build
@@ -407,6 +416,9 @@ stages:
         arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
+
+    # Forward compatibility is tested only up to Spark 2.4.5 since it is the lastest Spark version
+    # tested for "forwardCompatibleRelease". This can be updated when "forwardCompatibleRelease" is updated.
 
 - stage: BackwardCompatibility
   displayName: E2E Backward Compatibility Tests
@@ -545,4 +557,13 @@ stages:
         arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.6-bin-hadoop2.7
+
+    - task: DotNetCoreCLI@2
+      displayName: 'E2E tests for Spark 3.0.0'
+      inputs:
+        command: test
+        projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
+      env:
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-3.0.0-bin-hadoop2.7
 
