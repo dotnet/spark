@@ -58,7 +58,7 @@ class DotnetBackendHandler(server: DotnetBackend)
             val t = readObjectType(dis)
             assert(t == 'c')
             val objToRemove = readString(dis)
-            ThreadPool.run(threadId, () => JVMObjectTracker.remove(objToRemove)).wait()
+            ThreadPool.run(threadId, () => JVMObjectTracker.remove(objToRemove))
             writeInt(dos, 0)
             writeObject(dos, null)
           } catch {
@@ -97,7 +97,6 @@ class DotnetBackendHandler(server: DotnetBackend)
     } else {
       ThreadPool
         .run(threadId, () => handleMethodCall(isStatic, objId, methodName, numArgs, dis, dos))
-        .wait()
     }
 
     bos.toByteArray

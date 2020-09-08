@@ -1,8 +1,8 @@
 package org.apache.spark.api.dotnet
 
-import java.util.concurrent.{ExecutorService, Executors, Future}
+import java.util.concurrent.{ExecutorService, Executors}
 
-import scala.collection.mutable
+import scala.collection._
 
 /**
  * Pool of thread executors. There should be a 1-1 correspondence between C# threads
@@ -13,19 +13,24 @@ object ThreadPool {
   /**
    * Map from threadId to corresponding executor.
    */
-  val executors: mutable.Map[Int, ExecutorService] = mutable.Map()
+  val executors: concurrent.TrieMap[Int, ExecutorService] =
+    new concurrent.TrieMap[Int, ExecutorService]()
 
   /**
    * Run some code on a particular thread.
    *
    * @param threadId
    * @param task
-   * @return
    */
-  def run(threadId: Int, task: () => Unit): Future[_] =
-    getOrCreateExecutor(threadId).submit(new Runnable {
-      override def run(): Unit = task
-    })
+  def run(threadId: Int, task: () => Unit): Unit = {
+    val runnable = new Runnable {
+      override def run(): Unit = task()
+    }
+    val future = getOrCreateExecutor(threadId).submit(runnable)
+    while (!future.isDone) {
+      Thread.sleep(1000)
+    }
+  }
 
   /**
    * Delete a particular thread.

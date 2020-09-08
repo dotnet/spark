@@ -37,7 +37,7 @@ namespace Microsoft.Spark.Interop.Ipc
             LoggerServiceFactory.GetLogger(typeof(JvmBridge));
         private readonly int _portNumber;
         private readonly ConcurrentDictionary<int, Thread> _activeThreads;
-        private readonly Timer _activeThreadMonitor;
+        private readonly Thread _activeThreadMonitor;
 
         internal JvmBridge(int portNumber)
         {
@@ -50,23 +50,27 @@ namespace Microsoft.Spark.Interop.Ipc
             _logger.LogInfo($"JvMBridge port is {portNumber}");
 
             _activeThreads = new ConcurrentDictionary<int, Thread>();
-            _activeThreadMonitor = new Timer((state) =>
+            _activeThreadMonitor = new Thread(delegate ()
             {
-                foreach (var threadId in _activeThreads.Keys)
+                using var timer = new Timer((state) =>
                 {
-                    if (_activeThreads.TryRemove(threadId, out Thread thread))
+                    foreach (var threadId in _activeThreads.Keys)
                     {
-                        if (thread.IsAlive)
+                        if (_activeThreads.TryRemove(threadId, out Thread thread))
                         {
-                            _activeThreads.TryAdd(threadId, thread);
-                        }
-                        else
-                        {
-                            CallStaticJavaMethod("DotnetHandler", "rmThread", thread.ManagedThreadId);
+                            if (thread.IsAlive)
+                            {
+                                _activeThreads.TryAdd(threadId, thread);
+                            }
+                            else
+                            {
+                                CallStaticJavaMethod("DotnetHandler", "rmThread", thread.ManagedThreadId);
+                            }
                         }
                     }
-                }
-            }, null, 0, 30000);
+                }, null, 0, 30000);
+            });
+            _activeThreadMonitor.Start();
         }
 
         private ISocketWrapper GetConnection()
@@ -444,8 +448,6 @@ namespace Microsoft.Spark.Interop.Ipc
                     socket.Dispose();
                 }
             }
-
-            _activeThreadMonitor.Dispose();
         }
     }
 }
