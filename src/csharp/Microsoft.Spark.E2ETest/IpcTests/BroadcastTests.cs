@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
@@ -34,7 +35,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// <summary>
         /// Test Broadcast support by using multiple broadcast variables in a UDF.
         /// </summary>
-        [Fact]
+        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
         public void TestMultipleBroadcastWithoutEncryption()
         {
             var obj1 = new TestBroadcastVariable(1, "first");
@@ -55,7 +56,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// Test Broadcast.Destroy() that destroys all data and metadata related to the broadcast
         /// variable and makes it inaccessible from workers.
         /// </summary>
-        [Fact]
+        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
         public void TestDestroy()
         {
             var obj1 = new TestBroadcastVariable(5, "destroy");
@@ -96,7 +97,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// Test Broadcast.Unpersist() deletes cached copies of the broadcast on the executors. If
         /// the broadcast is used after unpersist is called, it is re-sent to the executors.
         /// </summary>
-        [Fact]
+        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
         public void TestUnpersist()
         {
             var obj = new TestBroadcastVariable(1, "unpersist");
