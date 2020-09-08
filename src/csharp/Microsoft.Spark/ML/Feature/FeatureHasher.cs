@@ -61,11 +61,11 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the columns that the <see cref="FeatureHasher"/> should read from and convert into
         /// hashes. This would have been set by SetInputCol.
         /// </summary>
-        /// <returns>string, the input column</returns>
+        /// <returns>IEnumerable&lt;string&gt;, the input columns</returns>
         public IEnumerable<string> GetInputCols() => (string[])_jvmObject.Invoke("getInputCols");
 
         /// <summary>
-        /// Sets the column that the <see cref="FeatureHasher"/> should read from and convert into
+        /// Sets the columns that the <see cref="FeatureHasher"/> should read from and convert into
         /// hashes.
         /// </summary>
         /// <param name="value">The name of the column to as use the source of the hash</param>
