@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
