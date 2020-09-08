@@ -156,7 +156,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        [Fact]
+        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
         public void TestVectorUdf()
         {
             Func<Int32Array, StringArray, StringArray> udf1Func =
@@ -224,7 +224,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        [Fact]
+        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
         public void TestDataFrameVectorUdf()
         {
             Func<Int32DataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn> udf1Func =
@@ -290,7 +290,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        [Fact]
+        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
         public void TestGroupedMapUdf()
         {
             DataFrame df = _spark
@@ -369,7 +369,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
 
-        [Fact]
+        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
         public void TestDataFrameGroupedMapUdf()
         {
             DataFrame df = _spark
