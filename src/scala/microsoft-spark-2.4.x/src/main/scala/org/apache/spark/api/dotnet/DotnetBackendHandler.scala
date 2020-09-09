@@ -83,12 +83,12 @@ class DotnetBackendHandler(server: DotnetBackend)
           val address = readString(dis)
           assert(readObjectType(dis) == 'i')
           val port = readInt(dis)
-          DotnetBackend.setCallbackClient(address, port);
+          ThreadPool.run(threadId, () => DotnetBackend.setCallbackClient(address, port))
           writeInt(dos, 0)
           writeType(dos, "void")
         case "closeCallback" =>
           logInfo("Requesting to close callback client")
-          DotnetBackend.shutdownCallbackClient()
+          ThreadPool.run(threadId, DotnetBackend.shutdownCallbackClient)
           writeInt(dos, 0)
           writeType(dos, "void")
 

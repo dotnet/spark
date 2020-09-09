@@ -37,7 +37,7 @@ object ThreadPool {
    *
    * @param threadId
    */
-  def deleteThread(threadId: Int) = {
+  def deleteThread(threadId: Int): Option[ExecutorService] = {
     getOrCreateExecutor(threadId).shutdown()
     executors.remove(threadId)
   }
