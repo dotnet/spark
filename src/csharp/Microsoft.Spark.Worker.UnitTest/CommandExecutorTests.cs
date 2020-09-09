@@ -1090,7 +1090,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                     new Version(Versions.V3_0_0),
                     new IpcOptions
                     {
-                        WriteLegacyIpcFormat = true
+                        WriteLegacyIpcFormat = false
                     }
                 }
             };
