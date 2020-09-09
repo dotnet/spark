@@ -12,7 +12,6 @@ using Apache.Arrow;
 using Apache.Arrow.Ipc;
 using Apache.Arrow.Types;
 using Microsoft.Data.Analysis;
-using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
@@ -31,7 +30,7 @@ namespace Microsoft.Spark.Worker.Command
         /// Executes the commands on the input data read from input stream
         /// and writes results to the output stream.
         /// </summary>
-        /// <param name="version">Spark version.</param>
+        /// <param name="version">Spark version</param>
         /// <param name="inputStream">Input stream to read data from</param>
         /// <param name="outputStream">Output stream to write results to</param>
         /// <param name="evalType">Evaluation type for the current commands</param>
@@ -316,31 +315,29 @@ namespace Microsoft.Spark.Worker.Command
 
         protected IEnumerable<RecordBatch> GetInputIterator(Stream inputStream)
         {
-            using (var reader = new ArrowStreamReader(inputStream, leaveOpen: true))
+            using var reader = new ArrowStreamReader(inputStream, leaveOpen: true);
+            RecordBatch batch;
+            bool returnedResult = false;
+            while ((batch = reader.ReadNextRecordBatch()) != null)
             {
-                RecordBatch batch;
-                bool returnedResult = false;
-                while ((batch = reader.ReadNextRecordBatch()) != null)
+                yield return batch;
+                returnedResult = true;
+            }
+
+            if (!returnedResult)
+            {
+                // When no input batches were received, return an empty RecordBatch
+                // in order to create and write back the result schema.
+
+                int columnCount = reader.Schema.Fields.Count;
+                var arrays = new IArrowArray[columnCount];
+                for (int i = 0; i < columnCount; ++i)
                 {
-                    yield return batch;
-                    returnedResult = true;
+                    IArrowType type = reader.Schema.GetFieldByIndex(i).DataType;
+                    arrays[i] = ArrowArrayHelpers.CreateEmptyArray(type);
                 }
 
-                if (!returnedResult)
-                {
-                    // When no input batches were received, return an empty RecordBatch
-                    // in order to create and write back the result schema.
-
-                    int columnCount = reader.Schema.Fields.Count;
-                    var arrays = new IArrowArray[columnCount];
-                    for (int i = 0; i < columnCount; ++i)
-                    {
-                        IArrowType type = reader.Schema.GetFieldByIndex(i).DataType;
-                        arrays[i] = ArrowArrayHelpers.CreateEmptyArray(type);
-                    }
-
-                    yield return new RecordBatch(reader.Schema, arrays, 0);
-                }
+                yield return new RecordBatch(reader.Schema, arrays, 0);
             }
         }
     }
@@ -414,10 +411,11 @@ namespace Microsoft.Spark.Worker.Command
 
                 var recordBatch = new RecordBatch(resultSchema, results, numEntries);
 
+                // TODO: Remove sync-over-async once WriteRecordBatch exists.
                 writer.WriteRecordBatchAsync(recordBatch).GetAwaiter().GetResult();
             }
 
-            writer.WriteEndAsync().GetAwaiter().GetResult();
+            SerDe.Write(outputStream, 0);
             writer?.Dispose();
 
             return stat;
@@ -458,11 +456,12 @@ namespace Microsoft.Spark.Worker.Command
                         writer = new ArrowStreamWriter(outputStream, result.Schema, true, ipcOptions);
                     }
 
+                    // TODO: Remove sync-over-async once WriteRecordBatch exists.
                     writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
                 }
             }
 
-            writer.WriteEndAsync().GetAwaiter().GetResult();
+            SerDe.Write(outputStream, 0);
             writer?.Dispose();
 
             return stat;
@@ -479,39 +478,37 @@ namespace Microsoft.Spark.Worker.Command
             int columnCount = 0;
             try
             {
-                using (var reader = new ArrowStreamReader(inputStream, leaveOpen: true))
+                using var reader = new ArrowStreamReader(inputStream, leaveOpen: true);
+                RecordBatch batch;
+                while ((batch = reader.ReadNextRecordBatch()) != null)
                 {
-                    RecordBatch batch;
-                    while ((batch = reader.ReadNextRecordBatch()) != null)
-                    {
-                        columnCount = batch.ColumnCount;
-                        if (arrays == null)
-                        {
-                            // Note that every batch in a stream has the same schema.
-                            arrays = ArrayPool<IArrowArray>.Shared.Rent(columnCount);
-                        }
-
-                        for (int i = 0; i < columnCount; ++i)
-                        {
-                            arrays[i] = batch.Column(i);
-                        }
-
-                        yield return new ReadOnlyMemory<IArrowArray>(arrays, 0, columnCount);
-                    }
-
+                    columnCount = batch.ColumnCount;
                     if (arrays == null)
                     {
-                        // When no input batches were received, return empty IArrowArrays
-                        // in order to create and write back the result schema.
-                        columnCount = reader.Schema.Fields.Count;
+                        // Note that every batch in a stream has the same schema.
                         arrays = ArrayPool<IArrowArray>.Shared.Rent(columnCount);
-
-                        for (int i = 0; i < columnCount; ++i)
-                        {
-                            arrays[i] = null;
-                        }
-                        yield return new ReadOnlyMemory<IArrowArray>(arrays, 0, columnCount);
                     }
+
+                    for (int i = 0; i < columnCount; ++i)
+                    {
+                        arrays[i] = batch.Column(i);
+                    }
+
+                    yield return new ReadOnlyMemory<IArrowArray>(arrays, 0, columnCount);
+                }
+
+                if (arrays == null)
+                {
+                    // When no input batches were received, return empty IArrowArrays
+                    // in order to create and write back the result schema.
+                    columnCount = reader.Schema.Fields.Count;
+                    arrays = ArrayPool<IArrowArray>.Shared.Rent(columnCount);
+
+                    for (int i = 0; i < columnCount; ++i)
+                    {
+                        arrays[i] = null;
+                    }
+                    yield return new ReadOnlyMemory<IArrowArray>(arrays, 0, columnCount);
                 }
             }
             finally
@@ -755,10 +752,11 @@ namespace Microsoft.Spark.Worker.Command
                     writer = new ArrowStreamWriter(outputStream, result.Schema, true, ipcOptions);
                 }
 
+                // TODO: Remove sync-over-async once WriteRecordBatch exists.
                 writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
             }
-
-            writer.WriteEndAsync().GetAwaiter().GetResult();
+            
+            SerDe.Write(outputStream, 0);
             writer?.Dispose();
 
             return stat;
@@ -795,11 +793,12 @@ namespace Microsoft.Spark.Worker.Command
                         writer = new ArrowStreamWriter(outputStream, result.Schema, true, ipcOptions);
                     }
 
+                    // TODO: Remove sync-over-async once WriteRecordBatch exists.
                     writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
                 }
             }
 
-            writer.WriteEndAsync().GetAwaiter().GetResult();
+            SerDe.Write(outputStream, 0);
             writer?.Dispose();
 
             return stat;

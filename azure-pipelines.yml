@@ -16,8 +16,6 @@ variables:
   backwardCompatibleRelease: '0.9.0'
   TestsToFilterOut: "(FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameVectorUdf)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestVectorUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestDestroy)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestMultipleBroadcastWithoutEncryption)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestUnpersist)&\
@@ -565,7 +563,9 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)&\
+        (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)&\
+        (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestVectorUdf)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-3.0.0-bin-hadoop2.7
 
