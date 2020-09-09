@@ -7,6 +7,7 @@
 package org.apache.spark.api.dotnet
 
 import java.io.{DataInputStream, DataOutputStream}
+import java.nio.charset.StandardCharsets
 import java.sql.{Date, Time, Timestamp}
 
 import org.apache.spark.sql.Row
@@ -320,9 +321,10 @@ object SerDe {
 
   // NOTE: Only works for ASCII right now
   def writeString(out: DataOutputStream, value: String): Unit = {
-    val len = value.length
+    val utf8 = value.getBytes(StandardCharsets.UTF_8)
+    val len = utf8.length
     out.writeInt(len)
-    out.writeBytes(value)
+    out.write(utf8, 0, len)
   }
 
   def writeBytes(out: DataOutputStream, value: Array[Byte]): Unit = {
