@@ -319,7 +319,6 @@ object SerDe {
     out.writeDouble((value.getTime / 1000).toDouble + value.getNanos.toDouble / 1e9)
   }
 
-  // NOTE: Only works for ASCII right now
   def writeString(out: DataOutputStream, value: String): Unit = {
     val utf8 = value.getBytes(StandardCharsets.UTF_8)
     val len = utf8.length
