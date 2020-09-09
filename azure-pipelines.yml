@@ -558,6 +558,9 @@ stages:
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.6-bin-hadoop2.7
 
+    # Spark 3.0.0 uses Arrow 0.15.1, which contains a new Arrow spec. This breaks backward
+    # compatibility when using Microsoft.Spark.Worker with incompatible versions of Arrow.
+    # Skip Arrow tests until the backward compatibility Worker version is updated.
     - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 3.0.0'
       inputs:
@@ -568,4 +571,3 @@ stages:
         (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestVectorUdf)"
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-3.0.0-bin-hadoop2.7
-
