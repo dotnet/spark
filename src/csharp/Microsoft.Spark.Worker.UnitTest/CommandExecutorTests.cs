@@ -308,8 +308,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Assert.Equal($"udf: {i}", array.GetString(i));
             }
 
-            int end = SerDe.ReadInt32(outputStream);
-            Assert.Equal(0, end);
+            CheckEOS(outputStream, ipcOptions);
 
             // Validate all the data on the stream is read.
             Assert.Equal(outputStream.Length, outputStream.Position);
@@ -389,8 +388,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Assert.Equal($"udf: {i}", array.GetString(i));
             }
 
-            int end = SerDe.ReadInt32(outputStream);
-            Assert.Equal(0, end);
+            CheckEOS(outputStream, ipcOptions);
 
             // Validate all the data on the stream is read.
             Assert.Equal(outputStream.Length, outputStream.Position);
@@ -492,8 +490,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Assert.Equal(i * i, array2.Values[i]);
             }
 
-            int end = SerDe.ReadInt32(outputStream);
-            Assert.Equal(0, end);
+            CheckEOS(outputStream, ipcOptions);
 
             // Validate all the data on the stream is read.
             Assert.Equal(outputStream.Length, outputStream.Position);
@@ -590,8 +587,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Assert.Equal(i * i, array2.Values[i]);
             }
 
-            int end = SerDe.ReadInt32(outputStream);
-            Assert.Equal(0, end);
+            CheckEOS(outputStream, ipcOptions);
 
             // Validate all the data on the stream is read.
             Assert.Equal(outputStream.Length, outputStream.Position);
@@ -679,8 +675,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             var array = (StringArray)outputBatch.Arrays.ElementAt(0);
             Assert.Equal(0, array.Length);
 
-            int end = SerDe.ReadInt32(outputStream);
-            Assert.Equal(0, end);
+            CheckEOS(outputStream, ipcOptions);
 
             // Validate all the data on the stream is read.
             Assert.Equal(outputStream.Length, outputStream.Position);
@@ -765,8 +760,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             var array = (StringArray)outputBatch.Arrays.ElementAt(0);
             Assert.Equal(0, array.Length);
 
-            int end = SerDe.ReadInt32(outputStream);
-            Assert.Equal(0, end);
+            CheckEOS(outputStream, ipcOptions);
 
             // Validate all the data on the stream is read.
             Assert.Equal(outputStream.Length, outputStream.Position);
@@ -885,8 +879,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Assert.Equal(100 + i, longArray.Values[i]);
             }
 
-            int end = SerDe.ReadInt32(outputStream);
-            Assert.Equal(0, end);
+            CheckEOS(outputStream, ipcOptions);
 
             // Validate all the data on the stream is read.
             Assert.Equal(outputStream.Length, outputStream.Position);
@@ -992,8 +985,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Assert.Equal(100 + i, doubleArray.Values[i]);
             }
 
-            int end = SerDe.ReadInt32(outputStream);
-            Assert.Equal(0, end);
+            CheckEOS(outputStream, ipcOptions);
 
             // Validate all the data on the stream is read.
             Assert.Equal(outputStream.Length, outputStream.Position);
@@ -1069,6 +1061,18 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             // Validate all the data on the stream is read.
             Assert.Equal(outputStream.Length, outputStream.Position);
+        }
+
+        private void CheckEOS(Stream stream, IpcOptions ipcOptions)
+        {
+            if (!ipcOptions.WriteLegacyIpcFormat)
+            {
+                int continuationToken = SerDe.ReadInt32(stream);
+                Assert.Equal(-1, continuationToken);
+            }
+
+            int end = SerDe.ReadInt32(stream);
+            Assert.Equal(0, end);
         }
     }
 

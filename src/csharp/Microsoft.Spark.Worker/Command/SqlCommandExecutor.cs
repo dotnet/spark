@@ -340,6 +340,16 @@ namespace Microsoft.Spark.Worker.Command
                 yield return new RecordBatch(reader.Schema, arrays, 0);
             }
         }
+
+        protected void WriteEnd(Stream stream, IpcOptions ipcOptions)
+        {
+            if (!ipcOptions.WriteLegacyIpcFormat)
+            {
+                SerDe.Write(stream, -1);
+            }
+
+            SerDe.Write(stream, 0);
+        }
     }
 
     internal class ArrowOrDataFrameSqlCommandExecutor : ArrowBasedCommandExecutor
@@ -415,7 +425,7 @@ namespace Microsoft.Spark.Worker.Command
                 writer.WriteRecordBatchAsync(recordBatch).GetAwaiter().GetResult();
             }
 
-            SerDe.Write(outputStream, 0);
+            WriteEnd(outputStream, ipcOptions);
             writer?.Dispose();
 
             return stat;
@@ -461,7 +471,7 @@ namespace Microsoft.Spark.Worker.Command
                 }
             }
 
-            SerDe.Write(outputStream, 0);
+            WriteEnd(outputStream, ipcOptions);
             writer?.Dispose();
 
             return stat;
@@ -755,8 +765,8 @@ namespace Microsoft.Spark.Worker.Command
                 // TODO: Remove sync-over-async once WriteRecordBatch exists.
                 writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
             }
-            
-            SerDe.Write(outputStream, 0);
+
+            WriteEnd(outputStream, ipcOptions);
             writer?.Dispose();
 
             return stat;
@@ -798,7 +808,7 @@ namespace Microsoft.Spark.Worker.Command
                 }
             }
 
-            SerDe.Write(outputStream, 0);
+            WriteEnd(outputStream, ipcOptions);
             writer?.Dispose();
 
             return stat;
