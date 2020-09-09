@@ -163,7 +163,7 @@ stages:
       ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
         _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
-      DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)           
+      DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)
 
     steps:
     - task: DownloadBuildArtifacts@0
@@ -431,7 +431,7 @@ stages:
       ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
         _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
       HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
-      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)           
+      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
 
     steps:
     - task: DownloadBuildArtifacts@0
@@ -563,9 +563,9 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)&\
+        arguments: "--configuration $(buildConfiguration) --filter $(TestsToFilterOut)&\
         (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)&\
-        (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestVectorUdf)'
+        (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestVectorUdf)"
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-3.0.0-bin-hadoop2.7
 
