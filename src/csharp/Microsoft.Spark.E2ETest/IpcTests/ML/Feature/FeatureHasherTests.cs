@@ -20,7 +20,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         {
             _spark = fixture.Spark;
         }
-
+        
+        /// <summary>
+        /// Create a <see cref="DataFrame"/>, create a <see cref="FeatureHasher"/> and test the
+        /// available methods. Test the FeatureBase methods using <see cref="FeatureBaseTests"/>.
+        /// </summary>
         [Fact]
         public void TestFeatureHasher()
         {

@@ -61,7 +61,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the columns that the <see cref="FeatureHasher"/> should read from and convert into
         /// hashes. This would have been set by SetInputCol.
         /// </summary>
-        /// <returns>IEnumerable&lt;string&gt;, the input columns</returns>
+        /// <returns>List of the input columns, set by SetInputCols</returns>
         public IEnumerable<string> GetInputCols() => (string[])_jvmObject.Invoke("getInputCols");
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace Microsoft.Spark.ML.Feature
         /// the numFeatures parameter; otherwise the features will not be mapped evenly to the
         /// columns.
         /// </summary>
-        /// <param name="value">int</param>
+        /// <param name="value">int value of number of features</param>
         /// <returns>New <see cref="FeatureHasher"/> object</returns>
         public FeatureHasher SetNumFeatures(int value) => 
             WrapAsFeatureHasher(_jvmObject.Invoke("setNumFeatures", value));
@@ -101,8 +101,7 @@ namespace Microsoft.Spark.ML.Feature
         public string GetOutputCol() => (string)_jvmObject.Invoke("getOutputCol");
 
         /// <summary>
-        /// The <see cref="FeatureHasher"/> will create a new column in the DataFrame, this is the
-        /// name of the new column.
+        /// Sets the name of the new column in the <see cref="DataFrame"/> created by Transform.
         /// </summary>
         /// <param name="value">The name of the new column which will contain the hash</param>
         /// <returns>New <see cref="FeatureHasher"/> object</returns>
@@ -122,7 +121,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Check transform validity and derive the output schema from the input schema.
         /// 
         /// This checks for validity of interactions between parameters during Transform and
-        /// raises an exception if any parameter value is invalid.   
+        /// raises an exception if any parameter value is invalid.
         ///
         /// Typical implementation should first conduct verification on schema change and parameter
         /// validity, including complex parameter interaction checks.

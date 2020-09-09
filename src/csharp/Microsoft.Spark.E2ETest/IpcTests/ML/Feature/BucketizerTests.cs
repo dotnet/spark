@@ -28,10 +28,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             var expectedSplits =
                 new double[] { double.MinValue, 0.0, 10.0, 50.0, double.MaxValue };
 
-            string expectedHandle = "skip";
-            string expectedUid = "uid";
-            string expectedInputCol = "input_col";
-            string expectedOutputCol = "output_col";
+            const string expectedHandle = "skip";
+            const string expectedUid = "uid";
+            const string expectedInputCol = "input_col";
+            const string expectedOutputCol = "output_col";
 
             var bucketizer = new Bucketizer(expectedUid);
             bucketizer.SetInputCol(expectedInputCol)

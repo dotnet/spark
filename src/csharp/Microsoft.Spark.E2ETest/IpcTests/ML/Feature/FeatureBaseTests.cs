@@ -10,6 +10,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 {
     public static class FeatureBaseTests<T>
     {
+        /// <summary>
+        /// Tests the common functionality across all ML.Feature classes.
+        /// </summary>
+        /// <param name="testObject">The object that implemented FeatureBase</param>
+        /// <param name="paramName">The name of a parameter that can be set on this object</param>
+        /// <param name="paramValue">A parameter value that can be set on this object</param>
         internal static void TestBase(
             FeatureBase<T> testObject, 
             string paramName, 
