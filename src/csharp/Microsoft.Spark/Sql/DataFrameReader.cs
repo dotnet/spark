@@ -255,6 +255,15 @@ namespace Microsoft.Spark.Sql
         /// <param name="paths">Input paths</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Orc(params string[] paths) => LoadSource("orc", paths);
+        
+        /// <summary>
+        /// Returns the specified table as a DataFrame. This is a table that is stored in the Hive 
+        /// metabase.
+        /// </summary>
+        /// <param name="tableName">Name of the table to read</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Table(string tableName) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("table", tableName));
 
         /// <summary>
         /// Loads text files and returns a DataFrame whose schema starts with a string column

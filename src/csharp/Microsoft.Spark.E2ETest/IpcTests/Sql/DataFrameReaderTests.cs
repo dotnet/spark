@@ -75,6 +75,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             string textFile = $"{TestEnvironment.ResourceDirectory}people.txt";
             Assert.IsType<DataFrame>(dfr.Text(textFile));
             Assert.IsType<DataFrame>(dfr.Text(textFile, textFile));
+            
+            dfr.Text(textFile).Write().Mode("overwrite").SaveAsTable("people_table");
+            Assert.IsType<DataFrame>(dfr.Table("people_table"));
+
         }
     }
 }
