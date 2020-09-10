@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
@@ -75,9 +76,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             string textFile = $"{TestEnvironment.ResourceDirectory}people.txt";
             Assert.IsType<DataFrame>(dfr.Text(textFile));
             Assert.IsType<DataFrame>(dfr.Text(textFile, textFile));
-            
-            dfr.Text(textFile).Write().Mode("overwrite").SaveAsTable("people_table");
-            Assert.IsType<DataFrame>(dfr.Table("people_table"));
+
+            string randomName = $"table_{new Random().Next(100000, 999999).ToString()}";
+            dfr.Text(textFile).Write().Mode("overwrite").SaveAsTable(randomName);
+            Assert.IsType<DataFrame>(dfr.Table(randomName));
 
         }
     }
