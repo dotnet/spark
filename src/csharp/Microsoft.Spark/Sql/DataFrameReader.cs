@@ -257,8 +257,8 @@ namespace Microsoft.Spark.Sql
         public DataFrame Orc(params string[] paths) => LoadSource("orc", paths);
         
         /// <summary>
-        /// Returns the specified table as a DataFrame. This is a table that is stored in the Hive 
-        /// metabase.
+        /// Returns the specified table as a DataFrame. This is a table that is configured in the 
+        /// Hive metabase.
         /// </summary>
         /// <param name="tableName">Name of the table to read</param>
         /// <returns>DataFrame object</returns>
