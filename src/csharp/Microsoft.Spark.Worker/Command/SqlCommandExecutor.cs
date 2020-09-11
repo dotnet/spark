@@ -416,7 +416,8 @@ namespace Microsoft.Spark.Worker.Command
                     Debug.Assert(resultSchema == null);
                     resultSchema = BuildSchema(results);
 
-                    writer = new ArrowStreamWriter(outputStream, resultSchema, true, ipcOptions);
+                    writer =
+                        new ArrowStreamWriter(outputStream, resultSchema, leaveOpen: true, ipcOptions);
                 }
 
                 var recordBatch = new RecordBatch(resultSchema, results, numEntries);
@@ -463,7 +464,8 @@ namespace Microsoft.Spark.Worker.Command
 
                     if (writer == null)
                     {
-                        writer = new ArrowStreamWriter(outputStream, result.Schema, true, ipcOptions);
+                        writer =
+                            new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true, ipcOptions);
                     }
 
                     // TODO: Remove sync-over-async once WriteRecordBatch exists.
@@ -759,7 +761,8 @@ namespace Microsoft.Spark.Worker.Command
 
                 if (writer == null)
                 {
-                    writer = new ArrowStreamWriter(outputStream, result.Schema, true, ipcOptions);
+                    writer =
+                        new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true, ipcOptions);
                 }
 
                 // TODO: Remove sync-over-async once WriteRecordBatch exists.
@@ -800,7 +803,8 @@ namespace Microsoft.Spark.Worker.Command
 
                     if (writer == null)
                     {
-                        writer = new ArrowStreamWriter(outputStream, result.Schema, true, ipcOptions);
+                        writer =
+                            new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true, ipcOptions);
                     }
 
                     // TODO: Remove sync-over-async once WriteRecordBatch exists.

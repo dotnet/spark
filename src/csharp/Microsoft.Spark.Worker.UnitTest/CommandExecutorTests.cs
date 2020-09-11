@@ -27,11 +27,13 @@ namespace Microsoft.Spark.Worker.UnitTest
     public class CommandExecutorTests
     {
         [Theory]
-        [InlineData(Versions.V2_4_2)]
-        [InlineData(Versions.V3_0_0)]
-        public void TestPicklingSqlCommandExecutorWithSingleCommand(string sparkVersionStr)
+        [MemberData(nameof(CommandExecutorData.Data), MemberType = typeof(CommandExecutorData))]
+        public void TestPicklingSqlCommandExecutorWithSingleCommand(
+            Version sparkVersion,
+#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
+            IpcOptions ipcOptions)
+#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
         {
-            Version sparkVersion = new Version(sparkVersionStr);
             var udfWrapper = new Sql.PicklingUdfWrapper<string, string>(
                 (str) => "udf: " + ((str is null) ? "NULL" : str));
             var command = new SqlCommand()
@@ -103,11 +105,13 @@ namespace Microsoft.Spark.Worker.UnitTest
         }
 
         [Theory]
-        [InlineData(Versions.V2_4_2)]
-        [InlineData(Versions.V3_0_0)]
-        public void TestPicklingSqlCommandExecutorWithMultiCommands(string sparkVersionStr)
+        [MemberData(nameof(CommandExecutorData.Data), MemberType = typeof(CommandExecutorData))]
+        public void TestPicklingSqlCommandExecutorWithMultiCommands(
+            Version sparkVersion,
+#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
+            IpcOptions ipcOptions)
+#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
         {
-            Version sparkVersion = new Version(sparkVersionStr);
             var udfWrapper1 = new Sql.PicklingUdfWrapper<string, string>((str) => $"udf: {str}");
             var udfWrapper2 = new Sql.PicklingUdfWrapper<int, int, int>(
                 (arg1, arg2) => arg1 * arg2);
@@ -190,11 +194,13 @@ namespace Microsoft.Spark.Worker.UnitTest
         }
 
         [Theory]
-        [InlineData(Versions.V2_4_2)]
-        [InlineData(Versions.V3_0_0)]
-        public void TestPicklingSqlCommandExecutorWithEmptyInput(string sparkVersionStr)
+        [MemberData(nameof(CommandExecutorData.Data), MemberType = typeof(CommandExecutorData))]
+        public void TestPicklingSqlCommandExecutorWithEmptyInput(
+            Version sparkVersion,
+#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
+            IpcOptions ipcOptions)
+#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
         {
-            Version sparkVersion = new Version(sparkVersionStr);
             var udfWrapper = new Sql.PicklingUdfWrapper<string, string>((str) => $"udf: {str}");
             var command = new SqlCommand()
             {
@@ -267,7 +273,8 @@ namespace Microsoft.Spark.Worker.UnitTest
             Schema schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
+            var arrowWriter =
+                new ArrowStreamWriter(inputStream, schema, leaveOpen: false, ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -347,7 +354,8 @@ namespace Microsoft.Spark.Worker.UnitTest
             Schema schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
+            var arrowWriter =
+                new ArrowStreamWriter(inputStream, schema, leaveOpen: false, ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -446,7 +454,8 @@ namespace Microsoft.Spark.Worker.UnitTest
                 .Field(b => b.Name("arg2").DataType(Int32Type.Default))
                 .Field(b => b.Name("arg3").DataType(Int32Type.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
+            var arrowWriter =
+                new ArrowStreamWriter(inputStream, schema, leaveOpen: false, ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -543,7 +552,8 @@ namespace Microsoft.Spark.Worker.UnitTest
                 .Field(b => b.Name("arg2").DataType(Int32Type.Default))
                 .Field(b => b.Name("arg3").DataType(Int32Type.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
+            var arrowWriter =
+                new ArrowStreamWriter(inputStream, schema, leaveOpen: false, ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -632,7 +642,8 @@ namespace Microsoft.Spark.Worker.UnitTest
             Schema schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
+            var arrowWriter =
+                new ArrowStreamWriter(inputStream, schema, leaveOpen: false, ipcOptions);
 
             // The .NET ArrowStreamWriter doesn't currently support writing just a 
             // schema with no batches - but Java does. We use Reflection to simulate
@@ -824,11 +835,12 @@ namespace Microsoft.Spark.Worker.UnitTest
             int numRows = 10;
 
             // Write test data to the input stream.
-            var schema = new Schema.Builder()
+            Schema schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Field(b => b.Name("arg2").DataType(Int64Type.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
+            var arrowWriter =
+                new ArrowStreamWriter(inputStream, schema, leaveOpen: false, ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -930,11 +942,12 @@ namespace Microsoft.Spark.Worker.UnitTest
             int numRows = 10;
 
             // Write test data to the input stream.
-            var schema = new Schema.Builder()
+            Schema schema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Field(b => b.Name("arg2").DataType(Int64Type.Default))
                 .Build();
-            var arrowWriter = new ArrowStreamWriter(inputStream, schema, false, ipcOptions);
+            var arrowWriter =
+                new ArrowStreamWriter(inputStream, schema, leaveOpen: false, ipcOptions);
             await arrowWriter.WriteRecordBatchAsync(
                 new RecordBatch(
                     schema,
@@ -992,11 +1005,11 @@ namespace Microsoft.Spark.Worker.UnitTest
         }
 
         [Theory]
-        [InlineData(Versions.V2_4_2)]
-        [InlineData(Versions.V3_0_0)]
-        public void TestRDDCommandExecutor(string sparkVersionStr)
+        [MemberData(nameof(CommandExecutorData.Data), MemberType = typeof(CommandExecutorData))]
+#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
+        public void TestRDDCommandExecutor(Version sparkVersion, IpcOptions ipcOptions)
+#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
         {
-            Version sparkVersion = new Version(sparkVersionStr);
             static int mapUdf(int a) => a + 3;
             var command = new RDDCommand()
             {
@@ -1078,6 +1091,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
     public class CommandExecutorData
     {
+        // CommandExecutor only changes its behavior between major versions.
         public static IEnumerable<object[]> Data =>
             new List<object[]>
             {
