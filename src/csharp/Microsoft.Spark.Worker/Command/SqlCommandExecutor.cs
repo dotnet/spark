@@ -796,9 +796,8 @@ namespace Microsoft.Spark.Worker.Command
                 FxDataFrame resultDataFrame = worker.Func(dataFrame);
                 IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToArrowRecordBatches();
 
-                foreach (RecordBatch record in recordBatches)
+                foreach (RecordBatch result in recordBatches)
                 {
-                    RecordBatch result = record;
                     stat.NumEntriesProcessed += result.Length;
 
                     if (writer == null)
