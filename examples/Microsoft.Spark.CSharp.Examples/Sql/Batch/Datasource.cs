@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Policy;
 using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.Examples.Sql.Batch
@@ -139,6 +138,8 @@ namespace Microsoft.Spark.Examples.Sql.Batch
                 .Option("inferSchema", true)
                 .Option("header", true)
                 .Load(csv);
+
+            df.PrintSchema();
 
             df = spark.Read().Orc(orc);
 

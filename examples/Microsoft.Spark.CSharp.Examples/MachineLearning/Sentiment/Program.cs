@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.Spark.Sql;
@@ -64,7 +63,7 @@ namespace Microsoft.Spark.Examples.MachineLearning.Sentiment
 
             ITransformer mlModel = mlContext
                 .Model
-                .Load(modelPath, out var modelInputSchema);
+                .Load(modelPath, out DataViewSchema _);
 
             PredictionEngine<Review, ReviewPrediction> predEngine = mlContext
                 .Model
