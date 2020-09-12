@@ -8,7 +8,6 @@ using System.Linq;
 using Apache.Arrow;
 using Microsoft.Data.Analysis;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
 
@@ -28,22 +27,20 @@ namespace Microsoft.Spark.UnitTest
                 Utils.CommandSerDe.SerializedMode.Row,
                 Utils.CommandSerDe.SerializedMode.Row);
 
-            using (var ms = new MemoryStream(serializedCommand))
-            {
-                var deserializedWorkerFunction = new PicklingWorkerFunction(
-                    Utils.CommandSerDe.Deserialize<PicklingWorkerFunction.ExecuteDelegate>(
-                        ms,
-                        out Utils.CommandSerDe.SerializedMode serializerMode,
-                        out Utils.CommandSerDe.SerializedMode deserializerMode,
-                        out var runMode));
+            using var ms = new MemoryStream(serializedCommand);
+            var deserializedWorkerFunction = new PicklingWorkerFunction(
+                Utils.CommandSerDe.Deserialize<PicklingWorkerFunction.ExecuteDelegate>(
+                    ms,
+                    out Utils.CommandSerDe.SerializedMode serializerMode,
+                    out Utils.CommandSerDe.SerializedMode deserializerMode,
+                    out var runMode));
 
-                Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, serializerMode);
-                Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, deserializerMode);
-                Assert.Equal("N", runMode);
+            Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, serializerMode);
+            Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, deserializerMode);
+            Assert.Equal("N", runMode);
 
-                object result = deserializedWorkerFunction.Func(0, new[] { "spark" }, new[] { 0 });
-                Assert.Equal("hello spark", result);
-            }
+            object result = deserializedWorkerFunction.Func(0, new[] { "spark" }, new[] { 0 });
+            Assert.Equal("hello spark", result);
         }
 
         [Fact]
@@ -62,24 +59,22 @@ namespace Microsoft.Spark.UnitTest
                 Utils.CommandSerDe.SerializedMode.Row,
                 Utils.CommandSerDe.SerializedMode.Row);
 
-            using (var ms = new MemoryStream(serializedCommand))
-            {
-                var deserializedWorkerFunction = new ArrowWorkerFunction(
-                    Utils.CommandSerDe.Deserialize<ArrowWorkerFunction.ExecuteDelegate>(
-                        ms,
-                        out Utils.CommandSerDe.SerializedMode serializerMode,
-                        out Utils.CommandSerDe.SerializedMode deserializerMode,
-                        out var runMode));
+            using var ms = new MemoryStream(serializedCommand);
+            var deserializedWorkerFunction = new ArrowWorkerFunction(
+                Utils.CommandSerDe.Deserialize<ArrowWorkerFunction.ExecuteDelegate>(
+                    ms,
+                    out Utils.CommandSerDe.SerializedMode serializerMode,
+                    out Utils.CommandSerDe.SerializedMode deserializerMode,
+                    out var runMode));
 
-                Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, serializerMode);
-                Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, deserializerMode);
-                Assert.Equal("N", runMode);
+            Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, serializerMode);
+            Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, deserializerMode);
+            Assert.Equal("N", runMode);
 
-                IArrowArray input = ToArrowArray(new[] { "spark" });
-                IArrowArray result =
-                    deserializedWorkerFunction.Func(new[] { input }, new[] { 0 });
-                AssertEquals("hello spark", result);
-            }
+            IArrowArray input = ToArrowArray(new[] { "spark" });
+            IArrowArray result =
+                deserializedWorkerFunction.Func(new[] { input }, new[] { 0 });
+            AssertEquals("hello spark", result);
         }
 
         [Fact]
@@ -95,26 +90,24 @@ namespace Microsoft.Spark.UnitTest
                 Utils.CommandSerDe.SerializedMode.Row,
                 Utils.CommandSerDe.SerializedMode.Row);
 
-            using (var ms = new MemoryStream(serializedCommand))
-            {
-                var deserializedWorkerFunction = new DataFrameWorkerFunction(
-                    Utils.CommandSerDe.Deserialize<DataFrameWorkerFunction.ExecuteDelegate>(
-                        ms,
-                        out Utils.CommandSerDe.SerializedMode serializerMode,
-                        out Utils.CommandSerDe.SerializedMode deserializerMode,
-                        out var runMode));
+            using var ms = new MemoryStream(serializedCommand);
+            var deserializedWorkerFunction = new DataFrameWorkerFunction(
+                Utils.CommandSerDe.Deserialize<DataFrameWorkerFunction.ExecuteDelegate>(
+                    ms,
+                    out Utils.CommandSerDe.SerializedMode serializerMode,
+                    out Utils.CommandSerDe.SerializedMode deserializerMode,
+                    out var runMode));
 
-                Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, serializerMode);
-                Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, deserializerMode);
-                Assert.Equal("N", runMode);
+            Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, serializerMode);
+            Assert.Equal(Utils.CommandSerDe.SerializedMode.Row, deserializerMode);
+            Assert.Equal("N", runMode);
 
-                var column = (StringArray)ToArrowArray(new[] { "spark" });
+            var column = (StringArray)ToArrowArray(new[] { "spark" });
 
-                ArrowStringDataFrameColumn ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
-                DataFrameColumn result =
-                    deserializedWorkerFunction.Func(new[] { ArrowStringDataFrameColumn }, new[] { 0 });
-                ArrowTestUtils.AssertEquals("hello spark", result);
-            }
+            ArrowStringDataFrameColumn ArrowStringDataFrameColumn = ToArrowStringDataFrameColumn(column);
+            DataFrameColumn result =
+                deserializedWorkerFunction.Func(new[] { ArrowStringDataFrameColumn }, new[] { 0 });
+            AssertEquals("hello spark", result);
         }
 
         [Fact]
@@ -139,23 +132,21 @@ namespace Microsoft.Spark.UnitTest
                 Utils.CommandSerDe.SerializedMode.Byte,
                 Utils.CommandSerDe.SerializedMode.Byte);
 
-            using (var ms = new MemoryStream(serializedCommand))
-            {
-                var deserializedWorkerFunction = new RDD.WorkerFunction(
-                    Utils.CommandSerDe.Deserialize<RDD.WorkerFunction.ExecuteDelegate>(
-                        ms,
-                        out Utils.CommandSerDe.SerializedMode serializerMode,
-                        out Utils.CommandSerDe.SerializedMode deserializerMode,
-                        out var runMode));
+            using var ms = new MemoryStream(serializedCommand);
+            var deserializedWorkerFunction = new RDD.WorkerFunction(
+                Utils.CommandSerDe.Deserialize<RDD.WorkerFunction.ExecuteDelegate>(
+                    ms,
+                    out Utils.CommandSerDe.SerializedMode serializerMode,
+                    out Utils.CommandSerDe.SerializedMode deserializerMode,
+                    out var runMode));
 
-                Assert.Equal(Utils.CommandSerDe.SerializedMode.Byte, serializerMode);
-                Assert.Equal(Utils.CommandSerDe.SerializedMode.Byte, deserializerMode);
-                Assert.Equal("N", runMode);
+            Assert.Equal(Utils.CommandSerDe.SerializedMode.Byte, serializerMode);
+            Assert.Equal(Utils.CommandSerDe.SerializedMode.Byte, deserializerMode);
+            Assert.Equal("N", runMode);
 
-                IEnumerable<object> result =
-                    deserializedWorkerFunction.Func(0, new object[] { 1, 2, 3 });
-                Assert.Equal(new[] { 13, 15, 17 }, result.Cast<int>());
-            }
+            IEnumerable<object> result =
+                deserializedWorkerFunction.Func(0, new object[] { 1, 2, 3 });
+            Assert.Equal(new[] { 13, 15, 17 }, result.Cast<int>());
         }
     }
 }

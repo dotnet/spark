@@ -30,10 +30,9 @@ namespace Microsoft.Spark.Worker.UnitTest
         [MemberData(nameof(CommandExecutorData.Data), MemberType = typeof(CommandExecutorData))]
         public void TestPicklingSqlCommandExecutorWithSingleCommand(
             Version sparkVersion,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
             IpcOptions ipcOptions)
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
         {
+            _ = ipcOptions;
             var udfWrapper = new Sql.PicklingUdfWrapper<string, string>(
                 (str) => "udf: " + ((str is null) ? "NULL" : str));
             var command = new SqlCommand()
@@ -108,10 +107,9 @@ namespace Microsoft.Spark.Worker.UnitTest
         [MemberData(nameof(CommandExecutorData.Data), MemberType = typeof(CommandExecutorData))]
         public void TestPicklingSqlCommandExecutorWithMultiCommands(
             Version sparkVersion,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
             IpcOptions ipcOptions)
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
         {
+            _ = ipcOptions;
             var udfWrapper1 = new Sql.PicklingUdfWrapper<string, string>((str) => $"udf: {str}");
             var udfWrapper2 = new Sql.PicklingUdfWrapper<int, int, int>(
                 (arg1, arg2) => arg1 * arg2);
@@ -197,10 +195,9 @@ namespace Microsoft.Spark.Worker.UnitTest
         [MemberData(nameof(CommandExecutorData.Data), MemberType = typeof(CommandExecutorData))]
         public void TestPicklingSqlCommandExecutorWithEmptyInput(
             Version sparkVersion,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
             IpcOptions ipcOptions)
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
         {
+            _ = ipcOptions;
             var udfWrapper = new Sql.PicklingUdfWrapper<string, string>((str) => $"udf: {str}");
             var command = new SqlCommand()
             {
@@ -904,12 +901,12 @@ namespace Microsoft.Spark.Worker.UnitTest
             Version sparkVersion,
             IpcOptions ipcOptions)
         {
-            ArrowStringDataFrameColumn ConvertStrings(ArrowStringDataFrameColumn strings)
+            static ArrowStringDataFrameColumn ConvertStrings(ArrowStringDataFrameColumn strings)
             {
                 return strings.Apply(cur => $"udf: {cur}");
             }
 
-            var resultSchema = new Schema.Builder()
+            Schema resultSchema = new Schema.Builder()
                 .Field(b => b.Name("arg1").DataType(StringType.Default))
                 .Field(b => b.Name("arg2").DataType(Int64Type.Default))
                 .Build();
@@ -1006,10 +1003,9 @@ namespace Microsoft.Spark.Worker.UnitTest
 
         [Theory]
         [MemberData(nameof(CommandExecutorData.Data), MemberType = typeof(CommandExecutorData))]
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
         public void TestRDDCommandExecutor(Version sparkVersion, IpcOptions ipcOptions)
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
         {
+            _ = ipcOptions;
             static int mapUdf(int a) => a + 3;
             var command = new RDDCommand()
             {

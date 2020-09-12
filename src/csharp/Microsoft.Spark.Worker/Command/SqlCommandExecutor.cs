@@ -113,7 +113,7 @@ namespace Microsoft.Spark.Worker.Command
             //   |age|name|
             //   +---+----+
             //   +---+----+
-            int messageLength = 0;
+            int messageLength;
             while ((messageLength = SerDe.ReadInt32(inputStream)) !=
                 (int)SpecialLengths.END_OF_DATA_SECTION)
             {
