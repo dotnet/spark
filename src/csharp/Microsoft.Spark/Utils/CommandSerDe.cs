@@ -233,7 +233,7 @@ namespace Microsoft.Spark.Utils
             int udfIndex = 0;
             UdfWrapperNode node = udfWrapperData.UdfWrapperNodes[nodeIndex];
             Type nodeType = Type.GetType(node.TypeName);
-            Delegate udf = null;
+            Delegate udf;
             if (nodeType == typeof(DataFrameGroupedMapUdfWrapper))
             {
                 udf = (DataFrameGroupedMapWorkerFunction.ExecuteDelegate)DeserializeUdfs<DataFrameGroupedMapWorkerFunction.ExecuteDelegate>(

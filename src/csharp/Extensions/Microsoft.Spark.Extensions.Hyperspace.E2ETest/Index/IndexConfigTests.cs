@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Extensions.Hyperspace.Index;
 using Xunit;
@@ -16,10 +15,6 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest.Index
     [Collection(Constants.HyperspaceTestContainerName)]
     public class IndexConfigTests
     {
-        public IndexConfigTests(HyperspaceFixture fixture)
-        {
-        }
-
         /// <summary>
         /// Test the method signatures for IndexConfig and IndexConfigBuilder APIs.
         /// </summary>
