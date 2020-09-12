@@ -236,7 +236,7 @@ namespace Microsoft.Spark.Interop.Ipc
             var classObject = (JvmObjectReference)Invoke("getClass");
             var className = (string)classObject.Invoke("getName");
 
-            return $"Java object reference id={Id}, type name={className}, creation time (UTC)={_creationTime.ToString("o")}";
+            return $"Java object reference id={Id}, type name={className}, creation time (UTC)={_creationTime:o}";
         }
     }
 }
