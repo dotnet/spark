@@ -150,7 +150,7 @@ namespace Microsoft.Spark.Worker
 
                 DateTime initTime = DateTime.UtcNow;
 
-                CommandExecutorStat commandExecutorStat = new CommandExecutor().Execute(
+                CommandExecutorStat commandExecutorStat = new CommandExecutor(version).Execute(
                     inputStream,
                     outputStream,
                     payload.SplitIndex,
