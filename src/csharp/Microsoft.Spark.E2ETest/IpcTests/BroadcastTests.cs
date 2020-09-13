@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
@@ -41,7 +42,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", "true");
             var obj1 = new TestBroadcastVariable(1, "first");
             var obj2 = new TestBroadcastVariable(2, "second");
-            Broadcast<int> bc = _spark.SparkContext.Broadcast(5);
             Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
             Broadcast<TestBroadcastVariable> bc2 = _spark.SparkContext.Broadcast(obj2);
 
