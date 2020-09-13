@@ -3,9 +3,53 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace Microsoft.Spark.Sql
 {
+    internal static class PicklingUdfWrapperHelper
+    {
+        internal static T Convert<T>(object obj)
+        {
+            if (obj == null)
+            {
+                return default;
+            }
+
+            Type type = obj.GetType();
+            return (T)(type switch
+            {
+                _ when type == typeof(ArrayList) => ConvertToArray<T>((ArrayList)obj),
+                _ => obj
+            });
+        }
+
+        private static object ConvertToArray<T>(ArrayList arrayList)
+        {
+            Type genericType = typeof(T);
+            Debug.Assert(genericType.IsArray);
+            Type genericElementType = genericType.GetElementType();
+
+            int length = arrayList.Count;
+            Array convertedArray = Array.CreateInstance(genericElementType, length);
+            MethodInfo convertMethod = typeof(PicklingUdfWrapperHelper)
+                .GetMethod("Convert", BindingFlags.Static | BindingFlags.NonPublic)
+                .MakeGenericMethod(new[] { genericElementType });
+
+            for (int i = 0; i < length; ++i)
+            {
+
+                object convertedElement = convertMethod.Invoke(null, new[] { arrayList[i] });
+                Debug.Assert(genericElementType == convertedElement.GetType());
+                convertedArray.SetValue(convertedElement, i);
+            }
+
+            return convertedArray;
+        }
+    }
+
     /// <summary>
     /// Wraps the given Func object, which represents a UDF.
     /// </summary>
@@ -43,7 +87,7 @@ namespace Microsoft.Spark.Sql
 
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
-            return _func((T)(input[argOffsets[0]]));
+            return _func(PicklingUdfWrapperHelper.Convert<T>(input[argOffsets[0]]));
         }
     }
 
@@ -65,7 +109,9 @@ namespace Microsoft.Spark.Sql
 
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
-            return _func((T1)(input[argOffsets[0]]), (T2)(input[argOffsets[1]]));
+            return _func(
+                PicklingUdfWrapperHelper.Convert<T1>(input[argOffsets[0]]),
+                PicklingUdfWrapperHelper.Convert<T2>(input[argOffsets[1]]));
         }
     }
 
@@ -89,9 +135,9 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]));
+                PicklingUdfWrapperHelper.Convert<T1>(input[argOffsets[0]]),
+                PicklingUdfWrapperHelper.Convert<T2>(input[argOffsets[1]]),
+                PicklingUdfWrapperHelper.Convert<T3>(input[argOffsets[2]]));
         }
     }
 
@@ -116,10 +162,10 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]),
-                (T4)(input[argOffsets[3]]));
+                PicklingUdfWrapperHelper.Convert<T1>(input[argOffsets[0]]),
+                PicklingUdfWrapperHelper.Convert<T2>(input[argOffsets[1]]),
+                PicklingUdfWrapperHelper.Convert<T3>(input[argOffsets[2]]),
+                PicklingUdfWrapperHelper.Convert<T4>(input[argOffsets[3]]));
         }
     }
 
@@ -145,11 +191,11 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]),
-                (T4)(input[argOffsets[3]]),
-                (T5)(input[argOffsets[4]]));
+                PicklingUdfWrapperHelper.Convert<T1>(input[argOffsets[0]]),
+                PicklingUdfWrapperHelper.Convert<T2>(input[argOffsets[1]]),
+                PicklingUdfWrapperHelper.Convert<T3>(input[argOffsets[2]]),
+                PicklingUdfWrapperHelper.Convert<T4>(input[argOffsets[3]]),
+                PicklingUdfWrapperHelper.Convert<T5>(input[argOffsets[4]]));
         }
     }
 
@@ -176,12 +222,12 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]),
-                (T4)(input[argOffsets[3]]),
-                (T5)(input[argOffsets[4]]),
-                (T6)(input[argOffsets[5]]));
+                PicklingUdfWrapperHelper.Convert<T1>(input[argOffsets[0]]),
+                PicklingUdfWrapperHelper.Convert<T2>(input[argOffsets[1]]),
+                PicklingUdfWrapperHelper.Convert<T3>(input[argOffsets[2]]),
+                PicklingUdfWrapperHelper.Convert<T4>(input[argOffsets[3]]),
+                PicklingUdfWrapperHelper.Convert<T5>(input[argOffsets[4]]),
+                PicklingUdfWrapperHelper.Convert<T6>(input[argOffsets[5]]));
         }
     }
 
@@ -209,13 +255,13 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]),
-                (T4)(input[argOffsets[3]]),
-                (T5)(input[argOffsets[4]]),
-                (T6)(input[argOffsets[5]]),
-                (T7)(input[argOffsets[6]]));
+                PicklingUdfWrapperHelper.Convert<T1>(input[argOffsets[0]]),
+                PicklingUdfWrapperHelper.Convert<T2>(input[argOffsets[1]]),
+                PicklingUdfWrapperHelper.Convert<T3>(input[argOffsets[2]]),
+                PicklingUdfWrapperHelper.Convert<T4>(input[argOffsets[3]]),
+                PicklingUdfWrapperHelper.Convert<T5>(input[argOffsets[4]]),
+                PicklingUdfWrapperHelper.Convert<T6>(input[argOffsets[5]]),
+                PicklingUdfWrapperHelper.Convert<T7>(input[argOffsets[6]]));
         }
     }
 
@@ -244,14 +290,14 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]),
-                (T4)(input[argOffsets[3]]),
-                (T5)(input[argOffsets[4]]),
-                (T6)(input[argOffsets[5]]),
-                (T7)(input[argOffsets[6]]),
-                (T8)(input[argOffsets[7]]));
+                PicklingUdfWrapperHelper.Convert<T1>(input[argOffsets[0]]),
+                PicklingUdfWrapperHelper.Convert<T2>(input[argOffsets[1]]),
+                PicklingUdfWrapperHelper.Convert<T3>(input[argOffsets[2]]),
+                PicklingUdfWrapperHelper.Convert<T4>(input[argOffsets[3]]),
+                PicklingUdfWrapperHelper.Convert<T5>(input[argOffsets[4]]),
+                PicklingUdfWrapperHelper.Convert<T6>(input[argOffsets[5]]),
+                PicklingUdfWrapperHelper.Convert<T7>(input[argOffsets[6]]),
+                PicklingUdfWrapperHelper.Convert<T8>(input[argOffsets[7]]));
         }
     }
 
@@ -280,15 +326,15 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]),
-                (T4)(input[argOffsets[3]]),
-                (T5)(input[argOffsets[4]]),
-                (T6)(input[argOffsets[5]]),
-                (T7)(input[argOffsets[6]]),
-                (T8)(input[argOffsets[7]]),
-                (T9)(input[argOffsets[8]]));
+                PicklingUdfWrapperHelper.Convert<T1>(input[argOffsets[0]]),
+                PicklingUdfWrapperHelper.Convert<T2>(input[argOffsets[1]]),
+                PicklingUdfWrapperHelper.Convert<T3>(input[argOffsets[2]]),
+                PicklingUdfWrapperHelper.Convert<T4>(input[argOffsets[3]]),
+                PicklingUdfWrapperHelper.Convert<T5>(input[argOffsets[4]]),
+                PicklingUdfWrapperHelper.Convert<T6>(input[argOffsets[5]]),
+                PicklingUdfWrapperHelper.Convert<T7>(input[argOffsets[6]]),
+                PicklingUdfWrapperHelper.Convert<T8>(input[argOffsets[7]]),
+                PicklingUdfWrapperHelper.Convert<T9>(input[argOffsets[8]]));
         }
     }
 
@@ -319,16 +365,16 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]),
-                (T4)(input[argOffsets[3]]),
-                (T5)(input[argOffsets[4]]),
-                (T6)(input[argOffsets[5]]),
-                (T7)(input[argOffsets[6]]),
-                (T8)(input[argOffsets[7]]),
-                (T9)(input[argOffsets[8]]),
-                (T10)(input[argOffsets[9]]));
+                PicklingUdfWrapperHelper.Convert<T1>(input[argOffsets[0]]),
+                PicklingUdfWrapperHelper.Convert<T2>(input[argOffsets[1]]),
+                PicklingUdfWrapperHelper.Convert<T3>(input[argOffsets[2]]),
+                PicklingUdfWrapperHelper.Convert<T4>(input[argOffsets[3]]),
+                PicklingUdfWrapperHelper.Convert<T5>(input[argOffsets[4]]),
+                PicklingUdfWrapperHelper.Convert<T6>(input[argOffsets[5]]),
+                PicklingUdfWrapperHelper.Convert<T7>(input[argOffsets[6]]),
+                PicklingUdfWrapperHelper.Convert<T8>(input[argOffsets[7]]),
+                PicklingUdfWrapperHelper.Convert<T9>(input[argOffsets[8]]),
+                PicklingUdfWrapperHelper.Convert<T10>(input[argOffsets[9]]));
         }
     }
 }

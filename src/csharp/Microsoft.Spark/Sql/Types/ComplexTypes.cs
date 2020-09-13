@@ -3,7 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Spark.Interop.Ipc;
 using Newtonsoft.Json.Linq;
@@ -71,7 +73,60 @@ namespace Microsoft.Spark.Sql.Types
 
         internal override bool NeedConversion() => true;
 
-        internal override object FromInternal(object obj) => throw new NotImplementedException();
+        internal override object FromInternal(object obj)
+        {
+            if (obj == null)
+            {
+                return obj;
+            }
+
+            var arrayList = obj as ArrayList;
+            Debug.Assert(arrayList != null);
+
+            int length = arrayList.Count;
+            object[] objs = new object[length];
+            for (int i = 0; i < length; ++i)
+            {
+                objs[i] = ElementType.FromInternal(arrayList[i]);
+            }
+
+            Type elementType = ElementType.GetType();
+            return elementType switch
+            {
+                _ when elementType == typeof(StringType) => objs.Cast<string>().ToArray(),
+                _ when elementType == typeof(BooleanType) => objs.Cast<bool>().ToArray(),
+                _ when elementType == typeof(DateType) => objs.Cast<Date>().ToArray(),
+                _ when elementType == typeof(DateType) => objs.Cast<Timestamp>().ToArray(),
+                _ when elementType == typeof(DoubleType) => objs.Cast<double>().ToArray(),
+                _ when elementType == typeof(FloatType) => objs.Cast<float>().ToArray(),
+                _ when elementType == typeof(ByteType) => objs.Cast<byte>().ToArray(),
+                _ when elementType == typeof(IntegerType) => objs.Cast<int>().ToArray(),
+                _ when elementType == typeof(LongType) => objs.Cast<long>().ToArray(),
+                _ when elementType == typeof(ShortType) => objs.Cast<short>().ToArray(),
+                _ when elementType == typeof(DecimalType) => objs.Cast<decimal>().ToArray(),
+                _ when elementType == typeof(ArrayType) => ConvertArrayType(objs),
+                _ when elementType == typeof(StructType) => objs.Cast<Row>().ToArray(),
+                _ => objs
+            };
+        }
+
+        private object ConvertArrayType(object[] objs)
+        {
+            int length = objs.Length;
+            if (length == 0)
+            {
+                return objs;
+            }
+
+            Type elementType = objs[0].GetType();
+            Array convertedArray = Array.CreateInstance(elementType, length);
+            for (int i = 0; i < length; ++i)
+            {
+                convertedArray.SetValue(objs[i], i);
+            }
+
+            return convertedArray;
+        }
     }
 
     /// <summary>
@@ -277,6 +332,18 @@ namespace Microsoft.Spark.Sql.Types
             Fields = fieldsJObjects.Select(
                 fieldJObject => new StructField(fieldJObject)).ToList();
             return this;
+        }
+
+        internal override bool NeedConversion() => true;
+
+        internal override object FromInternal(object obj)
+        {
+            if (obj is RowConstructor rowConstructor)
+            {
+                return rowConstructor.GetRow();
+            }
+
+            return obj;
         }
     }
 }
