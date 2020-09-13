@@ -14,9 +14,17 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
 
         public DeltaFixture()
         {
+            Version sparkVersion = SparkSettings.Version;
+            string deltaVersion = sparkVersion.Major switch
+            {
+                2 => "delta-core_2.11:0.6.1",
+                3 => "delta-core_2.12:0.7.0",
+                _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
+            };
+
             Environment.SetEnvironmentVariable(
                 SparkFixture.EnvironmentVariableNames.ExtraSparkSubmitArgs,
-                "--packages io.delta:delta-core_2.11:0.6.1 " +
+                $"--packages io.delta:{deltaVersion} " +
                 "--conf spark.databricks.delta.snapshotPartitions=2 " +
                 "--conf spark.sql.sources.parallelPartitionDiscovery.parallelism=5");
             SparkFixture = new SparkFixture();

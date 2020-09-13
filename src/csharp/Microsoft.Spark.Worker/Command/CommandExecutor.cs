@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.IO;
 using System.Linq;
 
@@ -24,6 +25,13 @@ namespace Microsoft.Spark.Worker.Command
     /// </summary>
     internal sealed class CommandExecutor
     {
+        private readonly Version _version;
+
+        internal CommandExecutor(Version version)
+        {
+            _version = version;
+        }
+
         /// <summary>
         /// Executes the commands on the input data read from input stream
         /// and writes results to the output stream.
@@ -55,11 +63,11 @@ namespace Microsoft.Spark.Worker.Command
             }
 
             return SqlCommandExecutor.Execute(
+                _version,
                 inputStream,
                 outputStream,
                 commandPayload.EvalType,
                 commandPayload.Commands.Cast<SqlCommand>().ToArray());
-
         }
     }
 }

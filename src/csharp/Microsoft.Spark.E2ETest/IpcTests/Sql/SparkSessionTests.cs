@@ -90,9 +90,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {            
             // Calling CreateDataFrame with schema
             {
-                var data = new List<GenericRow>();
-                data.Add(new GenericRow(new object[] { "Alice", 20, new Date(2020, 1, 1) }));
-                data.Add(new GenericRow(new object[] { "Bob", 30, new Date(2020, 1, 2) }));
+                var data = new List<GenericRow>
+                {
+                    new GenericRow(new object[] { "Alice", 20, new Date(2020, 1, 1) }),
+                    new GenericRow(new object[] { "Bob", 30, new Date(2020, 1, 2) })
+                };
 
                 var schema = new StructType(new List<StructField>()
                 {

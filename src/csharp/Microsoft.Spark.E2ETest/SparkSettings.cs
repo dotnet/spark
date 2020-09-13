@@ -35,7 +35,13 @@ namespace Microsoft.Spark.E2ETest
             // Spark 2.3.2 built for Hadoop 2.7.3
             string firstLine =
                 File.ReadLines($"{SparkHome}{Path.DirectorySeparatorChar}RELEASE").First();
-            Version = new Version(firstLine.Split(' ')[1]);
+
+            // Grab "2.3.2" from "Spark 2.3.2 built for Hadoop 2.7.3"
+            string versionStr = firstLine.Split(' ')[1];
+
+            // Strip anything below version number.
+            // For example, "3.0.0-preview" should become "3.0.0".
+            Version = new Version(versionStr.Split('-')[0]);
         }
     }
 }
