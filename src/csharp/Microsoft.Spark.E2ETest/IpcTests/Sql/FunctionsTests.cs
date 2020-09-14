@@ -796,5 +796,55 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             col = MapConcat(col);
             col = MapConcat(col, col);
         }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.0.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
+        public void TestSignaturesV3_0_X()
+        {
+            Column col = Column("col");
+
+            Assert.IsType<Column>(XXHash64());
+            Assert.IsType<Column>(XXHash64(col));
+            Assert.IsType<Column>(XXHash64(col, col));
+
+            Assert.IsType<Column>(Split(col, "\t", 1));
+            Assert.IsType<Column>(Split(col, "\t", -1));
+
+            Assert.IsType<Column>(Overlay(col, col, col));
+            Assert.IsType<Column>(Overlay(col, col, col, col));
+
+            Assert.IsType<Column>(AddMonths(col, col));
+
+            Assert.IsType<Column>(DateAdd(col, col));
+
+            Assert.IsType<Column>(DateSub(col, col));
+
+            var options = new Dictionary<string, string>() { { "hello", "world" } };
+            Assert.IsType<Column>(SchemaOfJson(col, options));
+
+            Assert.IsType<Column>(MapEntries(col));
+
+            Column schemaCol = SchemaOfCsv("[{\"col\":0}]");
+            Assert.IsType<Column>(FromCsv(col, schemaCol, options));
+
+            Assert.IsType<Column>(SchemaOfCsv(col));
+            Assert.IsType<Column>(SchemaOfCsv(col, options));
+
+            Assert.IsType<Column>(ToCsv(col));
+            Assert.IsType<Column>(ToCsv(col, options));
+
+            Assert.IsType<Column>(Years(col));
+
+            Assert.IsType<Column>(Months(col));
+
+            Assert.IsType<Column>(Days(col));
+
+            Assert.IsType<Column>(Hours(col));
+
+            Assert.IsType<Column>(Bucket(Lit(1), col));
+            Assert.IsType<Column>(Bucket(1, col));
+        }
     }
 }
