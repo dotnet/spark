@@ -40,7 +40,6 @@ namespace Microsoft.Spark.Sql
 
             for (int i = 0; i < length; ++i)
             {
-
                 object convertedElement = convertMethod.Invoke(null, new[] { arrayList[i] });
                 Debug.Assert(genericElementType == convertedElement.GetType());
                 convertedArray.SetValue(convertedElement, i);
