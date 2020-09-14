@@ -156,7 +156,10 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                         });
 
                 DataFrame df = _spark.CreateDataFrame(data, schema);
-                Row[] rows = df.Select(udf(df["name"], df["ids"], df["arrIds"], df["arrArrIds"])).Collect().ToArray();
+                Row[] rows =
+                    df.Select(udf(df["name"], df["ids"], df["arrIds"], df["arrArrIds"]))
+                    .Collect()
+                    .ToArray();
 
                 var expected = new string[]
                 {
