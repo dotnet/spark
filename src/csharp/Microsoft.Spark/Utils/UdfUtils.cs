@@ -72,7 +72,11 @@ namespace Microsoft.Spark.Utils
             SQL_SCALAR_PANDAS_UDF = 200,
             SQL_GROUPED_MAP_PANDAS_UDF = 201,
             SQL_GROUPED_AGG_PANDAS_UDF = 202,
-            SQL_WINDOW_AGG_PANDAS_UDF = 203
+            SQL_WINDOW_AGG_PANDAS_UDF = 203,
+
+            SQL_SCALAR_PANDAS_ITER_UDF = 204,
+            SQL_MAP_PANDAS_ITER_UDF = 205,
+            SQL_COGROUPED_MAP_PANDAS_UDF = 206
         }
 
         /// <summary>
