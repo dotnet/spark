@@ -178,7 +178,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                         new StructType(new StructField[]
                         {
                             new StructField("first", new StringType()),
-                            new StructField("second", new StringType())
+                            new StructField("second", new StringType()),
+                            new StructField("ids", new ArrayType(new IntegerType())),
                         })))
                 });
 
@@ -192,12 +193,14 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                             new GenericRow(new object[]
                             {
                                 "f1",
-                                "s1"
+                                "s1",
+                                new int[] { 1, 2, 3 }
                             }),
                             new GenericRow(new object[]
                             {
                                 "f2",
-                                "s2"
+                                "s2",
+                                new int[] { 4, 5 }
                             })
                         }
                     }),
@@ -214,7 +217,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                             new GenericRow(new object[]
                             {
                                 "f3",
-                                "s3"
+                                "s3",
+                                new int[] { 6 }
                             })
                         }
                     }),
@@ -230,8 +234,18 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                             if (rows != null)
                             {
                                 sb.Append("|" + string.Join(
-                                    ",",
-                                    rows.Select(r => r.GetAs<string>(0) + r.GetAs<string>(1))));
+                                    "|",
+                                    rows.Select(r =>
+                                    {
+                                        string firstlast = r.GetAs<string>(0) + r.GetAs<string>(1);
+                                        int[] ids = r.GetAs<int[]>("ids");
+                                        if (ids == null)
+                                        {
+                                            return firstlast;
+                                        }
+
+                                        return firstlast + "," + string.Join(",", ids);
+                                    })));
                             }
 
                             return sb.ToString();
@@ -242,9 +256,9 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
                 var expected = new string[]
                 {
-                    "Name1|f1s1,f2s2",
+                    "Name1|f1s1,1,2,3|f2s2,4,5",
                     "Name2",
-                    "Name3|f3s3"
+                    "Name3|f3s3,6"
                 };
                 Assert.Equal(expected, rows.Select(r => r.GetAs<string>(0)));
             }
