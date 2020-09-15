@@ -91,12 +91,11 @@ namespace Microsoft.Spark.Utils
                     if (objArr.GetType() == typeof(RowConstructor))
                     {
                         Row row = (objArr as RowConstructor).GetRow();
-                        if (row.Values[0].GetType() == typeof(ArrayList))
+                        if (row.Values[0] != null && row.Values[0].GetType() == typeof(ArrayList))
                         {
                             return CastUnpickledItems.CastToRowArray(unpickledItems);
                         }
                     }
-                    return unpickledItems as object[];
                 }
                 return unpickledItems as object[];
             }
