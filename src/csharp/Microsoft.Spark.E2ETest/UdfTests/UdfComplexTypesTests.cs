@@ -60,21 +60,40 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithReturnAsArrayType()
         {
-            // UDF with return as ArrayType throws a following exception:
-            // Unhandled Exception: System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation. 
-            // ---> System.NotImplementedException: The method or operation is not implemented.
-            // at Microsoft.Spark.Sql.Row.Convert() in Microsoft.Spark\Sql\Row.cs:line 169
-            // at Microsoft.Spark.Sql.Row..ctor(Object[] values, StructType schema) in Microsoft.Spark\Sql\Row.cs:line 34
-            // at Microsoft.Spark.Sql.RowConstructor.GetRow() in Microsoft.Spark\Sql\RowConstructor.cs:line 113
-            // at Microsoft.Spark.Sql.RowCollector.Collect(ISocketWrapper socket) + MoveNext() in Microsoft.Spark\Sql\RowCollector.cs:line 36
-            // at Microsoft.Spark.Sql.DataFrame.GetRows(String funcName) + MoveNext() in Microsoft.Spark\Sql\DataFrame.cs:line 891
             Func<Column, Column> udf = Udf<string, string[]>(
                 str => new string[] { str, str + str });
-            Assert.Throws<NotImplementedException>(
-                () => _df.Select(udf(_df["name"])).Collect().ToArray());
 
             // Show() works here. See the example below.
-            _df.Select(udf(_df["name"])).Show();
+            Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
+
+            var expected = new string[][]
+            {
+                new string[] { "Michael", "MichaelMichael" },
+                new string[] { "Andy", "AndyAndy" },
+                new string[] { "Justin", "JustinJustin" },
+            };
+
+            Assert.Equal(expected.Length, rows.Length);
+            for (int i = 0; i < expected.Length; ++i)
+            {
+                Assert.Equal(expected[i], rows[i].GetAs<ArrayList>(0).ToArray());
+            }
+
+            // ArrayList example.
+            ArrayList row = rows[0].GetAs<ArrayList>(0);
+            Assert.Equal(expected[0][0], row[0]);
+            Assert.Equal(expected[0][1], row[1]);
+
+            // Cast necessary to assign to string.
+            string michael = (string)row[0];
+            // Cast unnessary when using in foreach.
+            foreach (string s in row)
+            {
+            }
+
+            Array stringArray = row.ToArray(typeof(string));
+            // Cast necessary to assign to string[]
+            string[] stringArrayCast = (string[])row.ToArray(typeof(string));
         }
 
         /// <summary>

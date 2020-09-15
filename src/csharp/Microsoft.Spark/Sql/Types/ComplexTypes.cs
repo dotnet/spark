@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Spark.Interop.Ipc;
@@ -69,9 +70,24 @@ namespace Microsoft.Spark.Sql.Types
             return this;
         }
 
-        internal override bool NeedConversion() => true;
+        internal override bool NeedConversion() => ElementType.NeedConversion();
 
-        internal override object FromInternal(object obj) => throw new NotImplementedException();
+        internal override object FromInternal(object obj)
+        {
+            if (!NeedConversion())
+            {
+                return obj;
+            }
+
+            ArrayList arrayList = obj as ArrayList;
+            int length = arrayList != null ? arrayList.Count : 0;
+            for (int i = 0; i < length; ++i)
+            {
+                arrayList[i] = ElementType.FromInternal(arrayList[i]);
+            }
+
+            return obj;
+        }
     }
 
     /// <summary>
