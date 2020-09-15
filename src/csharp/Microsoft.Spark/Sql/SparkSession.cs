@@ -61,11 +61,6 @@ namespace Microsoft.Spark.Sql
         /// <returns>Builder object</returns>
         public static Builder Builder() => new Builder();
 
-        /// Note that *ActiveSession() APIs are not exposed because these APIs work with a
-        /// thread-local variable, which stores the session variable. Since the Netty server
-        /// that handles the requests is multi-threaded, any thread can invoke these APIs,
-        /// resulting in unexpected behaviors if different threads are used.
-
         /// <summary>
         /// Sets the default SparkSession that is returned by the builder.
         /// </summary>
