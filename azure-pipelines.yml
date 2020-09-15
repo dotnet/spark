@@ -14,15 +14,13 @@ variables:
   # forwardCompatibleRelease/backwardCompatibleRelease is the "oldest" releases that work with the current release
   forwardCompatibleRelease: '0.9.0'
   backwardCompatibleRelease: '0.9.0'
-  forwardCompatibleTestsToFilterOut: "(FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfComplexTypesTests.TestUdfWithArrayType)"
-  backwardCompatibleTestsToFilterOut: "(FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
+  TestsToFilterOut: "(FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameVectorUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestDestroy)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestMultipleBroadcastWithoutEncryption)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestUnpersist)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithReturnAsTimestampType)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithTimestampType)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfComplexTypesTests.TestUdfWithArrayType)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.SparkSessionTests.TestCreateDataFrameWithTimestamp)"
   ArtifactPath: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries'
   CurrentDotnetWorkerDir: '$(ArtifactPath)\Microsoft.Spark.Worker\netcoreapp3.1\win-x64'
@@ -287,6 +285,15 @@ stages:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.6-bin-hadoop2.7
 
     - task: DotNetCoreCLI@2
+      displayName: 'E2E tests for Spark 2.4.7'
+      inputs:
+        command: test
+        projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+      env:
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.7-bin-hadoop2.7
+
+    - task: DotNetCoreCLI@2
       displayName: 'E2E tests for Spark 3.0.0'
       inputs:
         command: test
@@ -294,6 +301,16 @@ stages:
         arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-3.0.0-bin-hadoop2.7
+
+
+    - task: DotNetCoreCLI@2
+      displayName: 'E2E tests for Spark 3.0.1'
+      inputs:
+        command: test
+        projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+      env:
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-3.0.1-bin-hadoop2.7
 
 - stage: ForwardCompatibility
   displayName: E2E Forward Compatibility Tests
@@ -334,7 +351,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(forwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
 
@@ -343,7 +360,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(forwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
 
@@ -352,7 +369,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(forwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
 
@@ -361,7 +378,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(forwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
 
@@ -370,7 +387,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(forwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.4-bin-hadoop2.7
 
@@ -379,7 +396,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(forwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
 
@@ -388,7 +405,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(forwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
   
@@ -397,7 +414,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(forwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
 
@@ -406,7 +423,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(forwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
 
@@ -415,7 +432,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(forwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
 
@@ -466,7 +483,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(backwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
 
@@ -475,7 +492,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(backwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
 
@@ -484,7 +501,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(backwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
 
@@ -493,7 +510,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(backwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
 
@@ -502,7 +519,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(backwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.4-bin-hadoop2.7
 
@@ -511,7 +528,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(backwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
 
@@ -520,7 +537,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(backwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
   
@@ -529,7 +546,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(backwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
 
@@ -538,7 +555,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(backwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
 
@@ -547,7 +564,7 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(backwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
 
@@ -556,11 +573,20 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --filter $(backwardCompatibleTestsToFilterOut)'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.6-bin-hadoop2.7
 
-    # Spark 3.0.0 uses Arrow 0.15.1, which contains a new Arrow spec. This breaks backward
+    - task: DotNetCoreCLI@2
+      displayName: 'E2E tests for Spark 2.4.7'
+      inputs:
+        command: test
+        projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+        arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
+      env:
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.7-bin-hadoop2.7
+
+    # Spark 3.0.* uses Arrow 0.15.1, which contains a new Arrow spec. This breaks backward
     # compatibility when using Microsoft.Spark.Worker with incompatible versions of Arrow.
     # Skip Arrow tests until the backward compatibility Worker version is updated.
     - task: DotNetCoreCLI@2
@@ -568,8 +594,19 @@ stages:
       inputs:
         command: test
         projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-        arguments: "--configuration $(buildConfiguration) --filter $(backwardCompatibleTestsToFilterOut)&\
+        arguments: "--configuration $(buildConfiguration) --filter $(TestsToFilterOut)&\
         (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)&\
         (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestVectorUdf)"
       env:
         SPARK_HOME: $(Build.BinariesDirectory)\spark-3.0.0-bin-hadoop2.7
+
+    - task: DotNetCoreCLI@2
+      displayName: 'E2E tests for Spark 3.0.1'
+      inputs:
+        command: test
+        projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+        arguments: "--configuration $(buildConfiguration) --filter $(TestsToFilterOut)&\
+        (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)&\
+        (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestVectorUdf)"
+      env:
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-3.0.1-bin-hadoop2.7

@@ -290,7 +290,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        [Fact]
+        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
         public void TestGroupedMapUdf()
         {
             DataFrame df = _spark
@@ -368,8 +368,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 returnLength);
         }
 
-
-        [Fact]
+        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
         public void TestDataFrameGroupedMapUdf()
         {
             DataFrame df = _spark
@@ -680,11 +679,39 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             {
                 RelationalGroupedDataset df = _df.GroupBy("name");
+                var values = new List<object> { 19, "twenty" };
 
                 Assert.IsType<RelationalGroupedDataset>(df.Pivot("age"));
 
                 Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age")));
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot("age", values));
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age"), values));
             }
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.*
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
+        public void TestSignaturesV3_X_X()
+        {
+            // Validate ToLocalIterator
+            var data = new List<GenericRow>
+            {
+                new GenericRow(new object[] { "Alice", 20}),
+                new GenericRow(new object[] { "Bob", 30})
+            };
+            var schema = new StructType(new List<StructField>()
+            {
+                new StructField("Name", new StringType()),
+                new StructField("Age", new IntegerType())
+            });
+            DataFrame df = _spark.CreateDataFrame(data, schema);
+            IEnumerable<Row> actual = df.ToLocalIterator(true).ToArray();
+            IEnumerable<Row> expected = data.Select(r => new Row(r.Values, schema));
+            Assert.Equal(expected, actual);
         }
     }
 }

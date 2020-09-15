@@ -11,13 +11,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
     [Collection("Spark E2E Tests")]
     public class SparkConfTests
     {
-        private readonly SparkFixture _fixture;
-
-        public SparkConfTests(SparkFixture fixture)
-        {
-            _fixture = fixture;
-        }
-
         [Fact]
         public void TestSparkConf()
         {

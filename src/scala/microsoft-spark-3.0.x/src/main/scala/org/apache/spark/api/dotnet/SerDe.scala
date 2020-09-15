@@ -7,6 +7,7 @@
 package org.apache.spark.api.dotnet
 
 import java.io.{DataInputStream, DataOutputStream}
+import java.nio.charset.StandardCharsets
 import java.sql.{Date, Time, Timestamp}
 
 import org.apache.spark.sql.Row
@@ -42,6 +43,7 @@ object SerDe {
       case 't' => readTime(dis)
       case 'j' => JVMObjectTracker.getObject(readString(dis))
       case 'R' => readRowArr(dis)
+      case 'O' => readObjectArr(dis)
       case _ => throw new IllegalArgumentException(s"Invalid type $dataType")
     }
   }
@@ -136,6 +138,11 @@ object SerDe {
   def readRowArr(in: DataInputStream): java.util.List[Row] = {
     val len = readInt(in)
     (0 until len).map(_ => readRow(in)).toList.asJava
+  }
+
+  def readObjectArr(in: DataInputStream): Seq[Any] = {
+    val len = readInt(in)
+    (0 until len).map(_ => readObject(in))
   }
 
   def readList(dis: DataInputStream): Array[_] = {
@@ -312,11 +319,11 @@ object SerDe {
     out.writeDouble((value.getTime / 1000).toDouble + value.getNanos.toDouble / 1e9)
   }
 
-  // NOTE: Only works for ASCII right now
   def writeString(out: DataOutputStream, value: String): Unit = {
-    val len = value.length
+    val utf8 = value.getBytes(StandardCharsets.UTF_8)
+    val len = utf8.length
     out.writeInt(len)
-    out.writeBytes(value)
+    out.write(utf8, 0, len)
   }
 
   def writeBytes(out: DataOutputStream, value: Array[Byte]): Unit = {

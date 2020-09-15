@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Apache.Arrow" Version="0.14.1" />
+    <PackageReference Include="Apache.Arrow" Version="0.15.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
     <PackageReference Include="Microsoft.Data.Analysis" Version="0.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
