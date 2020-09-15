@@ -71,18 +71,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs introduced in Spark 3.0.*.
-        /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
-        public void TestSignaturesV3_0_X()
-        {
-            Assert.IsType<SparkSession>(SparkSession.GetActiveSession());
-
-            // SparkSession.ExecuteCommand() is run on an external execution enginer rather than
-            // Spark, hence this cannot be tested in this suite.
-        }
-
-        /// <summary>
         /// Test CreateDataFrame APIs.
         /// </summary>
         [Fact]
