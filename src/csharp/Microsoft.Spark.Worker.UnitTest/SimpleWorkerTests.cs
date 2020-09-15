@@ -14,17 +14,18 @@ namespace Microsoft.Spark.Worker.UnitTest
         [MemberData(nameof(TestData.VersionData), MemberType = typeof(TestData))]
         public void TestsSimpleWorkerTaskRunners(string version)
         {
-            var typedVersion = new Version(version);
-            var simpleWorker = new SimpleWorker(typedVersion);
             using ISocketWrapper serverListener = SocketFactory.CreateSocket();
             var ipEndpoint = (IPEndPoint)serverListener.LocalEndPoint;
             int port = ipEndpoint.Port;
 
             serverListener.Listen();
 
-            PayloadWriter payloadWriter = new PayloadWriterFactory().Create(typedVersion);
+            var typedVersion = new Version(version);
+            var simpleWorker = new SimpleWorker(typedVersion);
+
             Task clientTask = Task.Run(() => simpleWorker.Run(port));
 
+            PayloadWriter payloadWriter = new PayloadWriterFactory().Create(typedVersion);
             TaskRunnerTests.TestTaskRunnerReadWrite(serverListener, payloadWriter);
 
             Assert.True(clientTask.Wait(5000));
