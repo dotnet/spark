@@ -31,7 +31,9 @@ namespace Microsoft.Spark.Worker.UnitTest
             Assert.True(clientTask.Wait(5000));
         }
 
-        static internal void TestTaskRunnerReadWrite(ISocketWrapper serverListener, PayloadWriter payloadWriter)
+        internal static void TestTaskRunnerReadWrite(
+            ISocketWrapper serverListener,
+            PayloadWriter payloadWriter)
         {
             using (ISocketWrapper serverSocket = serverListener.Accept())
             {
