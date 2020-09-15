@@ -74,16 +74,14 @@ namespace Microsoft.Spark.Sql.Types
 
         internal override object FromInternal(object obj)
         {
-            if (!NeedConversion())
+            if (NeedConversion())
             {
-                return obj;
-            }
-
-            ArrayList arrayList = obj as ArrayList;
-            int length = arrayList != null ? arrayList.Count : 0;
-            for (int i = 0; i < length; ++i)
-            {
-                arrayList[i] = ElementType.FromInternal(arrayList[i]);
+                ArrayList arrayList = obj as ArrayList;
+                int length = arrayList != null ? arrayList.Count : 0;
+                for (int i = 0; i < length; ++i)
+                {
+                    arrayList[i] = ElementType.FromInternal(arrayList[i]);
+                }
             }
 
             return obj;
