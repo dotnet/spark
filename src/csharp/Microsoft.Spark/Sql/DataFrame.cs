@@ -106,11 +106,11 @@ namespace Microsoft.Spark.Sql
         public void Explain(string mode)
         {
             var execution = (JvmObjectReference)_jvmObject.Invoke("queryExecution");
-            var modeJvm = (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
+            var explainMode = (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.execution.ExplainMode",
                 "fromString",
                 mode);
-            Console.WriteLine((string)execution.Invoke("explainString", modeJvm));
+            Console.WriteLine((string)execution.Invoke("explainString", explainMode));
         }
 
         /// <summary>
@@ -994,11 +994,11 @@ namespace Microsoft.Spark.Sql
             new DataStreamWriter((JvmObjectReference)_jvmObject.Invoke("writeStream"), this);
 
         /// <summary>
-        /// Returns row objects based on the function (either "toPythonIterator" or
-        /// "collectToPython").
+        /// Returns row objects based on the function (either "toPythonIterator",
+        /// "collectToPython", or "tailToPython").
         /// </summary>
         /// <param name="funcName">String name of function to call</param>
-        /// <param name="args">Argumetns to the function</param>
+        /// <param name="args">Arguments to the function</param>
         /// <returns>IEnumerable of Rows from Spark</returns>
         private IEnumerable<Row> GetRows(string funcName, params object[] args)
         {

@@ -87,8 +87,10 @@ namespace Microsoft.Spark.Sql
         /// <returns>SparkSession object</returns>
         [Since(Versions.V3_0_0)]
         public static SparkSession GetActiveSession() =>
-            new SparkSession((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                s_sparkSessionClassName, "getActiveSession"));
+            new SparkSession(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_sparkSessionClassName,
+                    "getActiveSession"));
 
         /// <summary>
         /// Returns the default SparkSession that is returned by the builder.
