@@ -16,14 +16,13 @@ namespace Microsoft.Spark.Worker.UnitTest
         {
             using ISocketWrapper serverListener = SocketFactory.CreateSocket();
             var ipEndpoint = (IPEndPoint)serverListener.LocalEndPoint;
-            int port = ipEndpoint.Port;
 
             serverListener.Listen();
 
             var typedVersion = new Version(version);
             var simpleWorker = new SimpleWorker(typedVersion);
 
-            Task clientTask = Task.Run(() => simpleWorker.Run(port));
+            Task clientTask = Task.Run(() => simpleWorker.Run(ipEndpoint.Port));
 
             PayloadWriter payloadWriter = new PayloadWriterFactory().Create(typedVersion);
             TaskRunnerTests.TestTaskRunnerReadWrite(serverListener, payloadWriter);
