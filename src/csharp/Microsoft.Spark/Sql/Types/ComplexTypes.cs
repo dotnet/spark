@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Spark.Interop.Ipc;
@@ -73,16 +74,28 @@ namespace Microsoft.Spark.Sql.Types
 
         internal override object FromInternal(object obj)
         {
-            if (!NeedConversion())
+            if (!NeedConversion() || obj == null)
             {
                 return obj;
             }
 
             var convertedObj = new List<object>();
-            foreach(object o in (dynamic)obj)
+
+            // Need to clean up the following part.
+            foreach (object o in (dynamic)obj)
             {
                 convertedObj.Add(ElementType.FromInternal(o));
             }
+
+            if (convertedObj[0].GetType() == typeof(Date))
+            {
+                return convertedObj.Cast<Date>().ToArray();
+            }
+            else if (convertedObj[0].GetType() == typeof(Timestamp))
+            {
+                return convertedObj.Cast<Timestamp>().ToArray();
+            }
+
             return convertedObj;
         }
     }

@@ -33,7 +33,14 @@ namespace Microsoft.Spark.Sql
 
                 foreach (object unpickled in unpickledObjects)
                 {
-                    yield return (unpickled as RowConstructor).GetRow();
+                    if (unpickled.GetType() == typeof(RowConstructor))
+                    {
+                        yield return (unpickled as RowConstructor).GetRow();
+                    }
+                    else
+                    {
+                        yield return unpickled as Row;
+                    }
                 }
             }
         }

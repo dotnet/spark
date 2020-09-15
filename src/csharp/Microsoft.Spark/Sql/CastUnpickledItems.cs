@@ -24,7 +24,7 @@ namespace Microsoft.Spark.Sql
             foreach (object[] objArr in (object[])unpickledItems)
             {
                 var castObjArr = new List<object>();
-                var arrList = (ArrayList)objArr[0];
+                var arrList = objArr[0] as ArrayList;
                 if (arrList.Count == 0)
                 {
                     castObjArr.Add(null);
@@ -51,52 +51,13 @@ namespace Microsoft.Spark.Sql
                             break;
                         case TypeCode.Object:
                             Type t = ((ArrayList)arrList[0])[0].GetType();
-                            switch (Type.GetTypeCode(t))
+                            int length = arrList.Count;
+                            Array arr = Array.CreateInstance(t, length);
+                            for (int i = 0; i < length; ++i)
                             {
-                                case TypeCode.Int32:
-                                    var intArr = new List<int[]>();
-                                    foreach (ArrayList al in arrList)
-                                    {
-                                        intArr.Add((int[])al.ToArray(typeof(int)));
-                                    }
-                                    castObjArr.Add(intArr.ToArray());
-                                    break;
-                                case TypeCode.Int64:
-                                    var longArr = new List<long[]>();
-                                    foreach (ArrayList al in arrList)
-                                    {
-                                        longArr.Add((long[])al.ToArray(typeof(long)));
-                                    }
-                                    castObjArr.Add(longArr.ToArray());
-                                    break;
-                                case TypeCode.Double:
-                                    var doubleArr = new List<double[]>();
-                                    foreach (ArrayList al in arrList)
-                                    {
-                                        doubleArr.Add((double[])al.ToArray(typeof(double)));
-                                    }
-                                    castObjArr.Add(doubleArr.ToArray());
-                                    break;
-                                case TypeCode.Byte:
-                                    var byteArr = new List<byte[]>();
-                                    foreach (ArrayList al in arrList)
-                                    {
-                                        byteArr.Add((byte[])al.ToArray(typeof(byte)));
-                                    }
-                                    castObjArr.Add(byteArr.ToArray());
-                                    break;
-                                case TypeCode.String:
-                                    var stringArr = new List<string[]>();
-                                    foreach (ArrayList al in arrList)
-                                    {
-                                        stringArr.Add((string[])al.ToArray(typeof(string)));
-                                    }
-                                    castObjArr.Add(stringArr.ToArray());
-                                    break;
-                                default:
-                                    throw new NotSupportedException(
-                                        string.Format("Array of type {0} not supported yet", t));
+                                arr.SetValue(TypeConverter(arrList[i] as ArrayList)[0], i);
                             }
+                            castObjArr.Add(arr);
                             break;
                         default:
                             throw new NotSupportedException(
@@ -118,17 +79,55 @@ namespace Microsoft.Spark.Sql
             var castUnpickledItems = new List<object>();
             foreach (RowConstructor rowConstructor in (object[])unpickledItems)
             {
-                var castObjArr = new List<object>();
-                Row row = (rowConstructor as RowConstructor).GetRow();
-                var castRowArr = new List<Row>();
-                foreach (RowConstructor rc in (ArrayList)row.Values[0])
+                Row row = rowConstructor.GetRow();
+                var firstValue = row.Values[0] as ArrayList;
+                if (firstValue[0].GetType() == typeof(RowConstructor))
                 {
-                    castRowArr.Add(rc.GetRow());
+                    var castRowArr = new List<Row>();
+                    var castObjArr = new List<object>();
+                    foreach (RowConstructor rc in firstValue)
+                    {
+                        castRowArr.Add(rc.GetRow());
+                    }
+                    castObjArr.Add(castRowArr.ToArray());
+                    castUnpickledItems.Add(castObjArr.ToArray());
                 }
-                castObjArr.Add(castRowArr.ToArray());
-                castUnpickledItems.Add(castObjArr.ToArray());
+                else
+                {
+                    var values = TypeConverter(firstValue);
+                    castUnpickledItems.Add(new Row(values, row.Schema));
+                }
             }
+
             return castUnpickledItems.ToArray();
+        }
+
+        public static object[] TypeConverter(ArrayList arrList)
+        {
+            var castObjArr = new List<object>();
+            Type type = arrList[0].GetType();
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Int32:
+                    castObjArr.Add((int[])arrList.ToArray(typeof(int)));
+                    break;
+                case TypeCode.Int64:
+                    castObjArr.Add((long[])arrList.ToArray(typeof(long)));
+                    break;
+                case TypeCode.Double:
+                    castObjArr.Add((double[])arrList.ToArray(typeof(double)));
+                    break;
+                case TypeCode.Byte:
+                    castObjArr.Add((byte[])arrList.ToArray(typeof(byte)));
+                    break;
+                case TypeCode.String:
+                    castObjArr.Add((string[])arrList.ToArray(typeof(string)));
+                    break;
+                default:
+                    throw new NotSupportedException(
+                        string.Format("Type {0} not supported yet", type));
+            }
+            return castObjArr.ToArray();
         }
     }
 }

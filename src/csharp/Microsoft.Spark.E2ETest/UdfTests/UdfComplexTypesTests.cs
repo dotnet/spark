@@ -97,7 +97,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 for (int i = 0; i < rows.Length; ++i)
                 {
                     Assert.Equal(1, rows[i].Size());
-                    Assert.Equal(expected[i], rows[i].Get(0));
+                    Assert.Equal(expected[i], rows[i].GetAs<string[]>(0));
                 }
             }
 
@@ -134,7 +134,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 for (int i = 0; i < rows.Length; ++i)
                 {
                     Assert.Equal(1, rows[i].Size());
-                    Assert.Equal(expected[i], rows[i].Get(0));
+                    Assert.Equal(expected[i], rows[i].GetAs<Date[]>(0));
                 }
             }
         }

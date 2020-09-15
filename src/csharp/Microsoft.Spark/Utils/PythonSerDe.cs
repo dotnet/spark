@@ -75,23 +75,13 @@ namespace Microsoft.Spark.Utils
                     if (objArr.GetType() == typeof(object[]))
                     {
                         object obj = ((object[])objArr)[0];
-                        // Check null case.
-                        if (obj == null)
-                        {
-                            continue;
-                        }
                         // Check if obj is ArrayList, if so, cast it to array using CastToArray.
                         if (obj.GetType() == typeof(ArrayList))
                         {
                             return CastUnpickledItems.CastToSimpleArray(unpickledItems);
                         }
-                        // Break the loop if other types.
-                        else
-                        {
-                            break;
-                        }
                     }
-                    // Check if array of rows.
+                    // Check if RowConstructor.
                     if (objArr.GetType() == typeof(RowConstructor))
                     {
                         Row row = (objArr as RowConstructor).GetRow();
@@ -99,14 +89,6 @@ namespace Microsoft.Spark.Utils
                         {
                             return CastUnpickledItems.CastToRowArray(unpickledItems);
                         }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        break;
                     }
                 }
                 return unpickledItems as object[];
