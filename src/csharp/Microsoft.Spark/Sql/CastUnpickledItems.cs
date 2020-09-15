@@ -47,7 +47,20 @@ namespace Microsoft.Spark.Sql
                     var castObjArr = new List<object>();
                     foreach (RowConstructor rc in firstValue)
                     {
-                        castRowArr.Add(rc.GetRow());
+                        Row r = rc.GetRow();
+                        var values = new List<object>();
+                        foreach (object value in r.Values)
+                        {
+                            if (value != null && value.GetType() == typeof(ArrayList))
+                            {
+                                values.Add(TypeConverter(value as ArrayList)[0]);
+                            }
+                            else
+                            {
+                                values.Add(value);
+                            }
+                        }
+                        castRowArr.Add(new Row(values.ToArray(), r.Schema));
                     }
                     castObjArr.Add(castRowArr.ToArray());
                     castUnpickledItems.Add(castObjArr.ToArray());

@@ -37,7 +37,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             // Int Array.
             {
                 Func<Column, Column> udf = Udf<int[], string>(
-                array => string.Join(',', array.ToArray()));
+                    array => string.Join(',', array.ToArray()));
 
                 Row[] rows = _df.Select(udf(_df["ids"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
@@ -47,10 +47,10 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Assert.Equal(expected, rowsToArray);
             }
 
-            // Double Array Array.
-            {
+            // Double Array Array. This will be added back with n d Arrays.
+            /*{
                 Func<Column, Column> udf = Udf<double[][], double>(
-                doubleArrArr => doubleArrArr[0][0] + 100);
+                    doubleArrArr => doubleArrArr[0][0] + 100);
 
                 Row[] rows = _df.Select(udf(_df["scores"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
@@ -58,17 +58,19 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 var expected = new string[] { "101", "101.1", "101.2" };
                 string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
                 Assert.Equal(expected, rowsToArray);
-            }
+            }*/
 
             // Array of Rows.
             {
+
                 Func<Column, Column> udf = Udf<Row[], string>(
-                rowArr => rowArr[0].GetAs<string>("city"));
+                    rowArr => rowArr[0].GetAs<string>("name") + "|" +
+                        string.Join(',', rowArr[1].GetAs<int[]>("ids").ToArray()));
 
                 Row[] rows = _df.Select(udf(_df["info4"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
-                var expected = new string[] { "Burdwan", "Los Angeles", "Seattle" };
+                var expected = new string[] { "Michael|11", "Andy|33,55", "|22,44" };
                 string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
                 Assert.Equal(expected, rowsToArray);
             }
@@ -82,16 +84,16 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         {
             {
                 Func<Column, Column> udf = Udf<string, string[]>(
-                str => new string[] { str, str + str });
+                    str => new string[] { str, str + str });
 
                 Row[] rows = _df.Select(udf(_df["name"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
                 var expected = new string[][]
                 {
-                new string[] { "Michael", "MichaelMichael" },
-                new string[] { "Andy", "AndyAndy" },
-                new string[] { "Justin", "JustinJustin" }
+                    new string[] { "Michael", "MichaelMichael" },
+                    new string[] { "Andy", "AndyAndy" },
+                    new string[] { "Justin", "JustinJustin" }
                 };
 
                 for (int i = 0; i < rows.Length; ++i)
@@ -103,11 +105,11 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
             {
                 Func<Column, Column> udf = Udf<int?, Date[]>(
-                i => new Date[]
-                {
-                    new Date(2020 + i.GetValueOrDefault(), 1, 1),
-                    new Date(2020 + i.GetValueOrDefault(), 1, 2)
-                });
+                    i => new Date[]
+                    {
+                        new Date(2020 + i.GetValueOrDefault(), 1, 1),
+                        new Date(2020 + i.GetValueOrDefault(), 1, 2)
+                    });
 
                 Row[] rows = _df.Select(udf(_df["age"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
