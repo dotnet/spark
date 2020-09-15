@@ -70,11 +70,17 @@ namespace Microsoft.Spark.Utils
                 Debug.Assert(unpickledItems != null);
                 // Check if unpickler returns ArrayList.
                 // If so, it needs to be cast to the appropriate array type.
+                // I will clean up the following part.
                 foreach (object objArr in (object[])unpickledItems)
                 {
                     if (objArr.GetType() == typeof(object[]))
                     {
                         object obj = ((object[])objArr)[0];
+                        // Check null case.
+                        if (obj == null)
+                        {
+                            continue;
+                        }
                         // Check if obj is ArrayList, if so, cast it to array using CastToArray.
                         if (obj.GetType() == typeof(ArrayList))
                         {
@@ -90,6 +96,7 @@ namespace Microsoft.Spark.Utils
                             return CastUnpickledItems.CastToRowArray(unpickledItems);
                         }
                     }
+                    return unpickledItems as object[];
                 }
                 return unpickledItems as object[];
             }

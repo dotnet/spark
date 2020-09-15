@@ -16,55 +16,15 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Cast unpickledItems from arraylist to the appropriate array.
         /// </summary>
-        /// <param name="unpickledItems">Unpickled items that contains simple array</param>
+        /// <param name="unpickledItems">Unpickled items that contains simple array
+        /// and array of arrays</param>
         /// <returns>Simple array after casting</returns>
         public static object[] CastToSimpleArray(object unpickledItems)
         {
             var castUnpickledItems = new List<object>();
             foreach (object[] objArr in (object[])unpickledItems)
             {
-                var castObjArr = new List<object>();
-                var arrList = objArr[0] as ArrayList;
-                if (arrList.Count == 0)
-                {
-                    castObjArr.Add(null);
-                }
-                else
-                {
-                    Type type = arrList[0].GetType();
-                    switch (Type.GetTypeCode(type))
-                    {
-                        case TypeCode.Int32:
-                            castObjArr.Add((int[])arrList.ToArray(typeof(int)));
-                            break;
-                        case TypeCode.Int64:
-                            castObjArr.Add((long[])arrList.ToArray(typeof(long)));
-                            break;
-                        case TypeCode.Double:
-                            castObjArr.Add((double[])arrList.ToArray(typeof(double)));
-                            break;
-                        case TypeCode.Byte:
-                            castObjArr.Add((byte[])arrList.ToArray(typeof(byte)));
-                            break;
-                        case TypeCode.String:
-                            castObjArr.Add((string[])arrList.ToArray(typeof(string)));
-                            break;
-                        case TypeCode.Object:
-                            Type t = ((ArrayList)arrList[0])[0].GetType();
-                            int length = arrList.Count;
-                            Array arr = Array.CreateInstance(t, length);
-                            for (int i = 0; i < length; ++i)
-                            {
-                                arr.SetValue(TypeConverter(arrList[i] as ArrayList)[0], i);
-                            }
-                            castObjArr.Add(arr);
-                            break;
-                        default:
-                            throw new NotSupportedException(
-                                string.Format("Type {0} not supported yet", type));
-                    }
-                }
-                castUnpickledItems.Add(castObjArr.ToArray());
+                castUnpickledItems.Add(TypeConverter(objArr[0] as ArrayList));
             }
             return castUnpickledItems.ToArray();
         }
@@ -102,6 +62,11 @@ namespace Microsoft.Spark.Sql
             return castUnpickledItems.ToArray();
         }
 
+        /// <summary>
+        /// Cast arraylist to typed array.
+        /// </summary>
+        /// <param name="arrList">ArrayList to be converted</param>
+        /// <returns>Typed array</returns>
         public static object[] TypeConverter(ArrayList arrList)
         {
             var castObjArr = new List<object>();
@@ -122,6 +87,16 @@ namespace Microsoft.Spark.Sql
                     break;
                 case TypeCode.String:
                     castObjArr.Add((string[])arrList.ToArray(typeof(string)));
+                    break;
+                case TypeCode.Object:
+                    Type t = ((ArrayList)arrList[0])[0].GetType();
+                    int length = arrList.Count;
+                    Array arr = Array.CreateInstance(t, length);
+                    for (int i = 0; i < length; ++i)
+                    {
+                        arr.SetValue(TypeConverter(arrList[i] as ArrayList)[0], i);
+                    }
+                    castObjArr.Add(arr);
                     break;
                 default:
                     throw new NotSupportedException(
