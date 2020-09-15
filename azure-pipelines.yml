@@ -572,4 +572,8 @@ stages:
         (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)&\
         (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestVectorUdf)"
       env:
+<<<<<<< HEAD
         SPARK_HOME: $(Build.BinariesDirectory)\spark-3.0.0-bin-hadoop2.7
+=======
+        SPARK_HOME: $(Build.BinariesDirectory)\spark-3.0.1-bin-hadoop2.7
+>>>>>>> 5d26eddfb968bfcbe9112709e27f06d7d0a39e49
