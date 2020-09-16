@@ -1003,13 +1003,11 @@ namespace Microsoft.Spark.Sql
         private IEnumerable<Row> GetRows(string funcName, params object[] args)
         {
             (int port, string secret, _) = GetConnectionInfo(funcName, args);
-            using (ISocketWrapper socket = SocketFactory.CreateSocket())
+            using ISocketWrapper socket = SocketFactory.CreateSocket();
+            socket.Connect(IPAddress.Loopback, port, secret);
+            foreach (Row row in new RowCollector().Collect(socket))
             {
-                socket.Connect(IPAddress.Loopback, port, secret);
-                foreach (Row row in new RowCollector().Collect(socket))
-                {
-                    yield return row;
-                }
+                yield return row;
             }
         }
 
