@@ -24,7 +24,14 @@ namespace Microsoft.Spark.Sql
             var castUnpickledItems = new List<object>();
             foreach (object[] objArr in (object[])unpickledItems)
             {
-                castUnpickledItems.Add(TypeConverter(objArr[0] as ArrayList));
+                var convertedObjArr = new List<object>();
+                foreach (object obj in objArr)
+                {
+                    convertedObjArr.Add(
+                        (obj != null && obj.GetType() == typeof(ArrayList)) ?
+                        TypeConverter(obj as ArrayList)[0] : obj);
+                }
+                castUnpickledItems.Add(convertedObjArr.ToArray());
             }
             return castUnpickledItems.ToArray();
         }

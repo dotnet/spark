@@ -37,25 +37,33 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             // Simple Array.
             {
                 Func<Column, Column> udf = Udf<int[], string>(
-                    array => string.Join(',', array.ToArray()));
+                    array => array != null ? array[0].ToString() : "0");
 
                 Row[] rows = _df.Select(udf(_df["ids"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
-                var expected = new string[] { "1", "3,5", "2,4" };
+                var expected = new string[] { "1", "0", "2" };
                 string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
                 Assert.Equal(expected, rowsToArray);
             }
 
             // Array of Arrays.
             {
-                Func<Column, Column> udf = Udf<double[][], double>(
-                    doubleArrArr => doubleArrArr[0][0] + 100);
+                Func<Column, Column, Column, Column, Column> udf =
+                    Udf<string, int[], double[][], string[][][], string>(
+                        (name, ids, scores, data) =>
+                            name + "|" +
+                            ids?[0].ToString() + "|" +
+                            scores[0][0].ToString() + "|" +
+                            data[0][0][0]);
 
-                Row[] rows = _df.Select(udf(_df["scores"])).Collect().ToArray();
+                Row[] rows =
+                    _df.Select(udf(_df["name"], _df["ids"], _df["scores"], _df["data"]))
+                    .Collect()
+                    .ToArray();
                 Assert.Equal(3, rows.Length);
 
-                var expected = new string[] { "101", "101.1", "101.2" };
+                var expected = new string[] { "Michael|1|1|a", "Andy||1|ab", "Justin|2|1|abb" };
                 string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
                 Assert.Equal(expected, rowsToArray);
             }
