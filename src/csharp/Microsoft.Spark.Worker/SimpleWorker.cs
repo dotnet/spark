@@ -32,10 +32,10 @@ namespace Microsoft.Spark.Worker
             try
             {
                 string secret = Utils.SettingUtils.GetWorkerFactorySecret(_version);
-                ISocketWrapper socket = SocketFactory.CreateSocket();
 
                 s_logger.LogInfo($"RunSimpleWorker() is starting with port = {port}.");
 
+                ISocketWrapper socket = SocketFactory.CreateSocket();
                 socket.Connect(IPAddress.Loopback, port, secret);
 
                 new TaskRunner(0, socket, false, _version).Run();
