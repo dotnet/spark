@@ -102,14 +102,13 @@ namespace Microsoft.Spark.Sql
                     castObjArr.Add((string[])arrList.ToArray(typeof(string)));
                     break;
                 case TypeCode.Object:
-                    Type t = ((ArrayList)arrList[0])[0].GetType();
+                    var convertedArray  = new ArrayList();
                     int length = arrList.Count;
-                    Array arr = Array.CreateInstance(t, length);
                     for (int i = 0; i < length; ++i)
                     {
-                        arr.SetValue(TypeConverter(arrList[i] as ArrayList)[0], i);
+                        convertedArray.Add(TypeConverter(arrList[i] as ArrayList)[0]);
                     }
-                    castObjArr.Add(arr);
+                    castObjArr.Add(convertedArray.ToArray(convertedArray[0].GetType()));
                     break;
                 default:
                     throw new NotSupportedException(

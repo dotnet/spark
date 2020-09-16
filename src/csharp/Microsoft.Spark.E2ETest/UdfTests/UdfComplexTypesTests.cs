@@ -34,7 +34,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithArrayType()
         {
-            // Int Array.
+            // Simple Array.
             {
                 Func<Column, Column> udf = Udf<int[], string>(
                     array => string.Join(',', array.ToArray()));
@@ -47,8 +47,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 Assert.Equal(expected, rowsToArray);
             }
 
-            // Double Array Array. This will be added back with n d Arrays.
-            /*{
+            // Array of Arrays.
+            {
                 Func<Column, Column> udf = Udf<double[][], double>(
                     doubleArrArr => doubleArrArr[0][0] + 100);
 
@@ -58,7 +58,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 var expected = new string[] { "101", "101.1", "101.2" };
                 string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
                 Assert.Equal(expected, rowsToArray);
-            }*/
+            }
 
             // Array of Rows.
             {
