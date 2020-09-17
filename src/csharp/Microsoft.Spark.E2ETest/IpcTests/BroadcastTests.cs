@@ -85,7 +85,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// variable and makes it inaccessible from workers.
         /// </summary>
         [Theory]
-        [InlineData("true")]
         [InlineData("false")]
         public void TestDestroy(string isEncryptionEnabled)
         {
