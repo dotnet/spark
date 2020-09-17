@@ -33,34 +33,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test Broadcast support by using multiple broadcast variables in a UDF with
-        /// encryption enabled.
-        /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_3_2)]
-        public void TestMultipleBroadcastWithEncryption()
-        {
-            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", "true");
-            var obj1 = new TestBroadcastVariable(1, "first");
-            var obj2 = new TestBroadcastVariable(2, "second");
-            Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
-            Broadcast<TestBroadcastVariable> bc2 = _spark.SparkContext.Broadcast(obj2);
-
-            Func<Column, Column> udf = Udf<string, string>(
-                str => $"{str} {bc1.Value().StringValue} and {bc2.Value().StringValue}");
-
-            var expected = new string[] { "hello first and second", "world first and second" };
-
-            string[] actual = ToStringArray(_df.Select(udf(_df["_1"])));
-            Assert.Equal(expected, actual);
-        }
-
-        /// <summary>
         /// Test Broadcast support by using multiple broadcast variables in a UDF.
         /// </summary>
-        [Fact]
-        public void TestMultipleBroadcastWithoutEncryption()
+        [Theory]
+        [InlineData("true")]
+        [InlineData("false")]
+        public void TestMultipleBroadcast(string isEncryptionEnabled)
         {
-            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", "false");
+            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
             var obj1 = new TestBroadcastVariable(1, "first");
             var obj2 = new TestBroadcastVariable(2, "second");
             Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
@@ -76,12 +56,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test Broadcast with encryption support by broadcasting a large (>100MB) object.
+        /// Test Broadcast support by broadcasting a large (>100MB) object.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_3_2)]
-        public void TestLargeBroadcastValueWithEncryption()
+        [Theory]
+        [InlineData("true")]
+        [InlineData("false")]
+        public void TestLargeBroadcastValueWithEncryption(string isEncryptionEnabled)
         {
-            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", "true");
+            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
             var obj1 = new byte[104858000];
             Broadcast<byte[]> bc1 = _spark.SparkContext.Broadcast(obj1);
 
@@ -102,10 +84,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// Test Broadcast.Destroy() that destroys all data and metadata related to the broadcast
         /// variable and makes it inaccessible from workers.
         /// </summary>
-        [Fact]
-        public void TestDestroy()
+        [Theory]
+        [InlineData("true")]
+        [InlineData("false")]
+        public void TestDestroy(string isEncryptionEnabled)
         {
-            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", "false");
+            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
             var obj1 = new TestBroadcastVariable(5, "destroy");
             Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
 
@@ -144,9 +128,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// Test Broadcast.Unpersist() deletes cached copies of the broadcast on the executors. If
         /// the broadcast is used after unpersist is called, it is re-sent to the executors.
         /// </summary>
-        [Fact]
-        public void TestUnpersist()
+        [Theory]
+        [InlineData("true")]
+        [InlineData("false")]
+        public void TestUnpersist(string isEncryptionEnabled)
         {
+            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
             var obj = new TestBroadcastVariable(1, "unpersist");
             Broadcast<TestBroadcastVariable> bc = _spark.SparkContext.Broadcast(obj);
 
