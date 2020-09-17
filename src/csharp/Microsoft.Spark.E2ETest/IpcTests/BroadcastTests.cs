@@ -61,7 +61,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Theory]
         [InlineData("true")]
         [InlineData("false")]
-        public void TestLargeBroadcastValueWithEncryption(string isEncryptionEnabled)
+        public void TestLargeBroadcastValue(string isEncryptionEnabled)
         {
             _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
             var obj1 = new byte[104858000];

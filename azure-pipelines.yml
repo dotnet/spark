@@ -18,10 +18,9 @@ variables:
   TestsToFilterOut: "(FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameVectorUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestDestroy)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestMultipleBroadcastWithEncryption)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestMultipleBroadcastWithoutEncryption)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestMultipleBroadcast)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestUnpersist)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestLargeBroadcastValueWithEncryption)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestLargeBroadcastValue)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithReturnAsTimestampType)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithTimestampType)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.SparkSessionTests.TestCreateDataFrameWithTimestamp)"
