@@ -30,6 +30,7 @@ namespace Microsoft.Spark.Sql
             while (((length = SerDe.ReadBytesLength(inputStream)) != null) &&
                 (length.GetValueOrDefault() > 0))
             {
+                
                 object[] unpickledObjects =
                     PythonSerDe.GetUnpickledObjects(inputStream, length.GetValueOrDefault());
 

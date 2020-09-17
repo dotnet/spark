@@ -29,7 +29,7 @@ namespace Microsoft.Spark.Sql
                 {
                     convertedObjArr.Add(
                         (obj != null && obj.GetType() == typeof(ArrayList)) ?
-                        TypeConverter(obj as ArrayList)[0] : obj);
+                        TypeConverter(obj as ArrayList) : obj);
                 }
                 castUnpickledItems.Add(convertedObjArr.ToArray());
             }
@@ -41,6 +41,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="unpickledItems">Unpickled items that contains array of rows</param>
         /// <returns>Array of rows after casting</returns>
+        /// I will clean up the following part
         public static object[] CastToRowArray(object unpickledItems)
         {
             var castUnpickledItems = new List<object>();
@@ -60,7 +61,7 @@ namespace Microsoft.Spark.Sql
                         {
                             if (value != null && value.GetType() == typeof(ArrayList))
                             {
-                                values.Add(TypeConverter(value as ArrayList)[0]);
+                                values.Add(TypeConverter(value as ArrayList));
                             }
                             else
                             {
@@ -74,7 +75,7 @@ namespace Microsoft.Spark.Sql
                 }
                 else
                 {
-                    var values = TypeConverter(firstValue);
+                    var values = new object[] { TypeConverter(firstValue) };
                     castUnpickledItems.Add(new Row(values, row.Schema));
                 }
             }
@@ -87,41 +88,35 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="arrList">ArrayList to be converted</param>
         /// <returns>Typed array</returns>
-        public static object[] TypeConverter(ArrayList arrList)
+        public static object TypeConverter(ArrayList arrList)
         {
-            var castObjArr = new List<object>();
             Type type = arrList[0].GetType();
-            switch (Type.GetTypeCode(type))
+            return type switch
             {
-                case TypeCode.Int32:
-                    castObjArr.Add((int[])arrList.ToArray(typeof(int)));
-                    break;
-                case TypeCode.Int64:
-                    castObjArr.Add((long[])arrList.ToArray(typeof(long)));
-                    break;
-                case TypeCode.Double:
-                    castObjArr.Add((double[])arrList.ToArray(typeof(double)));
-                    break;
-                case TypeCode.Byte:
-                    castObjArr.Add((byte[])arrList.ToArray(typeof(byte)));
-                    break;
-                case TypeCode.String:
-                    castObjArr.Add((string[])arrList.ToArray(typeof(string)));
-                    break;
-                case TypeCode.Object:
-                    var convertedArray  = new ArrayList();
-                    int length = arrList.Count;
-                    for (int i = 0; i < length; ++i)
-                    {
-                        convertedArray.Add(TypeConverter(arrList[i] as ArrayList)[0]);
-                    }
-                    castObjArr.Add(convertedArray.ToArray(convertedArray[0].GetType()));
-                    break;
-                default:
-                    throw new NotSupportedException(
-                        string.Format("Type {0} not supported yet", type));
+                _ when type == typeof(int) => (int[])arrList.ToArray(typeof(int)),
+                _ when type == typeof(long) => (long[])arrList.ToArray(typeof(long)),
+                _ when type == typeof(double) => (double[])arrList.ToArray(typeof(double)),
+                _ when type == typeof(byte) => (byte[])arrList.ToArray(typeof(byte)),
+                _ when type == typeof(string) => (string[])arrList.ToArray(typeof(string)),
+                _ when type == typeof(ArrayList) => CastArrayOfArrays(arrList),
+                _ => throw new NotSupportedException(
+                        string.Format("Type {0} not supported yet", type))
+            };
+        }
+
+        /// <summary>
+        /// Cast array of arrays.
+        /// </summary>
+        /// <param name="arrList">ArrayList to be converted</param>
+        /// <returns>Typed array</returns>
+        public static object CastArrayOfArrays(ArrayList arrList)
+        {
+            var convertedArray = new ArrayList();
+            foreach (ArrayList al in arrList)
+            {
+                convertedArray.Add(TypeConverter(al));
             }
-            return castObjArr.ToArray();
+            return convertedArray.ToArray(convertedArray[0].GetType());
         }
     }
 }

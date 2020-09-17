@@ -78,25 +78,20 @@ namespace Microsoft.Spark.Sql.Types
             {
                 return obj;
             }
-
-            var convertedObj = new List<object>();
-
-            // Need to clean up the following part.
+            
+            var castObj = new List<object>();
             foreach (object o in (dynamic)obj)
             {
-                convertedObj.Add(ElementType.FromInternal(o));
+                castObj.Add(ElementType.FromInternal(o));
             }
 
-            if (convertedObj[0].GetType() == typeof(Date))
+            Type elementType = castObj[0].GetType();
+            return elementType switch
             {
-                return convertedObj.Cast<Date>().ToArray();
-            }
-            else if (convertedObj[0].GetType() == typeof(Timestamp))
-            {
-                return convertedObj.Cast<Timestamp>().ToArray();
-            }
-
-            return convertedObj;
+                _ when elementType == typeof(Date) => castObj.Cast<Date>().ToArray(),
+                _ when elementType == typeof(Timestamp) => castObj.Cast<Timestamp>().ToArray(),
+                _ => castObj
+            };
         }
     }
 

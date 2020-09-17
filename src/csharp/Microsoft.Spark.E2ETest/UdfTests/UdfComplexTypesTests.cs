@@ -36,13 +36,13 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         {
             // Simple Array.
             {
-                Func<Column, Column> udf = Udf<int[], string>(
-                    array => array != null ? array[0].ToString() : "0");
+                Func<Column, Column> udf = Udf<int[], int>(
+                    array => array != null ? array[0] + 100 : 100);
 
                 Row[] rows = _df.Select(udf(_df["ids"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
-                var expected = new string[] { "1", "0", "2" };
+                var expected = new string[] { "101", "100", "102" };
                 string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
                 Assert.Equal(expected, rowsToArray);
             }
