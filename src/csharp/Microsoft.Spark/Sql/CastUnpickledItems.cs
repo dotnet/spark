@@ -17,8 +17,8 @@ namespace Microsoft.Spark.Sql
         /// Cast unpickledItems from arraylist to the appropriate array.
         /// </summary>
         /// <param name="unpickledItems">Unpickled items that contains simple array
-        /// and array of arrays</param>
-        /// <returns>Simple array after casting</returns>
+        /// and array of arrays.</param>
+        /// <returns>Simple array after casting.</returns>
         public static object[] CastToSimpleArray(object unpickledItems)
         {
             var castUnpickledItems = new List<object>();
@@ -39,8 +39,8 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Cast unpickledItems from arraylist to the appropriate array.
         /// </summary>
-        /// <param name="unpickledItems">Unpickled items that contains array of rows</param>
-        /// <returns>Array of rows after casting</returns>
+        /// <param name="unpickledItems">Unpickled items that contains array of rows.</param>
+        /// <returns>Array of rows after casting.</returns>
         /// I will clean up the following part
         public static object[] CastToRowArray(object unpickledItems)
         {
@@ -86,8 +86,8 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Cast arraylist to typed array.
         /// </summary>
-        /// <param name="arrList">ArrayList to be converted</param>
-        /// <returns>Typed array</returns>
+        /// <param name="arrList">ArrayList to be converted.</param>
+        /// <returns>Typed array.</returns>
         public static object TypeConverter(ArrayList arrList)
         {
             Type type = arrList[0].GetType();
@@ -107,8 +107,8 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Cast array of arrays.
         /// </summary>
-        /// <param name="arrList">ArrayList to be converted</param>
-        /// <returns>Typed array</returns>
+        /// <param name="arrList">ArrayList to be converted.</param>
+        /// <returns>Typed array.</returns>
         public static object CastArrayOfArrays(ArrayList arrList)
         {
             var convertedArray = new ArrayList();
