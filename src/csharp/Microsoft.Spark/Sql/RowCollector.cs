@@ -30,20 +30,14 @@ namespace Microsoft.Spark.Sql
             while (((length = SerDe.ReadBytesLength(inputStream)) != null) &&
                 (length.GetValueOrDefault() > 0))
             {
-                
                 object[] unpickledObjects =
                     PythonSerDe.GetUnpickledObjects(inputStream, length.GetValueOrDefault());
 
                 foreach (object unpickled in unpickledObjects)
                 {
-                    if (unpickled.GetType() == typeof(RowConstructor))
-                    {
-                        yield return (unpickled as RowConstructor).GetRow();
-                    }
-                    else
-                    {
-                        yield return unpickled as Row;
-                    }
+                    yield return unpickled.GetType() == typeof(RowConstructor) ?
+                        (unpickled as RowConstructor).GetRow() :
+                        unpickled as Row;
                 }
             }
         }
