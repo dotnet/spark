@@ -128,7 +128,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// the broadcast is used after unpersist is called, it is re-sent to the executors.
         /// </summary>
         [Theory]
-        [InlineData("true")]
         [InlineData("false")]
         public void TestUnpersist(string isEncryptionEnabled)
         {
