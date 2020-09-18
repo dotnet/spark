@@ -16,9 +16,9 @@ namespace Microsoft.Spark.Sql
     internal static class CastUnpickledItems
     {
         /// <summary>
-        /// Cast unpickledItems from arraylist to the appropriate array.
+        /// If unpickledItems contains ArrayList, cast it to typed array.
         /// </summary>
-        /// <param name="unpickledItems">Unpickled objects to be cast as necessary.</param>
+        /// <param name="unpickledItems">Unpickled objects.</param>
         /// <returns>Unpickled objects after casting.</returns>
         public static object[] Cast(object unpickledItems)
         {
@@ -26,49 +26,52 @@ namespace Microsoft.Spark.Sql
             foreach (object obj in (object[])unpickledItems)
             {
                 castUnpickledItems.Add(
-                    (obj.GetType() == typeof(RowConstructor)) ? obj : CastArray(obj));
+                    (obj.GetType() == typeof(RowConstructor)) ?
+                    obj : CastHelper(obj as object[]));
             }
 
             return castUnpickledItems.ToArray();
         }
 
         /// <summary>
-        /// Cast simple array and array of arrays.
+        /// Helper function to cast unpickled objects as needed.
         /// </summary>
-        /// <param name="obj">object to be cast as necessary.</param>
-        /// <returns>Typed array after casting.</returns>
-        public static object CastArray(object obj)
+        /// <param name="obj">Unpickled objects.</param>
+        /// <returns>Original object or cast object</returns>
+        public static object CastHelper(object[] obj)
         {
-            if (obj is object[] objArr)
+            var convertedObj = new List<object>();
+            foreach (object o in obj)
             {
-                return objArr.Select(x => CastHelper(x)).ToArray();
+                convertedObj.Add(
+                    (o != null && o is ArrayList arrayList) ?
+                    TypeConverter(arrayList) : o);
             }
 
-            // Array of arrays.
-            var convertedArray = new ArrayList();
-            foreach (ArrayList arrayList in (ArrayList)obj)
-            {
-                convertedArray.Add(TypeConverter(arrayList));
-            }
-            return convertedArray.ToArray(convertedArray[0].GetType());
+            return convertedObj.ToArray();
         }
 
+
         /// <summary>
-        /// Helper function to decide and cast if inputs need to be cast.
+        /// Cast simple array and array of arrays.
         /// </summary>
-        /// <param name="obj">object to be cast.</param>
-        /// <returns>Original object or cast object</returns>
-        public static object CastHelper(object obj)
+        /// <param name="arrayList">ArrayList to be converted.</param>
+        /// <returns>Typed array after casting.</returns>
+        public static object CastArray(ArrayList arrayList)
         {
-            return (obj != null && obj is ArrayList arrayList) ?
-                TypeConverter(arrayList) : obj;
+            var convertedArray = new ArrayList();
+            foreach (ArrayList al in arrayList)
+            {
+                convertedArray.Add(TypeConverter(al));
+            }
+            return convertedArray.ToArray(convertedArray[0].GetType());
         }
 
         /// <summary>
         /// Cast arraylist to typed array.
         /// </summary>
         /// <param name="arrayList">ArrayList to be converted.</param>
-        /// <returns>Typed array.</returns>
+        /// <returns>Typed array after casting.</returns>
         public static object TypeConverter(ArrayList arrayList)
         {
             Type type = arrayList[0].GetType();
