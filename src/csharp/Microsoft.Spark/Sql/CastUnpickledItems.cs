@@ -60,20 +60,8 @@ namespace Microsoft.Spark.Sql
             Type type = arrayList[0].GetType();
             return type switch
             {
-                _ when type == typeof(int) => arrayList.ToArray(typeof(int)),
-                _ when type == typeof(long) => arrayList.ToArray(typeof(long)),
-                _ when type == typeof(double) => arrayList.ToArray(typeof(double)),
-                _ when type == typeof(byte) => arrayList.ToArray(typeof(byte)),
-                _ when type == typeof(string) => arrayList.ToArray(typeof(string)),
-                _ when type == typeof(bool) => arrayList.ToArray(typeof(bool)),
-                _ when type == typeof(float) => arrayList.ToArray(typeof(float)),
-                _ when type == typeof(short) => arrayList.ToArray(typeof(short)),
-                _ when type == typeof(decimal) => arrayList.ToArray(typeof(decimal)),
-                _ when type == typeof(Date) => arrayList.ToArray(typeof(Date)),
-                _ when type == typeof(Timestamp) => arrayList.ToArray(typeof(Timestamp)),
                 _ when type == typeof(ArrayList) => CastArray(arrayList),
-                _ => throw new NotSupportedException(
-                        string.Format("Type {0} not supported yet", type))
+                _ => arrayList.ToArray(type)
             };
         }
 
@@ -89,6 +77,7 @@ namespace Microsoft.Spark.Sql
             {
                 convertedArray.Add(TypeConverter(al));
             }
+
             return convertedArray.ToArray(convertedArray[0].GetType());
         }
     }
