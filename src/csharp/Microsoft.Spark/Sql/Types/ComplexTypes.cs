@@ -78,14 +78,14 @@ namespace Microsoft.Spark.Sql.Types
             {
                 return null;
             }
-            
+
             var arrayList = new ArrayList();
             foreach (object o in (ArrayList)obj)
             {
                 arrayList.Add(ElementType.FromInternal(o));
             }
 
-            return CastUnpickledItems.TypeConverter(arrayList);
+            return arrayList.ToArray(arrayList[0].GetType());
         }
     }
 
@@ -292,6 +292,13 @@ namespace Microsoft.Spark.Sql.Types
             Fields = fieldsJObjects.Select(
                 fieldJObject => new StructField(fieldJObject)).ToList();
             return this;
+        }
+
+        internal override bool NeedConversion() => true;
+
+        internal override object FromInternal(object obj)
+        {
+            return (obj is RowConstructor rowConstructor) ? rowConstructor.GetRow() : obj;
         }
     }
 }

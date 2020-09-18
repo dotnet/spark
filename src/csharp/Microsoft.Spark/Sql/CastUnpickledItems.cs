@@ -26,9 +26,7 @@ namespace Microsoft.Spark.Sql
             foreach (object obj in (object[])unpickledItems)
             {
                 castUnpickledItems.Add(
-                    obj.GetType() == typeof(RowConstructor) ?
-                    CastRow(obj) as Row:
-                    CastArray(obj));
+                    (obj.GetType() == typeof(RowConstructor)) ? obj : CastArray(obj));
             }
 
             return castUnpickledItems.ToArray();
@@ -46,7 +44,7 @@ namespace Microsoft.Spark.Sql
                 return objArr.Select(x => CastHelper(x)).ToArray();
             }
 
-            // Array of Arrays.
+            // Array of arrays.
             var convertedArray = new ArrayList();
             foreach (ArrayList arrayList in (ArrayList)obj)
             {
@@ -56,34 +54,13 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
-        /// Cast row.
-        /// </summary>
-        /// <param name="obj">object to be cast as necessary.</param>
-        /// <returns>Row after casting.</returns>
-        public static object CastRow(object obj)
-        {
-            if (obj is RowConstructor rowConstructor)
-            {
-                return rowConstructor.GetRow();
-            }
-
-            // Array of rows
-            var convertedRow = new List<Row>();
-            foreach (RowConstructor rc in (ArrayList)obj)
-            {
-                convertedRow.Add(CastRow(rc) as Row);
-            }
-            return convertedRow.ToArray();
-        }
-
-        /// <summary>
         /// Helper function to decide and cast if inputs need to be cast.
         /// </summary>
         /// <param name="obj">object to be cast.</param>
         /// <returns>Original object or cast object</returns>
         public static object CastHelper(object obj)
         {
-            return obj != null && obj is ArrayList arrayList ?
+            return (obj != null && obj is ArrayList arrayList) ?
                 TypeConverter(arrayList) : obj;
         }
 
@@ -109,7 +86,6 @@ namespace Microsoft.Spark.Sql
                 _ when type == typeof(Date) => arrayList.ToArray(typeof(Date)),
                 _ when type == typeof(Timestamp) => arrayList.ToArray(typeof(Timestamp)),
                 _ when type == typeof(ArrayList) => CastArray(arrayList),
-                _ when type == typeof(RowConstructor) => CastRow(arrayList),
                 _ => throw new NotSupportedException(
                         string.Format("Type {0} not supported yet", type))
             };

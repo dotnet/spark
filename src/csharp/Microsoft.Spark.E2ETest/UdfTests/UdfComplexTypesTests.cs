@@ -70,7 +70,6 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
             // Array of Rows.
             {
-
                 Func<Column, Column, Column> udf = Udf<string, Row[], string>(
                     (str, rowArr) => 
                         str + "|" + rowArr[0].GetAs<string>("name") + "|" +
@@ -91,6 +90,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithReturnAsArrayType()
         {
+            // Return simple array.
             {
                 Func<Column, Column> udf = Udf<string, string[]>(
                     str => new string[] { str, str + str });
@@ -112,40 +112,73 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 }
             }
 
+            // Return array of arrays.
             {
-                Func<Column, Column> udf = Udf<int?, Date[]>(
-                    i => new Date[]
+                Func<Column, Column> udf = Udf<int?, Date[][]>(
+                    i => new Date[][]
                     {
-                        new Date(2020 + i.GetValueOrDefault(), 1, 1),
-                        new Date(2020 + i.GetValueOrDefault(), 1, 2)
+                        new Date[]
+                        {
+                            new Date(2020 + i.GetValueOrDefault(), 1, 1),
+                            new Date(2020 + i.GetValueOrDefault(), 1, 2)
+                        },
+                        new Date[]
+                        {
+                            new Date(2020 + i.GetValueOrDefault(), 2, 1),
+                            new Date(2020 + i.GetValueOrDefault(), 2, 2)
+                        }
                     });
 
                 Row[] rows = _df.Select(udf(_df["age"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
-                var expected = new Date[][]
+                var expected = new Date[][][]
                 {
-                    new Date[]
+                    new Date[][]
                     {
-                        new Date(2020, 1, 1),
-                        new Date(2020, 1, 2)
+                        new Date[]
+                        {
+                            new Date(2020, 1, 1),
+                            new Date(2020, 1, 2)
+                        },
+                        new Date[]
+                        {
+                            new Date(2020, 2, 1),
+                            new Date(2020, 2, 2)
+                        }
                     },
-                    new Date[]
+                    new Date[][]
                     {
-                        new Date(2050, 1, 1),
-                        new Date(2050, 1, 2)
+                        new Date[]
+                        {
+                            new Date(2050, 1, 1),
+                            new Date(2050, 1, 2)
+                        },
+                        new Date[]
+                        {
+                            new Date(2050, 2, 1),
+                            new Date(2050, 2, 2)
+                        }
                     },
-                    new Date[]
+                    new Date[][]
                     {
-                        new Date(2039, 1, 1),
-                        new Date(2039, 1, 2)
+                        new Date[]
+                        {
+                            new Date(2039, 1, 1),
+                            new Date(2039, 1, 2)
+                        },
+                        new Date[]
+                        {
+                            new Date(2039, 2, 1),
+                            new Date(2039, 2, 2)
+                        }
                     }
                 };
 
                 for (int i = 0; i < rows.Length; ++i)
                 {
                     Assert.Equal(1, rows[i].Size());
-                    Assert.Equal(expected[i], rows[i].GetAs<Date[]>(0));
+                    Assert.Equal(expected[i], rows[i].GetAs<Date[][]>(0));
                 }
             }
         }
