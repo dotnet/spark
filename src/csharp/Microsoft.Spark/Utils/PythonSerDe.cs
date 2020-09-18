@@ -4,7 +4,6 @@
 
 using System;
 using System.Buffers;
-using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Spark.Interop.Ipc;
