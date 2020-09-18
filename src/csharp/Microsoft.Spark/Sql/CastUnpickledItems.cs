@@ -17,9 +17,8 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Cast unpickledItems from arraylist to the appropriate array.
         /// </summary>
-        /// <param name="unpickledItems">Unpickled items that contains simple array
-        /// and array of arrays.</param>
-        /// <returns>unpickledItems after casting.</returns>
+        /// <param name="unpickledItems">Unpickled objects to be cast as necessary.</param>
+        /// <returns>Unpickled objects after casting.</returns>
         public static object[] Cast(object unpickledItems)
         {
             var castUnpickledItems = new List<object>();
@@ -34,6 +33,11 @@ namespace Microsoft.Spark.Sql
             return castUnpickledItems.ToArray();
         }
 
+        /// <summary>
+        /// Cast simple array and array of arrays.
+        /// </summary>
+        /// <param name="obj">object to be cast as necessary.</param>
+        /// <returns>Typed array after casting.</returns>
         public static object CastArray(object obj)
         {
             if (obj is object[] objArr)
@@ -50,6 +54,11 @@ namespace Microsoft.Spark.Sql
             return convertedArray.ToArray(convertedArray[0].GetType());
         }
 
+        /// <summary>
+        /// Cast row.
+        /// </summary>
+        /// <param name="obj">object to be cast as necessary.</param>
+        /// <returns>Row after casting.</returns>
         public static object CastRow(object obj)
         {
             if (obj is RowConstructor rowConstructor)
@@ -68,10 +77,15 @@ namespace Microsoft.Spark.Sql
             return convertedRow.ToArray();
         }
 
+        /// <summary>
+        /// Helper function to decide and cast if inputs need to be cast.
+        /// </summary>
+        /// <param name="obj">object to be cast.</param>
+        /// <returns>Original object or cast object</returns>
         public static object CastHelper(object obj)
         {
-            return obj != null && obj.GetType() == typeof(ArrayList) ?
-                TypeConverter(obj as ArrayList) : obj;
+            return obj != null && obj is ArrayList arrayList ?
+                TypeConverter(arrayList) : obj;
         }
 
         /// <summary>
