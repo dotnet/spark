@@ -74,10 +74,9 @@ namespace Microsoft.Spark.Sql
         /// Prints the schema up to the given level to the console in a nice tree format.
         /// </summary>
         [Since(Versions.V3_0_0)]
-        public void PrintSchema(int level) =>
-            Console.WriteLine(
-                (string)((JvmObjectReference)_jvmObject.Invoke("schema"))
-                .Invoke("treeString", level));
+        public void PrintSchema(int level) => Console.WriteLine(
+            (string)((JvmObjectReference)_jvmObject.Invoke("schema"))
+            .Invoke("treeString", level));
 
         /// <summary>
         /// Prints the plans (logical and physical) to the console for debugging purposes.

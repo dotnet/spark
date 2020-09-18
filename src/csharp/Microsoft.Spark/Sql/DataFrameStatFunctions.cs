@@ -134,10 +134,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="seed">Random seed</param>
         /// <returns>DataFrame object</returns>
         [Since(Versions.V3_0_0)]
-        public DataFrame SampleBy<T>(
-            Column column,
-            IDictionary<T, double> fractions,
-            long seed) =>
+        public DataFrame SampleBy<T>(Column column, IDictionary<T, double> fractions, long seed) =>
             WrapAsDataFrame(_jvmObject.Invoke("sampleBy", column, fractions, seed));
 
         private DataFrame WrapAsDataFrame(object obj) => new DataFrame((JvmObjectReference)obj);
