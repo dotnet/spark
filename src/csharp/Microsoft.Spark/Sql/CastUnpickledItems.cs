@@ -5,7 +5,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql
@@ -51,22 +50,6 @@ namespace Microsoft.Spark.Sql
             return convertedObj.ToArray();
         }
 
-
-        /// <summary>
-        /// Cast simple array and array of arrays.
-        /// </summary>
-        /// <param name="arrayList">ArrayList to be converted.</param>
-        /// <returns>Typed array after casting.</returns>
-        public static object CastArray(ArrayList arrayList)
-        {
-            var convertedArray = new ArrayList();
-            foreach (ArrayList al in arrayList)
-            {
-                convertedArray.Add(TypeConverter(al));
-            }
-            return convertedArray.ToArray(convertedArray[0].GetType());
-        }
-
         /// <summary>
         /// Cast arraylist to typed array.
         /// </summary>
@@ -92,6 +75,21 @@ namespace Microsoft.Spark.Sql
                 _ => throw new NotSupportedException(
                         string.Format("Type {0} not supported yet", type))
             };
+        }
+
+        /// <summary>
+        /// Cast simple array and array of arrays.
+        /// </summary>
+        /// <param name="arrayList">ArrayList to be converted.</param>
+        /// <returns>Typed array after casting.</returns>
+        public static object CastArray(ArrayList arrayList)
+        {
+            var convertedArray = new ArrayList();
+            foreach (ArrayList al in arrayList)
+            {
+                convertedArray.Add(TypeConverter(al));
+            }
+            return convertedArray.ToArray(convertedArray[0].GetType());
         }
     }
 }
