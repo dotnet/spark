@@ -70,28 +70,22 @@ namespace Microsoft.Spark.Sql.Types
             return this;
         }
 
-        internal override bool NeedConversion() => ElementType.NeedConversion();
+        internal override bool NeedConversion() => true;
 
         internal override object FromInternal(object obj)
         {
-            if (!NeedConversion() || obj == null)
+            if (obj == null)
             {
-                return obj;
+                return null;
             }
             
-            var castObj = new List<object>();
-            foreach (object o in (dynamic)obj)
+            var arrayList = new ArrayList();
+            foreach (object o in (ArrayList)obj)
             {
-                castObj.Add(ElementType.FromInternal(o));
+                arrayList.Add(ElementType.FromInternal(o));
             }
 
-            Type elementType = castObj[0].GetType();
-            return elementType switch
-            {
-                _ when elementType == typeof(Date) => castObj.Cast<Date>().ToArray(),
-                _ when elementType == typeof(Timestamp) => castObj.Cast<Timestamp>().ToArray(),
-                _ => castObj.ToArray()
-            };
+            return CastUnpickledItems.TypeConverter(arrayList);
         }
     }
 

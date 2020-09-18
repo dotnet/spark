@@ -81,9 +81,9 @@ namespace Microsoft.Spark.Sql.Types
         /// </summary>
         internal override object FromInternal(object obj)
         {
-            if (obj == null || obj.GetType() == typeof(Date))
+            if (obj == null)
             {
-                return obj;
+                return null;
             }
 
             return new Date(new DateTime((int)obj * TimeSpan.TicksPerDay + s_unixTimeEpoch.Ticks));
@@ -106,9 +106,9 @@ namespace Microsoft.Spark.Sql.Types
         /// </summary>
         internal override object FromInternal(object obj)
         {
-            if (obj == null || obj.GetType() == typeof(Timestamp))
+            if (obj == null)
             {
-                return obj;
+                return null;
             }
 
             // Known issue that if the original type is "long" and its value can be fit into the

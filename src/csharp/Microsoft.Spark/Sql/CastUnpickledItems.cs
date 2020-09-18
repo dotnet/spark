@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql
 {
@@ -47,9 +48,9 @@ namespace Microsoft.Spark.Sql
 
             // Array of Arrays.
             var convertedArray = new ArrayList();
-            foreach (ArrayList arrList in obj as ArrayList)
+            foreach (ArrayList arrayList in (ArrayList)obj)
             {
-                convertedArray.Add(TypeConverter(arrList));
+                convertedArray.Add(TypeConverter(arrayList));
             }
             return convertedArray.ToArray(convertedArray[0].GetType());
         }
@@ -63,14 +64,12 @@ namespace Microsoft.Spark.Sql
         {
             if (obj is RowConstructor rowConstructor)
             {
-                Row row = rowConstructor.GetRow();
-                object[] values = (row.Values).Select(x => CastHelper(x)).ToArray();
-                return new Row(values, row.Schema);
+                return rowConstructor.GetRow();
             }
 
             // Array of rows
             var convertedRow = new List<Row>();
-            foreach (RowConstructor rc in obj as ArrayList)
+            foreach (RowConstructor rc in (ArrayList)obj)
             {
                 convertedRow.Add(CastRow(rc) as Row);
             }
@@ -91,20 +90,26 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Cast arraylist to typed array.
         /// </summary>
-        /// <param name="arrList">ArrayList to be converted.</param>
+        /// <param name="arrayList">ArrayList to be converted.</param>
         /// <returns>Typed array.</returns>
-        public static object TypeConverter(ArrayList arrList)
+        public static object TypeConverter(ArrayList arrayList)
         {
-            Type type = arrList[0].GetType();
+            Type type = arrayList[0].GetType();
             return type switch
             {
-                _ when type == typeof(int) => (int[])arrList.ToArray(typeof(int)),
-                _ when type == typeof(long) => (long[])arrList.ToArray(typeof(long)),
-                _ when type == typeof(double) => (double[])arrList.ToArray(typeof(double)),
-                _ when type == typeof(byte) => (byte[])arrList.ToArray(typeof(byte)),
-                _ when type == typeof(string) => (string[])arrList.ToArray(typeof(string)),
-                _ when type == typeof(ArrayList) => CastArray(arrList),
-                _ when type == typeof(RowConstructor) => CastRow(arrList),
+                _ when type == typeof(int) => arrayList.ToArray(typeof(int)),
+                _ when type == typeof(long) => arrayList.ToArray(typeof(long)),
+                _ when type == typeof(double) => arrayList.ToArray(typeof(double)),
+                _ when type == typeof(byte) => arrayList.ToArray(typeof(byte)),
+                _ when type == typeof(string) => arrayList.ToArray(typeof(string)),
+                _ when type == typeof(bool) => arrayList.ToArray(typeof(bool)),
+                _ when type == typeof(float) => arrayList.ToArray(typeof(float)),
+                _ when type == typeof(short) => arrayList.ToArray(typeof(short)),
+                _ when type == typeof(decimal) => arrayList.ToArray(typeof(decimal)),
+                _ when type == typeof(Date) => arrayList.ToArray(typeof(Date)),
+                _ when type == typeof(Timestamp) => arrayList.ToArray(typeof(Timestamp)),
+                _ when type == typeof(ArrayList) => CastArray(arrayList),
+                _ when type == typeof(RowConstructor) => CastRow(arrayList),
                 _ => throw new NotSupportedException(
                         string.Format("Type {0} not supported yet", type))
             };
