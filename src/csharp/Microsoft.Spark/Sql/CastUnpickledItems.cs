@@ -5,6 +5,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.Spark.Sql
 {
@@ -18,69 +19,59 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="unpickledItems">Unpickled items that contains simple array
         /// and array of arrays.</param>
-        /// <returns>Simple array after casting.</returns>
-        public static object[] CastToSimpleArray(object unpickledItems)
+        /// <returns>unpickledItems after casting.</returns>
+        public static object[] Cast(object unpickledItems)
         {
             var castUnpickledItems = new List<object>();
-            foreach (object[] objArr in (object[])unpickledItems)
+            foreach (object obj in (object[])unpickledItems)
             {
-                var convertedObjArr = new List<object>();
-                foreach (object obj in objArr)
-                {
-                    convertedObjArr.Add(
-                        (obj != null && obj.GetType() == typeof(ArrayList)) ?
-                        TypeConverter(obj as ArrayList) : obj);
-                }
-                castUnpickledItems.Add(convertedObjArr.ToArray());
+                castUnpickledItems.Add(
+                    obj.GetType() == typeof(RowConstructor) ?
+                    CastRow(obj) as Row:
+                    CastArray(obj));
             }
+
             return castUnpickledItems.ToArray();
         }
 
-        /// <summary>
-        /// Cast unpickledItems from arraylist to the appropriate array.
-        /// </summary>
-        /// <param name="unpickledItems">Unpickled items that contains array of rows.</param>
-        /// <returns>Array of rows after casting.</returns>
-        /// I will clean up the following part
-        public static object[] CastToRowArray(object unpickledItems)
+        public static object CastArray(object obj)
         {
-            var castUnpickledItems = new List<object>();
-            foreach (RowConstructor rowConstructor in (object[])unpickledItems)
+            if (obj is object[] objArr)
             {
-                Row row = rowConstructor.GetRow();
-                var firstValue = row.Values[0] as ArrayList;
-                if (firstValue[0].GetType() == typeof(RowConstructor))
-                {
-                    var castRowArr = new List<Row>();
-                    var castObjArr = new List<object>();
-                    foreach (RowConstructor rc in firstValue)
-                    {
-                        Row r = rc.GetRow();
-                        var values = new List<object>();
-                        foreach (object value in r.Values)
-                        {
-                            if (value != null && value.GetType() == typeof(ArrayList))
-                            {
-                                values.Add(TypeConverter(value as ArrayList));
-                            }
-                            else
-                            {
-                                values.Add(value);
-                            }
-                        }
-                        castRowArr.Add(new Row(values.ToArray(), r.Schema));
-                    }
-                    castObjArr.Add(castRowArr.ToArray());
-                    castUnpickledItems.Add(castObjArr.ToArray());
-                }
-                else
-                {
-                    var values = new object[] { TypeConverter(firstValue) };
-                    castUnpickledItems.Add(new Row(values, row.Schema));
-                }
+                return objArr.Select(x => CastHelper(x)).ToArray();
             }
 
-            return castUnpickledItems.ToArray();
+            // Array of Arrays.
+            var convertedArray = new ArrayList();
+            foreach (ArrayList arrList in obj as ArrayList)
+            {
+                convertedArray.Add(TypeConverter(arrList));
+            }
+            return convertedArray.ToArray(convertedArray[0].GetType());
+        }
+
+        public static object CastRow(object obj)
+        {
+            if (obj is RowConstructor rowConstructor)
+            {
+                Row row = rowConstructor.GetRow();
+                object[] values = (row.Values).Select(x => CastHelper(x)).ToArray();
+                return new Row(values, row.Schema);
+            }
+
+            // Array of rows
+            var convertedRow = new List<Row>();
+            foreach (RowConstructor rc in obj as ArrayList)
+            {
+                convertedRow.Add(CastRow(rc) as Row);
+            }
+            return convertedRow.ToArray();
+        }
+
+        public static object CastHelper(object obj)
+        {
+            return obj != null && obj.GetType() == typeof(ArrayList) ?
+                TypeConverter(obj as ArrayList) : obj;
         }
 
         /// <summary>
@@ -98,25 +89,11 @@ namespace Microsoft.Spark.Sql
                 _ when type == typeof(double) => (double[])arrList.ToArray(typeof(double)),
                 _ when type == typeof(byte) => (byte[])arrList.ToArray(typeof(byte)),
                 _ when type == typeof(string) => (string[])arrList.ToArray(typeof(string)),
-                _ when type == typeof(ArrayList) => CastArrayOfArrays(arrList),
+                _ when type == typeof(ArrayList) => CastArray(arrList),
+                _ when type == typeof(RowConstructor) => CastRow(arrList),
                 _ => throw new NotSupportedException(
                         string.Format("Type {0} not supported yet", type))
             };
-        }
-
-        /// <summary>
-        /// Cast array of arrays.
-        /// </summary>
-        /// <param name="arrList">ArrayList to be converted.</param>
-        /// <returns>Typed array.</returns>
-        public static object CastArrayOfArrays(ArrayList arrList)
-        {
-            var convertedArray = new ArrayList();
-            foreach (ArrayList al in arrList)
-            {
-                convertedArray.Add(TypeConverter(al));
-            }
-            return convertedArray.ToArray(convertedArray[0].GetType());
         }
     }
 }

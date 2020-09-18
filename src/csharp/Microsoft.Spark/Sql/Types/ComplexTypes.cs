@@ -90,7 +90,7 @@ namespace Microsoft.Spark.Sql.Types
             {
                 _ when elementType == typeof(Date) => castObj.Cast<Date>().ToArray(),
                 _ when elementType == typeof(Timestamp) => castObj.Cast<Timestamp>().ToArray(),
-                _ => castObj
+                _ => castObj.ToArray()
             };
         }
     }

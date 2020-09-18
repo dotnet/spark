@@ -71,14 +71,15 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             // Array of Rows.
             {
 
-                Func<Column, Column> udf = Udf<Row[], string>(
-                    rowArr => rowArr[0].GetAs<string>("name") + "|" +
+                Func<Column, Column, Column> udf = Udf<string, Row[], string>(
+                    (str, rowArr) => 
+                        str + "|" + rowArr[0].GetAs<string>("name") + "|" +
                         string.Join(',', rowArr[1].GetAs<int[]>("ids").ToArray()));
 
-                Row[] rows = _df.Select(udf(_df["info4"])).Collect().ToArray();
+                Row[] rows = _df.Select(udf(_df["name"], _df["info4"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
 
-                var expected = new string[] { "Michael|11", "Andy|33,55", "|22,44" };
+                var expected = new string[] { "Michael|Michael|11", "Andy|Andy|33,55", "Justin||22,44" };
                 string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
                 Assert.Equal(expected, rowsToArray);
             }
