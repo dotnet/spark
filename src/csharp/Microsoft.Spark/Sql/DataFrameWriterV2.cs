@@ -44,6 +44,42 @@ namespace Microsoft.Spark.Sql
             return this;
         }
 
-        
+        public void Create()
+        {
+            _jvmObject.Invoke("create");
+        }
+
+        public void Replace()
+        {
+            _jvmObject.Invoke("replace");
+        }
+
+        public void CreateOrReplace()
+        {
+            _jvmObject.Invoke("createOrReplace");
+        }
+
+        /// <summary>
+        /// Append the contents of the data frame to the output table.
+        /// </summary>
+        public void Append()
+        {
+            _jvmObject.Invoke("append");
+        }
+
+        /// <summary>
+        /// Overwrite rows matching the given filter condition with the contents of the data frame
+        /// in the output table.
+        /// </summary>
+        /// <param name="condition"></param>
+        public void Overwrite(Column condition)
+        {
+            _jvmObject.Invoke("overwrite", condition);
+        }
+
+        public void OverwritePartitions()
+        {
+            _jvmObject.Invoke("overwritePartitions");
+        }
     }
 }
