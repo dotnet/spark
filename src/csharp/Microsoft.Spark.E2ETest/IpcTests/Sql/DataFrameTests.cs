@@ -712,6 +712,18 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             IEnumerable<Row> actual = df.ToLocalIterator(true).ToArray();
             IEnumerable<Row> expected = data.Select(r => new Row(r.Values, schema));
             Assert.Equal(expected, actual);
+
+            Assert.IsType<DataFrame>(df.Observe("metrics", Count("Name").As("CountNames")));
+
+            Assert.IsType<Row[]>(_df.Tail(1).ToArray());
+
+            _df.PrintSchema(1);
+
+            _df.Explain("simple");
+            _df.Explain("extended");
+            _df.Explain("codegen");
+            _df.Explain("cost");
+            _df.Explain("formatted");
         }
     }
 }
