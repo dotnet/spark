@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -41,12 +42,26 @@ namespace Microsoft.Spark.Sql
             foreach (object o in obj)
             {
                 convertedObj.Add(
-                    !(o is ArrayList arrayList) ? o :
-                    arrayList[0] is ArrayList al ? CastArray(al) :
-                    arrayList.ToArray(arrayList[0].GetType()));
+                    (o != null && o is ArrayList arrayList) ?
+                    TypeConverter(arrayList) : o);
             }
 
             return convertedObj.ToArray();
+        }
+
+        /// <summary>
+        /// Cast arraylist to typed array.
+        /// </summary>
+        /// <param name="arrayList">ArrayList to be converted.</param>
+        /// <returns>Typed array after casting.</returns>
+        public static object TypeConverter(ArrayList arrayList)
+        {
+            Type type = arrayList[0].GetType();
+            return type switch
+            {
+                _ when type == typeof(ArrayList) => CastArray(arrayList),
+                _ => arrayList.ToArray(type)
+            };
         }
 
         /// <summary>
@@ -57,12 +72,9 @@ namespace Microsoft.Spark.Sql
         public static object CastArray(ArrayList arrayList)
         {
             var convertedArray = new ArrayList();
-            foreach (ArrayList arrList in arrayList)
+            foreach (ArrayList al in arrayList)
             {
-                convertedArray.Add(
-                    arrList[0] is ArrayList al ?
-                    CastArray(al) :
-                    arrList.ToArray(arrList[0].GetType()));
+                convertedArray.Add(TypeConverter(al));
             }
 
             return convertedArray.ToArray(convertedArray[0].GetType());
