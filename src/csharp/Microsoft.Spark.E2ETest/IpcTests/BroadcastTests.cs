@@ -37,6 +37,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// </summary>
         [Theory]
         [InlineData("false")]
+        [InlineData("true")]
         public void TestMultipleBroadcast(string isEncryptionEnabled)
         {
             _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
@@ -52,6 +53,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             string[] actual = ToStringArray(_df.Select(udf(_df["_1"])));
             Assert.Equal(expected, actual);
+            bc1.Destroy();
+            bc2.Destroy();
         }
 
         ///// <summary>
