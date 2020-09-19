@@ -32,28 +32,28 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _df = _spark.CreateDataFrame(new[] { "hello", "world" });
         }
 
-        /// <summary>
-        /// Test Broadcast support by using multiple broadcast variables in a UDF.
-        /// </summary>
-        [Theory]
-        [InlineData("true")]
-        [InlineData("false")]
-        public void TestMultipleBroadcast(string isEncryptionEnabled)
-        {
-            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
-            var obj1 = new TestBroadcastVariable(1, "first");
-            var obj2 = new TestBroadcastVariable(2, "second");
-            Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
-            Broadcast<TestBroadcastVariable> bc2 = _spark.SparkContext.Broadcast(obj2);
+        ///// <summary>
+        ///// Test Broadcast support by using multiple broadcast variables in a UDF.
+        ///// </summary>
+        //[Theory]
+        //[InlineData("true")]
+        //[InlineData("false")]
+        //public void TestMultipleBroadcast(string isEncryptionEnabled)
+        //{
+        //    _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
+        //    var obj1 = new TestBroadcastVariable(1, "first");
+        //    var obj2 = new TestBroadcastVariable(2, "second");
+        //    Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
+        //    Broadcast<TestBroadcastVariable> bc2 = _spark.SparkContext.Broadcast(obj2);
 
-            Func<Column, Column> udf = Udf<string, string>(
-                str => $"{str} {bc1.Value().StringValue} and {bc2.Value().StringValue}");
+        //    Func<Column, Column> udf = Udf<string, string>(
+        //        str => $"{str} {bc1.Value().StringValue} and {bc2.Value().StringValue}");
 
-            var expected = new string[] { "hello first and second", "world first and second" };
+        //    var expected = new string[] { "hello first and second", "world first and second" };
 
-            string[] actual = ToStringArray(_df.Select(udf(_df["_1"])));
-            Assert.Equal(expected, actual);
-        }
+        //    string[] actual = ToStringArray(_df.Select(udf(_df["_1"])));
+        //    Assert.Equal(expected, actual);
+        //}
 
         ///// <summary>
         ///// Test Broadcast support by broadcasting a large (>100MB) object.
