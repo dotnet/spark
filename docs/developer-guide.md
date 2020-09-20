@@ -19,7 +19,7 @@ spark-submit \
 and you will see the followng output:
 ```
 ***********************************************************************
-* .NET Backend running debug mode. Press enter to exit *
+* .NET back end running debug mode. Press enter to exit *
 ***********************************************************************
 ```
 In this debug mode, `DotnetRunner` does not launch the .NET application, but waits for it to connect. Leave this command prompt window open.

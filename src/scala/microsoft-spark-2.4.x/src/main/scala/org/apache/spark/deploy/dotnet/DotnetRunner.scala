@@ -98,7 +98,7 @@ object DotnetRunner extends Logging {
     val dotnetBackendThread = new Thread("DotnetBackend") {
       override def run() {
         // need to get back dotnetBackendPortNumber because if the value passed to init is 0
-        // the port number is dynamically assigned in the backend
+        // the port number is dynamically assigned in the back end
         dotnetBackendPortNumber = dotnetBackend.init(dotnetBackendPortNumber)
         logInfo(s"Port number used by DotnetBackend is $dotnetBackendPortNumber")
         initialized.release()
@@ -151,7 +151,7 @@ object DotnetRunner extends Logging {
       } else {
         // scalastyle:off println
         println("***********************************************************************")
-        println("* .NET Backend running debug mode. Press enter to exit *")
+        println("* .NET back end running debug mode. Press enter to exit *")
         println("***********************************************************************")
         // scalastyle:on println
 

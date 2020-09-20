@@ -10,7 +10,7 @@ namespace Microsoft.Spark.Services
     internal interface IConfigurationService
     {
         /// <summary>
-        /// The port number used for communicating with the .NET backend process.
+        /// The port number used for communicating with the .NET back-end process.
         /// </summary>
         int GetBackendPortNumber();
 
