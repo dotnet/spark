@@ -62,7 +62,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// </summary>
         [Theory]
         [InlineData("true")]
-        [InlineData("false")]
         public void TestLargeBroadcastValue(string isEncryptionEnabled)
         {
             _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
