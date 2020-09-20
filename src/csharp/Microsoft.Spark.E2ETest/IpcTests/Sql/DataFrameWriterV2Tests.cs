@@ -5,7 +5,6 @@
 using System.Collections.Generic;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
@@ -26,16 +25,35 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
         public void TestSignaturesV3_0_X()
         {
-            {
-                DataFrameWriterV2 dfwV2 = _spark
-                    .Read()
-                    .Schema("age INT, name STRING")
-                    .Json($"{TestEnvironment.ResourceDirectory}people.json")
-                    .WriteTo("testTable");
+            DataFrame df = _spark
+                .Read()
+                .Schema("age INT, name STRING")
+                .Json($"{TestEnvironment.ResourceDirectory}people.json");
 
-                Assert.IsAssignableFrom<CreateTableWriter>(dfwV2.Using("json"));
+            DataFrameWriterV2 dfwV2 = df.WriteTo("testTable");
 
-                Assert.IsType<DataFrameWriterV2>(dfwV2.Option("key", "value"));
+            //Assert.IsAssignableFrom<CreateTableWriter>(dfwV2.Using("json"));
+
+            Assert.IsType<DataFrameWriterV2>(dfwV2.Option("key", "value"));
+
+            Assert.IsType<DataFrameWriterV2>(dfwV2.Options(
+                new Dictionary<string, string>() { { "key", "value" } }));
+
+            //Assert.IsAssignableFrom<CreateTableWriter>(dfwV2.TableProperty("prop", "value"));
+
+            //Assert.IsAssignableFrom<CreateTableWriter>(dfwV2.PartitionedBy(df.Col("age")));
+
+            dfwV2.Create();
+
+            //dfwV2.Replace();
+
+            //dfwV2.CreateOrReplace();
+
+            //dfwV2.Append();
+
+            //dfwV2.Overwrite(df.Col("age"));
+
+            //dfwV2.OverwritePartitions();
         }
     }
 }
