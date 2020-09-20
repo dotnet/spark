@@ -57,30 +57,29 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             bc2.Destroy();
         }
 
-        ///// <summary>
-        ///// Test Broadcast support by broadcasting a large (>100MB) object.
-        ///// </summary>
-        //[Theory]
-        //[InlineData("true")]
-        //[InlineData("false")]
-        //public void TestLargeBroadcastValue(string isEncryptionEnabled)
-        //{
-        //    _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
-        //    var obj1 = new byte[104858000];
-        //    Broadcast<byte[]> bc1 = _spark.SparkContext.Broadcast(obj1);
+        /// <summary>
+        /// Test Broadcast support by broadcasting a large (>100MB) object.
+        /// </summary>
+        [Theory]
+        [InlineData("true")]
+        public void TestLargeBroadcastValue(string isEncryptionEnabled)
+        {
+            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
+            var obj1 = new byte[104858000];
+            Broadcast<byte[]> bc1 = _spark.SparkContext.Broadcast(obj1);
 
-        //    Func<Column, Column> udf = Udf<string, string>(
-        //        str => $"{str}: length of broadcast array = {bc1.Value().Length}");
+            Func<Column, Column> udf = Udf<string, string>(
+                str => $"{str}: length of broadcast array = {bc1.Value().Length}");
 
-        //    var expected = new string[] {
-        //        "hello: length of broadcast array = 104858000",
-        //        "world: length of broadcast array = 104858000" };
+            var expected = new string[] {
+                "hello: length of broadcast array = 104858000",
+                "world: length of broadcast array = 104858000" };
 
-        //    string[] actual = ToStringArray(_df.Select(udf(_df["_1"])));
-        //    Assert.Equal(expected, actual);
-        //    // Destroying broadcast variable to free up memory
-        //    bc1.Destroy();
-        //}
+            string[] actual = ToStringArray(_df.Select(udf(_df["_1"])));
+            Assert.Equal(expected, actual);
+            // Destroying broadcast variable to free up memory
+            bc1.Destroy();
+        }
 
         /// <summary>
         /// Test Broadcast.Destroy() that destroys all data and metadata related to the broadcast
