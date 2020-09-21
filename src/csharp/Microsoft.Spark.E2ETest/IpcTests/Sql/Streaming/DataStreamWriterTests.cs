@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Streaming;
@@ -96,19 +97,28 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             StreamingQuery sq = dsw.Start();
 
-            // Process until all available data in the source has been processed and committed
-            // to the ForeachBatch sink. 
-            sq.ProcessAllAvailable();
+            TimeSpan streamingTimeout = TimeSpan.FromSeconds(30);
+            try
+            {
+                // Process until all available data in the source has been processed and committed
+                // to the ForeachBatch sink.
+                FailAfter(streamingTimeout, () => sq.ProcessAllAvailable());
 
-            // Add new file to the source path. The spark stream will read any new files
-            // added to the source path.
-            // id column: [10, 11, ..., 19]
-            WriteCsv(10, 10, Path.Combine(srcTempDirectory.Path, "input2.csv"));
+                // Add new files to the source path. The spark stream will read any new files
+                // added to the source path.
+                // id column: [10, 11, ..., 109]
+                WriteCsv(10, 100, Path.Combine(srcTempDirectory.Path, "input2.csv"));
+                // id column: [110, 111, ..., 1109]
+                WriteCsv(110, 1000, Path.Combine(srcTempDirectory.Path, "input3.csv"));
 
-            // Process until all available data in the source has been processed and committed
-            // to the ForeachBatch sink.
-            sq.ProcessAllAvailable();
-            sq.Stop();
+                // Process until all available data in the source has been processed and committed
+                // to the ForeachBatch sink.
+                FailAfter(streamingTimeout, () => sq.ProcessAllAvailable());
+            }
+            finally
+            {
+                sq.Stop();
+            }
 
             // Verify folders in the destination path.
             string[] csvPaths =
@@ -128,7 +138,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 .Sort("id");
 
             IEnumerable<int> actualIds = df.Collect().Select(r => r.GetAs<int>("id"));
-            Assert.True(Enumerable.Range(300, 20).SequenceEqual(actualIds));
+            Assert.True(Enumerable.Range(300, 1110).SequenceEqual(actualIds));
         }
 
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
@@ -270,6 +280,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             foreach (int i in Enumerable.Range(start, count))
             {
                 streamWriter.WriteLine(i);
+            }
+        }
+
+        private static void FailAfter(TimeSpan timeout, Action func)
+        {
+            Task task = Task.Run(() => func());
+            if (!task.Wait(timeout))
+            {
+                throw new Exception($"Timed out after {timeout.TotalSeconds} seconds.");
             }
         }
 
