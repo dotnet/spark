@@ -36,6 +36,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<Builder>(SparkSession.Builder());
 
+            SparkSession.ClearActiveSession();
+            SparkSession.SetActiveSession(_spark);
+            Assert.IsType<SparkSession>(SparkSession.GetActiveSession());
+
             SparkSession.ClearDefaultSession();
             SparkSession.SetDefaultSession(_spark);
             Assert.IsType<SparkSession>(SparkSession.GetDefaultSession());
@@ -75,7 +79,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// </summary>
         [Fact]
         public void TestCreateDataFrame()
-        {            
+        {
             // Calling CreateDataFrame with schema
             {
                 var data = new List<GenericRow>
