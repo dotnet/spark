@@ -3,7 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
+using static Microsoft.Spark.Sql.Functions;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
@@ -90,6 +92,21 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             df = stat.FreqItems(columnNames);
 
             df = stat.SampleBy("age", new Dictionary<int, double> { { 1, 0.5 } }, 100);
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.0.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
+        public void TestSignaturesV3_0_X()
+        {
+            DataFrameStatFunctions stat = _df.Stat();
+            Column col = Column("age");
+
+            Assert.IsType<DataFrame>(stat.SampleBy(
+                col,
+                new Dictionary<int, double> { { 1, 0.5 } },
+                100));
         }
     }
 }

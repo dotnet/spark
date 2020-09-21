@@ -256,6 +256,30 @@ namespace Microsoft.Spark.Sql
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("sql", sqlText));
 
         /// <summary>
+        /// Execute an arbitrary string command inside an external execution engine rather than
+        /// Spark. This could be useful when user wants to execute some commands out of Spark. For
+        /// example, executing custom DDL/DML command for JDBC, creating index for ElasticSearch,
+        /// creating cores for Solr and so on.
+        /// The command will be eagerly executed after this method is called and the returned
+        /// DataFrame will contain the output of the command(if any).
+        /// </summary>
+        /// <param name="runner">The class name of the runner that implements
+        /// `ExternalCommandRunner`</param>
+        /// <param name="command">The target command to be executed</param>
+        /// <param name="options">The options for the runner</param>
+        /// <returns>>DataFrame object</returns>
+        [Since(Versions.V3_0_0)]
+        public DataFrame ExecuteCommand(
+            string runner,
+            string command,
+            Dictionary<string, string> options) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+                "executeCommand",
+                runner,
+                command,
+                options));
+
+        /// <summary>
         /// Returns a DataFrameReader that can be used to read non-streaming data in
         /// as a DataFrame.
         /// </summary>

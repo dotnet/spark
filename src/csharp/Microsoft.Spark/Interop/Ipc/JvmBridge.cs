@@ -131,7 +131,7 @@ namespace Microsoft.Spark.Interop.Ipc
             string methodName,
             object arg0)
         {
-            object[] oneArgArray = s_oneArgArray ?? (s_oneArgArray = new object[1]);
+            object[] oneArgArray = s_oneArgArray ??= new object[1];
             oneArgArray[0] = arg0;
 
             try
@@ -155,7 +155,7 @@ namespace Microsoft.Spark.Interop.Ipc
             object arg0,
             object arg1)
         {
-            object[] twoArgArray = s_twoArgArray ?? (s_twoArgArray = new object[2]);
+            object[] twoArgArray = s_twoArgArray ??= new object[2];
             twoArgArray[0] = arg0;
             twoArgArray[1] = arg1;
 
@@ -185,8 +185,7 @@ namespace Microsoft.Spark.Interop.Ipc
             try
             {
                 Thread thread = Thread.CurrentThread;
-                MemoryStream payloadMemoryStream = s_payloadMemoryStream ??
-                    (s_payloadMemoryStream = new MemoryStream());
+                MemoryStream payloadMemoryStream = s_payloadMemoryStream ??= new MemoryStream();
                 payloadMemoryStream.Position = 0;
                 PayloadHelper.BuildPayload(
                     payloadMemoryStream,
