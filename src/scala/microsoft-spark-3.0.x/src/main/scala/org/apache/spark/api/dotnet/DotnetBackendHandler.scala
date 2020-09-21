@@ -11,7 +11,10 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, Da
 import scala.collection.mutable.HashMap
 import scala.language.existentials
 
+import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import org.apache.spark.api.dotnet.SerDe._
+import org.apache.spark.internal.Logging
+import org.apache.spark.util.Utils
 
 /**
  * Handler for DotnetBackend.
