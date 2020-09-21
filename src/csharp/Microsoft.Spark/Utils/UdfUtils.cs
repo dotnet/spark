@@ -205,6 +205,17 @@ namespace Microsoft.Spark.Utils
                 environmentVars.Put(Constants.RunningREPLEnvVar, "true");
             }
 
+            string assemblyArchivePath = Environment.GetEnvironmentVariable(
+                AssemblySearchPathResolver.DotNetApplicationArchiveEnvVarName);
+            if (!string.IsNullOrEmpty(assemblyArchivePath))
+            {
+                jvm.CallNonStaticJavaMethod(
+                    environmentVars,
+                    "put",
+                    AssemblySearchPathResolver.DotNetApplicationArchiveEnvVarName,
+                    assemblyArchivePath);
+            }
+
             return environmentVars;
         }
 
