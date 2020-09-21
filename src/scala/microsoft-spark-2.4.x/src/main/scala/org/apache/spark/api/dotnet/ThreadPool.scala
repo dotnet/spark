@@ -27,9 +27,8 @@ object ThreadPool {
     val future = executor.submit(new Runnable {
       override def run(): Unit = task()
     })
-    while (!future.isDone) {
-      Thread.sleep(1000)
-    }
+
+    future.get()
   }
 
   /**

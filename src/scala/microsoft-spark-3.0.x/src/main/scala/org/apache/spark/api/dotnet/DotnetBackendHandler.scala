@@ -8,13 +8,10 @@ package org.apache.spark.api.dotnet
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream}
 
-import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
-import org.apache.spark.api.dotnet.SerDe._
-import org.apache.spark.internal.Logging
-import org.apache.spark.util.Utils
-
 import scala.collection.mutable.HashMap
 import scala.language.existentials
+
+import org.apache.spark.api.dotnet.SerDe._
 
 /**
  * Handler for DotnetBackend.
@@ -42,6 +39,7 @@ class DotnetBackendHandler(server: DotnetBackend)
 
     // First bit is isStatic
     val isStatic = readBoolean(dis)
+    val threadId = readInt(dis)
     val objId = readString(dis)
     val methodName = readString(dis)
     val numArgs = readInt(dis)
@@ -57,7 +55,7 @@ class DotnetBackendHandler(server: DotnetBackend)
             val t = readObjectType(dis)
             assert(t == 'c')
             val objToRemove = readString(dis)
-            JVMObjectTracker.remove(objToRemove)
+            ThreadPool.run(threadId, () => JVMObjectTracker.remove(objToRemove))
             writeInt(dos, 0)
             writeObject(dos, null)
           } catch {
@@ -65,24 +63,37 @@ class DotnetBackendHandler(server: DotnetBackend)
               logError(s"Removing $objId failed", e)
               writeInt(dos, -1)
           }
+        case "rmThread" =>
+          try {
+            assert(readObjectType(dis) == 'i')
+            val threadToDelete = readInt(dis)
+            ThreadPool.deleteThread(threadToDelete)
+            writeInt(dos, 0)
+            writeObject(dos, null)
+          } catch {
+            case e: Exception =>
+              logError(s"Removing thread $threadId failed", e)
+              writeInt(dos, -1)
+          }
         case "connectCallback" =>
           assert(readObjectType(dis) == 'c')
           val address = readString(dis)
           assert(readObjectType(dis) == 'i')
           val port = readInt(dis)
-          DotnetBackend.setCallbackClient(address, port);
+          ThreadPool.run(threadId, () => DotnetBackend.setCallbackClient(address, port))
           writeInt(dos, 0)
           writeType(dos, "void")
         case "closeCallback" =>
           logInfo("Requesting to close callback client")
-          DotnetBackend.shutdownCallbackClient()
+          ThreadPool.run(threadId, DotnetBackend.shutdownCallbackClient)
           writeInt(dos, 0)
           writeType(dos, "void")
 
         case _ => dos.writeInt(-1)
       }
     } else {
-      handleMethodCall(isStatic, objId, methodName, numArgs, dis, dos)
+      ThreadPool
+        .run(threadId, () => handleMethodCall(isStatic, objId, methodName, numArgs, dis, dos))
     }
 
     bos.toByteArray
@@ -168,13 +179,15 @@ class DotnetBackendHandler(server: DotnetBackend)
           case Some(jObj) => jObj.getClass.getName
           case None => "NullObject"
         }
-        val argsStr = args.map(arg => {
-          if (arg != null) {
-            s"[Type=${arg.getClass.getCanonicalName}, Value: $arg]"
-          } else {
-            "[Value: NULL]"
-          }
-        }).mkString(", ")
+        val argsStr = args
+          .map(arg => {
+            if (arg != null) {
+              s"[Type=${arg.getClass.getCanonicalName}, Value: $arg]"
+            } else {
+              "[Value: NULL]"
+            }
+          })
+          .mkString(", ")
 
         logError(s"Failed to execute '$methodName' on '$jvmObjName' with args=($argsStr)")
 
