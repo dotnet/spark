@@ -10,6 +10,8 @@ import java.util.{List => JList, Map => JMap}
 
 import org.apache.spark.api.python.{PythonAccumulatorV2, PythonBroadcast, PythonFunction}
 import org.apache.spark.broadcast.Broadcast
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.execution.streaming.MemoryStream
 
 object SQLUtils {
 
@@ -33,5 +35,22 @@ object SQLUtils {
       pythonVersion,
       broadcastVars,
       accumulator)
+  }
+
+  /**
+   * Helper method to create typed MemoryStreams intended for use in unit tests.
+   * @param sqlContext The SQLContext.
+   * @param streamType The type of memory stream to create. This string is the `Name`
+   *                   property of the dotnet type.
+   * @return A typed MemoryStream.
+   */
+  def createMemoryStream(implicit sqlContext: SQLContext, streamType: String): MemoryStream[_] = {
+    import sqlContext.implicits._
+
+    streamType match {
+      case "Int32" => MemoryStream[Int]
+      case "String" => MemoryStream[String]
+      case _ => throw new Exception(s"$streamType not supported")
+    }
   }
 }

@@ -16,9 +16,6 @@ namespace Microsoft.Spark.E2ETest.Utils
     /// </typeparam>
     internal class MemoryStream<T> : IJvmObjectReferenceProvider
     {
-        private static readonly string s_testUtilsClassName =
-            "org.apache.spark.sql.api.dotnet.TestUtils";
-
         private readonly JvmObjectReference _jvmObject;
 
         internal MemoryStream(SparkSession sparkSession)
@@ -30,8 +27,8 @@ namespace Microsoft.Spark.E2ETest.Utils
             IJvmBridge jvm = sparkSessionRef.Jvm;
 
             _jvmObject = (JvmObjectReference)jvm.CallStaticJavaMethod(
-                s_testUtilsClassName,
-                "CreateMemoryStream",
+                "org.apache.spark.sql.api.dotnet.SQLUtils",
+                "createMemoryStream",
                 sqlContext,
                 typeof(T).Name);
         }
