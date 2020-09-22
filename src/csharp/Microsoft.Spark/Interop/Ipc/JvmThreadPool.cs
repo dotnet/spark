@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
@@ -6,7 +10,8 @@ namespace Microsoft.Spark.Interop.Ipc
 {
     /// <summary>
     /// This class corresponds to the ThreadPool we maintain on the JVM side. This class keeps
-    /// track of which .NET threads are still alive, and issues an rmThread command if a thread is not.
+    /// track of which .NET threads are still alive, and issues an rmThread command if a thread is
+    /// not.
     /// </summary>
     internal class JvmThreadPool
     {
@@ -58,7 +63,8 @@ namespace Microsoft.Spark.Interop.Ipc
         {
             if (_activeThreads.TryRemove(managedThreadId, out Thread thread))
             {
-                _jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", thread.ManagedThreadId);
+                _jvmBridge.CallStaticJavaMethod(
+                    "DotnetHandler", "rmThread", thread.ManagedThreadId);
                 return true;
             }
 

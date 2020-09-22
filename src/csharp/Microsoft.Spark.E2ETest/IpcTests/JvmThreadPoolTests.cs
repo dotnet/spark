@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Threading;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
@@ -32,9 +36,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 {
                     Assert.Null(SparkSession.GetActiveSession());
 
-                    SparkSession.SetActiveSession(SparkSession.Builder().AppName(appName).GetOrCreate());
+                    SparkSession.SetActiveSession(
+                        SparkSession.Builder().AppName(appName).GetOrCreate());
 
-                    // Since we are in the child thread, GetActiveSession() should return the child SparkSession.
+                    // Since we are in the child thread, GetActiveSession() should return the child
+                    // SparkSession.
                     var activeSession = SparkSession.GetActiveSession();
                     Assert.NotNull(activeSession);
                     Assert.Equal(appName, activeSession.Conf().Get("spark.app.name", null));

@@ -38,7 +38,6 @@ namespace Microsoft.Spark.Interop.Ipc
         private readonly int _portNumber;
         private readonly JvmThreadPool _jvmThreadPool;
 
-
         internal JvmBridge(int portNumber)
         {
             if (portNumber == 0)
