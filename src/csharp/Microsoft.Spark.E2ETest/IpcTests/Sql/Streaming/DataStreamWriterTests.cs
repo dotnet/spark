@@ -71,7 +71,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
         public void TestForeachBatch()
         {
-            MemoryStream<int> memoryStream = new MemoryStream<int>(_spark);
+            var memoryStream = new MemoryStream<int>(_spark);
 
             // Temporary folder to write ForeachBatch output.
             using var dstTempDirectory = new TemporaryDirectory();
