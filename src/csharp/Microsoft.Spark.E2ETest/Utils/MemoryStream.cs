@@ -39,6 +39,6 @@ namespace Microsoft.Spark.E2ETest.Utils
         internal DataFrame ToDF() => new DataFrame((JvmObjectReference)_jvmObject.Invoke("toDF"));
 
         // TODO: "addData" returns an Offset. Expose class if needed.
-        internal void AddData(IEnumerable<T> data) => _jvmObject.Invoke("addData", data);
+        internal void AddData(T[] data) => _jvmObject.Invoke("addData", data);
     }
 }
