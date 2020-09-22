@@ -31,7 +31,7 @@ namespace Microsoft.Spark.E2ETest.Utils
 
             _jvmObject = (JvmObjectReference)jvm.CallStaticJavaMethod(
                 s_testUtilsClassName,
-                "TestMemoryStream",
+                "CreateMemoryStream",
                 sqlContext,
                 typeof(T).Name);
         }
