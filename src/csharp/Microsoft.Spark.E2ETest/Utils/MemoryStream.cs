@@ -23,14 +23,11 @@ namespace Microsoft.Spark.E2ETest.Utils
         {
             JvmObjectReference sparkSessionRef =
                 ((IJvmObjectReferenceProvider)sparkSession).Reference;
-            JvmObjectReference sqlContext =
-                (JvmObjectReference)sparkSessionRef.Invoke("sqlContext");
-            IJvmBridge jvm = sparkSessionRef.Jvm;
 
-            _jvmObject = (JvmObjectReference)jvm.CallStaticJavaMethod(
+            _jvmObject = (JvmObjectReference)sparkSessionRef.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.SQLUtils",
                 "createMemoryStream",
-                sqlContext,
+                sparkSessionRef.Invoke("sqlContext"),
                 typeof(T).Name);
         }
 
