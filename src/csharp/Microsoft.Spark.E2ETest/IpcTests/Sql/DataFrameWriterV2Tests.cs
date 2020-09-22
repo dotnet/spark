@@ -3,8 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
@@ -30,30 +32,39 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 .Schema("age INT, name STRING")
                 .Json($"{TestEnvironment.ResourceDirectory}people.json");
 
-            DataFrameWriterV2 dfwV2 = df.WriteTo("testTable");
+            DataFrameWriterV2 dfwV2 = df.WriteTo("testtable");
 
-            //Assert.IsAssignableFrom<CreateTableWriter>(dfwV2.Using("json"));
+            Assert.IsType<DataFrameWriterV2>(dfwV2.Using("json"));
 
             Assert.IsType<DataFrameWriterV2>(dfwV2.Option("key", "value"));
 
             Assert.IsType<DataFrameWriterV2>(dfwV2.Options(
                 new Dictionary<string, string>() { { "key", "value" } }));
 
-            //Assert.IsAssignableFrom<CreateTableWriter>(dfwV2.TableProperty("prop", "value"));
-
-            //Assert.IsAssignableFrom<CreateTableWriter>(dfwV2.PartitionedBy(df.Col("age")));
+            Assert.IsType<DataFrameWriterV2>(dfwV2.TableProperty("prop", "value"));
 
             dfwV2.Create();
 
-            //dfwV2.Replace();
+            Assert.IsType<DataFrameWriterV2>(dfwV2.PartitionedBy(df.Col("age")));
 
+            // Testing caveat 1*************************************************************
+            // Functions Replace() and CreateOrReplace() fail with the following error:
+            // REPLACE TABLE AS SELECT is only supported with v2 tables.
+            // This is because Spark 3.0 currently doesn't support file source as provider for
+            // tables. Issue - https://issues.apache.org/jira/browse/SPARK-28396
+
+            //df2.WriteTo("testTable").Replace();
             //dfwV2.CreateOrReplace();
 
-            //dfwV2.Append();
+            // *****************************************************************************
 
-            //dfwV2.Overwrite(df.Col("age"));
+            // Table needs TableCapability such as BATCH_WRITE in order to be able to append to it.
 
-            //dfwV2.OverwritePartitions();
+            //dfwV2.Append(); // Table default.testtable does not support append in batch mode.
+
+            //dfwV2.Overwrite(df.Col("age")); //Table default.testtable does not support overwrite by filter in batch mode.
+
+            //dfwV2.OverwritePartitions(); //Table default.testtable does not support dynamic overwrite in batch mode.
         }
     }
 }
