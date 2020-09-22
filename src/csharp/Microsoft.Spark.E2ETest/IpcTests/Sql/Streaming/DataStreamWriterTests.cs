@@ -100,9 +100,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 // to the ForeachBatch sink.
                 FailAfter(streamingTimeout, () => sq.ProcessAllAvailable());
 
-                // Add new files to the source path. The spark stream will read any new files
-                // added to the source path.
-                // id column: [10, 11, ..., 1009]
                 memoryStream.AddData(Enumerable.Range(10, 1000).ToArray());
 
                 // Process until all available data in the source has been processed and committed
