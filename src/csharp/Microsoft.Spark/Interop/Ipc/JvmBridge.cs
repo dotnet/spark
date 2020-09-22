@@ -36,8 +36,8 @@ namespace Microsoft.Spark.Interop.Ipc
         private readonly ILoggerService _logger =
             LoggerServiceFactory.GetLogger(typeof(JvmBridge));
         private readonly int _portNumber;
-        private readonly ConcurrentDictionary<int, Thread> _activeThreads;
-        private readonly Thread _activeThreadMonitor;
+        private readonly JvmThreadPool _jvmThreadPool;
+
 
         internal JvmBridge(int portNumber)
         {
@@ -49,28 +49,7 @@ namespace Microsoft.Spark.Interop.Ipc
             _portNumber = portNumber;
             _logger.LogInfo($"JvMBridge port is {portNumber}");
 
-            _activeThreads = new ConcurrentDictionary<int, Thread>();
-            _activeThreadMonitor = new Thread(delegate ()
-            {
-                using var timer = new Timer((state) =>
-                {
-                    foreach (var threadId in _activeThreads.Keys)
-                    {
-                        if (_activeThreads.TryRemove(threadId, out Thread thread))
-                        {
-                            if (thread.IsAlive)
-                            {
-                                _activeThreads.TryAdd(threadId, thread);
-                            }
-                            else
-                            {
-                                CallStaticJavaMethod("DotnetHandler", "rmThread", thread.ManagedThreadId);
-                            }
-                        }
-                    }
-                }, null, 0, 30000);
-            });
-            _activeThreadMonitor.Start();
+            _jvmThreadPool = new JvmThreadPool(this, TimeSpan.FromMinutes(30));
         }
 
         private ISocketWrapper GetConnection()
@@ -204,7 +183,7 @@ namespace Microsoft.Spark.Interop.Ipc
                     (int)payloadMemoryStream.Position);
                 outputStream.Flush();
 
-                _activeThreads.TryAdd(thread.ManagedThreadId, thread);
+                _jvmThreadPool.TryAddThread(thread);
 
                 Stream inputStream = socket.InputStream;
                 int isMethodCallFailed = SerDe.ReadInt32(inputStream);
