@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
@@ -72,25 +71,20 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
         public void TestForeachBatch()
         {
-            // Temporary folder to put our test stream input.
-            using var srcTempDirectory = new TemporaryDirectory();
+            MemoryStream<int> memoryStream = new MemoryStream<int>(_spark);
+
             // Temporary folder to write ForeachBatch output.
             using var dstTempDirectory = new TemporaryDirectory();
 
             Func<Column, Column> outerUdf = Udf<int, int>(i => i + 100);
 
-            // id column: [0, 1, ..., 9]
-            WriteCsv(0, 10, Path.Combine(srcTempDirectory.Path, "input1.csv"));
-
-            DataStreamWriter dsw = _spark
-                .ReadStream()
-                .Schema("id INT")
-                .Csv(srcTempDirectory.Path)
+            DataStreamWriter dsw = memoryStream
+                .ToDF()
                 .WriteStream()
                 .ForeachBatch((df, id) =>
                 {
                     Func<Column, Column> innerUdf = Udf<int, int>(i => i + 200);
-                    df.Select(outerUdf(innerUdf(Col("id"))))
+                    df.Select(outerUdf(innerUdf(Col("value"))))
                         .Write()
                         .Csv(Path.Combine(dstTempDirectory.Path, id.ToString()));
                 });
@@ -100,16 +94,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             TimeSpan streamingTimeout = TimeSpan.FromSeconds(30);
             try
             {
+                memoryStream.AddData(Enumerable.Range(0, 10).ToArray());
+
                 // Process until all available data in the source has been processed and committed
                 // to the ForeachBatch sink.
                 FailAfter(streamingTimeout, () => sq.ProcessAllAvailable());
 
                 // Add new files to the source path. The spark stream will read any new files
                 // added to the source path.
-                // id column: [10, 11, ..., 109]
-                WriteCsv(10, 100, Path.Combine(srcTempDirectory.Path, "input2.csv"));
-                // id column: [110, 111, ..., 1109]
-                WriteCsv(110, 1000, Path.Combine(srcTempDirectory.Path, "input3.csv"));
+                // id column: [10, 11, ..., 1009]
+                memoryStream.AddData(Enumerable.Range(10, 1000).ToArray());
 
                 // Process until all available data in the source has been processed and committed
                 // to the ForeachBatch sink.
@@ -138,7 +132,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 .Sort("id");
 
             IEnumerable<int> actualIds = df.Collect().Select(r => r.GetAs<int>("id"));
-            Assert.True(Enumerable.Range(300, 1110).SequenceEqual(actualIds));
+            Assert.True(Enumerable.Range(300, 1010).SequenceEqual(actualIds));
         }
 
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
@@ -272,15 +266,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.Equal(
                 expectedOutput.Select(i => new object[] { i }),
                 foreachWriterOutputDF.Collect().Select(r => r.Values));
-        }
-
-        private void WriteCsv(int start, int count, string path)
-        {
-            using var streamWriter = new StreamWriter(path);
-            foreach (int i in Enumerable.Range(start, count))
-            {
-                streamWriter.WriteLine(i);
-            }
         }
 
         private static void FailAfter(TimeSpan timeout, Action func)
