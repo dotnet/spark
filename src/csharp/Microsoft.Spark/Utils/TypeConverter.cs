@@ -9,7 +9,6 @@ using System.Collections.Generic;
 namespace Microsoft.Spark.Utils
 {
     /// <summary>
-    /// Converts one type to another.
     /// Supports converting <see cref="ArrayList"/> to a typed <see cref="Array"/> and
     /// <see cref="Hashtable"/> to a typed <see cref="Dictionary{TKey, TValue}"/>.
     /// </summary>
