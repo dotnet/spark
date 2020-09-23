@@ -94,12 +94,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             TimeSpan streamingTimeout = TimeSpan.FromSeconds(30);
             try
             {
+                // [0, 1, ..., 9]
                 memoryStream.AddData(Enumerable.Range(0, 10).ToArray());
 
                 // Process until all available data in the source has been processed and committed
                 // to the ForeachBatch sink.
                 FailAfter(streamingTimeout, () => sq.ProcessAllAvailable());
 
+                // [10, 11, ..., 1009]
                 memoryStream.AddData(Enumerable.Range(10, 1000).ToArray());
 
                 // Process until all available data in the source has been processed and committed
@@ -129,6 +131,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 .Sort("id");
 
             IEnumerable<int> actualIds = df.Collect().Select(r => r.GetAs<int>("id"));
+            // Inner UDF adds 200, outer UDF adds 100.
+            // [300, 301, ..., 1309]
             Assert.True(Enumerable.Range(300, 1010).SequenceEqual(actualIds));
         }
 
