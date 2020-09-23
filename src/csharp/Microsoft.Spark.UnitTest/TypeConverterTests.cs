@@ -15,28 +15,28 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestBaseCase()
         {
-            Assert.Equal((byte)0x01, TypeConverter.Convert<byte>((byte)0x01));
-            Assert.Equal((sbyte)0x01, TypeConverter.Convert<sbyte>((sbyte)0x01));
-            Assert.Equal((short)1, TypeConverter.Convert<short>((short)1));
-            Assert.Equal((ushort)1, TypeConverter.Convert<ushort>((ushort)1));
-            Assert.Equal(1, TypeConverter.Convert<int>(1));
-            Assert.Equal(1u, TypeConverter.Convert<uint>(1u));
-            Assert.Equal(1L, TypeConverter.Convert<long>(1L));
-            Assert.Equal(1ul, TypeConverter.Convert<ulong>(1ul));
-            Assert.Equal(1.0f, TypeConverter.Convert<float>(1.0f));
-            Assert.Equal(1.0d, TypeConverter.Convert<double>(1.0d));
-            Assert.Equal(1.0m, TypeConverter.Convert<decimal>(1.0m));
-            Assert.Equal('a', TypeConverter.Convert<char>('a'));
-            Assert.Equal("test", TypeConverter.Convert<string>("test"));
-            Assert.True(TypeConverter.Convert<bool>(true));
+            Assert.Equal((byte)0x01, TypeConverter.ConvertTo<byte>((byte)0x01));
+            Assert.Equal((sbyte)0x01, TypeConverter.ConvertTo<sbyte>((sbyte)0x01));
+            Assert.Equal((short)1, TypeConverter.ConvertTo<short>((short)1));
+            Assert.Equal((ushort)1, TypeConverter.ConvertTo<ushort>((ushort)1));
+            Assert.Equal(1, TypeConverter.ConvertTo<int>(1));
+            Assert.Equal(1u, TypeConverter.ConvertTo<uint>(1u));
+            Assert.Equal(1L, TypeConverter.ConvertTo<long>(1L));
+            Assert.Equal(1ul, TypeConverter.ConvertTo<ulong>(1ul));
+            Assert.Equal(1.0f, TypeConverter.ConvertTo<float>(1.0f));
+            Assert.Equal(1.0d, TypeConverter.ConvertTo<double>(1.0d));
+            Assert.Equal(1.0m, TypeConverter.ConvertTo<decimal>(1.0m));
+            Assert.Equal('a', TypeConverter.ConvertTo<char>('a'));
+            Assert.Equal("test", TypeConverter.ConvertTo<string>("test"));
+            Assert.True(TypeConverter.ConvertTo<bool>(true));
         }
 
         [Fact]
         public void TestArrayList()
         {
             var expected = new ArrayList(Enumerable.Range(0, 10).ToArray());
-            ArrayList actual = TypeConverter.Convert<ArrayList>(expected);
-            Assert.True(ReferenceEquals(expected, actual));
+            ArrayList actual = TypeConverter.ConvertTo<ArrayList>(expected);
+            Assert.Same(expected, actual);
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace Microsoft.Spark.UnitTest
         {
             int[] expected = Enumerable.Range(0, 10).ToArray();
             var arrayList = new ArrayList(expected);
-            int[] actual = TypeConverter.Convert<int[]>(arrayList);
+            int[] actual = TypeConverter.ConvertTo<int[]>(arrayList);
             Assert.Equal(expected, actual);
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.Spark.UnitTest
                 arrayList.Add(innerArrayList);
             }
 
-            int[][] actual = TypeConverter.Convert<int[][]>(arrayList);
+            int[][] actual = TypeConverter.ConvertTo<int[][]>(arrayList);
             Assert.Equal(expected, actual);
         }
 
@@ -99,7 +99,7 @@ namespace Microsoft.Spark.UnitTest
                 arrayList.Add(innerArrayList);
             }
 
-            int[][][] actual = TypeConverter.Convert<int[][][]>(arrayList);
+            int[][][] actual = TypeConverter.ConvertTo<int[][][]>(arrayList);
             Assert.Equal(expected, actual);
         }
 
@@ -108,8 +108,8 @@ namespace Microsoft.Spark.UnitTest
         {
             var expected =
                 new Hashtable(Enumerable.Range(0, 10).ToDictionary(k => k, v => v * v));
-            Hashtable actual = TypeConverter.Convert<Hashtable>(expected);
-            Assert.True(ReferenceEquals(expected, actual));
+            Hashtable actual = TypeConverter.ConvertTo<Hashtable>(expected);
+            Assert.Same(expected, actual);
         }
 
         [Fact]
@@ -118,7 +118,7 @@ namespace Microsoft.Spark.UnitTest
             Dictionary<int, int> expected =
                 Enumerable.Range(0, 10).ToDictionary(i => i, i => i * i);
             var hashtable = new Hashtable(expected);
-            Dictionary<int, int> actual = TypeConverter.Convert<Dictionary<int, int>>(hashtable);
+            Dictionary<int, int> actual = TypeConverter.ConvertTo<Dictionary<int, int>>(hashtable);
             Assert.Equal(expected, actual);
         }
 
@@ -144,7 +144,7 @@ namespace Microsoft.Spark.UnitTest
             }
 
             Dictionary<int, Dictionary<int, int>> actual =
-                TypeConverter.Convert<Dictionary<int, Dictionary<int, int>>>(hashtable);
+                TypeConverter.ConvertTo<Dictionary<int, Dictionary<int, int>>>(hashtable);
             Assert.Equal(expected, actual);
         }
 
@@ -171,7 +171,7 @@ namespace Microsoft.Spark.UnitTest
                 }
 
                 Dictionary<int, int[]> actual =
-                    TypeConverter.Convert<Dictionary<int, int[]>>(hashtable);
+                    TypeConverter.ConvertTo<Dictionary<int, int[]>>(hashtable);
                 Assert.Equal(expected, actual);
             }
             {
@@ -193,7 +193,7 @@ namespace Microsoft.Spark.UnitTest
                 }
 
                 Dictionary<int, int>[] actual =
-                    TypeConverter.Convert<Dictionary<int, int>[]>(arrayList);
+                    TypeConverter.ConvertTo<Dictionary<int, int>[]>(arrayList);
                 Assert.Equal(expected, actual);
             }
         }

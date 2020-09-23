@@ -154,9 +154,9 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
             var expected = new string[]
             {
-                "Name1|1,2,3|10,11,12|100,101,102,103",
+                "Name1|1,2,3|+10,+11,+12|++100,++101,++102,++103",
                 "Name2",
-                "Name3|4|13|104"
+                "Name3|4|+13|++104"
             };
 
             {
@@ -175,14 +175,17 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
                             if (arrIds != null)
                             {
-                                AppendEnumerable(sb, arrIds.SelectMany(i => i));
+                                AppendEnumerable(
+                                    sb,
+                                    arrIds.SelectMany(i => i.Select(j => $"+{j}")));
                             }
 
                             if (arrArrIds != null)
                             {
                                 AppendEnumerable(
                                     sb,
-                                    arrArrIds.SelectMany(i => i.SelectMany(j => j)));
+                                    arrArrIds.SelectMany(
+                                        i => i.SelectMany(j => j.Select(k => $"++{k}"))));
                             }
 
                             return sb.ToString();
@@ -211,17 +214,20 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
                             if (arrIds != null)
                             {
-                                IEnumerable<object> idsEnum =
-                                    arrIds.ToArray().SelectMany(i => ((ArrayList)i).ToArray());
+                                IEnumerable<object> idsEnum = arrIds
+                                    .ToArray()
+                                    .SelectMany(
+                                        i => ((ArrayList)i).ToArray().Select(j => $"+{j}"));
                                 AppendEnumerable(sb, idsEnum);
                             }
 
                             if (arrArrIds != null)
                             {
-                                IEnumerable<object> idsEnum =
-                                    arrArrIds.ToArray()
-                                        .SelectMany(i => ((ArrayList)i).ToArray()
-                                            .SelectMany(j => ((ArrayList)j).ToArray()));
+                                IEnumerable<object> idsEnum = arrArrIds
+                                    .ToArray()
+                                    .SelectMany(i => ((ArrayList)i).ToArray()
+                                        .SelectMany(
+                                            j => ((ArrayList)j).ToArray().Select(k => $"++{k}")));
                                 AppendEnumerable(sb, idsEnum);
                             }
 

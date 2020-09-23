@@ -58,7 +58,7 @@ namespace Microsoft.Spark.UnitTest
 
                 var expected = new ArrayList(Enumerable.Range(0, 10).ToArray());
                 var actual = (ArrayList)arrayType.FromInternal(expected);
-                Assert.Equal(expected, actual);
+                Assert.Same(expected, actual);
             }
             {
                 var dateType = new DateType();
@@ -103,7 +103,7 @@ namespace Microsoft.Spark.UnitTest
                     Enumerable.Range(0, 10).ToDictionary(i => i, i => i * i);
                 var expected = new Hashtable(dict);
                 var actual = (Hashtable)mapType.FromInternal(expected);
-                Assert.Equal(expected, actual);
+                Assert.Same(expected, actual);
             }
             {
                 var integerType = new IntegerType();
