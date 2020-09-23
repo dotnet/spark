@@ -25,7 +25,7 @@ namespace Microsoft.Spark.E2ETest.Utils
                 ((IJvmObjectReferenceProvider)sparkSession).Reference;
 
             _jvmObject = (JvmObjectReference)sparkSessionRef.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.sql.api.dotnet.SQLUtils",
+                "org.apache.spark.sql.test.TestUtils",
                 "createMemoryStream",
                 sparkSessionRef.Invoke("sqlContext"),
                 typeof(T).Name);
