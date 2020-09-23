@@ -18,27 +18,22 @@ namespace Microsoft.Spark.Utils
         /// </summary>
         /// <typeparam name="T">Type to convert to</typeparam>
         /// <param name="obj">The object to convert</param>
-        /// <returns></returns>
+        /// <returns>Converted object.</returns>
         internal static T Convert<T>(object obj) => obj is T t ? t : (T)Convert(obj, typeof(T));
 
         private static object Convert(object obj, Type toType)
         {
-            if (obj == null)
+            if ((obj is ArrayList arrayList) && toType.IsArray)
             {
-                return obj;
+                return ConvertArrayList(arrayList, toType);
+            }
+            else if ((obj is Hashtable hashtable) && toType.IsGenericType &&
+                (toType.GetGenericTypeDefinition() == typeof(Dictionary<,>)))
+            {
+                return ConvertHashtable(hashtable, toType);
             }
 
-            Type fromType = obj.GetType();
-            return fromType switch
-            {
-                _ when fromType == toType => obj,
-                _ when (fromType == typeof(ArrayList)) && toType.IsArray =>
-                    ConvertArrayList((ArrayList)obj, toType),
-                _ when (fromType == typeof(Hashtable)) && toType.IsGenericType &&
-                    (toType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) =>
-                    ConvertHashtable((Hashtable)obj, toType),
-                _ => obj
-            };
+            return obj;
         }
 
         private static object ConvertArrayList(ArrayList arrayList, Type type)

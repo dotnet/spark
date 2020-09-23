@@ -15,10 +15,10 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestBaseCase()
         {
-            Assert.Equal(0x01, TypeConverter.Convert<byte>((byte)0x01));
-            Assert.Equal(1, TypeConverter.Convert<sbyte>((sbyte)0x01));
-            Assert.Equal(1, TypeConverter.Convert<short>((short)1));
-            Assert.Equal(1, TypeConverter.Convert<ushort>((ushort)1));
+            Assert.Equal((byte)0x01, TypeConverter.Convert<byte>((byte)0x01));
+            Assert.Equal((sbyte)0x01, TypeConverter.Convert<sbyte>((sbyte)0x01));
+            Assert.Equal((short)1, TypeConverter.Convert<short>((short)1));
+            Assert.Equal((ushort)1, TypeConverter.Convert<ushort>((ushort)1));
             Assert.Equal(1, TypeConverter.Convert<int>(1));
             Assert.Equal(1u, TypeConverter.Convert<uint>(1u));
             Assert.Equal(1L, TypeConverter.Convert<long>(1L));
@@ -34,7 +34,7 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestArrayList()
         {
-            ArrayList expected = new ArrayList(Enumerable.Range(0, 10).ToArray());
+            var expected = new ArrayList(Enumerable.Range(0, 10).ToArray());
             ArrayList actual = TypeConverter.Convert<ArrayList>(expected);
             Assert.True(ReferenceEquals(expected, actual));
         }
@@ -43,7 +43,7 @@ namespace Microsoft.Spark.UnitTest
         public void TestArray()
         {
             int[] expected = Enumerable.Range(0, 10).ToArray();
-            ArrayList arrayList = new ArrayList(expected);
+            var arrayList = new ArrayList(expected);
             int[] actual = TypeConverter.Convert<int[]>(arrayList);
             Assert.Equal(expected, actual);
         }
@@ -54,11 +54,11 @@ namespace Microsoft.Spark.UnitTest
             int[][] expected =
                 Enumerable.Range(0, 10).Select(i => Enumerable.Range(i, 10).ToArray()).ToArray();
 
-            ArrayList arrayList = new ArrayList(expected.Length);
+            var arrayList = new ArrayList(expected.Length);
             for (int i = 0; i < expected.Length; ++i)
             {
                 int[] innerExpected = expected[i];
-                ArrayList innerArrayList = new ArrayList(innerExpected.Length);
+                var innerArrayList = new ArrayList(innerExpected.Length);
                 for (int j = 0; j < innerExpected.Length; ++j)
                 {
                     innerArrayList.Add(innerExpected[j]);
@@ -79,15 +79,15 @@ namespace Microsoft.Spark.UnitTest
                 .Select(arr => arr.Select(j => Enumerable.Range(j, 10).ToArray()).ToArray())
                 .ToArray();
 
-            ArrayList arrayList = new ArrayList(expected.Length);
+            var arrayList = new ArrayList(expected.Length);
             for (int i = 0; i < expected.Length; ++i)
             {
                 int[][] innerExpected = expected[i];
-                ArrayList innerArrayList = new ArrayList(innerExpected.Length);
+                var innerArrayList = new ArrayList(innerExpected.Length);
                 for (int j = 0; j < innerExpected.Length; ++j)
                 {
                     int[] innerInnerExpected = expected[i][j];
-                    ArrayList innerInnerArrayList = new ArrayList(innerInnerExpected.Length);
+                    var innerInnerArrayList = new ArrayList(innerInnerExpected.Length);
                     for (int k = 0; k < innerInnerExpected.Length; ++k)
                     {
                         innerInnerArrayList.Add(innerInnerExpected[k]);
@@ -106,7 +106,7 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestHashtable()
         {
-            Hashtable expected =
+            var expected =
                 new Hashtable(Enumerable.Range(0, 10).ToDictionary(k => k, v => v * v));
             Hashtable actual = TypeConverter.Convert<Hashtable>(expected);
             Assert.True(ReferenceEquals(expected, actual));
@@ -117,7 +117,7 @@ namespace Microsoft.Spark.UnitTest
         {
             Dictionary<int, int> expected =
                 Enumerable.Range(0, 10).ToDictionary(i => i, i => i * i);
-            Hashtable hashtable = new Hashtable(expected);
+            var hashtable = new Hashtable(expected);
             Dictionary<int, int> actual = TypeConverter.Convert<Dictionary<int, int>>(hashtable);
             Assert.Equal(expected, actual);
         }
@@ -131,10 +131,10 @@ namespace Microsoft.Spark.UnitTest
                     i => i,
                     i => Enumerable.Range(i, 10).ToDictionary(j => j, j => j * j));
 
-            Hashtable hashtable = new Hashtable();
+            var hashtable = new Hashtable();
             foreach (KeyValuePair<int, Dictionary<int, int>> kvp in expected)
             {
-                Hashtable innerHashtable = new Hashtable();
+                var innerHashtable = new Hashtable();
                 foreach(KeyValuePair<int, int> innerKvp in kvp.Value)
                 {
                     innerHashtable[innerKvp.Key] = innerKvp.Value;
@@ -158,10 +158,10 @@ namespace Microsoft.Spark.UnitTest
                         i => i,
                         i => Enumerable.Range(i, 10).ToArray());
 
-                Hashtable hashtable = new Hashtable();
+                var hashtable = new Hashtable();
                 foreach (KeyValuePair<int, int[]> kvp in expected)
                 {
-                    ArrayList arrayList = new ArrayList();
+                    var arrayList = new ArrayList();
                     for (int i = 0; i < kvp.Value.Length; ++i)
                     {
                         arrayList.Add(kvp.Value[i]);
@@ -180,10 +180,10 @@ namespace Microsoft.Spark.UnitTest
                     .Select(i => Enumerable.Range(i, 10).ToDictionary(j => j, j => j * j))
                     .ToArray();
                 
-                ArrayList arrayList = new ArrayList();
+                var arrayList = new ArrayList();
                 for (int i = 0; i < expected.Length; ++i)
                 {
-                    Hashtable hashtable = new Hashtable();
+                    var hashtable = new Hashtable();
                     foreach (KeyValuePair<int, int> kvp in expected[i])
                     {
                         hashtable[kvp.Key] = kvp.Value;

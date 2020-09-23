@@ -2,10 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.Spark.Interop.Ipc;
 using Newtonsoft.Json.Linq;
@@ -75,17 +73,18 @@ namespace Microsoft.Spark.Sql.Types
 
         internal override object FromInternal(object obj)
         {
-            if (NeedConversion())
+            if (!NeedConversion() || obj == null)
             {
-                ArrayList arrayList = obj as ArrayList;
-                int length = arrayList != null ? arrayList.Count : 0;
-                for (int i = 0; i < length; ++i)
-                {
-                    arrayList[i] = ElementType.FromInternal(arrayList[i]);
-                }
+                return obj;
+            }
+            
+            var arrayList = (ArrayList)obj;
+            for (int i = 0; i < arrayList.Count; ++i)
+            {
+                arrayList[i] = ElementType.FromInternal(arrayList[i]);
             }
 
-            return obj;
+            return arrayList;
         }
     }
 
@@ -162,15 +161,13 @@ namespace Microsoft.Spark.Sql.Types
 
         internal override object FromInternal(object obj)
         {
-            if (!NeedConversion())
+            if (!NeedConversion() || obj == null)
             {
                 return obj;
             }
 
-            Debug.Assert(obj is Hashtable);
-            Hashtable hashTable = obj as Hashtable;
-
-            Hashtable convertedHashtable = new Hashtable();
+            var hashTable = (Hashtable)obj;
+            var convertedHashtable = new Hashtable(hashTable.Count);
             foreach (DictionaryEntry entry in hashTable)
             {
                 convertedHashtable[KeyType.FromInternal(entry.Key)] =
