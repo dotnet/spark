@@ -47,24 +47,18 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<DataFrameWriterV2>(dfwV2.PartitionedBy(df.Col("age")));
 
-            // Testing caveat 1*************************************************************
-            // Functions Replace() and CreateOrReplace() fail with the following error:
-            // REPLACE TABLE AS SELECT is only supported with v2 tables.
+
+            // Testing caveat *************************************************************
+            // The following functions cannot be tested because of lack of support for DataSourceV2.
             // This is because Spark 3.0 currently doesn't support file source as provider for
             // tables. Issue - https://issues.apache.org/jira/browse/SPARK-28396
-
-            //df2.WriteTo("testTable").Replace();
-            //dfwV2.CreateOrReplace();
-
+            //
+            // 1. DataFrameWriterV2.Replace()
+            // 2. DataFrameWriterV2.CreateOrReplace()
+            // 3. DataFrameWriterV2.Append()
+            // 4. DataFrameWriterV2.Overwrite()
+            // 5. DataFrameWriterV2.OverwritePartitions()
             // *****************************************************************************
-
-            // Table needs TableCapability such as BATCH_WRITE in order to be able to append to it.
-
-            //dfwV2.Append(); // Table default.testtable does not support append in batch mode.
-
-            //dfwV2.Overwrite(df.Col("age")); //Table default.testtable does not support overwrite by filter in batch mode.
-
-            //dfwV2.OverwritePartitions(); //Table default.testtable does not support dynamic overwrite in batch mode.
         }
     }
 }
