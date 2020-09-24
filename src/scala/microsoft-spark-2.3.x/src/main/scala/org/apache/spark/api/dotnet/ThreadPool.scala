@@ -19,7 +19,7 @@ object ThreadPool {
   /**
    * Map from threadId to corresponding executor.
    */
-  val executors: mutable.HashMap[Int, ExecutorService] =
+  private val executors: mutable.HashMap[Int, ExecutorService] =
     new mutable.HashMap[Int, ExecutorService]()
 
   /**
