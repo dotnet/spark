@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Sql
 {
@@ -43,7 +44,7 @@ namespace Microsoft.Spark.Sql
 
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
-            return _func((T)(input[argOffsets[0]]));
+            return _func(TypeConverter.ConvertTo<T>(input[argOffsets[0]]));
         }
     }
 
@@ -65,7 +66,9 @@ namespace Microsoft.Spark.Sql
 
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
-            return _func((T1)(input[argOffsets[0]]), (T2)(input[argOffsets[1]]));
+            return _func(
+                TypeConverter.ConvertTo<T1>(input[argOffsets[0]]),
+                TypeConverter.ConvertTo<T2>(input[argOffsets[1]]));
         }
     }
 
@@ -89,9 +92,9 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]));
+                TypeConverter.ConvertTo<T1>(input[argOffsets[0]]),
+                TypeConverter.ConvertTo<T2>(input[argOffsets[1]]),
+                TypeConverter.ConvertTo<T3>(input[argOffsets[2]]));
         }
     }
 
@@ -116,10 +119,10 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]),
-                (T4)(input[argOffsets[3]]));
+                TypeConverter.ConvertTo<T1>(input[argOffsets[0]]),
+                TypeConverter.ConvertTo<T2>(input[argOffsets[1]]),
+                TypeConverter.ConvertTo<T3>(input[argOffsets[2]]),
+                TypeConverter.ConvertTo<T4>(input[argOffsets[3]]));
         }
     }
 
@@ -145,11 +148,11 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]),
-                (T4)(input[argOffsets[3]]),
-                (T5)(input[argOffsets[4]]));
+                TypeConverter.ConvertTo<T1>(input[argOffsets[0]]),
+                TypeConverter.ConvertTo<T2>(input[argOffsets[1]]),
+                TypeConverter.ConvertTo<T3>(input[argOffsets[2]]),
+                TypeConverter.ConvertTo<T4>(input[argOffsets[3]]),
+                TypeConverter.ConvertTo<T5>(input[argOffsets[4]]));
         }
     }
 
@@ -176,12 +179,12 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]),
-                (T4)(input[argOffsets[3]]),
-                (T5)(input[argOffsets[4]]),
-                (T6)(input[argOffsets[5]]));
+                TypeConverter.ConvertTo<T1>(input[argOffsets[0]]),
+                TypeConverter.ConvertTo<T2>(input[argOffsets[1]]),
+                TypeConverter.ConvertTo<T3>(input[argOffsets[2]]),
+                TypeConverter.ConvertTo<T4>(input[argOffsets[3]]),
+                TypeConverter.ConvertTo<T5>(input[argOffsets[4]]),
+                TypeConverter.ConvertTo<T6>(input[argOffsets[5]]));
         }
     }
 
@@ -209,13 +212,13 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]),
-                (T4)(input[argOffsets[3]]),
-                (T5)(input[argOffsets[4]]),
-                (T6)(input[argOffsets[5]]),
-                (T7)(input[argOffsets[6]]));
+                TypeConverter.ConvertTo<T1>(input[argOffsets[0]]),
+                TypeConverter.ConvertTo<T2>(input[argOffsets[1]]),
+                TypeConverter.ConvertTo<T3>(input[argOffsets[2]]),
+                TypeConverter.ConvertTo<T4>(input[argOffsets[3]]),
+                TypeConverter.ConvertTo<T5>(input[argOffsets[4]]),
+                TypeConverter.ConvertTo<T6>(input[argOffsets[5]]),
+                TypeConverter.ConvertTo<T7>(input[argOffsets[6]]));
         }
     }
 
@@ -244,14 +247,14 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]),
-                (T4)(input[argOffsets[3]]),
-                (T5)(input[argOffsets[4]]),
-                (T6)(input[argOffsets[5]]),
-                (T7)(input[argOffsets[6]]),
-                (T8)(input[argOffsets[7]]));
+                TypeConverter.ConvertTo<T1>(input[argOffsets[0]]),
+                TypeConverter.ConvertTo<T2>(input[argOffsets[1]]),
+                TypeConverter.ConvertTo<T3>(input[argOffsets[2]]),
+                TypeConverter.ConvertTo<T4>(input[argOffsets[3]]),
+                TypeConverter.ConvertTo<T5>(input[argOffsets[4]]),
+                TypeConverter.ConvertTo<T6>(input[argOffsets[5]]),
+                TypeConverter.ConvertTo<T7>(input[argOffsets[6]]),
+                TypeConverter.ConvertTo<T8>(input[argOffsets[7]]));
         }
     }
 
@@ -280,15 +283,15 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]),
-                (T4)(input[argOffsets[3]]),
-                (T5)(input[argOffsets[4]]),
-                (T6)(input[argOffsets[5]]),
-                (T7)(input[argOffsets[6]]),
-                (T8)(input[argOffsets[7]]),
-                (T9)(input[argOffsets[8]]));
+                TypeConverter.ConvertTo<T1>(input[argOffsets[0]]),
+                TypeConverter.ConvertTo<T2>(input[argOffsets[1]]),
+                TypeConverter.ConvertTo<T3>(input[argOffsets[2]]),
+                TypeConverter.ConvertTo<T4>(input[argOffsets[3]]),
+                TypeConverter.ConvertTo<T5>(input[argOffsets[4]]),
+                TypeConverter.ConvertTo<T6>(input[argOffsets[5]]),
+                TypeConverter.ConvertTo<T7>(input[argOffsets[6]]),
+                TypeConverter.ConvertTo<T8>(input[argOffsets[7]]),
+                TypeConverter.ConvertTo<T9>(input[argOffsets[8]]));
         }
     }
 
@@ -319,16 +322,16 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func(
-                (T1)(input[argOffsets[0]]),
-                (T2)(input[argOffsets[1]]),
-                (T3)(input[argOffsets[2]]),
-                (T4)(input[argOffsets[3]]),
-                (T5)(input[argOffsets[4]]),
-                (T6)(input[argOffsets[5]]),
-                (T7)(input[argOffsets[6]]),
-                (T8)(input[argOffsets[7]]),
-                (T9)(input[argOffsets[8]]),
-                (T10)(input[argOffsets[9]]));
+                TypeConverter.ConvertTo<T1>(input[argOffsets[0]]),
+                TypeConverter.ConvertTo<T2>(input[argOffsets[1]]),
+                TypeConverter.ConvertTo<T3>(input[argOffsets[2]]),
+                TypeConverter.ConvertTo<T4>(input[argOffsets[3]]),
+                TypeConverter.ConvertTo<T5>(input[argOffsets[4]]),
+                TypeConverter.ConvertTo<T6>(input[argOffsets[5]]),
+                TypeConverter.ConvertTo<T7>(input[argOffsets[6]]),
+                TypeConverter.ConvertTo<T8>(input[argOffsets[7]]),
+                TypeConverter.ConvertTo<T9>(input[argOffsets[8]]),
+                TypeConverter.ConvertTo<T10>(input[argOffsets[9]]));
         }
     }
 }

@@ -4,6 +4,7 @@
 
 using System;
 using Microsoft.Spark.Sql.Types;
+using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Sql
 {
@@ -108,7 +109,7 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T">Type to convert to</typeparam>
         /// <param name="index">Index to look up</param>
         /// <returns>A column value as a type T</returns>
-        public T GetAs<T>(int index) => (T)Get(index);
+        public T GetAs<T>(int index) => TypeConverter.ConvertTo<T>(Get(index));
 
         /// <summary>
         /// Returns the column value whose column name is given, as a type T.
@@ -119,7 +120,7 @@ namespace Microsoft.Spark.Sql
         /// <typeparam name="T">Type to convert to</typeparam>
         /// <param name="columnName">Column name to look up</param>
         /// <returns>A column value as a type T</returns>
-        public T GetAs<T>(string columnName) => (T)Get(columnName);
+        public T GetAs<T>(string columnName) => TypeConverter.ConvertTo<T>(Get(columnName));
 
         /// <summary>
         /// Checks if the given object is same as the current object.
