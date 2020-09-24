@@ -25,13 +25,12 @@ class CallbackClient(address: String, port: Int) extends Logging {
 
   private[this] var isShutdown: Boolean = false
 
-  final def send(
-      callbackId: Int,
-      writeBody: DataOutputStream => Unit): Unit =
+  final def send(callbackId: Int, writeBody: DataOutputStream => Unit): Unit =
     getOrCreateConnection() match {
       case Some(connection) =>
         try {
           connection.send(callbackId, writeBody)
+          addConnection(connection)
         } catch {
           case e: Exception =>
             logError(s"Error calling callback [callback id = $callbackId].", e)
