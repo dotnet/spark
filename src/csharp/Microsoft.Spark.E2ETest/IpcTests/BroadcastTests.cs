@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
@@ -36,8 +35,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// Test Broadcast support by using multiple broadcast variables in a UDF.
         /// </summary>
         [Theory]
-        [InlineData("false")]
         [InlineData("true")]
+        [InlineData("false")]
         public void TestMultipleBroadcast(string isEncryptionEnabled)
         {
             _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
@@ -62,6 +61,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// </summary>
         [Theory]
         [InlineData("true")]
+        [InlineData("false")]
         public void TestLargeBroadcastValue(string isEncryptionEnabled)
         {
             _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
@@ -86,6 +86,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// variable and makes it inaccessible from workers.
         /// </summary>
         [Theory]
+        [InlineData("true")]
         [InlineData("false")]
         public void TestDestroy(string isEncryptionEnabled)
         {
@@ -129,8 +130,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// the broadcast is used after unpersist is called, it is re-sent to the executors.
         /// </summary>
         [Theory]
-        [InlineData("false")]
         [InlineData("true")]
+        [InlineData("false")]
         public void TestUnpersist(string isEncryptionEnabled)
         {
             _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
