@@ -628,6 +628,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<Row>(_df.First());
 
+            Assert.IsType<DataFrame>(_df.Transform(df => df.Drop("age")));
+
             Assert.IsType<Row[]>(_df.Take(3).ToArray());
 
             Assert.IsType<Row[]>(_df.Collect().ToArray());
