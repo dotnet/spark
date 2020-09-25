@@ -39,7 +39,7 @@ namespace Microsoft.Spark.Interop.Ipc
                             TryRemoveThread(kvp.Key);
                         }
                     }
-                }, null, 0, (int)threadGcInterval.TotalMilliseconds);
+                }, null, threadGcInterval, threadGcInterval);
             });
             _activeThreadMonitor.Start();
         }
