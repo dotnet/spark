@@ -58,7 +58,7 @@ class DotnetBackendHandler(server: DotnetBackend)
             val t = readObjectType(dis)
             assert(t == 'c')
             val objToRemove = readString(dis)
-            ThreadPool.run(threadId, () => JVMObjectTracker.remove(objToRemove))
+            JVMObjectTracker.remove(objToRemove)
             writeInt(dos, 0)
             writeObject(dos, null)
           } catch {
