@@ -73,8 +73,9 @@ namespace Microsoft.Spark.Sql
                 s_sparkSessionClassName, "setActiveSession", session);
 
         /// <summary>
-        /// Clears the active SparkSession for current thread. Subsequent calls to getOrCreate will
-        /// return the first created context instead of a thread-local override.
+        /// Clears the active SparkSession for current thread. Subsequent calls to
+        /// <see cref="Builder.GetOrCreate"/> will return the first created context
+        /// instead of a thread-local override.
         /// </summary>
         public static void ClearActiveSession() =>
             SparkEnvironment.JvmBridge.CallStaticJavaMethod(
