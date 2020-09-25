@@ -751,6 +751,15 @@ namespace Microsoft.Spark.Sql
         public Row First() => Head();
 
         /// <summary>
+        /// Concise syntax for chaining custom transformations.
+        /// </summary>
+        /// <param name="func">
+        /// A function that takes and returns a <see cref="DataFrame"/>
+        /// </param>
+        /// <returns>Transformed DataFrame object.</returns>
+        public DataFrame Transform(Func<DataFrame, DataFrame> func) => func(this);
+
+        /// <summary>
         /// Returns the first `n` rows in the `DataFrame`.
         /// </summary>
         /// <param name="n">Number of rows</param>
