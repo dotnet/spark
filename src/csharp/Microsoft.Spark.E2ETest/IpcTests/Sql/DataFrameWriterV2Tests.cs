@@ -36,7 +36,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<DataFrameWriterV2>(dfwV2.Using("json"));
 
-            Assert.IsType<DataFrameWriterV2>(dfwV2.Option("key", "value"));
+            Assert.IsType<DataFrameWriterV2>(dfwV2.Option("key1", "value"));
+            Assert.IsType<DataFrameWriterV2>(dfwV2.Option("key2", true));
+            Assert.IsType<DataFrameWriterV2>(dfwV2.Option("key3", 1L));
+            Assert.IsType<DataFrameWriterV2>(dfwV2.Option("key4", 2D));
 
             Assert.IsType<DataFrameWriterV2>(dfwV2.Options(
                 new Dictionary<string, string>() { { "key", "value" } }));
