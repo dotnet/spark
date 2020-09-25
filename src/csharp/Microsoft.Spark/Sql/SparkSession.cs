@@ -63,9 +63,9 @@ namespace Microsoft.Spark.Sql
 
         /// <summary>
         /// Changes the SparkSession that will be returned in this thread and its children when
-        /// SparkSession.GetOrCreate() is called. This can be used to ensure that a given thread
-        /// receives a SparkSession with an isolated session, instead of the global (first created)
-        /// context.
+        /// <see cref="Builder.GetOrCreate"/> is called. This can be used to ensure that a given
+        /// thread receives a SparkSession with an isolated session, instead of the global
+        /// (first created) context.
         /// </summary>
         /// <param name="session"></param>
         public static void SetActiveSession(SparkSession session) =>
