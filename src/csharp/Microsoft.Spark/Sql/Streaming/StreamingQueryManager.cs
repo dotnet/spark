@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark.Sql.Streaming
@@ -24,7 +25,8 @@ namespace Microsoft.Spark.Sql.Streaming
         /// </summary>
         /// <returns>Active queries associated with this SQLContext.</returns>
         public IEnumerable<StreamingQuery> Active() =>
-            (IEnumerable<StreamingQuery>)_jvmObject.Invoke("active");
+            ((JvmObjectReference[])_jvmObject.Invoke("active"))
+                .Select(sq => new StreamingQuery(sq));
 
         /// <summary>
         /// Returns an active query from this SQLContext or throws exception if an active
