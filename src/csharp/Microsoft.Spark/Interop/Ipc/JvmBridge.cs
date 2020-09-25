@@ -418,6 +418,7 @@ namespace Microsoft.Spark.Interop.Ipc
 
         public void Dispose()
         {
+            _jvmThreadPool.Dispose();
             while (_sockets.TryDequeue(out ISocketWrapper socket))
             {
                 if (socket != null)
