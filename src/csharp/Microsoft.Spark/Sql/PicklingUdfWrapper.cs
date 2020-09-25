@@ -21,7 +21,7 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
+        internal object Execute(int _, object[] input, int[] argOffsets)
         {
             return _func();
         }
@@ -293,7 +293,7 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
+        internal object Execute(int _, object[] input, int[] argOffsets)
         {
             object param1 = input[argOffsets[0]];
             object param2 = input[argOffsets[1]];
@@ -352,7 +352,7 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
+        internal object Execute(int _, object[] input, int[] argOffsets)
         {
             object param1 = input[argOffsets[0]];
             object param2 = input[argOffsets[1]];
@@ -415,7 +415,7 @@ namespace Microsoft.Spark.Sql
         {
             _func = func;
         }
-        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
+        internal object Execute(int _, object[] input, int[] argOffsets)
         {
             object param1 = input[argOffsets[0]];
             object param2 = input[argOffsets[1]];
@@ -456,8 +456,6 @@ namespace Microsoft.Spark.Sql
     [UdfWrapper]
     internal class PicklingUdfWrapper<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>
     {
-        private readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> _func;
-
         [NonSerialized]
         private bool? _sameT1 = null;
         [NonSerialized]
@@ -479,12 +477,14 @@ namespace Microsoft.Spark.Sql
         [NonSerialized]
         private bool? _sameT10 = null;
 
+        private readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> _func;
+
         internal PicklingUdfWrapper(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> func)
         {
             _func = func;
         }
 
-        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
+        internal object Execute(int _, object[] input, int[] argOffsets)
         {
             object param1 = input[argOffsets[0]];
             object param2 = input[argOffsets[1]];
@@ -506,7 +506,9 @@ namespace Microsoft.Spark.Sql
                 (_sameT7 ??= param7 is T7) ? (T7)param7 : TypeConverter.ConvertTo<T7>(param7),
                 (_sameT8 ??= param8 is T8) ? (T8)param8 : TypeConverter.ConvertTo<T8>(param8),
                 (_sameT9 ??= param9 is T9) ? (T9)param9 : TypeConverter.ConvertTo<T9>(param9),
-                (_sameT10 ??= param10 is T10) ? (T10)param10 : TypeConverter.ConvertTo<T10>(param10));
+                (_sameT10 ??= param10 is T10) ?
+                    (T10)param10 :
+                    TypeConverter.ConvertTo<T10>(param10));
         }
     }
 }
