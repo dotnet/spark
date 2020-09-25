@@ -29,13 +29,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         public void TestSignaturesV2_3_X()
         {
             var intMemoryStream = new MemoryStream<int>(_spark);
-            StreamingQuery sq1 =
-                intMemoryStream.ToDF().WriteStream().QueryName("intQuery").Format("console").Start();
+            StreamingQuery sq1 = intMemoryStream
+                .ToDF().WriteStream().QueryName("intQuery").Format("console").Start();
             string id1 = sq1.Id;
 
             var stringMemoryStream = new MemoryStream<string>(_spark);
-            StreamingQuery sq2 =
-                stringMemoryStream.ToDF().WriteStream().QueryName("stringQuery").Format("console").Start();
+            StreamingQuery sq2 = stringMemoryStream
+                .ToDF().WriteStream().QueryName("stringQuery").Format("console").Start();
             string id2 = sq2.Id;
 
             StreamingQueryManager sqm = _spark.Streams();
@@ -49,6 +49,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             sqm.ResetTerminated();
 
             sqm.AwaitAnyTermination(1000);
+
+            sq1.Stop();
+            sq2.Stop();
         }
     }
 }

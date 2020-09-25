@@ -29,8 +29,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         public void TestSignaturesV2_3_X()
         {
             var intMemoryStream = new MemoryStream<int>(_spark);
-            StreamingQuery sq =
-                intMemoryStream.ToDF().WriteStream().QueryName("testQuery").Format("console").Start();
+            StreamingQuery sq = intMemoryStream
+                .ToDF().WriteStream().QueryName("testQuery").Format("console").Start();
 
             Assert.IsType<string>(sq.Name);
 
