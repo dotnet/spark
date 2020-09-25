@@ -43,7 +43,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<DataFrameWriterV2>(dfwV2.TableProperty("prop", "value"));
 
-            //_spark.Sql("DROP TABLE IF EXISTS default.testtable");
+            _spark.Sql("DROP TABLE IF EXISTS default.testtable");
             dfwV2.Create();
 
             Assert.IsType<DataFrameWriterV2>(dfwV2.PartitionedBy(df.Col("age")));
