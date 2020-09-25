@@ -64,7 +64,7 @@ namespace Microsoft.Spark.Interop.Ipc
             if (_activeThreads.TryRemove(managedThreadId, out Thread thread))
             {
                 _jvmBridge.CallStaticJavaMethod(
-                    "DotnetHandler", "rmThread", thread.ManagedThreadId);
+                    "DotnetHandler", "rmThread", managedThreadId);
                 return true;
             }
 
