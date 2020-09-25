@@ -32,11 +32,11 @@ namespace Microsoft.Spark.Interop.Ipc
             {
                 using var timer = new Timer((state) =>
                 {
-                    foreach (Thread thread in _activeThreads.Values)
+                    foreach (KeyValuePair<int, Thread> kvp in _activeThreads)
                     {
-                        if (!thread.IsAlive)
+                        if (!kvp.Value.IsAlive)
                         {
-                            TryRemoveThread(thread.ManagedThreadId);
+                            TryRemoveThread(kvp.Key);
                         }
                     }
                 }, null, 0, (int)threadGcInterval.TotalMilliseconds);
