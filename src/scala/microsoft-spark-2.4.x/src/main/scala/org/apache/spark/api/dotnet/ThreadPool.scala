@@ -50,7 +50,7 @@ object ThreadPool {
    * Get the executor if it exists, otherwise create a new one.
    *
    * @param id Integer id of the thread.
-   * @return
+   * @return The new or existing executor with the given id.
    */
   private def getOrCreateExecutor(id: Int): ExecutorService = synchronized {
     executors.getOrElseUpdate(id, Executors.newSingleThreadExecutor)
