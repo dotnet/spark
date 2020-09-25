@@ -12,6 +12,8 @@ using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
+using static Microsoft.Spark.Sql.ArrowFunctions;
+using static Microsoft.Spark.Sql.DataFrameFunctions;
 using static Microsoft.Spark.Sql.Functions;
 using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
 using Column = Microsoft.Spark.Sql.Column;
@@ -234,8 +236,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 };
 
             // Single UDF.
-            Func<Column, Column, Column> udf1 =
-                DataFrameFunctions.VectorUdf(udf1Func);
+            Func<Column, Column, Column> udf1 = VectorUdf(udf1Func);
             {
                 Row[] rows = _df.Select(udf1(_df["age"], _df["name"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
@@ -245,7 +246,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
 
             // Chained UDFs.
-            Func<Column, Column> udf2 = DataFrameFunctions.VectorUdf<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            Func<Column, Column> udf2 = VectorUdf<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) => strings.Apply(cur => $"hello {cur}!"));
             {
                 Row[] rows = _df
