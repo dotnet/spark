@@ -62,12 +62,12 @@ namespace Microsoft.Spark.Sql
         public static Builder Builder() => new Builder();
 
         /// <summary>
-        /// Changes the SparkSession that will be returned in this thread and its children when
+        /// Changes the SparkSession that will be returned in this thread when 
         /// <see cref="Builder.GetOrCreate"/> is called. This can be used to ensure that a given
         /// thread receives a SparkSession with an isolated session, instead of the global
         /// (first created) context.
         /// </summary>
-        /// <param name="session"></param>
+        /// <param name="session">SparkSession object</param>
         public static void SetActiveSession(SparkSession session) =>
             session._jvmObject.Jvm.CallStaticJavaMethod(
                 s_sparkSessionClassName, "setActiveSession", session);
