@@ -11,11 +11,11 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
     [Collection("Spark E2E Tests")]
-    public class StreamingQueryTests
+    public class StreamingQueryManagerTests
     {
         private readonly SparkSession _spark;
 
-        public StreamingQueryTests(SparkFixture fixture)
+        public StreamingQueryManagerTests(SparkFixture fixture)
         {
             _spark = fixture.Spark;
         }
@@ -29,24 +29,26 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         public void TestSignaturesV2_3_X()
         {
             var intMemoryStream = new MemoryStream<int>(_spark);
-            StreamingQuery sq =
-                intMemoryStream.ToDF().WriteStream().QueryName("testQuery").Format("console").Start();
+            StreamingQuery sq1 =
+                intMemoryStream.ToDF().WriteStream().QueryName("intQuery").Format("console").Start();
+            string id1 = sq1.Id;
 
-            Assert.IsType<string>(sq.Name);
+            var stringMemoryStream = new MemoryStream<string>(_spark);
+            StreamingQuery sq2 =
+                stringMemoryStream.ToDF().WriteStream().QueryName("stringQuery").Format("console").Start();
+            string id2 = sq2.Id;
 
-            Assert.IsType<string>(sq.Id);
+            StreamingQueryManager sqm = _spark.Streams();
 
-            Assert.IsType<string>(sq.RunId);
+            StreamingQuery[] streamingQueries = sqm.Active().ToArray();
+            Assert.Equal(2, streamingQueries.Length);
 
-            Assert.IsType<bool>(sq.IsActive());
+            Assert.IsType<StreamingQuery>(sqm.Get(id1));
+            Assert.IsType<StreamingQuery>(sqm.Get(id2));
 
-            Assert.IsType<bool>(sq.AwaitTermination(1000));
+            sqm.ResetTerminated();
 
-            sq.Explain();
-
-            Assert.Null(sq.Exception());
-
-            sq.Stop();
+            sqm.AwaitAnyTermination(1000);
         }
     }
 }
