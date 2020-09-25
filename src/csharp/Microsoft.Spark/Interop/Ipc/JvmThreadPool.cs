@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Microsoft.Spark.Interop.Ipc
@@ -13,11 +14,11 @@ namespace Microsoft.Spark.Interop.Ipc
     /// track of which .NET threads are still alive, and issues an rmThread command if a thread is
     /// not.
     /// </summary>
-    internal class JvmThreadPool
+    internal class JvmThreadPool : IDisposable
     {
         private readonly IJvmBridge _jvmBridge;
         private readonly ConcurrentDictionary<int, Thread> _activeThreads;
-        private readonly Thread _activeThreadMonitor;
+        private readonly Timer _activeThreadMonitor;
 
         /// <summary>
         /// Construct the JvmThreadPool.
@@ -28,20 +29,17 @@ namespace Microsoft.Spark.Interop.Ipc
         {
             _jvmBridge = jvmBridge;
             _activeThreads = new ConcurrentDictionary<int, Thread>();
-            _activeThreadMonitor = new Thread(delegate ()
-            {
-                using var timer = new Timer((state) =>
-                {
-                    foreach (KeyValuePair<int, Thread> kvp in _activeThreads)
-                    {
-                        if (!kvp.Value.IsAlive)
-                        {
-                            TryRemoveThread(kvp.Key);
-                        }
-                    }
-                }, null, threadGcInterval, threadGcInterval);
-            });
-            _activeThreadMonitor.Start();
+            _activeThreadMonitor = new Timer(
+                (state) => GarbageCollectThreads(), null, threadGcInterval, threadGcInterval);
+        }
+
+        /// <summary>
+        /// Dispose of the thread monitor and run a final round of thread GC.
+        /// </summary>
+        public void Dispose()
+        {
+            _activeThreadMonitor.Dispose();
+            GarbageCollectThreads();
         }
 
         /// <summary>
@@ -69,6 +67,20 @@ namespace Microsoft.Spark.Interop.Ipc
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Remove any threads that are no longer active.
+        /// </summary>
+        private void GarbageCollectThreads()
+        {
+            foreach (KeyValuePair<int, Thread> kvp in _activeThreads)
+            {
+                if (!kvp.Value.IsAlive)
+                {
+                    TryRemoveThread(kvp.Key);
+                }
+            }
         }
     }
 }
