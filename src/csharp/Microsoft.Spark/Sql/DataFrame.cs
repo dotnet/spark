@@ -541,7 +541,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="table">Name of table to write to</param>
         /// <returns>DataFrameWriterV2 object</returns>
         public DataFrameWriterV2 WriteTo(string table) =>
-            WrapAsDataFrameWriterV2(_jvmObject.Invoke("writeTo", table));
+            new DataFrameWriterV2((JvmObjectReference)_jvmObject.Invoke("writeTo", table));
 
         /// <summary>
         /// Returns a new `DataFrame` by taking the first `number` rows.
@@ -1056,9 +1056,6 @@ namespace Microsoft.Spark.Sql
         }
 
         private DataFrame WrapAsDataFrame(object obj) => new DataFrame((JvmObjectReference)obj);
-
-        private DataFrameWriterV2 WrapAsDataFrameWriterV2(object obj) =>
-            new DataFrameWriterV2((JvmObjectReference)obj);
 
         private Column WrapAsColumn(object obj) => new Column((JvmObjectReference)obj);
 
