@@ -40,7 +40,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<bool>(sq.IsActive());
 
-            Assert.IsType<bool>(sq.AwaitTermination(1000));
+            Assert.IsType<bool>(sq.AwaitTermination(10));
 
             sq.Explain();
 

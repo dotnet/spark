@@ -48,7 +48,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             sqm.ResetTerminated();
 
-            sqm.AwaitAnyTermination(1000);
+            sqm.AwaitAnyTermination(10);
 
             sq1.Stop();
             sq2.Stop();
