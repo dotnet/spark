@@ -23,24 +23,20 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
             };
 
-            Tuple<string, string>[] conf = new[]
+            (string, string)[] conf = new[]
             {
-                new Tuple<string, string>(
-                    "spark.databricks.delta.snapshotPartitions", "2"),
-                new Tuple<string, string>(
-                    "spark.sql.sources.parallelPartitionDiscovery.parallelism", "5")
+                ("spark.databricks.delta.snapshotPartitions", "2"),
+                ("spark.sql.sources.parallelPartitionDiscovery.parallelism", "5")
             };
 
-            Tuple<string, string>[] extraConf= sparkVersion.Major switch
+            (string, string)[] extraConf = sparkVersion.Major switch
             {
-                2 => Array.Empty<Tuple<string, string>>(),
+                2 => Array.Empty<(string, string)>(),
                 3 => new[]
                 {
-                    new Tuple<string, string>(
-                        "spark.sql.extensions",
+                    ("spark.sql.extensions",
                         "io.delta.sql.DeltaSparkSessionExtension"),
-                    new Tuple<string, string>(
-                        "spark.sql.catalog.spark_catalog",
+                    ("spark.sql.catalog.spark_catalog",
                         "org.apache.spark.sql.delta.catalog.DeltaCatalog"),
                 },
                 _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
