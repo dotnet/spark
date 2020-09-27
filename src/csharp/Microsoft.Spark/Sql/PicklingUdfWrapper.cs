@@ -3,17 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using Microsoft.Spark.Utils;
-using static Microsoft.Spark.Sql.PicklingUdfWrapperHelper;
+using static Microsoft.Spark.Utils.TypeConverter;
 
 namespace Microsoft.Spark.Sql
 {
-    internal static class PicklingUdfWrapperHelper
-    {
-        internal static T CastOrConvertTo<T>(ref bool? same, object param) =>
-            (same ??= param is T) ? (T)param : TypeConverter.ConvertTo<T>(param);
-    }
-
     /// <summary>
     /// Wraps the given Func object, which represents a UDF.
     /// </summary>
@@ -28,7 +21,7 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal object Execute(int _, object[] input, int[] argOffsets)
+        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             return _func();
         }
@@ -52,9 +45,10 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal object Execute(int _, object[] input, int[] argOffsets)
+        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
-            return _func(CastOrConvertTo<T>(ref _sameT[0], input[argOffsets[0]]));
+            object param = input[argOffsets[0]];
+            return _func((_sameT[0] ??= param is T) ? (T)param : ConvertTo<T>(param));
         }
     }
 
@@ -77,11 +71,13 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal object Execute(int _, object[] input, int[] argOffsets)
+        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
+            object param1 = input[argOffsets[0]];
+            object param2 = input[argOffsets[1]];
             return _func(
-                CastOrConvertTo<T1>(ref _sameT[0], input[argOffsets[0]]),
-                CastOrConvertTo<T2>(ref _sameT[1], input[argOffsets[1]]));
+                (_sameT[0] ??= param1 is T1) ? (T1)param1 : ConvertTo<T1>(param1),
+                (_sameT[1] ??= param2 is T2) ? (T2)param2 : ConvertTo<T2>(param2));
         }
     }
 
@@ -105,12 +101,15 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal object Execute(int _, object[] input, int[] argOffsets)
+        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
+            object param1 = input[argOffsets[0]];
+            object param2 = input[argOffsets[1]];
+            object param3 = input[argOffsets[2]];
             return _func(
-                CastOrConvertTo<T1>(ref _sameT[0], input[argOffsets[0]]),
-                CastOrConvertTo<T2>(ref _sameT[1], input[argOffsets[1]]),
-                CastOrConvertTo<T3>(ref _sameT[2], input[argOffsets[2]]));
+                (_sameT[0] ??= param1 is T1) ? (T1)param1 : ConvertTo<T1>(param1),
+                (_sameT[1] ??= param2 is T2) ? (T2)param2 : ConvertTo<T2>(param2),
+                (_sameT[2] ??= param3 is T3) ? (T3)param3 : ConvertTo<T3>(param3));
         }
     }
 
@@ -135,13 +134,17 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal object Execute(int _, object[] input, int[] argOffsets)
+        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
+            object param1 = input[argOffsets[0]];
+            object param2 = input[argOffsets[1]];
+            object param3 = input[argOffsets[2]];
+            object param4 = input[argOffsets[3]];
             return _func(
-                CastOrConvertTo<T1>(ref _sameT[0], input[argOffsets[0]]),
-                CastOrConvertTo<T2>(ref _sameT[1], input[argOffsets[1]]),
-                CastOrConvertTo<T3>(ref _sameT[2], input[argOffsets[2]]),
-                CastOrConvertTo<T4>(ref _sameT[3], input[argOffsets[3]]));
+                (_sameT[0] ??= param1 is T1) ? (T1)param1 : ConvertTo<T1>(param1),
+                (_sameT[1] ??= param2 is T2) ? (T2)param2 : ConvertTo<T2>(param2),
+                (_sameT[2] ??= param3 is T3) ? (T3)param3 : ConvertTo<T3>(param3),
+                (_sameT[3] ??= param4 is T4) ? (T4)param4 : ConvertTo<T4>(param4));
         }
     }
 
@@ -167,14 +170,19 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal object Execute(int _, object[] input, int[] argOffsets)
+        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
+            object param1 = input[argOffsets[0]];
+            object param2 = input[argOffsets[1]];
+            object param3 = input[argOffsets[2]];
+            object param4 = input[argOffsets[3]];
+            object param5 = input[argOffsets[4]];
             return _func(
-                CastOrConvertTo<T1>(ref _sameT[0], input[argOffsets[0]]),
-                CastOrConvertTo<T2>(ref _sameT[1], input[argOffsets[1]]),
-                CastOrConvertTo<T3>(ref _sameT[2], input[argOffsets[2]]),
-                CastOrConvertTo<T4>(ref _sameT[3], input[argOffsets[3]]),
-                CastOrConvertTo<T5>(ref _sameT[4], input[argOffsets[4]]));
+                (_sameT[0] ??= param1 is T1) ? (T1)param1 : ConvertTo<T1>(param1),
+                (_sameT[1] ??= param2 is T2) ? (T2)param2 : ConvertTo<T2>(param2),
+                (_sameT[2] ??= param3 is T3) ? (T3)param3 : ConvertTo<T3>(param3),
+                (_sameT[3] ??= param4 is T4) ? (T4)param4 : ConvertTo<T4>(param4),
+                (_sameT[4] ??= param5 is T5) ? (T5)param5 : ConvertTo<T5>(param5));
         }
     }
 
@@ -201,15 +209,21 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal object Execute(int _, object[] input, int[] argOffsets)
+        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
+            object param1 = input[argOffsets[0]];
+            object param2 = input[argOffsets[1]];
+            object param3 = input[argOffsets[2]];
+            object param4 = input[argOffsets[3]];
+            object param5 = input[argOffsets[4]];
+            object param6 = input[argOffsets[5]];
             return _func(
-                CastOrConvertTo<T1>(ref _sameT[0], input[argOffsets[0]]),
-                CastOrConvertTo<T2>(ref _sameT[1], input[argOffsets[1]]),
-                CastOrConvertTo<T3>(ref _sameT[2], input[argOffsets[2]]),
-                CastOrConvertTo<T4>(ref _sameT[3], input[argOffsets[3]]),
-                CastOrConvertTo<T5>(ref _sameT[4], input[argOffsets[4]]),
-                CastOrConvertTo<T6>(ref _sameT[5], input[argOffsets[5]]));
+                (_sameT[0] ??= param1 is T1) ? (T1)param1 : ConvertTo<T1>(param1),
+                (_sameT[1] ??= param2 is T2) ? (T2)param2 : ConvertTo<T2>(param2),
+                (_sameT[2] ??= param3 is T3) ? (T3)param3 : ConvertTo<T3>(param3),
+                (_sameT[3] ??= param4 is T4) ? (T4)param4 : ConvertTo<T4>(param4),
+                (_sameT[4] ??= param5 is T5) ? (T5)param5 : ConvertTo<T5>(param5),
+                (_sameT[5] ??= param6 is T6) ? (T6)param6 : ConvertTo<T6>(param6));
         }
     }
 
@@ -237,16 +251,23 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal object Execute(int _, object[] input, int[] argOffsets)
+        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
+            object param1 = input[argOffsets[0]];
+            object param2 = input[argOffsets[1]];
+            object param3 = input[argOffsets[2]];
+            object param4 = input[argOffsets[3]];
+            object param5 = input[argOffsets[4]];
+            object param6 = input[argOffsets[5]];
+            object param7 = input[argOffsets[6]];
             return _func(
-                CastOrConvertTo<T1>(ref _sameT[0], input[argOffsets[0]]),
-                CastOrConvertTo<T2>(ref _sameT[1], input[argOffsets[1]]),
-                CastOrConvertTo<T3>(ref _sameT[2], input[argOffsets[2]]),
-                CastOrConvertTo<T4>(ref _sameT[3], input[argOffsets[3]]),
-                CastOrConvertTo<T5>(ref _sameT[4], input[argOffsets[4]]),
-                CastOrConvertTo<T6>(ref _sameT[5], input[argOffsets[5]]),
-                CastOrConvertTo<T7>(ref _sameT[6], input[argOffsets[6]]));
+                (_sameT[0] ??= param1 is T1) ? (T1)param1 : ConvertTo<T1>(param1),
+                (_sameT[1] ??= param2 is T2) ? (T2)param2 : ConvertTo<T2>(param2),
+                (_sameT[2] ??= param3 is T3) ? (T3)param3 : ConvertTo<T3>(param3),
+                (_sameT[3] ??= param4 is T4) ? (T4)param4 : ConvertTo<T4>(param4),
+                (_sameT[4] ??= param5 is T5) ? (T5)param5 : ConvertTo<T5>(param5),
+                (_sameT[5] ??= param6 is T6) ? (T6)param6 : ConvertTo<T6>(param6),
+                (_sameT[6] ??= param7 is T7) ? (T7)param7 : ConvertTo<T7>(param7));
         }
     }
 
@@ -275,17 +296,25 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal object Execute(int _, object[] input, int[] argOffsets)
+        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
+            object param1 = input[argOffsets[0]];
+            object param2 = input[argOffsets[1]];
+            object param3 = input[argOffsets[2]];
+            object param4 = input[argOffsets[3]];
+            object param5 = input[argOffsets[4]];
+            object param6 = input[argOffsets[5]];
+            object param7 = input[argOffsets[6]];
+            object param8 = input[argOffsets[7]];
             return _func(
-                CastOrConvertTo<T1>(ref _sameT[0], input[argOffsets[0]]),
-                CastOrConvertTo<T2>(ref _sameT[1], input[argOffsets[1]]),
-                CastOrConvertTo<T3>(ref _sameT[2], input[argOffsets[2]]),
-                CastOrConvertTo<T4>(ref _sameT[3], input[argOffsets[3]]),
-                CastOrConvertTo<T5>(ref _sameT[4], input[argOffsets[4]]),
-                CastOrConvertTo<T6>(ref _sameT[5], input[argOffsets[5]]),
-                CastOrConvertTo<T7>(ref _sameT[6], input[argOffsets[6]]),
-                CastOrConvertTo<T8>(ref _sameT[7], input[argOffsets[7]]));
+                (_sameT[0] ??= param1 is T1) ? (T1)param1 : ConvertTo<T1>(param1),
+                (_sameT[1] ??= param2 is T2) ? (T2)param2 : ConvertTo<T2>(param2),
+                (_sameT[2] ??= param3 is T3) ? (T3)param3 : ConvertTo<T3>(param3),
+                (_sameT[3] ??= param4 is T4) ? (T4)param4 : ConvertTo<T4>(param4),
+                (_sameT[4] ??= param5 is T5) ? (T5)param5 : ConvertTo<T5>(param5),
+                (_sameT[5] ??= param6 is T6) ? (T6)param6 : ConvertTo<T6>(param6),
+                (_sameT[6] ??= param7 is T7) ? (T7)param7 : ConvertTo<T7>(param7),
+                (_sameT[7] ??= param8 is T8) ? (T8)param8 : ConvertTo<T8>(param8));
         }
     }
 
@@ -314,18 +343,27 @@ namespace Microsoft.Spark.Sql
         {
             _func = func;
         }
-        internal object Execute(int _, object[] input, int[] argOffsets)
+        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
+            object param1 = input[argOffsets[0]];
+            object param2 = input[argOffsets[1]];
+            object param3 = input[argOffsets[2]];
+            object param4 = input[argOffsets[3]];
+            object param5 = input[argOffsets[4]];
+            object param6 = input[argOffsets[5]];
+            object param7 = input[argOffsets[6]];
+            object param8 = input[argOffsets[7]];
+            object param9 = input[argOffsets[8]];
             return _func(
-                CastOrConvertTo<T1>(ref _sameT[0], input[argOffsets[0]]),
-                CastOrConvertTo<T2>(ref _sameT[1], input[argOffsets[1]]),
-                CastOrConvertTo<T3>(ref _sameT[2], input[argOffsets[2]]),
-                CastOrConvertTo<T4>(ref _sameT[3], input[argOffsets[3]]),
-                CastOrConvertTo<T5>(ref _sameT[4], input[argOffsets[4]]),
-                CastOrConvertTo<T6>(ref _sameT[5], input[argOffsets[5]]),
-                CastOrConvertTo<T7>(ref _sameT[6], input[argOffsets[6]]),
-                CastOrConvertTo<T8>(ref _sameT[7], input[argOffsets[7]]),
-                CastOrConvertTo<T9>(ref _sameT[8], input[argOffsets[8]]));
+                (_sameT[0] ??= param1 is T1) ? (T1)param1 : ConvertTo<T1>(param1),
+                (_sameT[1] ??= param2 is T2) ? (T2)param2 : ConvertTo<T2>(param2),
+                (_sameT[2] ??= param3 is T3) ? (T3)param3 : ConvertTo<T3>(param3),
+                (_sameT[3] ??= param4 is T4) ? (T4)param4 : ConvertTo<T4>(param4),
+                (_sameT[4] ??= param5 is T5) ? (T5)param5 : ConvertTo<T5>(param5),
+                (_sameT[5] ??= param6 is T6) ? (T6)param6 : ConvertTo<T6>(param6),
+                (_sameT[6] ??= param7 is T7) ? (T7)param7 : ConvertTo<T7>(param7),
+                (_sameT[7] ??= param8 is T8) ? (T8)param8 : ConvertTo<T8>(param8),
+                (_sameT[8] ??= param9 is T9) ? (T9)param9 : ConvertTo<T9>(param9));
         }
     }
 
@@ -356,19 +394,29 @@ namespace Microsoft.Spark.Sql
             _func = func;
         }
 
-        internal object Execute(int _, object[] input, int[] argOffsets)
+        internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
+            object param1 = input[argOffsets[0]];
+            object param2 = input[argOffsets[1]];
+            object param3 = input[argOffsets[2]];
+            object param4 = input[argOffsets[3]];
+            object param5 = input[argOffsets[4]];
+            object param6 = input[argOffsets[5]];
+            object param7 = input[argOffsets[6]];
+            object param8 = input[argOffsets[7]];
+            object param9 = input[argOffsets[8]];
+            object param10 = input[argOffsets[9]];
             return _func(
-                CastOrConvertTo<T1>(ref _sameT[0], input[argOffsets[0]]),
-                CastOrConvertTo<T2>(ref _sameT[1], input[argOffsets[1]]),
-                CastOrConvertTo<T3>(ref _sameT[2], input[argOffsets[2]]),
-                CastOrConvertTo<T4>(ref _sameT[3], input[argOffsets[3]]),
-                CastOrConvertTo<T5>(ref _sameT[4], input[argOffsets[4]]),
-                CastOrConvertTo<T6>(ref _sameT[5], input[argOffsets[5]]),
-                CastOrConvertTo<T7>(ref _sameT[6], input[argOffsets[6]]),
-                CastOrConvertTo<T8>(ref _sameT[7], input[argOffsets[7]]),
-                CastOrConvertTo<T9>(ref _sameT[8], input[argOffsets[8]]),
-                CastOrConvertTo<T10>(ref _sameT[9], input[argOffsets[9]]));
+                (_sameT[0] ??= param1 is T1) ? (T1)param1 : ConvertTo<T1>(param1),
+                (_sameT[1] ??= param2 is T2) ? (T2)param2 : ConvertTo<T2>(param2),
+                (_sameT[2] ??= param3 is T3) ? (T3)param3 : ConvertTo<T3>(param3),
+                (_sameT[3] ??= param4 is T4) ? (T4)param4 : ConvertTo<T4>(param4),
+                (_sameT[4] ??= param5 is T5) ? (T5)param5 : ConvertTo<T5>(param5),
+                (_sameT[5] ??= param6 is T6) ? (T6)param6 : ConvertTo<T6>(param6),
+                (_sameT[6] ??= param7 is T7) ? (T7)param7 : ConvertTo<T7>(param7),
+                (_sameT[7] ??= param8 is T8) ? (T8)param8 : ConvertTo<T8>(param8),
+                (_sameT[8] ??= param9 is T9) ? (T9)param9 : ConvertTo<T9>(param9),
+                (_sameT[9] ??= param10 is T10) ? (T10)param10 : ConvertTo<T10>(param10));
         }
     }
 }
