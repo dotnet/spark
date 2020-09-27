@@ -4,10 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
@@ -52,7 +50,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<DataFrameWriterV2>(dfwV2.PartitionedBy(df.Col("age")));
 
-            // Fails with Exception:
+            // Throws the following exception:
             // org.apache.spark.sql.AnalysisException: REPLACE TABLE AS SELECT is only supported
             // with v2 tables.
             try
@@ -64,7 +62,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 Assert.NotNull(e);
             }
 
-            // Fails with Exception:
+            // Throws the following exception:
             // org.apache.spark.sql.AnalysisException: REPLACE TABLE AS SELECT is only supported
             // with v2 tables.
             try
@@ -76,7 +74,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 Assert.NotNull(e);
             }
 
-            // Fails with Exception:
+            // Throws the following exception:
             // org.apache.spark.sql.AnalysisException: Table default.testtable does not support
             // append in batch mode.
             try
@@ -88,7 +86,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 Assert.NotNull(e);
             }
 
-            // Fails with Exception:
+            // Throws the following exception:
             // org.apache.spark.sql.AnalysisException: Table default.testtable does not support
             // overwrite by filter in batch mode.
             try
@@ -100,7 +98,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 Assert.NotNull(e);
             }
 
-            // Fails with Exception:
+            // Throws the following exception:
             // org.apache.spark.sql.AnalysisException: Table default.testtable does not support
             // dynamic overwrite in batch mode.
             try
