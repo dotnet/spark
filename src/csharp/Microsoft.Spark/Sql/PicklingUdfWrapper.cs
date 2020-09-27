@@ -36,7 +36,7 @@ namespace Microsoft.Spark.Sql
     internal class PicklingUdfWrapper<T, TResult>
     {
         [NonSerialized]
-        private readonly bool?[] _sameT = new bool?[1];
+        private bool? _sameT = null;
 
         private readonly Func<T, TResult> _func;
 
@@ -48,7 +48,7 @@ namespace Microsoft.Spark.Sql
         internal object Execute(int splitIndex, object[] input, int[] argOffsets)
         {
             object param = input[argOffsets[0]];
-            return _func((_sameT[0] ??= param is T) ? (T)param : ConvertTo<T>(param));
+            return _func((_sameT ??= param is T) ? (T)param : ConvertTo<T>(param));
         }
     }
 
