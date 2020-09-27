@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
@@ -51,18 +52,65 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<DataFrameWriterV2>(dfwV2.PartitionedBy(df.Col("age")));
 
+            // Fails with Exception:
+            // org.apache.spark.sql.AnalysisException: REPLACE TABLE AS SELECT is only supported
+            // with v2 tables.
+            try
+            {
+                dfwV2.Replace();
+            }
+            catch (Exception e)
+            {
+                Assert.NotNull(e);
+            }
 
-            // Testing caveat *************************************************************
-            // The following functions cannot be tested because of lack of support for DataSourceV2.
-            // This is because Spark 3.0 currently doesn't support file source as provider for
-            // tables. Issue - https://issues.apache.org/jira/browse/SPARK-28396
-            //
-            // 1. DataFrameWriterV2.Replace()
-            // 2. DataFrameWriterV2.CreateOrReplace()
-            // 3. DataFrameWriterV2.Append()
-            // 4. DataFrameWriterV2.Overwrite()
-            // 5. DataFrameWriterV2.OverwritePartitions()
-            // *****************************************************************************
+            // Fails with Exception:
+            // org.apache.spark.sql.AnalysisException: REPLACE TABLE AS SELECT is only supported
+            // with v2 tables.
+            try
+            {
+                dfwV2.CreateOrReplace();
+            }
+            catch (Exception e)
+            {
+                Assert.NotNull(e);
+            }
+
+            // Fails with Exception:
+            // org.apache.spark.sql.AnalysisException: Table default.testtable does not support
+            // append in batch mode.
+            try
+            {
+                dfwV2.Append();
+            }
+            catch (Exception e)
+            {
+                Assert.NotNull(e);
+            }
+
+            // Fails with Exception:
+            // org.apache.spark.sql.AnalysisException: Table default.testtable does not support
+            // overwrite by filter in batch mode.
+            try
+            {
+                dfwV2.Overwrite(df.Col("age"));
+            }
+            catch (Exception e)
+            {
+                Assert.NotNull(e);
+            }
+
+            // Fails with Exception:
+            // org.apache.spark.sql.AnalysisException: Table default.testtable does not support
+            // dynamic overwrite in batch mode.
+            try
+            {
+                dfwV2.OverwritePartitions();
+            }
+            catch (Exception e)
+            {
+                Assert.NotNull(e);
+            }
         }
     }
 }
