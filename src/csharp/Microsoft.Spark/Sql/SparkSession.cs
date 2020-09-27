@@ -129,6 +129,14 @@ namespace Microsoft.Spark.Sql
             new RuntimeConfig((JvmObjectReference)_jvmObject.Invoke("conf"));
 
         /// <summary>
+        /// Returns a <see cref="StreamingQueryManager"/> that allows managing all the
+        /// <see cref="StreamingQuery"/> instances active on <c>this</c> context.
+        /// </summary>
+        /// <returns><see cref="StreamingQueryManager"/> object</returns>
+        public StreamingQueryManager Streams() =>
+            new StreamingQueryManager((JvmObjectReference)_jvmObject.Invoke("streams"));
+
+        /// <summary>
         /// Start a new session with isolated SQL configurations, temporary tables, registered
         /// functions are isolated, but sharing the underlying SparkContext and cached data.
         /// </summary>
