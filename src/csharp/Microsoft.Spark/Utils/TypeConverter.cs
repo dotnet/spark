@@ -20,7 +20,7 @@ namespace Microsoft.Spark.Utils
         /// <typeparam name="T">Type to convert to</typeparam>
         /// <param name="obj">The object to convert</param>
         /// <returns>Converted object.</returns>
-        internal static T ConvertTo<T>(object obj) => obj is T t ? t : (T)Convert(obj, typeof(T));
+        internal static T ConvertTo<T>(object obj) => (T)Convert(obj, typeof(T));
 
         private static object Convert(object obj, Type toType)
         {
