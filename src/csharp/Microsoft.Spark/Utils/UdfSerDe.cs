@@ -201,12 +201,15 @@ namespace Microsoft.Spark.Utils
                 BindingFlags.Public |
                 BindingFlags.NonPublic))
             {
-                fields.Add(new FieldData()
+                if (!field.GetCustomAttributes(typeof(NonSerializedAttribute)).Any())
                 {
-                    TypeData = SerializeType(field.FieldType),
-                    Name = field.Name,
-                    Value = field.GetValue(target)
-                });
+                    fields.Add(new FieldData()
+                    {
+                        TypeData = SerializeType(field.FieldType),
+                        Name = field.Name,
+                        Value = field.GetValue(target)
+                    });
+                }
             }
 
             // Even when an UDF does not have any closure, GetFields() returns some fields

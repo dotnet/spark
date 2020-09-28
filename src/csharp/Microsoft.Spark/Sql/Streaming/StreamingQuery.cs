@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark.Sql.Streaming
@@ -21,6 +22,24 @@ namespace Microsoft.Spark.Sql.Streaming
         /// Returns the user-specified name of the query, or null if not specified.
         /// </summary>
         public string Name => (string)_jvmObject.Invoke("name");
+
+        /// <summary>
+        /// Returns the unique id of this query that persists across restarts from checkpoint data.
+        /// That is, this id is generated when a query is started for the first time, and
+        /// will be the same every time it is restarted from checkpoint data. Also see
+        /// <see cref="RunId"/>.
+        /// </summary>
+        public string Id =>
+            (string)((JvmObjectReference)_jvmObject.Invoke("id")).Invoke("toString");
+
+        /// <summary>
+        /// Returns the unique id of this run of the query. That is, every start/restart of
+        /// a query will generated a unique runId. Therefore, every time a query is restarted
+        /// from checkpoint, it will have the same <see cref="Id"/> but different
+        /// <see cref="RunId"/>s.
+        /// </summary>
+        public string RunId =>
+            (string)((JvmObjectReference)_jvmObject.Invoke("runId")).Invoke("toString");
 
         /// <summary>
         /// Returns true if this query is actively running.
@@ -67,5 +86,21 @@ namespace Microsoft.Spark.Sql.Streaming
         /// </summary>
         /// <param name="extended">Whether to do extended explain or not</param>
         public void Explain(bool extended = false) => _jvmObject.Invoke("explain", extended);
+
+        /// <summary>
+        /// The <see cref="StreamingQueryException"/> if the query was terminated by an exception,
+        /// null otherwise.
+        /// </summary>
+        public StreamingQueryException Exception()
+        {
+            var optionalException = new Option((JvmObjectReference)_jvmObject.Invoke("exception"));
+            if (optionalException.IsDefined())
+            {
+                var exception = (JvmObjectReference)optionalException.Get();
+                return new StreamingQueryException((string)exception.Invoke("toString"));
+            }
+
+            return null;
+        }
     }
 }
