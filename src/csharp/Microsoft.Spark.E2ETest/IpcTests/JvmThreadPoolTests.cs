@@ -46,6 +46,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                     Assert.Equal(appName, activeSession.Conf().Get("spark.app.name", null));
                 });
 
+                thread.Start();
                 thread.Join();
             }
 
