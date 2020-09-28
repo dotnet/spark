@@ -134,8 +134,8 @@ namespace Microsoft.Spark.Sql
         /// columns are passed together as an <see cref="FxDataFrame"/> to the user-function and
         /// the returned FxDataFrame are combined as a DataFrame.
         ///
-        /// The returned <see cref="FxDataFrame"/> can be of arbitrary length and its schema must match
-        /// <paramref name="returnType"/>.
+        /// The returned <see cref="FxDataFrame"/> can be of arbitrary length and its schema must
+        /// match <paramref name="returnType"/>.
         /// </summary>
         /// <param name="returnType">
         /// The <see cref="StructType"/> that represents the schema of the return data set.
@@ -180,8 +180,8 @@ namespace Microsoft.Spark.Sql
         /// columns are passed together as a RecordBatch to the user-function and
         /// the returned RecordBatch are combined as a DataFrame.
         ///
-        /// The returned RecordBatch can be of arbitrary length and its schema must match
-        /// <paramref name="returnType"/>.
+        /// The returned <see cref="RecordBatch"/> can be of arbitrary length and its
+        /// schema must match <paramref name="returnType"/>.
         /// </summary>
         /// <param name="returnType">
         /// The <see cref="StructType"/> that represents the shape of the return data set.
