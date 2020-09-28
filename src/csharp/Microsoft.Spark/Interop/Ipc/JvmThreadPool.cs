@@ -24,13 +24,13 @@ namespace Microsoft.Spark.Interop.Ipc
         /// Construct the JvmThreadPool.
         /// </summary>
         /// <param name="jvmBridge">The JvmBridge used to call JVM methods.</param>
-        /// <param name="threadGcInterval">The interval to GC finished threads.</param>
-        public JvmThreadPool(IJvmBridge jvmBridge, TimeSpan threadGcInterval)
+        /// <param name="threadGCInterval">The interval to GC finished threads.</param>
+        public JvmThreadPool(IJvmBridge jvmBridge, TimeSpan threadGCInterval)
         {
             _jvmBridge = jvmBridge;
             _activeThreads = new ConcurrentDictionary<int, Thread>();
             _activeThreadMonitor = new Timer(
-                (state) => GarbageCollectThreads(), null, threadGcInterval, threadGcInterval);
+                (state) => GarbageCollectThreads(), null, threadGCInterval, threadGCInterval);
         }
 
         /// <summary>
@@ -47,10 +47,8 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         /// <param name="thread">The thread to add.</param>
         /// <returns>True if success, false if already added.</returns>
-        public bool TryAddThread(Thread thread)
-        {
-            return _activeThreads.TryAdd(thread.ManagedThreadId, thread);
-        }
+        public bool TryAddThread(Thread thread) =>
+            _activeThreads.TryAdd(thread.ManagedThreadId, thread);
 
         /// <summary>
         /// Try to remove a thread.
@@ -59,7 +57,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <returns>True if success, false if the thread cannot be found.</returns>
         public bool TryRemoveThread(int managedThreadId)
         {
-            if (_activeThreads.TryRemove(managedThreadId, out Thread thread))
+            if (_activeThreads.TryRemove(managedThreadId, out _))
             {
                 _jvmBridge.CallStaticJavaMethod(
                     "DotnetHandler", "rmThread", managedThreadId);
