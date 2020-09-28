@@ -62,9 +62,9 @@ namespace Microsoft.Spark.Worker.Processor
                         long readBid = SerDe.ReadInt64(socket.InputStream);
                         if (bid != readBid)
                         {
-                            throw new Exception("The Broadcast Id received from the encryption" +
-                                $" server {readBid} is different from the Broadcast Id received" +
-                                $" from the payload {bid}.");
+                            throw new Exception("The Broadcast Id received from the encryption " +
+                                $"server {readBid} is different from the Broadcast Id received " +
+                                $"from the payload {bid}.");
                         }
                         object value = formatter.Deserialize(socket.InputStream);
                         BroadcastRegistry.Add(bid, value);
