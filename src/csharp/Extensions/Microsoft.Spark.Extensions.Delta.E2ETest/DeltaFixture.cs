@@ -34,8 +34,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 2 => Array.Empty<(string, string)>(),
                 3 => new[]
                 {
-                    ("spark.sql.extensions",
-                        "io.delta.sql.DeltaSparkSessionExtension"),
+                    ("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension"),
                     ("spark.sql.catalog.spark_catalog",
                         "org.apache.spark.sql.delta.catalog.DeltaCatalog"),
                 },
