@@ -53,62 +53,27 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // Throws the following exception:
             // org.apache.spark.sql.AnalysisException: REPLACE TABLE AS SELECT is only supported
             // with v2 tables.
-            try
-            {
-                dfwV2.Replace();
-            }
-            catch (Exception e)
-            {
-                Assert.NotNull(e);
-            }
+            Assert.Throws<Exception>(() => dfwV2.Replace());
 
             // Throws the following exception:
             // org.apache.spark.sql.AnalysisException: REPLACE TABLE AS SELECT is only supported
             // with v2 tables.
-            try
-            {
-                dfwV2.CreateOrReplace();
-            }
-            catch (Exception e)
-            {
-                Assert.NotNull(e);
-            }
+            Assert.Throws<Exception>(() => dfwV2.CreateOrReplace());
 
             // Throws the following exception:
             // org.apache.spark.sql.AnalysisException: Table default.testtable does not support
             // append in batch mode.
-            try
-            {
-                dfwV2.Append();
-            }
-            catch (Exception e)
-            {
-                Assert.NotNull(e);
-            }
+            Assert.Throws<Exception>(() => dfwV2.Append());
 
             // Throws the following exception:
             // org.apache.spark.sql.AnalysisException: Table default.testtable does not support
             // overwrite by filter in batch mode.
-            try
-            {
-                dfwV2.Overwrite(df.Col("age"));
-            }
-            catch (Exception e)
-            {
-                Assert.NotNull(e);
-            }
+            Assert.Throws<Exception>(() => dfwV2.Overwrite(df.Col("age")));
 
             // Throws the following exception:
             // org.apache.spark.sql.AnalysisException: Table default.testtable does not support
             // dynamic overwrite in batch mode.
-            try
-            {
-                dfwV2.OverwritePartitions();
-            }
-            catch (Exception e)
-            {
-                Assert.NotNull(e);
-            }
+            Assert.Throws<Exception>(() => dfwV2.OverwritePartitions());
         }
     }
 }
