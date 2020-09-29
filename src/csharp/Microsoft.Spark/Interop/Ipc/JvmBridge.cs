@@ -36,7 +36,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private readonly ILoggerService _logger =
             LoggerServiceFactory.GetLogger(typeof(JvmBridge));
         private readonly int _portNumber;
-        private readonly JvmThreadPool _jvmThreadPool;
+        private readonly JvmThreadPoolGarbageCollector _jvmThreadPool;
 
         internal JvmBridge(int portNumber)
         {
@@ -48,7 +48,7 @@ namespace Microsoft.Spark.Interop.Ipc
             _portNumber = portNumber;
             _logger.LogInfo($"JvMBridge port is {portNumber}");
 
-            _jvmThreadPool = new JvmThreadPool(this, TimeSpan.FromMinutes(30));
+            _jvmThreadPool = new JvmThreadPoolGarbageCollector(this, TimeSpan.FromMinutes(30));
         }
 
         private ISocketWrapper GetConnection()

@@ -11,12 +11,12 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
     [Collection("Spark E2E Tests")]
-    public class JvmThreadPoolTests
+    public class JvmThreadPoolGarbageCollectorTests
     {
         private readonly SparkSession _spark;
         private readonly IJvmBridge _jvmBridge;
 
-        public JvmThreadPoolTests(SparkFixture fixture)
+        public JvmThreadPoolGarbageCollectorTests(SparkFixture fixture)
         {
             _spark = fixture.Spark;
             _jvmBridge = ((IJvmObjectReferenceProvider)_spark).Reference.Jvm;
@@ -59,12 +59,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Add and remove a thread via the JvmThreadPool.
+        /// Monitor a thread via the JvmThreadPoolGarbageCollector.
         /// </summary>
         [Fact]
-        public void TestAddRemoveThread()
+        public void TestMonitorThread()
         {
-            var threadPool = new JvmThreadPool(_jvmBridge, TimeSpan.FromMinutes(30));
+            var threadPool = new JvmThreadPoolGarbageCollector(_jvmBridge, TimeSpan.FromMinutes(30));
 
             var thread = new Thread(() => _spark.Sql("SELECT TRUE"));
             thread.Start();
@@ -74,11 +74,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.False(threadPool.TryAddThread(thread));
 
             thread.Join();
-
-            Assert.True(threadPool.TryRemoveThread(thread.ManagedThreadId));
-
-            // Subsequent call should return false, because the thread has already been removed.
-            Assert.False(threadPool.TryRemoveThread(thread.ManagedThreadId));
         }
 
         /// <summary>
