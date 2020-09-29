@@ -17,7 +17,7 @@ namespace Microsoft.Spark.Interop.Ipc
     /// 
     /// This class keeps track of the .NET application thread lifecycle. When a .NET application
     /// thread is no longer alive, this class submits an rmThread command to the JVM backend to 
-    /// dispose of its corresponding JVM thread.
+    /// dispose of its corresponding JVM thread. All methods are thread-safe.
     /// </summary>
     internal class JvmThreadPoolGarbageCollector : IDisposable
     {
