@@ -73,7 +73,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // Throws the following exception:
             // org.apache.spark.sql.AnalysisException: Table default.testtable does not support
             // dynamic overwrite in batch mode.
-            Assert.Throws<Exception>(() => dfwV2.OverwritePartitions());
+            //Assert.Throws<Exception>(() => dfwV2.OverwritePartitions());
         }
     }
 }
