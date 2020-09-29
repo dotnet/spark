@@ -13,11 +13,11 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 {
     [Collection("Spark E2E Tests")]
-    public class BucketizerTests
+    public class BucketizerTests : FeatureBaseTests<Bucketizer>
     {
         private readonly SparkSession _spark;
 
-        public BucketizerTests(SparkFixture fixture)
+        public BucketizerTests(SparkFixture fixture) : base(fixture)
         {
             _spark = fixture.Spark;
         }
@@ -65,7 +65,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 Assert.Equal(bucketizer.Uid(), loadedBucketizer.Uid());
             }
             
-            FeatureBaseTests<Bucketizer>.TestBase(bucketizer, "handleInvalid", "keep");
+            TestFeatureBase(bucketizer, "handleInvalid", "keep");
         }
 
         [Fact]

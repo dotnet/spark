@@ -40,14 +40,16 @@ namespace Microsoft.Spark.ML.Feature
         public static FeatureHasher Load(string path) =>
             WrapAsFeatureHasher(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_featureHasherClassName,"load", path));
+                    s_featureHasherClassName,
+                    "load",
+                    path));
         
         /// <summary>
         /// Gets a list of the columns which have been specified as categorical columns.
         /// </summary>
         /// <returns>List of categorical columns, set by SetCategoricalCols</returns>
         public IEnumerable<string> GetCategoricalCols() => 
-            ((string[])_jvmObject.Invoke("getCategoricalCols")).ToList();
+            (string[])_jvmObject.Invoke("getCategoricalCols");
         
         /// <summary>
         /// Marks columns as categorical columns.
@@ -135,7 +137,8 @@ namespace Microsoft.Spark.ML.Feature
         /// </returns>
         public StructType TransformSchema(StructType value) => 
             new StructType(
-                (JvmObjectReference)_jvmObject.Invoke("transformSchema", 
+                (JvmObjectReference)_jvmObject.Invoke(
+                    "transformSchema", 
                     DataType.FromJson(_jvmObject.Jvm, value.Json)));
 
         private static FeatureHasher WrapAsFeatureHasher(object obj) => 

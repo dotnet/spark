@@ -4,19 +4,27 @@
 
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.ML.Feature.Param;
+using Microsoft.Spark.Sql;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 {
-    public static class FeatureBaseTests<T>
+    public class FeatureBaseTests<T>
     {
+        private readonly SparkSession _spark;
+
+        protected FeatureBaseTests(SparkFixture fixture)
+        {
+            _spark = fixture.Spark;
+        }
+        
         /// <summary>
         /// Tests the common functionality across all ML.Feature classes.
         /// </summary>
         /// <param name="testObject">The object that implemented FeatureBase</param>
         /// <param name="paramName">The name of a parameter that can be set on this object</param>
         /// <param name="paramValue">A parameter value that can be set on this object</param>
-        internal static void TestBase(
+        public void TestFeatureBase(
             FeatureBase<T> testObject, 
             string paramName, 
             object paramValue)
