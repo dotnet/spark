@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Linq;
 using Microsoft.Spark.E2ETest;
 using Xunit;
 
@@ -22,11 +23,30 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
             };
 
+            (string, string)[] conf = new[]
+            {
+                ("spark.databricks.delta.snapshotPartitions", "2"),
+                ("spark.sql.sources.parallelPartitionDiscovery.parallelism", "5")
+            };
+
+            (string, string)[] extraConf = sparkVersion.Major switch
+            {
+                2 => Array.Empty<(string, string)>(),
+                3 => new[]
+                {
+                    ("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension"),
+                    ("spark.sql.catalog.spark_catalog",
+                        "org.apache.spark.sql.delta.catalog.DeltaCatalog"),
+                },
+                _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
+            };
+
+            string confStr =
+                string.Join(" ", conf.Concat(extraConf).Select(c => $"--conf {c.Item1}={c.Item2}"));
+
             Environment.SetEnvironmentVariable(
                 SparkFixture.EnvironmentVariableNames.ExtraSparkSubmitArgs,
-                $"--packages io.delta:{deltaVersion} " +
-                "--conf spark.databricks.delta.snapshotPartitions=2 " +
-                "--conf spark.sql.sources.parallelPartitionDiscovery.parallelism=5");
+                $"--packages io.delta:{deltaVersion} {confStr}");
             SparkFixture = new SparkFixture();
         }
     }
