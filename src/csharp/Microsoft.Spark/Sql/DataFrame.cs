@@ -71,6 +71,16 @@ namespace Microsoft.Spark.Sql
                 (string)((JvmObjectReference)_jvmObject.Invoke("schema")).Invoke("treeString"));
 
         /// <summary>
+        /// Prints the schema up to the given level to the console in a nice tree format.
+        /// </summary>
+        [Since(Versions.V3_0_0)]
+        public void PrintSchema(int level)
+        {
+            var schema = (JvmObjectReference)_jvmObject.Invoke("schema");
+            Console.WriteLine((string)schema.Invoke("treeString", level));
+        }
+
+        /// <summary>
         /// Prints the plans (logical and physical) to the console for debugging purposes.
         /// </summary>
         /// <param name="extended">prints only physical if set to false</param>
@@ -78,6 +88,30 @@ namespace Microsoft.Spark.Sql
         {
             var execution = (JvmObjectReference)_jvmObject.Invoke("queryExecution");
             Console.WriteLine((string)execution.Invoke(extended ? "toString" : "simpleString"));
+        }
+
+        /// <summary>
+        /// Prints the plans (logical and physical) with a format specified by a given explain
+        /// mode.
+        /// 
+        /// </summary>
+        /// <param name="mode">Specifies the expected output format of plans.
+        /// 1. `simple` Print only a physical plan.
+        /// 2. `extended`: Print both logical and physical plans.
+        /// 3. `codegen`: Print a physical plan and generated codes if they are available.
+        /// 4. `cost`: Print a logical plan and statistics if they are available.
+        /// 5. `formatted`: Split explain output into two sections: a physical plan outline and
+        /// node details.
+        /// </param>
+        [Since(Versions.V3_0_0)]
+        public void Explain(string mode)
+        {
+            var execution = (JvmObjectReference)_jvmObject.Invoke("queryExecution");
+            var explainMode = (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
+                "org.apache.spark.sql.execution.ExplainMode",
+                "fromString",
+                mode);
+            Console.WriteLine((string)execution.Invoke("explainString", explainMode));
         }
 
         /// <summary>
@@ -481,6 +515,27 @@ namespace Microsoft.Spark.Sql
             WrapAsDataFrame(_jvmObject.Invoke("agg", expr, exprs));
 
         /// <summary>
+        /// Define (named) metrics to observe on the Dataset. This method returns an 'observed'
+        /// DataFrame that returns the same result as the input, with the following guarantees:
+        /// 
+        /// 1. It will compute the defined aggregates(metrics) on all the data that is flowing
+        /// through the Dataset at that point.
+        /// 2. It will report the value of the defined aggregate columns as soon as we reach a
+        /// completion point.A completion point is either the end of a query(batch mode) or the end
+        /// of a streaming epoch. The value of the aggregates only reflects the data processed
+        /// since the previous completion point.
+        /// 
+        /// Please note that continuous execution is currently not supported.
+        /// </summary>
+        /// <param name="name">Named metrics to observe</param>
+        /// <param name="expr">Defined aggregate to observe</param>
+        /// <param name="exprs">Defined aggregates to observe</param>
+        /// <returns>DataFrame object</returns>
+        [Since(Versions.V3_0_0)]
+        public DataFrame Observe(string name, Column expr, params Column[] exprs) =>
+            WrapAsDataFrame(_jvmObject.Invoke("observe", name, expr, exprs));
+
+        /// <summary>
         /// Returns a new `DataFrame` by taking the first `number` rows.
         /// </summary>
         /// <param name="n">Number of rows to take</param>
@@ -696,11 +751,31 @@ namespace Microsoft.Spark.Sql
         public Row First() => Head();
 
         /// <summary>
+        /// Concise syntax for chaining custom transformations.
+        /// </summary>
+        /// <param name="func">
+        /// A function that takes and returns a <see cref="DataFrame"/>
+        /// </param>
+        /// <returns>Transformed DataFrame object.</returns>
+        public DataFrame Transform(Func<DataFrame, DataFrame> func) => func(this);
+
+        /// <summary>
         /// Returns the first `n` rows in the `DataFrame`.
         /// </summary>
         /// <param name="n">Number of rows</param>
         /// <returns>First `n` rows</returns>
         public IEnumerable<Row> Take(int n) => Head(n);
+
+        /// <summary>
+        /// Returns the last `n` rows in the `DataFrame`.
+        /// </summary>
+        /// <param name="n">Number of rows</param>
+        /// <returns>Last `n` rows</returns>
+        [Since(Versions.V3_0_0)]
+        public IEnumerable<Row> Tail(int n)
+        {
+            return GetRows("tailToPython", n);
+        }
 
         /// <summary>
         /// Returns an array that contains all rows in this `DataFrame`.
@@ -929,16 +1004,15 @@ namespace Microsoft.Spark.Sql
             new DataStreamWriter((JvmObjectReference)_jvmObject.Invoke("writeStream"), this);
 
         /// <summary>
-        /// Returns row objects based on the function (either "toPythonIterator" or
-        /// "collectToPython").
+        /// Returns row objects based on the function (either "toPythonIterator",
+        /// "collectToPython", or "tailToPython").
         /// </summary>
-        /// <param name="funcName">
-        /// The name of the function to call, either "toPythonIterator" or "collectToPython".
-        /// </param>
-        /// <returns><see cref="Row"/> objects</returns>
-        private IEnumerable<Row> GetRows(string funcName)
+        /// <param name="funcName">String name of function to call</param>
+        /// <param name="args">Arguments to the function</param>
+        /// <returns>IEnumerable of Rows from Spark</returns>
+        private IEnumerable<Row> GetRows(string funcName, params object[] args)
         {
-            (int port, string secret, _) = GetConnectionInfo(funcName);
+            (int port, string secret, _) = GetConnectionInfo(funcName, args);
             using ISocketWrapper socket = SocketFactory.CreateSocket();
             socket.Connect(IPAddress.Loopback, port, secret);
             foreach (Row row in new RowCollector().Collect(socket))
@@ -952,9 +1026,11 @@ namespace Microsoft.Spark.Sql
         /// used for connecting with Spark to receive rows for this `DataFrame`.
         /// </summary>
         /// <returns>A tuple of port number, secret string, and JVM socket auth server.</returns>
-        private (int, string, JvmObjectReference) GetConnectionInfo(string funcName)
+        private (int, string, JvmObjectReference) GetConnectionInfo(
+            string funcName,
+            params object[] args)
         {
-            object result = _jvmObject.Invoke(funcName);
+            object result = _jvmObject.Invoke(funcName, args);
             Version version = SparkEnvironment.SparkVersion;
             return (version.Major, version.Minor, version.Build) switch
             {

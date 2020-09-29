@@ -12,7 +12,6 @@
     <!-- Workaround https://github.com/dotnet/project-system/issues/935 -->
     <None Include="**/*.cs" />
     
-    <ProjectReference Include="..\..\..\src\csharp\Microsoft.Spark.Experimental\Microsoft.Spark.Experimental.csproj" />
     <ProjectReference Include="..\..\..\src\csharp\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
 
