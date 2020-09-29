@@ -4,6 +4,7 @@
 
 using System;
 using System.Threading;
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Xunit;
@@ -88,6 +89,22 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             thread.Start();
             thread.Join();
             _jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", thread.ManagedThreadId);
+        }
+
+        /// <summary>
+        /// Test that the JvmThreadGarbageCollectionInterval configuration defaults to 5 minutes,
+        /// and can be updated correctly by setting the environment variable.
+        /// </summary>
+        [Fact]
+        public void TestIntervalConfiguration()
+        {
+            // Default value is 5 minutes.
+            Assert.Null(Environment.GetEnvironmentVariable("DOTNET_THREAD_GC_INTERVAL"));
+            Assert.Equal(TimeSpan.FromMinutes(5), SparkEnvironment.ConfigurationService.JvmThreadGarbageCollectionInterval);
+
+            // Test a custom value.
+            Environment.SetEnvironmentVariable("DOTNET_THREAD_GC_INTERVAL", "1:30:00");
+            Assert.Equal(TimeSpan.FromMinutes(90), SparkEnvironment.ConfigurationService.JvmThreadGarbageCollectionInterval);
         }
     }
 }

@@ -48,7 +48,8 @@ namespace Microsoft.Spark.Interop.Ipc
             _portNumber = portNumber;
             _logger.LogInfo($"JvMBridge port is {portNumber}");
 
-            _jvmThreadPool = new JvmThreadPoolGarbageCollector(this, TimeSpan.FromMinutes(30));
+            _jvmThreadPool = new JvmThreadPoolGarbageCollector(
+                this, SparkEnvironment.ConfigurationService.JvmThreadGarbageCollectionInterval);
         }
 
         private ISocketWrapper GetConnection()

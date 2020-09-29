@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
+
 namespace Microsoft.Spark.Services
 {
     /// <summary>
@@ -9,6 +11,11 @@ namespace Microsoft.Spark.Services
     /// </summary>
     internal interface IConfigurationService
     {
+        /// <summary>
+        /// How often to run GC on JVM ThreadPool threads. Default value is 5 minutes.
+        /// </summary>
+        TimeSpan JvmThreadGarbageCollectionInterval { get; }
+
         /// <summary>
         /// The port number used for communicating with the .NET backend process.
         /// </summary>
