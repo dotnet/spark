@@ -303,10 +303,10 @@ namespace Microsoft.Spark
                 "collectAndServe",
                 rddRef.Invoke("rdd"));
 
-            if (result is int)
+            if (result is int @port)
             {
                 // In spark 2.3.0, collectToPython() returns a port number.
-                return ((int)result, string.Empty);
+                return (@port, string.Empty);
             }
             else
             {
@@ -349,7 +349,7 @@ namespace Microsoft.Spark
                 _func = func;
             }
 
-            internal IEnumerable<object> Execute(int pid, IEnumerable<object> input)
+            internal IEnumerable<object> Execute(int _, IEnumerable<object> input)
             {
                 return input.Cast<TArg>().Select(_func).Cast<object>();
             }
@@ -370,7 +370,7 @@ namespace Microsoft.Spark
                 _func = func;
             }
 
-            internal IEnumerable<object> Execute(int pid, IEnumerable<object> input)
+            internal IEnumerable<object> Execute(int _, IEnumerable<object> input)
             {
                 return input.Cast<TArg>().SelectMany(_func).Cast<object>();
             }
@@ -392,7 +392,7 @@ namespace Microsoft.Spark
                 _func = func;
             }
 
-            internal IEnumerable<object> Execute(int pid, IEnumerable<object> input)
+            internal IEnumerable<object> Execute(int _, IEnumerable<object> input)
             {
                 return _func(input.Cast<TArg>()).Cast<object>();
             }
@@ -435,7 +435,7 @@ namespace Microsoft.Spark
                 _func = func;
             }
 
-            internal IEnumerable<object> Execute(int pid, IEnumerable<object> input)
+            internal IEnumerable<object> Execute(int _, IEnumerable<object> input)
             {
                 return input.Cast<T>().Where(_func).Cast<object>();
             }

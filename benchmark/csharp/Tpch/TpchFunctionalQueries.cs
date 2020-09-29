@@ -6,14 +6,14 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Apache.Arrow;
 using Microsoft.Data.Analysis;
 using Microsoft.Spark.Sql;
-using static Microsoft.Spark.Sql.ExperimentalFunctions;
-using static Microsoft.Spark.Sql.ExperimentalDataFrameFunctions;
+using static Microsoft.Spark.Sql.ArrowFunctions;
+using static Microsoft.Spark.Sql.DataFrameFunctions;
 using static Microsoft.Spark.Sql.Functions;
 using Column = Microsoft.Spark.Sql.Column;
 using DataFrame = Microsoft.Spark.Sql.DataFrame;
-using Apache.Arrow;
 
 namespace Tpch
 {

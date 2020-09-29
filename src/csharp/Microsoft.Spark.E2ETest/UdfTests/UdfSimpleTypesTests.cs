@@ -22,21 +22,23 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         public UdfSimpleTypesTests(SparkFixture fixture)
         {
             _spark = fixture.Spark;
-            var data = new List<GenericRow>();
-            data.Add(new GenericRow(
-                new object[]
-                {
-                    null,
-                    new Date(2020, 1, 1),
-                    new Timestamp(2020, 1, 1, 0, 0, 0, 0)
-                }));
-            data.Add(new GenericRow(
-                new object[]
-                {
-                    30,
-                    new Date(2020, 1, 2),
-                    new Timestamp(2020, 1, 2, 15, 30, 30, 123456)
-                }));
+            var data = new List<GenericRow>
+            {
+                new GenericRow(
+                    new object[]
+                    {
+                        null,
+                        new Date(2020, 1, 1),
+                        new Timestamp(2020, 1, 1, 0, 0, 0, 0)
+                    }),
+                new GenericRow(
+                    new object[]
+                    {
+                        30,
+                        new Date(2020, 1, 2),
+                        new Timestamp(2020, 1, 2, 15, 30, 30, 123456)
+                    })
+            };
             var schema = new StructType(new List<StructField>()
                 {
                     new StructField("age", new IntegerType()),
@@ -176,7 +178,7 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         {
             try
             {
-                void DefineUdf() => Udf<string, string>(str => str);
+                static void DefineUdf() => Udf<string, string>(str => str);
 
                 // Define a UDF in the main thread.
                 Udf<string, string>(str => str);

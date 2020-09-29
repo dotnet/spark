@@ -121,6 +121,22 @@ namespace Microsoft.Spark.Sql
             long seed) =>
             WrapAsDataFrame(_jvmObject.Invoke("sampleBy", columnName, fractions, seed));
 
+        /// <summary>
+        /// Returns a stratified sample without replacement based on the fraction given
+        /// on each stratum.
+        /// </summary>
+        /// <typeparam name="T">Stratum type</typeparam>
+        /// <param name="column">Column that defines strata</param>
+        /// <param name="fractions">
+        /// Sampling fraction for each stratum. If a stratum is not specified, we treat
+        /// its fraction as zero.
+        /// </param>
+        /// <param name="seed">Random seed</param>
+        /// <returns>DataFrame object</returns>
+        [Since(Versions.V3_0_0)]
+        public DataFrame SampleBy<T>(Column column, IDictionary<T, double> fractions, long seed) =>
+            WrapAsDataFrame(_jvmObject.Invoke("sampleBy", column, fractions, seed));
+
         private DataFrame WrapAsDataFrame(object obj) => new DataFrame((JvmObjectReference)obj);
     }
 }

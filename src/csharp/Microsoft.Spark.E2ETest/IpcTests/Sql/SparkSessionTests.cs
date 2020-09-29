@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
@@ -42,6 +41,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<RuntimeConfig>(_spark.Conf());
 
+            Assert.IsType<StreamingQueryManager>(_spark.Streams());
+
             Assert.IsType<SparkSession>(_spark.NewSession());
 
             Assert.IsType<DataFrameReader>(_spark.Read());
@@ -78,9 +79,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {            
             // Calling CreateDataFrame with schema
             {
-                var data = new List<GenericRow>();
-                data.Add(new GenericRow(new object[] { "Alice", 20, new Date(2020, 1, 1) }));
-                data.Add(new GenericRow(new object[] { "Bob", 30, new Date(2020, 1, 2) }));
+                var data = new List<GenericRow>
+                {
+                    new GenericRow(new object[] { "Alice", 20, new Date(2020, 1, 1) }),
+                    new GenericRow(new object[] { "Bob", 30, new Date(2020, 1, 2) })
+                };
 
                 var schema = new StructType(new List<StructField>()
                 {
