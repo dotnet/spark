@@ -77,10 +77,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<DataFrame>(dfr.Text(textFile));
             Assert.IsType<DataFrame>(dfr.Text(textFile, textFile));
 
-            string randomName = $"table_{new Random().Next(100000, 999999).ToString()}";
-            dfr.Text(textFile).Write().Mode("overwrite").SaveAsTable(randomName);
-            Assert.IsType<DataFrame>(dfr.Table(randomName));
-
+            _spark.Range(10).CreateOrReplaceTempView("testView");
+            Assert.IsType<DataFrame>(dfr.Table("testView"));
         }
     }
 }
