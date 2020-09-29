@@ -31,8 +31,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             DataFrame dataFrame = _spark.CreateDataFrame(
                 new List<GenericRow>
                 {
-                    new GenericRow(new object[] {2.0D, true, "1", "foo"}),
-                    new GenericRow(new object[] {3.0D, false, "2", "bar"})
+                    new GenericRow(new object[] { 2.0D, true, "1", "foo" }),
+                    new GenericRow(new object[] { 3.0D, false, "2", "bar" })
                 },
                 new StructType(new List<StructField>
                 {
