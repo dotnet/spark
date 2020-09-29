@@ -1,14 +1,12 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30517.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tpch", "Tpch\Tpch.csproj", "{C1A5ED09-7924-4784-A880-97DF975DE78A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark", "..\..\src\csharp\Microsoft.Spark\Microsoft.Spark.csproj", "{8EB85725-BEB0-4807-B9E2-2BB26B1D7D55}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Worker", "..\..\src\csharp\Microsoft.Spark.Worker\Microsoft.Spark.Worker.csproj", "{A267D1A0-8EF6-475F-B118-67DDACD4373A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Experimental", "..\..\src\csharp\Microsoft.Spark.Experimental\Microsoft.Spark.Experimental.csproj", "{3F56D109-C4B8-4AC6-B87E-D2E8B73E3FB4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,10 +26,6 @@ Global
 		{A267D1A0-8EF6-475F-B118-67DDACD4373A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A267D1A0-8EF6-475F-B118-67DDACD4373A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A267D1A0-8EF6-475F-B118-67DDACD4373A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3F56D109-C4B8-4AC6-B87E-D2E8B73E3FB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3F56D109-C4B8-4AC6-B87E-D2E8B73E3FB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3F56D109-C4B8-4AC6-B87E-D2E8B73E3FB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3F56D109-C4B8-4AC6-B87E-D2E8B73E3FB4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
