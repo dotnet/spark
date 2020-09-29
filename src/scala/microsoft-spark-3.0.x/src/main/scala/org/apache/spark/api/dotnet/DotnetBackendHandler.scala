@@ -176,7 +176,7 @@ class DotnetBackendHandler(server: DotnetBackend)
           "invalid method " + methodName + " for object " + objId)
       }
     } catch {
-      case e: Exception =>
+      case e: Throwable =>
         val jvmObj = JVMObjectTracker.get(objId)
         val jvmObjName = jvmObj match {
           case Some(jObj) => jObj.getClass.getName
