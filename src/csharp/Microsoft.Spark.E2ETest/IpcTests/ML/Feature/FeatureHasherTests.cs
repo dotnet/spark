@@ -15,12 +15,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
     public class FeatureHasherTests : FeatureBaseTests<FeatureHasher>
     {
         private readonly SparkSession _spark;
-        
+
         public FeatureHasherTests(SparkFixture fixture) : base(fixture)
         {
             _spark = fixture.Spark;
         }
-        
+
         /// <summary>
         /// Create a <see cref="DataFrame"/>, create a <see cref="FeatureHasher"/> and test the
         /// available methods. Test the FeatureBase methods using <see cref="FeatureBaseTests"/>.
@@ -45,7 +45,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             FeatureHasher hasher = new FeatureHasher()
                 .SetInputCols(new List<string>() { "real", "bool", "stringNum", "string" })
                 .SetOutputCol("features")
-                .SetCategoricalCols(new List<string>() {"real", "string"})
+                .SetCategoricalCols(new List<string>() { "real", "string" })
                 .SetNumFeatures(10);
 
             Assert.IsType<string>(hasher.GetOutputCol());
@@ -54,7 +54,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.IsType<int>(hasher.GetNumFeatures());
             Assert.IsType<StructType>(hasher.TransformSchema(dataFrame.Schema()));
             Assert.IsType<DataFrame>(hasher.Transform(dataFrame));
-            
+
             TestFeatureBase(hasher, "numFeatures", 1000);
         }
     }
