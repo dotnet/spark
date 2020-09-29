@@ -12,6 +12,8 @@ using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
+using static Microsoft.Spark.Sql.ArrowFunctions;
+using static Microsoft.Spark.Sql.DataFrameFunctions;
 using static Microsoft.Spark.Sql.Functions;
 using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
 using Column = Microsoft.Spark.Sql.Column;
@@ -166,8 +168,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                         .ToArray());
 
             // Single UDF.
-            Func<Column, Column, Column> udf1 =
-                ExperimentalFunctions.VectorUdf(udf1Func);
+            Func<Column, Column, Column> udf1 = VectorUdf(udf1Func);
             {
                 Row[] rows = _df.Select(udf1(_df["age"], _df["name"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
@@ -177,7 +178,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
 
             // Chained UDFs.
-            Func<Column, Column> udf2 = ExperimentalFunctions.VectorUdf<StringArray, StringArray>(
+            Func<Column, Column> udf2 = VectorUdf<StringArray, StringArray>(
                 (strings) => (StringArray)ToArrowArray(
                     Enumerable.Range(0, strings.Length)
                         .Select(i => $"hello {strings.GetString(i)}!")
@@ -235,8 +236,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 };
 
             // Single UDF.
-            Func<Column, Column, Column> udf1 =
-                ExperimentalDataFrameFunctions.VectorUdf(udf1Func);
+            Func<Column, Column, Column> udf1 = VectorUdf(udf1Func);
             {
                 Row[] rows = _df.Select(udf1(_df["age"], _df["name"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
@@ -246,7 +246,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
 
             // Chained UDFs.
-            Func<Column, Column> udf2 = ExperimentalDataFrameFunctions.VectorUdf<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            Func<Column, Column> udf2 = VectorUdf<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) => strings.Apply(cur => $"hello {cur}!"));
             {
                 Row[] rows = _df

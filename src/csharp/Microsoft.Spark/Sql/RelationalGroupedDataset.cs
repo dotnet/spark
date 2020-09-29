@@ -125,7 +125,24 @@ namespace Microsoft.Spark.Sql
             new RelationalGroupedDataset(
                 (JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn, values), _dataFrame);
 
-        internal DataFrame Apply(StructType returnType, Func<FxDataFrame, FxDataFrame> func)
+        /// <summary>
+        /// Maps each group of the current DataFrame using a UDF and
+        /// returns the result as a DataFrame.
+        /// 
+        /// The user-defined function should take an <see cref="FxDataFrame"/>
+        /// and return another <see cref="FxDataFrame"/>. For each group, all
+        /// columns are passed together as an <see cref="FxDataFrame"/> to the user-function and
+        /// the returned FxDataFrame are combined as a DataFrame.
+        ///
+        /// The returned <see cref="FxDataFrame"/> can be of arbitrary length and its schema must
+        /// match <paramref name="returnType"/>.
+        /// </summary>
+        /// <param name="returnType">
+        /// The <see cref="StructType"/> that represents the schema of the return data set.
+        /// </param>
+        /// <param name="func">A grouped map user-defined function.</param>
+        /// <returns>New DataFrame object with the UDF applied.</returns>
+        public DataFrame Apply(StructType returnType, Func<FxDataFrame, FxDataFrame> func)
         {
             DataFrameGroupedMapWorkerFunction.ExecuteDelegate wrapper =
                 new DataFrameGroupedMapUdfWrapper(func).Execute;
@@ -154,7 +171,24 @@ namespace Microsoft.Spark.Sql
                 udfColumn.Expr()));
         }
 
-        internal DataFrame Apply(StructType returnType, Func<RecordBatch, RecordBatch> func)
+        /// <summary>
+        /// Maps each group of the current DataFrame using a UDF and
+        /// returns the result as a DataFrame.
+        /// 
+        /// The user-defined function should take an Apache Arrow RecordBatch
+        /// and return another Apache Arrow RecordBatch. For each group, all
+        /// columns are passed together as a RecordBatch to the user-function and
+        /// the returned RecordBatch are combined as a DataFrame.
+        ///
+        /// The returned <see cref="RecordBatch"/> can be of arbitrary length and its
+        /// schema must match <paramref name="returnType"/>.
+        /// </summary>
+        /// <param name="returnType">
+        /// The <see cref="StructType"/> that represents the shape of the return data set.
+        /// </param>
+        /// <param name="func">A grouped map user-defined function.</param>
+        /// <returns>New DataFrame object with the UDF applied.</returns>
+        public DataFrame Apply(StructType returnType, Func<RecordBatch, RecordBatch> func)
         {
             ArrowGroupedMapWorkerFunction.ExecuteDelegate wrapper =
                 new ArrowGroupedMapUdfWrapper(func).Execute;
