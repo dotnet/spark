@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.10.0" />
-    <PackageReference Include="Microsoft.DotNet.Interactive" Version="1.0.0-beta.20319.1" />
+    <PackageReference Include="Microsoft.DotNet.Interactive" Version="1.0.0-beta.20480.3" />
   </ItemGroup>
   
   <ItemGroup>
