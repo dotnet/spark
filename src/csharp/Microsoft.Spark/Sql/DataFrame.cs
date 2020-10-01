@@ -540,6 +540,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="table">Name of table to write to</param>
         /// <returns>DataFrameWriterV2 object</returns>
+        [Since(Versions.V3_0_0)]
         public DataFrameWriterV2 WriteTo(string table) =>
             new DataFrameWriterV2((JvmObjectReference)_jvmObject.Invoke("writeTo", table));
 
