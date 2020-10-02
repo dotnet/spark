@@ -11,11 +11,11 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 {
     [Collection("Spark E2E Tests")]
-    public class IDFTests
+    public class IDFTests : FeatureBaseTests<IDF>
     {
         private readonly SparkSession _spark;
 
-        public IDFTests(SparkFixture fixture)
+        public IDFTests(SparkFixture fixture) : base(fixture)
         {
             _spark = fixture.Spark;
         }
@@ -44,6 +44,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 IDF loadedIdf = IDF.Load(savePath);
                 Assert.Equal(idf.Uid(), loadedIdf.Uid());
             }
+            
+            TestFeatureBase(idf, "minDocFreq", 1000);
         }
     }
 }
