@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Microsoft.DotNet.Interactive.Utility;
+using Microsoft.DotNet.Interactive;
 using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Extensions.DotNet.Interactive
@@ -47,9 +47,9 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             {
                 ResolvedPackageReference resolvedPackage = package.ResolvedPackage;
 
-                foreach (FileInfo asmPath in resolvedPackage.AssemblyPaths)
+                foreach (string asmPath in resolvedPackage.AssemblyPaths)
                 {
-                    // asmPath.FullName
+                    // asmPath
                     //   /path/to/packages/package.name/package.version/lib/framework/1.dll
                     // resolvedPackage.PackageRoot
                     //   /path/to/packages/package.name/package.version/
@@ -57,13 +57,13 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                     //   package.name/package.version/lib/framework/1.dll
                     assemblyProbingPaths.Add(
                         GetPathRelativeToPackages(
-                            asmPath.FullName,
-                            resolvedPackage.PackageRoot));
+                            asmPath,
+                            package.PackageRootDirectory));
                 }
 
-                foreach (DirectoryInfo probePath in resolvedPackage.ProbingPaths)
+                foreach (string probePath in resolvedPackage.ProbingPaths)
                 {
-                    // probePath.FullName
+                    // probePath
                     //   /path/to/packages/package.name/package.version/
                     // resolvedPackage.PackageRoot
                     //   /path/to/packages/package.name/package.version/
@@ -71,8 +71,8 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                     //   package.name/package.version
                     nativeProbingPaths.Add(
                         GetPathRelativeToPackages(
-                            probePath.FullName,
-                            resolvedPackage.PackageRoot));
+                            probePath,
+                            package.PackageRootDirectory));
                 }
 
                 nugetMetadata.Add(
@@ -115,8 +115,9 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                 _supportNugetWrapper.ResolvedPackageReferences;
             foreach (ResolvedPackageReference package in packages)
             {
+                var packageRootDirectory = new DirectoryInfo(package.PackageRoot);
                 IEnumerable<FileInfo> files =
-                    package.PackageRoot.EnumerateFiles("*.nupkg", SearchOption.AllDirectories);
+                    packageRootDirectory.EnumerateFiles("*.nupkg", SearchOption.AllDirectories);
 
                 foreach (FileInfo file in files)
                 {
@@ -125,6 +126,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                         yield return new ResolvedNuGetPackage
                         {
                             ResolvedPackage = package,
+                            PackageRootDirectory = packageRootDirectory,
                             NuGetFile = file
                         };
                     }
