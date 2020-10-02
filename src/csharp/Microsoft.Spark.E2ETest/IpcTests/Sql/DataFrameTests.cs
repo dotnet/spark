@@ -489,6 +489,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _df.Show(10, 10);
             _df.Show(10, 10, true);
 
+            Assert.IsType<DataFrame>(_df.ToJson());
+
             Assert.IsType<DataFrame>(_df.Join(_df));
             Assert.IsType<DataFrame>(_df.Join(_df, "name"));
             Assert.IsType<DataFrame>(_df.Join(_df, new[] { "name" }));
