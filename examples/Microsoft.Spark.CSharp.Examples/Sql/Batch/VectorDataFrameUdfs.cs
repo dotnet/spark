@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.Data.Analysis;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;

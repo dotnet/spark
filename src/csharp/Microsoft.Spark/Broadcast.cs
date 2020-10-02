@@ -2,13 +2,14 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
-
 
 namespace Microsoft.Spark
 {
@@ -171,21 +172,49 @@ namespace Microsoft.Spark
             bool encryptionEnabled = bool.Parse(
                 sc.GetConf().Get("spark.io.encryption.enabled", "false"));
 
+            var _pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
+                "org.apache.spark.api.python.PythonRDD",
+                "setupBroadcast",
+                _path);
+
             if (encryptionEnabled)
             {
-                throw new NotImplementedException("Broadcast encryption is not supported yet.");
+                var pair = (JvmObjectReference[])_pythonBroadcast.Invoke("setupEncryptionServer");
+
+                using (ISocketWrapper socket = SocketFactory.CreateSocket())
+                {
+                    socket.Connect(
+                        IPAddress.Loopback,
+                        (int)pair[0].Invoke("intValue"), // port number
+                        (string)pair[1].Invoke("toString")); // secret
+                    WriteToStream(value, socket.OutputStream);
+                }
+                _pythonBroadcast.Invoke("waitTillDataReceived");
             }
             else
             {
                 WriteToFile(value);
             }
 
-            var pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.api.python.PythonRDD",
-                "setupBroadcast",
-                _path);
+            return (JvmObjectReference)javaSparkContext.Invoke("broadcast", _pythonBroadcast);
+        }
 
-            return (JvmObjectReference)javaSparkContext.Invoke("broadcast", pythonBroadcast);
+        /// TODO: This is not performant in the case of Broadcast encryption as it writes to stream
+        /// only after serializing the whole value, instead of serializing and writing in chunks
+        /// like Python.
+        /// <summary>
+        /// Function to write the broadcast value into the stream.
+        /// </summary>
+        /// <param name="value">Broadcast value to be written to the stream</param>
+        /// <param name="stream">Stream to write value to</param>
+        private void WriteToStream(object value, Stream stream)
+        {
+            using var ms = new MemoryStream();
+            Dump(value, ms);
+            SerDe.Write(stream, ms.Length);
+            ms.WriteTo(stream);
+            // -1 length indicates to the receiving end that we're done.
+            SerDe.Write(stream, -1);
         }
 
         /// <summary>

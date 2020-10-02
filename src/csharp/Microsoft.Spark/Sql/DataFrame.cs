@@ -536,6 +536,15 @@ namespace Microsoft.Spark.Sql
             WrapAsDataFrame(_jvmObject.Invoke("observe", name, expr, exprs));
 
         /// <summary>
+        /// Create a write configuration builder for v2 sources.
+        /// </summary>
+        /// <param name="table">Name of table to write to</param>
+        /// <returns>DataFrameWriterV2 object</returns>
+        [Since(Versions.V3_0_0)]
+        public DataFrameWriterV2 WriteTo(string table) =>
+            new DataFrameWriterV2((JvmObjectReference)_jvmObject.Invoke("writeTo", table));
+
+        /// <summary>
         /// Returns a new `DataFrame` by taking the first `number` rows.
         /// </summary>
         /// <param name="n">Number of rows to take</param>
