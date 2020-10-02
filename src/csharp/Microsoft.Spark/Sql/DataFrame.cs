@@ -218,6 +218,10 @@ namespace Microsoft.Spark.Sql
         public DataFrameStatFunctions Stat() =>
             new DataFrameStatFunctions((JvmObjectReference)_jvmObject.Invoke("stat"));
 
+        /// <summary>
+        /// Returns the content of the DataFrame as a DataFrame of JSON strings.
+        /// </summary>
+        /// <returns>DataFrame object with JSON strings.</returns>
         public DataFrame ToJson() =>
             WrapAsDataFrame(_jvmObject.Invoke("toJSON"));
 
