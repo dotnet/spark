@@ -14,12 +14,13 @@ namespace Microsoft.Spark.Worker.UnitTest
     [Collection("Spark Unit Tests")]
     public class DaemonWorkerTests : IDisposable
     {
+        private const string ReuseWorkerEnvVariable = "SPARK_REUSE_WORKER";
         private readonly string _reuseWorker;
 
         public DaemonWorkerTests()
         {
-            _reuseWorker = Environment.GetEnvironmentVariable("SPARK_REUSE_WORKER");
-            Environment.SetEnvironmentVariable("SPARK_REUSE_WORKER", "1");
+            _reuseWorker = Environment.GetEnvironmentVariable(ReuseWorkerEnvVariable);
+            Environment.SetEnvironmentVariable(ReuseWorkerEnvVariable, "1");
         }
 
         [Theory]
@@ -75,7 +76,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
         public void Dispose()
         {
-            Environment.SetEnvironmentVariable("SPARK_REUSE_WORKER", _reuseWorker);
+            Environment.SetEnvironmentVariable(ReuseWorkerEnvVariable, _reuseWorker);
         }
     }
 }
