@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
@@ -28,6 +29,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestCountVectorizerModel()
         {
+            DataFrame input = _spark.Sql("SELECT array('hello', 'I', 'AM', 'a', 'string', 'TO', " +
+                                         "'TOKENIZE') as input from range(100)");
+            
             const string inputColumn = "input";
             const string outputColumn = "output";
             const double minTf = 10.0;
@@ -68,6 +72,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.IsType<int>(countVectorizerModel.GetVocabSize());
             Assert.NotEmpty(countVectorizerModel.ExplainParams());
             Assert.NotEmpty(countVectorizerModel.ToString());
+
+            Assert.IsType<StructType>(countVectorizerModel.TransformSchema(input.Schema()));
+            Assert.IsType<DataFrame>(countVectorizerModel.Transform(input));
             
             TestFeatureBase(countVectorizerModel, "minDF", 100);
         } 
