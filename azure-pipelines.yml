@@ -193,7 +193,7 @@ stages:
         filename: script\download-spark-distros.cmd
         arguments: $(Build.BinariesDirectory)
 
-    - template: azure-pipelines-tests-template.yml
+    - template: azure-pipelines-e2e-tests-template.yml
       parameters:
         versions:
         - '2.3.0'
@@ -245,7 +245,7 @@ stages:
         filename: script\download-spark-distros.cmd
         arguments: $(Build.BinariesDirectory)
 
-    - template: azure-pipelines-tests-template.yml
+    - template: azure-pipelines-e2e-tests-template.yml
       parameters:
         versions: 
         - '2.3.0'
@@ -302,7 +302,7 @@ stages:
         filename: script\download-worker-release.cmd
         arguments: '$(Build.BinariesDirectory) $(backwardCompatibleRelease)'
     
-    - template: azure-pipelines-tests-template.yml
+    - template: azure-pipelines-e2e-tests-template.yml
       parameters:
         versions: 
         - '2.3.0'
@@ -322,7 +322,7 @@ stages:
     # Spark 3.0.* uses Arrow 0.15.1, which contains a new Arrow spec. This breaks backward
     # compatibility when using Microsoft.Spark.Worker with incompatible versions of Arrow.
     # Skip Arrow tests until the backward compatibility Worker version is updated.
-    - template: azure-pipelines-tests-template.yml
+    - template: azure-pipelines-e2e-tests-template.yml
       parameters:
         versions:
         - '3.0.0'
