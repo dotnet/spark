@@ -11,6 +11,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace
     /// <summary>
     /// Hyperspace-specific extension methods on <see cref="SparkSession"/>.
     /// </summary>
+    [HyperspaceSince(HyperspaceVersions.V0_0_1)]
     public static class HyperspaceSparkSessionExtensions
     {
         private static readonly string s_pythonUtilsClassName =
@@ -22,6 +23,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         /// <param name="session">A spark session that does not contain Hyperspace-specific rules.
         /// </param>
         /// <returns>A spark session that contains Hyperspace-specific rules.</returns>
+        [HyperspaceSince(HyperspaceVersions.V0_0_1)]
         public static SparkSession EnableHyperspace(this SparkSession session) =>
             new SparkSession(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
@@ -34,6 +36,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         /// </summary>
         /// <param name="session">A spark session that contains Hyperspace-specific rules.</param>
         /// <returns>A spark session that does not contain Hyperspace-specific rules.</returns>
+        [HyperspaceSince(HyperspaceVersions.V0_0_1)]
         public static SparkSession DisableHyperspace(this SparkSession session) =>
             new SparkSession(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
@@ -46,6 +49,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         /// </summary>
         /// <param name="session"></param>
         /// <returns>True if Hyperspace is enabled or false otherwise.</returns>
+        [HyperspaceSince(HyperspaceVersions.V0_0_1)]
         public static bool IsHyperspaceEnabled(this SparkSession session) =>
             (bool)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_pythonUtilsClassName,
