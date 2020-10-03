@@ -82,7 +82,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// the JvmBridge.
         /// </summary>
         [Fact]
-        public void TestThreadRm()
+        public void TestRmThread()
         {
             // Create a thread and ensure that it is initialized in the JVM ThreadPool.
             var thread = new Thread(() => _spark.Sql("SELECT TRUE"));
