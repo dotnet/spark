@@ -222,7 +222,7 @@ namespace Microsoft.Spark.Sql
         /// Returns the content of the DataFrame as a DataFrame of JSON strings.
         /// </summary>
         /// <returns>DataFrame object with JSON strings.</returns>
-        public DataFrame ToJson() =>
+        public DataFrame ToJSON() =>
             WrapAsDataFrame(_jvmObject.Invoke("toJSON"));
 
         /// <summary>
