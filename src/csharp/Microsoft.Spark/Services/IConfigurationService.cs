@@ -12,9 +12,9 @@ namespace Microsoft.Spark.Services
     internal interface IConfigurationService
     {
         /// <summary>
-        /// How often to run GC on JVM ThreadPool threads. Default value is 5 minutes.
+        /// How often to run GC on JVM ThreadPool threads.
         /// </summary>
-        TimeSpan JvmThreadGarbageCollectionInterval { get; }
+        TimeSpan JvmThreadGCInterval { get; }
 
         /// <summary>
         /// The port number used for communicating with the .NET backend process.

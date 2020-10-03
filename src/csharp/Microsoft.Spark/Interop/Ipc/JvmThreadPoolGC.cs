@@ -19,7 +19,7 @@ namespace Microsoft.Spark.Interop.Ipc
     /// thread is no longer alive, this class submits an rmThread command to the JVM backend to 
     /// dispose of its corresponding JVM thread. All methods are thread-safe.
     /// </summary>
-    internal class JvmThreadPoolGarbageCollector : IDisposable
+    internal class JvmThreadPoolGC : IDisposable
     {
         private readonly IJvmBridge _jvmBridge;
         private readonly TimeSpan _threadGCInterval;
@@ -29,11 +29,11 @@ namespace Microsoft.Spark.Interop.Ipc
         private Timer _activeThreadGCTimer;
 
         /// <summary>
-        /// Construct the JvmThreadPoolGarbageCollector.
+        /// Construct the JvmThreadPoolGC.
         /// </summary>
         /// <param name="jvmBridge">The JvmBridge used to call JVM methods.</param>
         /// <param name="threadGCInterval">The interval to GC finished threads.</param>
-        public JvmThreadPoolGarbageCollector(IJvmBridge jvmBridge, TimeSpan threadGCInterval)
+        public JvmThreadPoolGC(IJvmBridge jvmBridge, TimeSpan threadGCInterval)
         {
             _jvmBridge = jvmBridge;
             _threadGCInterval = threadGCInterval;
@@ -57,7 +57,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 }
             }
 
-            GarbageCollectThreads();
+            GCThreads();
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Microsoft.Spark.Interop.Ipc
                     if (_activeThreadGCTimer == null && _activeThreads.Count > 0)
                     {
                         _activeThreadGCTimer = new Timer(
-                            (state) => GarbageCollectThreads(),
+                            (state) => GCThreads(),
                             null,
                             _threadGCInterval,
                             _threadGCInterval);
@@ -112,7 +112,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <summary>
         /// Remove any threads that are no longer active.
         /// </summary>
-        private void GarbageCollectThreads()
+        private void GCThreads()
         {
             foreach (KeyValuePair<int, Thread> kvp in _activeThreads)
             {

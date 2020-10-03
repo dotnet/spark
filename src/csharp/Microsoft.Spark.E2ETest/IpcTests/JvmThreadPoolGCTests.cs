@@ -12,12 +12,12 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
     [Collection("Spark E2E Tests")]
-    public class JvmThreadPoolGarbageCollectorTests
+    public class JvmThreadPoolGCTests
     {
         private readonly SparkSession _spark;
         private readonly IJvmBridge _jvmBridge;
 
-        public JvmThreadPoolGarbageCollectorTests(SparkFixture fixture)
+        public JvmThreadPoolGCTests(SparkFixture fixture)
         {
             _spark = fixture.Spark;
             _jvmBridge = ((IJvmObjectReferenceProvider)_spark).Reference.Jvm;
@@ -42,7 +42,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                     // Since we are in the child thread, GetActiveSession() should return the child
                     // SparkSession.
-                    var activeSession = SparkSession.GetActiveSession();
+                    SparkSession activeSession = SparkSession.GetActiveSession();
                     Assert.NotNull(activeSession);
                     Assert.Equal(appName, activeSession.Conf().Get("spark.app.name", null));
                 });
@@ -51,7 +51,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 thread.Join();
             }
 
-            for (var i = 0; i < 5; i++)
+            for (var i = 0; i < 5; ++i)
             {
                 testChildThread(i.ToString());
             }
@@ -60,12 +60,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Monitor a thread via the JvmThreadPoolGarbageCollector.
+        /// Monitor a thread via the JvmThreadPoolGC.
         /// </summary>
         [Fact]
-        public void TestMonitorThread()
+        public void TestTryAddThread()
         {
-            var threadPool = new JvmThreadPoolGarbageCollector(_jvmBridge, TimeSpan.FromMinutes(30));
+            using var threadPool = new JvmThreadPoolGC(_jvmBridge, TimeSpan.FromMinutes(30));
 
             var thread = new Thread(() => _spark.Sql("SELECT TRUE"));
             thread.Start();
@@ -92,19 +92,23 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test that the JvmThreadGarbageCollectionInterval configuration defaults to 5 minutes,
-        /// and can be updated correctly by setting the environment variable.
+        /// Test that the GC interval configuration defaults to 5 minutes, and can be updated
+        /// correctly by setting the environment variable.
         /// </summary>
         [Fact]
         public void TestIntervalConfiguration()
         {
             // Default value is 5 minutes.
             Assert.Null(Environment.GetEnvironmentVariable("DOTNET_THREAD_GC_INTERVAL"));
-            Assert.Equal(TimeSpan.FromMinutes(5), SparkEnvironment.ConfigurationService.JvmThreadGarbageCollectionInterval);
+            Assert.Equal(
+                TimeSpan.FromMinutes(5),
+                SparkEnvironment.ConfigurationService.JvmThreadGCInterval);
 
             // Test a custom value.
             Environment.SetEnvironmentVariable("DOTNET_THREAD_GC_INTERVAL", "1:30:00");
-            Assert.Equal(TimeSpan.FromMinutes(90), SparkEnvironment.ConfigurationService.JvmThreadGarbageCollectionInterval);
+            Assert.Equal(
+                TimeSpan.FromMinutes(90),
+                SparkEnvironment.ConfigurationService.JvmThreadGCInterval);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private readonly ILoggerService _logger =
             LoggerServiceFactory.GetLogger(typeof(JvmBridge));
         private readonly int _portNumber;
-        private readonly JvmThreadPoolGarbageCollector _jvmThreadPool;
+        private readonly JvmThreadPoolGC _jvmThreadPoolGC;
 
         internal JvmBridge(int portNumber)
         {
@@ -48,8 +48,8 @@ namespace Microsoft.Spark.Interop.Ipc
             _portNumber = portNumber;
             _logger.LogInfo($"JvMBridge port is {portNumber}");
 
-            _jvmThreadPool = new JvmThreadPoolGarbageCollector(
-                this, SparkEnvironment.ConfigurationService.JvmThreadGarbageCollectionInterval);
+            _jvmThreadPoolGC = new JvmThreadPoolGC(
+                this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval);
         }
 
         private ISocketWrapper GetConnection()
@@ -183,7 +183,7 @@ namespace Microsoft.Spark.Interop.Ipc
                     (int)payloadMemoryStream.Position);
                 outputStream.Flush();
 
-                _jvmThreadPool.TryAddThread(thread);
+                _jvmThreadPoolGC.TryAddThread(thread);
 
                 Stream inputStream = socket.InputStream;
                 int isMethodCallFailed = SerDe.ReadInt32(inputStream);
@@ -419,7 +419,7 @@ namespace Microsoft.Spark.Interop.Ipc
 
         public void Dispose()
         {
-            _jvmThreadPool.Dispose();
+            _jvmThreadPoolGC.Dispose();
             while (_sockets.TryDequeue(out ISocketWrapper socket))
             {
                 if (socket != null)

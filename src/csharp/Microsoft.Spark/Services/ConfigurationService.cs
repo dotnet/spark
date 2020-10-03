@@ -34,9 +34,9 @@ namespace Microsoft.Spark.Services
         private string _workerPath;
 
         /// <summary>
-        /// How often to run GC on JVM ThreadPool threads.
+        /// How often to run GC on JVM ThreadPool threads. Defaults to 5 minutes.
         /// </summary>
-        public TimeSpan JvmThreadGarbageCollectionInterval
+        public TimeSpan JvmThreadGCInterval
         {
             get
             {
