@@ -7,6 +7,5 @@ namespace Microsoft.Spark.Extensions.Hyperspace
     internal static class HyperspaceVersions
     {
         internal const string V0_0_1 = "0.0.1";
-        internal const string V0_0_2 = "0.0.2";
     }
 }
