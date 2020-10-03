@@ -11,11 +11,11 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 {
     [Collection("Spark E2E Tests")]
-    public class HashingTFTests
+    public class HashingTFTests : FeatureBaseTests<HashingTF>
     {
         private readonly SparkSession _spark;
 
-        public HashingTFTests(SparkFixture fixture)
+        public HashingTFTests(SparkFixture fixture) : base(fixture)
         {
             _spark = fixture.Spark;
         }
@@ -57,6 +57,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             hashingTf.SetBinary(true);
             Assert.True(hashingTf.GetBinary());
+            
+            TestFeatureBase(hashingTf, "numFeatures", 1000);
         }
     }
 }
