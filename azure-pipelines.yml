@@ -326,14 +326,7 @@ stages:
       parameters:
         versions:
         - '3.0.0'
-        testOptions: "--filter $(backwardCompatibleTestsToFilterOut)&\
-        (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)&\
-        (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestVectorUdf)"
-
-    - template: azure-pipelines-tests-template.yml
-      parameters:
-        versions:
         - '3.0.1'
-        testOptions: "--filter $(TestsToFilterOut)&\
+        testOptions: "--filter $(backwardCompatibleTestsToFilterOut)&\
         (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)&\
         (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestVectorUdf)"
