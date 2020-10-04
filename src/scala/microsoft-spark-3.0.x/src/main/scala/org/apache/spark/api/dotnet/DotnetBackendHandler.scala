@@ -8,13 +8,10 @@ package org.apache.spark.api.dotnet
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream}
 
-import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
-import org.apache.spark.api.dotnet.SerDe._
-import org.apache.spark.internal.Logging
-import org.apache.spark.util.Utils
-
 import scala.collection.mutable.HashMap
 import scala.language.existentials
+
+import org.apache.spark.api.dotnet.SerDe._
 
 /**
  * Handler for DotnetBackend.
@@ -70,8 +67,8 @@ class DotnetBackendHandler(server: DotnetBackend)
           try {
             assert(readObjectType(dis) == 'i')
             val threadToDelete = readInt(dis)
-            ThreadPool.deleteThread(threadToDelete)
-            writeInt(dos, 0)
+            val result = ThreadPool.tryDeleteThread(threadToDelete)
+            writeBoolean(dos, result)
             writeObject(dos, null)
           } catch {
             case e: Exception =>

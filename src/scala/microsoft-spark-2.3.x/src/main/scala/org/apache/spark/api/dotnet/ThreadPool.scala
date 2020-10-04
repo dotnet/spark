@@ -38,12 +38,18 @@ object ThreadPool {
   }
 
   /**
-   * Delete a particular thread.
+   * Try to delete a particular thread.
    *
    * @param threadId Integer id of the thread.
+   * @return True if successful, false if thread does not exist.
    */
-  def deleteThread(threadId: Int): Unit = synchronized {
-    executors.remove(threadId).foreach(_.shutdown)
+  def tryDeleteThread(threadId: Int): Boolean = synchronized {
+    executors.remove(threadId) match {
+      case Some(executorService) =>
+        executorService.shutdown()
+        true
+      case None => false
+    }
   }
 
   /**
