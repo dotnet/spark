@@ -1,0 +1,18 @@
+parameters:
+- name: 'versions'
+  type: object
+  default: {}
+- name: 'testOptions'
+  type: string
+  default: ''
+
+steps:
+- ${{ each version in parameters.versions }}:
+  - task: DotNetCoreCLI@2
+    displayName: 'E2E tests for Spark ${{ version }}'
+    inputs:
+      command: test
+      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      arguments: '--configuration $(buildConfiguration) ${{ parameters.testOptions }}'
+    env:
+      SPARK_HOME: $(Build.BinariesDirectory)\spark-${{ version }}-bin-hadoop2.7
