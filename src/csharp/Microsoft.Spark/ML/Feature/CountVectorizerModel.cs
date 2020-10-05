@@ -190,6 +190,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Converts a DataFrame with a text document to a sparse vector of token counts.
         /// </summary>
         /// <param name="document"><see cref="DataFrame"/> to transform</param>
+        /// <returns><see cref="DataFrame"/> containing the original data and the counts</returns>
         public DataFrame Transform(DataFrame document) => 
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", document));
         
