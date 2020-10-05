@@ -20,6 +20,7 @@ using Column = Microsoft.Spark.Sql.Column;
 using DataFrame = Microsoft.Spark.Sql.DataFrame;
 using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 using Int32Type = Apache.Arrow.Types.Int32Type;
+using ArrowStructType = Apache.Arrow.Types.StructType;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
@@ -290,7 +291,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
+        [Fact]
         public void TestGroupedMapUdf()
         {
             DataFrame df = _spark
@@ -343,10 +344,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             int characterCount = 0;
 
+            ArrowBuffer.BitmapBuilder nullBitmap = new ArrowBuffer.BitmapBuilder();
             for (int i = 0; i < nameColumn.Length; ++i)
             {
                 string current = nameColumn.GetString(i);
                 characterCount += current.Length;
+                nullBitmap.Append(current == null ? false : true);
             }
 
             int ageFieldIndex = records.Schema.GetFieldIndex("age");
@@ -355,15 +358,23 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // Return 1 record, if we were given any. 0, otherwise.
             int returnLength = records.Length > 0 ? 1 : 0;
 
+            ArrowStructType structType = new ArrowStructType(new List<Field> { ageField, new Field("name_CharCount", Int32Type.Default, true) });
+
             return new RecordBatch(
                 new Schema.Builder()
-                    .Field(ageField)
-                    .Field(f => f.Name("name_CharCount").DataType(Int32Type.Default))
+                    .Field(new Field("Ret Struct", structType, true))
                     .Build(),
                 new IArrowArray[]
                 {
-                    records.Column(ageFieldIndex),
-                    new Int32Array.Builder().Append(characterCount).Build()
+                    new StructArray(structType,
+                        returnLength,
+                        new List<Apache.Arrow.IArrowArray>
+                        {
+                            records.Column(ageFieldIndex),
+                            new Int32Array.Builder().Append(characterCount).Build()
+                        },
+                        nullBitmap.Build()
+                    ),
                 },
                 returnLength);
         }
