@@ -30,7 +30,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         public void TestCountVectorizerModel()
         {
             DataFrame input = _spark.Sql("SELECT array('hello', 'I', 'AM', 'a', 'string', 'TO', " +
-                                         "'TOKENIZE') as input from range(100)");
+                "'TOKENIZE') as input from range(100)");
             
             const string inputColumn = "input";
             const string outputColumn = "output";
