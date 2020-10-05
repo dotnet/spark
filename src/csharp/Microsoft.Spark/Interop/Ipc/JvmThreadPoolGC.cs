@@ -109,13 +109,13 @@ namespace Microsoft.Spark.Interop.Ipc
                 if ((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", threadId))
                 {
                     _loggerService.LogDebug($"GC'd JVM thread {threadId}.");
+                    return true;
                 }
                 else
                 {
                     _loggerService.LogWarn(
                         $"rmThread returned false for JVM thread {threadId}. " +
                         $"Either thread does not exist or has already been GC'd.");
-                    return false;
                 }
             }
 
@@ -127,7 +127,6 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         private void GCThreads()
         {
-            _loggerService.LogDebug("Starting JVM thread GC.");
             foreach (KeyValuePair<int, Thread> kvp in _activeThreads)
             {
                 if (!kvp.Value.IsAlive)
@@ -145,8 +144,6 @@ namespace Microsoft.Spark.Interop.Ipc
                     _activeThreadGCTimer = null;
                 }
             }
-
-            _loggerService.LogDebug("JVM thread GC complete.");
         }
     }
 }
