@@ -8,7 +8,7 @@
 
 .NET for Apache Spark is compliant with .NET Standard - a formal specification of .NET APIs that are common across .NET implementations. This means you can use .NET for Apache Spark anywhere you write .NET code allowing you to reuse all the knowledge, skills, code, and libraries you already have as a .NET developer. 
 
-.NET for Apache Spark runs on Windows, Linux, and macOS using .NET Core, or Windows using .NET Framework. It also runs on all major cloud providers including [Azure HDInsight Spark](deployment/README.md#azure-hdinsight-spark), [Amazon EMR Spark](deployment/README.md#amazon-emr-spark), [AWS](deployment/README.md#databricks) & [Azure](deployment/README.md#databricks) Databricks.
+.NET for Apache Spark runs on Windows, Linux, and macOS using .NET Core, or Windows using .NET Framework. It also runs on all major cloud providers including [Azure HDInsight Spark](deployment/README.md#azure-hdinsight-spark), [Amazon EMR Spark](deployment/README.md#amazon-emr-spark), [AWS](deployment/README.md#databricks), [Azure Databricks](deployment/README.md#databricks) & [Azure Synapse Analytics](https://azure.microsoft.com/en-us/services/synapse-analytics/).
 
 **Note**: We currently have a Spark Project Improvement Proposal JIRA at [SPIP: .NET bindings for Apache Spark](https://issues.apache.org/jira/browse/SPARK-27006) to work with the community towards getting .NET support by default into Apache Spark. We highly encourage you to participate in the discussion. 
 
@@ -39,7 +39,7 @@
     <tbody align="center">
         <tr>
             <td >2.3.*</td>
-            <td rowspan=6><a href="https://github.com/dotnet/spark/releases/tag/v0.12.1">v0.12.1</a></td>
+            <td rowspan=6><a href="https://github.com/dotnet/spark/releases/tag/v1.0">v1.0</a></td>
         </tr>
         <tr>
             <td>2.4.0</td>
@@ -57,6 +57,18 @@
             <td>2.4.5</td>
         </tr>
         <tr>
+            <td>2.4.6</td>
+        </tr>
+        <tr>
+            <td>2.4.7</td>
+        </tr>
+        <tr>
+            <td>3.0.0</td>
+        </tr>
+        <tr>
+            <td>3.0.1</td>
+        </tr>
+        <tr>
             <td>2.4.2</td>
             <td><a href="https://github.com/dotnet/spark/issues/60">Not supported</a></td>
         </tr>
@@ -69,9 +81,9 @@
 
 ## Get Started
 These instructions will show you how to run a .NET for Apache Spark app using .NET Core.
-- [Windows Instructions](docs/getting-started/windows-instructions.md)
-- [Ubuntu Instructions](docs/getting-started/ubuntu-instructions.md)
-- [MacOs Instructions](docs/getting-started/macos-instructions.md)
+- [Windows Instructions](https://docs.microsoft.com/en-us/dotnet/spark/tutorials/get-started?tabs=windows)
+- [Ubuntu Instructions](https://docs.microsoft.com/en-us/dotnet/spark/tutorials/get-started?tabs=linux)
+- [MacOs Instructions](https://docs.microsoft.com/en-us/dotnet/spark/tutorials/get-started?tabs=linux)
 
 ## Build Status
 
@@ -154,6 +166,10 @@ We welcome contributions to both categories!
 </tr>
  </tr> 
  </table>
+
+## Learn More
+
+To learn more about some features of .NET for Apache Spark, please visit [this compilation of How-To guides](docs/how-to-guides.md).
 
 ## Contributing
 

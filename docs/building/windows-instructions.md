@@ -3,7 +3,7 @@ Building Spark .NET on Windows
 
 # Table of Contents
 - [Open Issues](#open-issues)
-- [Pre-requisites](#pre-requisites)
+- [Prerequisites](#prerequisites)
 - [Building](#building)
   - [Building Spark .NET Scala Extensions Layer](#building-spark-net-scala-extensions-layer)
   - [Building .NET Samples Application](#building-net-samples-application)
@@ -16,9 +16,9 @@ Building Spark .NET on Windows
 - [Building through Visual Studio Code]()
 - [Building fully automatically through .NET Core CLI]()
 
-# Pre-requisites:
+# Prerequisites:
 
-If you already have all the pre-requisites, skip to the [build](windows-instructions.md#building) steps below.
+If you already have all the prerequisites, skip to the [build](windows-instructions.md#building) steps below.
 
   1. Download and install the **[.NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.1)** - installing the SDK will add the `dotnet` toolchain to your path.
   2. Install **[Visual Studio 2019](https://www.visualstudio.com/downloads/)** (Version 16.4 or later). The Community version is completely free. When configuring your installation, include these components at minimum:
@@ -29,17 +29,17 @@ If you already have all the pre-requisites, skip to the [build](windows-instruct
        * All Required Components
   3. Install **[Java 1.8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)** 
      - Select the appropriate version for your operating system e.g., jdk-8u201-windows-x64.exe for Win x64 machine.
-     - Install using the installer and verify you are able to run `java` from your command-line
+     - Install using the installer and verify you are able to run `java` from your command-line.
   4. Install **[Apache Maven 3.6.3+](https://maven.apache.org/download.cgi)**
-     - Download [Apache Maven 3.6.3](http://mirror.metrocast.net/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.zip)
-     - Extract to a local directory e.g., `c:\bin\apache-maven-3.6.3\`
-     - Add Apache Maven to your [PATH environment variable](https://www.java.com/en/download/help/path.xml) e.g., `c:\bin\apache-maven-3.6.3\bin`
-     - Verify you are able to run `mvn` from your command-line
+     - Download [Apache Maven 3.6.3](http://mirror.metrocast.net/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.zip).
+     - Extract to a local directory e.g., `c:\bin\apache-maven-3.6.3\`.
+     - Add Apache Maven to your [PATH environment variable](https://www.java.com/en/download/help/path.xml) e.g., `c:\bin\apache-maven-3.6.3\bin`.
+     - Verify you are able to run `mvn` from your command-line.
   5. Install **[Apache Spark 2.3+](https://spark.apache.org/downloads.html)**
      - Download [Apache Spark 2.3+](https://spark.apache.org/downloads.html) and extract it into a local folder (e.g., `c:\bin\spark-2.3.2-bin-hadoop2.7\`) using [7-zip](https://www.7-zip.org/).
-     - Add Apache Spark to your [PATH environment variable](https://www.java.com/en/download/help/path.xml) e.g., `c:\bin\spark-2.3.2-bin-hadoop2.7\bin`
-     - Add a [new environment variable](https://www.java.com/en/download/help/path.xml) `SPARK_HOME` e.g., `C:\bin\spark-2.3.2-bin-hadoop2.7\`
-     - Verify you are able to run `spark-shell` from your command-line
+     - Add Apache Spark to your [PATH environment variable](https://www.java.com/en/download/help/path.xml) e.g., `c:\bin\spark-2.3.2-bin-hadoop2.7\bin`.
+     - Add a [new environment variable](https://www.java.com/en/download/help/path.xml) `SPARK_HOME` and point it to the directory you downloaded Apache Spark to, for e.g., `C:\bin\spark-2.3.2-bin-hadoop2.7\`.
+     - Verify you are able to run `spark-shell` from your command-line.
         <details>
         <summary>&#x1F4D9; Click to see sample console output</summary>
 
@@ -63,7 +63,7 @@ If you already have all the pre-requisites, skip to the [build](windows-instruct
 
   6. Install **[WinUtils](https://github.com/steveloughran/winutils)**
      - Download `winutils.exe` binary from [WinUtils repository](https://github.com/steveloughran/winutils). You should select the version of Hadoop the Spark distribution was compiled with, e.g. use hadoop-2.7.1 for Spark 2.3.2.
-     - Save `winutils.exe` binary to a directory of your choice e.g., `c:\hadoop\bin`
+     - Save `winutils.exe` binary to a directory of your choice e.g., `c:\hadoop\bin`.
      - Set `HADOOP_HOME` to reflect the directory with winutils.exe (without bin). For instance, using command-line:
        ```powershell
        set HADOOP_HOME=c:\hadoop
@@ -80,7 +80,7 @@ Please make sure you are able to run `dotnet`, `java`, `mvn`, `spark-shell` from
 
 # Building
 
-For the rest of the section, it is assumed that you have cloned Spark .NET repo into your machine e.g., `c:\github\dotnet-spark\`
+For the rest of the section, it is assumed that you have cloned Spark .NET repo into your machine e.g., `c:\github\dotnet-spark\`.
 
 ```powershell
 git clone https://github.com/dotnet/spark.git c:\github\dotnet-spark
@@ -88,7 +88,7 @@ git clone https://github.com/dotnet/spark.git c:\github\dotnet-spark
 
 ## Building Spark .NET Scala Extensions Layer
 
-When you submit a .NET application, Spark .NET has the necessary logic written in Scala that inform Apache Spark how to handle your requests (e.g., request to create a new Spark Session, request to transfer data from .NET side to JVM side etc.). This logic can be found in the [Spark .NET Scala Source Code](../../src/scala).
+When you submit a .NET application, Spark .NET has the necessary logic written in Scala that informs Apache Spark how to handle your requests (e.g., request to create a new Spark Session, request to transfer data from .NET side to JVM side etc.). This logic can be found in the [Spark .NET Scala Source Code](../../src/scala).
 
 Regardless of whether you are using .NET Framework or .NET Core, you will need to build the Spark .NET Scala extension layer. This is easy to do:
 
@@ -196,7 +196,7 @@ You should see JARs created for the supported Spark versions:
 
 # Run Samples
 
-Once you build the samples, running them will be through `spark-submit` regardless of whether you are targeting .NET Framework or .NET Core apps. Make sure you have followed the [pre-requisites](#pre-requisites) section and installed Apache Spark.
+Once you build the samples, running them will be through `spark-submit` regardless of whether you are targeting .NET Framework or .NET Core apps. Make sure you have followed the [prerequisites](#prerequisites) section and installed Apache Spark.
 
   1. Set the `DOTNET_WORKER_DIR` or `PATH` environment variable to include the path where the `Microsoft.Spark.Worker` binary has been generated (e.g., `c:\github\dotnet\spark\artifacts\bin\Microsoft.Spark.Worker\Debug\net461` for .NET Framework, `c:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.Worker\Debug\netcoreapp3.1\win-x64\publish` for .NET Core)
   2. Open Powershell and go to the directory where your app binary has been generated (e.g., `c:\github\dotnet\spark\artifacts\bin\Microsoft.Spark.CSharp.Examples\Debug\net461` for .NET Framework, `c:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.CSharp.Examples\Debug\netcoreapp3.1\win1-x64\publish` for .NET Core)
@@ -204,6 +204,7 @@ Once you build the samples, running them will be through `spark-submit` regardle
      ```powershell
      spark-submit.cmd `
        [--jars <any-jars-your-app-is-dependent-on>] `
+       --conf <any-custom-spark-config>=<config-value> `
        --class org.apache.spark.deploy.dotnet.DotnetRunner `
        --master local `
        <path-to-microsoft-spark-jar> `
@@ -246,4 +247,4 @@ Once you build the samples, running them will be through `spark-submit` regardle
          Microsoft.Spark.CSharp.Examples.exe Sql.Streaming.StructuredKafkaWordCount localhost:9092 subscribe test
           ```
 
-Feel this experience is complicated? Help us by taking up [Simplify User Experience for Running an App](https://github.com/dotnet/spark/issues/6)
+Feel this experience is complicated? Help us by taking up [Simplify User Experience for Running an App](https://github.com/dotnet/spark/issues/6).
