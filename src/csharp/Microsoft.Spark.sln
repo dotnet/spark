@@ -39,6 +39,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Hyperspace.E2ETest", "Extensions\Microsoft.Spark.Extensions.Hyperspace.E2ETest\Microsoft.Spark.Extensions.Hyperspace.E2ETest.csproj", "{C6019E44-C777-4DE2-B70E-EA025B7D044D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Apache.Arrow", "..\..\..\arrow\csharp\src\Apache.Arrow\Apache.Arrow.csproj", "{343A8E36-3D50-4CDA-B89C-BC976880F4B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +103,10 @@ Global
 		{C6019E44-C777-4DE2-B70E-EA025B7D044D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6019E44-C777-4DE2-B70E-EA025B7D044D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6019E44-C777-4DE2-B70E-EA025B7D044D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{343A8E36-3D50-4CDA-B89C-BC976880F4B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{343A8E36-3D50-4CDA-B89C-BC976880F4B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{343A8E36-3D50-4CDA-B89C-BC976880F4B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{343A8E36-3D50-4CDA-B89C-BC976880F4B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
