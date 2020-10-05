@@ -40,7 +40,7 @@ namespace Microsoft.Spark.Services
         {
             get
             {
-                string envVar = Environment.GetEnvironmentVariable("DOTNET_THREAD_GC_INTERVAL");
+                string envVar = Environment.GetEnvironmentVariable("DOTNET_JVM_THREAD_GC_INTERVAL");
                 return string.IsNullOrEmpty(envVar) ? TimeSpan.FromMinutes(5) : TimeSpan.Parse(envVar);
             }
         }

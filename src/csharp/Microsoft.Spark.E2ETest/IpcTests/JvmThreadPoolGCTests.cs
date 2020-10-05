@@ -6,6 +6,7 @@ using System;
 using System.Threading;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Services;
 using Microsoft.Spark.Sql;
 using Xunit;
 
@@ -14,11 +15,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
     [Collection("Spark E2E Tests")]
     public class JvmThreadPoolGCTests
     {
+        private readonly ILoggerService _loggerService;
         private readonly SparkSession _spark;
         private readonly IJvmBridge _jvmBridge;
 
         public JvmThreadPoolGCTests(SparkFixture fixture)
         {
+            _loggerService = LoggerServiceFactory.GetLogger(typeof(JvmThreadPoolGCTests));
             _spark = fixture.Spark;
             _jvmBridge = ((IJvmObjectReferenceProvider)_spark).Reference.Jvm;
         }
@@ -51,7 +54,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 thread.Join();
             }
 
-            for (var i = 0; i < 5; ++i)
+            for (int i = 0; i < 5; ++i)
             {
                 testChildThread(i.ToString());
             }
@@ -65,7 +68,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestTryAddThread()
         {
-            using var threadPool = new JvmThreadPoolGC(_jvmBridge, TimeSpan.FromMinutes(30));
+            using var threadPool = new JvmThreadPoolGC(
+                _loggerService, _jvmBridge, TimeSpan.FromMinutes(30));
 
             var thread = new Thread(() => _spark.Sql("SELECT TRUE"));
             thread.Start();
@@ -88,7 +92,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             var thread = new Thread(() => _spark.Sql("SELECT TRUE"));
             thread.Start();
             thread.Join();
-            _jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", thread.ManagedThreadId);
+
+            // First call should return true. Second call should return false.
+            Assert.True((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", thread.ManagedThreadId));
+            Assert.False((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", thread.ManagedThreadId));
         }
 
         /// <summary>
@@ -99,13 +106,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         public void TestIntervalConfiguration()
         {
             // Default value is 5 minutes.
-            Assert.Null(Environment.GetEnvironmentVariable("DOTNET_THREAD_GC_INTERVAL"));
+            Assert.Null(Environment.GetEnvironmentVariable("DOTNET_JVM_THREAD_GC_INTERVAL"));
             Assert.Equal(
                 TimeSpan.FromMinutes(5),
                 SparkEnvironment.ConfigurationService.JvmThreadGCInterval);
 
             // Test a custom value.
-            Environment.SetEnvironmentVariable("DOTNET_THREAD_GC_INTERVAL", "1:30:00");
+            Environment.SetEnvironmentVariable("DOTNET_JVM_THREAD_GC_INTERVAL", "1:30:00");
             Assert.Equal(
                 TimeSpan.FromMinutes(90),
                 SparkEnvironment.ConfigurationService.JvmThreadGCInterval);

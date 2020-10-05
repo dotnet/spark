@@ -71,8 +71,8 @@ class DotnetBackendHandler(server: DotnetBackend)
             assert(readObjectType(dis) == 'i')
             val threadToDelete = readInt(dis)
             val result = ThreadPool.tryDeleteThread(threadToDelete)
-            writeBoolean(dos, result)
-            writeObject(dos, null)
+            writeInt(dos, 0)
+            writeObject(dos, result.asInstanceOf[AnyRef])
           } catch {
             case e: Exception =>
               logError(s"Removing thread $threadId failed", e)
