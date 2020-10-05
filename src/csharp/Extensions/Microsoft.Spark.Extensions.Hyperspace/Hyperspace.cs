@@ -12,6 +12,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace
     /// <summary>
     /// .Net for Spark binding for Hyperspace index management APIs.
     /// </summary>
+    [HyperspaceSince(HyperspaceVersions.V0_0_1)]
     public class Hyperspace : IJvmObjectReferenceProvider
     {
         private static readonly string s_hyperspaceClassName =
@@ -20,6 +21,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         private readonly IJvmBridge _jvmBridge;
         private readonly JvmObjectReference _jvmObject;
 
+        [HyperspaceSince(HyperspaceVersions.V0_0_1)]
         public Hyperspace(SparkSession spark)
         {
             _spark = spark;
@@ -33,6 +35,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         /// Collect all the index metadata.
         /// </summary>
         /// <returns>All index metadata as a <see cref="DataFrame"/>.</returns>
+        [HyperspaceSince(HyperspaceVersions.V0_0_1)]
         public DataFrame Indexes() =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("indexes"));
 
@@ -41,6 +44,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         /// </summary>
         /// <param name="df">The DataFrame object to build index on.</param>
         /// <param name="indexConfig">The configuration of index to be created.</param>
+        [HyperspaceSince(HyperspaceVersions.V0_0_1)]
         public void CreateIndex(DataFrame df, IndexConfig indexConfig) =>
             _jvmObject.Invoke("createIndex", df, indexConfig);
 
@@ -48,24 +52,28 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         /// Soft deletes the index with given index name.
         /// </summary>
         /// <param name="indexName">The name of index to delete.</param>
+        [HyperspaceSince(HyperspaceVersions.V0_0_1)]
         public void DeleteIndex(string indexName) => _jvmObject.Invoke("deleteIndex", indexName);
 
         /// <summary>
         /// Restores index with given index name.
         /// </summary>
         /// <param name="indexName">Name of the index to restore.</param>
+        [HyperspaceSince(HyperspaceVersions.V0_0_1)]
         public void RestoreIndex(string indexName) => _jvmObject.Invoke("restoreIndex", indexName);
 
         /// <summary>
         /// Does hard delete of indexes marked as <c>DELETED</c>.
         /// </summary>
         /// <param name="indexName">Name of the index to restore.</param>
+        [HyperspaceSince(HyperspaceVersions.V0_0_1)]
         public void VacuumIndex(string indexName) => _jvmObject.Invoke("vacuumIndex", indexName);
 
         /// <summary>
         /// Update indexes for the latest version of the data.
         /// </summary>
         /// <param name="indexName">Name of the index to refresh.</param>
+        [HyperspaceSince(HyperspaceVersions.V0_0_1)]
         public void RefreshIndex(string indexName) => _jvmObject.Invoke("refreshIndex", indexName);
 
         /// <summary>
@@ -82,6 +90,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         /// state.
         /// </summary>
         /// <param name="indexName">Name of the index to cancel.</param>
+        [HyperspaceSince(HyperspaceVersions.V0_0_1)]
         public void Cancel(string indexName) => _jvmObject.Invoke("cancel", indexName);
 
         /// <summary>
@@ -89,6 +98,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         /// </summary>
         /// <param name="df">dataFrame</param>
         /// <param name="verbose">Flag to enable verbose mode.</param>
+        [HyperspaceSince(HyperspaceVersions.V0_0_1)]
         public void Explain(DataFrame df, bool verbose) =>
             Explain(df, verbose, s => Console.WriteLine(s));
 
@@ -98,6 +108,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         /// <param name="df">dataFrame</param>
         /// <param name="verbose">Flag to enable verbose mode.</param>
         /// <param name="redirectFunc">Function to redirect output of explain.</param>
+        [HyperspaceSince(HyperspaceVersions.V0_0_1)]
         public void Explain(DataFrame df, bool verbose, Action<string> redirectFunc)
         {
             var explainString = (string)_jvmBridge.CallStaticJavaMethod(
