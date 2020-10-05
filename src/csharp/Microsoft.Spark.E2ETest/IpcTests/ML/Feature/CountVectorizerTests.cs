@@ -13,11 +13,11 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 {
     [Collection("Spark E2E Tests")]
-    public class CountVectorizerTests
+    public class CountVectorizerTests : FeatureBaseTests<CountVectorizer>
     {
         private readonly SparkSession _spark;
 
-        public CountVectorizerTests(SparkFixture fixture)
+        public CountVectorizerTests(SparkFixture fixture) : base(fixture)
         {
             _spark = fixture.Spark;
         }
@@ -67,6 +67,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             
             Assert.NotEmpty(countVectorizer.ExplainParams());
             Assert.NotEmpty(countVectorizer.ToString());
+            
+            TestFeatureBase(countVectorizer, "minDF", 0.4);
         }
         
         /// <summary>

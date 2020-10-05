@@ -11,11 +11,11 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 {
     [Collection("Spark E2E Tests")]
-    public class TokenizerTests
+    public class TokenizerTests : FeatureBaseTests<Tokenizer>
     {
         private readonly SparkSession _spark;
 
-        public TokenizerTests(SparkFixture fixture)
+        public TokenizerTests(SparkFixture fixture) : base(fixture)
         {
             _spark = fixture.Spark;
         }
@@ -50,6 +50,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             }
             
             Assert.Equal(expectedUid, tokenizer.Uid());
+            
+            TestFeatureBase(tokenizer, "inputCol", "input_col");
         }
     }
 }

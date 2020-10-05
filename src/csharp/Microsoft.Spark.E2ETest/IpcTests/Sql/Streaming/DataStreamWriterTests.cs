@@ -68,7 +68,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<DataStreamWriter>(dsw.Trigger(Trigger.Once()));
         }
 
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
+#pragma warning disable xUnit1004 // Test methods should not be skipped.
+        [Fact(Skip = "Skipping flaky test. Root cause is being investigated.")]
+#pragma warning restore xUnit1004
         public void TestForeachBatch()
         {
             // Temporary folder to put our test stream input.

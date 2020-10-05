@@ -11,11 +11,11 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 {
     [Collection("Spark E2E Tests")]
-    public class Word2VecTests
+    public class Word2VecTests : FeatureBaseTests<Word2Vec>
     {
         private readonly SparkSession _spark;
 
-        public Word2VecTests(SparkFixture fixture)
+        public Word2VecTests(SparkFixture fixture) : base(fixture)
         {
             _spark = fixture.Spark;
         }
@@ -67,6 +67,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 Word2Vec loadedWord2Vec = Word2Vec.Load(savePath);
                 Assert.Equal(word2vec.Uid(), loadedWord2Vec.Uid());
             }
+            
+            TestFeatureBase(word2vec, "maxIter", 2);
         }
     }
 }
