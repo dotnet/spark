@@ -30,7 +30,8 @@ RUN mkdir -p /usr/local/bin/maven \
     && tar -xvzf apache-maven-${MAVEN_VERSION}-bin.tar.gz  \
     && ln -s apache-maven-${MAVEN_VERSION} current  \
     && rm apache-maven-${MAVEN_VERSION}-bin.tar.gz \
-    && git clone https://github.com/dotnet/spark.git ~/dotnet.spark
+    && git clone https://github.com/dotnet/spark.git ~/dotnet.spark \
+    && cp ~/dotnet.spark/NuGet.config ~/.nuget/NuGet/NuGet.Config
 
 RUN wget -q --show-progress --progress=bar:force:noscroll https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
     && tar -xvzf spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
