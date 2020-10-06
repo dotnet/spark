@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Spark.Utils;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
@@ -388,6 +389,39 @@ namespace Microsoft.Spark.Sql
         /// Stops the underlying SparkContext.
         /// </summary>
         public void Stop() => _jvmObject.Invoke("stop");
+
+        /// <summary>
+        /// Get the <see cref="VersionSensor.VersionInfo"/> for the Microsoft.Spark assembly and
+        /// make a "best effort" attempt in determining the version of Microsoft.Spark.Worker
+        /// assembly.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="DataFrame"/> containing the <see cref="VersionSensor.VersionInfo"/>
+        /// </returns>
+        public DataFrame Version()
+        {
+            DataFrame sparkInfoDf =
+                CreateDataFrame(
+                    new GenericRow[] { VersionSensor.MicrosoftSparkVersion().ToGenericRow() },
+                    VersionSensor.VersionInfo.s_schema);
+
+            Func<Column, Column> workerInfoUdf =
+                Functions.Udf<int>(
+                    i => VersionSensor.MicrosoftSparkWorkerVersion().ToGenericRow(),
+                    VersionSensor.VersionInfo.s_schema);
+            DataFrame df = CreateDataFrame(Enumerable.Range(0, 1000));
+
+            string tempColName = "WorkerVersionInfo";
+            DataFrame workerInfoTempDf = df
+                .Repartition(1000)
+                .WithColumn(tempColName, workerInfoUdf(df["_1"]));
+            DataFrame workerInfoDf =
+                workerInfoTempDf.Select(
+                    VersionSensor.VersionInfo.s_schema.Fields.Select(
+                        f => Functions.Col($"{tempColName}.{f.Name}")).ToArray());
+
+            return sparkInfoDf.Union(workerInfoDf).DropDuplicates();
+        }
 
         /// <summary>
         /// Returns a single column schema of the given datatype.
