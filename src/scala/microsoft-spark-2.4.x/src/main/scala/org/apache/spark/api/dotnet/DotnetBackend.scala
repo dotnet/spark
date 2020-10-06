@@ -17,6 +17,8 @@ import io.netty.channel.{ChannelFuture, ChannelInitializer, EventLoopGroup}
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder
 import io.netty.handler.codec.bytes.{ByteArrayDecoder, ByteArrayEncoder}
 import org.apache.spark.internal.Logging
+import org.apache.spark.internal.config.Dotnet.DOTNET_NUM_BACKEND_THREADS
+import org.apache.spark.{SparkConf, SparkEnv}
 
 /**
  * Netty server that invokes JVM calls based upon receiving messages from .NET.
@@ -30,8 +32,10 @@ class DotnetBackend extends Logging {
   private[this] var bossGroup: EventLoopGroup = _
 
   def init(portNumber: Int): Int = {
-    // need at least 3 threads, use 10 here for safety
-    bossGroup = new NioEventLoopGroup(10)
+    val conf = Option(SparkEnv.get).map(_.conf).getOrElse(new SparkConf())
+    val numBackendThreads = conf.get(DOTNET_NUM_BACKEND_THREADS)
+    logInfo(s"The number of DotnetBackend threads is set to $numBackendThreads.")
+    bossGroup = new NioEventLoopGroup(numBackendThreads)
     val workerGroup = bossGroup
 
     bootstrap = new ServerBootstrap()
