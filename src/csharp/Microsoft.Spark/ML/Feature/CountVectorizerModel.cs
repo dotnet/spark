@@ -5,6 +5,8 @@
 using System.Collections.Generic;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
@@ -161,6 +163,36 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <returns>The max size of the vocabulary of type int.</returns>
         public int GetVocabSize() => (int)_jvmObject.Invoke("getVocabSize");
+        
+        /// <summary>
+        /// Check transform validity and derive the output schema from the input schema.
+        /// 
+        /// This checks for validity of interactions between parameters during Transform and
+        /// raises an exception if any parameter value is invalid.
+        ///
+        /// Typical implementation should first conduct verification on schema change and parameter
+        /// validity, including complex parameter interaction checks.
+        /// </summary>
+        /// <param name="value">
+        /// The <see cref="StructType"/> of the <see cref="DataFrame"/> which will be transformed.
+        /// </param>
+        /// <returns>
+        /// The <see cref="StructType"/> of the output schema that would have been derived from the
+        /// input schema, if Transform had been called.
+        /// </returns>
+        public StructType TransformSchema(StructType value) => 
+            new StructType(
+                (JvmObjectReference)_jvmObject.Invoke(
+                    "transformSchema", 
+                    DataType.FromJson(_jvmObject.Jvm, value.Json)));
+        
+        /// <summary>
+        /// Converts a DataFrame with a text document to a sparse vector of token counts.
+        /// </summary>
+        /// <param name="document"><see cref="DataFrame"/> to transform</param>
+        /// <returns><see cref="DataFrame"/> containing the original data and the counts</returns>
+        public DataFrame Transform(DataFrame document) => 
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", document));
         
         private static CountVectorizerModel WrapAsCountVectorizerModel(object obj) => 
             new CountVectorizerModel((JvmObjectReference)obj);
