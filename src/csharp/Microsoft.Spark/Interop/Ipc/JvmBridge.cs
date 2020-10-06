@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
 
@@ -35,6 +36,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private readonly ILoggerService _logger =
             LoggerServiceFactory.GetLogger(typeof(JvmBridge));
         private readonly int _portNumber;
+        private readonly JvmThreadPoolGC _jvmThreadPoolGC;
 
         internal JvmBridge(int portNumber)
         {
@@ -45,6 +47,9 @@ namespace Microsoft.Spark.Interop.Ipc
 
             _portNumber = portNumber;
             _logger.LogInfo($"JvMBridge port is {portNumber}");
+
+            _jvmThreadPoolGC = new JvmThreadPoolGC(
+                _logger, this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval);
         }
 
         private ISocketWrapper GetConnection()
@@ -158,11 +163,13 @@ namespace Microsoft.Spark.Interop.Ipc
             ISocketWrapper socket = null;
             try
             {
+                Thread thread = Thread.CurrentThread;
                 MemoryStream payloadMemoryStream = s_payloadMemoryStream ??= new MemoryStream();
                 payloadMemoryStream.Position = 0;
                 PayloadHelper.BuildPayload(
                     payloadMemoryStream,
                     isStatic,
+                    thread.ManagedThreadId,
                     classNameOrJvmObjectReference,
                     methodName,
                     args);
@@ -175,6 +182,8 @@ namespace Microsoft.Spark.Interop.Ipc
                     0,
                     (int)payloadMemoryStream.Position);
                 outputStream.Flush();
+
+                _jvmThreadPoolGC.TryAddThread(thread);
 
                 Stream inputStream = socket.InputStream;
                 int isMethodCallFailed = SerDe.ReadInt32(inputStream);
@@ -410,6 +419,7 @@ namespace Microsoft.Spark.Interop.Ipc
 
         public void Dispose()
         {
+            _jvmThreadPoolGC.Dispose();
             while (_sockets.TryDequeue(out ISocketWrapper socket))
             {
                 if (socket != null)
