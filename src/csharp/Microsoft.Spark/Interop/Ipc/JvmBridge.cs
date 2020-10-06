@@ -248,7 +248,7 @@ namespace Microsoft.Spark.Interop.Ipc
 
                 if (e.InnerException is JvmException)
                 {
-                    // DotnetHandler caught JVM exception and passed back to dotnet.
+                    // DotnetBackendHandler caught JVM exception and passed back to dotnet.
                     // We can reuse this connection.
                     _sockets.Enqueue(socket);
                 }
