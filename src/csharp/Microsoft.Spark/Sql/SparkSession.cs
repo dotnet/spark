@@ -398,29 +398,34 @@ namespace Microsoft.Spark.Sql
         /// <returns>
         /// A <see cref="DataFrame"/> containing the <see cref="VersionSensor.VersionInfo"/>
         /// </returns>
-        public DataFrame Version()
+        public DataFrame Version(int numPartitions = 10)
         {
+            StructType schema = VersionSensor.VersionInfo.s_schema;
+
             DataFrame sparkInfoDf =
                 CreateDataFrame(
                     new GenericRow[] { VersionSensor.MicrosoftSparkVersion().ToGenericRow() },
-                    VersionSensor.VersionInfo.s_schema);
+                    schema);
 
             Func<Column, Column> workerInfoUdf =
                 Functions.Udf<int>(
                     i => VersionSensor.MicrosoftSparkWorkerVersion().ToGenericRow(),
-                    VersionSensor.VersionInfo.s_schema);
-            DataFrame df = CreateDataFrame(Enumerable.Range(0, 1000));
+                    schema);
+            DataFrame df = CreateDataFrame(Enumerable.Range(0, 10 * numPartitions));
 
             string tempColName = "WorkerVersionInfo";
             DataFrame workerInfoTempDf = df
-                .Repartition(1000)
+                .Repartition(numPartitions)
                 .WithColumn(tempColName, workerInfoUdf(df["_1"]));
             DataFrame workerInfoDf =
                 workerInfoTempDf.Select(
-                    VersionSensor.VersionInfo.s_schema.Fields.Select(
+                    schema.Fields.Select(
                         f => Functions.Col($"{tempColName}.{f.Name}")).ToArray());
 
-            return sparkInfoDf.Union(workerInfoDf).DropDuplicates();
+            return sparkInfoDf
+                .Union(workerInfoDf)
+                .DropDuplicates()
+                .Sort(schema.Fields.Select(f => Functions.Col(f.Name)).ToArray());
         }
 
         /// <summary>
