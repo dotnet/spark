@@ -58,8 +58,8 @@ namespace Microsoft.Spark.Interop.Ipc
         {
             // Limit the number of connections to the JVM backend. Netty is configured
             // to use a set number of threads to process incoming connections. Each
-            // new connection is delegated to these threads and in a round robin fashion.
-            // A deadlock can occur if a new connection is scheduled on a blocking thread.
+            // new connection is delegated to these threads in a round robin fashion.
+            // A deadlock can occur if a new connection is scheduled on a blocked thread.
             _socketSemaphore.Wait();
             if (!_sockets.TryDequeue(out ISocketWrapper socket))
             {
