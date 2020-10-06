@@ -4,18 +4,15 @@ FROM mcr.microsoft.com/dotnet/core/sdk:$SDK_IMAGE_TAG
 ARG SPARK_VERSION=2.4.6
 ARG MAVEN_VERSION=3.6.3
 ARG HADOOP_VERSION=2.7
+ARG DEBIAN_FRONTEND=noninteractive
 
 ENV DAEMON_RUN=true
-#ENV SPARK_VERSION=$SPARK_VERSION
-#ENV HADOOP_VERSION=$HADOOP_VERSION
 ENV SPARK_HOME=/spark
-
 
 ENV M2_HOME=/usr/local/bin/maven/current
 ENV PATH="${PATH}:${SPARK_HOME}/bin:${M2_HOME}/bin"
 
-RUN DEBIAN_FRONTEND=noninteractive \
-    && apt-get update \
+RUN apt-get update \
     && apt-get install -y dialog apt-utils wget ca-certificates openjdk-8-jdk bash software-properties-common supervisor unzip socat net-tools vim \
     && add-apt-repository universe \
     && apt-get install -y apt-transport-https \
