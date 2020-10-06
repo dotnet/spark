@@ -22,6 +22,11 @@ namespace Microsoft.Spark.Services
         int GetBackendPortNumber();
 
         /// <summary>
+        /// Returns the max number of threads for socket communication between JVM and CLR.
+        /// </summary>
+        int GetBackendThreads();
+
+        /// <summary>
         /// The full path to the .NET worker executable.
         /// </summary>
         string GetWorkerExePath();

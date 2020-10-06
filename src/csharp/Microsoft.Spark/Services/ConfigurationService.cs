@@ -22,6 +22,8 @@ namespace Microsoft.Spark.Services
         private const string DotnetBackendPortEnvVarName = "DOTNETBACKEND_PORT";
         private const int DotnetBackendDebugPort = 5567;
 
+        private const string DotnetBackendThreadsEnvVarName = "DOTNET_SPARK_BACKEND_THREADS";
+
         private static readonly string s_procBaseFileName = "Microsoft.Spark.Worker";
         private static readonly string s_procFileName =
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
@@ -61,6 +63,21 @@ namespace Microsoft.Spark.Services
             _logger.LogInfo($"Using port {portNumber} for connection.");
 
             return portNumber;
+        }
+
+        /// <summary>
+        /// Returns the max number of threads for socket communication between JVM and CLR.
+        /// </summary>
+        public int GetBackendThreads()
+        {
+            if (!int.TryParse(
+                Environment.GetEnvironmentVariable(DotnetBackendThreadsEnvVarName),
+                out int numThreads))
+            {
+                numThreads = 10;
+            }
+
+            return numThreads;
         }
 
         /// <summary>

@@ -31,6 +31,8 @@ namespace Microsoft.Spark.Interop.Ipc
         [ThreadStatic]
         private static MemoryStream s_payloadMemoryStream;
 
+        private readonly SemaphoreSlim _socketSemaphore =
+            new SemaphoreSlim(SparkEnvironment.ConfigurationService.GetBackendThreads());
         private readonly ConcurrentQueue<ISocketWrapper> _sockets =
             new ConcurrentQueue<ISocketWrapper>();
         private readonly ILoggerService _logger =
@@ -54,6 +56,11 @@ namespace Microsoft.Spark.Interop.Ipc
 
         private ISocketWrapper GetConnection()
         {
+            // Limit the number of connections to the JVM backend. Netty is configured
+            // to use a set number of threads to process incoming connections. Each
+            // new connection is delegated to these threads and in a round robin fashion.
+            // A deadlock can occur if a new connection is scheduled on a blocking thread.
+            _socketSemaphore.Wait();
             if (!_sockets.TryDequeue(out ISocketWrapper socket))
             {
                 socket = SocketFactory.CreateSocket();
@@ -240,6 +247,10 @@ namespace Microsoft.Spark.Interop.Ipc
                 _logger.LogException(e);
                 socket?.Dispose();
                 throw;
+            }
+            finally
+            {
+                _socketSemaphore.Release();
             }
 
             return returnValue;
