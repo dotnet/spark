@@ -54,17 +54,17 @@ namespace Microsoft.Spark.Interop.Ipc
             _jvmThreadPoolGC = new JvmThreadPoolGC(
                 _logger, this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval);
 
-            int backendThreads = SparkEnvironment.ConfigurationService.GetBackendThreads();
-            int maxSockets = backendThreads;
-            if (backendThreads >= (2 * SocketBufferThreshold))
+            int numBackendThreads = SparkEnvironment.ConfigurationService.GetNumBackendThreads();
+            int maxNumSockets = numBackendThreads;
+            if (numBackendThreads >= (2 * SocketBufferThreshold))
             {
                 // Set the max number of concurrent sockets to be less than the number of
                 // JVM backend threads to allow some buffer.
-                maxSockets -= SocketBufferThreshold;
+                maxNumSockets -= SocketBufferThreshold;
             }
-            _logger.LogInfo($"JVM backend threads is {backendThreads}. JvMBridge max " +
-                $"concurrent sockets is set to {maxSockets}.");
-            _socketSemaphore = new SemaphoreSlim(maxSockets, maxSockets);
+            _logger.LogInfo($"The number of JVM backend thread is set to {numBackendThreads}. " +
+                $"The max number of concurrent sockets in JvmBridge is set to {maxNumSockets}.");
+            _socketSemaphore = new SemaphoreSlim(maxNumSockets, maxNumSockets);
         }
 
         private ISocketWrapper GetConnection()

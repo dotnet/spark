@@ -24,7 +24,7 @@ namespace Microsoft.Spark.Services
         /// <summary>
         /// Returns the max number of threads for socket communication between JVM and CLR.
         /// </summary>
-        int GetBackendThreads();
+        int GetNumBackendThreads();
 
         /// <summary>
         /// The full path to the .NET worker executable.

@@ -34,7 +34,7 @@ class DotnetBackend extends Logging {
   def init(portNumber: Int): Int = {
     val conf = Option(SparkEnv.get).map(_.conf).getOrElse(new SparkConf())
     val numBackendThreads = conf.get(DOTNET_NUM_BACKEND_THREADS)
-    logInfo(s"Backend threads set to ${DOTNET_NUM_BACKEND_THREADS.key}=$numBackendThreads")
+    logInfo(s"The number of DotnetBackend threads is set to $numBackendThreads.")
     bossGroup = new NioEventLoopGroup(numBackendThreads)
     val workerGroup = bossGroup
 
