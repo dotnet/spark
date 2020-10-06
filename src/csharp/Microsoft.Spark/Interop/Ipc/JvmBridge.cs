@@ -247,8 +247,8 @@ namespace Microsoft.Spark.Interop.Ipc
                 _logger.LogException(e);
 
                 // In rare cases we may hit the Netty connection thread deadlock.
-                // Say if max backend threads is 10. If we are currently using 10
-                // connections (0 in the _sockets queue) and when we hit this exception,
+                // If max backend threads is 10 and we are currently using 10 active
+                // connections (0 in the _sockets queue). When we hit this exception,
                 // the socket?.Dispose() will not requeue this socket and we will release
                 // the semaphore. Then in the next thread (assuming the other 9 connections
                 // are still busy), a new connection will be made to the backend and this
