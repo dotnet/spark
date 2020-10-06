@@ -34,6 +34,18 @@ namespace Microsoft.Spark.Services
         private string _workerPath;
 
         /// <summary>
+        /// How often to run GC on JVM ThreadPool threads. Defaults to 5 minutes.
+        /// </summary>
+        public TimeSpan JvmThreadGCInterval
+        {
+            get
+            {
+                string envVar = Environment.GetEnvironmentVariable("DOTNET_JVM_THREAD_GC_INTERVAL");
+                return string.IsNullOrEmpty(envVar) ? TimeSpan.FromMinutes(5) : TimeSpan.Parse(envVar);
+            }
+        }
+
+        /// <summary>
         /// Returns the port number for socket communication between JVM and CLR.
         /// </summary>
         public int GetBackendPortNumber()
