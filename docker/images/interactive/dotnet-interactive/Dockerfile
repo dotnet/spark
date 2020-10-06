@@ -3,6 +3,7 @@ FROM jupyter/base-notebook:ubuntu-18.04
 ARG NB_USER=jovyan
 ARG NB_UID=1000
 ARG DOTNET_CORE_VERSION=3.1
+ARG DEBIAN_FRONTEND=noninteractive
 
 ENV DOTNET_CORE_VERSION=$DOTNET_CORE_VERSION
 ENV USER ${NB_USER}
@@ -19,7 +20,7 @@ ENV \
 USER root
 
 RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends \
         dialog apt-utils wget ca-certificates openjdk-8-jdk bash software-properties-common supervisor unzip socat net-tools vim \
         libc6 libgcc1 libgssapi-krb5-2 libicu60 libssl1.1 libstdc++6 zlib1g \
     && wget -q --show-progress --progress=bar:force:noscroll https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
