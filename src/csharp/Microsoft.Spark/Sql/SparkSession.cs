@@ -391,9 +391,9 @@ namespace Microsoft.Spark.Sql
         public void Stop() => _jvmObject.Invoke("stop");
 
         /// <summary>
-        /// Get the <see cref="VersionSensor.VersionInfo"/> for the Microsoft.Spark assembly and
-        /// make a "best effort" attempt in determining the version of Microsoft.Spark.Worker
-        /// assembly.
+        /// Get the <see cref="VersionSensor.VersionInfo"/> for the Microsoft.Spark assembly
+        /// running on the Spark Driver and make a "best effort" attempt in determining the version
+        /// of Microsoft.Spark.Worker assembly on the Spark Executors.
         /// </summary>
         /// <returns>
         /// A <see cref="DataFrame"/> containing the <see cref="VersionSensor.VersionInfo"/>
@@ -414,13 +414,11 @@ namespace Microsoft.Spark.Sql
             DataFrame df = CreateDataFrame(Enumerable.Range(0, 10 * numPartitions));
 
             string tempColName = "WorkerVersionInfo";
-            DataFrame workerInfoTempDf = df
+            DataFrame workerInfoDf = df
                 .Repartition(numPartitions)
-                .WithColumn(tempColName, workerInfoUdf(df["_1"]));
-            DataFrame workerInfoDf =
-                workerInfoTempDf.Select(
-                    schema.Fields.Select(
-                        f => Functions.Col($"{tempColName}.{f.Name}")).ToArray());
+                .WithColumn(tempColName, workerInfoUdf(df["_1"]))
+                .Select(schema.Fields.Select(
+                    f => Functions.Col($"{tempColName}.{f.Name}")).ToArray());
 
             return sparkInfoDf
                 .Union(workerInfoDf)
