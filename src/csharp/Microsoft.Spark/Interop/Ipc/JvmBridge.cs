@@ -31,8 +31,9 @@ namespace Microsoft.Spark.Interop.Ipc
         [ThreadStatic]
         private static MemoryStream s_payloadMemoryStream;
 
-        private readonly SemaphoreSlim _socketSemaphore =
-            new SemaphoreSlim(SparkEnvironment.ConfigurationService.GetBackendThreads());
+        private const int SocketBufferThreshold = 3;
+
+        private readonly SemaphoreSlim _socketSemaphore;
         private readonly ConcurrentQueue<ISocketWrapper> _sockets =
             new ConcurrentQueue<ISocketWrapper>();
         private readonly ILoggerService _logger =
@@ -52,6 +53,18 @@ namespace Microsoft.Spark.Interop.Ipc
 
             _jvmThreadPoolGC = new JvmThreadPoolGC(
                 _logger, this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval);
+
+            int backendThreads = SparkEnvironment.ConfigurationService.GetBackendThreads();
+            int maxSockets = backendThreads;
+            if (backendThreads >= (2 * SocketBufferThreshold))
+            {
+                // Set the max number of concurrent sockets to be less than the number of
+                // JVM backend threads to allow some buffer.
+                maxSockets -= SocketBufferThreshold;
+            }
+            _logger.LogInfo($"JVM backend threads is {backendThreads}. JvMBridge max " +
+                $"concurrent sockets is set to {maxSockets}.");
+            _socketSemaphore = new SemaphoreSlim(maxSockets, maxSockets);
         }
 
         private ISocketWrapper GetConnection()
@@ -59,7 +72,8 @@ namespace Microsoft.Spark.Interop.Ipc
             // Limit the number of connections to the JVM backend. Netty is configured
             // to use a set number of threads to process incoming connections. Each
             // new connection is delegated to these threads in a round robin fashion.
-            // A deadlock can occur if a new connection is scheduled on a blocked thread.
+            // A deadlock can occur on the JVM if a new connection is scheduled on a
+            // blocked thread.
             _socketSemaphore.Wait();
             if (!_sockets.TryDequeue(out ISocketWrapper socket))
             {

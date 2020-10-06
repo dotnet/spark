@@ -23,6 +23,7 @@ namespace Microsoft.Spark.Services
         private const int DotnetBackendDebugPort = 5567;
 
         private const string DotnetBackendThreadsEnvVarName = "DOTNET_SPARK_BACKEND_THREADS";
+        private const int DotnetBackendThreadsDefault = 10;
 
         private static readonly string s_procBaseFileName = "Microsoft.Spark.Worker";
         private static readonly string s_procFileName =
@@ -74,7 +75,7 @@ namespace Microsoft.Spark.Services
                 Environment.GetEnvironmentVariable(DotnetBackendThreadsEnvVarName),
                 out int numThreads))
             {
-                numThreads = 10;
+                numThreads = DotnetBackendThreadsDefault;
             }
 
             return numThreads;
