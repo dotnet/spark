@@ -31,6 +31,9 @@ namespace Microsoft.Spark.Interop.Ipc
         [ThreadStatic]
         private static MemoryStream s_payloadMemoryStream;
 
+        private const int SocketBufferThreshold = 3;
+
+        private readonly SemaphoreSlim _socketSemaphore;
         private readonly ConcurrentQueue<ISocketWrapper> _sockets =
             new ConcurrentQueue<ISocketWrapper>();
         private readonly ILoggerService _logger =
@@ -50,10 +53,28 @@ namespace Microsoft.Spark.Interop.Ipc
 
             _jvmThreadPoolGC = new JvmThreadPoolGC(
                 _logger, this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval);
+
+            int numBackendThreads = SparkEnvironment.ConfigurationService.GetNumBackendThreads();
+            int maxNumSockets = numBackendThreads;
+            if (numBackendThreads >= (2 * SocketBufferThreshold))
+            {
+                // Set the max number of concurrent sockets to be less than the number of
+                // JVM backend threads to allow some buffer.
+                maxNumSockets -= SocketBufferThreshold;
+            }
+            _logger.LogInfo($"The number of JVM backend thread is set to {numBackendThreads}. " +
+                $"The max number of concurrent sockets in JvmBridge is set to {maxNumSockets}.");
+            _socketSemaphore = new SemaphoreSlim(maxNumSockets, maxNumSockets);
         }
 
         private ISocketWrapper GetConnection()
         {
+            // Limit the number of connections to the JVM backend. Netty is configured
+            // to use a set number of threads to process incoming connections. Each
+            // new connection is delegated to these threads in a round robin fashion.
+            // A deadlock can occur on the JVM if a new connection is scheduled on a
+            // blocked thread.
+            _socketSemaphore.Wait();
             if (!_sockets.TryDequeue(out ISocketWrapper socket))
             {
                 socket = SocketFactory.CreateSocket();
@@ -238,8 +259,30 @@ namespace Microsoft.Spark.Interop.Ipc
             catch (Exception e)
             {
                 _logger.LogException(e);
-                socket?.Dispose();
+
+                if (e.InnerException is JvmException)
+                {
+                    // DotnetBackendHandler caught JVM exception and passed back to dotnet.
+                    // We can reuse this connection.
+                    _sockets.Enqueue(socket);
+                }
+                else
+                {
+                    // In rare cases we may hit the Netty connection thread deadlock.
+                    // If max backend threads is 10 and we are currently using 10 active
+                    // connections (0 in the _sockets queue). When we hit this exception,
+                    // the socket?.Dispose() will not requeue this socket and we will release
+                    // the semaphore. Then in the next thread (assuming the other 9 connections
+                    // are still busy), a new connection will be made to the backend and this
+                    // connection may be scheduled on the blocked Netty thread.
+                    socket?.Dispose();
+                }
+
                 throw;
+            }
+            finally
+            {
+                _socketSemaphore.Release();
             }
 
             return returnValue;
