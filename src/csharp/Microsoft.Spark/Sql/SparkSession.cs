@@ -395,6 +395,7 @@ namespace Microsoft.Spark.Sql
         /// running on the Spark Driver and make a "best effort" attempt in determining the version
         /// of Microsoft.Spark.Worker assembly on the Spark Executors.
         /// </summary>
+        /// <param name="numPartitions">Number of partitions</param>
         /// <returns>
         /// A <see cref="DataFrame"/> containing the <see cref="VersionSensor.VersionInfo"/>
         /// </returns>
