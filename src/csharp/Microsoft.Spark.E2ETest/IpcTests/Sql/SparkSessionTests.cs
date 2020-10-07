@@ -69,20 +69,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Row[] versionRows = versionDf.Collect().ToArray();
             Assert.Equal(2, versionRows.Length);
 
-            Row sparkVersionInfoRow = versionRows[0];
-            Assert.Equal("Microsoft.Spark", sparkVersionInfoRow.GetAs<string>("AssemblyName"));
-            Assert.False(
-                string.IsNullOrWhiteSpace(sparkVersionInfoRow.GetAs<string>("AssemblyVersion")));
-            Assert.False(
-                string.IsNullOrWhiteSpace(sparkVersionInfoRow.GetAs<string>("HostName")));
-
-            Row workerVersionInfoRow = versionRows[1];
             Assert.Equal(
-                "Microsoft.Spark.Worker", workerVersionInfoRow.GetAs<string>("AssemblyName"));
-            Assert.False(
-                string.IsNullOrWhiteSpace(workerVersionInfoRow.GetAs<string>("AssemblyVersion")));
-            Assert.False(
-                string.IsNullOrWhiteSpace(workerVersionInfoRow.GetAs<string>("HostName")));
+                new string[] { "Microsoft.Spark", "Microsoft.Spark.Worker" },
+                versionRows.Select(r => r.GetAs<string>("AssemblyName")));
+            for (int i = 0; i < 2; ++i)
+            {
+                Assert.False(
+                    string.IsNullOrWhiteSpace(versionRows[i].GetAs<string>("AssemblyVersion")));
+                Assert.False(
+                    string.IsNullOrWhiteSpace(versionRows[i].GetAs<string>("HostName")));
+            }
         }
 
         /// <summary>
