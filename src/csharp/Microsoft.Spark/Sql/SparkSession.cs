@@ -403,23 +403,21 @@ namespace Microsoft.Spark.Sql
         {
             StructType schema = VersionSensor.VersionInfo.s_schema;
 
-            DataFrame sparkInfoDf =
-                CreateDataFrame(
-                    new GenericRow[] { VersionSensor.MicrosoftSparkVersion().ToGenericRow() },
-                    schema);
+            DataFrame sparkInfoDf = CreateDataFrame(
+                new GenericRow[] { VersionSensor.MicrosoftSparkVersion().ToGenericRow() },
+                schema);
 
-            Func<Column, Column> workerInfoUdf =
-                Functions.Udf<int>(
-                    i => VersionSensor.MicrosoftSparkWorkerVersion().ToGenericRow(),
-                    schema);
+            Func<Column, Column> workerInfoUdf = Functions.Udf<int>(
+                i => VersionSensor.MicrosoftSparkWorkerVersion().ToGenericRow(),
+                schema);
             DataFrame df = CreateDataFrame(Enumerable.Range(0, 10 * numPartitions));
 
             string tempColName = "WorkerVersionInfo";
             DataFrame workerInfoDf = df
                 .Repartition(numPartitions)
                 .WithColumn(tempColName, workerInfoUdf(df["_1"]))
-                .Select(schema.Fields.Select(
-                    f => Functions.Col($"{tempColName}.{f.Name}")).ToArray());
+                .Select(
+                    schema.Fields.Select(f => Functions.Col($"{tempColName}.{f.Name}")).ToArray());
 
             return sparkInfoDf
                 .Union(workerInfoDf)

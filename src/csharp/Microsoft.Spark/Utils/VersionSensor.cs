@@ -11,6 +11,10 @@ using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Utils
 {
+    /// <summary>
+    /// Gets the <see cref="VersionInfo"/> for the "Microsoft.Spark" and "Microsoft.Spark.Worker"
+    /// assemblies if they exist within the current execution context of this application domain.
+    /// </summary>
     internal class VersionSensor
     {
         internal static VersionInfo MicrosoftSparkVersion() => s_microsoftSparkVersionInfo.Value;

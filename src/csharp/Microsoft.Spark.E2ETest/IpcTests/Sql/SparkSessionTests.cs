@@ -64,6 +64,25 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<UdfRegistration>(_spark.Udf());
 
             Assert.IsType<Catalog>(_spark.Catalog);
+
+            DataFrame versionDf = _spark.Version();
+            Row[] versionRows = versionDf.Collect().ToArray();
+            Assert.Equal(2, versionRows.Length);
+
+            Row sparkVersionInfoRow = versionRows[0];
+            Assert.Equal("Microsoft.Spark", sparkVersionInfoRow.GetAs<string>("AssemblyName"));
+            Assert.False(
+                string.IsNullOrWhiteSpace(sparkVersionInfoRow.GetAs<string>("AssemblyVersion")));
+            Assert.False(
+                string.IsNullOrWhiteSpace(sparkVersionInfoRow.GetAs<string>("HostName")));
+
+            Row workerVersionInfoRow = versionRows[1];
+            Assert.Equal(
+                "Microsoft.Spark.Worker", workerVersionInfoRow.GetAs<string>("AssemblyName"));
+            Assert.False(
+                string.IsNullOrWhiteSpace(workerVersionInfoRow.GetAs<string>("AssemblyVersion")));
+            Assert.False(
+                string.IsNullOrWhiteSpace(workerVersionInfoRow.GetAs<string>("HostName")));
         }
 
         /// <summary>
