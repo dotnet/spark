@@ -17,35 +17,27 @@ namespace Microsoft.Spark.Utils
     /// </summary>
     internal class VersionSensor
     {
+        private const string MicrosoftSparkAssemblyName = "Microsoft.Spark";
+        private const string MicrosoftSparkWorkerAssemblyName = "Microsoft.Spark.Worker";
+
+        private static readonly Lazy<VersionInfo> s_microsoftSparkVersionInfo =
+            new Lazy<VersionInfo>(() => CreateVersionInfo(MicrosoftSparkAssemblyName));
+
+        private static readonly Lazy<VersionInfo> s_microsoftSparkWorkerVersionInfo =
+            new Lazy<VersionInfo>(() => CreateVersionInfo(MicrosoftSparkWorkerAssemblyName));
+
         internal static VersionInfo MicrosoftSparkVersion() => s_microsoftSparkVersionInfo.Value;
 
         internal static VersionInfo MicrosoftSparkWorkerVersion() =>
             s_microsoftSparkWorkerVersionInfo.Value;
 
-        private static readonly Lazy<VersionInfo> s_microsoftSparkVersionInfo =
-            new Lazy<VersionInfo>(() =>
-            {
-                Assembly assembly =
-                    AppDomain.CurrentDomain
-                        .GetAssemblies()
-                        .SingleOrDefault(asm => asm.GetName().Name == "Microsoft.Spark");
-
-                return CreateVersionInfo(assembly);
-            });
-
-        private static readonly Lazy<VersionInfo> s_microsoftSparkWorkerVersionInfo =
-            new Lazy<VersionInfo>(() =>
-            {
-                Assembly assembly =
-                    AppDomain.CurrentDomain
-                        .GetAssemblies()
-                        .SingleOrDefault(asm => asm.GetName().Name == "Microsoft.Spark.Worker");
-
-                return CreateVersionInfo(assembly);
-            });
-
-        private static VersionInfo CreateVersionInfo(Assembly assembly)
+        private static VersionInfo CreateVersionInfo(string simpleAssemblyName)
         {
+            Assembly assembly = AppDomain
+                .CurrentDomain
+                .GetAssemblies()
+                .SingleOrDefault(asm => asm.GetName().Name == simpleAssemblyName);
+
             AssemblyName asmName = assembly.GetName();
             return new VersionInfo
             {
