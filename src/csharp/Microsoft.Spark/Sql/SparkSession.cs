@@ -6,7 +6,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Spark.Utils;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
@@ -389,41 +388,6 @@ namespace Microsoft.Spark.Sql
         /// Stops the underlying SparkContext.
         /// </summary>
         public void Stop() => _jvmObject.Invoke("stop");
-
-        /// <summary>
-        /// Get the <see cref="VersionSensor.VersionInfo"/> for the Microsoft.Spark assembly
-        /// running on the Spark Driver and make a "best effort" attempt in determining the version
-        /// of Microsoft.Spark.Worker assembly on the Spark Executors.
-        /// </summary>
-        /// <param name="numPartitions">Number of partitions</param>
-        /// <returns>
-        /// A <see cref="DataFrame"/> containing the <see cref="VersionSensor.VersionInfo"/>
-        /// </returns>
-        public DataFrame Version(int numPartitions = 10)
-        {
-            StructType schema = VersionSensor.VersionInfo.s_schema;
-
-            DataFrame sparkInfoDf = CreateDataFrame(
-                new GenericRow[] { VersionSensor.MicrosoftSparkVersion().ToGenericRow() },
-                schema);
-
-            Func<Column, Column> workerInfoUdf = Functions.Udf<int>(
-                i => VersionSensor.MicrosoftSparkWorkerVersion().ToGenericRow(),
-                schema);
-            DataFrame df = CreateDataFrame(Enumerable.Range(0, 10 * numPartitions));
-
-            string tempColName = "WorkerVersionInfo";
-            DataFrame workerInfoDf = df
-                .Repartition(numPartitions)
-                .WithColumn(tempColName, workerInfoUdf(df["_1"]))
-                .Select(
-                    schema.Fields.Select(f => Functions.Col($"{tempColName}.{f.Name}")).ToArray());
-
-            return sparkInfoDf
-                .Union(workerInfoDf)
-                .DropDuplicates()
-                .Sort(schema.Fields.Select(f => Functions.Col(f.Name)).ToArray());
-        }
 
         /// <summary>
         /// Returns a single column schema of the given datatype.

@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
+using Microsoft.Spark.Experimental.Sql;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Catalog;
 using Microsoft.Spark.Sql.Streaming;
