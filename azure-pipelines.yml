@@ -115,7 +115,7 @@ stages:
         condition: and(succeeded(), in(variables['_SignType'], 'real', 'test'), eq(variables['Agent.Os'], 'Windows_NT'))
 
       - task: PowerShell@2
-        displayName: Sign artifacts and Package Microsoft.Spark.Worker
+        displayName: Sign artifacts
         inputs:
           filePath: eng\common\build.ps1
           arguments: -restore -sign
@@ -131,6 +131,8 @@ stages:
           pathtoPublish: '$(ArtifactPath)'
           artifactName:  Microsoft.Spark.Binaries
 
+  # The "Publish" stage is separated out from the "Sign" stage because we need to install powershell module
+  # to zip files correctly for macOS; installing the module is not allowed in NetCoreInternal-Pool.
   - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
     - job: Publish
       dependsOn:
@@ -143,14 +145,15 @@ stages:
           _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
 
       steps:
+      # The following module needs to be installed to zip files correctly for macOS.
+      - powershell: Install-Module -Name Microsoft.PowerShell.Archive -Scope CurrentUser -Force -AllowClobber -Verbose -MinimumVersion 1.2.5
+      
       - task: DownloadBuildArtifacts@0
-        displayName: Download Build Artifacts
+        displayName: Download Signed Artifacts
         inputs:
           artifactName: Microsoft.Spark.Binaries
           downloadPath: $(Build.ArtifactStagingDirectory)
 
-      - powershell: Install-Module -Name Microsoft.PowerShell.Archive -Scope CurrentUser -Force -AllowClobber -Verbose -MinimumVersion 1.2.5
-      
       - task: PowerShell@2
         displayName: Package Microsoft.Spark.Worker
         inputs:
