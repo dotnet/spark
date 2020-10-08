@@ -37,11 +37,12 @@
 
 ### Breaking Changes
 
-* None
+* No backward/forward compatibility between `Microsoft.Spark` and `Microsoft.Spark.Worker` if `version` < 1.0.0
 
 ### Known Issues
 
 * Broadcast variables do not work with [dotnet-interactive](https://github.com/dotnet/interactive) ([#561](https://github.com/dotnet/spark/pull/561))
+* GroupedMap `not` supported on Spark 3.0.0 ([#654](https://github.com/dotnet/spark/issues/654))
 
 ### Supported Spark Versions
 
@@ -87,7 +88,10 @@ The following table outlines the supported Spark versions along with the microso
         </tr>
         <tr>
             <td>3.0.0</td>
-            <td>microsoft-spark-3.0.x-1.0.0.jar</td>
+            <td rowspan=2>microsoft-spark-3.0.x-1.0.0.jar</td>
+        </tr>
+        <tr>
+            <td>3.0.1</td>
         </tr>
     </tbody>
 </table>
