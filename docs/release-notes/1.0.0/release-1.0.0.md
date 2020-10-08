@@ -11,6 +11,7 @@
 * Support `Microsoft.Spark.Sql.Types.ArrayType` and `Microsoft.Spark.Sql.Types.MapType` ([#670](https://github.com/dotnet/spark/pull/670))([#689](https://github.com/dotnet/spark/pull/689))
 * Expose `Microsoft.Spark.Sql.Streaming.StreamingQueryManager` ([#670](https://github.com/dotnet/spark/pull/670))([#690](https://github.com/dotnet/spark/pull/690))
 * Update to `Microsoft.Dotnet.Interactive` 1.0.0-beta.20480.3 in `Microsoft.Spark.Extensions.DotNet.Interactive` ([#694](https://github.com/dotnet/spark/pull/694))
+* Broadcast encryption support ([#489](https://github.com/dotnet/spark/pull/489))
 
 ### Bug Fixes
 
