@@ -31,7 +31,7 @@ namespace Microsoft.Spark.Experimental.Sql
         /// </returns>
         public static DataFrame GetAssemblyInfo(this SparkSession session, int numPartitions = 10)
         {
-            StructType schema = new StructType(new StructField[]
+            var schema = new StructType(new StructField[]
             {
                 new StructField("AssemblyName", new StringType(), isNullable: false),
                 new StructField("AssemblyVersion", new StringType(), isNullable: false),
