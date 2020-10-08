@@ -171,7 +171,7 @@ stages:
           pathtoPublish: '$(ArtifactPath)'
           artifactName:  Microsoft.Spark.Binaries
 
-- stage: Test
+- stage: E2E Tests for Spark 2.3
   displayName: E2E Tests for Spark 2.3
   dependsOn: Build
   jobs:
@@ -213,7 +213,7 @@ stages:
         - '2.3.3'
         - '2.3.4'
 
-- stage: Test
+- stage: E2E Tests for Spark 2.4
   displayName: E2E Tests for Spark 2.4
   dependsOn: Build
   jobs:
@@ -257,7 +257,7 @@ stages:
         - '2.4.6'
         - '2.4.7'
 
-- stage: Test
+- stage: E2E Tests for Spark 3.0
   displayName: E2E Tests for Spark 3.0
   dependsOn: Build
   jobs:
