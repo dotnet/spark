@@ -5,7 +5,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
-using Microsoft.Spark.Experimental.Sql;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Catalog;
 using Microsoft.Spark.Sql.Streaming;
@@ -65,21 +64,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<UdfRegistration>(_spark.Udf());
 
             Assert.IsType<Catalog>(_spark.Catalog);
-
-            DataFrame versionDf = _spark.Version();
-            Row[] versionRows = versionDf.Collect().ToArray();
-            Assert.Equal(2, versionRows.Length);
-
-            Assert.Equal(
-                new string[] { "Microsoft.Spark", "Microsoft.Spark.Worker" },
-                versionRows.Select(r => r.GetAs<string>("AssemblyName")));
-            for (int i = 0; i < 2; ++i)
-            {
-                Assert.False(
-                    string.IsNullOrWhiteSpace(versionRows[i].GetAs<string>("AssemblyVersion")));
-                Assert.False(
-                    string.IsNullOrWhiteSpace(versionRows[i].GetAs<string>("HostName")));
-            }
         }
 
         /// <summary>

@@ -4,16 +4,17 @@
 
 using System;
 using System.Linq;
+using Microsoft.Spark.Experimental.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
-using Microsoft.Spark.Utils;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace Microsoft.Spark.Experimental.Sql
 {
     public static class SparkSessionExtensions
     {
         /// <summary>
-        /// Get the <see cref="VersionSensor.VersionInfo"/> for the Microsoft.Spark assembly
+        /// Get the <see cref="VersionSensor.AssemblyInfo"/> for the Microsoft.Spark assembly
         /// running on the Spark Driver and make a "best effort" attempt in determining the
         /// version of Microsoft.Spark.Worker assembly on the Spark Executors.
         /// 
@@ -25,32 +26,32 @@ namespace Microsoft.Spark.Experimental.Sql
         /// <param name="session">The <see cref="SparkSession"/></param>
         /// <param name="numPartitions">Number of partitions</param>
         /// <returns>
-        /// A <see cref="DataFrame"/> containing the <see cref="VersionSensor.VersionInfo"/>
+        /// A <see cref="DataFrame"/> containing the <see cref="VersionSensor.AssemblyInfo"/>
         /// </returns>
         public static DataFrame Version(this SparkSession session, int numPartitions = 10)
         {
-            StructType schema = VersionSensor.VersionInfo.s_schema;
+            StructType schema = VersionSensor.AssemblyInfo.s_schema;
 
-            DataFrame sparkInfoDf = session.CreateDataFrame(
+            DataFrame driverAssmeblyInfoDf = session.CreateDataFrame(
                 new GenericRow[] { VersionSensor.MicrosoftSparkVersion().ToGenericRow() },
                 schema);
 
-            Func<Column, Column> workerInfoUdf = Functions.Udf<int>(
+            Func<Column, Column> executorAssemblyInfoUdf = Udf<int>(
                 i => VersionSensor.MicrosoftSparkWorkerVersion().ToGenericRow(),
                 schema);
             DataFrame df = session.CreateDataFrame(Enumerable.Range(0, 10 * numPartitions));
 
-            string tempColName = "WorkerVersionInfo";
-            DataFrame workerInfoDf = df
+            string tempColName = "ExecutorAssemblyInfo";
+            DataFrame executorAssemblyInfoDf = df
                 .Repartition(numPartitions)
-                .WithColumn(tempColName, workerInfoUdf(df["_1"]))
+                .WithColumn(tempColName, executorAssemblyInfoUdf(df["_1"]))
                 .Select(
-                    schema.Fields.Select(f => Functions.Col($"{tempColName}.{f.Name}")).ToArray());
+                    schema.Fields.Select(f => Col($"{tempColName}.{f.Name}")).ToArray());
 
-            return sparkInfoDf
-                .Union(workerInfoDf)
+            return driverAssmeblyInfoDf
+                .Union(executorAssemblyInfoDf)
                 .DropDuplicates()
-                .Sort(schema.Fields.Select(f => Functions.Col(f.Name)).ToArray());
+                .Sort(schema.Fields.Select(f => Col(f.Name)).ToArray());
         }
     }
 }
