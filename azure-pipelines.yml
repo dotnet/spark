@@ -171,8 +171,8 @@ stages:
           pathtoPublish: '$(ArtifactPath)'
           artifactName:  Microsoft.Spark.Binaries
 
-- stage: Test
-  displayName: E2E Tests
+- stage: E2E_Tests_2_3
+  displayName: E2E Tests for Spark 2.3
   dependsOn: Build
   jobs:
   - job: Run
@@ -199,9 +199,9 @@ stages:
         targetFolder: $(Build.SourcesDirectory)/src/scala
 
     - task: BatchScript@1
-      displayName: Download Spark Distros & Winutils.exe
+      displayName: Download Winutils.exe
       inputs:
-        filename: script\download-spark-distros.cmd
+        filename: script\download-hadoop-utils.cmd
         arguments: $(Build.BinariesDirectory)
 
     - template: azure-pipelines-e2e-tests-template.yml
@@ -212,6 +212,43 @@ stages:
         - '2.3.2'
         - '2.3.3'
         - '2.3.4'
+
+- stage: E2E_Tests_2_4
+  displayName: E2E Tests for Spark 2.4
+  dependsOn: Build
+  jobs:
+  - job: Run
+    pool: Hosted VS2017
+
+    variables:
+      ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+        _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+      HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
+      DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)
+
+    steps:
+    - task: DownloadBuildArtifacts@0
+      displayName: Download Build Artifacts
+      inputs:
+        artifactName: Microsoft.Spark.Binaries
+        downloadPath: $(Build.ArtifactStagingDirectory)
+
+    - task: CopyFiles@2
+      displayName: Copy jars
+      inputs:
+        sourceFolder: $(ArtifactPath)/Jars
+        contents: '**/*.jar'
+        targetFolder: $(Build.SourcesDirectory)/src/scala
+
+    - task: BatchScript@1
+      displayName: Download Winutils.exe
+      inputs:
+        filename: script\download-hadoop-utils.cmd
+        arguments: $(Build.BinariesDirectory)
+
+    - template: azure-pipelines-e2e-tests-template.yml
+      parameters:
+        versions:
         - '2.4.0'
         - '2.4.1'
         - '2.4.3'
@@ -219,5 +256,42 @@ stages:
         - '2.4.5'
         - '2.4.6'
         - '2.4.7'
+
+- stage: E2E_Tests_3_0
+  displayName: E2E Tests for Spark 3.0
+  dependsOn: Build
+  jobs:
+  - job: Run
+    pool: Hosted VS2017
+
+    variables:
+      ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+        _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+      HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
+      DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)
+
+    steps:
+    - task: DownloadBuildArtifacts@0
+      displayName: Download Build Artifacts
+      inputs:
+        artifactName: Microsoft.Spark.Binaries
+        downloadPath: $(Build.ArtifactStagingDirectory)
+
+    - task: CopyFiles@2
+      displayName: Copy jars
+      inputs:
+        sourceFolder: $(ArtifactPath)/Jars
+        contents: '**/*.jar'
+        targetFolder: $(Build.SourcesDirectory)/src/scala
+
+    - task: BatchScript@1
+      displayName: Download Winutils.exe
+      inputs:
+        filename: script\download-hadoop-utils.cmd
+        arguments: $(Build.BinariesDirectory)
+
+    - template: azure-pipelines-e2e-tests-template.yml
+      parameters:
+        versions:
         - '3.0.0'
         - '3.0.1'
