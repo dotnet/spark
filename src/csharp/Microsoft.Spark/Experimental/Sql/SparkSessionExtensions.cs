@@ -8,15 +8,16 @@ using Microsoft.Spark.Experimental.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using static Microsoft.Spark.Sql.Functions;
+using static Microsoft.Spark.Experimental.Utils.AssemblyInfoProvider;
 
 namespace Microsoft.Spark.Experimental.Sql
 {
     public static class SparkSessionExtensions
     {
         /// <summary>
-        /// Get the <see cref="AssemblyInfoProvider.AssemblyInfo"/> for the "Microsoft.Spark"
-        /// assembly running on the Spark Driver and make a "best effort" attempt in determining
-        /// the <see cref="AssemblyInfoProvider.AssemblyInfo"/> of "Microsoft.Spark.Worker"
+        /// Get the <see cref="AssemblyInfo"/> for the "Microsoft.Spark" assembly running
+        /// on the Spark Driver and make a "best effort" attempt in determining the
+        /// <see cref="AssemblyInfo"/> of "Microsoft.Spark.Worker"
         /// assembly on the Spark Executors.
         /// 
         /// There is no guarantee that a Spark Executor will be run on all the nodes in
@@ -27,18 +28,23 @@ namespace Microsoft.Spark.Experimental.Sql
         /// <param name="session">The <see cref="SparkSession"/></param>
         /// <param name="numPartitions">Number of partitions</param>
         /// <returns>
-        /// A <see cref="DataFrame"/> containing the <see cref="AssemblyInfoProvider.AssemblyInfo"/>
+        /// A <see cref="DataFrame"/> containing the <see cref="AssemblyInfo"/>
         /// </returns>
         public static DataFrame GetAssemblyInfo(this SparkSession session, int numPartitions = 10)
         {
-            StructType schema = AssemblyInfoProvider.Schema();
+            StructType schema = new StructType(new StructField[]
+            {
+                new StructField("AssemblyName", new StringType(), isNullable: false),
+                new StructField("AssemblyVersion", new StringType(), isNullable: false),
+                new StructField("HostName", new StringType(), isNullable: false)
+            });
 
             DataFrame driverAssmeblyInfoDf = session.CreateDataFrame(
-                new GenericRow[] { AssemblyInfoProvider.MicrosoftSparkAssemblyInfo().ToGenericRow() },
+                new GenericRow[] { CreateGenericRow(MicrosoftSparkAssemblyInfo()) },
                 schema);
 
             Func<Column, Column> executorAssemblyInfoUdf = Udf<int>(
-                i => AssemblyInfoProvider.MicrosoftSparkWorkerAssemblyInfo().ToGenericRow(),
+                i => CreateGenericRow(MicrosoftSparkWorkerAssemblyInfo()),
                 schema);
             DataFrame df = session.CreateDataFrame(Enumerable.Range(0, 10 * numPartitions));
 
@@ -53,5 +59,13 @@ namespace Microsoft.Spark.Experimental.Sql
                 .DropDuplicates()
                 .Sort(schema.Fields.Select(f => Col(f.Name)).ToArray());
         }
+
+        private static GenericRow CreateGenericRow(AssemblyInfo assemblyInfo) =>
+            new GenericRow(new object[]
+            {
+                assemblyInfo.AssemblyName,
+                assemblyInfo.AssemblyVersion,
+                assemblyInfo.HostName
+            });
     }
 }
