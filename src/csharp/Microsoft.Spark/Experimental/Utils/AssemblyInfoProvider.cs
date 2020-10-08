@@ -15,28 +15,28 @@ namespace Microsoft.Spark.Experimental.Utils
     /// Gets the <see cref="AssemblyInfo"/> for the "Microsoft.Spark" and "Microsoft.Spark.Worker"
     /// assemblies if they exist within the current execution context of this application domain.
     /// </summary>
-    internal class VersionSensor
+    internal static class AssemblyInfoProvider
     {
         private const string MicrosoftSparkAssemblyName = "Microsoft.Spark";
         private const string MicrosoftSparkWorkerAssemblyName = "Microsoft.Spark.Worker";
 
-        private static readonly Lazy<AssemblyInfo> s_microsoftSparkVersionInfo =
-            new Lazy<AssemblyInfo>(() => CreateVersionInfo(MicrosoftSparkAssemblyName));
+        private static readonly Lazy<AssemblyInfo> s_microsoftSparkAssemblyInfo =
+            new Lazy<AssemblyInfo>(() => CreateAssemblyInfo(MicrosoftSparkAssemblyName));
 
-        private static readonly Lazy<AssemblyInfo> s_microsoftSparkWorkerVersionInfo =
-            new Lazy<AssemblyInfo>(() => CreateVersionInfo(MicrosoftSparkWorkerAssemblyName));
+        private static readonly Lazy<AssemblyInfo> s_microsoftSparkWorkerAssemblyInfo =
+            new Lazy<AssemblyInfo>(() => CreateAssemblyInfo(MicrosoftSparkWorkerAssemblyName));
 
-        internal static AssemblyInfo MicrosoftSparkVersion() => s_microsoftSparkVersionInfo.Value;
+        internal static AssemblyInfo MicrosoftSparkAssemblyInfo() => s_microsoftSparkAssemblyInfo.Value;
 
-        internal static AssemblyInfo MicrosoftSparkWorkerVersion() =>
-            s_microsoftSparkWorkerVersionInfo.Value;
+        internal static AssemblyInfo MicrosoftSparkWorkerAssemblyInfo() =>
+            s_microsoftSparkWorkerAssemblyInfo.Value;
 
-        private static AssemblyInfo CreateVersionInfo(string assemblyName)
+        private static AssemblyInfo CreateAssemblyInfo(string assemblyName)
         {
             Assembly assembly = AppDomain
                 .CurrentDomain
                 .GetAssemblies()
-                .SingleOrDefault(asm => asm.GetName().Name == assemblyName);
+                .Single(asm => asm.GetName().Name == assemblyName);
 
             AssemblyName asmName = assembly.GetName();
             return new AssemblyInfo
