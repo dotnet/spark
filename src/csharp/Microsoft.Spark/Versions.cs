@@ -16,7 +16,7 @@ namespace Microsoft.Spark
 
         // The following is used to check the compatibility of UDFs between
         // the driver and worker side. This needs to be updated only when there
-        // is a breaking change on the UDF contract.
-        internal const string CurrentVersion = "0.9.0";
+        // is a breaking change (major version change) on the UDF contract.
+        internal const string CurrentVersion = "1.0.0";
     }
 }

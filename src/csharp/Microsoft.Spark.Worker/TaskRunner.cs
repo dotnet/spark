@@ -215,16 +215,12 @@ namespace Microsoft.Spark.Worker
 
         private void ValidateVersion(string versionStr)
         {
-            // Initial version was shipped with version "1.0", so this needs to be adjusted
-            // to be compatible going forward.
-            if (versionStr == "1.0")
+            // Worker is compatibile only within the same major version.
+            if (new Version(versionStr).Major != new Version(Versions.CurrentVersion).Major)
             {
-                versionStr = "0.1.0";
-            }
-
-            if (new Version(versionStr) < new Version(Versions.CurrentVersion))
-            {
-                throw new Exception($"Upgrade Microsoft.Spark to '{Versions.CurrentVersion}+' from '{versionStr}+'.");
+                throw new Exception("The major version of the Microsoft.Spark.Worker " +
+                    $"({Versions.CurrentVersion}) does not match with Microsoft.Spark " +
+                    $"({versionStr}) on the driver.");
             }
         }
 
