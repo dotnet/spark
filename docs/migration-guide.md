@@ -2,7 +2,7 @@
 - [Upgrading from Microsoft.Spark 0.x to 1.0](#upgrading-from-microsoft.spark-0.x-to-1.0)
 
 ## Upgrading from Microsoft.Spark 0.x to 1.0
-- `Microsoft.Spark.Worker` should be upgraded to 1.0 as `Microsoft.Spark.Worker` 0.x is not foward-compatible with `Microsoft.Spark` 1.0.
+- `Microsoft.Spark.Worker` should be upgraded to 1.0 as `Microsoft.Spark.Worker` 0.x is not forward-compatible with `Microsoft.Spark` 1.0.
 - `Microsoft.Spark` should be upgraded to 1.0 as `Microsoft.Spark.Worker` 1.0 is not backward-compatible with `Microsoft.Spark` 0.x.
 - `Microsoft.Spark.Experimental` project has been merged into `Microsoft.Spark`
   - `VectorUdf` from `Microsoft.Spark.Sql.ExperimentalFunctions` is now part of `Microsoft.Spark.Sql.ArrowFunctions`.
