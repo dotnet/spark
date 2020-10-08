@@ -218,7 +218,7 @@ namespace Microsoft.Spark.Worker
             // Worker is compatibile only within the same major version.
             if (new Version(versionStr).Major != new Version(Versions.CurrentVersion).Major)
             {
-                throw new Exception("The major version of the Microsoft.Spark.Worker " +
+                throw new Exception("The major version of Microsoft.Spark.Worker " +
                     $"({Versions.CurrentVersion}) does not match with Microsoft.Spark " +
                     $"({versionStr}) on the driver.");
             }
