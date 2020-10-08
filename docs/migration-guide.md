@@ -1,5 +1,5 @@
 # Migration Guide
-- [Upgrading from Microsoft.Spark 0.x to 1.0](#upgrading-from-microsoft.spark-0.x-to-1.0)
+- [Upgrading from Microsoft.Spark 0.x to 1.0](#upgrading-from-microsoftspark-0x-to-10)
 
 ## Upgrading from Microsoft.Spark 0.x to 1.0
 - Limited support for [.NET Framework](https://dotnet.microsoft.com/learn/dotnet/what-is-dotnet-framework). Please migrate to [.NET Core >= 3.1](https://dotnet.microsoft.com/download/dotnet-core) instead.
