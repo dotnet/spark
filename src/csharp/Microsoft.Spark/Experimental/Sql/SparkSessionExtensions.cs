@@ -29,7 +29,7 @@ namespace Microsoft.Spark.Experimental.Sql
         /// <returns>
         /// A <see cref="DataFrame"/> containing the <see cref="AssemblyInfoProvider.AssemblyInfo"/>
         /// </returns>
-        public static DataFrame Version(this SparkSession session, int numPartitions = 10)
+        public static DataFrame GetAssemblyInfo(this SparkSession session, int numPartitions = 10)
         {
             StructType schema = AssemblyInfoProvider.AssemblyInfo.s_schema;
 

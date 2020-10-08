@@ -22,7 +22,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestVersion()
         {
-            DataFrame versionDf = _spark.Version();
+            DataFrame versionDf = _spark.GetAssemblyInfo();
             Row[] versionRows = versionDf.Collect().ToArray();
             Assert.Equal(2, versionRows.Length);
 
