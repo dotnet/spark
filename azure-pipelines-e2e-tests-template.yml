@@ -18,7 +18,7 @@ steps:
     displayName: 'E2E tests for Spark ${{ version }}'
     inputs:
       command: test
-      projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+      projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
       arguments: '--configuration $(buildConfiguration) ${{ parameters.testOptions }}'
     env:
       SPARK_HOME: $(Build.BinariesDirectory)\spark-${{ version }}-bin-hadoop2.7
