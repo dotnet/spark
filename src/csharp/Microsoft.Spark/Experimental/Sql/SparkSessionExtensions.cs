@@ -31,7 +31,7 @@ namespace Microsoft.Spark.Experimental.Sql
         /// </returns>
         public static DataFrame GetAssemblyInfo(this SparkSession session, int numPartitions = 10)
         {
-            StructType schema = AssemblyInfoProvider.AssemblyInfo.s_schema;
+            StructType schema = AssemblyInfoProvider.Schema();
 
             DataFrame driverAssmeblyInfoDf = session.CreateDataFrame(
                 new GenericRow[] { AssemblyInfoProvider.MicrosoftSparkAssemblyInfo().ToGenericRow() },

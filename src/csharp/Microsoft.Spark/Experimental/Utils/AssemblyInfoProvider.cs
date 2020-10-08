@@ -26,10 +26,29 @@ namespace Microsoft.Spark.Experimental.Utils
         private static readonly Lazy<AssemblyInfo> s_microsoftSparkWorkerAssemblyInfo =
             new Lazy<AssemblyInfo>(() => CreateAssemblyInfo(MicrosoftSparkWorkerAssemblyName));
 
+        private static readonly Lazy<StructType> s_schema =
+            new Lazy<StructType>(() => new StructType(
+                new StructField[]
+                {
+                    new StructField("AssemblyName", new StringType(), isNullable: false),
+                    new StructField("AssemblyVersion", new StringType(), isNullable: false),
+                    new StructField("HostName", new StringType(), isNullable: false)
+                }));
+
         internal static AssemblyInfo MicrosoftSparkAssemblyInfo() => s_microsoftSparkAssemblyInfo.Value;
 
         internal static AssemblyInfo MicrosoftSparkWorkerAssemblyInfo() =>
             s_microsoftSparkWorkerAssemblyInfo.Value;
+
+        internal static StructType Schema() => s_schema.Value;
+
+        internal static GenericRow ToGenericRow(this AssemblyInfo assemblyInfo) =>
+            new GenericRow(new object[]
+            {
+                assemblyInfo.AssemblyName,
+                assemblyInfo.AssemblyVersion,
+                assemblyInfo.HostName
+            });
 
         private static AssemblyInfo CreateAssemblyInfo(string assemblyName)
         {
@@ -49,20 +68,9 @@ namespace Microsoft.Spark.Experimental.Utils
 
         internal class AssemblyInfo
         {
-            internal static readonly StructType s_schema = new StructType(
-                new StructField[]
-                {
-                    new StructField("AssemblyName", new StringType(), isNullable: false),
-                    new StructField("AssemblyVersion", new StringType(), isNullable: false),
-                    new StructField("HostName", new StringType(), isNullable: false)
-                });
-
             internal string AssemblyName { get; set; }
             internal string AssemblyVersion { get; set; }
             internal string HostName { get; set; }
-
-            internal GenericRow ToGenericRow() =>
-                new GenericRow(new object[] { AssemblyName, AssemblyVersion, HostName });
         }
     }
 }
