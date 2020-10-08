@@ -41,6 +41,6 @@ RUN chown -R ${NB_UID} ${HOME}
 USER ${USER}
 
 RUN pip install nteract_on_jupyter \
-    && dotnet tool install -g Microsoft.dotnet-interactive --version 1.0.142601 \
+    && dotnet tool install -g Microsoft.dotnet-interactive \
     && dotnet interactive jupyter install
 
