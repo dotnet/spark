@@ -10,9 +10,9 @@ steps:
 - ${{ each version in parameters.versions }}:
   - task: BatchScript@1
     displayName: 'Download Spark Distro ${{ version }}'
-      inputs:
-        filename: script\download-spark-distros.cmd
-        arguments: $(Build.BinariesDirectory) ${{ version }}
+    inputs:
+      filename: script\download-spark-distros.cmd
+      arguments: $(Build.BinariesDirectory) ${{ version }}
 
   - task: DotNetCoreCLI@2
     displayName: 'E2E tests for Spark ${{ version }}'
