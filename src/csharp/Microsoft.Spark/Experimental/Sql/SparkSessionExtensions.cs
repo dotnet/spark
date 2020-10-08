@@ -20,7 +20,7 @@ namespace Microsoft.Spark.Experimental.Sql
         /// 
         /// There is no guarantee that a Spark Executor will be run on all the nodes in
         /// a cluster. To increase the likelyhood, the spark conf `spark.executor.instances`
-        /// and the <paramref name="numPartitions"/> settings should be a adjusted to a
+        /// and the <paramref name="numPartitions"/> settings should be adjusted to a
         /// reasonable number relative to the number of nodes in the Spark cluster.
         /// </summary>
         /// <param name="session">The <see cref="SparkSession"/></param>
