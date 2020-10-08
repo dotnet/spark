@@ -24,7 +24,8 @@ namespace Microsoft.Spark.Experimental.Utils
         private static readonly Lazy<AssemblyInfo> s_microsoftSparkWorkerAssemblyInfo =
             new Lazy<AssemblyInfo>(() => CreateAssemblyInfo(MicrosoftSparkWorkerAssemblyName));
 
-        internal static AssemblyInfo MicrosoftSparkAssemblyInfo() => s_microsoftSparkAssemblyInfo.Value;
+        internal static AssemblyInfo MicrosoftSparkAssemblyInfo() =>
+            s_microsoftSparkAssemblyInfo.Value;
 
         internal static AssemblyInfo MicrosoftSparkWorkerAssemblyInfo() =>
             s_microsoftSparkWorkerAssemblyInfo.Value;
