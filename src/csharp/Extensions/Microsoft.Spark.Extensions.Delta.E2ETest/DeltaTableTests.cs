@@ -325,17 +325,26 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 {
                     new StructField("id", new IntegerType())
                 })));
+        }
 
-            // Some functions are only supported in Delta Lake 0.7+.
-            if (SparkSettings.Version.Major == 3)
-            {
-                string tempViewName = "mytempview";
-                var data = _spark.Read().Format("delta").Load(path);
-                data.CreateOrReplaceTempView(tempViewName);
+        /// <summary>
+        /// Test that Delta Lake 0.7+ methods return the expected signature.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
+        public void TestSpark3Signatures()
+        {
+            using var tempDirectory = new TemporaryDirectory();
+            string path = Path.Combine(tempDirectory.Path, "delta-table");
 
-                Assert.IsType<DeltaTable>(DeltaTable.ForName(tempViewName));
-                Assert.IsType<DeltaTable>(DeltaTable.ForName(_spark, tempViewName));
-            }
+            _spark.Range(15).Write().Format("delta").Save(path);
+
+            DataFrame data = _spark.Read().Format("delta").Load(path);
+
+            string tempViewName = "mytempview";
+            data.CreateOrReplaceTempView(tempViewName);
+
+            Assert.IsType<DeltaTable>(DeltaTable.ForName(tempViewName));
+            Assert.IsType<DeltaTable>(DeltaTable.ForName(_spark, tempViewName));
         }
 
         /// <summary>
