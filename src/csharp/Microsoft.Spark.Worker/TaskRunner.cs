@@ -13,6 +13,7 @@ using Microsoft.Spark.Utils;
 using Microsoft.Spark.Worker.Command;
 using Microsoft.Spark.Worker.Processor;
 using Microsoft.Spark.Worker.Utils;
+using static Microsoft.Spark.Utils.AssemblyInfoProvider;
 
 namespace Microsoft.Spark.Worker
 {
@@ -213,14 +214,15 @@ namespace Microsoft.Spark.Worker
             }
         }
 
-        private void ValidateVersion(string versionStr)
+        private void ValidateVersion(string driverMicrosoftSparkVersion)
         {
+            string workerVersion = MicrosoftSparkWorkerAssemblyInfo().AssemblyVersion;
             // Worker is compatibile only within the same major version.
-            if (new Version(versionStr).Major != new Version(Versions.CurrentVersion).Major)
+            if (new Version(driverMicrosoftSparkVersion).Major != new Version(workerVersion).Major)
             {
                 throw new Exception("The major version of Microsoft.Spark.Worker " +
-                    $"({Versions.CurrentVersion}) does not match with Microsoft.Spark " +
-                    $"({versionStr}) on the driver.");
+                    $"({workerVersion}) does not match with Microsoft.Spark " +
+                    $"({driverMicrosoftSparkVersion}) on the driver.");
             }
         }
 

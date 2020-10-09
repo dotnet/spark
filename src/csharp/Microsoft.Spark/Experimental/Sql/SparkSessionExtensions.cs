@@ -6,7 +6,7 @@ using System;
 using System.Linq;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
-using static Microsoft.Spark.Experimental.Utils.AssemblyInfoProvider;
+using static Microsoft.Spark.Utils.AssemblyInfoProvider;
 using static Microsoft.Spark.Sql.Functions;
 
 namespace Microsoft.Spark.Experimental.Sql
