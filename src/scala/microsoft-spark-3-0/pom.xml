@@ -6,7 +6,7 @@
     <artifactId>microsoft-spark</artifactId>
     <version>${microsoft-spark.version}</version>
   </parent>
-  <artifactId>microsoft-spark-3.0.x</artifactId>
+  <artifactId>microsoft-spark-3-0_2.12</artifactId>
   <inceptionYear>2019</inceptionYear>
   <properties>
     <encoding>UTF-8</encoding>
