@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Spark.E2ETest;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Extensions.Delta.Tables;
 using Microsoft.Spark.Sql;
@@ -324,6 +325,17 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 {
                     new StructField("id", new IntegerType())
                 })));
+
+            // Some functions are only supported in Delta Lake 0.7+.
+            if (SparkSettings.Version.Major == 3)
+            {
+                string tempViewName = "mytempview";
+                var data = _spark.Read().Format("delta").Load(path);
+                data.CreateOrReplaceTempView(tempViewName);
+
+                Assert.IsType<DeltaTable>(DeltaTable.ForName(tempViewName));
+                Assert.IsType<DeltaTable>(DeltaTable.ForName(_spark, tempViewName));
+            }
         }
 
         /// <summary>
