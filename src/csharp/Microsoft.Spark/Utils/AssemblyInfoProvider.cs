@@ -7,11 +7,12 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 
-namespace Microsoft.Spark.Experimental.Utils
+namespace Microsoft.Spark.Utils
 {
     /// <summary>
-    /// Gets the <see cref="AssemblyInfo"/> for the "Microsoft.Spark" and "Microsoft.Spark.Worker"
-    /// assemblies if they exist within the current execution context of this application domain.
+    /// Provides the <see cref="AssemblyInfo"/> for the "Microsoft.Spark" and
+    /// "Microsoft.Spark.Worker" assemblies if they exist within the current execution
+    /// context of this application domain.
     /// </summary>
     internal static class AssemblyInfoProvider
     {
