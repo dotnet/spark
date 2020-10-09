@@ -35,12 +35,16 @@
     <PackageReference Include="Razorvine.Pyrolite" Version="4.26.0" />
     <PackageReference Include="System.Memory" Version="4.5.2" />
     <PackageReference Include="Apache.Arrow" Version="2.0.0-SNAPSHOT" />
-    <PackageReference Include="Microsoft.Data.Analysis" Version="0.5.0-dev" />
+    <!--<PackageReference Include="Microsoft.Data.Analysis" Version="0.5.0-dev" />-->
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="..\..\scala\microsoft-spark-*\target\microsoft-spark-*.jar" Link="jars\%(Filename)%(Extension)" Pack="true" PackagePath="jars\%(Filename)%(Extension)" />
     <Content Include="build\**" Pack="true" PackagePath="build" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\corefxlab\src\Microsoft.Data.Analysis\Microsoft.Data.Analysis.csproj" />
   </ItemGroup>
 
   <!--<ItemGroup>

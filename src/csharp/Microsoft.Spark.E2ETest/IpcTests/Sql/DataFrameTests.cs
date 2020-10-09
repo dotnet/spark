@@ -430,7 +430,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
         private static FxDataFrame CountCharacters(FxDataFrame dataFrame)
         {
-            //Debugger.Launch();
             int characterCount = 0;
 
             var characterCountColumn = new Int32DataFrameColumn("nameCharCount");
