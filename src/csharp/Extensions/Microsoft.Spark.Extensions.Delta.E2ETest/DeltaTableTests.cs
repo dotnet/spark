@@ -225,7 +225,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// Test that methods return the expected signature.
         /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
-        public void TestSignatures()
+        public void TestSignaturesV2_4_X()
         {
             using var tempDirectory = new TemporaryDirectory();
             string path = Path.Combine(tempDirectory.Path, "delta-table");
