@@ -34,6 +34,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="Razorvine.Pyrolite" Version="4.26.0" />
     <PackageReference Include="System.Memory" Version="4.5.2" />
+    <PackageReference Include="Apache.Arrow" Version="2.0.0-SNAPSHOT" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,9 +42,9 @@
     <Content Include="build\**" Pack="true" PackagePath="build" />
   </ItemGroup>
 
-  <ItemGroup>
+  <!--<ItemGroup>
     <ProjectReference Include="..\..\..\..\arrow\csharp\src\Apache.Arrow\Apache.Arrow.csproj" />
-  </ItemGroup>
+  </ItemGroup>-->
 
   <!--<ItemGroup>
     <Reference Include="Apache.Arrow">
