@@ -12,6 +12,7 @@
 * Expose `Microsoft.Spark.Sql.Streaming.StreamingQueryManager` ([#670](https://github.com/dotnet/spark/pull/670))([#690](https://github.com/dotnet/spark/pull/690))
 * Update to `Microsoft.Dotnet.Interactive` 1.0.0-beta.20480.3 in `Microsoft.Spark.Extensions.DotNet.Interactive` ([#694](https://github.com/dotnet/spark/pull/694))
 * Broadcast encryption support ([#489](https://github.com/dotnet/spark/pull/489))
+* Support for Delta Lake 0.7.0 ([#692](https://github.com/dotnet/spark/pull/692))([#727](https://github.com/dotnet/spark/pull/727))
 
 ### Bug Fixes
 
@@ -22,7 +23,7 @@
 
 ### Infrastructure / Documentation / Etc.
 
-* Update Delta Lake tests against Delta Lake 0.6.1 ([#588](https://github.com/dotnet/spark/pull/588))
+* Update Delta Lake tests against Delta Lake 0.6.1 and Delta Lake 0.7.0/Spark 3.0 ([#588](https://github.com/dotnet/spark/pull/588))([#692](https://github.com/dotnet/spark/pull/692))
 * Add more `DataFrame` examples ([#599](https://github.com/dotnet/spark/pull/599))
 * Update ubuntu instructions by prepending current directory in sample command ([#603](https://github.com/dotnet/spark/pull/603))
 * [Delta Lake](https://github.com/delta-io/delta) version annotations to `Microsoft.Spark.Extensions.Delta` ([#632](https://github.com/dotnet/spark/pull/632))
@@ -34,6 +35,7 @@
 * Move `Microsoft.Spark.Experimental` to `Microsoft.Spark` ([#691](https://github.com/dotnet/spark/pull/691))
 * Fix `DaemonWorkerTests.TestsDaemonWorkerTaskRunners` and `CallbackTests.TestCallbackServer` tests ([#699](https://github.com/dotnet/spark/pull/699))
 * Improve build pipeline ([#667](https://github.com/dotnet/spark/pull/667))([#692](https://github.com/dotnet/spark/pull/692))([#697](https://github.com/dotnet/spark/pull/697))([#705](https://github.com/dotnet/spark/pull/705))([#717](https://github.com/dotnet/spark/pull/717))([#719](https://github.com/dotnet/spark/pull/719))([#720](https://github.com/dotnet/spark/pull/720))
+* `microsoft-spark` jar renamed. ([#293](https://github.com/dotnet/spark/pull/293))([#728](https://github.com/dotnet/spark/pull/728))([#729](https://github.com/dotnet/spark/pull/729))
 
 
 ### Breaking Changes
@@ -60,11 +62,11 @@ The following table outlines the supported Spark versions along with the microso
     <tbody align="center">
         <tr>
             <td>2.3.*</td>
-            <td>microsoft-spark-2.3.x-1.0.0.jar</td>
+            <td>microsoft-spark-2-3_2.11-1.0.0.jar</td>
         </tr>
         <tr>
             <td>2.4.0</td>
-            <td rowspan=7>microsoft-spark-2.4.x-1.0.0.jar</td>
+            <td rowspan=7>microsoft-spark-2-4_2.11-1.0.0.jar</td>
         </tr>
         <tr>
             <td>2.4.1</td>
@@ -90,7 +92,7 @@ The following table outlines the supported Spark versions along with the microso
         </tr>
         <tr>
             <td>3.0.0</td>
-            <td rowspan=2>microsoft-spark-3.0.x-1.0.0.jar</td>
+            <td rowspan=2>microsoft-spark-3-0_2.12-1.0.0.jar</td>
         </tr>
         <tr>
             <td>3.0.1</td>
