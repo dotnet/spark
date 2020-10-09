@@ -13,6 +13,8 @@
 * Update to `Microsoft.Dotnet.Interactive` 1.0.0-beta.20480.3 in `Microsoft.Spark.Extensions.DotNet.Interactive` ([#694](https://github.com/dotnet/spark/pull/694))
 * Broadcast encryption support ([#489](https://github.com/dotnet/spark/pull/489))
 * Support for Delta Lake 0.7.0 ([#692](https://github.com/dotnet/spark/pull/692))([#727](https://github.com/dotnet/spark/pull/727))
+* Helper method that returns a `DataFrame` containing the `Microsoft.Spark` and `Microsoft.Spark.Worker` assembly version info. ([#715](https://github.com/dotnet/spark/pull/715)
+* Update version check logic on the `Microsoft.Spark.Worker`. ([#718](https://github.com/dotnet/spark/pull/718)
 
 ### Bug Fixes
 
@@ -34,13 +36,13 @@
 * Remove `Microsoft.Spark.Extensions.Azure.Synapse.Analytics` from repo ([#687](https://github.com/dotnet/spark/pull/687))
 * Move `Microsoft.Spark.Experimental` to `Microsoft.Spark` ([#691](https://github.com/dotnet/spark/pull/691))
 * Fix `DaemonWorkerTests.TestsDaemonWorkerTaskRunners` and `CallbackTests.TestCallbackServer` tests ([#699](https://github.com/dotnet/spark/pull/699))
-* Improve build pipeline ([#667](https://github.com/dotnet/spark/pull/667))([#692](https://github.com/dotnet/spark/pull/692))([#697](https://github.com/dotnet/spark/pull/697))([#705](https://github.com/dotnet/spark/pull/705))([#717](https://github.com/dotnet/spark/pull/717))([#719](https://github.com/dotnet/spark/pull/719))([#720](https://github.com/dotnet/spark/pull/720))
+* Improve build pipeline ([#348](https://github.com/dotnet/spark/pull/348))([#667](https://github.com/dotnet/spark/pull/667))([#692](https://github.com/dotnet/spark/pull/692))([#697](https://github.com/dotnet/spark/pull/697))([#705](https://github.com/dotnet/spark/pull/705))([#717](https://github.com/dotnet/spark/pull/717))([#719](https://github.com/dotnet/spark/pull/719))([#720](https://github.com/dotnet/spark/pull/720))([#724](https://github.com/dotnet/spark/pull/724))
 * `microsoft-spark` jar renamed. ([#293](https://github.com/dotnet/spark/pull/293))([#728](https://github.com/dotnet/spark/pull/728))([#729](https://github.com/dotnet/spark/pull/729))
 
 
 ### Breaking Changes
 
-* No backward/forward compatibility between `Microsoft.Spark` and `Microsoft.Spark.Worker` if `version` < 1.0.0
+* Prior versions (`version` < `1.0`) of `Microsoft.Spark` and `Microsoft.Spark.Worker` are no longer compatible with `1.0`. If you are planning to upgrade to `1.0`, please check the [migration guide](../../migration-guide.md).
 
 ### Known Issues
 
