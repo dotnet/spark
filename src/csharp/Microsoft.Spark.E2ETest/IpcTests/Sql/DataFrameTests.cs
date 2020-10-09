@@ -380,7 +380,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 returnLength);
         }
 
-        //[SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
         [Fact]
         public void TestDataFrameGroupedMapUdf()
         {

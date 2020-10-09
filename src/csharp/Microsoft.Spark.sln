@@ -39,8 +39,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Hyperspace.E2ETest", "Extensions\Microsoft.Spark.Extensions.Hyperspace.E2ETest\Microsoft.Spark.Extensions.Hyperspace.E2ETest.csproj", "{C6019E44-C777-4DE2-B70E-EA025B7D044D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Analysis", "..\..\..\corefxlab\src\Microsoft.Data.Analysis\Microsoft.Data.Analysis.csproj", "{FB540934-AB2E-4CDD-8364-FA4A01081CEC}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,10 +101,6 @@ Global
 		{C6019E44-C777-4DE2-B70E-EA025B7D044D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6019E44-C777-4DE2-B70E-EA025B7D044D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6019E44-C777-4DE2-B70E-EA025B7D044D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FB540934-AB2E-4CDD-8364-FA4A01081CEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FB540934-AB2E-4CDD-8364-FA4A01081CEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FB540934-AB2E-4CDD-8364-FA4A01081CEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FB540934-AB2E-4CDD-8364-FA4A01081CEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
