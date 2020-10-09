@@ -336,15 +336,11 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
             using var tempDirectory = new TemporaryDirectory();
             string path = Path.Combine(tempDirectory.Path, "delta-table");
 
-            _spark.Range(15).Write().Format("delta").Save(path);
+            string tableName = "my_new_table";
+            _spark.Range(15).Write().Format("delta").SaveAsTable(tableName);
 
-            DataFrame data = _spark.Read().Format("delta").Load(path);
-
-            string tempViewName = "mytempview";
-            data.CreateOrReplaceTempView(tempViewName);
-
-            Assert.IsType<DeltaTable>(DeltaTable.ForName(tempViewName));
-            Assert.IsType<DeltaTable>(DeltaTable.ForName(_spark, tempViewName));
+            Assert.IsType<DeltaTable>(DeltaTable.ForName(tableName));
+            Assert.IsType<DeltaTable>(DeltaTable.ForName(_spark, tableName));
         }
 
         /// <summary>
