@@ -160,11 +160,12 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
                     path));
 
         /// <summary>
-        /// Create a DeltaTable using the given table or view name using the given SparkSession.
+        /// Create a <see cref="DeltaTable"/> using the given table or view name using the given
+        /// <see cref="SparkSession"/>.
         ///
-        /// Note: This uses the active SparkSession in the current thread to read the table data. Hence,
-        /// this throws error if active SparkSession has not been set, that is,
-        /// <c>SparkSession.GetActiveSession()</c> is empty.
+        /// Note: This uses the active <see cref="SparkSession"/> in the current thread to read the
+        /// table data. Hence, this throws error if active <see cref="SparkSession"/> has not been
+        /// set, that is, <c>SparkSession.GetActiveSession()</c> is empty.
         /// </summary>
         /// <param name="tableOrViewName">Name of table or view to use.</param>
         /// <returns></returns>
@@ -178,7 +179,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
 
         /// <summary>
         /// Create a <see cref="DeltaTable"/> using the given table or view name using the given
-        /// see cref="SparkSession"/>.
+        /// <see cref="SparkSession"/>.
         /// </summary>
         /// <param name="sparkSession">The active SparkSession.</param>
         /// <param name="tableOrViewName">Name of table or view to use.</param>
