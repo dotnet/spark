@@ -333,9 +333,6 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
         public void TestSignaturesV3_0_X()
         {
-            using var tempDirectory = new TemporaryDirectory();
-            string path = Path.Combine(tempDirectory.Path, "delta-table");
-
             string tableName = "my_new_table";
             _spark.Range(15).Write().Format("delta").SaveAsTable(tableName);
 
