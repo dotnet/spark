@@ -113,8 +113,9 @@ cd src/scala
 mvn clean package 
 ```
 You should see JARs created for the supported Spark versions:
-* `microsoft-spark-2.3.x/target/microsoft-spark-2.3.x-<version>.jar`
-* `microsoft-spark-2.4.x/target/microsoft-spark-2.4.x-<version>.jar`
+* `microsoft-spark-2-3/target/microsoft-spark-2-3_2.11-<version>.jar`
+* `microsoft-spark-2-4/target/microsoft-spark-2-4_2.11-<version>.jar`
+* `microsoft-spark-3-0/target/microsoft-spark-3-0_2.12-<version>.jar`
 
 ## Building .NET Sample Applications using .NET Core CLI
 
