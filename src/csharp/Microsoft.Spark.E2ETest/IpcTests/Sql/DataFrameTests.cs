@@ -21,6 +21,7 @@ using DataFrame = Microsoft.Spark.Sql.DataFrame;
 using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 using Int32Type = Apache.Arrow.Types.Int32Type;
 using ArrowStructType = Apache.Arrow.Types.StructType;
+using System.Diagnostics;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
@@ -379,8 +380,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 returnLength);
         }
 
-        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
-        //[Fact]
+        //[SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
+        [Fact]
         public void TestDataFrameGroupedMapUdf()
         {
             DataFrame df = _spark
@@ -429,6 +430,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
         private static FxDataFrame CountCharacters(FxDataFrame dataFrame)
         {
+            //Debugger.Launch();
             int characterCount = 0;
 
             var characterCountColumn = new Int32DataFrameColumn("nameCharCount");

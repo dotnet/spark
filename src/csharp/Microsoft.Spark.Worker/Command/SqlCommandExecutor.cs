@@ -794,7 +794,10 @@ namespace Microsoft.Spark.Worker.Command
             {
                 FxDataFrame dataFrame = FxDataFrame.FromArrowRecordBatch(input);
                 FxDataFrame resultDataFrame = worker.Func(dataFrame);
-                IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToArrowRecordBatches();
+
+                //StructArray structs = new StructArray()
+                //IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToArrowRecordBatches();
+                IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToSparkRecordBatches();
 
                 foreach (RecordBatch result in recordBatches)
                 {
