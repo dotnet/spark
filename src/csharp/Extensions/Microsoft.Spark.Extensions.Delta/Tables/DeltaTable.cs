@@ -160,6 +160,39 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
                     path));
 
         /// <summary>
+        /// Create a DeltaTable using the given table or view name using the given SparkSession.
+        ///
+        /// Note: This uses the active SparkSession in the current thread to read the table data. Hence,
+        /// this throws error if active SparkSession has not been set, that is,
+        /// <c>SparkSession.GetActiveSession()</c> is empty.
+        /// </summary>
+        /// <param name="tableOrViewName">Name of table or view to use.</param>
+        /// <returns></returns>
+        [DeltaLakeSince(DeltaLakeVersions.V0_7_0)]
+        public static DeltaTable ForName(string tableOrViewName) =>
+            new DeltaTable(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_deltaTableClassName,
+                    "forName",
+                    tableOrViewName));
+
+        /// <summary>
+        /// Create a <see cref="DeltaTable"/> using the given table or view name using the given
+        /// see cref="SparkSession"/>.
+        /// </summary>
+        /// <param name="sparkSession">The active SparkSession.</param>
+        /// <param name="tableOrViewName">Name of table or view to use.</param>
+        /// <returns></returns>
+        [DeltaLakeSince(DeltaLakeVersions.V0_7_0)]
+        public static DeltaTable ForName(SparkSession sparkSession, string tableOrViewName) =>
+            new DeltaTable(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_deltaTableClassName,
+                    "forName",
+                    sparkSession,
+                    tableOrViewName));
+
+        /// <summary>
         /// Check if the provided <c>identifier</c> string, in this case a file path,
         /// is the root of a Delta table using the given SparkSession.
         ///
