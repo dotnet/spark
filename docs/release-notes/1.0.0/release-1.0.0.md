@@ -43,6 +43,7 @@
 ### Known Issues
 
 * Broadcast variables do not work with [dotnet-interactive](https://github.com/dotnet/interactive) ([#561](https://github.com/dotnet/spark/pull/561))
+* UDFs defined using class objects with closures does not work with [dotnet-interactive](https://github.com/dotnet/interactive) ([#619](https://github.com/dotnet/spark/pull/619))
 * GroupedMap `not` supported on Spark 3.0.0 ([#654](https://github.com/dotnet/spark/issues/654))
 
 ### Supported Spark Versions
@@ -93,6 +94,68 @@ The following table outlines the supported Spark versions along with the microso
         </tr>
         <tr>
             <td>3.0.1</td>
+        </tr>
+    </tbody>
+</table>
+
+### Supported Delta Versions
+
+The following table outlines the supported Delta versions along with the Microsoft.Spark.Extensions to use with:
+
+<table>
+    <thead>
+        <tr>
+            <th>Delta Version</th>
+            <th>Microsoft.Spark.Extensions.Delta</th>
+        </tr>
+    </thead>
+    <tbody align="center">
+        <tr>
+            <td>0.1.0</td>
+            <td rowspan=8>1.0.0</td>
+        </tr>
+        <tr>
+            <td>0.2.0</td>
+        </tr>
+        <tr>
+            <td>0.3.0</td>
+        </tr>
+        <tr>
+            <td>0.4.0</td>
+        </tr>
+        <tr>
+            <td>0.5.0</td>
+        </tr>
+        <tr>
+            <td>0.6.0</td>
+        </tr>
+        <tr>
+            <td>0.6.1</td>
+        </tr>
+        <tr>
+            <td>0.7.0</td>
+        </tr>
+    </tbody>
+</table>
+
+### Supported Hyperspace Versions
+
+The following table outlines the supported Hyperspace versions along with the Microsoft.Spark.Extensions to use with:
+
+<table>
+    <thead>
+        <tr>
+            <th>Hyperspace Version</th>
+            <th>Microsoft.Spark.Extensions.Hyperspace</th>
+        </tr>
+    </thead>
+    <tbody align="center">
+        <tr>
+            <td>0.1.0</td>
+            <td rowspan=2>1.0.0</td>
+        </tr>
+        <tr>
+            <td>0.2.0</td>
         </tr>
     </tbody>
 </table>
