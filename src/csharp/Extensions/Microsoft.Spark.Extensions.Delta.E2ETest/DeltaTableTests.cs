@@ -331,7 +331,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// Test that Delta Lake 0.7+ methods return the expected signature.
         /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
-        public void TestSpark3Signatures()
+        public void TestSignaturesV3_0_X()
         {
             using var tempDirectory = new TemporaryDirectory();
             string path = Path.Combine(tempDirectory.Path, "delta-table");
