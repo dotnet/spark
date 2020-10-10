@@ -23,8 +23,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             string expectedInputCol = "input_col";
             string expectedOutputCol = "output_col";
 
-            var input = _spark.Sql("SELECT 'hello I AM a string TO, StopWordsRemover' as input_col" +
-                                   " from range(100)");
+            var input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as text");
             input.Show(5);
 
             var stopWordsRemover = new StopWordsRemover(expectedUid)
@@ -33,22 +32,22 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             var output = stopWordsRemover.Transform(input);
             output.Show(5);
-            // Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
+            Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
             Assert.Equal(expectedInputCol, stopWordsRemover.GetInputCol());
             Assert.Equal(expectedOutputCol, stopWordsRemover.GetOutputCol());
 
-            // using (var tempDirectory = new TemporaryDirectory())
-            // {
-            //     string savePath = Path.Join(tempDirectory.Path, "StopWordsRemover");
-            //     stopWordsRemover.Save(savePath);
-            //
-            //     var loadedStopWordsRemover = Tokenizer.Load(savePath);
-            //     Assert.Equal(stopWordsRemover.Uid(), loadedStopWordsRemover.Uid());
-            // }
-            //
-            // Assert.Equal(expectedUid, stopWordsRemover.Uid());
-            //
-            // TestFeatureBase(stopWordsRemover, "inputCol", "input_col");
+            using (var tempDirectory = new TemporaryDirectory())
+            {
+                string savePath = Path.Join(tempDirectory.Path, "StopWordsRemover");
+                stopWordsRemover.Save(savePath);
+
+                var loadedStopWordsRemover = Tokenizer.Load(savePath);
+                Assert.Equal(stopWordsRemover.Uid(), loadedStopWordsRemover.Uid());
+            }
+
+            Assert.Equal(expectedUid, stopWordsRemover.Uid());
+
+            TestFeatureBase(stopWordsRemover, "inputCol", "input_col");
         }
     }
 }
