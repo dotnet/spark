@@ -22,7 +22,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             string expectedUid = "theUid";
             string expectedInputCol = "input_col";
             string expectedOutputCol = "output_col";
-            string expectedLocale = "en_GB";
+            string expectedLocale = "ru";
             bool expectedCaseSensitive = true;
             var expectedStopWords = new string[] {"test1", "test2"};
 
