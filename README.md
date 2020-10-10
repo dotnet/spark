@@ -38,42 +38,19 @@
     </thead>
     <tbody align="center">
         <tr>
-            <td >2.3.*</td>
-            <td rowspan=10><a href="https://github.com/dotnet/spark/releases/tag/v1.0.0">v1.0.0</a></td>
+            <td >2.3</td>
+            <td rowspan=3><a href="https://github.com/dotnet/spark/releases/tag/v1.0.0">v1.0.0</a></td>
         </tr>
         <tr>
-            <td>2.4.0</td>
+            <td>2.4*</td>
         </tr>
         <tr>
-            <td>2.4.1</td>
-        </tr>
-        <tr>
-            <td>2.4.3</td>
-        </tr>
-        <tr>
-            <td>2.4.4</td>
-        </tr>
-        <tr>
-            <td>2.4.5</td>
-        </tr>
-        <tr>
-            <td>2.4.6</td>
-        </tr>
-        <tr>
-            <td>2.4.7</td>
-        </tr>
-        <tr>
-            <td>3.0.0</td>
-        </tr>
-        <tr>
-            <td>3.0.1</td>
-        </tr>
-        <tr>
-            <td>2.4.2</td>
-            <td><a href="https://github.com/dotnet/spark/issues/60">Not supported</a></td>
+            <td>3.0</td>
         </tr>
     </tbody>
 </table>
+
+*2.4.2 is <a href="https://github.com/dotnet/spark/issues/60">not supported</a>.
 
 ## Releases
 
