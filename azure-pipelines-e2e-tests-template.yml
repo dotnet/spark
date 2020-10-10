@@ -6,19 +6,52 @@ parameters:
   type: string
   default: ''
 
-steps:
+stages:
 - ${{ each version in parameters.versions }}:
-  - task: BatchScript@1
-    displayName: 'Download Spark Distro ${{ version }}'
-    inputs:
-      filename: script\download-spark-distros.cmd
-      arguments: $(Build.BinariesDirectory) ${{ version }}
+  - stage: E2E_Tests_${{ replace(version, '.', '_') }}
+    displayName: E2E tests for Spark ${{ version }}
+    dependsOn: Build
+    jobs:
+    - job: Run
+      pool: Hosted VS2017
+  
+      variables:
+        ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+          _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+        HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
+        DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)
 
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark ${{ version }}'
-    inputs:
-      command: test
-      projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) ${{ parameters.testOptions }}'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-${{ version }}-bin-hadoop2.7
+      steps:
+      - task: DownloadBuildArtifacts@0
+        displayName: Download Build Artifacts
+        inputs:
+          artifactName: Microsoft.Spark.Binaries
+          downloadPath: $(Build.ArtifactStagingDirectory)
+
+      - task: CopyFiles@2
+        displayName: Copy jars
+        inputs:
+          sourceFolder: $(ArtifactPath)/Jars
+          contents: '**/*.jar'
+          targetFolder: $(Build.SourcesDirectory)/src/scala
+
+      - task: BatchScript@1
+        displayName: Download Winutils.exe
+        inputs:
+          filename: script\download-hadoop-utils.cmd
+          arguments: $(Build.BinariesDirectory)
+
+      - task: BatchScript@1
+        displayName: 'Download Spark Distro ${{ version }}'
+        inputs:
+          filename: script\download-spark-distros.cmd
+          arguments: $(Build.BinariesDirectory) ${{ version }}
+
+      - task: DotNetCoreCLI@2
+        displayName: 'E2E tests'
+        inputs:
+          command: test
+          projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+          arguments: '--configuration $(buildConfiguration) ${{ parameters.testOptions }}'
+        env:
+          SPARK_HOME: $(Build.BinariesDirectory)\spark-${{ version }}-bin-hadoop2.7
