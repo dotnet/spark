@@ -31,7 +31,7 @@ namespace Microsoft.Spark.UnitTest.TestUtils
         public static IArrowType GetArrowType<T>()
         {
             Type type = typeof(T);
-            IArrowType arrowType = type switch
+            return type switch
             {
                 _ when type == typeof(bool) => BooleanType.Default,
                 _ when type == typeof(sbyte) => Int8Type.Default,
