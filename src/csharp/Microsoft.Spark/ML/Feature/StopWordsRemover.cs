@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 
@@ -39,7 +40,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Sets the column that the <see cref="StopWordsRemover"/> should read from
         /// </summary>
         /// <param name="value">The name of the column to as the source</param>
-        /// <returns>New <see cref="Tokenizer"/> object</returns>
+        /// <returns>New <see cref="StopWordsRemover"/> object</returns>
         public StopWordsRemover SetInputCol(string value) =>
             WrapAsStopWordsRemover(_jvmObject.Invoke("setInputCol", value));
 
@@ -47,12 +48,12 @@ namespace Microsoft.Spark.ML.Feature
         /// Sets the column that the <see cref="StopWordsRemover"/> to save the result
         /// </summary>
         /// <param name="value">The name of the column to as the target</param>
-        /// <returns>New <see cref="Tokenizer"/> object</returns>
+        /// <returns>New <see cref="StopWordsRemover"/> object</returns>
         public StopWordsRemover SetOutputCol(string value) =>
             WrapAsStopWordsRemover(_jvmObject.Invoke("setOutputCol", value));
 
         /// <summary>
-        /// Executes the <see cref="Tokenizer"/> and transforms the DataFrame to include the new
+        /// Executes the <see cref="StopWordsRemover"/> and transforms the DataFrame to include the new
         /// column
         /// </summary>
         /// <param name="source">The DataFrame to transform</param>
@@ -74,6 +75,18 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <returns>string, the output column</returns>
         public string GetOutputCol() => (string)(_jvmObject.Invoke("getOutputCol"));
+
+        /// <summary>
+        /// Loads the <see cref="StopWordsRemover"/> that was previously saved using Save
+        /// </summary>
+        /// <param name="path">The path the previous <see cref="StopWordsRemover"/> was saved to</param>
+        /// <returns>New <see cref="StopWordsRemover"/> object, loaded from path</returns>
+        public static StopWordsRemover Load(string path)
+        {
+            return WrapAsStopWordsRemover(
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_stopWordsRemoverClassName, "load", path));
+        }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 

@@ -24,14 +24,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             string expectedOutputCol = "output_col";
 
             var input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as input_col");
-            input.Show(5);
 
             var stopWordsRemover = new StopWordsRemover(expectedUid)
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol);
 
             var output = stopWordsRemover.Transform(input);
-            output.Show(5);
             Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
             Assert.Equal(expectedInputCol, stopWordsRemover.GetInputCol());
             Assert.Equal(expectedOutputCol, stopWordsRemover.GetOutputCol());
@@ -41,7 +39,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 string savePath = Path.Join(tempDirectory.Path, "StopWordsRemover");
                 stopWordsRemover.Save(savePath);
 
-                var loadedStopWordsRemover = Tokenizer.Load(savePath);
+                var loadedStopWordsRemover = StopWordsRemover.Load(savePath);
                 Assert.Equal(stopWordsRemover.Uid(), loadedStopWordsRemover.Uid());
             }
 
