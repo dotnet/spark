@@ -23,7 +23,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             string expectedInputCol = "input_col";
             string expectedOutputCol = "output_col";
             string expectedLocale = "ru";
-            bool expectedCaseSensitive = true;
+            bool expectedCaseSensitive = false;
             var expectedStopWords = new string[] {"test1", "test2"};
 
             var input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as input_col");
