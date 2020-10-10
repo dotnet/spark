@@ -48,7 +48,7 @@ namespace Microsoft.Spark.UnitTest.TestUtils
                 _ when type == typeof(TimeSpan) => TimestampType.Default,
                 _ when type == typeof(string) => StringType.Default,
                 _ when type == typeof(byte[]) => BinaryType.Default,
-                _ => null
+                _ => throw new NotSupportedException($"Unknown type: {typeof(T)}")
             };
             if (arrowType == null)
                 throw new NotSupportedException($"Unknown type: {typeof(T)}");
