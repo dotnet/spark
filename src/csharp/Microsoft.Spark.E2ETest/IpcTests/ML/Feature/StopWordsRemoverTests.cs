@@ -11,7 +11,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
     {
         private readonly SparkSession _spark;
 
-        protected StopWordsRemoverTests(SparkFixture fixture) : base(fixture)
+        public StopWordsRemoverTests(SparkFixture fixture) : base(fixture)
         {
             _spark = fixture.Spark;
         }
