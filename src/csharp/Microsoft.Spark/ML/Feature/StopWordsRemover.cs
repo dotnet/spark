@@ -78,6 +78,7 @@ namespace Microsoft.Spark.ML.Feature
 
         /// <summary>
         /// Sets locale for <see cref="StopWordsRemover"/> transform
+        /// Refer java.util.locale.getavailablelocales() for all available locales.
         /// </summary>
         /// <param name="value">Locale to be used for transform</param>
         /// <returns>New <see cref="StopWordsRemover"/> object</returns>
@@ -103,6 +104,20 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <returns>string, Is case sensitive?</returns>
         public bool GetCaseSensitive() => (bool)(_jvmObject.Invoke("getCaseSensitive"));
+
+        /// <summary>
+        /// Sets custom stop words for <see cref="StopWordsRemover"/> transform
+        /// </summary>
+        /// <param name="value">Custom stop words</param>
+        /// <returns>New <see cref="StopWordsRemover"/> object</returns>
+        public StopWordsRemover SetStopWords(string[] value) =>
+            WrapAsStopWordsRemover(_jvmObject.Invoke("setStopWords", value));
+
+        /// <summary>
+        /// Gets custom stop words for <see cref="StopWordsRemover"/> transform
+        /// </summary>
+        /// <returns>string, Custom stop words</returns>
+        public string[] GetStopWords() => (string[])(_jvmObject.Invoke("getStopWords"));
 
         /// <summary>
         /// Loads the <see cref="StopWordsRemover"/> that was previously saved using Save

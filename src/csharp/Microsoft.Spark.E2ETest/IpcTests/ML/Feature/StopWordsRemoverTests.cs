@@ -22,8 +22,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             string expectedUid = "theUid";
             string expectedInputCol = "input_col";
             string expectedOutputCol = "output_col";
-            string expectedLocale = "en_UK";
+            string expectedLocale = "en_GB";
             bool expectedCaseSensitive = true;
+            var expectedStopWords = new string[] {"test1", "test2"};
 
             var input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as input_col");
 
@@ -31,7 +32,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
                 .SetLocale(expectedLocale)
-                .SetCaseSensitive(expectedCaseSensitive);
+                .SetCaseSensitive(expectedCaseSensitive)
+                .SetStopWords(expectedStopWords);
 
             var output = stopWordsRemover.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
@@ -39,6 +41,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Equal(expectedOutputCol, stopWordsRemover.GetOutputCol());
             Assert.Equal(expectedLocale, stopWordsRemover.GetLocale());
             Assert.Equal(expectedCaseSensitive, stopWordsRemover.GetCaseSensitive());
+            Assert.Equal(expectedStopWords, stopWordsRemover.GetStopWords());
 
             using (var tempDirectory = new TemporaryDirectory())
             {
