@@ -31,8 +31,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol);
 
-            // var output = stopWordsRemover.Transform(input);
-
+            var output = stopWordsRemover.Transform(input);
+            output.Show(5);
             // Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
             Assert.Equal(expectedInputCol, stopWordsRemover.GetInputCol());
             Assert.Equal(expectedOutputCol, stopWordsRemover.GetOutputCol());
