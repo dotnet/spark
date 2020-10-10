@@ -79,7 +79,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Sets locale for <see cref="StopWordsRemover"/> transform
         /// </summary>
-        /// <param name="value">Locale to to be used for transform</param>
+        /// <param name="value">Locale to be used for transform</param>
         /// <returns>New <see cref="StopWordsRemover"/> object</returns>
         public StopWordsRemover SetLocale(string value) =>
             WrapAsStopWordsRemover(_jvmObject.Invoke("setLocale", value));
@@ -89,6 +89,20 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <returns>string, the local</returns>
         public string GetLocale() => (string)(_jvmObject.Invoke("getLocale"));
+
+        /// <summary>
+        /// Sets case sensitivity for <see cref="StopWordsRemover"/> transform
+        /// </summary>
+        /// <param name="value">case sensitivity to be used for transform</param>
+        /// <returns>New <see cref="StopWordsRemover"/> object</returns>
+        public StopWordsRemover SetCaseSensitive(bool value) =>
+            WrapAsStopWordsRemover(_jvmObject.Invoke("setCaseSensitive", value));
+
+        /// <summary>
+        /// Gets case sensitivity for <see cref="StopWordsRemover"/> transform
+        /// </summary>
+        /// <returns>string, Is case sensitive?</returns>
+        public bool GetCaseSensitive() => (bool)(_jvmObject.Invoke("getCaseSensitive"));
 
         /// <summary>
         /// Loads the <see cref="StopWordsRemover"/> that was previously saved using Save

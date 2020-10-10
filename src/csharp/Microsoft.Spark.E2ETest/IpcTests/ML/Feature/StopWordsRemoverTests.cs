@@ -23,19 +23,22 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             string expectedInputCol = "input_col";
             string expectedOutputCol = "output_col";
             string expectedLocale = "en_UK";
+            bool expectedCaseSensitive = true;
 
             var input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as input_col");
 
             var stopWordsRemover = new StopWordsRemover(expectedUid)
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
-                .SetLocale(expectedLocale);
+                .SetLocale(expectedLocale)
+                .SetCaseSensitive(expectedCaseSensitive);
 
             var output = stopWordsRemover.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
             Assert.Equal(expectedInputCol, stopWordsRemover.GetInputCol());
             Assert.Equal(expectedOutputCol, stopWordsRemover.GetOutputCol());
             Assert.Equal(expectedLocale, stopWordsRemover.GetLocale());
+            Assert.Equal(expectedCaseSensitive, stopWordsRemover.GetCaseSensitive());
 
             using (var tempDirectory = new TemporaryDirectory())
             {
