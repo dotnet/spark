@@ -13,19 +13,20 @@ import java.nio.file.{FileSystems, Files, Paths}
 import java.util.Locale
 import java.util.concurrent.{Semaphore, TimeUnit}
 
+import scala.collection.JavaConverters._
+import scala.io.StdIn
+import scala.util.Try
+
 import org.apache.commons.io.FilenameUtils
+import org.apache.commons.io.output.TeeOutputStream
 import org.apache.hadoop.fs.Path
 import org.apache.spark
 import org.apache.spark.api.dotnet.DotnetBackend
 import org.apache.spark.deploy.{PythonRunner, SparkHadoopUtil}
 import org.apache.spark.internal.Logging
 import org.apache.spark.util.dotnet.{Utils => DotnetUtils}
-import org.apache.spark.util.{RedirectThread, Utils}
-import org.apache.spark.{SecurityManager, SparkConf, SparkUserAppException}
-
-import scala.collection.JavaConverters._
-import scala.io.StdIn
-import scala.util.Try
+import org.apache.spark.util.{CircularBuffer, RedirectThread, Utils}
+import org.apache.spark.{SecurityManager, SparkConf}
 
 /**
  * DotnetRunner class used to launch Spark .NET applications using spark-submit.
@@ -35,7 +36,7 @@ import scala.util.Try
 object DotnetRunner extends Logging {
   private val DEBUG_PORT = 5567
   private val supportedSparkVersions =
-      Set[String]("2.4.0", "2.4.1", "2.4.3", "2.4.4", "2.4.5", "2.4.6", "2.4.7")
+    Set[String]("2.4.0", "2.4.1", "2.4.3", "2.4.4", "2.4.5", "2.4.6", "2.4.7")
 
   val SPARK_VERSION = DotnetUtils.normalizeSparkVersion(spark.SPARK_VERSION)
 
@@ -106,6 +107,9 @@ object DotnetRunner extends Logging {
       }
     }
 
+    // Keep a small buffer of System.out so that we can parse it for unhandled exceptions.
+    val outputBuffer = new CircularBuffer(512)
+
     dotnetBackendThread.start()
 
     if (initialized.tryAcquire(backendTimeout, TimeUnit.SECONDS)) {
@@ -127,10 +131,13 @@ object DotnetRunner extends Logging {
           // Redirect stdin of JVM process to stdin of .NET process.
           new RedirectThread(System.in, process.getOutputStream, "redirect JVM input").start()
           // Redirect stdout and stderr of .NET process.
-          new RedirectThread(process.getInputStream, System.out, "redirect .NET stdout").start()
+          new RedirectThread(
+            process.getInputStream,
+            new TeeOutputStream(System.out, outputBuffer),
+            "redirect .NET stdout").start()
           new RedirectThread(process.getErrorStream, System.out, "redirect .NET stderr").start()
 
-           process.waitFor()
+          process.waitFor()
         } catch {
           case t: Throwable =>
             logThrowable(t)
@@ -138,9 +145,17 @@ object DotnetRunner extends Logging {
           returnCode = closeDotnetProcess(process)
           closeBackend(dotnetBackend)
         }
-
         if (returnCode != 0) {
-          throw new SparkUserAppException(returnCode)
+          // Extract the unhandled exception, and ignore anything before it.
+          val delimiter = "Unhandled exception. "
+          val outputBufferString = outputBuffer.toString()
+          val unhandledException = if (outputBufferString.contains(delimiter)) {
+              outputBuffer.toString().split(delimiter).lastOption
+          } else {
+              None
+          }
+
+          throw new DotNetUserAppException(returnCode, unhandledException)
         } else {
           logInfo(s".NET application exited successfully")
         }
@@ -188,11 +203,11 @@ object DotnetRunner extends Logging {
         .iterator()
         .asScala
         .find(path => Files.isRegularFile(path) && path.getFileName.toString == dotnetExecutable) match {
-          case Some(path) => path.toAbsolutePath.toString
-          case None =>
-            throw new IllegalArgumentException(
-              s"Failed to find $dotnetExecutable under" +
-                s" ${dir.getAbsolutePath}")
+        case Some(path) => path.toAbsolutePath.toString
+        case None =>
+          throw new IllegalArgumentException(
+            s"Failed to find $dotnetExecutable under" +
+              s" ${dir.getAbsolutePath}")
       }
     }
 
@@ -256,7 +271,8 @@ object DotnetRunner extends Logging {
       returnCode = dotnetProcess.waitFor()
     } catch {
       case _: InterruptedException =>
-        logInfo("Thread interrupted while waiting for graceful close. Forcefully closing .NET process")
+        logInfo(
+          "Thread interrupted while waiting for graceful close. Forcefully closing .NET process")
         returnCode = dotnetProcess.destroyForcibly().waitFor()
       case t: Throwable =>
         logThrowable(t)
