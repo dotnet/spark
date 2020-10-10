@@ -50,9 +50,6 @@ namespace Microsoft.Spark.UnitTest.TestUtils
                 _ when type == typeof(byte[]) => BinaryType.Default,
                 _ => throw new NotSupportedException($"Unknown type: {typeof(T)}")
             };
-            if (arrowType == null)
-                throw new NotSupportedException($"Unknown type: {typeof(T)}");
-            return arrowType;
         }
 
         public static ArrowStringDataFrameColumn ToArrowStringDataFrameColumn(StringArray array)
@@ -68,7 +65,7 @@ namespace Microsoft.Spark.UnitTest.TestUtils
         public static IArrowArray ToArrowArray<T>(T[] array)
         {
             Type type = typeof(T);
-            IArrowArray arrowType = type switch
+            return type switch
             {
                 _ when type == typeof(bool) => ToBooleanArray((bool[])(object)array),
                 _ when type == typeof(sbyte) => ToPrimitiveArrowArray((sbyte[])(object)array),
@@ -85,11 +82,8 @@ namespace Microsoft.Spark.UnitTest.TestUtils
                 _ when type == typeof(TimeSpan) => ToPrimitiveArrowArray((TimeSpan[])(object)array),
                 _ when type == typeof(string) => ToStringArrowArray((string[])(object)array),
                 _ when type == typeof(byte[]) => ToBinaryArrowArray((byte[][])(object)array),
-                _ => null
+                _ => throw new NotSupportedException($"Unknown type: {typeof(T)}")
             };
-            if (arrowType == null)
-                throw new NotSupportedException($"Unknown type: {typeof(T)}");
-            return arrowType;
         }
 
         public static IArrowArray ToPrimitiveArrowArray<T>(T[] array) where T : struct
