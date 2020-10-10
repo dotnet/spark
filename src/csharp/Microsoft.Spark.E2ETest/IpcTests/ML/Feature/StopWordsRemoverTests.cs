@@ -23,8 +23,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             string expectedInputCol = "input_col";
             string expectedOutputCol = "output_col";
 
-            // var input = _spark.Sql("SELECT 'hello I AM a string TO, StopWordsRemover' as input_col" +
-            //                        " from range(100)");
+            var input = _spark.Sql("SELECT 'hello I AM a string TO, StopWordsRemover' as input_col" +
+                                   " from range(100)");
+            input.Show(5);
 
             var stopWordsRemover = new StopWordsRemover(expectedUid)
                 .SetInputCol(expectedInputCol)
