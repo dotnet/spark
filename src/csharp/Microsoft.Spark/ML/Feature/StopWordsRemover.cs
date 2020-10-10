@@ -77,6 +77,20 @@ namespace Microsoft.Spark.ML.Feature
         public string GetOutputCol() => (string)(_jvmObject.Invoke("getOutputCol"));
 
         /// <summary>
+        /// Sets locale for <see cref="StopWordsRemover"/> transform
+        /// </summary>
+        /// <param name="value">Locale to to be used for transform</param>
+        /// <returns>New <see cref="StopWordsRemover"/> object</returns>
+        public StopWordsRemover SetLocale(string value) =>
+            WrapAsStopWordsRemover(_jvmObject.Invoke("setLocale", value));
+
+        /// <summary>
+        /// Gets locale for <see cref="StopWordsRemover"/> transform
+        /// </summary>
+        /// <returns>string, the local</returns>
+        public string GetLocale() => (string)(_jvmObject.Invoke("getLocale"));
+
+        /// <summary>
         /// Loads the <see cref="StopWordsRemover"/> that was previously saved using Save
         /// </summary>
         /// <param name="path">The path the previous <see cref="StopWordsRemover"/> was saved to</param>

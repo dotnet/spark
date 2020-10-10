@@ -22,17 +22,20 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             string expectedUid = "theUid";
             string expectedInputCol = "input_col";
             string expectedOutputCol = "output_col";
+            string expectedLocale = "en_UK";
 
             var input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as input_col");
 
             var stopWordsRemover = new StopWordsRemover(expectedUid)
                 .SetInputCol(expectedInputCol)
-                .SetOutputCol(expectedOutputCol);
+                .SetOutputCol(expectedOutputCol)
+                .SetLocale(expectedLocale);
 
             var output = stopWordsRemover.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
             Assert.Equal(expectedInputCol, stopWordsRemover.GetInputCol());
             Assert.Equal(expectedOutputCol, stopWordsRemover.GetOutputCol());
+            Assert.Equal(expectedLocale, stopWordsRemover.GetLocale());
 
             using (var tempDirectory = new TemporaryDirectory())
             {
