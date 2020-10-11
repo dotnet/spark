@@ -40,7 +40,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .SetCaseSensitive(expectedCaseSensitive)
                 .SetStopWords(expectedStopWords);
 
-            var outPutSchema = stopWordsRemover.TransformSchema(expectedSchema);
+            var outPutSchema = stopWordsRemover.TransformSchema(input.Schema());
 
             var output = stopWordsRemover.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
