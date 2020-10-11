@@ -197,8 +197,7 @@ object DotnetRunner extends Logging {
         case Some(path) => path.toAbsolutePath.toString
         case None =>
           throw new IllegalArgumentException(
-            s"Failed to find $dotnetExecutable under" +
-              s" ${dir.getAbsolutePath}")
+            s"Failed to find $dotnetExecutable under ${dir.getAbsolutePath}")
       }
     }
 
