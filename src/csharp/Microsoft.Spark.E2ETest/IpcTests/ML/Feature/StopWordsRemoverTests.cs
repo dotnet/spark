@@ -2,6 +2,7 @@ using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
@@ -20,11 +21,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestStopWordsRemoverWithoutLocale()
         {
-            string expectedUid = "theUidWithOutLocale";
-            string expectedInputCol = "input_col";
-            string expectedOutputCol = "output_col";
-            bool expectedCaseSensitive = false;
+            var expectedUid = "theUidWithOutLocale";
+            var expectedInputCol = "input_col";
+            var expectedOutputCol = "output_col";
+            var expectedCaseSensitive = false;
             var expectedStopWords = new string[] {"test1", "test2"};
+            var expectedSchema = new StructType(new[]
+            {
+                new StructField("input_col", new StringType()), 
+                new StructField("output_col", new StringType())
+            });
 
             var input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as input_col");
 
@@ -34,12 +40,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .SetCaseSensitive(expectedCaseSensitive)
                 .SetStopWords(expectedStopWords);
 
+            var outPutSchema = stopWordsRemover.TransformSchema(expectedSchema);
+
             var output = stopWordsRemover.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
             Assert.Equal(expectedInputCol, stopWordsRemover.GetInputCol());
             Assert.Equal(expectedOutputCol, stopWordsRemover.GetOutputCol());
             Assert.Equal(expectedCaseSensitive, stopWordsRemover.GetCaseSensitive());
             Assert.Equal(expectedStopWords, stopWordsRemover.GetStopWords());
+            Assert.Equal(expectedSchema, outPutSchema);
 
             using (var tempDirectory = new TemporaryDirectory())
             {
@@ -58,11 +67,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
         public void TestStopWordsRemoverWithLocale()
         {
-            string expectedUid = "theUidWithLocale";
-            string expectedInputCol = "input_col";
-            string expectedOutputCol = "output_col";
-            string expectedLocale = "en_GB";
-            bool expectedCaseSensitive = false;
+            var expectedUid = "theUidWithLocale";
+            var expectedInputCol = "input_col";
+            var expectedOutputCol = "output_col";
+            var expectedLocale = "en_GB";
+            var expectedCaseSensitive = false;
             var expectedStopWords = new string[] {"test1", "test2"};
 
             var input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as input_col");
