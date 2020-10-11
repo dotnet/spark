@@ -125,8 +125,10 @@ namespace Microsoft.Spark.ML.Feature
         /// Validate and get the transform schema for <see cref="StopWordsRemover"/> transform
         /// </summary>
         /// <returns>string, Output schema</returns>
-        public StructType TransformSchema(StructType structType) =>
-            (StructType)(_jvmObject.Invoke("transformSchema", structType));
+        public StructType TransformSchema(StructType value) =>
+            new StructType(
+                (JvmObjectReference)_jvmObject.Invoke("transformSchema",
+                    DataType.FromJson(_jvmObject.Jvm, value.Json)));
 
         /// <summary>
         /// Loads the <see cref="StopWordsRemover"/> that was previously saved using Save
