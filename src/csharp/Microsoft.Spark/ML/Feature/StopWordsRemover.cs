@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
@@ -108,10 +109,10 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Sets custom stop words for <see cref="StopWordsRemover"/> transform
         /// </summary>
-        /// <param name="value">Custom stop words</param>
+        /// <param name="values">Custom stop words</param>
         /// <returns>New <see cref="StopWordsRemover"/> object</returns>
-        public StopWordsRemover SetStopWords(string[] value) =>
-            WrapAsStopWordsRemover(_jvmObject.Invoke("setStopWords", value));
+        public StopWordsRemover SetStopWords(IEnumerable<string> values) =>
+            WrapAsStopWordsRemover(_jvmObject.Invoke("setStopWords", values));
 
         /// <summary>
         /// Gets custom stop words for <see cref="StopWordsRemover"/> transform
