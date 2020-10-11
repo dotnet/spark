@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
@@ -119,6 +120,13 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <returns>string, Custom stop words</returns>
         public string[] GetStopWords() => (string[])(_jvmObject.Invoke("getStopWords"));
+
+        /// <summary>
+        /// Validate and get the transform schema for <see cref="StopWordsRemover"/> transform
+        /// </summary>
+        /// <returns>string, Output schema</returns>
+        public StructType TransformSchema(StructType structType) =>
+            (StructType)(_jvmObject.Invoke("transformSchema", structType));
 
         /// <summary>
         /// Loads the <see cref="StopWordsRemover"/> that was previously saved using Save
