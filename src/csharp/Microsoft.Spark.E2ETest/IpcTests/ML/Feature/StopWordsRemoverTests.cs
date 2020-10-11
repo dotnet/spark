@@ -22,7 +22,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             string expectedUid = "theUid";
             string expectedInputCol = "input_col";
             string expectedOutputCol = "output_col";
-            string expectedLocale = "ru";
+            string expectedLocale = "en_US";
             bool expectedCaseSensitive = false;
             var expectedStopWords = new string[] {"test1", "test2"};
 
@@ -31,7 +31,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             var stopWordsRemover = new StopWordsRemover(expectedUid)
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
-                .SetLocale(expectedLocale)
                 .SetCaseSensitive(expectedCaseSensitive)
                 .SetStopWords(expectedStopWords);
 
