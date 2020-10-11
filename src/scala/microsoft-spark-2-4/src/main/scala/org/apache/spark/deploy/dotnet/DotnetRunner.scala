@@ -16,7 +16,7 @@ import java.util.concurrent.{Semaphore, TimeUnit}
 import org.apache.commons.io.FilenameUtils
 import org.apache.hadoop.fs.Path
 import org.apache.spark
-import org.apache.spark.api.dotnet.DotnetBackend
+import org.apache.spark.api.dotnet.{DotnetBackend, ThreadPool}
 import org.apache.spark.deploy.{PythonRunner, SparkHadoopUtil}
 import org.apache.spark.internal.Logging
 import org.apache.spark.util.dotnet.{Utils => DotnetUtils}
@@ -35,7 +35,7 @@ import scala.util.Try
 object DotnetRunner extends Logging {
   private val DEBUG_PORT = 5567
   private val supportedSparkVersions =
-      Set[String]("2.4.0", "2.4.1", "2.4.3", "2.4.4", "2.4.5", "2.4.6", "2.4.7")
+    Set[String]("2.4.0", "2.4.1", "2.4.3", "2.4.4", "2.4.5", "2.4.6", "2.4.7")
 
   val SPARK_VERSION = DotnetUtils.normalizeSparkVersion(spark.SPARK_VERSION)
 
@@ -130,7 +130,7 @@ object DotnetRunner extends Logging {
           new RedirectThread(process.getInputStream, System.out, "redirect .NET stdout").start()
           new RedirectThread(process.getErrorStream, System.out, "redirect .NET stderr").start()
 
-           process.waitFor()
+          process.waitFor()
         } catch {
           case t: Throwable =>
             logThrowable(t)
@@ -144,6 +144,12 @@ object DotnetRunner extends Logging {
         } else {
           logInfo(s".NET application exited successfully")
         }
+
+        // Shutdown the thread pool whose executors could still be running,
+        // blocking the JVM process to exit. Since .NET process has already exited,
+        // the thread pool will never be cleaned up by the .NET process.
+        ThreadPool.shutdown()
+
         // TODO: The following is causing the following error:
         // INFO ApplicationMaster: Final app status: FAILED, exitCode: 16,
         // (reason: Shutdown hook called before final status was reported.)
@@ -188,11 +194,11 @@ object DotnetRunner extends Logging {
         .iterator()
         .asScala
         .find(path => Files.isRegularFile(path) && path.getFileName.toString == dotnetExecutable) match {
-          case Some(path) => path.toAbsolutePath.toString
-          case None =>
-            throw new IllegalArgumentException(
-              s"Failed to find $dotnetExecutable under" +
-                s" ${dir.getAbsolutePath}")
+        case Some(path) => path.toAbsolutePath.toString
+        case None =>
+          throw new IllegalArgumentException(
+            s"Failed to find $dotnetExecutable under" +
+              s" ${dir.getAbsolutePath}")
       }
     }
 
@@ -256,7 +262,8 @@ object DotnetRunner extends Logging {
       returnCode = dotnetProcess.waitFor()
     } catch {
       case _: InterruptedException =>
-        logInfo("Thread interrupted while waiting for graceful close. Forcefully closing .NET process")
+        logInfo(
+          "Thread interrupted while waiting for graceful close. Forcefully closing .NET process")
         returnCode = dotnetProcess.destroyForcibly().waitFor()
       case t: Throwable =>
         logThrowable(t)
