@@ -28,8 +28,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             var expectedStopWords = new string[] {"test1", "test2"};
             var expectedSchema = new StructType(new[]
             {
-                new StructField("input_col", new StringType()), 
-                new StructField("output_col", new StringType())
+                new StructField("input_col", new ArrayType(new StringType(), true)),
+                new StructField("output_col", new ArrayType(new StringType(), true))
             });
 
             var input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as input_col");
