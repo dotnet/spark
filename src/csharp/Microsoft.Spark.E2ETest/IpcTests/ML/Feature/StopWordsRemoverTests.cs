@@ -18,31 +18,35 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             _spark = fixture.Spark;
         }
 
+
+        /// <summary>
+        /// Test stop words removers without locale, because locale is not supported before spark 2.4.0 version.
+        /// </summary>
         [Fact]
         public void TestStopWordsRemoverWithoutLocale()
         {
-            var expectedUid = "theUidWithOutLocale";
-            var expectedInputCol = "input_col";
-            var expectedOutputCol = "output_col";
-            var expectedCaseSensitive = false;
-            var expectedStopWords = new string[] {"test1", "test2"};
-            var expectedSchema = new StructType(new[]
+            string expectedUid = "theUidWithOutLocale";
+            string expectedInputCol = "input_col";
+            string expectedOutputCol = "output_col";
+            bool expectedCaseSensitive = false;
+            string[] expectedStopWords = new string[] {"test1", "test2"};
+            StructType expectedSchema = new StructType(new[]
             {
                 new StructField("input_col", new ArrayType(new StringType(), true)),
                 new StructField("output_col", new ArrayType(new StringType(), true))
             });
 
-            var input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as input_col");
+            DataFrame input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as input_col");
 
-            var stopWordsRemover = new StopWordsRemover(expectedUid)
+            StopWordsRemover stopWordsRemover = new StopWordsRemover(expectedUid)
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
                 .SetCaseSensitive(expectedCaseSensitive)
                 .SetStopWords(expectedStopWords);
 
-            var outPutSchema = stopWordsRemover.TransformSchema(input.Schema());
+            StructType outPutSchema = stopWordsRemover.TransformSchema(input.Schema());
 
-            var output = stopWordsRemover.Transform(input);
+            DataFrame output = stopWordsRemover.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
             Assert.Equal(expectedInputCol, stopWordsRemover.GetInputCol());
             Assert.Equal(expectedOutputCol, stopWordsRemover.GetOutputCol());
@@ -50,12 +54,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Equal(expectedStopWords, stopWordsRemover.GetStopWords());
             Assert.Equal(expectedSchema, outPutSchema);
 
-            using (var tempDirectory = new TemporaryDirectory())
+            using (TemporaryDirectory tempDirectory = new TemporaryDirectory())
             {
                 string savePath = Path.Join(tempDirectory.Path, "StopWordsRemover");
                 stopWordsRemover.Save(savePath);
 
-                var loadedStopWordsRemover = StopWordsRemover.Load(savePath);
+                StopWordsRemover loadedStopWordsRemover = StopWordsRemover.Load(savePath);
                 Assert.Equal(stopWordsRemover.Uid(), loadedStopWordsRemover.Uid());
             }
 
@@ -64,26 +68,30 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             TestFeatureBase(stopWordsRemover, "inputCol", "input_col");
         }
 
+        /// <summary>
+        /// Test stop words removers with locale, run if spark version is greater than spark 2.4.0
+        /// skip this test for rest of the spark versions.
+        /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
         public void TestStopWordsRemoverWithLocale()
         {
-            var expectedUid = "theUidWithLocale";
-            var expectedInputCol = "input_col";
-            var expectedOutputCol = "output_col";
-            var expectedLocale = "en_GB";
-            var expectedCaseSensitive = false;
-            var expectedStopWords = new string[] {"test1", "test2"};
+            string expectedUid = "theUidWithLocale";
+            string expectedInputCol = "input_col";
+            string expectedOutputCol = "output_col";
+            string expectedLocale = "en_GB";
+            bool expectedCaseSensitive = false;
+            string[] expectedStopWords = new string[] {"test1", "test2"};
 
-            var input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as input_col");
+            DataFrame input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as input_col");
 
-            var stopWordsRemover = new StopWordsRemover(expectedUid)
+            StopWordsRemover stopWordsRemover = new StopWordsRemover(expectedUid)
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
                 .SetCaseSensitive(expectedCaseSensitive)
                 .SetLocale(expectedLocale)
                 .SetStopWords(expectedStopWords);
 
-            var output = stopWordsRemover.Transform(input);
+            DataFrame output = stopWordsRemover.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
             Assert.Equal(expectedInputCol, stopWordsRemover.GetInputCol());
             Assert.Equal(expectedOutputCol, stopWordsRemover.GetOutputCol());
@@ -91,12 +99,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Equal(expectedCaseSensitive, stopWordsRemover.GetCaseSensitive());
             Assert.Equal(expectedStopWords, stopWordsRemover.GetStopWords());
 
-            using (var tempDirectory = new TemporaryDirectory())
+            using (TemporaryDirectory tempDirectory = new TemporaryDirectory())
             {
                 string savePath = Path.Join(tempDirectory.Path, "StopWordsRemover");
                 stopWordsRemover.Save(savePath);
 
-                var loadedStopWordsRemover = StopWordsRemover.Load(savePath);
+                StopWordsRemover loadedStopWordsRemover = StopWordsRemover.Load(savePath);
                 Assert.Equal(stopWordsRemover.Uid(), loadedStopWordsRemover.Uid());
             }
 
