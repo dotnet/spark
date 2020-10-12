@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Services
 {
@@ -107,5 +108,11 @@ namespace Microsoft.Spark.Services
             _workerPath = s_procFileName;
             return _workerPath;
         }
+
+        /// <summary>
+        /// Flag indicating whether running in REPL.
+        /// </summary>
+        public bool IsRunningRepl() =>
+            EnvironmentUtils.GetEnvironmentVariableAsBool(Constants.RunningREPLEnvVar);
     }
 }

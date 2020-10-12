@@ -56,8 +56,7 @@ namespace Microsoft.Spark.Interop.Ipc
             _jvmThreadPoolGC = new JvmThreadPoolGC(
                 _logger, this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval);
 
-            _isRunningRepl =
-                EnvironmentUtils.GetEnvironmentVariableAsBool(Constants.RunningREPLEnvVar);
+            _isRunningRepl = SparkEnvironment.ConfigurationService.IsRunningRepl();
 
             int numBackendThreads = SparkEnvironment.ConfigurationService.GetNumBackendThreads();
             int maxNumSockets = numBackendThreads;
@@ -189,6 +188,20 @@ namespace Microsoft.Spark.Interop.Ipc
             ISocketWrapper socket = null;
             try
             {
+                // dotnet-interactive does not have a dedicated thread to process
+                // code submissions and each code submission can be processed in different
+                // threads. DotnetHandler uses the CLR thread id to ensure that the same
+                // JVM thread is used to handle the request, which means that code submitted
+                // through dotnet-interactive may be executed in different JVM threads. To
+                // mitigate this, when running in the REPL, submit requests to the DotnetHandler
+                // using the same thread id. This mitigation has some limitations in multithreaded
+                // scenarios. If a JVM method is blocking and needs a JVM method call issued by a
+                // separate thread to unblock it, then this scenario is not supported.
+                //
+                // ie, `StreamingQuery.AwaitTermination()` is a blocking call and requires
+                // `StreamingQuery.Stop()` to be called to unblock it. However, the `Stop`
+                // call will never run because DotnetHandler will assign the method call to
+                // run on the same thread that `AwaitTermination` is running on.
                 Thread thread = _isRunningRepl ? null : Thread.CurrentThread;
                 MemoryStream payloadMemoryStream = s_payloadMemoryStream ??= new MemoryStream();
                 payloadMemoryStream.Position = 0;
