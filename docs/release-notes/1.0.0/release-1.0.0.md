@@ -145,7 +145,7 @@ The following table outlines the supported Delta versions along with the Microso
 
 ### Supported Hyperspace Versions
 
-The following table outlines the supported Hyperspace versions along with the Microsoft.Spark.Extensions to use with:
+The following table outlines the supported Hyperspace versions along with the Microsoft.Spark.Extensions version to use with:
 
 <table>
     <thead>
