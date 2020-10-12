@@ -16,7 +16,7 @@ import java.util.concurrent.{Semaphore, TimeUnit}
 import org.apache.commons.io.FilenameUtils
 import org.apache.hadoop.fs.Path
 import org.apache.spark
-import org.apache.spark.api.dotnet.{DotnetBackend, ThreadPool}
+import org.apache.spark.api.dotnet.DotnetBackend
 import org.apache.spark.deploy.{PythonRunner, SparkHadoopUtil}
 import org.apache.spark.internal.Logging
 import org.apache.spark.util.dotnet.{Utils => DotnetUtils}
@@ -143,11 +143,6 @@ object DotnetRunner extends Logging {
         } else {
           logInfo(s".NET application exited successfully")
         }
-
-        // Shutdown the thread pool whose executors could still be running,
-        // blocking the JVM process to exit. Since .NET process has already exited,
-        // the thread pool will never be cleaned up by the .NET process.
-        ThreadPool.shutdown()
 
         // TODO: The following is causing the following error:
         // INFO ApplicationMaster: Final app status: FAILED, exitCode: 16,
