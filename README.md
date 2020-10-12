@@ -8,7 +8,7 @@
 
 .NET for Apache Spark is compliant with .NET Standard - a formal specification of .NET APIs that are common across .NET implementations. This means you can use .NET for Apache Spark anywhere you write .NET code allowing you to reuse all the knowledge, skills, code, and libraries you already have as a .NET developer. 
 
-.NET for Apache Spark runs on Windows, Linux, and macOS using .NET Core, or Windows using .NET Framework. It also runs on all major cloud providers including [Azure HDInsight Spark](https://docs.microsoft.com/en-us/dotnet/spark/tutorials/hdinsight-deployment), [Amazon EMR Spark](https://docs.microsoft.com/en-us/dotnet/spark/tutorials/amazon-emr-spark-deployment), [AWS](deployment/README.md#databricks), [Azure Databricks](https://docs.microsoft.com/en-us/dotnet/spark/tutorials/databricks-deployment) & [Azure Synapse Analytics](https://azure.microsoft.com/en-us/services/synapse-analytics/).
+.NET for Apache Spark runs on Windows, Linux, and macOS using .NET Core, or Windows using .NET Framework. It also runs on all major cloud providers including [Azure HDInsight Spark](https://docs.microsoft.com/en-us/dotnet/spark/tutorials/hdinsight-deployment), [Amazon EMR Spark](https://docs.microsoft.com/en-us/dotnet/spark/tutorials/amazon-emr-spark-deployment), [AWS](deployment/README.md#databricks), [Azure Databricks](https://docs.microsoft.com/en-us/dotnet/spark/tutorials/databricks-deployment) & [Azure Synapse Analytics](https://docs.microsoft.com/en-us/azure/synapse-analytics/spark/spark-dotnet).
 
 **Note**: We currently have a Spark Project Improvement Proposal JIRA at [SPIP: .NET bindings for Apache Spark](https://issues.apache.org/jira/browse/SPARK-27006) to work with the community towards getting .NET support by default into Apache Spark. We highly encourage you to participate in the discussion. 
 
@@ -157,7 +157,7 @@ We welcome contributions to both categories!
 
 ## Learn More
 
-To learn more about some features of .NET for Apache Spark, please visit [the official .NET documentation]](https://docs.microsoft.com/en-us/dotnet/spark/).
+To learn more about some features of .NET for Apache Spark, please visit [the official .NET documentation](https://docs.microsoft.com/en-us/dotnet/spark/).
 
 ## Contributing
 
