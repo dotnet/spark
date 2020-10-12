@@ -150,7 +150,8 @@ namespace Microsoft.Spark.E2ETest
             string scalaDir = Path.Combine(curDir, "..", "..", "..", "..", "..", "src", "scala");
             string jarDir = Path.Combine(scalaDir, jarPrefix, "target");
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
-            string jar = Path.Combine(jarDir, $"{jarPrefix}-{assemblyVersion}.jar");
+            string scalaVersion = (SparkSettings.Version.Major == 3) ? "2.12" : "2.11";
+            string jar = Path.Combine(jarDir, $"{jarPrefix}_{scalaVersion}-{assemblyVersion}.jar");
 
             if (!File.Exists(jar))
             {
@@ -180,7 +181,7 @@ namespace Microsoft.Spark.E2ETest
         private string GetJarPrefix()
         {
             Version sparkVersion = SparkSettings.Version;
-            return $"microsoft-spark-{sparkVersion.Major}.{sparkVersion.Minor}.x";
+            return $"microsoft-spark-{sparkVersion.Major}-{sparkVersion.Minor}";
         }
     }
 

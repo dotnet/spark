@@ -178,7 +178,8 @@ namespace Microsoft.Spark.Utils
                 CreateEnvVarsForPythonFunction(jvm),
                 arrayList, // Python includes
                 SparkEnvironment.ConfigurationService.GetWorkerExePath(),
-                Versions.CurrentVersion,
+                // Used to check the compatibility of UDFs between the driver and worker.
+                AssemblyInfoProvider.MicrosoftSparkAssemblyInfo().AssemblyVersion,
                 broadcastVariables,
                 null); // Accumulator
         }
