@@ -8,7 +8,7 @@
 
 .NET for Apache Spark is compliant with .NET Standard - a formal specification of .NET APIs that are common across .NET implementations. This means you can use .NET for Apache Spark anywhere you write .NET code allowing you to reuse all the knowledge, skills, code, and libraries you already have as a .NET developer. 
 
-.NET for Apache Spark runs on Windows, Linux, and macOS using .NET Core, or Windows using .NET Framework. It also runs on all major cloud providers including [Azure HDInsight Spark](deployment/README.md#azure-hdinsight-spark), [Amazon EMR Spark](deployment/README.md#amazon-emr-spark), [AWS](deployment/README.md#databricks), [Azure Databricks](deployment/README.md#databricks) & [Azure Synapse Analytics](https://azure.microsoft.com/en-us/services/synapse-analytics/).
+.NET for Apache Spark runs on Windows, Linux, and macOS using .NET Core, or Windows using .NET Framework. It also runs on all major cloud providers including [Azure HDInsight Spark](https://docs.microsoft.com/en-us/dotnet/spark/tutorials/hdinsight-deployment), [Amazon EMR Spark](https://docs.microsoft.com/en-us/dotnet/spark/tutorials/amazon-emr-spark-deployment), [AWS](deployment/README.md#databricks), [Azure Databricks](https://docs.microsoft.com/en-us/dotnet/spark/tutorials/databricks-deployment) & [Azure Synapse Analytics](https://azure.microsoft.com/en-us/services/synapse-analytics/).
 
 **Note**: We currently have a Spark Project Improvement Proposal JIRA at [SPIP: .NET bindings for Apache Spark](https://issues.apache.org/jira/browse/SPARK-27006) to work with the community towards getting .NET support by default into Apache Spark. We highly encourage you to participate in the discussion. 
 
@@ -39,7 +39,7 @@
     <tbody align="center">
         <tr>
             <td >2.3.*</td>
-            <td rowspan=6><a href="https://github.com/dotnet/spark/releases/tag/v1.0">v1.0</a></td>
+            <td rowspan=6><a href="https://github.com/dotnet/spark/releases/tag/v0.12.1">v0.12.1</a></td>
         </tr>
         <tr>
             <td>2.4.0</td>
@@ -98,8 +98,8 @@ Building from source is very easy and the whole process (from cloning to being a
 
 | |  | Instructions |
 | :---: | :---         |      :--- |
-| ![Windows icon](docs/img/windows-icon-32.png) | **Windows**    | <ul><li>Local - [.NET Framework 4.6.1](docs/building/windows-instructions.md#using-visual-studio-for-net-framework-461)</li><li>Local - [.NET Core 3.1](docs/building/windows-instructions.md#using-net-core-cli-for-net-core)</li><ul>    |
-| ![Ubuntu icon](docs/img/ubuntu-icon-32.png) | **Ubuntu**     | <ul><li>Local - [.NET Core 3.1](docs/building/ubuntu-instructions.md)</li><li>[Azure HDInsight Spark - .NET Core 3.1](deployment/README.md)</li></ul>      |
+| ![Windows icon](docs/img/windows-icon-32.png) | **Windows**    | <ul><li>Local - [.NET Framework 4.6.1](https://docs.microsoft.com/en-us/dotnet/spark/how-to-guides/windows-instructions#using-visual-studio-for-net-framework)</li><li>Local - [.NET Core 3.1](https://docs.microsoft.com/en-us/dotnet/spark/how-to-guides/windows-instructions#using-net-core-cli-for-net-core)</li><ul>    |
+| ![Ubuntu icon](docs/img/ubuntu-icon-32.png) | **Ubuntu**     | <ul><li>Local - [.NET Core 3.1](https://docs.microsoft.com/en-us/dotnet/spark/how-to-guides/ubuntu-instructions)</li><li>[Azure HDInsight Spark - .NET Core 3.1](https://docs.microsoft.com/en-us/dotnet/spark/tutorials/hdinsight-deployment)</li></ul>      |
 
 <a name="samples"></a>
 ## Samples
@@ -169,7 +169,7 @@ We welcome contributions to both categories!
 
 ## Learn More
 
-To learn more about some features of .NET for Apache Spark, please visit [this compilation of How-To guides](docs/how-to-guides.md).
+To learn more about some features of .NET for Apache Spark, please visit [the official .NET documentation]](https://docs.microsoft.com/en-us/dotnet/spark/).
 
 ## Contributing
 
