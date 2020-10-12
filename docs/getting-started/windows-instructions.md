@@ -49,7 +49,7 @@ For detailed instructions, you can see [Building .NET for Apache Spark from Sour
     spark-submit `
     --class org.apache.spark.deploy.dotnet.DotnetRunner `
     --master local `
-    microsoft-spark-2.4.x-<version>.jar `
+    microsoft-spark-<version>.jar `
     dotnet HelloSpark.dll
     ```
     **Note**: This command assumes you have downloaded Apache Spark and added it to your PATH environment variable to be able to use `spark-submit`, otherwise, you would have to use the full path (e.g., `c:\bin\apache-spark\bin\spark-submit`). For detailed instructions, you can see [Building .NET for Apache Spark from Source on Windows](../building/windows-instructions.md).

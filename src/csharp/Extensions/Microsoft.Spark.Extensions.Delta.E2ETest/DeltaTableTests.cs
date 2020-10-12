@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Spark.E2ETest;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Extensions.Delta.Tables;
 using Microsoft.Spark.Sql;
@@ -224,7 +225,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// Test that methods return the expected signature.
         /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
-        public void TestSignatures()
+        public void TestSignaturesV2_4_X()
         {
             using var tempDirectory = new TemporaryDirectory();
             string path = Path.Combine(tempDirectory.Path, "delta-table");
@@ -324,6 +325,19 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 {
                     new StructField("id", new IntegerType())
                 })));
+        }
+
+        /// <summary>
+        /// Test that Delta Lake 0.7+ methods return the expected signature.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
+        public void TestSignaturesV3_0_X()
+        {
+            string tableName = "my_new_table";
+            _spark.Range(15).Write().Format("delta").SaveAsTable(tableName);
+
+            Assert.IsType<DeltaTable>(DeltaTable.ForName(tableName));
+            Assert.IsType<DeltaTable>(DeltaTable.ForName(_spark, tableName));
         }
 
         /// <summary>

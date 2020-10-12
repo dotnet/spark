@@ -61,10 +61,40 @@ namespace Microsoft.Spark.Sql
         /// <returns>Builder object</returns>
         public static Builder Builder() => new Builder();
 
-        /// Note that *ActiveSession() APIs are not exposed because these APIs work with a
-        /// thread-local variable, which stores the session variable. Since the Netty server
-        /// that handles the requests is multi-threaded, any thread can invoke these APIs,
-        /// resulting in unexpected behaviors if different threads are used.
+        /// <summary>
+        /// Changes the SparkSession that will be returned in this thread when 
+        /// <see cref="Builder.GetOrCreate"/> is called. This can be used to ensure that a given
+        /// thread receives a SparkSession with an isolated session, instead of the global
+        /// (first created) context.
+        /// </summary>
+        /// <param name="session">SparkSession object</param>
+        public static void SetActiveSession(SparkSession session) =>
+            session._jvmObject.Jvm.CallStaticJavaMethod(
+                s_sparkSessionClassName, "setActiveSession", session);
+
+        /// <summary>
+        /// Clears the active SparkSession for current thread. Subsequent calls to
+        /// <see cref="Builder.GetOrCreate"/> will return the first created context
+        /// instead of a thread-local override.
+        /// </summary>
+        public static void ClearActiveSession() =>
+            SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                s_sparkSessionClassName, "clearActiveSession");
+
+        /// <summary>
+        /// Returns the active SparkSession for the current thread, returned by the builder.
+        /// </summary>
+        /// <returns>Return null, when calling this function on executors</returns>
+        public static SparkSession GetActiveSession()
+        {
+            var optionalSession = new Option(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_sparkSessionClassName, "getActiveSession"));
+
+            return optionalSession.IsDefined()
+                ? new SparkSession((JvmObjectReference)optionalSession.Get())
+                : null;
+        }
 
         /// <summary>
         /// Sets the default SparkSession that is returned by the builder.
@@ -127,6 +157,14 @@ namespace Microsoft.Spark.Sql
         /// <returns>The RuntimeConfig object</returns>
         public RuntimeConfig Conf() =>
             new RuntimeConfig((JvmObjectReference)_jvmObject.Invoke("conf"));
+
+        /// <summary>
+        /// Returns a <see cref="StreamingQueryManager"/> that allows managing all the
+        /// <see cref="StreamingQuery"/> instances active on <c>this</c> context.
+        /// </summary>
+        /// <returns><see cref="StreamingQueryManager"/> object</returns>
+        public StreamingQueryManager Streams() =>
+            new StreamingQueryManager((JvmObjectReference)_jvmObject.Invoke("streams"));
 
         /// <summary>
         /// Start a new session with isolated SQL configurations, temporary tables, registered
@@ -254,6 +292,30 @@ namespace Microsoft.Spark.Sql
         /// <returns>DataFrame object</returns>
         public DataFrame Sql(string sqlText) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("sql", sqlText));
+
+        /// <summary>
+        /// Execute an arbitrary string command inside an external execution engine rather than
+        /// Spark. This could be useful when user wants to execute some commands out of Spark. For
+        /// example, executing custom DDL/DML command for JDBC, creating index for ElasticSearch,
+        /// creating cores for Solr and so on.
+        /// The command will be eagerly executed after this method is called and the returned
+        /// DataFrame will contain the output of the command(if any).
+        /// </summary>
+        /// <param name="runner">The class name of the runner that implements
+        /// `ExternalCommandRunner`</param>
+        /// <param name="command">The target command to be executed</param>
+        /// <param name="options">The options for the runner</param>
+        /// <returns>>DataFrame object</returns>
+        [Since(Versions.V3_0_0)]
+        public DataFrame ExecuteCommand(
+            string runner,
+            string command,
+            Dictionary<string, string> options) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+                "executeCommand",
+                runner,
+                command,
+                options));
 
         /// <summary>
         /// Returns a DataFrameReader that can be used to read non-streaming data in

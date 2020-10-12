@@ -11,8 +11,9 @@
   </properties>
 
   <modules>
-    <module>microsoft-spark-2.3.x</module>
-    <module>microsoft-spark-2.4.x</module>
+    <module>microsoft-spark-2-3</module>
+    <module>microsoft-spark-2-4</module>
+    <module>microsoft-spark-3-0</module>
   </modules>
 
   <pluginRepositories>

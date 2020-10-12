@@ -85,7 +85,64 @@ namespace Microsoft.Spark.Sql
         public DataFrame Sum(params string[] colNames) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("sum", (object)colNames));
 
-        internal DataFrame Apply(StructType returnType, Func<FxDataFrame, FxDataFrame> func)
+        /// <summary>
+        /// Pivots a column of the current DataFrame and performs the specified aggregation.
+        /// </summary>
+        /// <param name="pivotColumn">Name of the column to pivot</param>
+        /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
+        public RelationalGroupedDataset Pivot(string pivotColumn) => 
+            new RelationalGroupedDataset(
+                (JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn), _dataFrame);
+
+        /// <summary>
+        /// Pivots a column of the current DataFrame and performs the specified aggregation.
+        /// </summary>
+        /// <param name="pivotColumn">Name of the column to pivot of type string</param>
+        /// <param name="values">List of values that will be translated to columns in the
+        /// output DataFrame.</param>
+        /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
+        public RelationalGroupedDataset Pivot(string pivotColumn, IEnumerable<object> values) =>
+            new RelationalGroupedDataset(
+                (JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn, values), _dataFrame);
+
+        /// <summary>
+        /// Pivots a column of the current DataFrame and performs the specified aggregation.
+        /// </summary>
+        /// <param name="pivotColumn">The column to pivot</param>
+        /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
+        public RelationalGroupedDataset Pivot(Column pivotColumn) => 
+            new RelationalGroupedDataset(
+                (JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn), _dataFrame);
+
+        /// <summary>
+        /// Pivots a column of the current DataFrame and performs the specified aggregation.
+        /// </summary>
+        /// <param name="pivotColumn">The column to pivot of type <see cref="Column"/></param>
+        /// <param name="values">List of values that will be translated to columns in the
+        /// output DataFrame.</param>
+        /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
+        public RelationalGroupedDataset Pivot(Column pivotColumn, IEnumerable<object> values) =>
+            new RelationalGroupedDataset(
+                (JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn, values), _dataFrame);
+
+        /// <summary>
+        /// Maps each group of the current DataFrame using a UDF and
+        /// returns the result as a DataFrame.
+        /// 
+        /// The user-defined function should take an <see cref="FxDataFrame"/>
+        /// and return another <see cref="FxDataFrame"/>. For each group, all
+        /// columns are passed together as an <see cref="FxDataFrame"/> to the user-function and
+        /// the returned FxDataFrame are combined as a DataFrame.
+        ///
+        /// The returned <see cref="FxDataFrame"/> can be of arbitrary length and its schema must
+        /// match <paramref name="returnType"/>.
+        /// </summary>
+        /// <param name="returnType">
+        /// The <see cref="StructType"/> that represents the schema of the return data set.
+        /// </param>
+        /// <param name="func">A grouped map user-defined function.</param>
+        /// <returns>New DataFrame object with the UDF applied.</returns>
+        public DataFrame Apply(StructType returnType, Func<FxDataFrame, FxDataFrame> func)
         {
             DataFrameGroupedMapWorkerFunction.ExecuteDelegate wrapper =
                 new DataFrameGroupedMapUdfWrapper(func).Execute;
@@ -114,7 +171,24 @@ namespace Microsoft.Spark.Sql
                 udfColumn.Expr()));
         }
 
-        internal DataFrame Apply(StructType returnType, Func<RecordBatch, RecordBatch> func)
+        /// <summary>
+        /// Maps each group of the current DataFrame using a UDF and
+        /// returns the result as a DataFrame.
+        /// 
+        /// The user-defined function should take an Apache Arrow RecordBatch
+        /// and return another Apache Arrow RecordBatch. For each group, all
+        /// columns are passed together as a RecordBatch to the user-function and
+        /// the returned RecordBatch are combined as a DataFrame.
+        ///
+        /// The returned <see cref="RecordBatch"/> can be of arbitrary length and its
+        /// schema must match <paramref name="returnType"/>.
+        /// </summary>
+        /// <param name="returnType">
+        /// The <see cref="StructType"/> that represents the shape of the return data set.
+        /// </param>
+        /// <param name="func">A grouped map user-defined function.</param>
+        /// <returns>New DataFrame object with the UDF applied.</returns>
+        public DataFrame Apply(StructType returnType, Func<RecordBatch, RecordBatch> func)
         {
             ArrowGroupedMapWorkerFunction.ExecuteDelegate wrapper =
                 new ArrowGroupedMapUdfWrapper(func).Execute;

@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Xunit;
@@ -32,49 +33,497 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         /// UDF that takes in Array type.
         /// </summary>
         [Fact]
-        public void TestUdfWithArrayType()
+        public void TestUdfWithSimpleArrayType()
         {
-            // UDF with ArrayType throws a following exception:
-            // [] [] [Error] [TaskRunner] [0] ProcessStream() failed with exception: System.InvalidCastException: Unable to cast object of type 'System.Collections.ArrayList' to type 'System.Int32[]'.
-            //  at Microsoft.Spark.Sql.PicklingUdfWrapper`2.Execute(Int32 splitIndex, Object[] input, Int32[] argOffsets) in Microsoft.Spark\Sql\PicklingUdfWrapper.cs:line 44
-            //  at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.SingleCommandRunner.Run(Int32 splitId, Object input) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 239
-            //  at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.ExecuteCore(Stream inputStream, Stream outputStream, SqlCommand[] commands) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 139
-            Func<Column, Column> udf = Udf<int[], string>(array => string.Join(',', array));
-            Assert.Throws<Exception>(() => _df.Select(udf(_df["ids"])).Show());
+            var schema = new StructType(new StructField[]
+            {
+                new StructField("name", new StringType()),
+                new StructField("ids", new ArrayType(new IntegerType()))
+            });
 
-            // Currently, there is a workaround to support ArrayType using ArrayList.
-            Func<Column, Column> workingUdf = Udf<ArrayList, string>(
-                array => string.Join(',', array.ToArray()));
+            var data = new GenericRow[]
+            {
+                new GenericRow(new object[] { "Name1", new int[] { 1, 2, 3 } }),
+                new GenericRow(new object[] { "Name2", null }),
+                new GenericRow(new object[] { "Name3", new int[] { 4 } }),
+            };
 
-            Row[] rows = _df.Select(workingUdf(_df["ids"])).Collect().ToArray();
-            Assert.Equal(3, rows.Length);
+            DataFrame df = _spark.CreateDataFrame(data, schema);
 
-            var expected = new string[] { "1", "3,5", "2,4" };
-            string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
-            Assert.Equal(expected, rowsToArray);
+            var expected = new string[] { "Name1|1,2,3", "Name2", "Name3|4" };
+
+            {
+                // Test using array
+                Func<Column, Column, Column> udf =
+                    Udf<string, int[], string>(
+                        (name, ids) =>
+                        {
+                            if (ids == null)
+                            {
+                                return name;
+                            }
+
+                            return AppendEnumerable(name, ids);
+                        });
+
+                Row[] rows = df.Select(udf(df["name"], df["ids"])).Collect().ToArray();
+                Assert.Equal(expected, rows.Select(r => r.GetAs<string>(0)));
+            }
+            {
+                // Test using ArrayList
+                Func<Column, Column, Column> udf =
+                    Udf<string, ArrayList, string>(
+                        (name, ids) =>
+                        {
+                            if (ids == null)
+                            {
+                                return name;
+                            }
+
+                            return AppendEnumerable(name, ids.ToArray());
+                        });
+
+                Row[] rows = df.Select(udf(df["name"], df["ids"])).Collect().ToArray();
+                Assert.Equal(expected, rows.Select(r => r.GetAs<string>(0)));
+            }
+        }
+
+        [Fact]
+        public void TestUdfWithArrayOfArrayType()
+        {
+            var schema = new StructType(new StructField[]
+            {
+                new StructField("name", new StringType()),
+                new StructField("ids", new ArrayType(new IntegerType())),
+                new StructField("arrIds", new ArrayType(new ArrayType(new IntegerType()))),
+                new StructField(
+                    "arrArrIds",
+                    new ArrayType(new ArrayType(new ArrayType(new IntegerType()))))
+            });
+
+            var data = new GenericRow[]
+            {
+                new GenericRow(new object[]
+                {
+                    "Name1",
+                    new int[] { 1, 2, 3 },
+                    new int[][]
+                    {
+                        new int[] { 10, 11 },
+                        new int[] { 12 }
+                    },
+                    new int[][][]
+                    {
+                        new int[][]
+                        {
+                            new int[] { 100, 101 },
+                            new int[] { 102 }
+                        },
+                        new int[][]
+                        {
+                            new int[] { 103 }
+                        }
+                    }
+                }),
+                new GenericRow(new object[]
+                {
+                    "Name2",
+                    null,
+                    null,
+                    null
+                }),
+                new GenericRow(new object[]
+                {
+                    "Name3",
+                    new int[] { 4 },
+                    new int[][]
+                    {
+                        new int[] { 13 },
+                    },
+                    new int[][][]
+                    {
+                        new int[][]
+                        {
+                            new int[] { 104 }
+                        }
+                    }
+                }),
+            };
+
+            DataFrame df = _spark.CreateDataFrame(data, schema);
+
+            var expected = new string[]
+            {
+                "Name1|1,2,3|+10,+11,+12|++100,++101,++102,++103",
+                "Name2",
+                "Name3|4|+13|++104"
+            };
+
+            {
+                // Test using array
+                Func<Column, Column, Column, Column, Column> udf =
+                    Udf<string, int[], int[][], int[][][], string>(
+                        (name, ids, arrIds, arrArrIds) =>
+                        {
+                            var sb = new StringBuilder();
+                            sb.Append(name);
+
+                            if (ids != null)
+                            {
+                                AppendEnumerable(sb, ids);
+                            }
+
+                            if (arrIds != null)
+                            {
+                                AppendEnumerable(
+                                    sb,
+                                    arrIds.SelectMany(i => i.Select(j => $"+{j}")));
+                            }
+
+                            if (arrArrIds != null)
+                            {
+                                AppendEnumerable(
+                                    sb,
+                                    arrArrIds.SelectMany(
+                                        i => i.SelectMany(j => j.Select(k => $"++{k}"))));
+                            }
+
+                            return sb.ToString();
+                        });
+
+                Row[] rows =
+                    df.Select(udf(df["name"], df["ids"], df["arrIds"], df["arrArrIds"]))
+                    .Collect()
+                    .ToArray();
+
+                Assert.Equal(expected, rows.Select(r => r.GetAs<string>(0)));
+            }
+            {
+                // Test using ArrayList
+                Func<Column, Column, Column, Column, Column> udf =
+                    Udf<string, ArrayList, ArrayList, ArrayList, string>(
+                        (name, ids, arrIds, arrArrIds) =>
+                        {
+                            var sb = new StringBuilder();
+                            sb.Append(name);
+
+                            if (ids != null)
+                            {
+                                AppendEnumerable(sb, ids.ToArray());
+                            }
+
+                            if (arrIds != null)
+                            {
+                                IEnumerable<object> idsEnum = arrIds
+                                    .ToArray()
+                                    .SelectMany(
+                                        i => ((ArrayList)i).ToArray().Select(j => $"+{j}"));
+                                AppendEnumerable(sb, idsEnum);
+                            }
+
+                            if (arrArrIds != null)
+                            {
+                                IEnumerable<object> idsEnum = arrArrIds
+                                    .ToArray()
+                                    .SelectMany(i => ((ArrayList)i).ToArray()
+                                        .SelectMany(
+                                            j => ((ArrayList)j).ToArray().Select(k => $"++{k}")));
+                                AppendEnumerable(sb, idsEnum);
+                            }
+
+                            return sb.ToString();
+                        });
+
+                Row[] rows =
+                    df.Select(udf(df["name"], df["ids"], df["arrIds"], df["arrArrIds"]))
+                    .Collect()
+                    .ToArray();
+
+                Assert.Equal(expected, rows.Select(r => r.GetAs<string>(0)));
+            }
+        }
+
+        [Fact]
+        public void TestUdfWithRowArrayType()
+        {
+            // Test array of Rows
+            var schema = new StructType(new StructField[]
+            {
+                new StructField("name", new StringType()),
+                new StructField("rows", new ArrayType(
+                    new StructType(new StructField[]
+                    {
+                        new StructField("first", new StringType()),
+                        new StructField("second", new StringType()),
+                        new StructField("ids", new ArrayType(new IntegerType())),
+                    })))
+            });
+
+            var data = new GenericRow[]
+            {
+                new GenericRow(new object[]
+                {
+                    "Name1",
+                    new GenericRow[]
+                    {
+                        new GenericRow(new object[]
+                        {
+                            "f1",
+                            "s1",
+                            new int[] { 1, 2, 3 }
+                        }),
+                        new GenericRow(new object[]
+                        {
+                            "f2",
+                            "s2",
+                            new int[] { 4, 5 }
+                        })
+                    }
+                }),
+                new GenericRow(new object[]
+                {
+                    "Name2",
+                    null,
+                }),
+                new GenericRow(new object[]
+                {
+                    "Name3",
+                    new GenericRow[]
+                    {
+                        new GenericRow(new object[]
+                        {
+                            "f3",
+                            "s3",
+                            new int[] { 6 }
+                        })
+                    }
+                }),
+            };
+
+            DataFrame df = _spark.CreateDataFrame(data, schema);
+
+            var expected = new string[]
+            {
+                "Name1|f1s1,1,2,3,f2s2,4,5",
+                "Name2",
+                "Name3|f3s3,6"
+            };
+
+            {
+                // Test using array
+                Func<Column, Column, Column> udf =
+                    Udf<string, Row[], string>(
+                        (name, rows) =>
+                        {
+                            var sb = new StringBuilder();
+                            sb.Append(name);
+
+                            if (rows != null)
+                            {
+                                AppendEnumerable(sb, rows.Select(r =>
+                                {
+                                    string firstlast =
+                                        r.GetAs<string>(0) + r.GetAs<string>(1);
+                                    int[] ids = r.GetAs<int[]>("ids");
+                                    if (ids == null)
+                                    {
+                                        return firstlast;
+                                    }
+
+                                    return firstlast + "," + string.Join(",", ids);
+                                }));
+                            }
+
+                            return sb.ToString();
+                        });
+
+                Row[] rows = df.Select(udf(df["name"], df["rows"])).Collect().ToArray();
+                Assert.Equal(expected, rows.Select(r => r.GetAs<string>(0)));
+            }
+
+            {
+                // Test using ArrayList
+                Func<Column, Column, Column> udf =
+                    Udf<string, ArrayList, string>(
+                        (name, rows) =>
+                        {
+                            var sb = new StringBuilder();
+                            sb.Append(name);
+
+                            if (rows != null)
+                            {
+                                AppendEnumerable(sb, rows.ToArray().Select(r =>
+                                {
+                                    Row row = (Row)r;
+                                    string firstlast =
+                                        row.GetAs<string>(0) + row.GetAs<string>(1);
+                                    int[] ids = row.GetAs<int[]>("ids");
+                                    if (ids == null)
+                                    {
+                                        return firstlast;
+                                    }
+
+                                    return firstlast + "," + string.Join(",", ids);
+                                }));
+                            }
+
+                            return sb.ToString();
+                        });
+
+                Row[] rows = df.Select(udf(df["name"], df["rows"])).Collect().ToArray();
+                Assert.Equal(expected, rows.Select(r => r.GetAs<string>(0)));
+            }
         }
 
         /// <summary>
         /// UDF that returns Array type.
         /// </summary>
         [Fact]
-        public void TestUdfWithReturnAsArrayType()
+        public void TestUdfWithReturnAsSimpleArrayType()
         {
-            // UDF with return as ArrayType throws a following exception:
-            // Unhandled Exception: System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation. 
-            // ---> System.NotImplementedException: The method or operation is not implemented.
-            // at Microsoft.Spark.Sql.Row.Convert() in Microsoft.Spark\Sql\Row.cs:line 169
-            // at Microsoft.Spark.Sql.Row..ctor(Object[] values, StructType schema) in Microsoft.Spark\Sql\Row.cs:line 34
-            // at Microsoft.Spark.Sql.RowConstructor.GetRow() in Microsoft.Spark\Sql\RowConstructor.cs:line 113
-            // at Microsoft.Spark.Sql.RowCollector.Collect(ISocketWrapper socket) + MoveNext() in Microsoft.Spark\Sql\RowCollector.cs:line 36
-            // at Microsoft.Spark.Sql.DataFrame.GetRows(String funcName) + MoveNext() in Microsoft.Spark\Sql\DataFrame.cs:line 891
-            Func<Column, Column> udf = Udf<string, string[]>(
-                str => new string[] { str, str + str });
-            Assert.Throws<NotImplementedException>(
-                () => _df.Select(udf(_df["name"])).Collect().ToArray());
+            // Test simple arrays
+            var schema = new StructType(new StructField[]
+            {
+                new StructField("first", new StringType()),
+                new StructField("last",  new StringType())
+            });
 
-            // Show() works here. See the example below.
-            _df.Select(udf(_df["name"])).Show();
+            var data = new GenericRow[]
+            {
+                new GenericRow(new object[] { "John", "Smith" }),
+                new GenericRow(new object[] { "Jane", "Doe" })
+            };
+
+            Func<Column, Column, Column> udf =
+                Udf<string, string, string[]>((first, last) => new string[] { first, last });
+
+            DataFrame df = _spark.CreateDataFrame(data, schema);
+            Row[] rows = df.Select(udf(df["first"], df["last"])).Collect().ToArray();
+
+            var expected = new string[][]
+            {
+                new[] { "John", "Smith" },
+                new[] { "Jane", "Doe" }
+            };
+
+            Assert.Equal(expected.Length, rows.Length);
+
+            for (int i = 0; i < expected.Length; ++i)
+            {
+                // Test using array
+                Assert.Equal(expected[i], rows[i].GetAs<string[]>(0));
+
+                // Test using ArrayList
+                var actual = rows[i].Get(0);
+                Assert.Equal(rows[i].GetAs<ArrayList>(0), actual);
+                Assert.True(actual is ArrayList);
+                Assert.Equal(expected[i], ((ArrayList)actual).ToArray());
+            }
+        }
+
+        [Fact]
+        public void TestUdfWithReturnAsArrayOfArrayType()
+        {
+            // Test array of arrays
+            var schema = new StructType(new StructField[]
+            {
+                new StructField("first", new StringType()),
+                new StructField("last",  new StringType())
+            });
+
+            var data = new GenericRow[]
+            {
+                new GenericRow(new object[] { "John", "Smith" }),
+                new GenericRow(new object[] { "Jane", "Doe" })
+            };
+
+            Func<Column, Column, Column> udf =
+                Udf<string, string, string[][]>((first, last) => new string[][]
+                {
+                    new string[] { first, last },
+                    new string[] { last, first }
+                });
+
+            DataFrame df = _spark.CreateDataFrame(data, schema);
+            Row[] rows = df.Select(udf(df["first"], df["last"])).Collect().ToArray();
+
+            var expectedArr = new string[][][]
+            {
+                new string[][]
+                {
+                    new string[] { "John", "Smith" },
+                    new string[] { "Smith", "John" }
+                },
+                new string[][]
+                {
+                    new string[] { "Jane", "Doe" },
+                    new string[] { "Doe", "Jane" }
+                }
+            };
+
+            Assert.Equal(expectedArr.Length, rows.Length);
+
+            for (int i = 0; i < expectedArr.Length; ++i)
+            {
+                {
+                    // Test using array
+                    string[][] expected = expectedArr[i];
+                    string[][] actual = rows[i].GetAs<string[][]>(0);
+                    Assert.Equal(expected.Length, actual.Length);
+                    for (int j = 0; j < expected.Length; ++j)
+                    {
+                        Assert.Equal(expected[j], actual[j]);
+                    }
+                }
+                {
+                    // Test using ArrayList
+                    string[][] expected = expectedArr[i];
+                    object actual = rows[i].Get(0);
+                    Assert.Equal(rows[i].GetAs<ArrayList>(0), actual);
+                    Assert.True(actual is ArrayList);
+
+                    var actualArrayList = (ArrayList)actual;
+                    Assert.Equal(expected.Length, actualArrayList.Count);
+                    for (int j = 0; j < expected.Length; ++j)
+                    {
+                        Assert.True(actualArrayList[j] is ArrayList);
+                        Assert.Equal(expected[j], ((ArrayList)actualArrayList[j]).ToArray());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void TestUdfWithArrayChain()
+        {
+            var schema = new StructType(new StructField[]
+            {
+                new StructField("first", new StringType()),
+                new StructField("second", new StringType()),
+            });
+
+            var data = new GenericRow[]
+            {
+                new GenericRow(new object[] { "f1", "s1" }),
+                new GenericRow(new object[] { "f2", "s2" }),
+                new GenericRow(new object[] { "f3", "s3" }),
+            };
+
+            DataFrame df = _spark.CreateDataFrame(data, schema);
+
+            var expected = new string[] { "f1,s1", "f2,s2", "f3,s3" };
+
+            // chain array
+            Func<Column, Column, Column> inner = Udf<string, string, string[]>(
+                (f, s) => new string[] { f, s });
+            Func<Column, Column> outer = Udf<string[], string>(
+                strArray => string.Join(",", strArray));
+            Row[] rows =
+                df.Select(outer(inner(df["first"], df["second"]))).Collect().ToArray();
+
+            Assert.Equal(expected, rows.Select(r => r.GetAs<string>(0)));
+
+            // chaining ArrayList not supported.
         }
 
         /// <summary>
@@ -83,27 +532,91 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithMapType()
         {
-            // UDF with MapType throws a following exception:
-            // [] [] [Error] [TaskRunner] [0] ProcessStream() failed with exception: System.InvalidCastException: Unable to cast object of type 'System.Collections.Hashtable' to type 'System.Collections.Generic.IDictionary`2[System.String,System.Int32[]]'.
-            // at Microsoft.Spark.Sql.PicklingUdfWrapper`2.Execute(Int32 splitIndex, Object[] input, Int32[] argOffsets) in Microsoft.Spark\Sql\PicklingUdfWrapper.cs:line 44
-            // at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.SingleCommandRunner.Run(Int32 splitId, Object input) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 239
-            // at Microsoft.Spark.Worker.Command.PicklingSqlCommandExecutor.ExecuteCore(Stream inputStream, Stream outputStream, SqlCommand[] commands) in Microsoft.Spark.Worker\Command\SqlCommandExecutor.cs:line 139
-            Func<Column, Column> udf = Udf<IDictionary<string, int[]>, string>(
-                dict => dict.Count.ToString());
-
             DataFrame df = _df.WithColumn("NameIdsMap", Map(_df["name"], _df["ids"]));
-            Assert.Throws<Exception>(() => df.Select(udf(df["NameIdsMap"])).Show());
+            string[] expected = new string[] { "Michael|1", "Andy|3,5", "Justin|2,4" };
 
-            // Currently, there is a workaround to support MapType using Hashtable.
-            Func<Column, Column> workingUdf = Udf<Hashtable, string>(
-                dict => dict.Count.ToString());
+            {
+                // Test Dictionary with array
+                Func<Column, Column> udf = Udf<Dictionary<string, int[]>, string>(
+                    dict =>
+                    {
+                        var sb = new StringBuilder();
+                        foreach (KeyValuePair<string, int[]> kvp in dict)
+                        {
+                            sb.Append(kvp.Key);
+                            AppendEnumerable(sb, kvp.Value);
+                        }
 
-            Row[] rows = df.Select(workingUdf(df["NameIdsMap"])).Collect().ToArray();
-            Assert.Equal(3, rows.Length);
+                        return sb.ToString();
+                    });
 
-            var expected = new string[] { "1", "1", "1" };
-            string[] actual = rows.Select(x => x[0].ToString()).ToArray();
-            Assert.Equal(expected, actual);
+                Row[] rows = df.Select(udf(df["NameIdsMap"])).Collect().ToArray();
+                Assert.Equal(expected, rows.Select(r => r.GetAs<string>(0)));
+            }
+            {
+                // Test Dictionary with ArrayList
+                Func<Column, Column> udf = Udf<Dictionary<string, ArrayList>, string>(
+                    dict =>
+                    {
+                        var sb = new StringBuilder();
+                        foreach (KeyValuePair<string, ArrayList> kvp in dict)
+                        {
+                            sb.Append(kvp.Key);
+                            AppendEnumerable(sb, kvp.Value.ToArray());
+                        }
+
+                        return sb.ToString();
+                    });
+
+                Row[] rows = df.Select(udf(df["NameIdsMap"])).Collect().ToArray();
+                Assert.Equal(expected, rows.Select(r => r.GetAs<string>(0)));
+            }
+        }
+
+        [Fact]
+        public void TestUdfWithMapOfMapType()
+        {
+            var schema = new StructType(new StructField[]
+            {
+                new StructField("first", new StringType()),
+                new StructField("second", new StringType()),
+                new StructField("third", new StringType()),
+            });
+
+            var data = new GenericRow[]
+            {
+                new GenericRow(new object[] { "f1", "s1", "t1" }),
+                new GenericRow(new object[] { "f2", "s2", "t2" }),
+                new GenericRow(new object[] { "f3", "s3", "t3" }),
+            };
+
+            DataFrame df = _spark
+                .CreateDataFrame(data, schema)
+                .WithColumn("innerMap", Map(Col("second"), Col("third")))
+                .WithColumn("outerMap", Map(Col("first"), Col("innerMap")));
+
+            string[] expected = new string[] { "f1->s1t1", "f2->s2t2", "f3->s3t3" };
+
+            Func<Column, Column> udf = Udf<Dictionary<string, Dictionary<string, string>>, string>(
+                dict =>
+                {
+                    var sb = new StringBuilder();
+                    foreach (KeyValuePair<string, Dictionary<string, string>> kvp in dict)
+                    {
+                        sb.Append(kvp.Key);
+                        foreach (KeyValuePair<string, string> innerKvp in kvp.Value)
+                        {
+                            sb.Append("->");
+                            sb.Append(innerKvp.Key);
+                            sb.Append(innerKvp.Value);
+                        }
+                    }
+
+                    return sb.ToString();
+                });
+
+            Row[] rows = df.Select(udf(df["outerMap"])).Collect().ToArray();
+            Assert.Equal(expected, rows.Select(r => r.GetAs<string>(0)));
         }
 
         /// <summary>
@@ -112,22 +625,39 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         [Fact]
         public void TestUdfWithReturnAsMapType()
         {
-            // UDF with return as MapType throws a following exception:
-            // Unhandled Exception: System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation. 
-            // ---> System.NotImplementedException: The method or operation is not implemented.
-            // System.NotImplementedException: The method or operation is not implemented.
-            // at Microsoft.Spark.Sql.Row.Convert() in Microsoft.Spark\Sql\Row.cs:line 169
-            // at Microsoft.Spark.Sql.Row..ctor(Object[] values, StructType schema) in Microsoft.Spark\Sql\Row.cs:line 34
-            // at Microsoft.Spark.Sql.RowConstructor.GetRow() in MicrTosoft.Spark\Sql\RowConstructor.cs:line 113
-            // at Microsoft.Spark.Sql.RowCollector.Collect(ISocketWrapper socket) + MoveNext() in Microsoft.Spark\Sql\RowCollector.cs:line 36
-            // at Microsoft.Spark.Sql.DataFrame.GetRows(String funcName) + MoveNext() in Microsoft.Spark\Sql\DataFrame.cs:line 891
-            Func<Column, Column> udf = Udf<string, IDictionary<string, string>>(
-                str => new Dictionary<string, string> { { str, str } });
-            Assert.Throws<NotImplementedException>(
-                () => _df.Select(udf(_df["name"])).Collect().ToArray());
+            var expectedDicts = new Dictionary<string, int[]>[]
+            {
+                new Dictionary<string, int[]> { { "Michael", new int[] { 1 } } },
+                new Dictionary<string, int[]> { { "Andy", new int[] { 3, 5 } } },
+                new Dictionary<string, int[]> { { "Justin", new int[] { 2, 4 } } }
+            };
 
-            // Show() works here. See the example below.
-            _df.Select(udf(_df["name"])).Show();
+            Func<Column, Column, Column> udf =
+                Udf<string, int[], Dictionary<string, int[]>>(
+                    (name, ids) => new Dictionary<string, int[]> { { name, ids } });
+
+            Row[] rows = _df.Select(udf(_df["name"], _df["ids"])).Collect().ToArray();
+
+            Assert.Equal(expectedDicts.Length, rows.Length);
+
+            // Test column as Dictionary
+            Assert.Equal(expectedDicts, rows.Select(r => r.GetAs<Dictionary<string, int[]>>(0)));
+
+            // Test column as Hashtable
+            for (int i = 0; i < expectedDicts.Length; ++i)
+            {
+                object column = rows[i].Get(0);
+                Assert.True(column is Hashtable);
+                Hashtable actual = (Hashtable)column;
+
+                Dictionary<string, int[]> expected = expectedDicts[i];
+                Assert.Equal(expected.Count, actual.Count);
+                foreach (KeyValuePair<string, int[]> kvp in expected)
+                {
+                    Assert.True(actual.ContainsKey(kvp.Key));
+                    Assert.Equal(kvp.Value, actual[kvp.Key]);
+                }
+            }
         }
 
         /// <summary>
@@ -480,5 +1010,11 @@ namespace Microsoft.Spark.E2ETest.UdfTests
                 }
             }
         }
+
+        private static string AppendEnumerable<T>(string s, IEnumerable<T> enumerable) =>
+            s + "|" + string.Join(",", enumerable);
+
+        private static void AppendEnumerable<T>(StringBuilder sb, IEnumerable<T> enumerable) =>
+            sb.Append("|" + string.Join(",", enumerable));
     }
 }

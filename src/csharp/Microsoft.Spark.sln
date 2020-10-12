@@ -23,8 +23,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.CSharp.Exam
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Microsoft.Spark.FSharp.Examples", "..\..\examples\Microsoft.Spark.FSharp.Examples\Microsoft.Spark.FSharp.Examples.fsproj", "{4E379DB3-7741-43C2-B32D-17AD96FEA7D0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Experimental", "Microsoft.Spark.Experimental\Microsoft.Spark.Experimental.csproj", "{7F276D07-6D94-49E3-A305-4B965DE7A700}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.E2ETest.ExternalLibrary", "Microsoft.Spark.E2ETest.ExternalLibrary\Microsoft.Spark.E2ETest.ExternalLibrary.csproj", "{920A2CC8-4075-41D1-BC30-C496430BD9E4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{71A19F75-8279-40AB-BEA0-7D4B153FC416}"
@@ -33,13 +31,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Delta.E2ETest", "Extensions\Microsoft.Spark.Extensions.Delta.E2ETest\Microsoft.Spark.Extensions.Delta.E2ETest.csproj", "{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Azure.Synapse.Analytics", "Extensions\Microsoft.Spark.Extensions.Azure.Synapse.Analytics\Microsoft.Spark.Extensions.Azure.Synapse.Analytics.csproj", "{47652C7D-B076-4FD9-98AC-959E38BE18E3}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.DotNet.Interactive", "Extensions\Microsoft.Spark.Extensions.DotNet.Interactive\Microsoft.Spark.Extensions.DotNet.Interactive.csproj", "{9C32014D-8C0C-40F1-9ABA-C3BF19687E5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest", "Extensions\Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest\Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest.csproj", "{7BDE09ED-04B3-41B2-A466-3D6F7225291E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest", "Extensions\Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest\Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest.csproj", "{7BDE09ED-04B3-41B2-A466-3D6F7225291E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Spark.Extensions.Hyperspace", "Extensions\Microsoft.Spark.Extensions.Hyperspace\Microsoft.Spark.Extensions.Hyperspace.csproj", "{70DDA4E9-1195-4A29-9AA1-96A8223A6D4F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Hyperspace", "Extensions\Microsoft.Spark.Extensions.Hyperspace\Microsoft.Spark.Extensions.Hyperspace.csproj", "{70DDA4E9-1195-4A29-9AA1-96A8223A6D4F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Hyperspace.E2ETest", "Extensions\Microsoft.Spark.Extensions.Hyperspace.E2ETest\Microsoft.Spark.Extensions.Hyperspace.E2ETest.csproj", "{C6019E44-C777-4DE2-B70E-EA025B7D044D}"
 EndProject
@@ -77,10 +73,6 @@ Global
 		{4E379DB3-7741-43C2-B32D-17AD96FEA7D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E379DB3-7741-43C2-B32D-17AD96FEA7D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E379DB3-7741-43C2-B32D-17AD96FEA7D0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7F276D07-6D94-49E3-A305-4B965DE7A700}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7F276D07-6D94-49E3-A305-4B965DE7A700}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7F276D07-6D94-49E3-A305-4B965DE7A700}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7F276D07-6D94-49E3-A305-4B965DE7A700}.Release|Any CPU.Build.0 = Release|Any CPU
 		{920A2CC8-4075-41D1-BC30-C496430BD9E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{920A2CC8-4075-41D1-BC30-C496430BD9E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{920A2CC8-4075-41D1-BC30-C496430BD9E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -93,10 +85,6 @@ Global
 		{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63}.Release|Any CPU.Build.0 = Release|Any CPU
-		{47652C7D-B076-4FD9-98AC-959E38BE18E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{47652C7D-B076-4FD9-98AC-959E38BE18E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{47652C7D-B076-4FD9-98AC-959E38BE18E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{47652C7D-B076-4FD9-98AC-959E38BE18E3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9C32014D-8C0C-40F1-9ABA-C3BF19687E5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9C32014D-8C0C-40F1-9ABA-C3BF19687E5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C32014D-8C0C-40F1-9ABA-C3BF19687E5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -122,7 +110,6 @@ Global
 		{4E379DB3-7741-43C2-B32D-17AD96FEA7D0} = {C8C53525-4FEB-4B5B-91A2-619566C72F3E}
 		{2048446B-45AB-4304-B230-50EDF6E8E6A4} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
 		{206E16CA-ED59-4F5E-8EA1-9BB7BEEACB63} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
-		{47652C7D-B076-4FD9-98AC-959E38BE18E3} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
 		{9C32014D-8C0C-40F1-9ABA-C3BF19687E5C} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
 		{7BDE09ED-04B3-41B2-A466-3D6F7225291E} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
 		{70DDA4E9-1195-4A29-9AA1-96A8223A6D4F} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}

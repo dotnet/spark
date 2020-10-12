@@ -13,19 +13,24 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 {
     [Collection("Spark E2E Tests")]
-    public class BucketizerTests
+    public class BucketizerTests : FeatureBaseTests<Bucketizer>
     {
         private readonly SparkSession _spark;
 
-        public BucketizerTests(SparkFixture fixture)
+        public BucketizerTests(SparkFixture fixture) : base(fixture)
         {
             _spark = fixture.Spark;
         }
 
+        /// <summary>
+        /// Create a <see cref="DataFrame"/>, create a <see cref="Bucketizer"/> and test the
+        /// available methods. Test the FeatureBase methods using <see cref="FeatureBaseTests"/>.
+        /// </summary>
         [Fact]
         public void TestBucketizer()
         {
-            var expectedSplits = new double[] { double.MinValue, 0.0, 10.0, 50.0, double.MaxValue };
+            var expectedSplits =
+                new double[] { double.MinValue, 0.0, 10.0, 50.0, double.MaxValue };
 
             string expectedHandle = "skip";
             string expectedUid = "uid";
@@ -60,18 +65,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 Assert.Equal(bucketizer.Uid(), loadedBucketizer.Uid());
             }
             
-            Assert.NotEmpty(bucketizer.ExplainParams());
-            
-            Param handleInvalidParam = bucketizer.GetParam("handleInvalid");
-            Assert.NotEmpty(handleInvalidParam.Doc);
-            Assert.NotEmpty(handleInvalidParam.Name);
-            Assert.Equal(handleInvalidParam.Parent, bucketizer.Uid());
-
-            Assert.NotEmpty(bucketizer.ExplainParam(handleInvalidParam));
-            bucketizer.Set(handleInvalidParam, "keep");
-            Assert.Equal("keep", bucketizer.GetHandleInvalid());
-             
-            Assert.Equal("error", bucketizer.Clear(handleInvalidParam).GetHandleInvalid());
+            TestFeatureBase(bucketizer, "handleInvalid", "keep");
         }
 
         [Fact]
