@@ -53,6 +53,14 @@ object ThreadPool {
   }
 
   /**
+   * Shutdown any running ExecutorServices.
+   */
+  def shutdown(): Unit = synchronized {
+    executors.foreach(_._2.shutdown())
+    executors.clear()
+  }
+
+  /**
    * Get the executor if it exists, otherwise create a new one.
    *
    * @param id Integer id of the thread.

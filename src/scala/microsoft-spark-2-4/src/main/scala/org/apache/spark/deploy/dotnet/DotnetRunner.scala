@@ -35,7 +35,7 @@ import scala.util.Try
 object DotnetRunner extends Logging {
   private val DEBUG_PORT = 5567
   private val supportedSparkVersions =
-      Set[String]("2.4.0", "2.4.1", "2.4.3", "2.4.4", "2.4.5", "2.4.6", "2.4.7")
+    Set[String]("2.4.0", "2.4.1", "2.4.3", "2.4.4", "2.4.5", "2.4.6", "2.4.7")
 
   val SPARK_VERSION = DotnetUtils.normalizeSparkVersion(spark.SPARK_VERSION)
 
@@ -130,7 +130,7 @@ object DotnetRunner extends Logging {
           new RedirectThread(process.getInputStream, System.out, "redirect .NET stdout").start()
           new RedirectThread(process.getErrorStream, System.out, "redirect .NET stderr").start()
 
-           process.waitFor()
+          process.waitFor()
         } catch {
           case t: Throwable =>
             logThrowable(t)
@@ -188,11 +188,10 @@ object DotnetRunner extends Logging {
         .iterator()
         .asScala
         .find(path => Files.isRegularFile(path) && path.getFileName.toString == dotnetExecutable) match {
-          case Some(path) => path.toAbsolutePath.toString
-          case None =>
-            throw new IllegalArgumentException(
-              s"Failed to find $dotnetExecutable under" +
-                s" ${dir.getAbsolutePath}")
+        case Some(path) => path.toAbsolutePath.toString
+        case None =>
+          throw new IllegalArgumentException(
+            s"Failed to find $dotnetExecutable under ${dir.getAbsolutePath}")
       }
     }
 
@@ -256,7 +255,8 @@ object DotnetRunner extends Logging {
       returnCode = dotnetProcess.waitFor()
     } catch {
       case _: InterruptedException =>
-        logInfo("Thread interrupted while waiting for graceful close. Forcefully closing .NET process")
+        logInfo(
+          "Thread interrupted while waiting for graceful close. Forcefully closing .NET process")
         returnCode = dotnetProcess.destroyForcibly().waitFor()
       case t: Throwable =>
         logThrowable(t)
