@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
+using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Interop.Ipc
 {
@@ -40,6 +41,7 @@ namespace Microsoft.Spark.Interop.Ipc
             LoggerServiceFactory.GetLogger(typeof(JvmBridge));
         private readonly int _portNumber;
         private readonly JvmThreadPoolGC _jvmThreadPoolGC;
+        private readonly bool _isRunningRepl;
 
         internal JvmBridge(int portNumber)
         {
@@ -53,6 +55,9 @@ namespace Microsoft.Spark.Interop.Ipc
 
             _jvmThreadPoolGC = new JvmThreadPoolGC(
                 _logger, this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval);
+
+            _isRunningRepl =
+                EnvironmentUtils.GetEnvironmentVariableAsBool(Constants.RunningREPLEnvVar);
 
             int numBackendThreads = SparkEnvironment.ConfigurationService.GetNumBackendThreads();
             int maxNumSockets = numBackendThreads;
@@ -184,13 +189,13 @@ namespace Microsoft.Spark.Interop.Ipc
             ISocketWrapper socket = null;
             try
             {
-                Thread thread = Thread.CurrentThread;
+                Thread thread = _isRunningRepl ? null : Thread.CurrentThread;
                 MemoryStream payloadMemoryStream = s_payloadMemoryStream ??= new MemoryStream();
                 payloadMemoryStream.Position = 0;
                 PayloadHelper.BuildPayload(
                     payloadMemoryStream,
                     isStatic,
-                    thread.ManagedThreadId,
+                    thread == null ? 1 : thread.ManagedThreadId,
                     classNameOrJvmObjectReference,
                     methodName,
                     args);
@@ -204,7 +209,10 @@ namespace Microsoft.Spark.Interop.Ipc
                     (int)payloadMemoryStream.Position);
                 outputStream.Flush();
 
-                _jvmThreadPoolGC.TryAddThread(thread);
+                if (thread != null)
+                {
+                    _jvmThreadPoolGC.TryAddThread(Thread.CurrentThread);
+                }
 
                 Stream inputStream = socket.InputStream;
                 int isMethodCallFailed = SerDe.ReadInt32(inputStream);

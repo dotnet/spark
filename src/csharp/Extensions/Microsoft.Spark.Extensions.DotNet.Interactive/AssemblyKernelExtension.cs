@@ -103,7 +103,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
         private bool TryGetSparkSession(out SparkSession sparkSession)
         {
-            sparkSession = SparkSession.GetDefaultSession();
+            sparkSession = SparkSession.GetActiveSession();
             return sparkSession != null;
         }
 
