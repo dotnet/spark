@@ -84,6 +84,9 @@ class DotnetBackend extends Logging {
 
     // Send close to .NET callback server.
     DotnetBackend.shutdownCallbackClient()
+
+    // Shutdown the thread pool whose executors could still be running.
+    ThreadPool.shutdown()
   }
 }
 
