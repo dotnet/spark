@@ -105,7 +105,7 @@ The following table outlines the supported Spark versions along with the microso
 
 ### Supported Delta Versions
 
-The following table outlines the supported Delta versions along with the Microsoft.Spark.Extensions to use with:
+The following table outlines the supported Delta versions along with the Microsoft.Spark.Extensions version to use with:
 
 <table>
     <thead>
