@@ -57,18 +57,6 @@
             <td>2.4.5</td>
         </tr>
         <tr>
-            <td>2.4.6</td>
-        </tr>
-        <tr>
-            <td>2.4.7</td>
-        </tr>
-        <tr>
-            <td>3.0.0</td>
-        </tr>
-        <tr>
-            <td>3.0.1</td>
-        </tr>
-        <tr>
             <td>2.4.2</td>
             <td><a href="https://github.com/dotnet/spark/issues/60">Not supported</a></td>
         </tr>
