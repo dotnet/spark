@@ -211,7 +211,7 @@ namespace Microsoft.Spark.Interop.Ipc
 
                 if (thread != null)
                 {
-                    _jvmThreadPoolGC.TryAddThread(Thread.CurrentThread);
+                    _jvmThreadPoolGC.TryAddThread(thread);
                 }
 
                 Stream inputStream = socket.InputStream;
