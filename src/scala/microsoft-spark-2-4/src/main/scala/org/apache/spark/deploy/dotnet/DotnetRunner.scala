@@ -144,7 +144,6 @@ object DotnetRunner extends Logging {
         } else {
           logInfo(s".NET application exited successfully")
         }
-
         // TODO: The following is causing the following error:
         // INFO ApplicationMaster: Final app status: FAILED, exitCode: 16,
         // (reason: Shutdown hook called before final status was reported.)
