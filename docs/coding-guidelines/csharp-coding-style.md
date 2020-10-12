@@ -57,7 +57,7 @@ We use the same [coding style](https://github.com/dotnet/runtime/blob/master/doc
     arr[i++]; // Post increment operator usage is intended.
     ```
 
-* **The max number of characters in a line is 100.**
+* **The max number of characters in a line is 110.**
     
     This can be easily done using the following line-break rules:
     
