@@ -11,7 +11,6 @@ using System.Text;
 using System.Threading;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
-using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Interop.Ipc
 {
@@ -33,6 +32,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private static MemoryStream s_payloadMemoryStream;
 
         private const int SocketBufferThreshold = 3;
+        private const int ThreadIdForRepl = 1;
 
         private readonly SemaphoreSlim _socketSemaphore;
         private readonly ConcurrentQueue<ISocketWrapper> _sockets =
@@ -208,7 +208,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 PayloadHelper.BuildPayload(
                     payloadMemoryStream,
                     isStatic,
-                    thread == null ? 1 : thread.ManagedThreadId,
+                    thread == null ? ThreadIdForRepl : thread.ManagedThreadId,
                     classNameOrJvmObjectReference,
                     methodName,
                     args);
