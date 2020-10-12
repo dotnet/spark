@@ -1,4 +1,9 @@
 parameters:
+- name: pools
+  type: object
+  default:
+    - "Hosted VS2017"
+    - "Hosted Ubuntu 1604"
 - name: 'versions'
   type: object
   default: {}
@@ -12,46 +17,66 @@ stages:
     displayName: E2E tests for Spark ${{ version }}
     dependsOn: Build
     jobs:
-    - job: Run
-      pool: Hosted VS2017
-  
-      variables:
-        ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-          _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-        HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
-        DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)
+    - ${{ each pool in parameters.pools }}:
+      - job: Run_${{ replace(pool, ' ', '_') }}
+        pool: ${{ pool }}
 
-      steps:
-      - task: DownloadBuildArtifacts@0
-        displayName: Download Build Artifacts
-        inputs:
-          artifactName: Microsoft.Spark.Binaries
-          downloadPath: $(Build.ArtifactStagingDirectory)
+        variables:
+          ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+            _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
 
-      - task: CopyFiles@2
-        displayName: Copy jars
-        inputs:
-          sourceFolder: $(ArtifactPath)/Jars
-          contents: '**/*.jar'
-          targetFolder: $(Build.SourcesDirectory)/src/scala
+        steps:
+        - task: DownloadBuildArtifacts@0
+          displayName: Download Build Artifacts
+          inputs:
+            artifactName: Microsoft.Spark.Binaries
+            downloadPath: $(Build.ArtifactStagingDirectory)
 
-      - task: BatchScript@1
-        displayName: Download Winutils.exe
-        inputs:
-          filename: script\download-hadoop-utils.cmd
-          arguments: $(Build.BinariesDirectory)
+        - pwsh: |
+            $pathSeparator = [IO.Path]::DirectorySeparatorChar
+            $artifactPath = "$(Build.ArtifactStagingDirectory)${pathSeparator}Microsoft.Spark.Binaries"
+            echo "##vso[task.setvariable variable=PATH_SEPARATOR]$pathSeparator"
+            echo "##vso[task.setvariable variable=ArtifactPath]$artifactPath"
 
-      - task: BatchScript@1
-        displayName: 'Download Spark Distro ${{ version }}'
-        inputs:
-          filename: script\download-spark-distros.cmd
-          arguments: $(Build.BinariesDirectory) ${{ version }}
+            $dotnetWorkerFrameworkDir = "${artifactPath}${pathSeparator}Microsoft.Spark.Worker${pathSeparator}netcoreapp3.1"
+            if ($env:AGENT_OS -eq 'Windows_NT') {
+              echo "##vso[task.setvariable variable=DOTNET_WORKER_DIR]${dotnetWorkerFrameworkDir}${pathSeparator}win-x64"
+            } else {
+              $dotnetWorkerDir = "${dotnetWorkerFrameworkDir}${pathSeparator}linux-x64"
+              chmod +x "${dotnetWorkerDir}${pathSeparator}Microsoft.Spark.Worker"
+              echo "##vso[task.setvariable variable=DOTNET_WORKER_DIR]$dotnetWorkerDir"
+            }
+          displayName: 'Setup Variables and Permissions'
 
-      - task: DotNetCoreCLI@2
-        displayName: 'E2E tests'
-        inputs:
-          command: test
-          projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-          arguments: '--configuration $(buildConfiguration) ${{ parameters.testOptions }}'
-        env:
-          SPARK_HOME: $(Build.BinariesDirectory)\spark-${{ version }}-bin-hadoop2.7
+        - task: CopyFiles@2
+          displayName: Copy jars
+          inputs:
+            sourceFolder: $(ArtifactPath)$(PATH_SEPARATOR)Jars
+            contents: '**$(PATH_SEPARATOR)*.jar'
+            targetFolder: $(Build.SourcesDirectory)$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala
+
+        - task: BatchScript@1
+          condition: eq( variables['Agent.OS'], 'Windows_NT' )
+          displayName: Download Winutils.exe
+          inputs:
+            filename: script\download-hadoop-utils.cmd
+            arguments: $(Build.BinariesDirectory)
+
+        - pwsh: |
+            echo "Downloading Spark $($env:SPARK_VERSION)"
+            curl -k -L -o spark-$($env:SPARK_VERSION).tgz https://archive.apache.org/dist/spark/spark-$($env:SPARK_VERSION)/spark-$($env:SPARK_VERSION)-bin-hadoop2.7.tgz
+            tar xzvf spark-$($env:SPARK_VERSION).tgz
+          displayName: 'Download Spark Distro ${{ version }}'
+          workingDirectory: $(Build.BinariesDirectory)
+          env:
+            SPARK_VERSION: ${{ version }}
+
+        - task: DotNetCoreCLI@2
+          displayName: 'E2E tests'
+          inputs:
+            command: test
+            projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+            arguments: '--configuration $(buildConfiguration) ${{ parameters.testOptions }}'
+          env:
+            HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
+            SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ version }}-bin-hadoop2.7
