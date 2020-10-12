@@ -43,4 +43,3 @@ USER ${USER}
 RUN pip install nteract_on_jupyter \
     && dotnet tool install -g Microsoft.dotnet-interactive \
     && dotnet interactive jupyter install
-

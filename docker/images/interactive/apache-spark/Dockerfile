@@ -15,7 +15,7 @@ ENV JUPYTER_ENABLE_LAB=true
 USER root
 
 COPY bin/* /usr/local/bin/
-COPY *.ipynb ${HOME}/nb/
+COPY *.ipynb ${HOME}/dotnet.spark/
 
 RUN cd / \
     && wget -q --show-progress --progress=bar:force:noscroll https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
@@ -23,8 +23,8 @@ RUN cd / \
     && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} spark \
     && rm spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
     && chmod 755 /usr/local/bin/start-spark-debug.sh \
-    && chown -R ${NB_UID} ${HOME} \
-    && cd ${HOME}/nb
+    && cp /dotnet/Debug/netcoreapp${DOTNET_CORE_VERSION}/*.jar ${HOME}/dotnet.spark/ \
+    && chown -R ${NB_UID} ${HOME}
 
 USER ${USER}
-WORKDIR ${HOME}/nb/
+WORKDIR ${HOME}/dotnet.spark

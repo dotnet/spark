@@ -7,7 +7,7 @@ set -o errexit   # abort on nonzero exitstatus
 set -o nounset   # abort on unbound variable
 set -o pipefail  # don't hide errors within pipes
 
-readonly image_repository='mcr.microsoft.com'
+readonly image_repository='3rdman'
 readonly supported_apache_spark_versions=("2.3.3" "2.3.4" "2.4.0" "2.4.1" "2.4.3" "2.4.4" "2.4.5" "2.4.6")
 readonly supported_dotnet_spark_versions=("0.9.0" "0.10.0" "0.11.0" "0.12.1")
 readonly dotnet_core_version=3.1
