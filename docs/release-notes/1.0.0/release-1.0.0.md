@@ -13,15 +13,15 @@
 * Update to `Microsoft.Dotnet.Interactive` 1.0.0-beta.20480.3 in `Microsoft.Spark.Extensions.DotNet.Interactive` ([#694](https://github.com/dotnet/spark/pull/694))
 * Broadcast encryption support ([#489](https://github.com/dotnet/spark/pull/489))
 * Support for Delta Lake 0.7.0 ([#692](https://github.com/dotnet/spark/pull/692))([#727](https://github.com/dotnet/spark/pull/727))
-* Helper method that returns a `DataFrame` containing the `Microsoft.Spark` and `Microsoft.Spark.Worker` assembly version info. ([#715](https://github.com/dotnet/spark/pull/715)
-* Update version check logic on the `Microsoft.Spark.Worker`. ([#718](https://github.com/dotnet/spark/pull/718)
+* Helper method that returns a `DataFrame` containing the `Microsoft.Spark` and `Microsoft.Spark.Worker` assembly version info. ([#715](https://github.com/dotnet/spark/pull/715))
+* Update version check logic on the `Microsoft.Spark.Worker`. ([#718](https://github.com/dotnet/spark/pull/718))
 
 ### Bug Fixes
 
-* Fix concurrent reading of broadcast variable file during deserialization ([612](https://github.com/dotnet/spark/pull/612))
-* Return UTF-8 encoded string from JVM => CLR ([661](https://github.com/dotnet/spark/pull/661))
-* Add JVM CallbackClient connection back to connection pool ([681](https://github.com/dotnet/spark/pull/681))
-* JvmBridge/Netty blocking connection deadlock mitigation ([714](https://github.com/dotnet/spark/pull/714))
+* Fix concurrent reading of broadcast variable file during deserialization ([#612](https://github.com/dotnet/spark/pull/612))
+* Return UTF-8 encoded string from JVM => CLR ([#661](https://github.com/dotnet/spark/pull/661))
+* Add JVM CallbackClient connection back to connection pool ([#681](https://github.com/dotnet/spark/pull/681))
+* JvmBridge/Netty blocking connection deadlock mitigation ([#714](https://github.com/dotnet/spark/pull/714), [#735](https://github.com/dotnet/spark/pull/735))
 
 ### Infrastructure / Documentation / Etc.
 
@@ -42,7 +42,8 @@
 
 ### Breaking Changes
 
-* Prior versions (`version` < `1.0`) of `Microsoft.Spark` and `Microsoft.Spark.Worker` are no longer compatible with `1.0`. If you are planning to upgrade to `1.0`, please check the [migration guide](../../migration-guide.md).
+* Prior versions (`version` < `1.0`) of `Microsoft.Spark` and `Microsoft.Spark.Worker` are no longer compatible with `1.0`. If you are planning to upgrade to `1.0`, please check the [migration guide](../../migration-guide.md#upgrading-from-microsoftspark-0x-to-10).
+* `microsoft-spark` JAR name has changed. Please check the [migration guide](../../migration-guide.md#upgrading-from-microsoftspark-0x-to-10).
 
 ### Known Issues
 
