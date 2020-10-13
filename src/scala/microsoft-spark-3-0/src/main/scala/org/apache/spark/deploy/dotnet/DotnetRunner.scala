@@ -187,11 +187,10 @@ object DotnetRunner extends Logging {
         .iterator()
         .asScala
         .find(path => Files.isRegularFile(path) && path.getFileName.toString == dotnetExecutable) match {
-          case Some(path) => path.toAbsolutePath.toString
-          case None =>
-            throw new IllegalArgumentException(
-              s"Failed to find $dotnetExecutable under" +
-                s" ${dir.getAbsolutePath}")
+        case Some(path) => path.toAbsolutePath.toString
+        case None =>
+          throw new IllegalArgumentException(
+            s"Failed to find $dotnetExecutable under ${dir.getAbsolutePath}")
       }
     }
 
@@ -255,7 +254,8 @@ object DotnetRunner extends Logging {
       returnCode = dotnetProcess.waitFor()
     } catch {
       case _: InterruptedException =>
-        logInfo("Thread interrupted while waiting for graceful close. Forcefully closing .NET process")
+        logInfo(
+          "Thread interrupted while waiting for graceful close. Forcefully closing .NET process")
         returnCode = dotnetProcess.destroyForcibly().waitFor()
       case t: Throwable =>
         logThrowable(t)
