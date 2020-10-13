@@ -134,6 +134,15 @@ namespace Microsoft.Spark.ML.Feature
                     DataType.FromJson(_jvmObject.Jvm, value.Json)));
 
         /// <summary>
+        /// Load default stop words of given language for <see cref="StopWordsRemover"/> transform
+        /// Loads the default stop words for the given language. Supported languages: danish, dutch, english,
+        /// finnish, french, german, hungarian, italian, norwegian, portuguese, russian, spanish, swedish, turkish
+        /// </summary>
+        /// <returns>string[], Default stop words for the given language</returns>
+        public string[] LoadDefaultStopWords(string language) =>
+            (string[])(_jvmObject.Invoke("loadDefaultStopWords", language));
+
+        /// <summary>
         /// Loads the <see cref="StopWordsRemover"/> that was previously saved using Save
         /// </summary>
         /// <param name="path">The path the previous <see cref="StopWordsRemover"/> was saved to</param>

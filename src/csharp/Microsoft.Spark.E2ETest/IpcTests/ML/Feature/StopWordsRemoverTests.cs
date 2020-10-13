@@ -49,6 +49,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .SetStopWords(expectedStopWords);
 
             StructType outPutSchema = stopWordsRemover.TransformSchema(input.Schema());
+            string[] defaultStopWords = stopWordsRemover.LoadDefaultStopWords("english");
 
             DataFrame output = stopWordsRemover.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
@@ -57,6 +58,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Equal(expectedCaseSensitive, stopWordsRemover.GetCaseSensitive());
             Assert.Equal(expectedStopWords, stopWordsRemover.GetStopWords());
             Assert.Equal(expectedSchema, outPutSchema);
+            Assert.NotEmpty(defaultStopWords);
 
             using (TemporaryDirectory tempDirectory = new TemporaryDirectory())
             {
