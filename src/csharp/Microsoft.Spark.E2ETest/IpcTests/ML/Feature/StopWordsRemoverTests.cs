@@ -1,3 +1,7 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
 using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.ML.Feature;
@@ -75,42 +79,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
         public void TestStopWordsRemoverWithLocale()
         {
-            string expectedUid = "theUidWithLocale";
-            string expectedInputCol = "input_col";
-            string expectedOutputCol = "output_col";
             string expectedLocale = "en_GB";
-            bool expectedCaseSensitive = false;
-            string[] expectedStopWords = new string[] {"test1", "test2"};
-
-            DataFrame input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as input_col");
-
-            StopWordsRemover stopWordsRemover = new StopWordsRemover(expectedUid)
-                .SetInputCol(expectedInputCol)
-                .SetOutputCol(expectedOutputCol)
-                .SetCaseSensitive(expectedCaseSensitive)
-                .SetLocale(expectedLocale)
-                .SetStopWords(expectedStopWords);
-
-            DataFrame output = stopWordsRemover.Transform(input);
-            Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
-            Assert.Equal(expectedInputCol, stopWordsRemover.GetInputCol());
-            Assert.Equal(expectedOutputCol, stopWordsRemover.GetOutputCol());
+            StopWordsRemover stopWordsRemover = new StopWordsRemover()
+                .SetLocale(expectedLocale);
             Assert.Equal(expectedLocale, stopWordsRemover.GetLocale());
-            Assert.Equal(expectedCaseSensitive, stopWordsRemover.GetCaseSensitive());
-            Assert.Equal(expectedStopWords, stopWordsRemover.GetStopWords());
-
-            using (TemporaryDirectory tempDirectory = new TemporaryDirectory())
-            {
-                string savePath = Path.Join(tempDirectory.Path, "StopWordsRemover");
-                stopWordsRemover.Save(savePath);
-
-                StopWordsRemover loadedStopWordsRemover = StopWordsRemover.Load(savePath);
-                Assert.Equal(stopWordsRemover.Uid(), loadedStopWordsRemover.Uid());
-            }
-
-            Assert.Equal(expectedUid, stopWordsRemover.Uid());
-
-            TestFeatureBase(stopWordsRemover, "inputCol", "input_col");
         }
     }
 }

@@ -11,7 +11,7 @@ using Microsoft.Spark.Sql.Types;
 namespace Microsoft.Spark.ML.Feature
 {
     /// <summary>
-    /// A <see cref="StopWordsRemover"/> that removes stop words from column.
+    /// A <see cref="StopWordsRemover"/> feature transformer that filters out stop words from input.
     /// </summary>
     public class StopWordsRemover : FeatureBase<StopWordsRemover>, IJvmObjectReferenceProvider
     {
@@ -38,6 +38,8 @@ namespace Microsoft.Spark.ML.Feature
         {
         }
 
+        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+
         /// <summary>
         /// Sets the column that the <see cref="StopWordsRemover"/> should read from
         /// </summary>
@@ -47,7 +49,8 @@ namespace Microsoft.Spark.ML.Feature
             WrapAsStopWordsRemover(_jvmObject.Invoke("setInputCol", value));
 
         /// <summary>
-        /// Sets the column that the <see cref="StopWordsRemover"/> to save the result
+        /// The <see cref="StopWordsRemover"/> will create a new column in the DataFrame, this is the
+        /// name of the new column.
         /// </summary>
         /// <param name="value">The name of the column to as the target</param>
         /// <returns>New <see cref="StopWordsRemover"/> object</returns>
@@ -90,7 +93,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Gets locale for <see cref="StopWordsRemover"/> transform
         /// </summary>
-        /// <returns>string, the local</returns>
+        /// <returns>string, the locale</returns>
         public string GetLocale() => (string)(_jvmObject.Invoke("getLocale"));
 
         /// <summary>
@@ -104,7 +107,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Gets case sensitivity for <see cref="StopWordsRemover"/> transform
         /// </summary>
-        /// <returns>string, Is case sensitive?</returns>
+        /// <returns>bool, Is case sensitive?</returns>
         public bool GetCaseSensitive() => (bool)(_jvmObject.Invoke("getCaseSensitive"));
 
         /// <summary>
@@ -118,7 +121,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Gets custom stop words for <see cref="StopWordsRemover"/> transform
         /// </summary>
-        /// <returns>string, Custom stop words</returns>
+        /// <returns>string[], Custom stop words</returns>
         public string[] GetStopWords() => (string[])(_jvmObject.Invoke("getStopWords"));
 
         /// <summary>
@@ -141,8 +144,6 @@ namespace Microsoft.Spark.ML.Feature
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_stopWordsRemoverClassName, "load", path));
         }
-
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         private static StopWordsRemover WrapAsStopWordsRemover(object obj) =>
             new StopWordsRemover((JvmObjectReference)obj);
