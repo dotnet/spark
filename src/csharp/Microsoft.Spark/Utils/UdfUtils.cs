@@ -201,7 +201,7 @@ namespace Microsoft.Spark.Utils
                 "DOTNET_WORKER_SPARK_VERSION",
                 SparkEnvironment.SparkVersion.ToString());
 
-            if (EnvironmentUtils.GetEnvironmentVariableAsBool(Constants.RunningREPLEnvVar))
+            if (SparkEnvironment.ConfigurationService.IsRunningRepl())
             {
                 environmentVars.Put(Constants.RunningREPLEnvVar, "true");
             }
