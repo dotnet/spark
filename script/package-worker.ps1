@@ -17,7 +17,7 @@ foreach ($framework in $frameworks)
         # Generate additional tar.gz worker files only for linux-x64.
         if ($runtime.Name.ToLower().Equals("linux-x64"))
         {
-            tar czf "$output_dir/$filename.tar.gz" $worker_version_dir
+            tar czf "$output_dir/$filename.tar.gz" $worker_version_dir --force-local
         }
         
         Compress-Archive -DestinationPath "$output_dir/$filename.zip" -Path $worker_version_dir -CompressionLevel Optimal
