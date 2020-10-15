@@ -164,6 +164,15 @@ namespace Microsoft.Spark.UnitTest
             {
                 using ISocketWrapper serverSocket = serverListener.Accept();
                 WriteAndReadTestData(serverSocket, callbackHandler, inputToHandler);
+
+                if (callbackHandler.Throws)
+                {
+                    Assert.False(callbackConnection.IsRunning);
+                }
+                else
+                {
+                    Assert.True(callbackConnection.IsRunning);
+                }
             }
         }
 
