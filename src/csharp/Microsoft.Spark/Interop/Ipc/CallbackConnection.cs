@@ -67,6 +67,8 @@ namespace Microsoft.Spark.Interop.Ipc
 
         internal long ConnectionId { get; }
 
+        internal bool IsRunning => _isRunning;
+
         /// <summary>
         /// Run and start processing the callback connection.
         /// </summary>
