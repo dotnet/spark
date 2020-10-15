@@ -14,6 +14,6 @@
 
   Old JAR  | New JAR
   ---------|---------
-  microsoft-spark-2.3.x-<version>.jar | microsoft-spark-2-3_2.11-1.0.0.jar
-  microsoft-spark-2.4.x-<version>.jar | microsoft-spark-2-4_2.11-1.0.0.jar
-  microsoft-spark-3.0.x-<version>.jar | microsoft-spark-3-0_2.12-1.0.0.jar
+  microsoft-spark-2.3.x-`<version>`.jar | microsoft-spark-2-3_2.11-1.0.0.jar
+  microsoft-spark-2.4.x-`<version>`.jar | microsoft-spark-2-4_2.11-1.0.0.jar
+  microsoft-spark-3.0.x-`<version>`.jar | microsoft-spark-3-0_2.12-1.0.0.jar
