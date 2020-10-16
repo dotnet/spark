@@ -12,7 +12,6 @@ variables:
   _TeamName: DotNetSpark
   MSBUILDSINGLELOADCONTEXT: 1
   ArtifactPath: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries'
-  CurrentDotnetWorkerDir: '$(ArtifactPath)\Microsoft.Spark.Worker\netcoreapp3.1\win-x64'
 
   # Azure DevOps variables are transformed into environment variables, with these variables we
   # avoid the first time experience and telemetry to speed up the build.
