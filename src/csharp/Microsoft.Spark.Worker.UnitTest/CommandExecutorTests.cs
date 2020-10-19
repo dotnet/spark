@@ -981,15 +981,18 @@ namespace Microsoft.Spark.Worker.UnitTest
             RecordBatch outputBatch = await arrowReader.ReadNextRecordBatchAsync();
 
             Assert.Equal(numRows, outputBatch.Length);
-            Assert.Equal(2, outputBatch.ColumnCount);
+            Assert.Equal(1, outputBatch.ColumnCount);
 
-            var stringArray = (StringArray)outputBatch.Column(0);
+            var structArray = (StructArray)outputBatch.Column(0);
+            Assert.Equal(2, structArray.Fields.Count);
+
+            var stringArray = (StringArray)structArray.Fields[0];
             for (int i = 0; i < numRows; ++i)
             {
                 Assert.Equal($"udf: {i}", stringArray.GetString(i));
             }
 
-            var doubleArray = (DoubleArray)outputBatch.Column(1);
+            var doubleArray = (DoubleArray)structArray.Fields[1];
             for (int i = 0; i < numRows; ++i)
             {
                 Assert.Equal(100 + i, doubleArray.Values[i]);
