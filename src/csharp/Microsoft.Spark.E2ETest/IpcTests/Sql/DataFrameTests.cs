@@ -373,7 +373,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         [Fact]
-        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
         public void TestDataFrameGroupedMapUdf()
         {
             DataFrame df = _spark
