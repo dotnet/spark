@@ -345,12 +345,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             int characterCount = 0;
 
-            ArrowBuffer.BitmapBuilder nullBitmap = new ArrowBuffer.BitmapBuilder();
+            ArrowBuffer.BitmapBuilder validityBufferBuilder = new ArrowBuffer.BitmapBuilder();
             for (int i = 0; i < nameColumn.Length; ++i)
             {
                 string current = nameColumn.GetString(i);
                 characterCount += current.Length;
-                nullBitmap.Append(current == null ? false : true);
+                validityBufferBuilder.Append(true);
             }
 
             int ageFieldIndex = records.Schema.GetFieldIndex("age");
@@ -374,7 +374,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                             records.Column(ageFieldIndex),
                             new Int32Array.Builder().Append(characterCount).Build()
                         },
-                        nullBitmap.Build()
+                        validityBufferBuilder.Build()
                     ),
                 },
                 returnLength);

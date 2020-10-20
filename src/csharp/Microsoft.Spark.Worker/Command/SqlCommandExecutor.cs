@@ -795,20 +795,32 @@ namespace Microsoft.Spark.Worker.Command
                 FxDataFrame dataFrame = FxDataFrame.FromArrowRecordBatch(input);
                 FxDataFrame resultDataFrame = worker.Func(dataFrame);
 
-                IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToSparkRecordBatches();
+                IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToArrowRecordBatches();
 
                 foreach (RecordBatch result in recordBatches)
                 {
-                    stat.NumEntriesProcessed += result.Length;
+                    ArrowBuffer.BitmapBuilder validityBitmapBuilder = new ArrowBuffer.BitmapBuilder();
+                    for (int i = 0; i < result.Length; i++)
+                    {
+                        validityBitmapBuilder.Append(true);
+                    }
+                    ArrowBuffer validityBitmap = validityBitmapBuilder.Build();
+
+                    StructType structType = new StructType(result.Schema.Fields.Select((KeyValuePair<string, Field> pair) => pair.Value).ToList());
+                    StructArray structArray = new StructArray(structType, result.Length, result.Arrays.Cast<Apache.Arrow.Array>(), validityBitmap);
+                    Schema schema = new Schema.Builder().Field(new Field("Struct", structType, false)).Build();
+                    RecordBatch final = new RecordBatch(schema, new[] { structArray }, result.Length);
+
+                    stat.NumEntriesProcessed += final.Length;
 
                     if (writer == null)
                     {
                         writer =
-                            new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true, ipcOptions);
+                            new ArrowStreamWriter(outputStream, final.Schema, leaveOpen: true, ipcOptions);
                     }
 
                     // TODO: Remove sync-over-async once WriteRecordBatch exists.
-                    writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
+                    writer.WriteRecordBatchAsync(final).GetAwaiter().GetResult();
                 }
             }
 
