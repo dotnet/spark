@@ -12,6 +12,7 @@ using Apache.Arrow;
 using Apache.Arrow.Ipc;
 using Apache.Arrow.Types;
 using Microsoft.Data.Analysis;
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
@@ -737,6 +738,25 @@ namespace Microsoft.Spark.Worker.Command
             return ExecuteArrowGroupedMapCommand(inputStream, outputStream, commands);
         }
 
+        private RecordBatch WrapArrowRecordBatchColumnsInAStruct(RecordBatch batch)
+        {
+            if (SparkEnvironment.SparkVersion >= new Version(Versions.V3_0_0))
+            {
+                ArrowBuffer.BitmapBuilder validityBitmapBuilder = new ArrowBuffer.BitmapBuilder();
+                for (int i = 0; i < batch.Length; i++)
+                {
+                    validityBitmapBuilder.Append(true);
+                }
+                ArrowBuffer validityBitmap = validityBitmapBuilder.Build();
+
+                StructType structType = new StructType(batch.Schema.Fields.Select((KeyValuePair<string, Field> pair) => pair.Value).ToList());
+                StructArray structArray = new StructArray(structType, batch.Length, batch.Arrays.Cast<Apache.Arrow.Array>(), validityBitmap);
+                Schema schema = new Schema.Builder().Field(new Field("Struct", structType, false)).Build();
+                return new RecordBatch(schema, new[] { structArray }, batch.Length);
+            }
+            return batch;
+        }
+
         private CommandExecutorStat ExecuteArrowGroupedMapCommand(
             Stream inputStream,
             Stream outputStream,
@@ -754,8 +774,9 @@ namespace Microsoft.Spark.Worker.Command
             ArrowStreamWriter writer = null;
             foreach (RecordBatch input in GetInputIterator(inputStream))
             {
-                RecordBatch result = worker.Func(input);
+                RecordBatch batch = worker.Func(input);
 
+                RecordBatch result = WrapArrowRecordBatchColumnsInAStruct(batch);
                 int numEntries = result.Length;
                 stat.NumEntriesProcessed += numEntries;
 
@@ -797,20 +818,9 @@ namespace Microsoft.Spark.Worker.Command
 
                 IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToArrowRecordBatches();
 
-                foreach (RecordBatch result in recordBatches)
+                foreach (RecordBatch batch in recordBatches)
                 {
-                    ArrowBuffer.BitmapBuilder validityBitmapBuilder = new ArrowBuffer.BitmapBuilder();
-                    for (int i = 0; i < result.Length; i++)
-                    {
-                        validityBitmapBuilder.Append(true);
-                    }
-                    ArrowBuffer validityBitmap = validityBitmapBuilder.Build();
-
-                    StructType structType = new StructType(result.Schema.Fields.Select((KeyValuePair<string, Field> pair) => pair.Value).ToList());
-                    StructArray structArray = new StructArray(structType, result.Length, result.Arrays.Cast<Apache.Arrow.Array>(), validityBitmap);
-                    Schema schema = new Schema.Builder().Field(new Field("Struct", structType, false)).Build();
-                    RecordBatch final = new RecordBatch(schema, new[] { structArray }, result.Length);
-
+                    RecordBatch final = WrapArrowRecordBatchColumnsInAStruct(batch);
                     stat.NumEntriesProcessed += final.Length;
 
                     if (writer == null)

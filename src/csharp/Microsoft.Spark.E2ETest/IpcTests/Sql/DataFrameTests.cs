@@ -345,12 +345,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             int characterCount = 0;
 
-            ArrowBuffer.BitmapBuilder validityBufferBuilder = new ArrowBuffer.BitmapBuilder();
             for (int i = 0; i < nameColumn.Length; ++i)
             {
                 string current = nameColumn.GetString(i);
                 characterCount += current.Length;
-                validityBufferBuilder.Append(true);
             }
 
             int ageFieldIndex = records.Schema.GetFieldIndex("age");
@@ -363,24 +361,19 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             return new RecordBatch(
                 new Schema.Builder()
-                    .Field(new Field("Ret Struct", structType, true))
+                    .Field(ageField).Field(new Field("Ret Struct", structType, true))
+                    .Field(f => f.Name("name_CharCount").DataType(Int32Type.Default))
                     .Build(),
                 new IArrowArray[]
                 {
-                    new StructArray(structType,
-                        returnLength,
-                        new List<Apache.Arrow.IArrowArray>
-                        {
-                            records.Column(ageFieldIndex),
-                            new Int32Array.Builder().Append(characterCount).Build()
-                        },
-                        validityBufferBuilder.Build()
-                    ),
+                    records.Column(ageFieldIndex),
+                    new Int32Array.Builder().Append(characterCount).Build()
                 },
                 returnLength);
         }
 
         [Fact]
+        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
         public void TestDataFrameGroupedMapUdf()
         {
             DataFrame df = _spark
