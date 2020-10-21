@@ -774,245 +774,258 @@ namespace Microsoft.Spark.Worker.UnitTest
             Assert.Equal(outputStream.Length, outputStream.Position);
         }
 
-        //[Theory]
-        //[MemberData(nameof(CommandExecutorData.Data), MemberType = typeof(CommandExecutorData))]
+        [Theory]
+        [MemberData(nameof(CommandExecutorData.Data), MemberType = typeof(CommandExecutorData))]
 
-        //public async Task TestArrowGroupedMapCommandExecutor(
-        //    Version sparkVersion,
-        //    IpcOptions ipcOptions)
-        //{
-        //    StringArray ConvertStrings(StringArray strings)
-        //    {
-        //        return (StringArray)ToArrowArray(
-        //            Enumerable.Range(0, strings.Length)
-        //                .Select(i => $"udf: {strings.GetString(i)}")
-        //                .ToArray());
-        //    }
+        public async Task TestArrowGroupedMapCommandExecutor(
+            Version sparkVersion,
+            IpcOptions ipcOptions)
+        {
+            StringArray ConvertStrings(StringArray strings)
+            {
+                return (StringArray)ToArrowArray(
+                    Enumerable.Range(0, strings.Length)
+                        .Select(i => $"udf: {strings.GetString(i)}")
+                        .ToArray());
+            }
 
-        //    Int64Array ConvertInt64s(Int64Array int64s)
-        //    {
-        //        return (Int64Array)ToArrowArray(
-        //            Enumerable.Range(0, int64s.Length)
-        //                .Select(i => int64s.Values[i] + 100)
-        //                .ToArray());
-        //    }
+            Int64Array ConvertInt64s(Int64Array int64s)
+            {
+                return (Int64Array)ToArrowArray(
+                    Enumerable.Range(0, int64s.Length)
+                        .Select(i => int64s.Values[i] + 100)
+                        .ToArray());
+            }
 
-        //    Schema resultSchema = new Schema.Builder()
-        //        .Field(b => b.Name("arg1").DataType(StringType.Default))
-        //        .Field(b => b.Name("arg2").DataType(Int64Type.Default))
-        //        .Build();
+            Schema resultSchema = new Schema.Builder()
+                .Field(b => b.Name("arg1").DataType(StringType.Default))
+                .Field(b => b.Name("arg2").DataType(Int64Type.Default))
+                .Build();
 
-        //    var udfWrapper = new Sql.ArrowGroupedMapUdfWrapper(
-        //        (batch) => new RecordBatch(
-        //            resultSchema,
-        //            new IArrowArray[]
-        //            {
-        //                ConvertStrings((StringArray)batch.Column(0)),
-        //                ConvertInt64s((Int64Array)batch.Column(1)),
-        //            },
-        //            batch.Length));
+            var udfWrapper = new Sql.ArrowGroupedMapUdfWrapper(
+                (batch) => new RecordBatch(
+                    resultSchema,
+                    new IArrowArray[]
+                    {
+                        ConvertStrings((StringArray)batch.Column(0)),
+                        ConvertInt64s((Int64Array)batch.Column(1)),
+                    },
+                    batch.Length));
 
-        //    var command = new SqlCommand()
-        //    {
-        //        ArgOffsets = new[] { 0 },
-        //        NumChainedFunctions = 1,
-        //        WorkerFunction = new Sql.ArrowGroupedMapWorkerFunction(udfWrapper.Execute),
-        //        SerializerMode = CommandSerDe.SerializedMode.Row,
-        //        DeserializerMode = CommandSerDe.SerializedMode.Row
-        //    };
+            var command = new SqlCommand()
+            {
+                ArgOffsets = new[] { 0 },
+                NumChainedFunctions = 1,
+                WorkerFunction = new Sql.ArrowGroupedMapWorkerFunction(udfWrapper.Execute),
+                SerializerMode = CommandSerDe.SerializedMode.Row,
+                DeserializerMode = CommandSerDe.SerializedMode.Row
+            };
 
-        //    var commandPayload = new Worker.CommandPayload()
-        //    {
-        //        EvalType = UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF,
-        //        Commands = new[] { command }
-        //    };
+            var commandPayload = new Worker.CommandPayload()
+            {
+                EvalType = UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF,
+                Commands = new[] { command }
+            };
 
-        //    using var inputStream = new MemoryStream();
-        //    using var outputStream = new MemoryStream();
-        //    int numRows = 10;
+            using var inputStream = new MemoryStream();
+            using var outputStream = new MemoryStream();
+            int numRows = 10;
 
-        //    // Write test data to the input stream.
-        //    Schema schema = new Schema.Builder()
-        //        .Field(b => b.Name("arg1").DataType(StringType.Default))
-        //        .Field(b => b.Name("arg2").DataType(Int64Type.Default))
-        //        .Build();
-        //    var arrowWriter =
-        //        new ArrowStreamWriter(inputStream, schema, leaveOpen: false, ipcOptions);
-        //    await arrowWriter.WriteRecordBatchAsync(
-        //        new RecordBatch(
-        //            schema,
-        //            new[]
-        //            {
-        //                ToArrowArray(
-        //                    Enumerable.Range(0, numRows)
-        //                        .Select(i => i.ToString())
-        //                        .ToArray()),
-        //                ToArrowArray(
-        //                    Enumerable.Range(0, numRows)
-        //                        .Select(i => (long)i)
-        //                        .ToArray())
-        //            },
-        //            numRows));
+            // Write test data to the input stream.
+            Schema schema = new Schema.Builder()
+                .Field(b => b.Name("arg1").DataType(StringType.Default))
+                .Field(b => b.Name("arg2").DataType(Int64Type.Default))
+                .Build();
+            var arrowWriter =
+                new ArrowStreamWriter(inputStream, schema, leaveOpen: false, ipcOptions);
+            await arrowWriter.WriteRecordBatchAsync(
+                new RecordBatch(
+                    schema,
+                    new[]
+                    {
+                        ToArrowArray(
+                            Enumerable.Range(0, numRows)
+                                .Select(i => i.ToString())
+                                .ToArray()),
+                        ToArrowArray(
+                            Enumerable.Range(0, numRows)
+                                .Select(i => (long)i)
+                                .ToArray())
+                    },
+                    numRows));
 
-        //    inputStream.Seek(0, SeekOrigin.Begin);
+            inputStream.Seek(0, SeekOrigin.Begin);
 
-        //    CommandExecutorStat stat = new CommandExecutor(sparkVersion).Execute(
-        //        inputStream,
-        //        outputStream,
-        //        0,
-        //        commandPayload);
+            CommandExecutorStat stat = new CommandExecutor(sparkVersion).Execute(
+                inputStream,
+                outputStream,
+                0,
+                commandPayload);
 
-        //    // Validate that all the data on the stream is read.
-        //    Assert.Equal(inputStream.Length, inputStream.Position);
-        //    Assert.Equal(numRows, stat.NumEntriesProcessed);
+            // Validate that all the data on the stream is read.
+            Assert.Equal(inputStream.Length, inputStream.Position);
+            Assert.Equal(numRows, stat.NumEntriesProcessed);
 
-        //    // Validate the output stream.
-        //    outputStream.Seek(0, SeekOrigin.Begin);
-        //    int arrowLength = SerDe.ReadInt32(outputStream);
-        //    Assert.Equal((int)SpecialLengths.START_ARROW_STREAM, arrowLength);
-        //    var arrowReader = new ArrowStreamReader(outputStream);
-        //    RecordBatch outputBatch = await arrowReader.ReadNextRecordBatchAsync();
+            // Validate the output stream.
+            outputStream.Seek(0, SeekOrigin.Begin);
+            int arrowLength = SerDe.ReadInt32(outputStream);
+            Assert.Equal((int)SpecialLengths.START_ARROW_STREAM, arrowLength);
+            var arrowReader = new ArrowStreamReader(outputStream);
+            RecordBatch outputBatch = await arrowReader.ReadNextRecordBatchAsync();
 
-        //    Assert.Equal(numRows, outputBatch.Length);
-        //    Assert.Equal(2, outputBatch.ColumnCount);
+            Assert.Equal(numRows, outputBatch.Length);
+            StringArray stringArray;
+            Int64Array longArray;
+            if (sparkVersion < new Version(Versions.V3_0_0))
+            {
+                Assert.Equal(2, outputBatch.ColumnCount);
+                stringArray = (StringArray)outputBatch.Column(0);
+                longArray = (Int64Array)outputBatch.Column(1);
+            }
+            else
+            {
+                Assert.Equal(1, outputBatch.ColumnCount);
+                StructArray structArray = (StructArray)outputBatch.Column(0);
+                Assert.Equal(2, structArray.Fields.Count);
+                stringArray = (StringArray)structArray.Fields[0];
+                longArray = (Int64Array)structArray.Fields[1];
+            }
 
-        //    var stringArray = (StringArray)outputBatch.Column(0);
-        //    for (int i = 0; i < numRows; ++i)
-        //    {
-        //        Assert.Equal($"udf: {i}", stringArray.GetString(i));
-        //    }
+            for (int i = 0; i < numRows; ++i)
+            {
+                Assert.Equal($"udf: {i}", stringArray.GetString(i));
+            }
 
-        //    var longArray = (Int64Array)outputBatch.Column(1);
-        //    for (int i = 0; i < numRows; ++i)
-        //    {
-        //        Assert.Equal(100 + i, longArray.Values[i]);
-        //    }
+            for (int i = 0; i < numRows; ++i)
+            {
+                Assert.Equal(100 + i, longArray.Values[i]);
+            }
 
-        //    CheckEOS(outputStream, ipcOptions);
+            CheckEOS(outputStream, ipcOptions);
 
-        //    // Validate all the data on the stream is read.
-        //    Assert.Equal(outputStream.Length, outputStream.Position);
-        //}
+            // Validate all the data on the stream is read.
+            Assert.Equal(outputStream.Length, outputStream.Position);
+        }
 
-        //[Theory]
-        //[MemberData(nameof(CommandExecutorData.Data), MemberType = typeof(CommandExecutorData))]
+        [Theory]
+        [MemberData(nameof(CommandExecutorData.Data), MemberType = typeof(CommandExecutorData))]
 
-        //public async Task TestDataFrameGroupedMapCommandExecutor(
-        //    Version sparkVersion,
-        //    IpcOptions ipcOptions)
-        //{
-        //    static ArrowStringDataFrameColumn ConvertStrings(ArrowStringDataFrameColumn strings)
-        //    {
-        //        return strings.Apply(cur => $"udf: {cur}");
-        //    }
+        public async Task TestDataFrameGroupedMapCommandExecutor(
+            Version sparkVersion,
+            IpcOptions ipcOptions)
+        {
+            static ArrowStringDataFrameColumn ConvertStrings(ArrowStringDataFrameColumn strings)
+            {
+                return strings.Apply(cur => $"udf: {cur}");
+            }
 
-        //    Schema resultSchema = new Schema.Builder()
-        //        .Field(b => b.Name("arg1").DataType(StringType.Default))
-        //        .Field(b => b.Name("arg2").DataType(Int64Type.Default))
-        //        .Build();
+            Schema resultSchema = new Schema.Builder()
+                .Field(b => b.Name("arg1").DataType(StringType.Default))
+                .Field(b => b.Name("arg2").DataType(Int64Type.Default))
+                .Build();
 
-        //    var udfWrapper = new Sql.DataFrameGroupedMapUdfWrapper(
-        //        (dataFrame) =>
-        //        {
-        //            ArrowStringDataFrameColumn stringColumn = ConvertStrings(dataFrame.Columns.GetArrowStringColumn("arg1"));
-        //            DataFrameColumn doubles = dataFrame.Columns[1] + 100;
-        //            return new DataFrame(new List<DataFrameColumn>() { stringColumn, doubles });
-        //        });
+            var udfWrapper = new Sql.DataFrameGroupedMapUdfWrapper(
+                (dataFrame) =>
+                {
+                    ArrowStringDataFrameColumn stringColumn = ConvertStrings(dataFrame.Columns.GetArrowStringColumn("arg1"));
+                    DataFrameColumn doubles = dataFrame.Columns[1] + 100;
+                    return new DataFrame(new List<DataFrameColumn>() { stringColumn, doubles });
+                });
 
-        //    var command = new SqlCommand()
-        //    {
-        //        ArgOffsets = new[] { 0 },
-        //        NumChainedFunctions = 1,
-        //        WorkerFunction = new Sql.DataFrameGroupedMapWorkerFunction(udfWrapper.Execute),
-        //        SerializerMode = CommandSerDe.SerializedMode.Row,
-        //        DeserializerMode = CommandSerDe.SerializedMode.Row
-        //    };
+            var command = new SqlCommand()
+            {
+                ArgOffsets = new[] { 0 },
+                NumChainedFunctions = 1,
+                WorkerFunction = new Sql.DataFrameGroupedMapWorkerFunction(udfWrapper.Execute),
+                SerializerMode = CommandSerDe.SerializedMode.Row,
+                DeserializerMode = CommandSerDe.SerializedMode.Row
+            };
 
-        //    var commandPayload = new Worker.CommandPayload()
-        //    {
-        //        EvalType = UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF,
-        //        Commands = new[] { command }
-        //    };
+            var commandPayload = new Worker.CommandPayload()
+            {
+                EvalType = UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF,
+                Commands = new[] { command }
+            };
 
-        //    using var inputStream = new MemoryStream();
-        //    using var outputStream = new MemoryStream();
-        //    int numRows = 10;
+            using var inputStream = new MemoryStream();
+            using var outputStream = new MemoryStream();
+            int numRows = 10;
 
-        //    // Write test data to the input stream.
-        //    Schema schema = new Schema.Builder()
-        //        .Field(b => b.Name("arg1").DataType(StringType.Default))
-        //        .Field(b => b.Name("arg2").DataType(Int64Type.Default))
-        //        .Build();
-        //    var arrowWriter =
-        //        new ArrowStreamWriter(inputStream, schema, leaveOpen: false, ipcOptions);
-        //    await arrowWriter.WriteRecordBatchAsync(
-        //        new RecordBatch(
-        //            schema,
-        //            new[]
-        //            {
-        //                ToArrowArray(
-        //                    Enumerable.Range(0, numRows)
-        //                        .Select(i => i.ToString())
-        //                        .ToArray()),
-        //                ToArrowArray(
-        //                    Enumerable.Range(0, numRows)
-        //                        .Select(i => (long)i)
-        //                        .ToArray())
-        //            },
-        //            numRows));
+            // Write test data to the input stream.
+            Schema schema = new Schema.Builder()
+                .Field(b => b.Name("arg1").DataType(StringType.Default))
+                .Field(b => b.Name("arg2").DataType(Int64Type.Default))
+                .Build();
+            var arrowWriter =
+                new ArrowStreamWriter(inputStream, schema, leaveOpen: false, ipcOptions);
+            await arrowWriter.WriteRecordBatchAsync(
+                new RecordBatch(
+                    schema,
+                    new[]
+                    {
+                        ToArrowArray(
+                            Enumerable.Range(0, numRows)
+                                .Select(i => i.ToString())
+                                .ToArray()),
+                        ToArrowArray(
+                            Enumerable.Range(0, numRows)
+                                .Select(i => (long)i)
+                                .ToArray())
+                    },
+                    numRows));
 
-        //    inputStream.Seek(0, SeekOrigin.Begin);
+            inputStream.Seek(0, SeekOrigin.Begin);
 
-        //    CommandExecutorStat stat = new CommandExecutor(sparkVersion).Execute(
-        //        inputStream,
-        //        outputStream,
-        //        0,
-        //        commandPayload);
+            CommandExecutorStat stat = new CommandExecutor(sparkVersion).Execute(
+                inputStream,
+                outputStream,
+                0,
+                commandPayload);
 
-        //    // Validate that all the data on the stream is read.
-        //    Assert.Equal(inputStream.Length, inputStream.Position);
-        //    Assert.Equal(numRows, stat.NumEntriesProcessed);
+            // Validate that all the data on the stream is read.
+            Assert.Equal(inputStream.Length, inputStream.Position);
+            Assert.Equal(numRows, stat.NumEntriesProcessed);
 
-        //    // Validate the output stream.
-        //    outputStream.Seek(0, SeekOrigin.Begin);
-        //    int arrowLength = SerDe.ReadInt32(outputStream);
-        //    Assert.Equal((int)SpecialLengths.START_ARROW_STREAM, arrowLength);
-        //    var arrowReader = new ArrowStreamReader(outputStream);
-        //    RecordBatch outputBatch = await arrowReader.ReadNextRecordBatchAsync();
+            // Validate the output stream.
+            outputStream.Seek(0, SeekOrigin.Begin);
+            int arrowLength = SerDe.ReadInt32(outputStream);
+            Assert.Equal((int)SpecialLengths.START_ARROW_STREAM, arrowLength);
+            var arrowReader = new ArrowStreamReader(outputStream);
+            RecordBatch outputBatch = await arrowReader.ReadNextRecordBatchAsync();
 
-        //    Assert.Equal(numRows, outputBatch.Length);
-        //    StringArray stringArray;
-        //    DoubleArray doubleArray;
-        //    if (sparkVersion < new Version(Versions.V3_0_0))
-        //    {
-        //        Assert.Equal(2, outputBatch.ColumnCount);
-        //        stringArray = (StringArray)outputBatch.Column(0);
-        //        doubleArray = (DoubleArray)outputBatch.Column(1);
-        //    }
-        //    else
-        //    {
-        //        Assert.Equal(1, outputBatch.ColumnCount);
-        //        StructArray structArray = (StructArray)outputBatch.Column(0);
-        //        Assert.Equal(2, structArray.Fields.Count);
-        //        stringArray = (StringArray)structArray.Fields[0];
-        //        doubleArray = (DoubleArray)structArray.Fields[1];
-        //    }
+            Assert.Equal(numRows, outputBatch.Length);
+            StringArray stringArray;
+            DoubleArray doubleArray;
+            if (sparkVersion < new Version(Versions.V3_0_0))
+            {
+                Assert.Equal(2, outputBatch.ColumnCount);
+                stringArray = (StringArray)outputBatch.Column(0);
+                doubleArray = (DoubleArray)outputBatch.Column(1);
+            }
+            else
+            {
+                Assert.Equal(1, outputBatch.ColumnCount);
+                StructArray structArray = (StructArray)outputBatch.Column(0);
+                Assert.Equal(2, structArray.Fields.Count);
+                stringArray = (StringArray)structArray.Fields[0];
+                doubleArray = (DoubleArray)structArray.Fields[1];
+            }
 
-        //    for (int i = 0; i < numRows; ++i)
-        //    {
-        //        Assert.Equal($"udf: {i}", stringArray.GetString(i));
-        //    }
+            for (int i = 0; i < numRows; ++i)
+            {
+                Assert.Equal($"udf: {i}", stringArray.GetString(i));
+            }
 
-        //    for (int i = 0; i < numRows; ++i)
-        //    {
-        //        Assert.Equal(100 + i, doubleArray.Values[i]);
-        //    }
+            for (int i = 0; i < numRows; ++i)
+            {
+                Assert.Equal(100 + i, doubleArray.Values[i]);
+            }
 
-        //    CheckEOS(outputStream, ipcOptions);
+            CheckEOS(outputStream, ipcOptions);
 
-        //    // Validate all the data on the stream is read.
-        //    Assert.Equal(outputStream.Length, outputStream.Position);
-        //}
+            // Validate all the data on the stream is read.
+            Assert.Equal(outputStream.Length, outputStream.Position);
+        }
 
         [Theory]
         [MemberData(nameof(CommandExecutorData.Data), MemberType = typeof(CommandExecutorData))]

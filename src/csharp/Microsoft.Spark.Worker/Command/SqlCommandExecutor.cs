@@ -740,7 +740,7 @@ namespace Microsoft.Spark.Worker.Command
 
         private RecordBatch WrapArrowRecordBatchColumnsInAStruct(RecordBatch batch)
         {
-            if (SparkEnvironment.SparkVersion >= new Version(Versions.V3_0_0))
+            if (_version >= new Version(Versions.V3_0_0))
             {
                 List<Field> fields = new List<Field>(batch.Schema.Fields.Count);
                 for (int i = 0; i < batch.Schema.Fields.Count; i++)
