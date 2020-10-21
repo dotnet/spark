@@ -12,7 +12,7 @@ By using these images, you can run and debug your .NET for Apache Spark projects
 
 If you do not want to build those images yourself, you can get our pre-built images directly from docker hub at [https://hub.docker.com/r/3rdman/dotnet-spark](https://hub.docker.com/r/3rdman/dotnet-spark).
 
-Additional information on how to use the images can be found under [3rdman.de](https://3rdman.de/tag/net-for-apache-spark/), or the docker hub page mentioned above.
+Additional information on how to use the images can be found at [3rdman.de](https://3rdman.de/tag/net-for-apache-spark/), or the docker hub page mentioned above.
 
 ## Building
 
@@ -31,7 +31,6 @@ For more details please run
 build.sh -h
 ```
 
-
 Please note, that not all version combinations are supported, however.
 
 ## The image build stages
@@ -45,7 +44,7 @@ The three stages used in the build process are:
 
   Downloads and installs the specified .NET Core SDK into a base Ubuntu 18.04 image along with some other tools that might be required by later stages or for debugging. The resulting image is tagged with the .NET Core version number.
 
-- ### **dotnet-spark-runtime-base**
+- ### **dotnet-spark-base (runtime)**
 
   Adds the specified .NET for Apache Spark version to the dotnet-sdk image and also copies/builds the HelloSpark example into the image. HelloSpark is also use to install the correct microsoft-spark-*.jar version that is required for using the image for debugging [debugging .NET for Apache Spark](https://docs.microsoft.com/en-us/dotnet/spark/how-to-guides/debug) via Visual Studio, or Visual Studio Code.
 
@@ -63,25 +62,25 @@ As mentioned earlier, the dotnet-spark runtime image can be used in multiple way
 - ### master and one slave in a single container
 
  ```bash
-docker run -d --name dotnet-spark -p 8080:8080 -p 8081:8081 -e SPARK_DEBUG_DISABLED=true mcr.microsoft.com/dotnet-spark:runtime-latest
+docker run -d --name dotnet-spark -p 8080:8080 -p 8081:8081 -e SPARK_DEBUG_DISABLED=true 3rdman/dotnet-spark:latest
 ```
 
 - ### master and two slaves in a single container
 
 ```bash
-docker run -d --name dotnet-spark -p 8080:8080 -p 8081:8081 -p 8081:8081 -e SPARK_DEBUG_DISABLED=true -e SPARK_WORKER_INSTANCES=2 mcr.microsoft.com/dotnet-spark:runtime-latest
+docker run -d --name dotnet-spark -p 8080:8080 -p 8081:8081 -p 8081:8081 -e SPARK_DEBUG_DISABLED=true -e SPARK_WORKER_INSTANCES=2 3rdman/dotnet-spark:latest
 ```
 
 - ### master only
 
 ```bash
-docker run -d --name dotnet-spark-master -p 8080:8080 -p 7077:7077 -e SPARK_DEBUG_DISABLED=true -e SPARK_WORKER_INSTANCES=0 mcr.microsoft.com/dotnet-spark:runtime-latest
+docker run -d --name dotnet-spark-master -p 8080:8080 -p 7077:7077 -e SPARK_DEBUG_DISABLED=true -e SPARK_WORKER_INSTANCES=0 3rdman/dotnet-spark:latest
 ```
 
 - ### slave only, connecting to external master
 
 ```bash
-docker run -d --name dotnet-spark-slave -p 8080:8080 -e SPARK_DEBUG_DISABLED=true -e SPARK_MASTER_DISABLED=true -e SPARK_MASTER_URL="spark://master-hostname:7077" mcr.microsoft.com/dotnet-spark:runtime-latest
+docker run -d --name dotnet-spark-slave -p 8080:8080 -e SPARK_DEBUG_DISABLED=true -e SPARK_MASTER_DISABLED=true -e SPARK_MASTER_URL="spark://master-hostname:7077" 3rdman/dotnet-spark:latest
 ```
 
 For details about how to use the image for .NET for Apache Spark debugging, please have a look at one of the following posts:

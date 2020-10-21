@@ -7,14 +7,19 @@ set -o errexit   # abort on nonzero exitstatus
 set -o nounset   # abort on unbound variable
 set -o pipefail  # don't hide errors within pipes
 
-readonly image_repository='mcr.microsoft.com'
-readonly supported_apache_spark_versions=("2.3.3" "2.3.4" "2.4.0" "2.4.1" "2.4.3" "2.4.4" "2.4.5" "2.4.6")
-readonly supported_dotnet_spark_versions=("0.9.0" "0.10.0" "0.11.0" "0.12.1")
+readonly image_repository='3rdman'
+readonly supported_apache_spark_versions=(
+    "2.3.0" "2.3.1" "2.3.2" "2.3.3" "2.3.4"
+    "2.4.0" "2.4.1" "2.4.3" "2.4.4" "2.4.5" "2.4.6" "2.4.7"
+    "3.0.0" "3.0.1"
+    )
+readonly supported_dotnet_spark_versions=("1.0.0")
 readonly dotnet_core_version=3.1
 
-dotnet_spark_version=0.12.1
-apache_spark_version=2.4.6
+dotnet_spark_version=1.0.0
+apache_spark_version=3.0.1
 apache_spark_short_version="${apache_spark_version:0:3}"
+scala_version=2.11
 
 main() {
     # Parse the options an set the related variables
@@ -34,8 +39,9 @@ main() {
     # execute the different build stages
     cleanup
 
+    set_scala_version
     build_dotnet_sdk
-    build_dotnet_spark_runtime_base
+    build_dotnet_spark_base_runtime
     build_dotnet_spark_runtime
 
     trap finish EXIT ERR
@@ -114,6 +120,16 @@ replace_text_in_file() {
 }
 
 #######################################
+# Sets the Scala version depending on the Apache Spark version
+#######################################
+set_scala_version() {
+    case "${apache_spark_version:0:1}" in
+        2)   scala_version=2.11 ;;
+        3)   scala_version=2.12 ;;
+    esac
+}
+
+#######################################
 # Runs the docker build command with the related build arguments
 # Arguments:
 #   The image name (incl. tag)
@@ -144,16 +160,17 @@ build_dotnet_sdk() {
 }
 
 #######################################
-# Use the Dockerfile in the sub-folder dotnet-spark to build the image of the second stage
+# Use the Dockerfile in the sub-folder dotnet-spark-base to build the image of the second stage
 # The image contains the specified .NET for Apache Spark version plus the HelloSpark example
 #   for the correct TargetFramework and Microsoft.Spark package version
 # Result:
-#   A dotnet-spark-runtime-base docker image tagged with the .NET for Apache Spark version
+#   A dotnet-spark-base-runtime docker image tagged with the .NET for Apache Spark version
 #######################################
-build_dotnet_spark_runtime_base() {
-    local image_name="dotnet-spark-runtime-base:${dotnet_spark_version}"
+build_dotnet_spark_base_runtime() {
+    local image_name="dotnet-spark-base-runtime:${dotnet_spark_version}"
+    local msspark_short_string=${apache_spark_short_version//./-}
 
-    cd dotnet-spark
+    cd dotnet-spark-base
     cp --recursive templates/HelloSpark ./HelloSpark
 
     replace_text_in_file HelloSpark/HelloSpark.csproj "<TargetFramework><\/TargetFramework>" "<TargetFramework>netcoreapp${dotnet_core_version}<\/TargetFramework>"
@@ -161,7 +178,7 @@ build_dotnet_spark_runtime_base() {
 
     replace_text_in_file HelloSpark/README.txt "netcoreappX.X" "netcoreapp${dotnet_core_version}"
     replace_text_in_file HelloSpark/README.txt "spark-X.X.X" "spark-${apache_spark_short_version}.x"
-    replace_text_in_file HelloSpark/README.txt "spark-${apache_spark_short_version}.x-X.X.X.jar" "spark-${apache_spark_short_version}.x-${dotnet_spark_version}.jar"
+    replace_text_in_file HelloSpark/README.txt "microsoft-spark-${apache_spark_short_version}.x-X.X.X.jar" "microsoft-spark-${msspark_short_string}_${scala_version}-${dotnet_spark_version}.jar"
 
     build_image "${image_name}"
     cd ~-
@@ -169,18 +186,19 @@ build_dotnet_spark_runtime_base() {
 }
 
 #######################################
-# Use the Dockerfile in the sub-folder apache-spark to build the image of the last stage
+# Use the Dockerfile in the sub-folder dotnet-spark to build the image of the last stage
 # The image contains the specified Apache Spark version
 # Result:
-#   A dotnet-spark docker image tagged with the Apache Spark version, .NET for Apache Spark version and the suffix -runtime
+#   A dotnet-spark docker image tagged with the .NET for Apache Spark version and the Apache Spark version.
 #######################################
 build_dotnet_spark_runtime() {
-    local image_name="${image_repository}/dotnet-spark:${apache_spark_version}-${dotnet_spark_version}-runtime"
+    local image_name="${image_repository}/dotnet-spark:${dotnet_spark_version}-${apache_spark_version}"
+    local msspark_short_string=${apache_spark_short_version//./-}
 
-    cd apache-spark
+    cd dotnet-spark
     cp --recursive templates/scripts ./bin
 
-    replace_text_in_file bin/start-spark-debug.sh "microsoft-spark-X.X.X" "microsoft-spark-${apache_spark_short_version}.x"
+    replace_text_in_file bin/start-spark-debug.sh "microsoft-spark-X.X.X" "microsoft-spark-${msspark_short_string}_${scala_version}"
 
     build_image "${image_name}"
     cd ~-
@@ -192,12 +210,12 @@ build_dotnet_spark_runtime() {
 cleanup()
 {
     (
-        cd apache-spark
+        cd dotnet-spark
         rm --recursive --force bin
     )
 
     (
-        cd dotnet-spark
+        cd dotnet-spark-base
         rm --recursive --force HelloSpark
     )
 }
@@ -208,8 +226,6 @@ finish()
     cleanup
     exit ${result}
 }
-
-
 
 #######################################
 # Display the help text
