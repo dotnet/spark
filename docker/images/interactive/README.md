@@ -2,11 +2,11 @@
 
 ## Description
 
-This directory contains the source code to build a docker interactive image by using the [jupyter/base-notebook](https://hub.docker.com/r/jupyter/base-notebook) as foundation.
+This directory contains the source code to build a docker interactive image by using [jupyter/base-notebook](https://hub.docker.com/r/jupyter/base-notebook) as foundation.
 
 ## Building
 
-To build the image run the [build.sh](build.sh) bash script. Per default it should build an image using the latest supported versions of .NET Core, Apache Spark and .NET for Apache Spark.
+To build the image, just execute the [build.sh](build.sh) bash script. Per default it should build an image using the latest supported versions of .NET Core, Apache Spark and .NET for Apache Spark.
 
 You can also build for different versions, by specifying one of the following options:
 
@@ -34,20 +34,20 @@ The three stages used in the build process are:
 
   Builds on the jupyter/base-notebook image and installs the .NET Core SDK, along with Microsoft.DotNet.Interactive.
 
-- ### **dotnet-spark-interactive-base**
+- ### **dotnet-spark-base (interactive)**
 
   Adds the specified .NET for Apache Spark version to the dotnet-interactive image and also copies/builds the HelloSpark example into the image. HelloSpark is also use to install the correct microsoft-spark-*.jar version that is required to start a spark-submit session in debug mode.
 
 - ### **dotnet-spark (interactive)**
 
-  Gets/installs the specified Apache Spark version and add the example notebooks.
+  Gets/installs the specified Apache Spark version and adds the example notebooks.
 
 ## Docker Run Example
 
 To start a new container based on the dotnet-spark interactive image, just run the following command.
 
 ```bash
-docker run --name dotnet-spark-interactive -d -p 8888:8888 mcr.microsoft.com/dotnet-spark:interactive-latest
+docker run --name dotnet-spark-interactive -d -p 8888:8888 3rdman/dotnet-spark:interactive-latest
 ```
 
 After that, examine the logs of the container to get the correct URL that is required to connect to Juypter using the authentication token.
@@ -62,4 +62,8 @@ It is important to start the .NET for Apache Spark backend in debug mode first, 
 
 The helper script start-spark-debug.sh can do this for you, as demonstrated below.
 
-![example](img/dotnet-interactive-docker-example.gif)
+![debug](img/dotnet-interactive-start-debug.gif)
+
+Once the backend is running, please open 02-basic-example.ipynb to learn how you can use .NET for Apache Spark in your own notebooks.
+
+![example](img/dotnet-interactive-basic-example.gif)
