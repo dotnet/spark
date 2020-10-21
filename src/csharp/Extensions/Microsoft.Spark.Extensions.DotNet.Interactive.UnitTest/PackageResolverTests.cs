@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.DotNet.Interactive.Utility;
+using Microsoft.DotNet.Interactive;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Microsoft.Spark.Utils;
 using Moq;
@@ -33,12 +33,12 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
             {
             }
             
-            var assemblyPaths = new List<FileInfo>
+            var assemblyPaths = new string[]
             {
-                new FileInfo(Path.Combine(packageFrameworkPath, "1.dll")),
-                new FileInfo(Path.Combine(packageFrameworkPath, "2.dll"))
+                Path.Combine(packageFrameworkPath, "1.dll"),
+                Path.Combine(packageFrameworkPath, "2.dll")
             };
-            var probingPaths = new List<DirectoryInfo> { new DirectoryInfo(packageRootPath) };
+            var probingPaths = new string[] { packageRootPath };
 
             var mockSupportNugetWrapper = new Mock<SupportNugetWrapper>();
             mockSupportNugetWrapper
@@ -49,7 +49,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
                         packageName,
                         packageVersion,
                         assemblyPaths,
-                        new DirectoryInfo(packageRootPath),
+                        packageRootPath,
                         probingPaths) 
                 });
 
