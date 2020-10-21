@@ -422,8 +422,7 @@ namespace Microsoft.Spark.Worker.Command
 
                 var recordBatch = new RecordBatch(resultSchema, results, numEntries);
 
-                // TODO: Remove sync-over-async once WriteRecordBatch exists.
-                writer.WriteRecordBatchAsync(recordBatch).GetAwaiter().GetResult();
+                writer.WriteRecordBatch(recordBatch);
             }
 
             WriteEnd(outputStream, ipcOptions);
@@ -468,8 +467,7 @@ namespace Microsoft.Spark.Worker.Command
                             new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true, ipcOptions);
                     }
 
-                    // TODO: Remove sync-over-async once WriteRecordBatch exists.
-                    writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
+                    writer.WriteRecordBatch(result);
                 }
             }
 
@@ -741,10 +739,10 @@ namespace Microsoft.Spark.Worker.Command
         {
             if (_version >= new Version(Versions.V3_0_0))
             {
-                List<Field> fields = new List<Field>(batch.Schema.Fields.Count);
+                Field[] fields = new Field[batch.Schema.Fields.Count];
                 for (int i = 0; i < batch.Schema.Fields.Count; i++)
                 {
-                    fields.Add(batch.Schema.GetFieldByIndex(i));
+                    fields[i] = batch.Schema.GetFieldByIndex(i);
                 }
                 StructType structType = new StructType(fields);
                 StructArray structArray = new StructArray(structType, batch.Length, batch.Arrays.Cast<Apache.Arrow.Array>(), ArrowBuffer.Empty);
@@ -783,8 +781,7 @@ namespace Microsoft.Spark.Worker.Command
                         new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true, ipcOptions);
                 }
 
-                // TODO: Remove sync-over-async once WriteRecordBatch exists.
-                writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
+                writer.WriteRecordBatch(result);
             }
 
             WriteEnd(outputStream, ipcOptions);
