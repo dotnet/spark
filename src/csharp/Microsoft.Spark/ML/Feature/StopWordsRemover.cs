@@ -122,22 +122,26 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets custom stop words for <see cref="StopWordsRemover"/> transform
         /// </summary>
         /// <returns>string[], Custom stop words</returns>
-        public string[] GetStopWords() => (string[])(_jvmObject.Invoke("getStopWords"));
+        public IEnumerable<string> GetStopWords() =>
+            (IEnumerable<string>)(_jvmObject.Invoke("getStopWords"));
 
         /// <summary>
         /// Validate and get the transform schema for <see cref="StopWordsRemover"/> transform
         /// </summary>
-        /// <returns>string, Output schema</returns>
+        /// <param name="value">Input schema</param>
+        /// <returns>StructType, Output schema</returns>
         public StructType TransformSchema(StructType value) =>
             new StructType(
                 (JvmObjectReference)_jvmObject.Invoke("transformSchema",
                     DataType.FromJson(_jvmObject.Jvm, value.Json)));
 
         /// <summary>
-        /// Load default stop words of given language for <see cref="StopWordsRemover"/> transform
-        /// Loads the default stop words for the given language. Supported languages: danish, dutch, english,
-        /// finnish, french, german, hungarian, italian, norwegian, portuguese, russian, spanish, swedish, turkish
+        /// Load default stop words of given language for <see cref="StopWordsRemover"/>
+        /// transform Loads the default stop words for the given language.
+        /// Supported languages: danish, dutch, english, finnish, french, german,
+        /// hungarian, italian, norwegian, portuguese, russian, spanish, swedish, turkish
         /// </summary>
+        /// /// <param name="language">Language</param>
         /// <returns>string[], Default stop words for the given language</returns>
         public string[] LoadDefaultStopWords(string language) =>
             (string[])(_jvmObject.Invoke("loadDefaultStopWords", language));

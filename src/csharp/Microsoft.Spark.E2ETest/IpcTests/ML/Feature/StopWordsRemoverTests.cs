@@ -22,9 +22,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             _spark = fixture.Spark;
         }
 
-
         /// <summary>
-        /// Test stop words removers without locale, because locale is not supported before spark 2.4.0 version.
+        /// Test stop words removers without locale,
+        /// because locale is not supported before spark 2.4.0 version.
         /// </summary>
         [Fact]
         public void TestStopWordsRemoverWithoutLocale()
