@@ -20,7 +20,6 @@ using Column = Microsoft.Spark.Sql.Column;
 using DataFrame = Microsoft.Spark.Sql.DataFrame;
 using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 using Int32Type = Apache.Arrow.Types.Int32Type;
-using ArrowStructType = Apache.Arrow.Types.StructType;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
