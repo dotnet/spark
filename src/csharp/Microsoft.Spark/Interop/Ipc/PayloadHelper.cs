@@ -27,7 +27,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private static readonly byte[] s_timestampTypeId = new[] { (byte)'t' };
         private static readonly byte[] s_jvmObjectTypeId = new[] { (byte)'j' };
         private static readonly byte[] s_byteArrayTypeId = new[] { (byte)'r' };
-        private static readonly byte[] s_doubleArrayArrayTypeId = new[] { ( byte)'A' };
+        private static readonly byte[] s_doubleArrayArrayTypeId = new[] { (byte)'A' };
         private static readonly byte[] s_arrayTypeId = new[] { (byte)'l' };
         private static readonly byte[] s_dictionaryTypeId = new[] { (byte)'e' };
         private static readonly byte[] s_rowArrTypeId = new[] { (byte)'R' };
@@ -39,6 +39,7 @@ namespace Microsoft.Spark.Interop.Ipc
         internal static void BuildPayload(
             MemoryStream destination,
             bool isStaticMethod,
+            int threadId,
             object classNameOrJvmObjectReference,
             string methodName,
             object[] args)
@@ -48,6 +49,7 @@ namespace Microsoft.Spark.Interop.Ipc
             destination.Position += sizeof(int);
 
             SerDe.Write(destination, isStaticMethod);
+            SerDe.Write(destination, threadId);
             SerDe.Write(destination, classNameOrJvmObjectReference.ToString());
             SerDe.Write(destination, methodName);
             SerDe.Write(destination, args.Length);
@@ -140,7 +142,7 @@ namespace Microsoft.Spark.Interop.Ipc
                                     SerDe.Write(destination, d);
                                 }
                                 break;
-                            
+
                             case double[][] argDoubleArrayArray:
                                 SerDe.Write(destination, s_doubleArrayArrayTypeId);
                                 SerDe.Write(destination, argDoubleArrayArray.Length);
