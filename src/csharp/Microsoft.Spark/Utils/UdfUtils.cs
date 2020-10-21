@@ -178,7 +178,8 @@ namespace Microsoft.Spark.Utils
                 CreateEnvVarsForPythonFunction(jvm),
                 arrayList, // Python includes
                 SparkEnvironment.ConfigurationService.GetWorkerExePath(),
-                Versions.CurrentVersion,
+                // Used to check the compatibility of UDFs between the driver and worker.
+                AssemblyInfoProvider.MicrosoftSparkAssemblyInfo().AssemblyVersion,
                 broadcastVariables,
                 null); // Accumulator
         }
@@ -200,7 +201,7 @@ namespace Microsoft.Spark.Utils
                 "DOTNET_WORKER_SPARK_VERSION",
                 SparkEnvironment.SparkVersion.ToString());
 
-            if (EnvironmentUtils.GetEnvironmentVariableAsBool(Constants.RunningREPLEnvVar))
+            if (SparkEnvironment.ConfigurationService.IsRunningRepl())
             {
                 environmentVars.Put(Constants.RunningREPLEnvVar, "true");
             }

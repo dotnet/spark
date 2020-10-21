@@ -85,10 +85,10 @@ stages:
         artifactName:  Microsoft.Spark.Binaries
 
   - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-    - job: SignPublish
+    - job: Sign
       dependsOn:
         - Build
-      displayName: Sign and Publish Artifacts
+      displayName: Sign Artifacts
       pool:
         name: NetCoreInternal-Pool
         queue: buildpool.windows.10.amd64.vs2017
@@ -113,17 +113,56 @@ stages:
         env:
           TeamName: $(_TeamName)
         condition: and(succeeded(), in(variables['_SignType'], 'real', 'test'), eq(variables['Agent.Os'], 'Windows_NT'))
-    
+
       - task: PowerShell@2
-        displayName: Sign artifacts and Package Microsoft.Spark.Worker
+        displayName: Sign artifacts
         inputs:
           filePath: eng\common\build.ps1
-          arguments: -restore -sign -publish
+          arguments: -restore -sign
                      -c $(buildConfiguration)
                      -ci
                      $(_OfficialBuildIdArgs)
                      /p:DotNetSignType=$(_SignType)
                      /p:SparkPackagesDir=$(ArtifactPath)\BuildArtifacts\artifacts\packages
+                     /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathtoPublish: '$(ArtifactPath)'
+          artifactName:  Microsoft.Spark.Binaries
+
+  # The "Publish" stage is separated out from the "Sign" stage because we need to install powershell module
+  # to zip files correctly for macOS; installing the module is not allowed in NetCoreInternal-Pool.
+  - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+    - job: Publish
+      dependsOn:
+        - Sign
+      displayName: Publish Artifacts
+      pool: Hosted VS2017
+
+      variables:
+        ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+          _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+
+      steps:
+      # The following module needs to be installed to zip files correctly for macOS.
+      - powershell: Install-Module -Name Microsoft.PowerShell.Archive -Scope CurrentUser -Force -AllowClobber -Verbose -MinimumVersion 1.2.5
+        displayName: Install Microsoft.PowerShell.Archive
+
+      - task: DownloadBuildArtifacts@0
+        displayName: Download Signed Artifacts
+        inputs:
+          artifactName: Microsoft.Spark.Binaries
+          downloadPath: $(Build.ArtifactStagingDirectory)
+
+      - task: PowerShell@2
+        displayName: Package Microsoft.Spark.Worker
+        inputs:
+          filePath: eng\common\build.ps1
+          arguments: -restore -publish
+                     -c $(buildConfiguration)
+                     -ci
+                     $(_OfficialBuildIdArgs)
                      /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
                      /p:SparkWorkerPackageOutputDir=$(ArtifactPath)
 
@@ -132,53 +171,20 @@ stages:
           pathtoPublish: '$(ArtifactPath)'
           artifactName:  Microsoft.Spark.Binaries
 
-- stage: Test
-  displayName: E2E Tests
-  dependsOn: Build
-  jobs:
-  - job: Run
-    pool: Hosted VS2017
-
-    variables:
-      ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-        _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-      HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
-      DOTNET_WORKER_DIR: $(CurrentDotnetWorkerDir)
-
-    steps:
-    - task: DownloadBuildArtifacts@0
-      displayName: Download Build Artifacts
-      inputs:
-        artifactName: Microsoft.Spark.Binaries
-        downloadPath: $(Build.ArtifactStagingDirectory)
-
-    - task: CopyFiles@2
-      displayName: Copy jars
-      inputs:
-        sourceFolder: $(ArtifactPath)/Jars
-        contents: '**/*.jar'
-        targetFolder: $(Build.SourcesDirectory)/src/scala
-
-    - task: BatchScript@1
-      displayName: Download Spark Distros & Winutils.exe
-      inputs:
-        filename: script\download-spark-distros.cmd
-        arguments: $(Build.BinariesDirectory)
-
-    - template: azure-pipelines-e2e-tests-template.yml
-      parameters:
-        versions:
-        - '2.3.0'
-        - '2.3.1'
-        - '2.3.2'
-        - '2.3.3'
-        - '2.3.4'
-        - '2.4.0'
-        - '2.4.1'
-        - '2.4.3'
-        - '2.4.4'
-        - '2.4.5'
-        - '2.4.6'
-        - '2.4.7'
-        - '3.0.0'
-        - '3.0.1'
+- template: azure-pipelines-e2e-tests-template.yml
+  parameters:
+    versions:
+    - '2.3.0'
+    - '2.3.1'
+    - '2.3.2'
+    - '2.3.3'
+    - '2.3.4'
+    - '2.4.0'
+    - '2.4.1'
+    - '2.4.3'
+    - '2.4.4'
+    - '2.4.5'
+    - '2.4.6'
+    - '2.4.7'
+    - '3.0.0'
+    - '3.0.1'

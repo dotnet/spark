@@ -30,82 +30,26 @@ namespace Microsoft.Spark.UnitTest.TestUtils
 
         public static IArrowType GetArrowType<T>()
         {
-            if (typeof(T) == typeof(bool))
+            Type type = typeof(T);
+            return type switch
             {
-                return BooleanType.Default;
-            }
-
-            if (typeof(T) == typeof(sbyte))
-            {
-                return Int8Type.Default;
-            }
-
-            if (typeof(T) == typeof(byte))
-            {
-                return UInt8Type.Default;
-            }
-
-            if (typeof(T) == typeof(short))
-            {
-                return Int16Type.Default;
-            }
-
-            if (typeof(T) == typeof(ushort))
-            {
-                return UInt16Type.Default;
-            }
-
-            if (typeof(T) == typeof(int))
-            {
-                return Int32Type.Default;
-            }
-
-            if (typeof(T) == typeof(uint))
-            {
-                return UInt32Type.Default;
-            }
-
-            if (typeof(T) == typeof(long))
-            {
-                return Int64Type.Default;
-            }
-
-            if (typeof(T) == typeof(ulong))
-            {
-                return UInt64Type.Default;
-            }
-
-            if (typeof(T) == typeof(float))
-            {
-                return FloatType.Default;
-            }
-
-            if (typeof(T) == typeof(double))
-            {
-                return DoubleType.Default;
-            }
-
-            if (typeof(T) == typeof(DateTime))
-            {
-                return Date64Type.Default;
-            }
-
-            if (typeof(T) == typeof(TimeSpan))
-            {
-                return TimestampType.Default;
-            }
-
-            if (typeof(T) == typeof(string))
-            {
-                return StringType.Default;
-            }
-
-            if (typeof(T) == typeof(byte[]))
-            {
-                return BinaryType.Default;
-            }
-
-            throw new NotSupportedException($"Unknown type: {typeof(T)}");
+                _ when type == typeof(bool) => BooleanType.Default,
+                _ when type == typeof(sbyte) => Int8Type.Default,
+                _ when type == typeof(byte) => UInt8Type.Default,
+                _ when type == typeof(short) => Int16Type.Default,
+                _ when type == typeof(ushort) => UInt16Type.Default,
+                _ when type == typeof(int) => Int32Type.Default,
+                _ when type == typeof(uint) => UInt32Type.Default,
+                _ when type == typeof(long) => Int64Type.Default,
+                _ when type == typeof(ulong) => UInt64Type.Default,
+                _ when type == typeof(float) => FloatType.Default,
+                _ when type == typeof(double) => DoubleType.Default,
+                _ when type == typeof(DateTime) => Date64Type.Default,
+                _ when type == typeof(TimeSpan) => TimestampType.Default,
+                _ when type == typeof(string) => StringType.Default,
+                _ when type == typeof(byte[]) => BinaryType.Default,
+                _ => throw new NotSupportedException($"Unknown type: {typeof(T)}")
+            };
         }
 
         public static ArrowStringDataFrameColumn ToArrowStringDataFrameColumn(StringArray array)
@@ -120,82 +64,27 @@ namespace Microsoft.Spark.UnitTest.TestUtils
 
         public static IArrowArray ToArrowArray<T>(T[] array)
         {
-            if (typeof(T) == typeof(bool))
+            Type type = typeof(T);
+            object arrayObject = array;
+            return type switch
             {
-                return ToBooleanArray((bool[])(object)array);
-            }
-
-            if (typeof(T) == typeof(sbyte))
-            {
-                return ToPrimitiveArrowArray((sbyte[])(object)array);
-            }
-
-            if (typeof(T) == typeof(byte))
-            {
-                return ToPrimitiveArrowArray((byte[])(object)array);
-            }
-
-            if (typeof(T) == typeof(short))
-            {
-                return ToPrimitiveArrowArray((short[])(object)array);
-            }
-
-            if (typeof(T) == typeof(ushort))
-            {
-                return ToPrimitiveArrowArray((ushort[])(object)array);
-            }
-
-            if (typeof(T) == typeof(int))
-            {
-                return ToPrimitiveArrowArray((int[])(object)array);
-            }
-
-            if (typeof(T) == typeof(uint))
-            {
-                return ToPrimitiveArrowArray((uint[])(object)array);
-            }
-
-            if (typeof(T) == typeof(long))
-            {
-                return ToPrimitiveArrowArray((long[])(object)array);
-            }
-
-            if (typeof(T) == typeof(ulong))
-            {
-                return ToPrimitiveArrowArray((ulong[])(object)array);
-            }
-
-            if (typeof(T) == typeof(float))
-            {
-                return ToPrimitiveArrowArray((float[])(object)array);
-            }
-
-            if (typeof(T) == typeof(double))
-            {
-                return ToPrimitiveArrowArray((double[])(object)array);
-            }
-
-            if (typeof(T) == typeof(DateTime))
-            {
-                return ToPrimitiveArrowArray((DateTime[])(object)array);
-            }
-
-            if (typeof(T) == typeof(TimeSpan))
-            {
-                return ToPrimitiveArrowArray((TimeSpan[])(object)array);
-            }
-
-            if (typeof(T) == typeof(string))
-            {
-                return ToStringArrowArray((string[])(object)array);
-            }
-
-            if (typeof(T) == typeof(byte[]))
-            {
-                return ToBinaryArrowArray((byte[][])(object)array);
-            }
-
-            throw new NotSupportedException($"Unknown type: {typeof(T)}");
+                _ when type == typeof(bool) => ToBooleanArray((bool[])arrayObject),
+                _ when type == typeof(sbyte) => ToPrimitiveArrowArray((sbyte[])arrayObject),
+                _ when type == typeof(byte) => ToPrimitiveArrowArray((byte[])arrayObject),
+                _ when type == typeof(short) => ToPrimitiveArrowArray((short[])arrayObject),
+                _ when type == typeof(ushort) => ToPrimitiveArrowArray((ushort[])arrayObject),
+                _ when type == typeof(int) => ToPrimitiveArrowArray((int[])arrayObject),
+                _ when type == typeof(uint) => ToPrimitiveArrowArray((uint[])arrayObject),
+                _ when type == typeof(long) => ToPrimitiveArrowArray((long[])arrayObject),
+                _ when type == typeof(ulong) => ToPrimitiveArrowArray((ulong[])arrayObject),
+                _ when type == typeof(float) => ToPrimitiveArrowArray((float[])arrayObject),
+                _ when type == typeof(double) => ToPrimitiveArrowArray((double[])arrayObject),
+                _ when type == typeof(DateTime) => ToPrimitiveArrowArray((DateTime[])arrayObject),
+                _ when type == typeof(TimeSpan) => ToPrimitiveArrowArray((TimeSpan[])arrayObject),
+                _ when type == typeof(string) => ToStringArrowArray((string[])arrayObject),
+                _ when type == typeof(byte[]) => ToBinaryArrowArray((byte[][])arrayObject),
+                _ => throw new NotSupportedException($"Unknown type: {typeof(T)}")
+            };
         }
 
         public static IArrowArray ToPrimitiveArrowArray<T>(T[] array) where T : struct
