@@ -7,7 +7,6 @@ Using this image, you can compile .NET for Apache Spark yourself.
 
 If you do not want to build those images yourself, you can get our pre-built images directly from docker hub at [https://hub.docker.com/r/3rdman/dotnet-spark](https://hub.docker.com/r/3rdman/dotnet-spark).
 
-
 ## Building
 
 To build a dev image, just run the [build.sh](build.sh) bash script. The default Apache Spark and Maven versions used to build the image are defined in the script.
@@ -27,13 +26,12 @@ build.sh -h
 
 Please note, that not all version combinations are supported, however.
 
-
 ## Docker Run Example
 
 As mentioned earlier, the dotnet-spark runtime image can be used in multiple ways. Below are some examples that might be useful.
 
 ```bash
-docker run --name dotnet-spark-dev -d mcr.microsoft.com/dotnet-spark:dev-latest
+docker run --name dotnet-spark-dev -d 3rdman/dotnet-spark:dev-latest
 ```
 
 ## Using the image to build from source
@@ -64,7 +62,7 @@ The image comes with code-server installed, which allows you run Visual Studio C
 First, start a container from the dev image and map the code-server port to a host port that is reachable via the loopback address only.
 
 ```bash
-docker run --name dotnet-spark-dev -d -p 127.0.0.1:8888:8080 mcr.microsoft.com/dotnet-spark:dev-latest
+docker run --name dotnet-spark-dev -d -p 127.0.0.1:8888:8080 3rdman/dotnet-spark:dev-latest
 ```
 
 ![launch](img/dotnet-dev-docker-code-server-launch.gif)

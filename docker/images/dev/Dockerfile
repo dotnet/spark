@@ -1,7 +1,7 @@
 ARG SDK_IMAGE_TAG=3.1-bionic
 FROM mcr.microsoft.com/dotnet/core/sdk:$SDK_IMAGE_TAG
 
-ARG SPARK_VERSION=2.4.6
+ARG SPARK_VERSION=3.0.1
 ARG MAVEN_VERSION=3.6.3
 ARG HADOOP_VERSION=2.7
 ARG DEBIAN_FRONTEND=noninteractive
@@ -13,13 +13,20 @@ ENV M2_HOME=/usr/local/bin/maven/current
 ENV PATH="${PATH}:${SPARK_HOME}/bin:${M2_HOME}/bin"
 
 RUN apt-get update \
-    && apt-get install -y dialog apt-utils wget ca-certificates openjdk-8-jdk bash software-properties-common supervisor unzip socat net-tools vim \
+    && apt-get install -y --no-install-recommends \
+        apt-utils \
+        ca-certificates \
+        dialog \
+        openjdk-8-jdk \
+        socat \
+        software-properties-common \
+        supervisor \
+        unzip \
+        wget \
     && add-apt-repository universe \
     && apt-get install -y apt-transport-https \
     && apt-get update \
-    && apt-get autoremove -y --purge \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /usr/local/bin/maven \
     && cd /usr/local/bin/maven  \
