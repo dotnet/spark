@@ -4,28 +4,31 @@ FROM dotnet-spark-base-interactive:$DOTNET_SPARK_VERSION
 ARG SPARK_VERSION=3.0.1
 ARG DOTNET_SPARK_JAR="microsoft-spark-3-0_2.12-$DOTNET_SPARK_VERSION"
 
-ENV DAEMON_RUN=true
-ENV SPARK_VERSION=$SPARK_VERSION
-ENV SPARK_HOME=/spark
-
-ENV HADOOP_VERSION=2.7
-ENV PATH="${SPARK_HOME}/bin:${DOTNET_WORKER_DIR}:${PATH}"
-ENV DOTNETBACKEND_PORT=5567
-ENV JUPYTER_ENABLE_LAB=true
+ENV DAEMON_RUN=true \
+    DOTNETBACKEND_PORT=5567 \
+    HADOOP_VERSION=2.7 \
+    JUPYTER_ENABLE_LAB=true \
+    SPARK_VERSION=$SPARK_VERSION \
+    SPARK_HOME=/spark \
+    PATH="${SPARK_HOME}/bin:${DOTNET_WORKER_DIR}:${PATH}"
 
 USER root
 
 COPY bin/* /usr/local/bin/
-
 COPY *.ipynb ${HOME}/dotnet.spark/examples/
+COPY HelloSpark /dotnet/HelloSpark
 
-RUN cd / \
-    && wget -q --show-progress --progress=bar:force:noscroll https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
+RUN cd /dotnet/HelloSpark \
+    && dotnet build \
+    && cp /dotnet/HelloSpark/bin/Debug/netcoreapp${DOTNET_CORE_VERSION}/microsoft-spark-*.jar ${HOME}/ \
+    && rm -rf /dotnet/HelloSpark \
+    && cd / \
+    && echo "\nDownloading spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz ..." \
+    && wget -q https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
     && tar -xvzf spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
     && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} spark \
     && rm spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
     && chmod 755 /usr/local/bin/start-spark-debug.sh \
-    && cp /dotnet/Debug/netcoreapp${DOTNET_CORE_VERSION}/${DOTNET_SPARK_JAR} ${HOME}/ \
     && chown -R ${NB_UID} ${HOME}
 
 USER ${NB_USER}
