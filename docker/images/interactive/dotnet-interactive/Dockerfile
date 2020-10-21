@@ -3,10 +3,10 @@ FROM jupyter/base-notebook:ubuntu-18.04
 ARG DOTNET_CORE_VERSION=3.1
 
 ENV DOTNET_CORE_VERSION=$DOTNET_CORE_VERSION \
-    PATH="${PATH}:${HOME}/.dotnet/tools" \
     DOTNET_RUNNING_IN_CONTAINER=true \
     DOTNET_USE_POLLING_FILE_WATCHER=true \
-    NUGET_XMLDOC_MODE=skip
+    NUGET_XMLDOC_MODE=skip \
+    PATH="${PATH}:${HOME}/.dotnet/tools"
 
 USER root
 

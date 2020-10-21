@@ -16,14 +16,16 @@ USER root
 
 COPY bin/* /usr/local/bin/
 COPY *.ipynb ${HOME}/dotnet.spark/examples/
-COPY HelloSpark /dotnet/HelloSpark
 
-RUN cd /dotnet/HelloSpark \
+RUN cd /dotnet \
+    && dotnet new console -o SparkDummy \
+    && cd SparkDummy \
+    && dotnet add package Microsoft.Spark \
     && dotnet build \
-    && cp /dotnet/HelloSpark/bin/Debug/netcoreapp${DOTNET_CORE_VERSION}/microsoft-spark-*.jar ${HOME}/ \
-    && rm -rf /dotnet/HelloSpark \
+    && cp /dotnet/SparkDummy/bin/Debug/netcoreapp${DOTNET_CORE_VERSION}/microsoft-spark-*.jar ${HOME}/ \
+    && rm -rf /dotnet/SparkDummy \
     && cd / \
-    && echo "\nDownloading spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz ..." \
+    && echo "Downloading spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz ..." \
     && wget -q https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
     && tar -xvzf spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
     && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} spark \
