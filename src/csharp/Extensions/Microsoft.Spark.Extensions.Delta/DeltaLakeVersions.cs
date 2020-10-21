@@ -13,5 +13,6 @@ namespace Microsoft.Spark.Extensions.Delta
         internal const string V0_5_0 = "0.5.0";
         internal const string V0_6_0 = "0.6.0";
         internal const string V0_6_1 = "0.6.1";
+        internal const string V0_7_0 = "0.7.0";
     }
 }

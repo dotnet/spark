@@ -34,16 +34,16 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
         /// </summary>
         /// <param name="kernel">The kernel calling this method.</param>
         /// <returns><see cref="Task.CompletedTask"/> when extension is loaded.</returns>
-        public Task OnLoadAsync(IKernel kernel)
+        public Task OnLoadAsync(Kernel kernel)
         {
-            if (kernel is CompositeKernel kernelBase)
+            if (kernel is CompositeKernel compositeKernel)
             {
                 Environment.SetEnvironmentVariable(Constants.RunningREPLEnvVar, "true");
 
                 DirectoryInfo tempDir = CreateTempDirectory();
-                kernelBase.RegisterForDisposal(new DisposableDirectory(tempDir));
+                compositeKernel.RegisterForDisposal(new DisposableDirectory(tempDir));
 
-                kernelBase.AddMiddleware(async (command, context, next) =>
+                compositeKernel.AddMiddleware(async (command, context, next) =>
                 {
                     await next(command, context);
 
@@ -103,7 +103,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
         private bool TryGetSparkSession(out SparkSession sparkSession)
         {
-            sparkSession = SparkSession.GetDefaultSession();
+            sparkSession = SparkSession.GetActiveSession();
             return sparkSession != null;
         }
 

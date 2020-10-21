@@ -61,11 +61,13 @@ namespace Microsoft.Spark.UnitTest
             using ISocketWrapper callbackSocket = SocketFactory.CreateSocket();
             callbackServer.Run(callbackSocket);
 
-            int connectionNumber = 10;
+            int connectionNumber = 2;
+            var clientSockets = new ISocketWrapper[connectionNumber];
             for (int i = 0; i < connectionNumber; ++i)
             {
                 var ipEndpoint = (IPEndPoint)callbackSocket.LocalEndPoint;
                 ISocketWrapper clientSocket = SocketFactory.CreateSocket();
+                clientSockets[i] = clientSocket;
                 clientSocket.Connect(ipEndpoint.Address, ipEndpoint.Port);
 
                 WriteAndReadTestData(clientSocket, callbackHandler, i, new CancellationToken());

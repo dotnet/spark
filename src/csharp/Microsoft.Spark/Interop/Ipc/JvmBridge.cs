@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
 
@@ -30,11 +31,17 @@ namespace Microsoft.Spark.Interop.Ipc
         [ThreadStatic]
         private static MemoryStream s_payloadMemoryStream;
 
+        private const int SocketBufferThreshold = 3;
+        private const int ThreadIdForRepl = 1;
+
+        private readonly SemaphoreSlim _socketSemaphore;
         private readonly ConcurrentQueue<ISocketWrapper> _sockets =
             new ConcurrentQueue<ISocketWrapper>();
         private readonly ILoggerService _logger =
             LoggerServiceFactory.GetLogger(typeof(JvmBridge));
         private readonly int _portNumber;
+        private readonly JvmThreadPoolGC _jvmThreadPoolGC;
+        private readonly bool _isRunningRepl;
 
         internal JvmBridge(int portNumber)
         {
@@ -45,10 +52,33 @@ namespace Microsoft.Spark.Interop.Ipc
 
             _portNumber = portNumber;
             _logger.LogInfo($"JvMBridge port is {portNumber}");
+
+            _jvmThreadPoolGC = new JvmThreadPoolGC(
+                _logger, this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval);
+
+            _isRunningRepl = SparkEnvironment.ConfigurationService.IsRunningRepl();
+
+            int numBackendThreads = SparkEnvironment.ConfigurationService.GetNumBackendThreads();
+            int maxNumSockets = numBackendThreads;
+            if (numBackendThreads >= (2 * SocketBufferThreshold))
+            {
+                // Set the max number of concurrent sockets to be less than the number of
+                // JVM backend threads to allow some buffer.
+                maxNumSockets -= SocketBufferThreshold;
+            }
+            _logger.LogInfo($"The number of JVM backend thread is set to {numBackendThreads}. " +
+                $"The max number of concurrent sockets in JvmBridge is set to {maxNumSockets}.");
+            _socketSemaphore = new SemaphoreSlim(maxNumSockets, maxNumSockets);
         }
 
         private ISocketWrapper GetConnection()
         {
+            // Limit the number of connections to the JVM backend. Netty is configured
+            // to use a set number of threads to process incoming connections. Each
+            // new connection is delegated to these threads in a round robin fashion.
+            // A deadlock can occur on the JVM if a new connection is scheduled on a
+            // blocked thread.
+            _socketSemaphore.Wait();
             if (!_sockets.TryDequeue(out ISocketWrapper socket))
             {
                 socket = SocketFactory.CreateSocket();
@@ -158,11 +188,27 @@ namespace Microsoft.Spark.Interop.Ipc
             ISocketWrapper socket = null;
             try
             {
+                // dotnet-interactive does not have a dedicated thread to process
+                // code submissions and each code submission can be processed in different
+                // threads. DotnetHandler uses the CLR thread id to ensure that the same
+                // JVM thread is used to handle the request, which means that code submitted
+                // through dotnet-interactive may be executed in different JVM threads. To
+                // mitigate this, when running in the REPL, submit requests to the DotnetHandler
+                // using the same thread id. This mitigation has some limitations in multithreaded
+                // scenarios. If a JVM method is blocking and needs a JVM method call issued by a
+                // separate thread to unblock it, then this scenario is not supported.
+                //
+                // ie, `StreamingQuery.AwaitTermination()` is a blocking call and requires
+                // `StreamingQuery.Stop()` to be called to unblock it. However, the `Stop`
+                // call will never run because DotnetHandler will assign the method call to
+                // run on the same thread that `AwaitTermination` is running on.
+                Thread thread = _isRunningRepl ? null : Thread.CurrentThread;
                 MemoryStream payloadMemoryStream = s_payloadMemoryStream ??= new MemoryStream();
                 payloadMemoryStream.Position = 0;
                 PayloadHelper.BuildPayload(
                     payloadMemoryStream,
                     isStatic,
+                    thread == null ? ThreadIdForRepl : thread.ManagedThreadId,
                     classNameOrJvmObjectReference,
                     methodName,
                     args);
@@ -175,6 +221,11 @@ namespace Microsoft.Spark.Interop.Ipc
                     0,
                     (int)payloadMemoryStream.Position);
                 outputStream.Flush();
+
+                if (thread != null)
+                {
+                    _jvmThreadPoolGC.TryAddThread(thread);
+                }
 
                 Stream inputStream = socket.InputStream;
                 int isMethodCallFailed = SerDe.ReadInt32(inputStream);
@@ -229,8 +280,30 @@ namespace Microsoft.Spark.Interop.Ipc
             catch (Exception e)
             {
                 _logger.LogException(e);
-                socket?.Dispose();
+
+                if (e.InnerException is JvmException)
+                {
+                    // DotnetBackendHandler caught JVM exception and passed back to dotnet.
+                    // We can reuse this connection.
+                    _sockets.Enqueue(socket);
+                }
+                else
+                {
+                    // In rare cases we may hit the Netty connection thread deadlock.
+                    // If max backend threads is 10 and we are currently using 10 active
+                    // connections (0 in the _sockets queue). When we hit this exception,
+                    // the socket?.Dispose() will not requeue this socket and we will release
+                    // the semaphore. Then in the next thread (assuming the other 9 connections
+                    // are still busy), a new connection will be made to the backend and this
+                    // connection may be scheduled on the blocked Netty thread.
+                    socket?.Dispose();
+                }
+
                 throw;
+            }
+            finally
+            {
+                _socketSemaphore.Release();
             }
 
             return returnValue;
@@ -410,6 +483,7 @@ namespace Microsoft.Spark.Interop.Ipc
 
         public void Dispose()
         {
+            _jvmThreadPoolGC.Dispose();
             while (_sockets.TryDequeue(out ISocketWrapper socket))
             {
                 if (socket != null)
