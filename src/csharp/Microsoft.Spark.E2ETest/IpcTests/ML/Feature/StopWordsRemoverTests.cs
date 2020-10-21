@@ -82,8 +82,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         public void TestStopWordsRemoverWithLocale()
         {
             string expectedLocale = "en_GB";
-            StopWordsRemover stopWordsRemover = new StopWordsRemover()
-                .SetLocale(expectedLocale);
+            StopWordsRemover stopWordsRemover = new StopWordsRemover().SetLocale(expectedLocale);
             Assert.Equal(expectedLocale, stopWordsRemover.GetLocale());
         }
     }
