@@ -742,15 +742,13 @@ namespace Microsoft.Spark.Worker.Command
         {
             if (SparkEnvironment.SparkVersion >= new Version(Versions.V3_0_0))
             {
-                ArrowBuffer.BitmapBuilder validityBitmapBuilder = new ArrowBuffer.BitmapBuilder();
-                for (int i = 0; i < batch.Length; i++)
+                List<Field> fields = new List<Field>(batch.Schema.Fields.Count);
+                for (int i = 0; i < batch.Schema.Fields.Count; i++)
                 {
-                    validityBitmapBuilder.Append(true);
+                    fields.Add(batch.Schema.GetFieldByIndex(i));
                 }
-                ArrowBuffer validityBitmap = validityBitmapBuilder.Build();
-
-                StructType structType = new StructType(batch.Schema.Fields.Select((KeyValuePair<string, Field> pair) => pair.Value).ToList());
-                StructArray structArray = new StructArray(structType, batch.Length, batch.Arrays.Cast<Apache.Arrow.Array>(), validityBitmap);
+                StructType structType = new StructType(fields);
+                StructArray structArray = new StructArray(structType, batch.Length, batch.Arrays.Cast<Apache.Arrow.Array>(), ArrowBuffer.Empty);
                 Schema schema = new Schema.Builder().Field(new Field("Struct", structType, false)).Build();
                 return new RecordBatch(schema, new[] { structArray }, batch.Length);
             }
@@ -829,8 +827,7 @@ namespace Microsoft.Spark.Worker.Command
                             new ArrowStreamWriter(outputStream, final.Schema, leaveOpen: true, ipcOptions);
                     }
 
-                    // TODO: Remove sync-over-async once WriteRecordBatch exists.
-                    writer.WriteRecordBatchAsync(final).GetAwaiter().GetResult();
+                    writer.WriteRecordBatch(final);
                 }
             }
 

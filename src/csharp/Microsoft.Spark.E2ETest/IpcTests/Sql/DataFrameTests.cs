@@ -21,7 +21,6 @@ using DataFrame = Microsoft.Spark.Sql.DataFrame;
 using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 using Int32Type = Apache.Arrow.Types.Int32Type;
 using ArrowStructType = Apache.Arrow.Types.StructType;
-using System.Diagnostics;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
@@ -357,11 +356,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             // Return 1 record, if we were given any. 0, otherwise.
             int returnLength = records.Length > 0 ? 1 : 0;
 
-            ArrowStructType structType = new ArrowStructType(new List<Field> { ageField, new Field("name_CharCount", Int32Type.Default, true) });
-
             return new RecordBatch(
                 new Schema.Builder()
-                    .Field(ageField).Field(new Field("Ret Struct", structType, true))
+                    .Field(ageField)
                     .Field(f => f.Name("name_CharCount").DataType(Int32Type.Default))
                     .Build(),
                 new IArrowArray[]
