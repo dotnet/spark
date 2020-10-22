@@ -735,7 +735,7 @@ namespace Microsoft.Spark.Worker.Command
             return ExecuteArrowGroupedMapCommand(inputStream, outputStream, commands);
         }
 
-        private RecordBatch WrapArrowRecordBatchColumnsInAStruct(RecordBatch batch)
+        private RecordBatch WrapColumnsInStructIfApplicable(RecordBatch batch)
         {
             if (_version >= new Version(Versions.V3_0_0))
             {
@@ -777,7 +777,7 @@ namespace Microsoft.Spark.Worker.Command
             {
                 RecordBatch batch = worker.Func(input);
 
-                RecordBatch final = WrapArrowRecordBatchColumnsInAStruct(batch);
+                RecordBatch final = WrapColumnsInStructIfApplicable(batch);
                 int numEntries = final.Length;
                 stat.NumEntriesProcessed += numEntries;
 
@@ -820,7 +820,7 @@ namespace Microsoft.Spark.Worker.Command
 
                 foreach (RecordBatch batch in recordBatches)
                 {
-                    RecordBatch final = WrapArrowRecordBatchColumnsInAStruct(batch);
+                    RecordBatch final = WrapColumnsInStructIfApplicable(batch);
                     stat.NumEntriesProcessed += final.Length;
 
                     if (writer == null)
