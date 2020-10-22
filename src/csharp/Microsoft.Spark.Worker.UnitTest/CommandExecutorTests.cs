@@ -885,7 +885,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             else
             {
                 Assert.Equal(1, outputBatch.ColumnCount);
-                StructArray structArray = (StructArray)outputBatch.Column(0);
+                var structArray = (StructArray)outputBatch.Column(0);
                 Assert.Equal(2, structArray.Fields.Count);
                 stringArray = (StringArray)structArray.Fields[0];
                 longArray = (Int64Array)structArray.Fields[1];
@@ -1005,7 +1005,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             else
             {
                 Assert.Equal(1, outputBatch.ColumnCount);
-                StructArray structArray = (StructArray)outputBatch.Column(0);
+                var structArray = (StructArray)outputBatch.Column(0);
                 Assert.Equal(2, structArray.Fields.Count);
                 stringArray = (StringArray)structArray.Fields[0];
                 doubleArray = (DoubleArray)structArray.Fields[1];

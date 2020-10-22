@@ -739,13 +739,17 @@ namespace Microsoft.Spark.Worker.Command
         {
             if (_version >= new Version(Versions.V3_0_0))
             {
-                Field[] fields = new Field[batch.Schema.Fields.Count];
+                var fields = new Field[batch.Schema.Fields.Count];
                 for (int i = 0; i < batch.Schema.Fields.Count; i++)
                 {
                     fields[i] = batch.Schema.GetFieldByIndex(i);
                 }
-                StructType structType = new StructType(fields);
-                StructArray structArray = new StructArray(structType, batch.Length, batch.Arrays.Cast<Apache.Arrow.Array>(), ArrowBuffer.Empty);
+                var structType = new StructType(fields);
+                var structArray = new StructArray(
+                    structType,
+                    batch.Length,
+                    batch.Arrays.Cast<Apache.Arrow.Array>(),
+                    ArrowBuffer.Empty);
                 Schema schema = new Schema.Builder().Field(new Field("Struct", structType, false)).Build();
                 return new RecordBatch(schema, new[] { structArray }, batch.Length);
             }
