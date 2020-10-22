@@ -744,6 +744,7 @@ namespace Microsoft.Spark.Worker.Command
                 {
                     fields[i] = batch.Schema.GetFieldByIndex(i);
                 }
+
                 var structType = new StructType(fields);
                 var structArray = new StructArray(
                     structType,
@@ -753,6 +754,7 @@ namespace Microsoft.Spark.Worker.Command
                 Schema schema = new Schema.Builder().Field(new Field("Struct", structType, false)).Build();
                 return new RecordBatch(schema, new[] { structArray }, batch.Length);
             }
+
             return batch;
         }
 
@@ -775,17 +777,17 @@ namespace Microsoft.Spark.Worker.Command
             {
                 RecordBatch batch = worker.Func(input);
 
-                RecordBatch result = WrapArrowRecordBatchColumnsInAStruct(batch);
-                int numEntries = result.Length;
+                RecordBatch final = WrapArrowRecordBatchColumnsInAStruct(batch);
+                int numEntries = final.Length;
                 stat.NumEntriesProcessed += numEntries;
 
                 if (writer == null)
                 {
                     writer =
-                        new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true, ipcOptions);
+                        new ArrowStreamWriter(outputStream, final.Schema, leaveOpen: true, ipcOptions);
                 }
 
-                writer.WriteRecordBatch(result);
+                writer.WriteRecordBatch(final);
             }
 
             WriteEnd(outputStream, ipcOptions);
