@@ -4,7 +4,9 @@
  * See the LICENSE file in the project root for more information.
  */
 
-package org.apache.spark.internal.config
+package org.apache.spark.internal.config.dotnet
+
+import org.apache.spark.internal.config.ConfigBuilder
 
 private[spark] object Dotnet {
   val DOTNET_NUM_BACKEND_THREADS = ConfigBuilder("spark.dotnet.numDotnetBackendThreads").intConf
