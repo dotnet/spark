@@ -740,7 +740,7 @@ namespace Microsoft.Spark.Worker.Command
             if (_version >= new Version(Versions.V3_0_0))
             {
                 var fields = new Field[batch.Schema.Fields.Count];
-                for (int i = 0; i < batch.Schema.Fields.Count; i++)
+                for (int i = 0; i < batch.Schema.Fields.Count; ++i)
                 {
                     fields[i] = batch.Schema.GetFieldByIndex(i);
                 }
