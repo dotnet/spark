@@ -110,7 +110,7 @@ namespace Microsoft.Spark.UnitTest
                 new ArrowUdfWrapper<StringArray, BooleanArray, BooleanArray>(
                     (strings, flags) => (BooleanArray)ToArrowArray(
                         Enumerable.Range(0, strings.Length)
-                            .Select(i => flags.GetBoolean(i) || strings.GetString(i).Contains("true"))
+                            .Select(i => flags.GetValue(i).Value || strings.GetString(i).Contains("true"))
                             .ToArray())).Execute);
 
             IArrowArray[] input = new[]
@@ -120,10 +120,10 @@ namespace Microsoft.Spark.UnitTest
             };
             var results = (BooleanArray)func.Func(input, new[] { 0, 1 });
             Assert.Equal(4, results.Length);
-            Assert.True(results.GetBoolean(0));
-            Assert.True(results.GetBoolean(1));
-            Assert.True(results.GetBoolean(2));
-            Assert.False(results.GetBoolean(3));
+            Assert.True(results.GetValue(0).Value);
+            Assert.True(results.GetValue(1).Value);
+            Assert.True(results.GetValue(2).Value);
+            Assert.False(results.GetValue(3).Value);
         }
 
         /// <summary>
