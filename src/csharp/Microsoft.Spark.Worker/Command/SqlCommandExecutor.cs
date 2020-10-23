@@ -422,8 +422,7 @@ namespace Microsoft.Spark.Worker.Command
 
                 var recordBatch = new RecordBatch(resultSchema, results, numEntries);
 
-                // TODO: Remove sync-over-async once WriteRecordBatch exists.
-                writer.WriteRecordBatchAsync(recordBatch).GetAwaiter().GetResult();
+                writer.WriteRecordBatch(recordBatch);
             }
 
             WriteEnd(outputStream, ipcOptions);
@@ -468,8 +467,7 @@ namespace Microsoft.Spark.Worker.Command
                             new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true, ipcOptions);
                     }
 
-                    // TODO: Remove sync-over-async once WriteRecordBatch exists.
-                    writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
+                    writer.WriteRecordBatch(result);
                 }
             }
 
@@ -737,6 +735,29 @@ namespace Microsoft.Spark.Worker.Command
             return ExecuteArrowGroupedMapCommand(inputStream, outputStream, commands);
         }
 
+        private RecordBatch WrapColumnsInStructIfApplicable(RecordBatch batch)
+        {
+            if (_version >= new Version(Versions.V3_0_0))
+            {
+                var fields = new Field[batch.Schema.Fields.Count];
+                for (int i = 0; i < batch.Schema.Fields.Count; ++i)
+                {
+                    fields[i] = batch.Schema.GetFieldByIndex(i);
+                }
+
+                var structType = new StructType(fields);
+                var structArray = new StructArray(
+                    structType,
+                    batch.Length,
+                    batch.Arrays.Cast<Apache.Arrow.Array>(),
+                    ArrowBuffer.Empty);
+                Schema schema = new Schema.Builder().Field(new Field("Struct", structType, false)).Build();
+                return new RecordBatch(schema, new[] { structArray }, batch.Length);
+            }
+
+            return batch;
+        }
+
         private CommandExecutorStat ExecuteArrowGroupedMapCommand(
             Stream inputStream,
             Stream outputStream,
@@ -754,19 +775,19 @@ namespace Microsoft.Spark.Worker.Command
             ArrowStreamWriter writer = null;
             foreach (RecordBatch input in GetInputIterator(inputStream))
             {
-                RecordBatch result = worker.Func(input);
+                RecordBatch batch = worker.Func(input);
 
-                int numEntries = result.Length;
+                RecordBatch final = WrapColumnsInStructIfApplicable(batch);
+                int numEntries = final.Length;
                 stat.NumEntriesProcessed += numEntries;
 
                 if (writer == null)
                 {
                     writer =
-                        new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true, ipcOptions);
+                        new ArrowStreamWriter(outputStream, final.Schema, leaveOpen: true, ipcOptions);
                 }
 
-                // TODO: Remove sync-over-async once WriteRecordBatch exists.
-                writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
+                writer.WriteRecordBatch(final);
             }
 
             WriteEnd(outputStream, ipcOptions);
@@ -794,20 +815,21 @@ namespace Microsoft.Spark.Worker.Command
             {
                 FxDataFrame dataFrame = FxDataFrame.FromArrowRecordBatch(input);
                 FxDataFrame resultDataFrame = worker.Func(dataFrame);
+
                 IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToArrowRecordBatches();
 
-                foreach (RecordBatch result in recordBatches)
+                foreach (RecordBatch batch in recordBatches)
                 {
-                    stat.NumEntriesProcessed += result.Length;
+                    RecordBatch final = WrapColumnsInStructIfApplicable(batch);
+                    stat.NumEntriesProcessed += final.Length;
 
                     if (writer == null)
                     {
                         writer =
-                            new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true, ipcOptions);
+                            new ArrowStreamWriter(outputStream, final.Schema, leaveOpen: true, ipcOptions);
                     }
 
-                    // TODO: Remove sync-over-async once WriteRecordBatch exists.
-                    writer.WriteRecordBatchAsync(result).GetAwaiter().GetResult();
+                    writer.WriteRecordBatch(final);
                 }
             }
 
