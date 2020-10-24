@@ -702,7 +702,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             IpcOptions ipcOptions)
         {
             var udfWrapper = new Sql.DataFrameUdfWrapper<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
-                (strings) => strings.Apply(cur=> $"udf: {cur}"));
+                (strings) => strings.Apply(cur => $"udf: {cur}"));
 
             var command = new SqlCommand()
             {
@@ -874,15 +874,28 @@ namespace Microsoft.Spark.Worker.UnitTest
             RecordBatch outputBatch = await arrowReader.ReadNextRecordBatchAsync();
 
             Assert.Equal(numRows, outputBatch.Length);
-            Assert.Equal(2, outputBatch.ColumnCount);
+            StringArray stringArray;
+            Int64Array longArray;
+            if (sparkVersion < new Version(Versions.V3_0_0))
+            {
+                Assert.Equal(2, outputBatch.ColumnCount);
+                stringArray = (StringArray)outputBatch.Column(0);
+                longArray = (Int64Array)outputBatch.Column(1);
+            }
+            else
+            {
+                Assert.Equal(1, outputBatch.ColumnCount);
+                var structArray = (StructArray)outputBatch.Column(0);
+                Assert.Equal(2, structArray.Fields.Count);
+                stringArray = (StringArray)structArray.Fields[0];
+                longArray = (Int64Array)structArray.Fields[1];
+            }
 
-            var stringArray = (StringArray)outputBatch.Column(0);
             for (int i = 0; i < numRows; ++i)
             {
                 Assert.Equal($"udf: {i}", stringArray.GetString(i));
             }
 
-            var longArray = (Int64Array)outputBatch.Column(1);
             for (int i = 0; i < numRows; ++i)
             {
                 Assert.Equal(100 + i, longArray.Values[i]);
@@ -981,15 +994,28 @@ namespace Microsoft.Spark.Worker.UnitTest
             RecordBatch outputBatch = await arrowReader.ReadNextRecordBatchAsync();
 
             Assert.Equal(numRows, outputBatch.Length);
-            Assert.Equal(2, outputBatch.ColumnCount);
+            StringArray stringArray;
+            DoubleArray doubleArray;
+            if (sparkVersion < new Version(Versions.V3_0_0))
+            {
+                Assert.Equal(2, outputBatch.ColumnCount);
+                stringArray = (StringArray)outputBatch.Column(0);
+                doubleArray = (DoubleArray)outputBatch.Column(1);
+            }
+            else
+            {
+                Assert.Equal(1, outputBatch.ColumnCount);
+                var structArray = (StructArray)outputBatch.Column(0);
+                Assert.Equal(2, structArray.Fields.Count);
+                stringArray = (StringArray)structArray.Fields[0];
+                doubleArray = (DoubleArray)structArray.Fields[1];
+            }
 
-            var stringArray = (StringArray)outputBatch.Column(0);
             for (int i = 0; i < numRows; ++i)
             {
                 Assert.Equal($"udf: {i}", stringArray.GetString(i));
             }
 
-            var doubleArray = (DoubleArray)outputBatch.Column(1);
             for (int i = 0; i < numRows; ++i)
             {
                 Assert.Equal(100 + i, doubleArray.Values[i]);
