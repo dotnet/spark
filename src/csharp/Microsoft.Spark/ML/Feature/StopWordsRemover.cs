@@ -151,12 +151,9 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="path">The path the previous <see cref="StopWordsRemover"/> was saved to</param>
         /// <returns>New <see cref="StopWordsRemover"/> object, loaded from path</returns>
-        public static StopWordsRemover Load(string path)
-        {
-            return WrapAsStopWordsRemover(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_stopWordsRemoverClassName, "load", path));
-        }
+        public static StopWordsRemover Load(string path) =>
+            WrapAsStopWordsRemover(
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_stopWordsRemoverClassName, "load", path));
 
         private static StopWordsRemover WrapAsStopWordsRemover(object obj) =>
             new StopWordsRemover((JvmObjectReference)obj);
