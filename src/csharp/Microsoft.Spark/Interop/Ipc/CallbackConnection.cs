@@ -47,7 +47,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 $"[{ConnectionId}] Connected with RemoteEndPoint: {socket.RemoteEndPoint}");
         }
 
-        private enum ConnectionStatus
+        internal enum ConnectionStatus
         {
             /// <summary>
             /// Connection is normal.

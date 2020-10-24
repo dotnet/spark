@@ -149,10 +149,12 @@ namespace Microsoft.Spark.UnitTest
             serverListener.Listen();
 
             var ipEndpoint = (IPEndPoint)serverListener.LocalEndPoint;
-            ISocketWrapper clientSocket = SocketFactory.CreateSocket();
+            using ISocketWrapper clientSocket = SocketFactory.CreateSocket();
             clientSocket.Connect(ipEndpoint.Address, ipEndpoint.Port);
 
-            var callbackConnection = new CallbackConnection(0, clientSocket, callbackHandlersDict);
+            // Don't use "using" here. The CallbackConnection will dispose the socket.
+            ISocketWrapper serverSocket = serverListener.Accept();
+            var callbackConnection = new CallbackConnection(0, serverSocket, callbackHandlersDict);
             Task task = Task.Run(() => callbackConnection.Run(token));
 
             if (token.IsCancellationRequested)
@@ -162,16 +164,23 @@ namespace Microsoft.Spark.UnitTest
             }
             else
             {
-                using ISocketWrapper serverSocket = serverListener.Accept();
-                WriteAndReadTestData(serverSocket, callbackHandler, inputToHandler);
+                WriteAndReadTestData(clientSocket, callbackHandler, inputToHandler);
 
                 if (callbackHandler.Throws)
                 {
+                    task.Wait();
                     Assert.False(callbackConnection.IsRunning);
                 }
                 else
                 {
                     Assert.True(callbackConnection.IsRunning);
+
+                    // Clean up CallbackConnection
+                    Stream outputStream = clientSocket.OutputStream;
+                    SerDe.Write(outputStream, (int)CallbackConnection.ConnectionStatus.REQUEST_CLOSE);
+                    outputStream.Flush();
+                    task.Wait();
+                    Assert.False(callbackConnection.IsRunning);
                 }
             }
         }
