@@ -1,7 +1,7 @@
 FROM jupyter/base-notebook:ubuntu-18.04
+LABEL maintainer="Martin Kandlbinder <indy@3rdman.de>"
 
 ARG DOTNET_CORE_VERSION=3.1
-
 ENV DOTNET_CORE_VERSION=$DOTNET_CORE_VERSION \
     DOTNET_RUNNING_IN_CONTAINER=true \
     DOTNET_USE_POLLING_FILE_WATCHER=true \

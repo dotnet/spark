@@ -169,8 +169,7 @@ build_dotnet_interactive() {
 
 #######################################
 # Use the Dockerfile in the sub-folder dotnet-spark-base to build the image of the second stage
-# The image contains the specified .NET for Apache Spark version plus the HelloSpark example
-#   for the correct TargetFramework and Microsoft.Spark package version
+# The image contains the specified .NET for Apache Spark version
 # Result:
 #   A dotnet-spark-base-interactive docker image tagged with the .NET for Apache Spark version
 #######################################
