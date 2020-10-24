@@ -172,18 +172,59 @@ stages:
 
 - template: azure-pipelines-e2e-tests-template.yml
   parameters:
-    versions:
-    - '2.3.0'
-    - '2.3.1'
-    - '2.3.2'
-    - '2.3.3'
-    - '2.3.4'
-    - '2.4.0'
-    - '2.4.1'
-    - '2.4.3'
-    - '2.4.4'
-    - '2.4.5'
-    - '2.4.6'
-    - '2.4.7'
-    - '3.0.0'
-    - '3.0.1'
+    tests:
+    - version: '2.3.0'
+      pools:
+      - 'Hosted VS2017'
+    - version: '2.3.1'
+      pools:
+      - 'Hosted VS2017'
+      - 'Hosted Ubuntu 1604'
+    - version: '2.3.2'
+      pools:
+      - 'Hosted VS2017'
+      - 'Hosted Ubuntu 1604'
+    - version: '2.3.3'
+      pools:
+      - 'Hosted VS2017'
+      - 'Hosted Ubuntu 1604'
+    - version: '2.3.4'
+      pools:
+      - 'Hosted VS2017'
+      - 'Hosted Ubuntu 1604'
+    - version: '2.4.0'
+      pools:
+      - 'Hosted VS2017'
+      - 'Hosted Ubuntu 1604'
+    - version: '2.4.1'
+      pools:
+      - 'Hosted VS2017'
+      - 'Hosted Ubuntu 1604'
+    - version: '2.4.3'
+      pools:
+      - 'Hosted VS2017'
+      - 'Hosted Ubuntu 1604'
+    - version: '2.4.4'
+      pools:
+      - 'Hosted VS2017'
+      - 'Hosted Ubuntu 1604'
+    - version: '2.4.5'
+      pools:
+      - 'Hosted VS2017'
+      - 'Hosted Ubuntu 1604'
+    - version: '2.4.6'
+      pools:
+      - 'Hosted VS2017'
+      - 'Hosted Ubuntu 1604'
+    - version: '2.4.7'
+      pools:
+      - 'Hosted VS2017'
+      - 'Hosted Ubuntu 1604'
+    - version: '3.0.0'
+      pools:
+      - 'Hosted VS2017'
+      - 'Hosted Ubuntu 1604'
+    - version: '3.0.1'
+      pools:
+      - 'Hosted VS2017'
+      - 'Hosted Ubuntu 1604'

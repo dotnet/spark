@@ -1,23 +1,18 @@
 parameters:
-- name: pools
-  type: object
-  default:
-    - "Hosted VS2017"
-    - "Hosted Ubuntu 1604"
-- name: 'versions'
+- name: tests
   type: object
   default: {}
-- name: 'testOptions'
+- name: testOptions
   type: string
   default: ''
 
 stages:
-- ${{ each version in parameters.versions }}:
-  - stage: E2E_Tests_${{ replace(version, '.', '_') }}
-    displayName: E2E tests for Spark ${{ version }}
+- ${{ each test in parameters.tests }}:
+  - stage: E2E_Tests_${{ replace(test.version, '.', '_') }}
+    displayName: E2E tests for Spark ${{ test.version }}
     dependsOn: Build
     jobs:
-    - ${{ each pool in parameters.pools }}:
+    - ${{ each pool in test.pools }}:
       - job: Run_${{ replace(pool, ' ', '_') }}
         pool: ${{ pool }}
 
@@ -66,10 +61,10 @@ stages:
             echo "Downloading Spark $($env:SPARK_VERSION)"
             curl -k -L -o spark-$($env:SPARK_VERSION).tgz https://archive.apache.org/dist/spark/spark-$($env:SPARK_VERSION)/spark-$($env:SPARK_VERSION)-bin-hadoop2.7.tgz
             tar xzvf spark-$($env:SPARK_VERSION).tgz
-          displayName: 'Download Spark Distro ${{ version }}'
+          displayName: 'Download Spark Distro ${{ test.version }}'
           workingDirectory: $(Build.BinariesDirectory)
           env:
-            SPARK_VERSION: ${{ version }}
+            SPARK_VERSION: ${{ test.version }}
 
         - task: DotNetCoreCLI@2
           displayName: 'E2E tests'
@@ -79,4 +74,4 @@ stages:
             arguments: '--configuration $(buildConfiguration) ${{ parameters.testOptions }}'
           env:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
-            SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ version }}-bin-hadoop2.7
+            SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
