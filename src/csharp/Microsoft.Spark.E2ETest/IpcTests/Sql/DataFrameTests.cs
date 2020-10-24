@@ -290,7 +290,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
+        [Fact]
         public void TestGroupedMapUdf()
         {
             DataFrame df = _spark
@@ -368,7 +368,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 returnLength);
         }
 
-        [SkipIfSparkVersionIsGreaterOrEqualTo(Versions.V3_0_0)]
+        [Fact]
         public void TestDataFrameGroupedMapUdf()
         {
             DataFrame df = _spark
