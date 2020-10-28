@@ -38,14 +38,8 @@ The following table describes the oldest version of the worker that the current 
     </thead>
     <tbody align="center">
         <tr>
-            <td rowspan=4>v1.0.0</td>
+            <td rowspan>v1.0.0</td>
             <td></td>
-        </tr>
-        <tr>
-        </tr>
-        <tr>
-        </tr>
-        <tr>
         </tr>
     </tbody>
 </table>
