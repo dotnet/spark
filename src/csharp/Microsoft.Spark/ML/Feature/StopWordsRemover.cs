@@ -79,7 +79,7 @@ namespace Microsoft.Spark.ML.Feature
         /// name of the new column.
         /// </summary>
         /// <returns>string, the output column</returns>
-        public string GetOutputCol() => (string)(_jvmObject.Invoke("getOutputCol"));
+        public string GetOutputCol() => (string)_jvmObject.Invoke("getOutputCol");
 
         /// <summary>
         /// Sets locale for <see cref="StopWordsRemover"/> transform.
