@@ -71,7 +71,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Gets the column that the <see cref="StopWordsRemover"/> should read from.
         /// </summary>
-        /// <returns>string, input column</returns>
+        /// <returns>Input column name</returns>
         public string GetInputCol() => (string)_jvmObject.Invoke("getInputCol");
 
         /// <summary>
