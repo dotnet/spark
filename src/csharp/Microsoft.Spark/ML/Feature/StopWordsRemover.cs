@@ -143,8 +143,9 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// /// <param name="language">Language</param>
         /// <returns>string[], Default stop words for the given language</returns>
-        public string[] LoadDefaultStopWords(string language) =>
-            (string[])(_jvmObject.Invoke("loadDefaultStopWords", language));
+        public static string[] LoadDefaultStopWords(string language) =>
+            (string[])SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                s_stopWordsRemoverClassName, "loadDefaultStopWords", language);
 
         /// <summary>
         /// Loads the <see cref="StopWordsRemover"/> that was previously saved using Save.
