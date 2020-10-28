@@ -97,7 +97,7 @@ namespace Microsoft.Spark.ML.Feature
         public string GetLocale() => (string)_jvmObject.Invoke("getLocale");
 
         /// <summary>
-        /// Sets case sensitivity for <see cref="StopWordsRemover"/> transform.
+        /// Sets case sensitivity.
         /// </summary>
         /// <param name="value">true if case sensitive, false otherwise</param>
         /// <returns>New <see cref="StopWordsRemover"/> object</returns>
