@@ -126,7 +126,22 @@ namespace Microsoft.Spark.ML.Feature
             (IEnumerable<string>)_jvmObject.Invoke("getStopWords");
 
         /// <summary>
-        /// Validate and get the transform schema for <see cref="StopWordsRemover"/> transform.
+        /// <summary>
+        /// Check transform validity and derive the output schema from the input schema.
+        /// 
+        /// This checks for validity of interactions between parameters during Transform and
+        /// raises an exception if any parameter value is invalid.
+        ///
+        /// Typical implementation should first conduct verification on schema change and parameter
+        /// validity, including complex parameter interaction checks.
+        /// </summary>
+        /// <param name="value">
+        /// The <see cref="StructType"/> of the <see cref="DataFrame"/> which will be transformed.
+        /// </param>
+        /// <returns>
+        /// The <see cref="StructType"/> of the output schema that would have been derived from the
+        /// input schema, if Transform had been called.
+        /// </returns>
         /// </summary>
         /// <param name="value">Input schema</param>
         /// <returns>Output schema</returns>
