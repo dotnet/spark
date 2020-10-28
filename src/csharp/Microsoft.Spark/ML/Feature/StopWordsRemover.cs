@@ -72,7 +72,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the column that the <see cref="StopWordsRemover"/> should read from.
         /// </summary>
         /// <returns>string, input column</returns>
-        public string GetInputCol() => (string)(_jvmObject.Invoke("getInputCol"));
+        public string GetInputCol() => (string)_jvmObject.Invoke("getInputCol");
 
         /// <summary>
         /// The <see cref="StopWordsRemover"/> will create a new column in the DataFrame, this is the
