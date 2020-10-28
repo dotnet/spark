@@ -108,7 +108,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets case sensitivity for <see cref="StopWordsRemover"/> transform.
         /// </summary>
         /// <returns>bool, true if is case sensitive.</returns>
-        public bool GetCaseSensitive() => (bool)(_jvmObject.Invoke("getCaseSensitive"));
+        public bool GetCaseSensitive() => (bool)_jvmObject.Invoke("getCaseSensitive");
 
         /// <summary>
         /// Sets custom stop words for <see cref="StopWordsRemover"/> transform.
