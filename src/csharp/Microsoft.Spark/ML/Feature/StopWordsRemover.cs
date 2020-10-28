@@ -123,7 +123,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <returns>string[], Custom stop words</returns>
         public IEnumerable<string> GetStopWords() =>
-            (IEnumerable<string>)(_jvmObject.Invoke("getStopWords"));
+            (IEnumerable<string>)_jvmObject.Invoke("getStopWords");
 
         /// <summary>
         /// Validate and get the transform schema for <see cref="StopWordsRemover"/> transform.
