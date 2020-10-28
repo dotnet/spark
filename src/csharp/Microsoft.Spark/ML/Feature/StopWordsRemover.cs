@@ -78,7 +78,7 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="StopWordsRemover"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
         /// </summary>
-        /// <returns>string, the output column</returns>
+        /// <returns>The output column name</returns>
         public string GetOutputCol() => (string)_jvmObject.Invoke("getOutputCol");
 
         /// <summary>
