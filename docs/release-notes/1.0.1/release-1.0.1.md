@@ -7,7 +7,7 @@
 
 ### Bug Fixes
 
-* Fix signer information mismatch issue ([752](https://github.com/dotnet/spark/pull/752))
+* Fix signer information mismatch issue ([#752](https://github.com/dotnet/spark/pull/752))
 
 ### Infrastructure / Documentation / Etc.
 
@@ -39,6 +39,7 @@ The following table describes the oldest version of the worker that the current 
     <tbody align="center">
         <tr>
             <td rowspan=4>v1.0.0</td>
+            <td></td>
         </tr>
         <tr>
         </tr>
