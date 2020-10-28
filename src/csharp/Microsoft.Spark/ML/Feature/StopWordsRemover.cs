@@ -129,7 +129,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Validate and get the transform schema for <see cref="StopWordsRemover"/> transform.
         /// </summary>
         /// <param name="value">Input schema</param>
-        /// <returns>StructType, Output schema</returns>
+        /// <returns>Output schema</returns>
         public StructType TransformSchema(StructType value) =>
             new StructType(
                 (JvmObjectReference)_jvmObject.Invoke("transformSchema",
