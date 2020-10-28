@@ -33,12 +33,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             string expectedInputCol = "input_col";
             string expectedOutputCol = "output_col";
             bool expectedCaseSensitive = false;
-            string[] expectedStopWords = new string[] {"test1", "test2"};
-            StructType expectedSchema = new StructType(new[]
-            {
-                new StructField("input_col", new ArrayType(new StringType(), true)),
-                new StructField("output_col", new ArrayType(new StringType(), true))
-            });
+            var expectedStopWords = new string[] { "test1", "test2" };
 
             DataFrame input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as input_col");
 
@@ -48,17 +43,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .SetCaseSensitive(expectedCaseSensitive)
                 .SetStopWords(expectedStopWords);
 
-            StructType outPutSchema = stopWordsRemover.TransformSchema(input.Schema());
-            string[] defaultStopWords = stopWordsRemover.LoadDefaultStopWords("english");
-
-            DataFrame output = stopWordsRemover.Transform(input);
-            Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
+            Assert.Equal(expectedUid, stopWordsRemover.Uid());
             Assert.Equal(expectedInputCol, stopWordsRemover.GetInputCol());
             Assert.Equal(expectedOutputCol, stopWordsRemover.GetOutputCol());
             Assert.Equal(expectedCaseSensitive, stopWordsRemover.GetCaseSensitive());
             Assert.Equal(expectedStopWords, stopWordsRemover.GetStopWords());
-            Assert.Equal(expectedSchema, outPutSchema);
-            Assert.NotEmpty(defaultStopWords);
+            Assert.NotEmpty(StopWordsRemover.LoadDefaultStopWords("english"));
 
             using (TemporaryDirectory tempDirectory = new TemporaryDirectory())
             {
@@ -69,7 +59,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 Assert.Equal(stopWordsRemover.Uid(), loadedStopWordsRemover.Uid());
             }
 
-            Assert.Equal(expectedUid, stopWordsRemover.Uid());
+            Assert.IsType<StructType>(stopWordsRemover.TransformSchema(input.Schema()));
+            Assert.IsType<DataFrame>(stopWordsRemover.Transform(input));
 
             TestFeatureBase(stopWordsRemover, "inputCol", "input_col");
         }
