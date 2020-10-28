@@ -93,7 +93,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Gets locale for <see cref="StopWordsRemover"/> transform
         /// </summary>
-        /// <returns>string, the locale</returns>
+        /// <returns>The locale</returns>
         public string GetLocale() => (string)_jvmObject.Invoke("getLocale");
 
         /// <summary>
