@@ -262,18 +262,34 @@ namespace Microsoft.Spark.Utils
                 typeData,
                 td =>
                 {
-                    Type type = AssemblyLoader.LoadAssembly(
+                    Assembly assembly = AssemblyLoader.LoadAssembly(
                         td.AssemblyName,
-                        td.AssemblyFileName).GetType(td.Name);
-                    if (type == null)
+                        td.AssemblyFileName);
+                    if (assembly == null)
                     {
+                        string searchPath =
+                            Environment.GetEnvironmentVariable("DOTNET_ASSEMBLY_SEARCH_PATHS");
+                        
+                        if (String.IsNullOrEmpty(searchPath))
+                        {
+                            searchPath = "Empty";
+                        }
+                        
                         throw new FileNotFoundException(
                             string.Format(
-                                "Assembly '{0}' file not found '{1}'",
+                                "Assembly '{0}' file not found '{1}'. " 
+                                + "Current DOTNET_ASSEMBLY_SEARCH_PATHS '{2}'",
                                 td.AssemblyName,
-                                td.AssemblyFileName));
+                                td.AssemblyFileName,
+                                searchPath));
                     }
 
+                    Type type = assembly.GetType(td.Name);
+                    if (type == null)
+                    {
+                        throw new TypeLoadException(
+                            string.Format("Unable to load Type '{0}' from Assembly '{1}'"));
+                    }
                     return type;
                 });
     }
