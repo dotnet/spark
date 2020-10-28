@@ -142,7 +142,7 @@ namespace Microsoft.Spark.ML.Feature
         /// hungarian, italian, norwegian, portuguese, russian, spanish, swedish, turkish.
         /// </summary>
         /// /// <param name="language">Language</param>
-        /// <returns>string[], Default stop words for the given language</returns>
+        /// <returns>Default stop words for the given language</returns>
         public static string[] LoadDefaultStopWords(string language) =>
             (string[])SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 s_stopWordsRemoverClassName, "loadDefaultStopWords", language);
