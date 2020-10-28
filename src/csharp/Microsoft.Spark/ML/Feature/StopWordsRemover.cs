@@ -107,7 +107,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Gets case sensitivity.
         /// </summary>
-        /// <returns>bool, true if is case sensitive.</returns>
+        /// <returns>true if case sensitive, false otherwise</returns>
         public bool GetCaseSensitive() => (bool)_jvmObject.Invoke("getCaseSensitive");
 
         /// <summary>
