@@ -33,13 +33,11 @@ The following table describes the oldest version of the worker that the current 
     <thead>
         <tr>
             <th>Oldest compatible Microsoft.Spark.Worker version</th>
-            <th>Incompatible features</th>
         </tr>
     </thead>
     <tbody align="center">
         <tr>
             <td rowspan>v1.0.0</td>
-            <td></td>
         </tr>
     </tbody>
 </table>
