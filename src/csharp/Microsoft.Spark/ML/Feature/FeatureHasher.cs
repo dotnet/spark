@@ -16,11 +16,11 @@ namespace Microsoft.Spark.ML.Feature
         private static readonly string s_featureHasherClassName = 
             "org.apache.spark.ml.feature.FeatureHasher";
         
-        internal FeatureHasher() : base(s_featureHasherClassName)
+        public FeatureHasher() : base(s_featureHasherClassName)
         {
         }
 
-        internal FeatureHasher(string uid) : base(s_featureHasherClassName, uid)
+        public FeatureHasher(string uid) : base(s_featureHasherClassName, uid)
         {
         }
 
