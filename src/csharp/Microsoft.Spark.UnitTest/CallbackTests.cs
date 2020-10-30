@@ -70,7 +70,7 @@ namespace Microsoft.Spark.UnitTest
                 clientSockets[i] = clientSocket;
                 clientSocket.Connect(ipEndpoint.Address, ipEndpoint.Port);
 
-                WriteAndReadTestData(clientSocket, callbackHandler, i, new CancellationToken());
+                WriteAndReadTestData(clientSocket, callbackHandler, i);
             }
 
             Assert.Equal(connectionNumber, callbackServer.CurrentNumConnections);
@@ -149,21 +149,46 @@ namespace Microsoft.Spark.UnitTest
             serverListener.Listen();
 
             var ipEndpoint = (IPEndPoint)serverListener.LocalEndPoint;
-            ISocketWrapper clientSocket = SocketFactory.CreateSocket();
+            using ISocketWrapper clientSocket = SocketFactory.CreateSocket();
             clientSocket.Connect(ipEndpoint.Address, ipEndpoint.Port);
 
-            var callbackConnection = new CallbackConnection(0, clientSocket, callbackHandlersDict);
-            Task.Run(() => callbackConnection.Run(token));
+            // Don't use "using" here. The CallbackConnection will dispose the socket.
+            ISocketWrapper serverSocket = serverListener.Accept();
+            var callbackConnection = new CallbackConnection(0, serverSocket, callbackHandlersDict);
+            Task task = Task.Run(() => callbackConnection.Run(token));
 
-            using ISocketWrapper serverSocket = serverListener.Accept();
-            WriteAndReadTestData(serverSocket, callbackHandler, inputToHandler, token);
+            if (token.IsCancellationRequested)
+            {
+                task.Wait();
+                Assert.False(callbackConnection.IsRunning);
+            }
+            else
+            {
+                WriteAndReadTestData(clientSocket, callbackHandler, inputToHandler);
+
+                if (callbackHandler.Throws)
+                {
+                    task.Wait();
+                    Assert.False(callbackConnection.IsRunning);
+                }
+                else
+                {
+                    Assert.True(callbackConnection.IsRunning);
+
+                    // Clean up CallbackConnection
+                    Stream outputStream = clientSocket.OutputStream;
+                    SerDe.Write(outputStream, (int)CallbackConnection.ConnectionStatus.REQUEST_CLOSE);
+                    outputStream.Flush();
+                    task.Wait();
+                    Assert.False(callbackConnection.IsRunning);
+                }
+            }
         }
 
         private void WriteAndReadTestData(
             ISocketWrapper socket,
             ITestCallbackHandler callbackHandler,
-            int inputToHandler,
-            CancellationToken token)
+            int inputToHandler)
         {
             Stream inputStream = socket.InputStream;
             Stream outputStream = socket.OutputStream;
@@ -175,23 +200,16 @@ namespace Microsoft.Spark.UnitTest
             SerDe.Write(outputStream, (int)CallbackFlags.END_OF_STREAM);
             outputStream.Flush();
 
-            if (token.IsCancellationRequested)
+            int callbackFlag = SerDe.ReadInt32(inputStream);
+            if (callbackFlag == (int)CallbackFlags.DOTNET_EXCEPTION_THROWN)
             {
-                Assert.Throws<IOException>(() => SerDe.ReadInt32(inputStream));
+                string exceptionMessage = SerDe.ReadString(inputStream);
+                Assert.False(string.IsNullOrEmpty(exceptionMessage));
+                Assert.Contains(callbackHandler.ExceptionMessage, exceptionMessage);
             }
             else
             {
-                int callbackFlag = SerDe.ReadInt32(inputStream);
-                if (callbackFlag == (int)CallbackFlags.DOTNET_EXCEPTION_THROWN)
-                {
-                    string exceptionMessage = SerDe.ReadString(inputStream);
-                    Assert.False(string.IsNullOrEmpty(exceptionMessage));
-                    Assert.Contains(callbackHandler.ExceptionMessage, exceptionMessage);
-                }
-                else
-                {
-                    Assert.Equal((int)CallbackFlags.END_OF_STREAM, callbackFlag);
-                }
+                Assert.Equal((int)CallbackFlags.END_OF_STREAM, callbackFlag);
             }
         }
 
@@ -211,7 +229,7 @@ namespace Microsoft.Spark.UnitTest
         }
 
         private class ThrowsExceptionHandler : ICallbackHandler, ITestCallbackHandler
-        {               
+        {
             public void Run(Stream inputStream) => throw new Exception(ExceptionMessage);
 
             public ConcurrentBag<int> Inputs { get; } = new ConcurrentBag<int>();

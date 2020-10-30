@@ -30,5 +30,10 @@ namespace Microsoft.Spark.Services
         /// The full path to the .NET worker executable.
         /// </summary>
         string GetWorkerExePath();
+
+        /// <summary>
+        /// Flag indicating whether running in REPL.
+        /// </summary>
+        bool IsRunningRepl();
     }
 }
