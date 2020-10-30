@@ -126,7 +126,6 @@ namespace Microsoft.Spark.ML.Feature
             (IEnumerable<string>)_jvmObject.Invoke("getStopWords");
 
         /// <summary>
-        /// <summary>
         /// Check transform validity and derive the output schema from the input schema.
         /// 
         /// This checks for validity of interactions between parameters during Transform and
@@ -142,9 +141,6 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="StructType"/> of the output schema that would have been derived from the
         /// input schema, if Transform had been called.
         /// </returns>
-        /// </summary>
-        /// <param name="value">Input schema</param>
-        /// <returns>Output schema</returns>
         public StructType TransformSchema(StructType value) =>
             new StructType(
                 (JvmObjectReference)_jvmObject.Invoke("transformSchema",
@@ -156,7 +152,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Supported languages: danish, dutch, english, finnish, french, german,
         /// hungarian, italian, norwegian, portuguese, russian, spanish, swedish, turkish.
         /// </summary>
-        /// /// <param name="language">Language</param>
+        /// <param name="language">Language</param>
         /// <returns>Default stop words for the given language</returns>
         public static string[] LoadDefaultStopWords(string language) =>
             (string[])SparkEnvironment.JvmBridge.CallStaticJavaMethod(
