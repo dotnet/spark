@@ -16,10 +16,18 @@ namespace Microsoft.Spark.ML.Feature
         private static readonly string s_featureHasherClassName = 
             "org.apache.spark.ml.feature.FeatureHasher";
         
+        /// <summary>
+        /// Creates a <see cref="FeatureHasher"/> without any parameters.
+        /// </summary>
         public FeatureHasher() : base(s_featureHasherClassName)
         {
         }
 
+        /// <summary>
+        /// Creates a <see cref="FeatureHasher"/> with a UID that is used to give the
+        /// <see cref="FeatureHasher"/> a unique ID.
+        /// </summary>
+        /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
         public FeatureHasher(string uid) : base(s_featureHasherClassName, uid)
         {
         }
