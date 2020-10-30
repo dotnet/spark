@@ -21,8 +21,6 @@ stages:
             _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
 
         steps:
-        - checkout: self
-
         - task: DownloadBuildArtifacts@0
           displayName: Download Build Artifacts
           inputs:
@@ -53,6 +51,9 @@ stages:
               chmod +x "${dotnetWorkerDir}${pathSeparator}Microsoft.Spark.Worker"
             }
           displayName: 'Setup Variables and Permissions'
+
+        - checkout: self
+          path: s$(PATH_SEPARATOR)dotnet-spark
 
         - task: CopyFiles@2
           displayName: Copy jars
