@@ -2,9 +2,9 @@ parameters:
 - name: tests
   type: object
   default: {}
-- name: testOptions
-  type: string
-  default: ''
+- name: compatiblility
+  type: object
+  default: {}
 
 stages:
 - ${{ each test in parameters.tests }}:
@@ -21,6 +21,8 @@ stages:
             _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
 
         steps:
+        - checkout: self
+
         - task: DownloadBuildArtifacts@0
           displayName: Download Build Artifacts
           inputs:
@@ -28,18 +30,27 @@ stages:
             downloadPath: $(Build.ArtifactStagingDirectory)
 
         - pwsh: |
+            $framework = "netcoreapp3.1"
+
+            if ($env:AGENT_OS -eq 'Windows_NT') {
+              $runtimeIdentifier = "win-x64"
+            } else {
+              $runtimeIdentifier = "linux-x64"
+            }
+
             $pathSeparator = [IO.Path]::DirectorySeparatorChar
             $artifactPath = "$(Build.ArtifactStagingDirectory)${pathSeparator}Microsoft.Spark.Binaries"
             echo "##vso[task.setvariable variable=PATH_SEPARATOR]$pathSeparator"
             echo "##vso[task.setvariable variable=ArtifactPath]$artifactPath"
 
-            $dotnetWorkerFrameworkDir = "${artifactPath}${pathSeparator}Microsoft.Spark.Worker${pathSeparator}netcoreapp3.1"
-            if ($env:AGENT_OS -eq 'Windows_NT') {
-              echo "##vso[task.setvariable variable=DOTNET_WORKER_DIR]${dotnetWorkerFrameworkDir}${pathSeparator}win-x64"
-            } else {
-              $dotnetWorkerDir = "${dotnetWorkerFrameworkDir}${pathSeparator}linux-x64"
+            $backwardCompatibleRelease = "${{ parameters.compatiblility.backwardCompatibleRelease }}"
+            echo "##vso[task.setvariable variable=BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR]$(Build.BinariesDirectory)${pathSeparator}Microsoft.Spark.Worker-${backwardCompatibleRelease}"
+            echo "##vso[task.setvariable variable=BACKWARD_COMPATIBLE_WORKER_URL]https://github.com/dotnet/spark/releases/download/v${backwardCompatibleRelease}/Microsoft.Spark.Worker.${framework}.${runtimeIdentifier}-${backwardCompatibleRelease}.zip"
+
+            $dotnetWorkerDir = "${artifactPath}${pathSeparator}Microsoft.Spark.Worker${pathSeparator}${framework}${pathSeparator}${runtimeIdentifier}"
+            echo "##vso[task.setvariable variable=CURRENT_DOTNET_WORKER_DIR]$dotnetWorkerDir"
+            if ($env:AGENT_OS -eq 'Linux') {
               chmod +x "${dotnetWorkerDir}${pathSeparator}Microsoft.Spark.Worker"
-              echo "##vso[task.setvariable variable=DOTNET_WORKER_DIR]$dotnetWorkerDir"
             }
           displayName: 'Setup Variables and Permissions'
 
@@ -48,30 +59,82 @@ stages:
           inputs:
             sourceFolder: $(ArtifactPath)$(PATH_SEPARATOR)Jars
             contents: '**$(PATH_SEPARATOR)*.jar'
-            targetFolder: $(Build.SourcesDirectory)$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala
+            targetFolder: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala
 
-        - task: BatchScript@1
+        - task: PowerShell@2
           condition: eq( variables['Agent.OS'], 'Windows_NT' )
           displayName: Download Winutils.exe
           inputs:
-            filename: script\download-hadoop-utils.cmd
-            arguments: $(Build.BinariesDirectory)
+            workingDirectory: $(Build.BinariesDirectory)
+            pwsh: true
+            targetType: inline
+            script: |
+              echo "Download Hadoop utils for Windows."
+              curl -k -L -o hadoop.zip https://github.com/steveloughran/winutils/releases/download/tag_2017-08-29-hadoop-2.8.1-native/hadoop-2.8.1.zip
+              unzip hadoop.zip
+              New-Item -ItemType Directory -Force -Path hadoop\bin
+              cp hadoop-2.8.1\winutils.exe hadoop\bin
 
         - pwsh: |
-            echo "Downloading Spark $($env:SPARK_VERSION)"
-            curl -k -L -o spark-$($env:SPARK_VERSION).tgz https://archive.apache.org/dist/spark/spark-$($env:SPARK_VERSION)/spark-$($env:SPARK_VERSION)-bin-hadoop2.7.tgz
-            tar xzvf spark-$($env:SPARK_VERSION).tgz
+            echo "Downloading Spark ${{ test.version }}"
+            curl -k -L -o spark-${{ test.version }}.tgz https://archive.apache.org/dist/spark/spark-${{ test.version }}/spark-${{ test.version }}-bin-hadoop2.7.tgz
+            tar xzvf spark-${{ test.version }}.tgz
           displayName: 'Download Spark Distro ${{ test.version }}'
           workingDirectory: $(Build.BinariesDirectory)
-          env:
-            SPARK_VERSION: ${{ test.version }}
 
         - task: DotNetCoreCLI@2
           displayName: 'E2E tests'
           inputs:
             command: test
             projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-            arguments: '--configuration $(buildConfiguration) ${{ parameters.testOptions }}'
+            arguments: '--configuration $(buildConfiguration)'
+            workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
             SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
+            DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
+
+        - pwsh: |
+            echo "Downloading ${env:BACKWARD_COMPATIBLE_WORKER_URL}"
+            curl -k -L -o Microsoft.Spark.Worker-${{ parameters.compatiblility.backwardCompatibleRelease }}.zip ${env:BACKWARD_COMPATIBLE_WORKER_URL}
+            unzip Microsoft.Spark.Worker-${{ parameters.compatiblility.backwardCompatibleRelease }}.zip -d $([System.IO.Directory]::GetParent($env:BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR).FullName)
+
+            if ($env:AGENT_OS -eq 'Linux') {
+              chmod +x "${env:BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR}${env:PATH_SEPARATOR}Microsoft.Spark.Worker"
+            }
+          displayName: 'Setup Backward Compatible Microsoft Spark Worker ${{ parameters.compatiblility.backwardCompatibleRelease }}'
+          workingDirectory: $(Build.BinariesDirectory)
+          env:
+            SPARK_VERSION: ${{ test.version }}
+
+        - task: DotNetCoreCLI@2
+          displayName: 'E2E Backward Compatibility Tests'
+          inputs:
+            command: test
+            projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+            arguments: '--configuration $(buildConfiguration) ${{ parameters.compatiblility.backwardCompatibleTestOptions }}'
+            workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
+          env:
+            HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
+            SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
+            DOTNET_WORKER_DIR: $(BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR)
+
+        - checkout: forwardCompatibleRelease
+          path: s$(PATH_SEPARATOR)dotnet-spark-${{ parameters.compatiblility.forwardCompatibleRelease }}
+
+        - task: Maven@3
+          displayName: 'Maven build src for forward compatible release v${{ parameters.compatiblility.forwardCompatibleRelease }}'
+          inputs:
+            mavenPomFile: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark-${{ parameters.compatiblility.forwardCompatibleRelease }}$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala$(PATH_SEPARATOR)pom.xml
+
+        - task: DotNetCoreCLI@2
+          displayName: 'E2E Forward Compatibility Tests'
+          inputs:
+            command: test
+            projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+            arguments: '--configuration $(buildConfiguration) ${{ parameters.compatiblility.forwardCompatibleTestOptions }}'
+            workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark-${{ parameters.compatiblility.forwardCompatibleRelease }}
+          env:
+            HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
+            SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
+            DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
