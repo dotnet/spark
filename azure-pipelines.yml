@@ -208,7 +208,7 @@ stages:
     tests:
     - version: '2.3.0'
       jobOptions:
-      # Hosted Ubuntu 1604 test is disabled due to https://github.com/dotnet/spark/issues/753
+      # 'Hosted Ubuntu 1604' test is disabled due to https://github.com/dotnet/spark/issues/753
       - pool: 'Hosted VS2017'
         testOptions: ''
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_3)
