@@ -264,7 +264,7 @@ namespace Microsoft.Spark.Utils
                 {
                     Type type = AssemblyLoader.LoadAssembly(
                         td.AssemblyName,
-                        td.AssemblyFileName).GetType(td.Name);
+                        td.AssemblyFileName)?.GetType(td.Name, true);
                     if (type == null)
                     {
                         throw new FileNotFoundException(
