@@ -54,7 +54,7 @@ namespace Microsoft.Spark.UnitTest
         {
             {
                 var arrayType = new ArrayType(new IntegerType());
-                Assert.False(arrayType.NeedConversion());
+                Assert.False(arrayType.NeedConversion(new object()));
 
                 var expected = new ArrayList(Enumerable.Range(0, 10).ToArray());
                 var actual = (ArrayList)arrayType.FromInternal(expected);
@@ -63,7 +63,7 @@ namespace Microsoft.Spark.UnitTest
             {
                 var dateType = new DateType();
                 var arrayType = new ArrayType(dateType);
-                Assert.True(arrayType.NeedConversion());
+                Assert.True(arrayType.NeedConversion(new object()));
 
                 var internalDates = new int[] { 10, 100 };
                 Date[] expected =
@@ -97,7 +97,7 @@ namespace Microsoft.Spark.UnitTest
             {
                 var integerType = new IntegerType();
                 var mapType = new MapType(integerType, integerType);
-                Assert.False(mapType.NeedConversion());
+                Assert.False(mapType.NeedConversion(new object()));
 
                 Dictionary<int, int> dict =
                     Enumerable.Range(0, 10).ToDictionary(i => i, i => i * i);
@@ -109,7 +109,7 @@ namespace Microsoft.Spark.UnitTest
                 var integerType = new IntegerType();
                 var dateType = new DateType();
                 var mapType = new MapType(integerType, dateType);
-                Assert.True(mapType.NeedConversion());
+                Assert.True(mapType.NeedConversion(new object()));
 
                 var internalDates = new int[] { 10, 100 };
                 var expected = new Hashtable(

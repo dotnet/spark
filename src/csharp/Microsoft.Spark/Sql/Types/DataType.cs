@@ -184,7 +184,7 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Does this type need to conversion between C# object and internal SQL object.
         /// </summary>
-        internal virtual bool NeedConversion() => false;
+        internal virtual bool NeedConversion(object obj) => false;
 
         /// <summary>
         /// Converts an internal SQL object into a native C# object.

@@ -102,7 +102,7 @@ We use the same [coding style](https://github.com/dotnet/runtime/blob/master/doc
 
     * Log message with string interpolation:
     ```C#
-    Logger.LogInfo($"This message {someVariable} is too long but try your best to fit in 100 character limit.");
+    Logger.LogInfo($"This message {someVariable} is too long but try your best to fit in 110 character limit.");
     ```
 
     * The method signature without method parameters is long due to type paramters:

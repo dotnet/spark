@@ -72,7 +72,7 @@ namespace Microsoft.Spark.Sql.Types
         internal static readonly DateTime s_unixTimeEpoch =
             new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        internal override bool NeedConversion() => true;
+        internal override bool NeedConversion(object obj) => obj?.GetType() != typeof(Date);
 
         /// <summary>
         /// Internally, a date is stored as a simple incrementing count of days as int
@@ -97,7 +97,7 @@ namespace Microsoft.Spark.Sql.Types
     /// </summary>
     public sealed class TimestampType : AtomicType
     {
-        internal override bool NeedConversion() => true;
+        internal override bool NeedConversion(object obj) => obj?.GetType() != typeof(Timestamp);
 
         /// <summary>
         /// Internally, a timestamp is stored as the number of microseconds as long from the epoch

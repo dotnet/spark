@@ -69,11 +69,11 @@ namespace Microsoft.Spark.Sql.Types
             return this;
         }
 
-        internal override bool NeedConversion() => ElementType.NeedConversion();
+        internal override bool NeedConversion(object obj) => ElementType.NeedConversion(obj);
 
         internal override object FromInternal(object obj)
         {
-            if (!NeedConversion() || obj == null)
+            if (!NeedConversion(obj) || obj == null)
             {
                 return obj;
             }
@@ -156,12 +156,12 @@ namespace Microsoft.Spark.Sql.Types
             return this;
         }
 
-        internal override bool NeedConversion() =>
-            KeyType.NeedConversion() || ValueType.NeedConversion();
+        internal override bool NeedConversion(object obj) =>
+            KeyType.NeedConversion(obj) || ValueType.NeedConversion(obj);
 
         internal override object FromInternal(object obj)
         {
-            if (!NeedConversion() || obj == null)
+            if (!NeedConversion(obj) || obj == null)
             {
                 return obj;
             }
@@ -310,7 +310,7 @@ namespace Microsoft.Spark.Sql.Types
             return this;
         }
 
-        internal override bool NeedConversion() => true;
+        internal override bool NeedConversion(object obj) => true;
 
         internal override object FromInternal(object obj)
         {
