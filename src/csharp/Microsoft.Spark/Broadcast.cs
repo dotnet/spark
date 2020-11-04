@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using static System.Environment;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization;
@@ -171,11 +172,26 @@ namespace Microsoft.Spark
             // Spark versions.
             bool encryptionEnabled = bool.Parse(
                 sc.GetConf().Get("spark.io.encryption.enabled", "false"));
+            JvmObjectReference _pythonBroadcast;
+            bool isDatabricks =
+            !string.IsNullOrEmpty(GetEnvironmentVariable("DATABRICKS_RUNTIME_VERSION"));
 
-            var _pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.api.python.PythonRDD",
-                "setupBroadcast",
-                _path);
+            // Databricks has changed the signature of setupBroadcast in its Spark
+            if (isDatabricks)
+            {
+                _pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
+                    "org.apache.spark.api.python.PythonRDD",
+                    "setupBroadcast",
+                    javaSparkContext,
+                    _path);
+            }
+            else
+            {
+                _pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
+                    "org.apache.spark.api.python.PythonRDD",
+                    "setupBroadcast",
+                    _path);
+            }
 
             if (encryptionEnabled)
             {
