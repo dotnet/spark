@@ -2,16 +2,19 @@
 
 ### New Features/Improvements
 
-* Use pattern matching in arrow test utils to improve readability ([#725](https://github.com/dotnet/spark/pull/725))
 * Support for Arrow 2.0 and GroupedMapUdf in Spark 3.0.0 ([#654](https://github.com/dotnet/spark/issues/654))
+* Use pattern matching in arrow test utils to improve readability ([#725](https://github.com/dotnet/spark/pull/725))
+* Check whether file is found before trying to dereference it ([#759](https://github.com/dotnet/spark/pull/759))
 
 ### Bug Fixes
 
 * Fix signer information mismatch issue ([#752](https://github.com/dotnet/spark/pull/752))
+* Fix package-worker.ps1 to handle output path with ":" ([#742](https://github.com/dotnet/spark/pull/742))
 
 ### Infrastructure / Documentation / Etc.
 
 * Fix flaky CallbackTests.TestCallbackHandlers Test ([#745](https://github.com/dotnet/spark/pull/745))
+* Run E2E tests on Linux in build pipeline and add Backward/Forward E2E tests ([#737](https://github.com/dotnet/spark/pull/737))
 
 ### Breaking Changes
 
@@ -125,7 +128,7 @@ The following table outlines the supported Delta versions along with the Microso
     <tbody align="center">
         <tr>
             <td>0.1.0</td>
-            <td rowspan=8>1.0.0</td>
+            <td rowspan=8>1.0.1</td>
         </tr>
         <tr>
             <td>0.2.0</td>
@@ -165,7 +168,7 @@ The following table outlines the supported Hyperspace versions along with the Mi
     <tbody align="center">
         <tr>
             <td>0.1.0</td>
-            <td rowspan=2>1.0.0</td>
+            <td rowspan=2>1.0.1</td>
         </tr>
         <tr>
             <td>0.2.0</td>
