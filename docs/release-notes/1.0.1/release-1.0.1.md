@@ -25,6 +25,7 @@
 * Broadcast variables do not work with [dotnet-interactive](https://github.com/dotnet/interactive) ([#561](https://github.com/dotnet/spark/pull/561))
 * UDFs defined using class objects with closures does not work with [dotnet-interactive](https://github.com/dotnet/interactive) ([#619](https://github.com/dotnet/spark/pull/619))
 * In [dotnet-interactive](https://github.com/dotnet/interactive) blocking Spark methods that require external threads to unblock them does not work. ie `StreamingQuery.AwaitTermination` requires `StreamingQuery.Stop` to unblock ([#736](https://github.com/dotnet/spark/pull/736))
+* UDFs don't work in Linux with Spark 2.3.0 ([#753]https://github.com/dotnet/spark/issues/753))
 
 ### Compatibility
 
@@ -36,11 +37,13 @@ The following table describes the oldest version of the worker that the current 
     <thead>
         <tr>
             <th>Oldest compatible Microsoft.Spark.Worker version</th>
+            <th>Incompatible features</th>
         </tr>
     </thead>
     <tbody align="center">
         <tr>
-            <td rowspan>v1.0.0</td>
+            <td>v1.0.0</td>
+            <td>GroupedMap in Spark 3.0 is not compatible with Worker 1.0 <a href="https://github.com/dotnet/spark/pull/654">(#654)</a></td>
         </tr>
     </tbody>
 </table>
