@@ -5,16 +5,19 @@
 * Support for Arrow 2.0 and GroupedMapUdf in Spark 3.0.0 ([#654](https://github.com/dotnet/spark/issues/654))
 * Use pattern matching in arrow test utils to improve readability ([#725](https://github.com/dotnet/spark/pull/725))
 * Check whether file is found before trying to dereference it ([#759](https://github.com/dotnet/spark/pull/759))
+* Ml/feature hasher has only internal contructors ([#761](https://github.com/dotnet/spark/pull/761))
 
 ### Bug Fixes
 
 * Fix signer information mismatch issue ([#752](https://github.com/dotnet/spark/pull/752))
 * Fix package-worker.ps1 to handle output path with ":" ([#742](https://github.com/dotnet/spark/pull/742))
+* Fixes for TimestampType and DateType conversion ([#765](https://github.com/dotnet/spark/pull/765))
 
 ### Infrastructure / Documentation / Etc.
 
 * Fix flaky CallbackTests.TestCallbackHandlers Test ([#745](https://github.com/dotnet/spark/pull/745))
 * Run E2E tests on Linux in build pipeline and add Backward/Forward E2E tests ([#737](https://github.com/dotnet/spark/pull/737))
+* Add comments and cleanup azure pipeline ([#764](https://github.com/dotnet/spark/pull/764))
 
 ### Breaking Changes
 
