@@ -12,6 +12,7 @@
 * Fix signer information mismatch issue ([#752](https://github.com/dotnet/spark/pull/752))
 * Fix package-worker.ps1 to handle output path with ":" ([#742](https://github.com/dotnet/spark/pull/742))
 * Fixes for TimestampType and DateType conversion ([#765](https://github.com/dotnet/spark/pull/765))
+* Fix for using Broadcast variables in Databricks ([#766](https://github.com/dotnet/spark/pull/766))
 
 ### Infrastructure / Documentation / Etc.
 
