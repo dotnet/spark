@@ -16,8 +16,6 @@ namespace Microsoft.Spark.Services
     /// </summary>
     internal sealed class ConfigurationService : IConfigurationService
     {
-        internal static bool IsDatabricks { get; } =
-            !string.IsNullOrEmpty(GetEnvironmentVariable("DATABRICKS_RUNTIME_VERSION"));
         public const string WorkerDirEnvVarName = "DOTNET_WORKER_DIR";
         public const string WorkerReadBufferSizeEnvVarName = "spark.dotnet.worker.readBufferSize";
         public const string WorkerWriteBufferSizeEnvVarName =
@@ -51,6 +49,9 @@ namespace Microsoft.Spark.Services
                 return string.IsNullOrEmpty(envVar) ? TimeSpan.FromMinutes(5) : TimeSpan.Parse(envVar);
             }
         }
+
+        internal static bool IsDatabricks { get; } =
+            !string.IsNullOrEmpty(GetEnvironmentVariable("DATABRICKS_RUNTIME_VERSION"));
 
         /// <summary>
         /// Returns the port number for socket communication between JVM and CLR.
