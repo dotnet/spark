@@ -173,11 +173,9 @@ namespace Microsoft.Spark
             bool encryptionEnabled = bool.Parse(
                 sc.GetConf().Get("spark.io.encryption.enabled", "false"));
             JvmObjectReference _pythonBroadcast;
-            bool isDatabricks =
-            !string.IsNullOrEmpty(GetEnvironmentVariable("DATABRICKS_RUNTIME_VERSION"));
 
             // Databricks has changed the signature of setupBroadcast in its Spark
-            if (isDatabricks)
+            if (ConfigurationService.IsDatabricks)
             {
                 _pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
                     "org.apache.spark.api.python.PythonRDD",

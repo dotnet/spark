@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using static System.Environment;
 using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Services
@@ -15,6 +16,8 @@ namespace Microsoft.Spark.Services
     /// </summary>
     internal sealed class ConfigurationService : IConfigurationService
     {
+        internal static bool IsDatabricks { get; } =
+            !string.IsNullOrEmpty(GetEnvironmentVariable("DATABRICKS_RUNTIME_VERSION"));
         public const string WorkerDirEnvVarName = "DOTNET_WORKER_DIR";
         public const string WorkerReadBufferSizeEnvVarName = "spark.dotnet.worker.readBufferSize";
         public const string WorkerWriteBufferSizeEnvVarName =
