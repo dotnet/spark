@@ -23,11 +23,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         }
 
         /// <summary>
-        /// Test stop words removers without locale,
-        /// because locale is not supported before spark 2.4.0 version.
+        /// Test signatures for APIs up to Spark 2.3.*.
         /// </summary>
         [Fact]
-        public void TestStopWordsRemoverWithoutLocale()
+        public void TestSignaturesV2_3_X()
         {
             string expectedUid = "theUidWithOutLocale";
             string expectedInputCol = "input_col";
