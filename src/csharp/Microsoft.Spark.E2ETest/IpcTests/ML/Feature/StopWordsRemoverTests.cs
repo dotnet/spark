@@ -65,11 +65,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         }
 
         /// <summary>
-        /// Test stop words removers with locale, run if spark version is greater than spark 2.4.0
-        /// skip this test for rest of the spark versions.
+        /// Test signatures for APIs introduced in Spark 2.4.*.
         /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
-        public void TestStopWordsRemoverWithLocale()
+        public void TestSignaturesV2_4_X()
         {
             string expectedLocale = "en_GB";
             StopWordsRemover stopWordsRemover = new StopWordsRemover().SetLocale(expectedLocale);
