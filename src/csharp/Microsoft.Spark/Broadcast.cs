@@ -173,7 +173,7 @@ namespace Microsoft.Spark
                 sc.GetConf().Get("spark.io.encryption.enabled", "false"));
             JvmObjectReference _pythonBroadcast;
 
-            // Databricks has changed the signature of setupBroadcast in its Spark
+            // Spark in Databricks is different from OSS Spark and requires to pass the SparkContext object to setupBroadcast.
             if (ConfigurationService.IsDatabricks)
             {
                 _pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
