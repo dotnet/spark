@@ -20,10 +20,6 @@ stages:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
         pool: ${{ option.pool }}
 
-        variables:
-          ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-            _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-
         steps:
         - task: DownloadBuildArtifacts@0
           displayName: Download Build Artifacts
@@ -109,8 +105,6 @@ stages:
             }
           displayName: 'Setup Backward Compatible Microsoft Spark Worker ${{ parameters.backwardCompatibleRelease }}'
           workingDirectory: $(Build.BinariesDirectory)
-          env:
-            SPARK_VERSION: ${{ test.version }}
 
         - task: DotNetCoreCLI@2
           displayName: 'E2E Backward Compatibility Tests'
