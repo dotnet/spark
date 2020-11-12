@@ -12,9 +12,6 @@ namespace Microsoft.Spark.Worker.Utils
     /// </summary>
     internal static class SettingUtils
     {
-        internal static bool IsDatabricks { get; } =
-            !string.IsNullOrEmpty(GetEnvironmentVariable("DATABRICKS_RUNTIME_VERSION"));
-
         internal static string GetWorkerFactorySecret(Version version)
         {
             return (version >= new Version(Versions.V2_3_1)) ?
