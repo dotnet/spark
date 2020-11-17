@@ -43,7 +43,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Sets the column that the <see cref="StopWordsRemover"/> should read from.
         /// </summary>
-        /// <param name="value">The name of the column to as the source</param>
+        /// <param name="value">The name of the column to use as the source</param>
         /// <returns>New <see cref="StopWordsRemover"/> object</returns>
         public StopWordsRemover SetInputCol(string value) =>
             WrapAsStopWordsRemover(_jvmObject.Invoke("setInputCol", value));
