@@ -148,7 +148,7 @@ namespace Microsoft.Spark.ML.Feature
 
         /// <summary>
         /// Load default stop words of given language for <see cref="StopWordsRemover"/>
-        /// transform Loads the default stop words for the given language.
+        /// transform.
         /// Supported languages: danish, dutch, english, finnish, french, german,
         /// hungarian, italian, norwegian, portuguese, russian, spanish, swedish, turkish.
         /// </summary>
