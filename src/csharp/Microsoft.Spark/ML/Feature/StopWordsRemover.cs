@@ -52,7 +52,7 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="StopWordsRemover"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
         /// </summary>
-        /// <param name="value">The name of the column to as the target</param>
+        /// <param name="value">The name of the column to use as the target</param>
         /// <returns>New <see cref="StopWordsRemover"/> object</returns>
         public StopWordsRemover SetOutputCol(string value) =>
             WrapAsStopWordsRemover(_jvmObject.Invoke("setOutputCol", value));
