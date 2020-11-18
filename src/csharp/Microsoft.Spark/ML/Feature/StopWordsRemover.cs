@@ -19,7 +19,7 @@ namespace Microsoft.Spark.ML.Feature
             "org.apache.spark.ml.feature.StopWordsRemover";
 
         /// <summary>
-        /// Create a <see cref="StopWordsRemover"/> without any parameters
+        /// Create a <see cref="StopWordsRemover"/> without any parameters.
         /// </summary>
         public StopWordsRemover() : base(s_stopWordsRemoverClassName)
         {
@@ -27,7 +27,7 @@ namespace Microsoft.Spark.ML.Feature
 
         /// <summary>
         /// Create a <see cref="StopWordsRemover"/> with a UID that is used to give the
-        /// <see cref="StopWordsRemover"/> a unique ID
+        /// <see cref="StopWordsRemover"/> a unique ID.
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
         public StopWordsRemover(string uid) : base(s_stopWordsRemoverClassName, uid)
@@ -87,6 +87,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">Locale to be used for transform</param>
         /// <returns>New <see cref="StopWordsRemover"/> object</returns>
+        [Since(Versions.V2_4_0)]
         public StopWordsRemover SetLocale(string value) =>
             WrapAsStopWordsRemover(_jvmObject.Invoke("setLocale", value));
 
@@ -94,6 +95,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets locale for <see cref="StopWordsRemover"/> transform
         /// </summary>
         /// <returns>The locale</returns>
+        [Since(Versions.V2_4_0)]
         public string GetLocale() => (string)_jvmObject.Invoke("getLocale");
 
         /// <summary>
