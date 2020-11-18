@@ -46,7 +46,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             return new Payload()
             {
                 SplitIndex = 10,
-                Version = Versions.CurrentVersion,
+                Version = AssemblyInfoProvider.MicrosoftSparkAssemblyInfo().AssemblyVersion,
                 TaskContext = taskContext,
                 SparkFilesDir = "directory",
                 IncludeItems = new[] { "file1", "file2" },

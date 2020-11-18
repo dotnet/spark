@@ -5,6 +5,8 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using static System.Environment;
+using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Services
 {
@@ -22,6 +24,9 @@ namespace Microsoft.Spark.Services
         private const string DotnetBackendPortEnvVarName = "DOTNETBACKEND_PORT";
         private const int DotnetBackendDebugPort = 5567;
 
+        private const string DotnetNumBackendThreadsEnvVarName = "DOTNET_SPARK_NUM_BACKEND_THREADS";
+        private const int DotnetNumBackendThreadsDefault = 10;
+
         private static readonly string s_procBaseFileName = "Microsoft.Spark.Worker";
         private static readonly string s_procFileName =
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
@@ -32,6 +37,21 @@ namespace Microsoft.Spark.Services
             LoggerServiceFactory.GetLogger(typeof(ConfigurationService));
 
         private string _workerPath;
+
+        /// <summary>
+        /// How often to run GC on JVM ThreadPool threads. Defaults to 5 minutes.
+        /// </summary>
+        public TimeSpan JvmThreadGCInterval
+        {
+            get
+            {
+                string envVar = Environment.GetEnvironmentVariable("DOTNET_JVM_THREAD_GC_INTERVAL");
+                return string.IsNullOrEmpty(envVar) ? TimeSpan.FromMinutes(5) : TimeSpan.Parse(envVar);
+            }
+        }
+
+        internal static bool IsDatabricks { get; } =
+            !string.IsNullOrEmpty(GetEnvironmentVariable("DATABRICKS_RUNTIME_VERSION"));
 
         /// <summary>
         /// Returns the port number for socket communication between JVM and CLR.
@@ -49,6 +69,21 @@ namespace Microsoft.Spark.Services
             _logger.LogInfo($"Using port {portNumber} for connection.");
 
             return portNumber;
+        }
+
+        /// <summary>
+        /// Returns the max number of threads for socket communication between JVM and CLR.
+        /// </summary>
+        public int GetNumBackendThreads()
+        {
+            if (!int.TryParse(
+                Environment.GetEnvironmentVariable(DotnetNumBackendThreadsEnvVarName),
+                out int numThreads))
+            {
+                numThreads = DotnetNumBackendThreadsDefault;
+            }
+
+            return numThreads;
         }
 
         /// <summary>
@@ -77,5 +112,11 @@ namespace Microsoft.Spark.Services
             _workerPath = s_procFileName;
             return _workerPath;
         }
+
+        /// <summary>
+        /// Flag indicating whether running in REPL.
+        /// </summary>
+        public bool IsRunningRepl() =>
+            EnvironmentUtils.GetEnvironmentVariableAsBool(Constants.RunningREPLEnvVar);
     }
 }
