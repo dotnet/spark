@@ -128,7 +128,7 @@ namespace Microsoft.Spark.Worker
                         SerDe.Write(socket.OutputStream, taskRunnerId);
                         socket.OutputStream.Flush();
 
-                        if (Utils.SettingUtils.IsDatabricks)
+                        if (ConfigurationService.IsDatabricks)
                         {
                             SerDe.ReadString(socket.InputStream);
                         }
