@@ -38,21 +38,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                     new StructField("v2", new DoubleType())
                 }));
 
-            DataFrame expectedOutput = _spark.CreateDataFrame(
-                new List<GenericRow>
-                {
-                                new GenericRow(new object[] { 0, 1.0, 3.0, 4.0, 3.0 }),
-                                new GenericRow(new object[] { 2, 2.0, 5.0, 7.0, 10.0 })
-                },
-                new StructType(new List<StructField>
-                {
-                                new StructField("id", new IntegerType()),
-                                new StructField("v1", new DoubleType()),
-                                new StructField("v2", new DoubleType()),
-                                new StructField("v3", new DoubleType()),
-                                new StructField("v4", new DoubleType())
-                }));
-
             string expectedUid = "theUid";
 
             SQLTransformer sqlTransformer = new SQLTransformer(expectedUid)
@@ -62,8 +47,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             Assert.Contains(output.Schema().Fields, (f => f.Name == "v3"));
             Assert.Contains(output.Schema().Fields, (f => f.Name == "v4"));
-
-            Assert.Equal(expectedOutput.ToJSON(), output.ToJSON());
 
             using (var tempDirectory = new TemporaryDirectory())
             {
