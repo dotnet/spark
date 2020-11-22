@@ -145,7 +145,8 @@ namespace Microsoft.Spark.ML.Feature
         /// </returns>
         public StructType TransformSchema(StructType value) =>
             new StructType(
-                (JvmObjectReference)_jvmObject.Invoke("transformSchema",
+                (JvmObjectReference)_jvmObject.Invoke(
+                    "transformSchema",
                     DataType.FromJson(_jvmObject.Jvm, value.Json)));
 
         /// <summary>
