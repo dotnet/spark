@@ -49,7 +49,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Equal(expectedStopWords, stopWordsRemover.GetStopWords());
             Assert.NotEmpty(StopWordsRemover.LoadDefaultStopWords("english"));
 
-            using (TemporaryDirectory tempDirectory = new TemporaryDirectory())
+            using (var tempDirectory = new TemporaryDirectory())
             {
                 string savePath = Path.Join(tempDirectory.Path, "StopWordsRemover");
                 stopWordsRemover.Save(savePath);
