@@ -53,12 +53,15 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Executes the <see cref="SQLTransformer"/> and transforms the schema.
         /// </summary>
-        /// <param name="schema">The Schema to be transformed</param>
+        /// <param name="value">The Schema to be transformed</param>
         /// <returns>
         /// New <see cref="StructType"/> object with the schema <see cref="StructType"/> transformed
         /// </returns>
-        public StructType TransformSchema(StructType schema) =>
-            new StructType((JvmObjectReference)_jvmObject.Invoke("transformSchema", schema));
+        public StructType TransformSchema(StructType value) =>
+            new StructType(
+                (JvmObjectReference)_jvmObject.Invoke(
+                    "transformSchema",
+                    DataType.FromJson(_jvmObject.Jvm, value.Json)));
 
         /// <summary>
         /// Gets the statement.
