@@ -5,6 +5,7 @@
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
@@ -48,6 +49,22 @@ namespace Microsoft.Spark.ML.Feature
         /// </returns>
         public DataFrame Transform(DataFrame source) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
+
+        /// <summary>
+        /// Executes the <see cref="SQLTransformer"/> and transforms the schema.
+        /// </summary>
+        /// <param name="schema">The Schema to be transformed</param>
+        /// <returns>
+        /// New <see cref="StructType"/> object with the schema <see cref="StructType"/> transformed
+        /// </returns>
+        public StructType TransformSchema(StructType schema) =>
+            new StructType((JvmObjectReference)_jvmObject.Invoke("transformSchema", schema));
+
+        /// <summary>
+        /// Gets the statement.
+        /// </summary>
+        /// <returns>Statement</returns>
+        public string GetStatement() => (string)(_jvmObject.Invoke("getStatement"));
 
         /// <summary>
         /// Sets the statement to <see cref="SQLTransformer"/>.

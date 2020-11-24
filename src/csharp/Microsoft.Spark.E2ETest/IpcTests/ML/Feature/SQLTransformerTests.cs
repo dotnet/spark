@@ -44,9 +44,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .SetStatement("SELECT *, (v1 + v2) AS v3, (v1 * v2) AS v4 FROM __THIS__");
 
             DataFrame output = sqlTransformer.Transform(input);
+            var outputSchema = sqlTransformer.TransformSchema(input.Schema());
 
             Assert.Contains(output.Schema().Fields, (f => f.Name == "v3"));
             Assert.Contains(output.Schema().Fields, (f => f.Name == "v4"));
+            Assert.Contains(outputSchema.Fields, (f => f.Name == "v3"));
+            Assert.Contains(outputSchema.Fields, (f => f.Name == "v4"));
 
             using (var tempDirectory = new TemporaryDirectory())
             {
@@ -56,7 +59,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 SQLTransformer loadedsqlTransformer = SQLTransformer.Load(savePath);
                 Assert.Equal(sqlTransformer.Uid(), loadedsqlTransformer.Uid());
             }
-
             Assert.Equal(expectedUid, sqlTransformer.Uid());
         }
 
