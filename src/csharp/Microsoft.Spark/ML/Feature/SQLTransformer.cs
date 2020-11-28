@@ -14,8 +14,8 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public class SQLTransformer : FeatureBase<SQLTransformer>, IJvmObjectReferenceProvider
     {
-        private static readonly string s_sqlTransformerClassName =
-    "org.apache.spark.ml.feature.SQLTransformer";
+        private static readonly string s_sqlTransformerClassName = 
+            "org.apache.spark.ml.feature.SQLTransformer";
 
         /// <summary>
         /// Create a <see cref="SQLTransformer"/> without any parameters.
@@ -67,7 +67,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the statement.
         /// </summary>
         /// <returns>Statement</returns>
-        public string GetStatement() => (string)(_jvmObject.Invoke("getStatement"));
+        public string GetStatement() => (string)_jvmObject.Invoke("getStatement");
 
         /// <summary>
         /// Sets the statement to <see cref="SQLTransformer"/>.
@@ -84,12 +84,12 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="path">The path the previous <see cref="SQLTransformer"/> was saved to</param>
         /// <returns>New <see cref="SQLTransformer"/> object, loaded from path</returns>
-        public static SQLTransformer Load(string path)
-        {
-            return WrapAsSQLTransformer(
+        public static SQLTransformer Load(string path)  =>
+            WrapAsSQLTransformer(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_sqlTransformerClassName, "load", path));
-        }
+                    s_sqlTransformerClassName, 
+                    "load", 
+                    path));
 
         private static SQLTransformer WrapAsSQLTransformer(object obj) =>
             new SQLTransformer((JvmObjectReference)obj);
