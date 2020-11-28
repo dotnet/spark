@@ -53,7 +53,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Contains(output.Schema().Fields, (f => f.Name == "v4"));
             Assert.Contains(outputSchema.Fields, (f => f.Name == "v3"));
             Assert.Contains(outputSchema.Fields, (f => f.Name == "v4"));
-            Assert.Equal(outputStatement, inputStatement);
+            Assert.Equal(inputStatement, outputStatement);
 
             using (var tempDirectory = new TemporaryDirectory())
             {
