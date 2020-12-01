@@ -6,7 +6,7 @@
 
 package org.apache.spark.deploy.dotnet
 
-import java.io.File
+import java.io.{File, PrintStream}
 import java.net.URI
 import java.nio.file.attribute.PosixFilePermissions
 import java.nio.file.{FileSystems, Files, Paths}
@@ -26,14 +26,14 @@ import org.apache.spark.deploy.{PythonRunner, SparkHadoopUtil}
 import org.apache.spark.internal.Logging
 import org.apache.spark.util.dotnet.{Utils => DotnetUtils}
 import org.apache.spark.util.{CircularBuffer, RedirectThread, Utils}
-import org.apache.spark.{SecurityManager, SparkConf}
+import org.apache.spark.{SecurityManager, SparkConf, SparkUserAppException}
 
 /**
  * DotnetRunner class used to launch Spark .NET applications using spark-submit.
  * It executes .NET application as a subprocess and then has it connect back to
  * the JVM to access system properties etc.
  */
-object DotnetRunner extends Logging {
+object DotnetRunner2 extends Logging {
   private val DEBUG_PORT = 5567
   private val supportedSparkVersions =
     Set[String]("2.4.0", "2.4.1", "2.4.3", "2.4.4", "2.4.5", "2.4.6", "2.4.7")
@@ -108,7 +108,7 @@ object DotnetRunner extends Logging {
     }
 
     // Keep a small buffer of System.out so that we can parse it for unhandled exceptions.
-    val outputBuffer = new CircularBuffer(512)
+    val outputBuffer = new CircularBuffer(16000)
 
     dotnetBackendThread.start()
 
@@ -131,9 +131,21 @@ object DotnetRunner extends Logging {
           // Redirect stdin of JVM process to stdin of .NET process.
           new RedirectThread(System.in, process.getOutputStream, "redirect JVM input").start()
           // Redirect stdout and stderr of .NET process.
+
+          class UncaughtExceptionPrintStream extends PrintStream(System.out) {
+            private val pattern =
+              "[\\S\\s]*(Unhandled exception. [\\w.]+: [\\S\\s]*:line \\d+)[\\S\\s]*".r
+
+            override def print(input: String): Unit = {
+                logInfo(s"UncaughtExceptionPrintStream: $input")
+              //input match {
+              //  case pattern(m) => logInfo(s"UncaughtExceptionPrintStream: $m")
+              //}
+            }
+          }
           new RedirectThread(
             process.getInputStream,
-            new TeeOutputStream(System.out, outputBuffer),
+            new TeeOutputStream(System.out, new UncaughtExceptionPrintStream),
             "redirect .NET stdout").start()
           new RedirectThread(process.getErrorStream, System.out, "redirect .NET stderr").start()
 
@@ -146,16 +158,14 @@ object DotnetRunner extends Logging {
           closeBackend(dotnetBackend)
         }
         if (returnCode != 0) {
-          // Extract the unhandled exception, and ignore anything before it.
-          val delimiter = "Unhandled exception. "
-          val outputBufferString = outputBuffer.toString()
-          val unhandledException = if (outputBufferString.contains(delimiter)) {
-              outputBuffer.toString().split(delimiter).lastOption
-          } else {
-              None
-          }
+          //// Extract the unhandled exception, and ignore anything before it.
+          //val pattern = "[\\S\\s]*(Unhandled exception. [\\w.]+: [\\S\\s]*:line \\d+)[\\S\\s]*".r
+          //val unhandledException = outputBuffer.toString() match {
+          //  case pattern(m) => Some(m)
+          //  case _ => None
+          //}
 
-          throw new DotNetUserAppException(returnCode, unhandledException)
+          throw new SparkUserAppException(returnCode)
         } else {
           logInfo(s".NET application exited successfully")
         }
