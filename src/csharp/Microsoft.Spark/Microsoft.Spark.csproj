@@ -18,6 +18,8 @@
     <InternalsVisibleTo Include="Microsoft.Spark.Extensions.Delta.E2ETest" />
     <InternalsVisibleTo Include="Microsoft.Spark.Extensions.DotNet.Interactive" />
     <InternalsVisibleTo Include="Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest" />
+    <InternalsVisibleTo Include="Microsoft.Spark.Extensions.FileSystem" />
+    <InternalsVisibleTo Include="Microsoft.Spark.Extensions.FileSystem.E2ETest" />
     <InternalsVisibleTo Include="Microsoft.Spark.Extensions.Hyperspace" />
     <InternalsVisibleTo Include="Microsoft.Spark.Extensions.Hyperspace.E2ETest" />
     <InternalsVisibleTo Include="Microsoft.Spark.UnitTest" />

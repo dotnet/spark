@@ -39,6 +39,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Hyperspace.E2ETest", "Extensions\Microsoft.Spark.Extensions.Hyperspace.E2ETest\Microsoft.Spark.Extensions.Hyperspace.E2ETest.csproj", "{C6019E44-C777-4DE2-B70E-EA025B7D044D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Spark.Extensions.FileSystem", "Extensions\Microsoft.Spark.Extensions.FileSystem\Microsoft.Spark.Extensions.FileSystem.csproj", "{30FC2E08-5944-47B1-9441-90D6D5D91896}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.FileSystem.E2ETest", "Extensions\Microsoft.Spark.Extensions.FileSystem.E2ETest\Microsoft.Spark.Extensions.FileSystem.E2ETest.csproj", "{33DF254A-C238-40D8-9A15-B0CCC4A2CE95}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +105,14 @@ Global
 		{C6019E44-C777-4DE2-B70E-EA025B7D044D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6019E44-C777-4DE2-B70E-EA025B7D044D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6019E44-C777-4DE2-B70E-EA025B7D044D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30FC2E08-5944-47B1-9441-90D6D5D91896}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30FC2E08-5944-47B1-9441-90D6D5D91896}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30FC2E08-5944-47B1-9441-90D6D5D91896}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30FC2E08-5944-47B1-9441-90D6D5D91896}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33DF254A-C238-40D8-9A15-B0CCC4A2CE95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33DF254A-C238-40D8-9A15-B0CCC4A2CE95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33DF254A-C238-40D8-9A15-B0CCC4A2CE95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33DF254A-C238-40D8-9A15-B0CCC4A2CE95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -114,6 +126,8 @@ Global
 		{7BDE09ED-04B3-41B2-A466-3D6F7225291E} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
 		{70DDA4E9-1195-4A29-9AA1-96A8223A6D4F} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
 		{C6019E44-C777-4DE2-B70E-EA025B7D044D} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
+		{30FC2E08-5944-47B1-9441-90D6D5D91896} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
+		{33DF254A-C238-40D8-9A15-B0CCC4A2CE95} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FD15FFDB-EA1B-436F-841D-3386DDF94538}

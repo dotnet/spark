@@ -1,10 +1,10 @@
 ﻿using System.IO;
+using Microsoft.Spark.E2ETest;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
-using Microsoft.Spark.Utils;
 using Xunit;
 
-namespace Microsoft.Spark.E2ETest.IpcTests
+namespace Microsoft.Spark.Extensions.FileSystem.E2ETest
 {
     [Collection("Spark E2E Tests")]
     public class FileSystemTests
