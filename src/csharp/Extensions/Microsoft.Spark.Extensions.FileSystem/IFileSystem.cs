@@ -20,5 +20,7 @@ namespace Microsoft.Spark.Extensions.FileSystem
         /// exception. In case of a file the recursive can be set to either true or false.</param>
         /// <returns>True if delete is successful else false.</returns>
         bool Delete(string path, bool recursive = true);
+
+        // TODO: Implement more APIs.
     }
 }
