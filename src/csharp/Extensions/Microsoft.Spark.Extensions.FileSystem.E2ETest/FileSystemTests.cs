@@ -26,7 +26,7 @@ namespace Microsoft.Spark.Extensions.FileSystem.E2ETest
         [Fact]
         public void TestSignatures()
         {
-            using IFileSystem fs = FileSystem.Get(_spark.SparkContext);
+            using FileSystem fs = FileSystem.Get(_spark.SparkContext);
 
             using var tempDirectory = new TemporaryDirectory();
             string path = Path.Combine(tempDirectory.Path, "temp-table");
