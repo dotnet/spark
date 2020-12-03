@@ -25,8 +25,8 @@ namespace Microsoft.Spark.Extensions.FileSystem
         /// Delete a file.
         /// </summary>
         /// <param name="path">The path to delete.</param>
-        /// <param name="recursive">If path is a directory and set to true, the directory is deleted else throws an
-        /// exception. In case of a file the recursive can be set to either true or false.</param>
+        /// <param name="recursive">If path is a directory and set to true, the directory is deleted else
+        /// throws an exception. In case of a file the recursive can be set to either true or false.</param>
         /// <returns>True if delete is successful else false.</returns>
         public override bool Delete(string path, bool recursive = true)
         {
