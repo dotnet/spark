@@ -28,7 +28,7 @@ namespace Microsoft.Spark.Extensions.FileSystem.E2ETest
         {
             using var tempDirectory = new TemporaryDirectory();
 
-            using FileSystem fs = FileSystem.Get(_spark.SparkContext);
+            using FileSystem fs = Assert.IsAssignableFrom<FileSystem>(FileSystem.Get(_spark.SparkContext));
 
             Assert.IsType<bool>(fs.Delete(tempDirectory.Path, true));
         }
