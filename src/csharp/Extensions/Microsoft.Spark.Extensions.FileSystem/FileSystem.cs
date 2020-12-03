@@ -14,7 +14,7 @@ namespace Microsoft.Spark.Extensions.FileSystem
     /// and for testing.
     /// 
     /// All user code that may potentially use the Hadoop Distributed File System should be written to use an FileSystem
-    /// object. The Hadoop DFS is a multi-machine system that appears as a single disk.It's useful because of its fault
+    /// object. The Hadoop DFS is a multi-machine system that appears as a single disk. It's useful because of its fault
     /// tolerance and potentially very large capacity.
     /// </summary>
     public abstract class FileSystem : IDisposable
