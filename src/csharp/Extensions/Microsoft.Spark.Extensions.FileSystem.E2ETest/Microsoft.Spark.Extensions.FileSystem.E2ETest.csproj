@@ -9,4 +9,5 @@
     <ProjectReference Include="..\..\Microsoft.Spark\Microsoft.Spark.csproj" />
     <ProjectReference Include="..\Microsoft.Spark.Extensions.FileSystem\Microsoft.Spark.Extensions.FileSystem.csproj" />
   </ItemGroup>
+
 </Project>
