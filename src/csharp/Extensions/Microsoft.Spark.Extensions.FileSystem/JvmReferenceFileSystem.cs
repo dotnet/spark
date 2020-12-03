@@ -36,9 +36,6 @@ namespace Microsoft.Spark.Extensions.FileSystem
             return (bool)_jvmObject.Invoke("delete", pathObject, recursive);
         }
 
-        public override void Dispose()
-        {
-            _jvmObject.Invoke("close");
-        }
+        public override void Dispose() => _jvmObject.Invoke("close");
     }
 }
