@@ -26,14 +26,31 @@ namespace Microsoft.Spark.Extensions.FileSystem.E2ETest
         [Fact]
         public void TestSignatures()
         {
+            using var tempDirectory = new TemporaryDirectory();
+
+            using FileSystem fs = FileSystem.Get(_spark.SparkContext);
+
+            Assert.IsType<bool>(fs.Delete(tempDirectory.Path, true));
+        }
+
+        /// <summary>
+        /// Test that Delete() deletes the file.
+        /// </summary>
+        [Fact]
+        public void TestDelete()
+        {
             using FileSystem fs = FileSystem.Get(_spark.SparkContext);
 
             using var tempDirectory = new TemporaryDirectory();
             string path = Path.Combine(tempDirectory.Path, "temp-table");
             _spark.Range(25).Write().Format("parquet").Save(path);
 
+            Assert.True(Directory.Exists(path));
+
             Assert.True(fs.Delete(path, true));
             Assert.False(fs.Delete(path, true));
+
+            Assert.False(Directory.Exists(path));
         }
     }
 }
