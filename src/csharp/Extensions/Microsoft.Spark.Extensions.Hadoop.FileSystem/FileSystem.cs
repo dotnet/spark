@@ -9,9 +9,9 @@ using Microsoft.Spark.Interop.Ipc;
 namespace Microsoft.Spark.Extensions.Hadoop.FileSystem
 {
     /// <summary>
-    /// An class for a fairly generic filesystem. It may be implemented as a distributed filesystem, or as a
-    /// "local" one that reflects the locally-connected disk. The local version exists for small Hadoop
-    /// instances and for testing.
+    /// A fairly generic filesystem. It may be implemented as a distributed filesystem, or as a "local" one
+    /// that reflects the locally-connected disk. The local version exists for small Hadoop instances and for
+    /// testing.
     /// 
     /// All user code that may potentially use the Hadoop Distributed File System should be written to use a FileSystem
     /// object. The Hadoop DFS is a multi-machine system that appears as a single disk. It's useful because of its fault
