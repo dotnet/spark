@@ -55,7 +55,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">The Schema to be transformed</param>
         /// <returns>
-        /// New <see cref="StructType"/> object with the schema <see cref="StructType"/> transformed
+        /// New <see cref="StructType"/> object with the schema <see cref="StructType"/> transformed.
         /// </returns>
         public StructType TransformSchema(StructType value) =>
             new StructType(
