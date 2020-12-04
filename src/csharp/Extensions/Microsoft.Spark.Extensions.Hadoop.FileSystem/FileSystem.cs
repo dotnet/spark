@@ -9,16 +9,25 @@ using Microsoft.Spark.Interop.Ipc;
 namespace Microsoft.Spark.Extensions.Hadoop.FileSystem
 {
     /// <summary>
-    /// An abstract base class for a fairly generic filesystem. It may be implemented as a distributed
-    /// filesystem, or as a "local" one that reflects the locally-connected disk. The local version exists
-    /// for small Hadoop instances and for testing.
+    /// An class for a fairly generic filesystem. It may be implemented as a distributed filesystem, or as a
+    /// "local" one that reflects the locally-connected disk. The local version exists for small Hadoop
+    /// instances and for testing.
     /// 
     /// All user code that may potentially use the Hadoop Distributed File System should be written to use a FileSystem
     /// object. The Hadoop DFS is a multi-machine system that appears as a single disk. It's useful because of its fault
     /// tolerance and potentially very large capacity.
     /// </summary>
-    public abstract class FileSystem : IDisposable
+    public class FileSystem : IJvmObjectReferenceProvider, IDisposable
     {
+        private readonly JvmObjectReference _jvmObject;
+
+        internal FileSystem(JvmObjectReference jvmObject)
+        {
+            _jvmObject = jvmObject;
+        }
+
+        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+
         /// <summary>
         /// Returns the configured FileSystem implementation.
         /// </summary>
@@ -30,7 +39,7 @@ namespace Microsoft.Spark.Extensions.Hadoop.FileSystem
             JvmObjectReference hadoopConfiguration = (JvmObjectReference)
                 ((IJvmObjectReferenceProvider)sparkContext).Reference.Invoke("hadoopConfiguration");
 
-            return new JvmReferenceFileSystem(
+            return new FileSystem(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     "org.apache.hadoop.fs.FileSystem",
                     "get",
@@ -44,8 +53,14 @@ namespace Microsoft.Spark.Extensions.Hadoop.FileSystem
         /// <param name="recursive">If path is a directory and set to true, the directory is deleted else
         /// throws an exception. In case of a file the recursive can be set to either true or false.</param>
         /// <returns>True if delete is successful else false.</returns>
-        public abstract bool Delete(string path, bool recursive = true);
+        public bool Delete(string path, bool recursive = true)
+        {
+            JvmObjectReference pathObject =
+                SparkEnvironment.JvmBridge.CallConstructor("org.apache.hadoop.fs.Path", path);
 
-        public abstract void Dispose();
+            return (bool)_jvmObject.Invoke("delete", pathObject, recursive);
+        }
+
+        public void Dispose() => _jvmObject.Invoke("close");
     }
 }
