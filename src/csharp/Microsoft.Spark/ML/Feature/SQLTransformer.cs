@@ -10,7 +10,7 @@ using Microsoft.Spark.Sql.Types;
 namespace Microsoft.Spark.ML.Feature
 {
     /// <summary>
-    /// A <see cref="SQLTransformer"/> implements the transformations which are defined by SQL statement.
+    /// <see cref="SQLTransformer"/> implements the transformations which are defined by SQL statement.
     /// </summary>
     public class SQLTransformer : FeatureBase<SQLTransformer>, IJvmObjectReferenceProvider
     {
