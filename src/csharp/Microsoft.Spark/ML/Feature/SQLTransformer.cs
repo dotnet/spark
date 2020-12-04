@@ -45,7 +45,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="source">The DataFrame to transform</param>
         /// <returns>
-        /// New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/> transformed
+        /// New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/> transformed.
         /// </returns>
         public DataFrame Transform(DataFrame source) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
