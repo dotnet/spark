@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Extensions\Microsoft.Spark.Extensions.FileSystem\Microsoft.Spark.Extensions.Hadoop.FileSystem.csproj" />
     <ProjectReference Include="..\Microsoft.Spark.E2ETest.ExternalLibrary\Microsoft.Spark.E2ETest.ExternalLibrary.csproj" />
     <ProjectReference Include="..\Microsoft.Spark.Worker\Microsoft.Spark.Worker.csproj" />
     <ProjectReference Include="..\Microsoft.Spark\Microsoft.Spark.csproj" />
