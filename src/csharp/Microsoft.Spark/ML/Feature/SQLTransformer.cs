@@ -77,7 +77,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="SQLTransformer"/> with the statement set
         /// </returns>
         public SQLTransformer SetStatement(string statement) =>
-            WrapAsSQLTransformer ((JvmObjectReference)_jvmObject.Invoke("setStatement", statement));
+            WrapAsSQLTransformer((JvmObjectReference)_jvmObject.Invoke("setStatement", statement));
 
         /// <summary>
         /// Loads the <see cref="SQLTransformer"/> that was previously saved using Save.
