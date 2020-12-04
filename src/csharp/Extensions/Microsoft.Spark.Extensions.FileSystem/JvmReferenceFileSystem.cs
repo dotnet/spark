@@ -5,7 +5,7 @@
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Extensions.FileSystem
+namespace Microsoft.Spark.Extensions.Hadoop.FileSystem
 {
     /// <summary>
     /// <see cref="FileSystem"/> implementation that wraps a corresponding FileSystem object in the JVM.

@@ -5,7 +5,7 @@
 using Microsoft.Spark.E2ETest;
 using Xunit;
 
-namespace Microsoft.Spark.Extensions.FileSystem.E2ETest
+namespace Microsoft.Spark.Extensions.Hadoop.FileSystem.E2ETest
 {
     [CollectionDefinition(Constants.FileSystemTestContainerName)]
     public class FileSystemTestCollection : ICollectionFixture<SparkFixture>

@@ -7,7 +7,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Microsoft.Spark.E2ETest\Microsoft.Spark.E2ETest.csproj" />
     <ProjectReference Include="..\..\Microsoft.Spark\Microsoft.Spark.csproj" />
-    <ProjectReference Include="..\Microsoft.Spark.Extensions.FileSystem\Microsoft.Spark.Extensions.FileSystem.csproj" />
+    <ProjectReference Include="..\Microsoft.Spark.Extensions.FileSystem\Microsoft.Spark.Extensions.Hadoop.FileSystem.csproj" />
   </ItemGroup>
 
 </Project>

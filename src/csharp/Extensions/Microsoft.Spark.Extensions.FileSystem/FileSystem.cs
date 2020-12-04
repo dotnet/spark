@@ -6,7 +6,7 @@ using System;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Extensions.FileSystem
+namespace Microsoft.Spark.Extensions.Hadoop.FileSystem
 {
     /// <summary>
     /// An abstract base class for a fairly generic filesystem. It may be implemented as a distributed

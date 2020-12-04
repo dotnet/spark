@@ -8,7 +8,7 @@ using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
-namespace Microsoft.Spark.Extensions.FileSystem.E2ETest
+namespace Microsoft.Spark.Extensions.Hadoop.FileSystem.E2ETest
 {
     [Collection(Constants.FileSystemTestContainerName)]
     public class FileSystemTests

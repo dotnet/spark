@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-namespace Microsoft.Spark.Extensions.FileSystem.E2ETest
+namespace Microsoft.Spark.Extensions.Hadoop.FileSystem.E2ETest
 {
     /// <summary>
     /// Constants related to the FileSystem test suite.
