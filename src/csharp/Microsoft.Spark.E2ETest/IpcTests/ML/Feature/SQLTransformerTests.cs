@@ -22,6 +22,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             _spark = fixture.Spark;
         }
 
+        /// <summary>
+        /// Create a <see cref="DataFrame"/>, create a <see cref="SQLTransformer"/> and test the
+        /// available methods.
+        /// </summary>
         [Fact]
         public void TestSQLTransformer()
         {
