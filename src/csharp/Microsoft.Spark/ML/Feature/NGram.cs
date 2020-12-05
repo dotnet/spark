@@ -5,6 +5,7 @@
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
@@ -93,6 +94,28 @@ namespace Microsoft.Spark.ML.Feature
         /// </returns>
         public DataFrame Transform(DataFrame source) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
+
+        /// <summary>
+        /// Check transform validity and derive the output schema from the input schema.
+        /// 
+        /// This checks for validity of interactions between parameters during Transform and
+        /// raises an exception if any parameter value is invalid.
+        ///
+        /// Typical implementation should first conduct verification on schema change and parameter
+        /// validity, including complex parameter interaction checks.
+        /// </summary>
+        /// <param name="value">
+        /// The <see cref="StructType"/> of the <see cref="DataFrame"/> which will be transformed.
+        /// </param>
+        /// <returns>
+        /// The <see cref="StructType"/> of the output schema that would have been derived from the
+        /// input schema, if Transform had been called.
+        /// </returns>
+        public StructType TransformSchema(StructType value) =>
+            new StructType(
+                (JvmObjectReference)_jvmObject.Invoke(
+                    "transformSchema",
+                    DataType.FromJson(_jvmObject.Jvm, value.Json)));
 
         /// <summary>
         /// Loads the <see cref="NGram"/> that was previously saved using Save.

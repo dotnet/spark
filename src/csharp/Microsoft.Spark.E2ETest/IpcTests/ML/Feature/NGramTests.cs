@@ -5,6 +5,7 @@
 using System.IO;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
@@ -41,9 +42,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .SetOutputCol(expectedOutputCol)
                 .SetN(expectedN);
 
+            StructType outputSchema = nGram.TransformSchema(input.Schema());
+
             DataFrame output = nGram.Transform(input);
 
             Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
+            Assert.Contains(outputSchema.Fields, (f => f.Name == expectedOutputCol));
             Assert.Equal(expectedInputCol, nGram.GetInputCol());
             Assert.Equal(expectedOutputCol, nGram.GetOutputCol());
             Assert.Equal(expectedN, nGram.GetN());
