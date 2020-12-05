@@ -73,7 +73,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Gets N value for <see cref="NGram"/>.
         /// </summary>
-        /// <returns>string, N value</returns>
+        /// <returns>int, N value</returns>
         public int GetN() => (int)_jvmObject.Invoke("getN");
 
         /// <summary>
@@ -122,12 +122,10 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="path">The path the previous <see cref="NGram"/> was saved to</param>
         /// <returns>New <see cref="NGram"/> object, loaded from path</returns>
-        public static NGram Load(string path)
-        {
-            return WrapAsNGram(
+        public static NGram Load(string path) =>
+            WrapAsNGram(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_NGramClassName, "load", path));
-        }
 
 
         private static NGram WrapAsNGram(object obj) =>
