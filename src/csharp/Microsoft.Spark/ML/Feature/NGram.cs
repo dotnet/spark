@@ -9,9 +9,9 @@ using Microsoft.Spark.Sql;
 namespace Microsoft.Spark.ML.Feature
 {
     /// <summary>
-    /// Class <see cref="NGram"/> transformer that converts the input array of strings into an array of n-grams.
-    /// Null values in the input array are ignored.
-    /// It returns an array of n-grams where each n-gram is represented by a space-separated string of words.
+    /// Class <see cref="NGram"/> transformer that converts the input array of strings into
+    /// an array of n-grams. Null values in the input array are ignored. It returns an array
+    /// of n-grams where each n-gram is represented by a space-separated string of words.
     /// </summary>
     public class NGram : FeatureBase<NGram>, IJvmObjectReferenceProvider
     {
@@ -19,7 +19,7 @@ namespace Microsoft.Spark.ML.Feature
             "org.apache.spark.ml.feature.NGram";
 
         /// <summary>
-        /// Create a <see cref="NGram"/> without any parameters
+        /// Create a <see cref="NGram"/> without any parameters.
         /// </summary>
         public NGram() : base(s_NGramClassName)
         {
@@ -27,9 +27,10 @@ namespace Microsoft.Spark.ML.Feature
 
         /// <summary>
         /// Create a <see cref="NGram"/> with a UID that is used to give the
-        /// <see cref="NGram"/> a unique ID
+        /// <see cref="NGram"/> a unique ID.
         /// </summary>
-        /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
+        /// <param name="uid">An immutable unique ID for the object and its derivatives.
+        /// </param>
         public NGram(string uid) : base(s_NGramClassName, uid)
         {
         }
@@ -41,13 +42,13 @@ namespace Microsoft.Spark.ML.Feature
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
 
         /// <summary>
-        /// Gets the column that the <see cref="NGram"/> should read from
+        /// Gets the column that the <see cref="NGram"/> should read from.
         /// </summary>
         /// <returns>string, input column</returns>
         public string GetInputCol() => (string)(_jvmObject.Invoke("getInputCol"));
 
         /// <summary>
-        /// Sets the column that the <see cref="NGram"/> should read from
+        /// Sets the column that the <see cref="NGram"/> should read from.
         /// </summary>
         /// <param name="value">The name of the column to as the source</param>
         /// <returns>New <see cref="NGram"/> object</returns>
@@ -55,15 +56,13 @@ namespace Microsoft.Spark.ML.Feature
             WrapAsNGram(_jvmObject.Invoke("setInputCol", value));
 
         /// <summary>
-        /// The <see cref="NGram"/> will create a new column in the DataFrame, this is the
-        /// name of the new column.
+        /// Gets the output column that the <see cref="NGram"/> writes.
         /// </summary>
         /// <returns>string, the output column</returns>
-        public string GetOutputCol() => (string)(_jvmObject.Invoke("getOutputCol"));
+        public string GetOutputCol() => (string)_jvmObject.Invoke("getOutputCol");
 
         /// <summary>
-        /// The <see cref="NGram"/> will create a new column in the DataFrame, this is the
-        /// name of the new column.
+        /// Sets the output column that the <see cref="NGram"/> writes.
         /// </summary>
         /// <param name="value">The name of the new column</param>
         /// <returns>New <see cref="NGram"/> object</returns>
@@ -71,13 +70,13 @@ namespace Microsoft.Spark.ML.Feature
             WrapAsNGram(_jvmObject.Invoke("setOutputCol", value));
 
         /// <summary>
-        /// Gets N value for <see cref="NGram"/>
+        /// Gets N value for <see cref="NGram"/>.
         /// </summary>
         /// <returns>string, N value</returns>
-        public int GetN() => (int)(_jvmObject.Invoke("getN"));
+        public int GetN() => (int)_jvmObject.Invoke("getN");
 
         /// <summary>
-        /// Sets N value for <see cref="NGram"/>
+        /// Sets N value for <see cref="NGram"/>.
         /// </summary>
         /// <param name="value">N value</param>
         /// <returns>New <see cref="NGram"/> object</returns>
@@ -86,7 +85,7 @@ namespace Microsoft.Spark.ML.Feature
 
         /// <summary>
         /// Executes the <see cref="NGram"/> and transforms the DataFrame to include the new
-        /// column
+        /// column.
         /// </summary>
         /// <param name="source">The DataFrame to transform</param>
         /// <returns>
@@ -96,7 +95,7 @@ namespace Microsoft.Spark.ML.Feature
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
 
         /// <summary>
-        /// Loads the <see cref="NGram"/> that was previously saved using Save
+        /// Loads the <see cref="NGram"/> that was previously saved using Save.
         /// </summary>
         /// <param name="path">The path the previous <see cref="NGram"/> was saved to</param>
         /// <returns>New <see cref="NGram"/> object, loaded from path</returns>
