@@ -52,7 +52,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Equal(expectedOutputCol, nGram.GetOutputCol());
             Assert.Equal(expectedN, nGram.GetN());
 
-            using (TemporaryDirectory tempDirectory = new TemporaryDirectory())
+            using (var tempDirectory = new TemporaryDirectory())
             {
                 string savePath = Path.Join(tempDirectory.Path, "NGram");
                 nGram.Save(savePath);
