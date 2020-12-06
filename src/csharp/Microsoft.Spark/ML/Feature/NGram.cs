@@ -46,15 +46,14 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the column that the <see cref="NGram"/> should read from.
         /// </summary>
         /// <returns>string, input column</returns>
-        public string GetInputCol() => (string)(_jvmObject.Invoke("getInputCol"));
+        public string GetInputCol() => (string)_jvmObject.Invoke("getInputCol");
 
         /// <summary>
         /// Sets the column that the <see cref="NGram"/> should read from.
         /// </summary>
         /// <param name="value">The name of the column to as the source</param>
         /// <returns>New <see cref="NGram"/> object</returns>
-        public NGram SetInputCol(string value) =>
-            WrapAsNGram(_jvmObject.Invoke("setInputCol", value));
+        public NGram SetInputCol(string value) => WrapAsNGram(_jvmObject.Invoke("setInputCol", value));
 
         /// <summary>
         /// Gets the output column that the <see cref="NGram"/> writes.
@@ -67,8 +66,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">The name of the new column</param>
         /// <returns>New <see cref="NGram"/> object</returns>
-        public NGram SetOutputCol(string value) =>
-            WrapAsNGram(_jvmObject.Invoke("setOutputCol", value));
+        public NGram SetOutputCol(string value) => WrapAsNGram(_jvmObject.Invoke("setOutputCol", value));
 
         /// <summary>
         /// Gets N value for <see cref="NGram"/>.
@@ -81,8 +79,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">N value</param>
         /// <returns>New <see cref="NGram"/> object</returns>
-        public NGram SetN(int value) =>
-            WrapAsNGram(_jvmObject.Invoke("setN", value));
+        public NGram SetN(int value) => WrapAsNGram(_jvmObject.Invoke("setN", value));
 
         /// <summary>
         /// Executes the <see cref="NGram"/> and transforms the DataFrame to include the new
