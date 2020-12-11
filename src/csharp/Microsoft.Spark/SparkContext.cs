@@ -316,7 +316,7 @@ namespace Microsoft.Spark
         /// <summary>
         /// A default Hadoop Configuration for the Hadoop code (e.g. file systems) that we reuse.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The Hadoop Configuration.</returns>
         public Configuration HadoopConfiguration() =>
             new Configuration((JvmObjectReference)_jvmObject.Invoke("hadoopConfiguration"));
 
