@@ -3,14 +3,15 @@
 // See the LICENSE file in the project root for more information.
 
 using System.IO;
-using Microsoft.Spark.E2ETest;
+using Microsoft.Spark.Hadoop.FS;
+using Microsoft.Spark.Hadoop.Conf;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
-namespace Microsoft.Spark.Extensions.Hadoop.FileSystem.E2ETest
+namespace Microsoft.Spark.E2ETest.Hadoop
 {
-    [Collection(Constants.FileSystemTestContainerName)]
+    [Collection("Spark E2E Tests")]
     public class FileSystemTests
     {
         private readonly SparkSession _spark;
@@ -28,7 +29,8 @@ namespace Microsoft.Spark.Extensions.Hadoop.FileSystem.E2ETest
         {
             using var tempDirectory = new TemporaryDirectory();
 
-            using FileSystem fs = Assert.IsAssignableFrom<FileSystem>(FileSystem.Get(_spark.SparkContext));
+            using FileSystem fs = Assert.IsAssignableFrom<FileSystem>(
+                FileSystem.Get(_spark.SparkContext.HadoopConfiguration()));
 
             Assert.IsType<bool>(fs.Delete(tempDirectory.Path, true));
         }
@@ -39,7 +41,7 @@ namespace Microsoft.Spark.Extensions.Hadoop.FileSystem.E2ETest
         [Fact]
         public void TestDelete()
         {
-            using FileSystem fs = FileSystem.Get(_spark.SparkContext);
+            using FileSystem fs = FileSystem.Get(_spark.SparkContext.HadoopConfiguration());
 
             using var tempDirectory = new TemporaryDirectory();
             string path = Path.Combine(tempDirectory.Path, "temp-table");

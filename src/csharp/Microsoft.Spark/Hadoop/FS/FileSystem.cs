@@ -3,10 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using Microsoft.Spark.Hadoop.Conf;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Extensions.Hadoop.FileSystem
+namespace Microsoft.Spark.Hadoop.FS
 {
     /// <summary>
     /// A fairly generic filesystem. It may be implemented as a distributed filesystem, or as a "local" one
@@ -31,20 +32,11 @@ namespace Microsoft.Spark.Extensions.Hadoop.FileSystem
         /// <summary>
         /// Returns the configured <see cref="FileSystem"/>.
         /// </summary>
-        /// <param name="sparkContext">The SparkContext whose configuration will be used.</param>
+        /// <param name="conf">The configuration to use.</param>
         /// <returns>The FileSystem.</returns>
-        public static FileSystem Get(SparkContext sparkContext)
-        {
-            // TODO: Expose hadoopConfiguration as a .NET class and add an override for Get() that takes it.
-            JvmObjectReference hadoopConfiguration = (JvmObjectReference)
-                ((IJvmObjectReferenceProvider)sparkContext).Reference.Invoke("hadoopConfiguration");
-
-            return new FileSystem(
-                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    "org.apache.hadoop.fs.FileSystem",
-                    "get",
-                    hadoopConfiguration));
-        }
+        public static FileSystem Get(Configuration conf) =>
+            new FileSystem((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                "org.apache.hadoop.fs.FileSystem", "get", conf));
 
         /// <summary>
         /// Delete a file.

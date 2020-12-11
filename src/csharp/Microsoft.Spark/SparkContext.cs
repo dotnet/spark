@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Microsoft.Spark.Hadoop.Conf;
 using Microsoft.Spark.Interop.Ipc;
 using static Microsoft.Spark.Utils.CommandSerDe;
 
@@ -311,6 +312,13 @@ namespace Microsoft.Spark
         {
             return new Broadcast<T>(this, value);
         }
+
+        /// <summary>
+        /// A default Hadoop Configuration for the Hadoop code (e.g. file systems) that we reuse.
+        /// </summary>
+        /// <returns></returns>
+        public Configuration HadoopConfiguration() =>
+            new Configuration((JvmObjectReference)_jvmObject.Invoke("hadoopConfiguration"));
 
         /// <summary>
         /// Returns JVM object reference to JavaRDD object transformed
