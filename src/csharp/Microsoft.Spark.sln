@@ -39,10 +39,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Hyperspace.E2ETest", "Extensions\Microsoft.Spark.Extensions.Hyperspace.E2ETest\Microsoft.Spark.Extensions.Hyperspace.E2ETest.csproj", "{C6019E44-C777-4DE2-B70E-EA025B7D044D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Hadoop.FileSystem", "Extensions\Microsoft.Spark.Extensions.Hadoop.FileSystem\Microsoft.Spark.Extensions.Hadoop.FileSystem.csproj", "{13EFD27A-5102-42A9-9BDE-9CED22C10244}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Spark.Extensions.Hadoop.FileSystem.E2ETest", "Extensions\Microsoft.Spark.Extensions.Hadoop.FileSystem.E2ETest\Microsoft.Spark.Extensions.Hadoop.FileSystem.E2ETest.csproj", "{E14F32FD-10CF-4CC3-849D-42F31DCA2ED6}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,14 +101,6 @@ Global
 		{C6019E44-C777-4DE2-B70E-EA025B7D044D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6019E44-C777-4DE2-B70E-EA025B7D044D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6019E44-C777-4DE2-B70E-EA025B7D044D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{13EFD27A-5102-42A9-9BDE-9CED22C10244}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{13EFD27A-5102-42A9-9BDE-9CED22C10244}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{13EFD27A-5102-42A9-9BDE-9CED22C10244}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{13EFD27A-5102-42A9-9BDE-9CED22C10244}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E14F32FD-10CF-4CC3-849D-42F31DCA2ED6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E14F32FD-10CF-4CC3-849D-42F31DCA2ED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E14F32FD-10CF-4CC3-849D-42F31DCA2ED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E14F32FD-10CF-4CC3-849D-42F31DCA2ED6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -126,8 +114,6 @@ Global
 		{7BDE09ED-04B3-41B2-A466-3D6F7225291E} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
 		{70DDA4E9-1195-4A29-9AA1-96A8223A6D4F} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
 		{C6019E44-C777-4DE2-B70E-EA025B7D044D} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
-		{13EFD27A-5102-42A9-9BDE-9CED22C10244} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
-		{E14F32FD-10CF-4CC3-849D-42F31DCA2ED6} = {71A19F75-8279-40AB-BEA0-7D4B153FC416}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FD15FFDB-EA1B-436F-841D-3386DDF94538}
