@@ -122,7 +122,9 @@ namespace Microsoft.Spark.ML.Feature
         public static NGram Load(string path) =>
             WrapAsNGram(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_NGramClassName, "load", path));
+                    s_NGramClassName, 
+                    "load", 
+                    path));
 
 
         private static NGram WrapAsNGram(object obj) =>
