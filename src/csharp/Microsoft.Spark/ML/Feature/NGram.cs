@@ -125,8 +125,7 @@ namespace Microsoft.Spark.ML.Feature
                     s_NGramClassName, 
                     "load", 
                     path));
-
-
+        
         private static NGram WrapAsNGram(object obj) => new NGram((JvmObjectReference)obj);
     }
 }
