@@ -366,6 +366,7 @@ private object JVMObjectTracker {
   def clear(): Unit = {
     synchronized {
       objMap.clear()
+      objCounter = 1
     }
   }
 }

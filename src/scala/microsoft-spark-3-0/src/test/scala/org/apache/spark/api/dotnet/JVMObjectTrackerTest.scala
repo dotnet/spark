@@ -17,4 +17,18 @@ class JVMObjectTrackerTest {
     assert(JVMObjectTracker.get(secondId).isEmpty)
     assert(JVMObjectTracker.get(thirdId).isEmpty)
   }
+
+  @Test
+  def shouldResetCounter(): Unit = {
+    val firstId = JVMObjectTracker.put(new Object)
+    val secondId = JVMObjectTracker.put(new Object)
+
+    JVMObjectTracker.clear()
+
+    val thirdId = JVMObjectTracker.put(new Object)
+
+    assert(firstId.equals("1"))
+    assert(secondId.equals("2"))
+    assert(thirdId.equals("1"))
+  }
 }
