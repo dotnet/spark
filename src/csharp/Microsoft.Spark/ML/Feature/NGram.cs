@@ -16,13 +16,13 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public class NGram : FeatureBase<NGram>, IJvmObjectReferenceProvider
     {
-        private static readonly string s_NGramClassName =
+        private static readonly string s_nGramClassName =
             "org.apache.spark.ml.feature.NGram";
 
         /// <summary>
         /// Create a <see cref="NGram"/> without any parameters.
         /// </summary>
-        public NGram() : base(s_NGramClassName)
+        public NGram() : base(s_nGramClassName)
         {
         }
 
@@ -32,7 +32,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.
         /// </param>
-        public NGram(string uid) : base(s_NGramClassName, uid)
+        public NGram(string uid) : base(s_nGramClassName, uid)
         {
         }
 
@@ -87,7 +87,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="source">The DataFrame to transform</param>
         /// <returns>
-        /// New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/> transformed
+        /// New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/> transformed.
         /// </returns>
         public DataFrame Transform(DataFrame source) =>
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
@@ -122,10 +122,10 @@ namespace Microsoft.Spark.ML.Feature
         public static NGram Load(string path) =>
             WrapAsNGram(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_NGramClassName, 
-                    "load", 
+                    s_nGramClassName,
+                    "load",
                     path));
-        
+
         private static NGram WrapAsNGram(object obj) => new NGram((JvmObjectReference)obj);
     }
 }
