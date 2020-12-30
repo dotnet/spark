@@ -13,25 +13,27 @@ class JVMObjectTrackerTest {
 
   @Test
   def shouldReleaseAllReferences(): Unit = {
-    val firstId = JVMObjectTracker.put(new Object)
-    val secondId = JVMObjectTracker.put(new Object)
-    val thirdId = JVMObjectTracker.put(new Object)
+    val tracker = new JVMObjectTracker
+    val firstId = tracker.put(new Object)
+    val secondId = tracker.put(new Object)
+    val thirdId = tracker.put(new Object)
 
-    JVMObjectTracker.clear()
+    tracker.clear()
 
-    assert(JVMObjectTracker.get(firstId).isEmpty)
-    assert(JVMObjectTracker.get(secondId).isEmpty)
-    assert(JVMObjectTracker.get(thirdId).isEmpty)
+    assert(tracker.get(firstId).isEmpty)
+    assert(tracker.get(secondId).isEmpty)
+    assert(tracker.get(thirdId).isEmpty)
   }
 
   @Test
   def shouldResetCounter(): Unit = {
-    val firstId = JVMObjectTracker.put(new Object)
-    val secondId = JVMObjectTracker.put(new Object)
+    val tracker = new JVMObjectTracker
+    val firstId = tracker.put(new Object)
+    val secondId = tracker.put(new Object)
 
-    JVMObjectTracker.clear()
+    tracker.clear()
 
-    val thirdId = JVMObjectTracker.put(new Object)
+    val thirdId = tracker.put(new Object)
 
     assert(firstId.equals("1"))
     assert(secondId.equals("2"))

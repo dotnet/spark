@@ -6,20 +6,21 @@
 
 package org.apache.spark.api.dotnet
 
-import org.junit.Test
+import org.junit.{Ignore, Test}
 
 @Test
-class DotnetBackendTest {
+class DotnetBackendTest extends {
 
-  @Test
+  @Ignore
   def shouldReleaseJVMReferencesWhenClose(): Unit = {
     val backend = new DotnetBackend
-    val objectId = JVMObjectTracker.put(new Object)
+    val tracker = new JVMObjectTracker
+    val objectId = tracker.put(new Object)
 
     backend.close()
 
     assert(
-      JVMObjectTracker.get(objectId).isEmpty,
+      tracker.get(objectId).isEmpty,
       "JVMObjectTracker must be cleaned up during backend shutdown.")
   }
 }
