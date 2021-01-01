@@ -82,9 +82,6 @@ class DotnetBackend extends Logging {
     }
     bootstrap = null
 
-    // Release references to JVM objects to let them collected by GC
-    JVMObjectTracker.clear()
-
     // Send close to .NET callback server.
     DotnetBackend.shutdownCallbackClient()
 

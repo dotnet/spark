@@ -362,11 +362,4 @@ private object JVMObjectTracker {
       objMap.remove(id)
     }
   }
-
-  def clear(): Unit = {
-    synchronized {
-      objMap.clear()
-      objCounter = 1
-    }
-  }
 }
