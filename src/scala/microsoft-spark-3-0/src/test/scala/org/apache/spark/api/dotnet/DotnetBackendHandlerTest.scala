@@ -1,15 +1,30 @@
 package org.apache.spark.api.dotnet
 
 import org.junit.Assert._
-import org.junit.Test
+import org.junit.{After, Before, Test}
+
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream}
 
 @Test
 class DotnetBackendHandlerTest {
+  private var backend: DotnetBackend = _
+  private var tracker: JVMObjectTracker = _
+  private var sut: DotnetBackendHandler = _
+
+  @Before
+  def before(): Unit = {
+    backend = new DotnetBackend
+    tracker = new JVMObjectTracker
+    sut = new DotnetBackendHandler(backend, tracker)
+  }
+
+  @After
+  def after(): Unit = {
+    backend.close()
+  }
+
   @Test
   def shouldTrackCallbackClientWhenDotnetProcessConnected(): Unit = {
-    val tracker = new JVMObjectTracker
-    val sut = new DotnetBackendHandler(new DotnetBackend, tracker)
     val message = givenMessage(m => {
       val serDe = new SerDe(null)
       m.writeBoolean(true) // static method

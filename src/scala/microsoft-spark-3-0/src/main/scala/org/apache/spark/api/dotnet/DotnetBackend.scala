@@ -67,7 +67,7 @@ class DotnetBackend extends Logging {
     channelFuture.channel().localAddress().asInstanceOf[InetSocketAddress].getPort
   }
 
-  private[dotnet] def setCallbackClient(address: String, port: Int): Unit = synchronized {
+  private[dotnet] def setCallbackClient(address: String, port: Int): Unit = {
     callbackClient = callbackClient match {
       case Some(_) => throw new Exception("Callback client already set.")
       case None =>
@@ -76,7 +76,7 @@ class DotnetBackend extends Logging {
     }
   }
 
-  private[dotnet] def shutdownCallbackClient(): Unit = synchronized {
+  private[dotnet] def shutdownCallbackClient(): Unit = {
     callbackClient match {
       case Some(client) => client.shutdown()
       case None => logInfo("Callback server has already been shutdown.")
