@@ -1,5 +1,6 @@
 package org.apache.spark.api.dotnet
 
+import Extensions._
 import org.junit.Assert._
 import org.junit.{After, Before, Test}
 
@@ -45,7 +46,7 @@ class DotnetBackendHandlerTest {
       "status code must be successful.", 0, reply.readInt())
     assertEquals('j', reply.readByte())
     assertEquals(1, reply.readInt())
-    val trackingId = new String(reply.readAllBytes(), "UTF-8")
+    val trackingId = new String(reply.readN(1), "UTF-8")
     assertEquals("1", trackingId)
     val client = tracker.get(trackingId).get.asInstanceOf[Option[CallbackClient]].orNull
     assertEquals(classOf[CallbackClient], client.getClass)
