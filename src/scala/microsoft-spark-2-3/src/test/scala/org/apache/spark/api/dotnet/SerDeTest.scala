@@ -9,11 +9,12 @@ package org.apache.spark.api.dotnet
 import org.apache.spark.api.dotnet.Extensions._
 import org.apache.spark.sql.Row
 import org.junit.Assert._
+import org.junit.function.ThrowingRunnable
 import org.junit.{Before, Test}
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream}
 import java.sql.Date
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.{mapAsJavaMapConverter, seqAsJavaListConverter}
 
 @Test
 class SerDeTest {
@@ -41,9 +42,13 @@ class SerDeTest {
       in.writeByte('_')
     })
 
-    assertThrows(classOf[IllegalArgumentException], () => {
-      sut.readObject(input)
-    })
+    assertThrows(
+      classOf[IllegalArgumentException],
+      new ThrowingRunnable {
+        override def run(): Unit = {
+          sut.readObject(input)
+        }
+      })
   }
 
   @Test
@@ -117,10 +122,10 @@ class SerDeTest {
     })
 
     assertEquals(
-      mapAsJavaMap(Map(
+      Map(
         11 -> true,
         22 -> 42.42,
-        33 -> null)),
+        33 -> null).asJava,
       sut.readObject(input))
   }
 
@@ -131,7 +136,7 @@ class SerDeTest {
       in.writeInt(0) // size
     })
 
-    assertEquals(mapAsJavaMap(Map()), sut.readObject(input))
+    assertEquals(Map().asJava, sut.readObject(input))
   }
 
   @Test
@@ -187,9 +192,13 @@ class SerDeTest {
       in.writeByte('_') // unsupported element type
     })
 
-    assertThrows(classOf[IllegalArgumentException], () => {
-      sut.readObject(input)
-    })
+    assertThrows(
+      classOf[IllegalArgumentException],
+      new ThrowingRunnable {
+        override def run(): Unit = {
+          sut.readObject(input)
+        }
+      })
   }
 
   @Test
@@ -227,9 +236,13 @@ class SerDeTest {
       in.write(objectIndex.getBytes("UTF-8"))
     })
 
-    assertThrows(classOf[NoSuchElementException], () => {
-      sut.readObject(input)
-    })
+    assertThrows(
+      classOf[NoSuchElementException],
+      new ThrowingRunnable {
+        override def run(): Unit = {
+          sut.readObject(input)
+        }
+      })
   }
 
   @Test
@@ -250,9 +263,9 @@ class SerDeTest {
     })
 
     assertEquals(
-      seqAsJavaList(Seq(
+      Seq(
         Row.fromSeq(Seq(11)),
-        Row.fromSeq(Seq(true, 42.24, 99)))),
+        Row.fromSeq(Seq(true, 42.24, 99))).asJava,
       sut.readObject(input))
   }
 
@@ -367,7 +380,7 @@ class SerDeTest {
 
   private def whenOutput = givenInput _
 
-  private def assertEndOfStream (in: DataInputStream): Unit = {
+  private def assertEndOfStream(in: DataInputStream): Unit = {
     assertEquals(-1, in.read())
   }
 }

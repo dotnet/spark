@@ -76,7 +76,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 if (_jvmCallbackClient is null)
                 {
                     throw new InvalidOperationException(
-                        "Please start CallbackServer before accessing JvmCallbackClient.");
+                        "Please make sure that CallbackServer was started before accessing JvmCallbackClient.");
                 }
 
                 return _jvmCallbackClient;
