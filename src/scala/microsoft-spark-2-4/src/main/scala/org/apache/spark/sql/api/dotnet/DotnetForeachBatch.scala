@@ -15,20 +15,19 @@ class DotnetForeachBatchFunction(callbackClient: CallbackClient, callbackId: Int
   def call(batchDF: DataFrame, batchId: Long): Unit =
     callbackClient.send(
       callbackId,
-      dos => {
-        SerDe.writeJObj(dos, batchDF)
-        SerDe.writeLong(dos, batchId)
+      (dos, serDe) => {
+        serDe.writeJObj(dos, batchDF)
+        serDe.writeLong(dos, batchId)
       })
 }
 
 object DotnetForeachBatchHelper {
-  def callForeachBatch(dsw: DataStreamWriter[Row], callbackId: Int): Unit = {
-    val callbackClient = DotnetBackend.callbackClient
-    if (callbackClient == null) {
-      throw new Exception("DotnetBackend.callbackClient is null.")
+  def callForeachBatch(client: Option[CallbackClient], dsw: DataStreamWriter[Row], callbackId: Int): Unit = {
+    val dotnetForeachFunc = client match {
+      case Some(value) => new DotnetForeachBatchFunction(value, callbackId)
+      case None => throw new Exception("CallbackClient is null.")
     }
 
-    val dotnetForeachFunc = new DotnetForeachBatchFunction(callbackClient, callbackId)
     dsw.foreachBatch(dotnetForeachFunc.call _)
   }
 }

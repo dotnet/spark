@@ -6,6 +6,7 @@
 
 package org.apache.spark.api.dotnet
 
+import org.apache.spark.api.dotnet.Extensions.DataInputStreamExt
 import org.junit.Assert._
 import org.junit.{After, Before, Test}
 
@@ -49,7 +50,12 @@ class DotnetBackendHandlerTest {
 
     assertEquals(
       "status code must be successful.", 0, reply.readInt())
-    assertEquals('n', reply.readByte())
+    assertEquals('j', reply.readByte())
+    assertEquals(1, reply.readInt())
+    val trackingId = new String(reply.readN(1), "UTF-8")
+    assertEquals("1", trackingId)
+    val client = tracker.get(trackingId).get.asInstanceOf[Option[CallbackClient]].orNull
+    assertEquals(classOf[CallbackClient], client.getClass)
   }
 
   private def givenMessage(func: DataOutputStream => Unit): Array[Byte] = {
