@@ -7,7 +7,7 @@ using Microsoft.Spark.Hadoop.Conf;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Hadoop.FS
+namespace Microsoft.Spark.Hadoop.Fs
 {
     /// <summary>
     /// A fairly generic filesystem. It may be implemented as a distributed filesystem, or as a "local" one
