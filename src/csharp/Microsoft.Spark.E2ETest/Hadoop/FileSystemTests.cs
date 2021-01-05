@@ -28,8 +28,7 @@ namespace Microsoft.Spark.E2ETest.Hadoop
         {
             using var tempDirectory = new TemporaryDirectory();
 
-            using FileSystem fs = Assert.IsAssignableFrom<FileSystem>(
-                FileSystem.Get(_spark.SparkContext.HadoopConfiguration()));
+            using FileSystem fs = FileSystem.Get(_spark.SparkContext.HadoopConfiguration());
 
             Assert.IsType<bool>(fs.Delete(tempDirectory.Path, true));
         }
