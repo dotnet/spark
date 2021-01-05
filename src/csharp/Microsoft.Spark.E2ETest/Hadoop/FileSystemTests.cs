@@ -3,8 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.IO;
-using Microsoft.Spark.Hadoop.FS;
-using Microsoft.Spark.Hadoop.Conf;
+using Microsoft.Spark.Hadoop.Fs;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
