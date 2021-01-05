@@ -36,7 +36,9 @@ namespace Microsoft.Spark.Hadoop.Fs
         /// <returns>The FileSystem.</returns>
         public static FileSystem Get(Configuration conf) =>
             new FileSystem((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "org.apache.hadoop.fs.FileSystem", "get", conf));
+                "org.apache.hadoop.fs.FileSystem",
+                "get",
+                conf));
 
         /// <summary>
         /// Delete a file.
