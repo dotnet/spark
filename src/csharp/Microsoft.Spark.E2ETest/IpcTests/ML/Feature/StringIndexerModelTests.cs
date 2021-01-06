@@ -58,11 +58,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             List<Row> expected = new List<Row>
             {
                 new Row(new GenericRow(new object[] {"a", "0"})),
+                new Row(new GenericRow(new object[] {"b", "2"})),
                 new Row(new GenericRow(new object[] {"c", "1"})),
-                new Row(new GenericRow(new object[] {"b", "2"}))
+                new Row(new GenericRow(new object[] {"a", "0"})),
+                new Row(new GenericRow(new object[] {"a", "0"})),
+                new Row(new GenericRow(new object[] {"c", "1"}))
             };
 
-            Assert.Equal(observed, expected);
+            Assert.Equal(expected, observed);
             Assert.Equal("category", stringIndexer.GetInputCol());
             Assert.Equal("categoryIndex", stringIndexer.GetOutputCol());
             Assert.Equal(expectedUid, stringIndexer.Uid());
