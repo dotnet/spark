@@ -33,12 +33,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             DataFrame input = _spark.CreateDataFrame(
                 new List<GenericRow>
                 {
-                new GenericRow(new object[] { (0, "a") }),
-                new GenericRow(new object[] { (1, "b") }),
-                new GenericRow(new object[] { (2, "c") }),
-                new GenericRow(new object[] { (3, "a") }),
-                new GenericRow(new object[] { (4, "a") }),
-                new GenericRow(new object[] { (5, "c") })
+                new GenericRow(new object[] {0, "a"}),
+                new GenericRow(new object[] {1, "b"}),
+                new GenericRow(new object[] {2, "c"}),
+                new GenericRow(new object[] {3, "a"}),
+                new GenericRow(new object[] {4, "a"}),
+                new GenericRow(new object[] {5, "c"})
                 },
                 new StructType(new List<StructField>
                 {
@@ -57,9 +57,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .Collect().ToList();
             List<Row> expected = new List<Row>
             {
-                new Row(new GenericRow(new object[] {("a", "0") })),
-                new Row(new GenericRow(new object[] {("c", "1") })),
-                new Row(new GenericRow(new object[] {("b", "2") }))
+                new Row(new GenericRow(new object[] {"a", "0"})),
+                new Row(new GenericRow(new object[] {"c", "1"})),
+                new Row(new GenericRow(new object[] {"b", "2"}))
             };
 
             Assert.Equal(observed, expected);
