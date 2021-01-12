@@ -88,7 +88,7 @@ class DotnetBackendHandler(server: DotnetBackend, objectsTracker: JVMObjectTrack
 
           // Sends reference of CallbackClient to dotnet side,
           // so that dotnet process can send the client back to Java side
-          // when calling any API containing callback functions
+          // when calling any API containing callback functions.
           serDe.writeObject(dos, server.callbackClient)
         case "closeCallback" =>
           logInfo("Requesting to close callback client")
