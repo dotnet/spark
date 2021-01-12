@@ -29,7 +29,7 @@ class DotnetBackend extends Logging {
   private[this] var channelFuture: ChannelFuture = _
   private[this] var bootstrap: ServerBootstrap = _
   private[this] var bossGroup: EventLoopGroup = _
-  private[this] val objectsTracker = new JVMObjectTracker
+  private[this] val objectTracker = new JVMObjectTracker
 
   @volatile
   private[dotnet] var callbackClient: Option[CallbackClient] = None
@@ -58,7 +58,7 @@ class DotnetBackend extends Logging {
             // initialBytesToStrip = 4, i.e.  strip out the length field itself
             new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4))
           .addLast("decoder", new ByteArrayDecoder())
-          .addLast("handler", new DotnetBackendHandler(self, objectsTracker))
+          .addLast("handler", new DotnetBackendHandler(self, objectTracker))
       }
     })
 
@@ -72,7 +72,7 @@ class DotnetBackend extends Logging {
       case Some(_) => throw new Exception("Callback client already set.")
       case None =>
         logInfo(s"Connecting to a callback server at $address:$port")
-        Some(new CallbackClient(new SerDe(objectsTracker), address, port))
+        Some(new CallbackClient(new SerDe(objectTracker), address, port))
     }
   }
 
@@ -102,7 +102,7 @@ class DotnetBackend extends Logging {
     }
     bootstrap = null
 
-    objectsTracker.clear()
+    objectTracker.clear()
 
     // Send close to .NET callback server.
     shutdownCallbackClient()

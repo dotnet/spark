@@ -14,29 +14,29 @@ import java.net.InetAddress
 
 @Test
 class DotnetBackendTest {
-  private var sut: DotnetBackend = _
+  private var backend: DotnetBackend = _
 
   @Before
   def before(): Unit = {
-    sut = new DotnetBackend
+    backend = new DotnetBackend
   }
 
   @After
   def after(): Unit = {
-    sut.close()
+    backend.close()
   }
 
   @Test
   def shouldNotResetCallbackClient(): Unit = {
-    // specifying port = 0 to select port dynamically
-    sut.setCallbackClient(InetAddress.getLoopbackAddress.toString, port = 0)
+    // Specifying port = 0 to select port dynamically.
+    backend.setCallbackClient(InetAddress.getLoopbackAddress.toString, port = 0)
 
-    assertTrue(sut.callbackClient.isDefined)
+    assertTrue(backend.callbackClient.isDefined)
     assertThrows(
       classOf[Exception],
       new ThrowingRunnable {
         override def run(): Unit = {
-          sut.setCallbackClient(InetAddress.getLoopbackAddress.toString, port = 0)
+          backend.setCallbackClient(InetAddress.getLoopbackAddress.toString, port = 0)
         }
       })
   }

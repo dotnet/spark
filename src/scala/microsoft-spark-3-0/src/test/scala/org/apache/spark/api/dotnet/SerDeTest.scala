@@ -17,13 +17,13 @@ import scala.collection.JavaConverters._
 
 @Test
 class SerDeTest {
-  private var sut: SerDe = _
+  private var serDe: SerDe = _
   private var tracker: JVMObjectTracker = _
 
   @Before
   def before(): Unit = {
     tracker = new JVMObjectTracker
-    sut = new SerDe(tracker)
+    serDe = new SerDe(tracker)
   }
 
   @Test
@@ -32,7 +32,7 @@ class SerDeTest {
       in.writeByte('n')
     })
 
-    assertEquals(null, sut.readObject(input))
+    assertEquals(null, serDe.readObject(input))
   }
 
   @Test
@@ -42,7 +42,7 @@ class SerDeTest {
     })
 
     assertThrows(classOf[IllegalArgumentException], () => {
-      sut.readObject(input)
+      serDe.readObject(input)
     })
   }
 
@@ -53,7 +53,7 @@ class SerDeTest {
       in.writeInt(42)
     })
 
-    assertEquals(42, sut.readObject(input))
+    assertEquals(42, serDe.readObject(input))
   }
 
   @Test
@@ -63,7 +63,7 @@ class SerDeTest {
       in.writeLong(42)
     })
 
-    assertEquals(42L, sut.readObject(input))
+    assertEquals(42L, serDe.readObject(input))
   }
 
   @Test
@@ -73,7 +73,7 @@ class SerDeTest {
       in.writeDouble(42.42)
     })
 
-    assertEquals(42.42, sut.readObject(input))
+    assertEquals(42.42, serDe.readObject(input))
   }
 
   @Test
@@ -83,7 +83,7 @@ class SerDeTest {
       in.writeBoolean(true)
     })
 
-    assertEquals(true, sut.readObject(input))
+    assertEquals(true, serDe.readObject(input))
   }
 
   @Test
@@ -95,7 +95,7 @@ class SerDeTest {
       in.write(payload.getBytes("UTF-8"))
     })
 
-    assertEquals(payload, sut.readObject(input))
+    assertEquals(payload, serDe.readObject(input))
   }
 
   @Test
@@ -121,7 +121,7 @@ class SerDeTest {
         11 -> true,
         22 -> 42.42,
         33 -> null)),
-      sut.readObject(input))
+      serDe.readObject(input))
   }
 
   @Test
@@ -131,7 +131,7 @@ class SerDeTest {
       in.writeInt(0) // size
     })
 
-    assertEquals(mapAsJavaMap(Map()), sut.readObject(input))
+    assertEquals(mapAsJavaMap(Map()), serDe.readObject(input))
   }
 
   @Test
@@ -142,7 +142,7 @@ class SerDeTest {
       in.write(Array[Byte](1, 2, 3)) // payload
     })
 
-    assertArrayEquals(Array[Byte](1, 2, 3), sut.readObject(input).asInstanceOf[Array[Byte]])
+    assertArrayEquals(Array[Byte](1, 2, 3), serDe.readObject(input).asInstanceOf[Array[Byte]])
   }
 
   @Test
@@ -152,7 +152,7 @@ class SerDeTest {
       in.writeInt(0) // length
     })
 
-    assertArrayEquals(Array[Byte](), sut.readObject(input).asInstanceOf[Array[Byte]])
+    assertArrayEquals(Array[Byte](), serDe.readObject(input).asInstanceOf[Array[Byte]])
   }
 
   @Test
@@ -163,7 +163,7 @@ class SerDeTest {
       in.writeInt(0) // length
     })
 
-    assertArrayEquals(Array[Int](), sut.readObject(input).asInstanceOf[Array[Int]])
+    assertArrayEquals(Array[Int](), serDe.readObject(input).asInstanceOf[Array[Int]])
   }
 
   @Test
@@ -177,7 +177,7 @@ class SerDeTest {
       in.writeBoolean(true)
     })
 
-    assertArrayEquals(Array(true, false, true), sut.readObject(input).asInstanceOf[Array[Boolean]])
+    assertArrayEquals(Array(true, false, true), serDe.readObject(input).asInstanceOf[Array[Boolean]])
   }
 
   @Test
@@ -188,7 +188,7 @@ class SerDeTest {
     })
 
     assertThrows(classOf[IllegalArgumentException], () => {
-      sut.readObject(input)
+      serDe.readObject(input)
     })
   }
 
@@ -201,7 +201,7 @@ class SerDeTest {
       in.write(date.getBytes("UTF-8"))
     })
 
-    assertEquals(Date.valueOf("2020-12-31"), sut.readObject(input))
+    assertEquals(Date.valueOf("2020-12-31"), serDe.readObject(input))
   }
 
   @Test
@@ -215,7 +215,7 @@ class SerDeTest {
       in.write(objectIndex.getBytes("UTF-8"))
     })
 
-    assertSame(trackingObject, sut.readObject(input))
+    assertSame(trackingObject, serDe.readObject(input))
   }
 
   @Test
@@ -228,7 +228,7 @@ class SerDeTest {
     })
 
     assertThrows(classOf[NoSuchElementException], () => {
-      sut.readObject(input)
+      serDe.readObject(input)
     })
   }
 
@@ -253,7 +253,7 @@ class SerDeTest {
       seqAsJavaList(Seq(
         Row.fromSeq(Seq(11)),
         Row.fromSeq(Seq(true, 42.24, 99)))),
-      sut.readObject(input))
+      serDe.readObject(input))
   }
 
   @Test
@@ -267,14 +267,14 @@ class SerDeTest {
       in.writeBoolean(true)
     })
 
-    assertEquals(Seq(42, true), sut.readObject(input).asInstanceOf[Seq[Any]])
+    assertEquals(Seq(42, true), serDe.readObject(input).asInstanceOf[Seq[Any]])
   }
 
   @Test
   def shouldWriteNull(): Unit = {
     val in = whenOutput(out => {
-      sut.writeObject(out, null)
-      sut.writeObject(out, Unit)
+      serDe.writeObject(out, null)
+      serDe.writeObject(out, Unit)
     })
 
     assertEquals(in.readByte(), 'n')
@@ -286,22 +286,22 @@ class SerDeTest {
   def shouldWriteString(): Unit = {
     val sparkDotnet = "Spark Dotnet"
     val in = whenOutput(out => {
-      sut.writeObject(out, sparkDotnet)
+      serDe.writeObject(out, sparkDotnet)
     })
 
     assertEquals(in.readByte(), 'c') // object type
     assertEquals(in.readInt(), sparkDotnet.length) // length
-    assertArrayEquals(in.readN(sparkDotnet.length), sparkDotnet.getBytes("UTF-8"))
+    assertArrayEquals(in.readNBytes(sparkDotnet.length), sparkDotnet.getBytes("UTF-8"))
     assertEndOfStream(in)
   }
 
   @Test
   def shouldWritePrimitiveTypes(): Unit = {
     val in = whenOutput(out => {
-      sut.writeObject(out, 42.24f.asInstanceOf[Object])
-      sut.writeObject(out, 42L.asInstanceOf[Object])
-      sut.writeObject(out, 42.asInstanceOf[Object])
-      sut.writeObject(out, true.asInstanceOf[Object])
+      serDe.writeObject(out, 42.24f.asInstanceOf[Object])
+      serDe.writeObject(out, 42L.asInstanceOf[Object])
+      serDe.writeObject(out, 42.asInstanceOf[Object])
+      serDe.writeObject(out, true.asInstanceOf[Object])
     })
 
     assertEquals(in.readByte(), 'd')
@@ -319,24 +319,24 @@ class SerDeTest {
   def shouldWriteDate(): Unit = {
     val date = "2020-12-31"
     val in = whenOutput(out => {
-      sut.writeObject(out, Date.valueOf(date))
+      serDe.writeObject(out, Date.valueOf(date))
     })
 
     assertEquals(in.readByte(), 'D') // type
     assertEquals(in.readInt(), 10) // size
-    assertArrayEquals(in.readN(10), date.getBytes("UTF-8")) // content
+    assertArrayEquals(in.readNBytes(10), date.getBytes("UTF-8")) // content
   }
 
   @Test
   def shouldWriteCustomObjects(): Unit = {
     val customObject = new Object
     val in = whenOutput(out => {
-      sut.writeObject(out, customObject)
+      serDe.writeObject(out, customObject)
     })
 
     assertEquals(in.readByte(), 'j')
     assertEquals(in.readInt(), 1)
-    assertArrayEquals(in.readN(1), "1".getBytes("UTF-8"))
+    assertArrayEquals(in.readNBytes(1), "1".getBytes("UTF-8"))
     assertSame(tracker.get("1").get, customObject)
   }
 
@@ -344,16 +344,16 @@ class SerDeTest {
   def shouldWriteArrayOfCustomObjects(): Unit = {
     val payload = Array(new Object, new Object)
     val in = whenOutput(out => {
-      sut.writeObject(out, payload)
+      serDe.writeObject(out, payload)
     })
 
     assertEquals(in.readByte(), 'l') // array type
     assertEquals(in.readByte(), 'j') // type of element in array
     assertEquals(in.readInt(), 2) // array length
     assertEquals(in.readInt(), 1) // size of 1st element's identifiers
-    assertArrayEquals(in.readN(1), "1".getBytes("UTF-8")) // identifier of 1st element
+    assertArrayEquals(in.readNBytes(1), "1".getBytes("UTF-8")) // identifier of 1st element
     assertEquals(in.readInt(), 1) // size of 2nd element's identifier
-    assertArrayEquals(in.readN(1), "2".getBytes("UTF-8")) // identifier of 2nd element
+    assertArrayEquals(in.readNBytes(1), "2".getBytes("UTF-8")) // identifier of 2nd element
     assertSame(tracker.get("1").get, payload(0))
     assertSame(tracker.get("2").get, payload(1))
   }

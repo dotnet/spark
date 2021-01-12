@@ -17,13 +17,13 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, Da
 class DotnetBackendHandlerTest {
   private var backend: DotnetBackend = _
   private var tracker: JVMObjectTracker = _
-  private var sut: DotnetBackendHandler = _
+  private var handler: DotnetBackendHandler = _
 
   @Before
   def before(): Unit = {
     backend = new DotnetBackend
     tracker = new JVMObjectTracker
-    sut = new DotnetBackendHandler(backend, tracker)
+    handler = new DotnetBackendHandler(backend, tracker)
   }
 
   @After
@@ -46,14 +46,14 @@ class DotnetBackendHandlerTest {
       m.writeInt(0) // 2nd argument value (port)
     })
 
-    val payload = sut.handleBackendRequest(message)
+    val payload = handler.handleBackendRequest(message)
     val reply = new DataInputStream(new ByteArrayInputStream(payload))
 
     assertEquals(
       "status code must be successful.", 0, reply.readInt())
     assertEquals('j', reply.readByte())
     assertEquals(1, reply.readInt())
-    val trackingId = new String(reply.readN(1), "UTF-8")
+    val trackingId = new String(reply.readNBytes(1), "UTF-8")
     assertEquals("1", trackingId)
     val client = tracker.get(trackingId).get.asInstanceOf[Option[CallbackClient]].orNull
     assertEquals(classOf[CallbackClient], client.getClass)

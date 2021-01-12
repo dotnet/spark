@@ -15,10 +15,10 @@ import org.apache.spark.sql.Row
 import scala.collection.JavaConverters._
 
 /**
- * Functions to serialize and deserialize between CLR & JVM.
+ * Class responsible for serialization and deserialization between CLR & JVM.
  * This implementation of methods is mostly identical to the SerDe implementation in R.
  */
-class SerDe(var tracker: JVMObjectTracker) {
+class SerDe(val tracker: JVMObjectTracker) {
   def readObjectType(dis: DataInputStream): Char = {
     dis.readByte().toChar
   }
