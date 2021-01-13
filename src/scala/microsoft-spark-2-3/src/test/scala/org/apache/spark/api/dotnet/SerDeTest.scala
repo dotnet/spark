@@ -6,6 +6,7 @@
 
 package org.apache.spark.api.dotnet
 
+import org.apache.spark.api.dotnet.Extensions._
 import org.apache.spark.sql.Row
 import org.junit.Assert._
 import org.junit.function.ThrowingRunnable
@@ -303,7 +304,7 @@ class SerDeTest {
 
     assertEquals(in.readByte(), 'c') // object type
     assertEquals(in.readInt(), sparkDotnet.length) // length
-    assertArrayEquals(readNBytes(in, sparkDotnet.length), sparkDotnet.getBytes("UTF-8"))
+    assertArrayEquals(in.readNBytes(sparkDotnet.length), sparkDotnet.getBytes("UTF-8"))
     assertEndOfStream(in)
   }
 
@@ -336,7 +337,7 @@ class SerDeTest {
 
     assertEquals(in.readByte(), 'D') // type
     assertEquals(in.readInt(), 10) // size
-    assertArrayEquals(readNBytes(in, 10), date.getBytes("UTF-8")) // content
+    assertArrayEquals(in.readNBytes(10), date.getBytes("UTF-8")) // content
   }
 
   @Test
@@ -348,7 +349,7 @@ class SerDeTest {
 
     assertEquals(in.readByte(), 'j')
     assertEquals(in.readInt(), 1)
-    assertArrayEquals(readNBytes(in, 1), "1".getBytes("UTF-8"))
+    assertArrayEquals(in.readNBytes(1), "1".getBytes("UTF-8"))
     assertSame(tracker.get("1").get, customObject)
   }
 
@@ -363,9 +364,9 @@ class SerDeTest {
     assertEquals(in.readByte(), 'j') // type of element in array
     assertEquals(in.readInt(), 2) // array length
     assertEquals(in.readInt(), 1) // size of 1st element's identifiers
-    assertArrayEquals(readNBytes(in, 1), "1".getBytes("UTF-8")) // identifier of 1st element
+    assertArrayEquals(in.readNBytes(1), "1".getBytes("UTF-8")) // identifier of 1st element
     assertEquals(in.readInt(), 1) // size of 2nd element's identifier
-    assertArrayEquals(readNBytes(in, 1), "2".getBytes("UTF-8")) // identifier of 2nd element
+    assertArrayEquals(in.readNBytes(1), "2".getBytes("UTF-8")) // identifier of 2nd element
     assertSame(tracker.get("1").get, payload(0))
     assertSame(tracker.get("2").get, payload(1))
   }
@@ -381,11 +382,5 @@ class SerDeTest {
 
   private def assertEndOfStream(in: DataInputStream): Unit = {
     assertEquals(-1, in.read())
-  }
-
-  def readNBytes(in: DataInputStream, n: Int): Array[Byte] = {
-    val buf = new Array[Byte](n)
-    in.readFully(buf)
-    buf
   }
 }
