@@ -228,6 +228,7 @@ namespace Microsoft.Spark.Sql.Streaming
             _jvmObject.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.DotnetForeachBatchHelper",
                 "callForeachBatch",
+                SparkEnvironment.CallbackServer.JvmCallbackClient,
                 this,
                 callbackId);
             return this;
