@@ -15,10 +15,10 @@ import org.apache.spark.sql.Row
 import scala.collection.JavaConverters._
 
 /**
- * Functions to serialize and deserialize between CLR & JVM.
+ * Class responsible for serialization and deserialization between CLR & JVM.
  * This implementation of methods is mostly identical to the SerDe implementation in R.
  */
-object SerDe {
+class SerDe(val tracker: JVMObjectTracker) {
   def readObjectType(dis: DataInputStream): Char = {
     dis.readByte().toChar
   }
@@ -28,7 +28,7 @@ object SerDe {
     readTypedObject(dis, dataType)
   }
 
-  def readTypedObject(dis: DataInputStream, dataType: Char): Object = {
+  private def readTypedObject(dis: DataInputStream, dataType: Char): Object = {
     dataType match {
       case 'n' => null
       case 'i' => new java.lang.Integer(readInt(dis))
@@ -41,14 +41,14 @@ object SerDe {
       case 'l' => readList(dis)
       case 'D' => readDate(dis)
       case 't' => readTime(dis)
-      case 'j' => JVMObjectTracker.getObject(readString(dis))
+      case 'j' => tracker.getObject(readString(dis))
       case 'R' => readRowArr(dis)
       case 'O' => readObjectArr(dis)
       case _ => throw new IllegalArgumentException(s"Invalid type $dataType")
     }
   }
 
-  def readBytes(in: DataInputStream): Array[Byte] = {
+  private def readBytes(in: DataInputStream): Array[Byte] = {
     val len = readInt(in)
     val out = new Array[Byte](len)
     in.readFully(out)
@@ -59,15 +59,15 @@ object SerDe {
     in.readInt()
   }
 
-  def readLong(in: DataInputStream): Long = {
+  private def readLong(in: DataInputStream): Long = {
     in.readLong()
   }
 
-  def readDouble(in: DataInputStream): Double = {
+  private def readDouble(in: DataInputStream): Double = {
     in.readDouble()
   }
 
-  def readStringBytes(in: DataInputStream, len: Int): String = {
+  private def readStringBytes(in: DataInputStream, len: Int): String = {
     val bytes = new Array[Byte](len)
     in.readFully(bytes)
     val str = new String(bytes, "UTF-8")
@@ -83,11 +83,11 @@ object SerDe {
     in.readBoolean()
   }
 
-  def readDate(in: DataInputStream): Date = {
+  private def readDate(in: DataInputStream): Date = {
     Date.valueOf(readString(in))
   }
 
-  def readTime(in: DataInputStream): Timestamp = {
+  private def readTime(in: DataInputStream): Timestamp = {
     val seconds = in.readDouble()
     val sec = Math.floor(seconds).toLong
     val t = new Timestamp(sec * 1000L)
@@ -95,57 +95,57 @@ object SerDe {
     t
   }
 
-  def readRow(in: DataInputStream): Row = {
+  private def readRow(in: DataInputStream): Row = {
     val len = readInt(in)
     Row.fromSeq((0 until len).map(_ => readObject(in)))
   }
 
-  def readBytesArr(in: DataInputStream): Array[Array[Byte]] = {
+  private def readBytesArr(in: DataInputStream): Array[Array[Byte]] = {
     val len = readInt(in)
     (0 until len).map(_ => readBytes(in)).toArray
   }
 
-  def readIntArr(in: DataInputStream): Array[Int] = {
+  private def readIntArr(in: DataInputStream): Array[Int] = {
     val len = readInt(in)
     (0 until len).map(_ => readInt(in)).toArray
   }
 
-  def readLongArr(in: DataInputStream): Array[Long] = {
+  private def readLongArr(in: DataInputStream): Array[Long] = {
     val len = readInt(in)
     (0 until len).map(_ => readLong(in)).toArray
   }
 
-  def readDoubleArr(in: DataInputStream): Array[Double] = {
+  private def readDoubleArr(in: DataInputStream): Array[Double] = {
     val len = readInt(in)
     (0 until len).map(_ => readDouble(in)).toArray
   }
 
-  def readDoubleArrArr(in: DataInputStream): Array[Array[Double]] = {
+  private def readDoubleArrArr(in: DataInputStream): Array[Array[Double]] = {
     val len = readInt(in)
     (0 until len).map(_ => readDoubleArr(in)).toArray
   }
 
-  def readBooleanArr(in: DataInputStream): Array[Boolean] = {
+  private def readBooleanArr(in: DataInputStream): Array[Boolean] = {
     val len = readInt(in)
     (0 until len).map(_ => readBoolean(in)).toArray
   }
 
-  def readStringArr(in: DataInputStream): Array[String] = {
+  private def readStringArr(in: DataInputStream): Array[String] = {
     val len = readInt(in)
     (0 until len).map(_ => readString(in)).toArray
   }
 
-  def readRowArr(in: DataInputStream): java.util.List[Row] = {
+  private def readRowArr(in: DataInputStream): java.util.List[Row] = {
     val len = readInt(in)
     (0 until len).map(_ => readRow(in)).toList.asJava
   }
 
-  def readObjectArr(in: DataInputStream): Seq[Any] = {
+  private def readObjectArr(in: DataInputStream): Seq[Any] = {
     val len = readInt(in)
     (0 until len).map(_ => readObject(in))
   }
 
-  def readList(dis: DataInputStream): Array[_] = {
+  private def readList(dis: DataInputStream): Array[_] = {
     val arrType = readObjectType(dis)
     arrType match {
       case 'i' => readIntArr(dis)
@@ -154,13 +154,13 @@ object SerDe {
       case 'd' => readDoubleArr(dis)
       case 'A' => readDoubleArrArr(dis)
       case 'b' => readBooleanArr(dis)
-      case 'j' => readStringArr(dis).map(x => JVMObjectTracker.getObject(x))
+      case 'j' => readStringArr(dis).map(x => tracker.getObject(x))
       case 'r' => readBytesArr(dis)
       case _ => throw new IllegalArgumentException(s"Invalid array type $arrType")
     }
   }
 
-  def readMap(in: DataInputStream): java.util.Map[Object, Object] = {
+  private def readMap(in: DataInputStream): java.util.Map[Object, Object] = {
     val len = readInt(in)
     if (len > 0) {
       val keysType = readObjectType(in)
@@ -299,23 +299,23 @@ object SerDe {
     out.writeLong(value)
   }
 
-  def writeDouble(out: DataOutputStream, value: Double): Unit = {
+  private def writeDouble(out: DataOutputStream, value: Double): Unit = {
     out.writeDouble(value)
   }
 
-  def writeBoolean(out: DataOutputStream, value: Boolean): Unit = {
+  private def writeBoolean(out: DataOutputStream, value: Boolean): Unit = {
     out.writeBoolean(value)
   }
 
-  def writeDate(out: DataOutputStream, value: Date): Unit = {
+  private def writeDate(out: DataOutputStream, value: Date): Unit = {
     writeString(out, value.toString)
   }
 
-  def writeTime(out: DataOutputStream, value: Time): Unit = {
+  private def writeTime(out: DataOutputStream, value: Time): Unit = {
     out.writeDouble(value.getTime.toDouble / 1000.0)
   }
 
-  def writeTime(out: DataOutputStream, value: Timestamp): Unit = {
+  private def writeTime(out: DataOutputStream, value: Timestamp): Unit = {
     out.writeDouble((value.getTime / 1000).toDouble + value.getNanos.toDouble / 1e9)
   }
 
@@ -326,53 +326,53 @@ object SerDe {
     out.write(utf8, 0, len)
   }
 
-  def writeBytes(out: DataOutputStream, value: Array[Byte]): Unit = {
+  private def writeBytes(out: DataOutputStream, value: Array[Byte]): Unit = {
     out.writeInt(value.length)
     out.write(value)
   }
 
   def writeJObj(out: DataOutputStream, value: Object): Unit = {
-    val objId = JVMObjectTracker.put(value)
+    val objId = tracker.put(value)
     writeString(out, objId)
   }
 
-  def writeIntArr(out: DataOutputStream, value: Array[Int]): Unit = {
+  private def writeIntArr(out: DataOutputStream, value: Array[Int]): Unit = {
     writeType(out, "integer")
     out.writeInt(value.length)
     value.foreach(v => out.writeInt(v))
   }
 
-  def writeLongArr(out: DataOutputStream, value: Array[Long]): Unit = {
+  private def writeLongArr(out: DataOutputStream, value: Array[Long]): Unit = {
     writeType(out, "long")
     out.writeInt(value.length)
     value.foreach(v => out.writeLong(v))
   }
 
-  def writeDoubleArr(out: DataOutputStream, value: Array[Double]): Unit = {
+  private def writeDoubleArr(out: DataOutputStream, value: Array[Double]): Unit = {
     writeType(out, "double")
     out.writeInt(value.length)
     value.foreach(v => out.writeDouble(v))
   }
 
-  def writeDoubleArrArr(out: DataOutputStream, value: Array[Array[Double]]): Unit = {
+  private def writeDoubleArrArr(out: DataOutputStream, value: Array[Array[Double]]): Unit = {
     writeType(out, "doublearray")
     out.writeInt(value.length)
     value.foreach(v => writeDoubleArr(out, v))
   }
 
-  def writeBooleanArr(out: DataOutputStream, value: Array[Boolean]): Unit = {
+  private def writeBooleanArr(out: DataOutputStream, value: Array[Boolean]): Unit = {
     writeType(out, "logical")
     out.writeInt(value.length)
     value.foreach(v => writeBoolean(out, v))
   }
 
-  def writeStringArr(out: DataOutputStream, value: Array[String]): Unit = {
+  private def writeStringArr(out: DataOutputStream, value: Array[String]): Unit = {
     writeType(out, "character")
     out.writeInt(value.length)
     value.foreach(v => writeString(out, v))
   }
 
-  def writeBytesArr(out: DataOutputStream, value: Array[Array[Byte]]): Unit = {
+  private def writeBytesArr(out: DataOutputStream, value: Array[Array[Byte]]): Unit = {
     writeType(out, "raw")
     out.writeInt(value.length)
     value.foreach(v => writeBytes(out, v))
