@@ -77,7 +77,7 @@ namespace Microsoft.Spark.Sql.Types
             {
                 return obj;
             }
-            
+
             var arrayList = (ArrayList)obj;
             for (int i = 0; i < arrayList.Count; ++i)
             {
@@ -321,5 +321,70 @@ namespace Microsoft.Spark.Sql.Types
 
             return obj;
         }
+    }
+
+    /// <summary>
+    /// The data type for a SparseVectorUDT, used by SparseVector. 
+    /// </summary>
+    public class SparseVectorUDT : DataType
+    {
+        /// <summary>
+        /// Returns JSON object describing this type.
+        /// </summary>
+        internal override object JsonValue =>
+            new JObject(
+                new JProperty("type", "udt"),
+                new JProperty("class", "org.apache.spark.ml.linalg.VectorUDT"),
+                new JProperty("pyClass", "pyspark.ml.linalg.VectorUDT"),
+                new JProperty("sqlType", new JObject(
+                    new JProperty("type", "struct"),
+                    new JProperty("fields", new JArray(
+                            new JObject(
+                                new JProperty("name", "type"),
+                                new JProperty("type", "byte"),
+                                new JProperty("nullable", false)
+                                ),
+                            new JObject(
+                                new JProperty("name", "size"),
+                                new JProperty("type", "integer"),
+                                new JProperty("nullable", false)
+                            ),
+                            new JObject(
+                                new JProperty("name", "indices"),
+                                new JProperty("type", new JObject(
+                                    new JProperty("type", "array"),
+                                    new JProperty("elementType", "integer"),
+                                    new JProperty("containsNull", false))),
+                                new JProperty("nullable", true)
+                            ),
+                            new JObject(
+                                new JProperty("name", "values"),
+                                new JProperty("type", new JObject(
+                                    new JProperty("type", "array"),
+                                    new JProperty("elementType", "double"),
+                                    new JProperty("containsNull", false))),
+                                new JProperty("nullable", true)
+                            )
+                        ))
+                    ))
+                );
+
+        internal override object FromInternal(object obj)
+        {
+            if (obj is RowConstructor rowConstructor)
+            {
+                return rowConstructor.GetRow();
+            }
+
+            return obj;
+        }
+
+        internal override bool NeedConversion() => true;
+
+        /// <summary>
+        /// Returns a readable string that represents this type.
+        /// </summary>
+        public override string SimpleString =>
+            "struct<`type`:TINYINT,`size`:INT,`indices`:ARRAY<INT>,`values`:ARRAY<DOUBLE>>";
     }
 }
