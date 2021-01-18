@@ -20,12 +20,12 @@ import scala.collection.mutable.Queue
  * @param address The address of the Dotnet CallbackServer
  * @param port The port of the Dotnet CallbackServer
  */
-class CallbackClient(address: String, port: Int) extends Logging {
+class CallbackClient(serDe: SerDe, address: String, port: Int) extends Logging {
   private[this] val connectionPool: Queue[CallbackConnection] = Queue[CallbackConnection]()
 
   private[this] var isShutdown: Boolean = false
 
-  final def send(callbackId: Int, writeBody: DataOutputStream => Unit): Unit =
+  final def send(callbackId: Int, writeBody: (DataOutputStream, SerDe) => Unit): Unit =
     getOrCreateConnection() match {
       case Some(connection) =>
         try {
@@ -50,7 +50,7 @@ class CallbackClient(address: String, port: Int) extends Logging {
       return Some(connectionPool.dequeue())
     }
 
-    Some(new CallbackConnection(address, port))
+    Some(new CallbackConnection(serDe, address, port))
   }
 
   private def addConnection(connection: CallbackConnection): Unit = synchronized {
