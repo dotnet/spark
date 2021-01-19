@@ -16,7 +16,7 @@ variables:
   backwardCompatibleRelease: '1.0.0'
   forwardCompatibleRelease: '1.0.0'
 
-  workerBackwardCompatibleIgnore: "--filter (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.ML.Linalg.SparseVectorTests)"
+  workerBackwardCompatibleIgnore: "--filter FullyQualifiedName\\!~Linalg"
 
   backwardCompatibleTestOptions_Windows_2_3: $(workerBackwardCompatibleIgnore)
   forwardCompatibleTestOptions_Windows_2_3: $(workerBackwardCompatibleIgnore)
@@ -32,17 +32,17 @@ variables:
   (FullyQualifiedName!=Microsoft.Spark.Extensions.Hyperspace.E2ETest.HyperspaceTests.TestExplainAPI)&\
   (FullyQualifiedName!=Microsoft.Spark.Extensions.Hyperspace.E2ETest.HyperspaceTests.TestIndexCreateAndDelete)&\
   (FullyQualifiedName!=Microsoft.Spark.Extensions.Hyperspace.E2ETest.HyperspaceTests.TestSignatures)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.ML.Linalg.SparseVectorTests)"
+  (FullyQualifiedName\\!~Linalg)"
 
   # Filter DataFrameTests.TestDataFrameGroupedMapUdf and DataFrameTests.TestGroupedMapUdf backwardCompatible
   # tests due to https://github.com/dotnet/spark/pull/711
   backwardCompatibleTestOptions_Windows_3: "--filter \
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.ML.Linalg.SparseVectorTests)"
+  (FullyQualifiedName\\!~Linalg)"
   forwardCompatibleTestOptions_Windows_3: $(workerBackwardCompatibleIgnore)
   backwardCompatibleTestOptions_Linux_3: $(backwardCompatibleTestOptions_Windows_3)
-  forwardCompatibleTestOptions_Linux_3: $(forwardCompatibleTestOptions_Linux_2_4)
+  forwardCompatibleTestOptions_Linux_3: $()
 
   # Azure DevOps variables are transformed into environment variables, with these variables we
   # avoid the first time experience and telemetry to speed up the build.
