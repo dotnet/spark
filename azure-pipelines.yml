@@ -16,14 +16,16 @@ variables:
   backwardCompatibleRelease: '1.0.0'
   forwardCompatibleRelease: '1.0.0'
 
-  backwardCompatibleTestOptions_Windows_2_3: ""
-  forwardCompatibleTestOptions_Windows_2_3: ""
-  backwardCompatibleTestOptions_Linux_2_3: ""
-  forwardCompatibleTestOptions_Linux_2_3: ""
+  workerBackwardCompatibleIgnore: "--filter (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.ML.Linalg.SparseVectorTests)"
 
-  backwardCompatibleTestOptions_Windows_2_4: ""
+  backwardCompatibleTestOptions_Windows_2_3: $workerBackwardCompatibleIgnore
+  forwardCompatibleTestOptions_Windows_2_3: ""
+  backwardCompatibleTestOptions_Linux_2_3: $workerBackwardCompatibleIgnore
+  forwardCompatibleTestOptions_Linux_2_3: $workerBackwardCompatibleIgnore
+
+  backwardCompatibleTestOptions_Windows_2_4: $workerBackwardCompatibleIgnore
   forwardCompatibleTestOptions_Windows_2_4: ""
-  backwardCompatibleTestOptions_Linux_2_4: ""
+  backwardCompatibleTestOptions_Linux_2_4: $workerBackwardCompatibleIgnore
   # Filter HyperspaceTests not due to functionality changes, but to incompatible tests running on Linux.
   # Please see https://github.com/dotnet/spark/pull/737 for the fix.
   forwardCompatibleTestOptions_Linux_2_4: "--filter \
