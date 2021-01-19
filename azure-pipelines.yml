@@ -42,7 +42,7 @@ variables:
   (FullyQualifiedName\\!~Linalg)"
   forwardCompatibleTestOptions_Windows_3: $(workerBackwardCompatibleIgnore)
   backwardCompatibleTestOptions_Linux_3: $(backwardCompatibleTestOptions_Windows_3)
-  forwardCompatibleTestOptions_Linux_3: $()
+  forwardCompatibleTestOptions_Linux_3: $(forwardCompatibleTestOptions_Linux_2_4)
 
   # Azure DevOps variables are transformed into environment variables, with these variables we
   # avoid the first time experience and telemetry to speed up the build.
