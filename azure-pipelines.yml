@@ -35,7 +35,8 @@ variables:
   # tests due to https://github.com/dotnet/spark/pull/711
   backwardCompatibleTestOptions_Windows_3: "--filter \
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)"
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.ML.Linalg.SparseVectorTests)"
   forwardCompatibleTestOptions_Windows_3: ""
   backwardCompatibleTestOptions_Linux_3: $(backwardCompatibleTestOptions_Windows_3)
   forwardCompatibleTestOptions_Linux_3: $(forwardCompatibleTestOptions_Linux_2_4)
