@@ -16,9 +16,9 @@ variables:
   backwardCompatibleRelease: '1.0.0'
   forwardCompatibleRelease: '1.0.0'
 
-  # Filter Microsoft.Spark.E2ETest.IpcTests.ML.Linalg.SparseVectorTests.
+  # Filter Microsoft.Spark.E2ETest.IpcTests.ML.Linalg.SparseVectorTests.TestSparseVectorE2EScenario
   # Please see https://github.com/dotnet/spark/pull/810
-  backwardCompatiableTestIgnore_PR_810: "FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.ML.Linalg.SparseVectorTests"
+  backwardCompatiableTestIgnore_PR_810: "FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.ML.Linalg.SparseVectorTests.TestSparseVectorE2EScenario"
 
   backwardCompatibleTestOptions_Windows_2_3: "--filter ($(backwardCompatiableTestIgnore_PR_810))"
   forwardCompatibleTestOptions_Windows_2_3: "--filter ($(backwardCompatiableTestIgnore_PR_810))"
