@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.Spark.ML.Linalg;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Linalg
@@ -25,7 +26,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Linalg
         /// Test that we can create SparseVector, collect it back to .NET and use it in a UDF
         /// </summary>
         [Fact]
-        public void TestPassingBetweenApacheSpark()
+        public void TestSparseVectorE2EScenario()
         {
             const int vectorLength = 10000;
             int[] indices = new[] { 1, 2, 3, 1000, 1001, 1002 };
@@ -79,6 +80,20 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Linalg
             Assert.IsType<int>(vector.NumNonZeros());
             Assert.Equal(vectorLength, vector.ToArray().Length);
             Assert.IsType<string>(vector.ToString());
+        }
+        
+        /// <summary>
+        /// Test that we can create a SparseVectorUDT
+        /// </summary>
+        [Fact]
+        public void TestSparseVectorUDT()
+        {
+            var type = new SparseVectorUDT();
+            Assert.IsType<JObject>(type.JsonValue);
+            Assert.IsType<string>(type.Json);
+            Assert.IsType<string>(type.SimpleString);
+            Assert.IsType<string>(type.TypeName);
+            Assert.True(type.NeedConversion());
         }
     }
 }
