@@ -41,7 +41,7 @@ variables:
   backwardCompatibleTestOptions_Windows_3: "--filter \
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)&\
-  ($(backwardCompatiableTestIgnore_PR_810)"
+  ($(backwardCompatiableTestIgnore_PR_810))"
   forwardCompatibleTestOptions_Windows_3: $(workerBackwardCompatibleIgnore)
   backwardCompatibleTestOptions_Linux_3: $(backwardCompatibleTestOptions_Windows_3)
   forwardCompatibleTestOptions_Linux_3: $(forwardCompatibleTestOptions_Linux_2_4)
