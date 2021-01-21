@@ -21,9 +21,9 @@ namespace Microsoft.Spark.ML.Linalg
         /// <see cref="SparseVector"/> is an efficient way to store large arrays of double where many of the
         /// elements are 0.
         /// </summary>
-        /// <param name="length"></param>
-        /// <param name="indices"></param>
-        /// <param name="values"></param>
+        /// <param name="length">The amount of entries that the Vector represents including 0's</param>
+        /// <param name="indices">The indexes of each value at the same offset</param>
+        /// <param name="values">The value at the offset provided by the indices</param>
         public SparseVector(int length, int[] indices, double[] values) => 
             _jvmObject = (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_sparseVectorClassName, "sparse", length, indices, values);

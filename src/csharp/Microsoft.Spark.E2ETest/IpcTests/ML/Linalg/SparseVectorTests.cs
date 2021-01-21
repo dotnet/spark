@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Spark.ML.Linalg;
@@ -23,7 +24,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Linalg
         }
 
         /// <summary>
-        /// Test that we can create SparseVector, collect it back to .NET and use it in a UDF
+        /// Test that we can create SparseVector, collect it back to .NET and use it in a UDF.
         /// </summary>
         [Fact]
         public void TestSparseVectorE2EScenario()
@@ -40,9 +41,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Linalg
                 new StructField("hectorTheVector", new SparseVectorUDT())
             });
 
-            var dataFrame =
-                _spark.CreateDataFrame(new List<GenericRow>() { new(new object[] { "hector", vector }) },
-                    schema);
+            DataFrame dataFrame =
+                _spark.CreateDataFrame(new List<GenericRow>() 
+                { new GenericRow(new object[] { "hector", vector }) }, schema);
 
             dataFrame.Show();
 
@@ -51,7 +52,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Linalg
 
             Assert.IsType<SparseVector>(SparseVector.FromRow(rowVector));
 
-            var udf = Functions.Udf<Row, double>(udfRow =>
+            Func<Column, Column> udf = Functions.Udf<Row, double>(udfRow =>
             {
                 SparseVector udfVector = SparseVector.FromRow(udfRow);
                 Assert.IsType<double>(udfVector.Apply(100));
@@ -62,7 +63,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Linalg
         }
 
         /// <summary>
-        /// Tests the methods available on SparseVector
+        /// Tests the methods available on SparseVector.
         /// </summary>
         [Fact]
         public void TestSparseVector()
@@ -83,7 +84,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Linalg
         }
         
         /// <summary>
-        /// Test that we can create a SparseVectorUDT
+        /// Test that we can create a SparseVectorUDT.
         /// </summary>
         [Fact]
         public void TestSparseVectorUDT()
