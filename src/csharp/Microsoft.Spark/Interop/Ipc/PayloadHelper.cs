@@ -39,7 +39,7 @@ namespace Microsoft.Spark.Interop.Ipc
         internal static void BuildPayload(
             MemoryStream destination,
             bool isStaticMethod,
-            int threadId,
+            string threadId,
             object classNameOrJvmObjectReference,
             string methodName,
             object[] args)

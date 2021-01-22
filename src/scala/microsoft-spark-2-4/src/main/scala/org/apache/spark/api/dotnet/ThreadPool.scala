@@ -19,16 +19,16 @@ object ThreadPool {
   /**
    * Map from threadId to corresponding executor.
    */
-  private val executors: mutable.HashMap[Int, ExecutorService] =
-    new mutable.HashMap[Int, ExecutorService]()
+  private val executors: mutable.HashMap[String, ExecutorService] =
+    new mutable.HashMap[String, ExecutorService]()
 
   /**
    * Run some code on a particular thread.
    *
-   * @param threadId Integer id of the thread.
+   * @param threadId String id of the thread.
    * @param task Function to run on the thread.
    */
-  def run(threadId: Int, task: () => Unit): Unit = {
+  def run(threadId: String, task: () => Unit): Unit = {
     val executor = getOrCreateExecutor(threadId)
     val future = executor.submit(new Runnable {
       override def run(): Unit = task()
@@ -40,10 +40,10 @@ object ThreadPool {
   /**
    * Try to delete a particular thread.
    *
-   * @param threadId Integer id of the thread.
+   * @param threadId String id of the thread.
    * @return True if successful, false if thread does not exist.
    */
-  def tryDeleteThread(threadId: Int): Boolean = synchronized {
+  def tryDeleteThread(threadId: String): Boolean = synchronized {
     executors.remove(threadId) match {
       case Some(executorService) =>
         executorService.shutdown()
@@ -63,10 +63,10 @@ object ThreadPool {
   /**
    * Get the executor if it exists, otherwise create a new one.
    *
-   * @param id Integer id of the thread.
+   * @param id String id of the thread.
    * @return The new or existing executor with the given id.
    */
-  private def getOrCreateExecutor(id: Int): ExecutorService = synchronized {
+  private def getOrCreateExecutor(id: String): ExecutorService = synchronized {
     executors.getOrElseUpdate(id, Executors.newSingleThreadExecutor)
   }
 }

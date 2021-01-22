@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using Microsoft.Spark.Services;
 
@@ -97,8 +98,9 @@ namespace Microsoft.Spark.Interop.Ipc
         /// corresponding JVM thread will also be disposed.
         /// </summary>
         /// <param name="threadId">The ID of the thread to remove.</param>
+        /// <param name="pid">The Id of the current process.</param>
         /// <returns>True if success, false if the thread cannot be found.</returns>
-        private bool TryDisposeJvmThread(int threadId)
+        private bool TryDisposeJvmThread(int threadId, int pid)
         {
             if (_activeThreads.TryRemove(threadId, out _))
             {
@@ -106,7 +108,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 // class does not need to call Join() on the .NET Thread. However, this class is
                 // responsible for sending the rmThread command to the JVM to trigger disposal
                 // of the corresponding JVM thread.
-                if ((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", threadId))
+                if ((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", pid + "_" + threadId))
                 {
                     _loggerService.LogDebug($"GC'd JVM thread {threadId}.");
                     return true;
@@ -127,11 +129,12 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         private void GCThreads()
         {
+            int pid = Process.GetCurrentProcess().Id;
             foreach (KeyValuePair<int, Thread> kvp in _activeThreads)
             {
                 if (!kvp.Value.IsAlive)
                 {
-                    TryDisposeJvmThread(kvp.Key);
+                    TryDisposeJvmThread(kvp.Key, pid);
                 }
             }
 
