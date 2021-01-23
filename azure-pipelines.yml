@@ -21,20 +21,19 @@ variables:
   backwardCompatiableTestIgnore_PR_810: "FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.ML.Linalg.SparseVectorTests.TestSparseVectorE2EScenario"
 
   backwardCompatibleTestOptions_Windows_2_3: "--filter ($(backwardCompatiableTestIgnore_PR_810))"
-  forwardCompatibleTestOptions_Windows_2_3: "--filter ($(backwardCompatiableTestIgnore_PR_810))"
+  forwardCompatibleTestOptions_Windows_2_3: ""
   backwardCompatibleTestOptions_Linux_2_3: "--filter ($(backwardCompatiableTestIgnore_PR_810))"
-  forwardCompatibleTestOptions_Linux_2_3: "--filter ($(backwardCompatiableTestIgnore_PR_810))"
+  forwardCompatibleTestOptions_Linux_2_3: ""
 
   backwardCompatibleTestOptions_Windows_2_4: "--filter ($(backwardCompatiableTestIgnore_PR_810))"
-  forwardCompatibleTestOptions_Windows_2_4: "--filter ($(backwardCompatiableTestIgnore_PR_810))"
+  forwardCompatibleTestOptions_Windows_2_4: ""
   backwardCompatibleTestOptions_Linux_2_4: "--filter ($(backwardCompatiableTestIgnore_PR_810))"
   # Filter HyperspaceTests not due to functionality changes, but to incompatible tests running on Linux.
   # Please see https://github.com/dotnet/spark/pull/737 for the fix.
   forwardCompatibleTestOptions_Linux_2_4: "--filter \
   (FullyQualifiedName!=Microsoft.Spark.Extensions.Hyperspace.E2ETest.HyperspaceTests.TestExplainAPI)&\
   (FullyQualifiedName!=Microsoft.Spark.Extensions.Hyperspace.E2ETest.HyperspaceTests.TestIndexCreateAndDelete)&\
-  (FullyQualifiedName!=Microsoft.Spark.Extensions.Hyperspace.E2ETest.HyperspaceTests.TestSignatures)&\
-  ($(backwardCompatiableTestIgnore_PR_810))"
+  (FullyQualifiedName!=Microsoft.Spark.Extensions.Hyperspace.E2ETest.HyperspaceTests.TestSignatures)"
 
   # Filter DataFrameTests.TestDataFrameGroupedMapUdf and DataFrameTests.TestGroupedMapUdf backwardCompatible
   # tests due to https://github.com/dotnet/spark/pull/711
@@ -42,9 +41,9 @@ variables:
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)&\
   ($(backwardCompatiableTestIgnore_PR_810))"
-  forwardCompatibleTestOptions_Windows_3: "--filter ($(backwardCompatiableTestIgnore_PR_810))"
+  forwardCompatibleTestOptions_Windows_3: ""
   backwardCompatibleTestOptions_Linux_3: $(backwardCompatibleTestOptions_Windows_3)
-  forwardCompatibleTestOptions_Linux_3: $(forwardCompatibleTestOptions_Linux_2_4)
+  forwardCompatibleTestOptions_Linux_3: ""
 
   # Azure DevOps variables are transformed into environment variables, with these variables we
   # avoid the first time experience and telemetry to speed up the build.
