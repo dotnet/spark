@@ -24,8 +24,8 @@ object ThreadPool {
 
   /**
    * Run some code on a particular thread.
-   * @param processId Int id of the process.
-   * @param threadId Int id of the thread.
+   * @param processId Integer id of the process.
+   * @param threadId Integer id of the thread.
    * @param task Function to run on the thread.
    */
   def run(processId: Int, threadId: Int, task: () => Unit): Unit = {
@@ -39,8 +39,8 @@ object ThreadPool {
 
   /**
    * Try to delete a particular thread.
-   * @param processId Int id of process.
-   * @param threadId Int id of the thread.
+   * @param processId Integer id of process.
+   * @param threadId Integer id of the thread.
    * @return True if successful, false if thread does not exist.
    */
   def tryDeleteThread(processId: Int, threadId: Int): Boolean = synchronized {
@@ -62,8 +62,8 @@ object ThreadPool {
 
   /**
    * Get the executor if it exists, otherwise create a new one.
-   * @param processId Int id of process.
-   * @param threadId Int id of the thread.
+   * @param processId Integer id of process.
+   * @param threadId Integer id of the thread.
    * @return The new or existing executor with the given id.
    */
   private def getOrCreateExecutor(processId: Int, threadId: Int): ExecutorService = synchronized {
