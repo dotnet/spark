@@ -89,15 +89,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestRmThread()
         {
-            int pid = Process.GetCurrentProcess().Id;
+            int processId = Process.GetCurrentProcess().Id;
             // Create a thread and ensure that it is initialized in the JVM ThreadPool.
             var thread = new Thread(() => _spark.Sql("SELECT TRUE"));
             thread.Start();
             thread.Join();
 
             // First call should return true. Second call should return false.
-            Assert.True((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", pid, thread.ManagedThreadId));
-            Assert.False((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", pid, thread.ManagedThreadId));
+            Assert.True((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", processId, thread.ManagedThreadId));
+            Assert.False((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", processId, thread.ManagedThreadId));
         }
 
         /// <summary>

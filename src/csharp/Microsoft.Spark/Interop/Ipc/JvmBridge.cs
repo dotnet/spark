@@ -203,7 +203,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 // `StreamingQuery.Stop()` to be called to unblock it. However, the `Stop`
                 // call will never run because DotnetHandler will assign the method call to
                 // run on the same thread that `AwaitTermination` is running on.
-                int pid = Process.GetCurrentProcess().Id;
+                int processId = Process.GetCurrentProcess().Id;
                 Thread thread = _isRunningRepl ? null : Thread.CurrentThread;
                 MemoryStream payloadMemoryStream = s_payloadMemoryStream ??= new MemoryStream();
                 payloadMemoryStream.Position = 0;
@@ -212,7 +212,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 PayloadHelper.BuildPayload(
                     payloadMemoryStream,
                     isStatic,
-                    pid,
+                    processId,
                     threadId,
                     classNameOrJvmObjectReference,
                     methodName,

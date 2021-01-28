@@ -42,7 +42,7 @@ class DotnetBackendHandlerTest {
       m.writeInt(2) // number of arguments
       m.writeByte('c') // 1st argument type (string)
       serDe.writeString(m, "127.0.0.1") // 1st argument value (host)
-      m.writeByte('i') // 2nd argument type (i+_nteger)
+      m.writeByte('i') // 2nd argument type (integer)
       m.writeInt(0) // 2nd argument value (port)
     })
 

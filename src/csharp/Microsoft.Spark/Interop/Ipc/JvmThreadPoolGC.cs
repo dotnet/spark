@@ -129,12 +129,12 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         private void GCThreads()
         {
-            int pid = Process.GetCurrentProcess().Id;
+            int processId = Process.GetCurrentProcess().Id;
             foreach (KeyValuePair<int, Thread> kvp in _activeThreads)
             {
                 if (!kvp.Value.IsAlive)
                 {
-                    TryDisposeJvmThread(kvp.Key, pid);
+                    TryDisposeJvmThread(kvp.Key, processId);
                 }
             }
 
