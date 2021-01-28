@@ -42,7 +42,8 @@ class DotnetBackendHandler(server: DotnetBackend, objectsTracker: JVMObjectTrack
 
     // First bit is isStatic
     val isStatic = serDe.readBoolean(dis)
-    val threadId = serDe.readString(dis)
+    val processId = serDe.readInt(dis)
+    val threadId = serDe.readInt(dis)
     val objId = serDe.readString(dis)
     val methodName = serDe.readString(dis)
     val numArgs = serDe.readInt(dis)
@@ -68,9 +69,11 @@ class DotnetBackendHandler(server: DotnetBackend, objectsTracker: JVMObjectTrack
           }
         case "rmThread" =>
           try {
-            assert(serDe.readObjectType(dis) == 'c')
-            val threadToDelete = serDe.readString(dis)
-            val result = ThreadPool.tryDeleteThread(threadToDelete)
+            assert(serDe.readObjectType(dis) == 'i')
+            val process = serDe.readInt(dis)
+            assert(serDe.readObjectType(dis) == 'i')
+            val threadToDelete = serDe.readInt(dis)
+            val result = ThreadPool.tryDeleteThread(process, threadToDelete)
             serDe.writeInt(dos, 0)
             serDe.writeObject(dos, result.asInstanceOf[AnyRef])
           } catch {
@@ -99,7 +102,7 @@ class DotnetBackendHandler(server: DotnetBackend, objectsTracker: JVMObjectTrack
       }
     } else {
       ThreadPool
-        .run(threadId, () => handleMethodCall(isStatic, objId, methodName, numArgs, dis, dos))
+        .run(processId, threadId, () => handleMethodCall(isStatic, objId, methodName, numArgs, dis, dos))
     }
 
     bos.toByteArray

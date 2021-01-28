@@ -17,19 +17,19 @@ import scala.collection.mutable
 object ThreadPool {
 
   /**
-   * Map from threadId to corresponding executor.
+   * Map from (processId, threadId) to corresponding executor.
    */
-  private val executors: mutable.HashMap[String, ExecutorService] =
-    new mutable.HashMap[String, ExecutorService]()
+  private val executors: mutable.HashMap[(Int, Int), ExecutorService] =
+    new mutable.HashMap[(Int, Int), ExecutorService]()
 
   /**
    * Run some code on a particular thread.
-   *
-   * @param threadId String id of the thread.
+   * @param processId Int id of the process.
+   * @param threadId Int id of the thread.
    * @param task Function to run on the thread.
    */
-  def run(threadId: String, task: () => Unit): Unit = {
-    val executor = getOrCreateExecutor(threadId)
+  def run(processId: Int, threadId: Int, task: () => Unit): Unit = {
+    val executor = getOrCreateExecutor(processId, threadId)
     val future = executor.submit(new Runnable {
       override def run(): Unit = task()
     })
@@ -39,12 +39,12 @@ object ThreadPool {
 
   /**
    * Try to delete a particular thread.
-   *
-   * @param threadId String id of the thread.
+   * @param processId Int id of process.
+   * @param threadId Int id of the thread.
    * @return True if successful, false if thread does not exist.
    */
-  def tryDeleteThread(threadId: String): Boolean = synchronized {
-    executors.remove(threadId) match {
+  def tryDeleteThread(processId: Int, threadId: Int): Boolean = synchronized {
+    executors.remove((processId, threadId)) match {
       case Some(executorService) =>
         executorService.shutdown()
         true
@@ -62,11 +62,11 @@ object ThreadPool {
 
   /**
    * Get the executor if it exists, otherwise create a new one.
-   *
-   * @param id String id of the thread.
-   * @return The new or existing executor with the given id.
+   * @param processId Int id of process.
+   * @param threadId Int id of the thread.
+   * @return The new or existing executor with the given (processId, threadId).
    */
-  private def getOrCreateExecutor(id: String): ExecutorService = synchronized {
-    executors.getOrElseUpdate(id, Executors.newSingleThreadExecutor)
+  private def getOrCreateExecutor(processId: Int, threadId: Int): ExecutorService = synchronized {
+    executors.getOrElseUpdate((processId, threadId), Executors.newSingleThreadExecutor)
   }
 }

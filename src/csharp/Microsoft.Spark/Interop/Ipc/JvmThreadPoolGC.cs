@@ -98,9 +98,9 @@ namespace Microsoft.Spark.Interop.Ipc
         /// corresponding JVM thread will also be disposed.
         /// </summary>
         /// <param name="threadId">The ID of the thread to remove.</param>
-        /// <param name="pid">The Id of the current process.</param>
+        /// <param name="processId">The Id of the current process.</param>
         /// <returns>True if success, false if the thread cannot be found.</returns>
-        private bool TryDisposeJvmThread(int threadId, int pid)
+        private bool TryDisposeJvmThread(int threadId, int processId)
         {
             if (_activeThreads.TryRemove(threadId, out _))
             {
@@ -108,7 +108,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 // class does not need to call Join() on the .NET Thread. However, this class is
                 // responsible for sending the rmThread command to the JVM to trigger disposal
                 // of the corresponding JVM thread.
-                if ((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", pid + "_" + threadId))
+                if ((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", processId, threadId))
                 {
                     _loggerService.LogDebug($"GC'd JVM thread {threadId}.");
                     return true;

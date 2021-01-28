@@ -95,10 +95,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             thread.Start();
             thread.Join();
 
-            string threadId = pid.ToString() + "_" + thread.ManagedThreadId.ToString();
             // First call should return true. Second call should return false.
-            Assert.True((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", threadId));
-            Assert.False((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", threadId));
+            Assert.True((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", pid, thread.ManagedThreadId));
+            Assert.False((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", pid, thread.ManagedThreadId));
         }
 
         /// <summary>

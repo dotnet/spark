@@ -212,7 +212,8 @@ namespace Microsoft.Spark.Interop.Ipc
                 PayloadHelper.BuildPayload(
                     payloadMemoryStream,
                     isStatic,
-                    pid + "_" + threadId,
+                    pid,
+                    threadId,
                     classNameOrJvmObjectReference,
                     methodName,
                     args);

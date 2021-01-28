@@ -34,7 +34,8 @@ class DotnetBackendHandlerTest {
     val message = givenMessage(m => {
       val serDe = new SerDe(null)
       m.writeBoolean(true) // static method
-      serDe.writeString(m, "1_1") // threadId
+      serDe.writeInt(m, 1) // processId
+      serDe.writeInt(m, 1) // threadId
       serDe.writeString(m, "DotnetHandler") // class name
       serDe.writeString(m, "connectCallback") // command (method) name
       m.writeInt(2) // number of arguments
