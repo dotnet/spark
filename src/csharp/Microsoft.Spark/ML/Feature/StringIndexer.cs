@@ -55,8 +55,8 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Executes the <see cref="StringIndexer"/> and fits a model to the input data.
         /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
+        /// <param name="source">The <see cref="DataFrame"/> to fit the model to.</param>
+        /// <returns><see cref="StringIndexerModel"/></returns>
         public StringIndexerModel Fit(DataFrame source) =>
             new StringIndexerModel((JvmObjectReference)_jvmObject.Invoke("fit", source));
 
