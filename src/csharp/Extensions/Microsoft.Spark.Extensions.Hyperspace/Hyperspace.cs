@@ -74,7 +74,8 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         /// modes as listed below.
         /// </summary>
         /// <param name="indexName">Name of the index to refresh.</param>
-        /// <param name="mode">Refresh mode. Currently supported modes are "incremental" and "full".</param>
+        /// <param name="mode">Refresh mode. Currently supported modes are <c>incremental</c> and
+        /// <c>full</c>.</param>
         [HyperspaceSince(HyperspaceVersions.V0_0_1)]
         public void RefreshIndex(string indexName, string mode = "full") =>
             _jvmObject.Invoke("refreshIndex", indexName, mode);
@@ -82,19 +83,21 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         /// <summary>
         /// Optimize index by changing the underlying index data layout (e.g., compaction).
         ///
-        /// Note: This API does NOT refresh (i.e.update) the index if the underlying data changes. It only
+        /// Note: This API does NOT refresh (i.e. update) the index if the underlying data changes. It only
         /// rearranges the index data into a better layout, by compacting small index files. The index files
         /// larger than a threshold remain untouched to avoid rewriting large contents.
         /// 
+        /// <c>quick</c> optimize mode is used by default.
+        /// 
         /// Available modes:
-        /// `Quick` mode: This mode allows for fast optimization. Files smaller than a predefined threshold'
-        /// "spark.hyperspace.index.optimize.fileSizeThreshold" will be picked for compaction.
+        /// <c>quick</c> mode: This mode allows for fast optimization. Files smaller than a predefined threshold
+        /// <c>spark.hyperspace.index.optimize.fileSizeThreshold</c> will be picked for compaction.
         ///
-        /// `Full` mode: This allows for slow but complete optimization. ALL index files are picked for
+        /// <c>full</c> mode: This allows for slow but complete optimization. ALL index files are picked for
         /// compaction.
         /// </summary>
         /// <param name="indexName">Name of the index to optimize.</param>
-        /// <param name="mode">Optimize mode "quick" or "full".</param>
+        /// <param name="mode">Optimize mode <c>quick</c> or <c>full</c>.</param>
         [HyperspaceSince(HyperspaceVersions.V0_0_3)]
         public void OptimizeIndex(string indexName, string mode = "quick") =>
             _jvmObject.Invoke("optimizeIndex", indexName, mode);
