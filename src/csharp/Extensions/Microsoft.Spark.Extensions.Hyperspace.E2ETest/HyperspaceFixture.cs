@@ -15,8 +15,8 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
             Version sparkVersion = SparkSettings.Version;
             string hyperspaceVersion = sparkVersion.Major switch
             {
-                2 => "hyperspace-core_2.11:0.2.0",
-                3 => "hyperspace-core_2.12:0.2.0",
+                2 => "hyperspace-core_2.11:0.3.0",
+                3 => "hyperspace-core_2.12:0.3.0",
                 _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
             };
 
