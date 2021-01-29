@@ -90,8 +90,8 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         /// <c>quick</c> optimize mode is used by default.
         /// 
         /// Available modes:
-        /// <c>quick</c> mode: This mode allows for fast optimization. Files smaller than a predefined threshold
-        /// <c>spark.hyperspace.index.optimize.fileSizeThreshold</c> will be picked for compaction.
+        /// <c>quick</c> mode: This mode allows for fast optimization. Files smaller than a predefined
+        /// threshold <c>spark.hyperspace.index.optimize.fileSizeThreshold</c> will be picked for compaction.
         ///
         /// <c>full</c> mode: This allows for slow but complete optimization. ALL index files are picked for
         /// compaction.
