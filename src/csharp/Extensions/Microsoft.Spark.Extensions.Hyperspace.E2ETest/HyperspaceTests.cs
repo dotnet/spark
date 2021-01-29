@@ -66,6 +66,14 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest
 
             // Refresh API.
             _hyperspace.RefreshIndex(_sampleIndexName);
+            _hyperspace.RefreshIndex(_sampleIndexName, "incremental");
+
+            // Optimize API.
+            _hyperspace.OptimizeIndex(_sampleIndexName);
+            _hyperspace.OptimizeIndex(_sampleIndexName, "quick");
+
+            // Index metadata API.
+            Assert.IsType<DataFrame>(_hyperspace.Index(_sampleIndexName));
 
             // Cancel API.
             Assert.Throws<Exception>(() => _hyperspace.Cancel(_sampleIndexName));
