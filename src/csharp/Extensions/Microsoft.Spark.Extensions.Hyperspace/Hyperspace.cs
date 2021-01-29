@@ -70,14 +70,21 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         public void VacuumIndex(string indexName) => _jvmObject.Invoke("vacuumIndex", indexName);
 
         /// <summary>
+        /// Update indexes for the latest version of the data.
+        /// </summary>
+        /// <param name="indexName">Name of the index to refresh.</param>
+        [HyperspaceSince(HyperspaceVersions.V0_0_1)]
+        public void RefreshIndex(string indexName) => _jvmObject.Invoke("refreshIndex", indexName);
+
+        /// <summary>
         /// Update indexes for the latest version of the data. This API provides a few supported refresh
         /// modes as listed below.
         /// </summary>
         /// <param name="indexName">Name of the index to refresh.</param>
         /// <param name="mode">Refresh mode. Currently supported modes are <c>incremental</c> and
         /// <c>full</c>.</param>
-        [HyperspaceSince(HyperspaceVersions.V0_0_1)]
-        public void RefreshIndex(string indexName, string mode = "full") =>
+        [HyperspaceSince(HyperspaceVersions.V0_0_3)]
+        public void RefreshIndex(string indexName, string mode) =>
             _jvmObject.Invoke("refreshIndex", indexName, mode);
 
         /// <summary>
