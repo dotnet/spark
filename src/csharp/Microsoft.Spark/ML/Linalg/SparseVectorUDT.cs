@@ -24,31 +24,31 @@ namespace Microsoft.Spark.ML.Linalg
                 new JProperty("sqlType", new JObject(
                     new JProperty("type", "struct"),
                     new JProperty("fields", new JArray(
-                            new JObject(
-                                new JProperty("name", "type"),
-                                new JProperty("type", "byte"),
-                                new JProperty("nullable", false)
-                                ),
-                            new JObject(
-                                new JProperty("name", "size"),
-                                new JProperty("type", "integer"),
-                                new JProperty("nullable", false)
+                        new JObject(
+                            new JProperty("name", "type"),
+                            new JProperty("type", "byte"),
+                            new JProperty("nullable", false)
                             ),
-                            new JObject(
-                                new JProperty("name", "indices"),
-                                new JProperty("type", new JObject(
-                                    new JProperty("type", "array"),
-                                    new JProperty("elementType", "integer"),
-                                    new JProperty("containsNull", false))),
-                                new JProperty("nullable", true)
+                        new JObject(
+                            new JProperty("name", "size"),
+                            new JProperty("type", "integer"),
+                            new JProperty("nullable", false)
                             ),
-                            new JObject(
-                                new JProperty("name", "values"),
-                                new JProperty("type", new JObject(
-                                    new JProperty("type", "array"),
-                                    new JProperty("elementType", "double"),
-                                    new JProperty("containsNull", false))),
-                                new JProperty("nullable", true)
+                        new JObject(
+                            new JProperty("name", "indices"),
+                            new JProperty("type", new JObject(
+                                new JProperty("type", "array"),
+                                new JProperty("elementType", "integer"),
+                                new JProperty("containsNull", false))),
+                            new JProperty("nullable", true)
+                            ),
+                        new JObject(
+                            new JProperty("name", "values"),
+                            new JProperty("type", new JObject(
+                                new JProperty("type", "array"),
+                                new JProperty("elementType", "double"),
+                                new JProperty("containsNull", false))),
+                            new JProperty("nullable", true)
                             )
                         ))
                     ))
