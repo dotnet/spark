@@ -25,16 +25,19 @@ namespace Microsoft.Spark.ML.Linalg
                     new JProperty("type", "struct"),
                     new JProperty("fields", new JArray(
                         new JObject(
+                            new JObject("metadata"),
                             new JProperty("name", "type"),
                             new JProperty("type", "byte"),
                             new JProperty("nullable", false)
                             ),
                         new JObject(
+                            new JObject("metadata"),
                             new JProperty("name", "size"),
                             new JProperty("type", "integer"),
                             new JProperty("nullable", false)
                             ),
                         new JObject(
+                            new JObject("metadata"),
                             new JProperty("name", "indices"),
                             new JProperty("type", new JObject(
                                 new JProperty("type", "array"),
@@ -43,6 +46,7 @@ namespace Microsoft.Spark.ML.Linalg
                             new JProperty("nullable", true)
                             ),
                         new JObject(
+                            new JObject("metadata"),
                             new JProperty("name", "values"),
                             new JProperty("type", new JObject(
                                 new JProperty("type", "array"),
