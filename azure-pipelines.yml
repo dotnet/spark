@@ -20,7 +20,7 @@ variables:
   # Please see https://github.com/dotnet/spark/pull/810
   backwardCompatiableTestIgnore_PR_810: "FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.ML.Linalg.SparseVectorTests.TestSparseVectorE2EScenario"
 
-  backwardCompatibleTestOptions_Windows_2_3: "--filter ($(backwardCompatiableTestIgnore_PR_810))"
+  backwardCompatibleTestOptions_Windows_2_3: "--filter $(backwardCompatiableTestIgnore_PR_810)"
   forwardCompatibleTestOptions_Windows_2_3: ""
   backwardCompatibleTestOptions_Linux_2_3: "--filter $(backwardCompatiableTestIgnore_PR_810)"
   forwardCompatibleTestOptions_Linux_2_3: ""
