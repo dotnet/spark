@@ -22,7 +22,7 @@ variables:
 
   backwardCompatibleTestOptions_Windows_2_3: "--filter ($(backwardCompatiableTestIgnore_PR_810))"
   forwardCompatibleTestOptions_Windows_2_3: ""
-  backwardCompatibleTestOptions_Linux_2_3: "--filter ($(backwardCompatiableTestIgnore_PR_810))"
+  backwardCompatibleTestOptions_Linux_2_3: "--filter $(backwardCompatiableTestIgnore_PR_810)"
   forwardCompatibleTestOptions_Linux_2_3: ""
 
   backwardCompatibleTestOptions_Windows_2_4: "--filter ($(backwardCompatiableTestIgnore_PR_810))"
