@@ -7,6 +7,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Services;
 using Microsoft.Spark.Worker.Utils;
 
 namespace Microsoft.Spark.Worker.Processor
@@ -68,7 +69,7 @@ namespace Microsoft.Spark.Worker.Processor
             // our current context.
             AssemblyLoaderHelper.RegisterAssemblyHandler();
 
-            if (SettingUtils.IsDatabricks)
+            if (ConfigurationService.IsDatabricks)
             {
                 SerDe.ReadString(stream);
                 SerDe.ReadString(stream);
