@@ -57,12 +57,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .Collect().ToList();
             List<Row> expected = new List<Row>
             {
-                new Row(new GenericRow(new object[] {"a", "0"})),
-                new Row(new GenericRow(new object[] {"b", "2"})),
-                new Row(new GenericRow(new object[] {"c", "1"})),
-                new Row(new GenericRow(new object[] {"a", "0"})),
-                new Row(new GenericRow(new object[] {"a", "0"})),
-                new Row(new GenericRow(new object[] {"c", "1"}))
+                new GenericRow(new object[] {"a", "0"}),
+                new GenericRow(new object[] {"b", "2"}),
+                new GenericRow(new object[] {"c", "1"}),
+                new GenericRow(new object[] {"a", "0"}),
+                new GenericRow(new object[] {"a", "0"}),
+                new GenericRow(new object[] {"c", "1"})
             };
 
             observed.ForEach(a =>
