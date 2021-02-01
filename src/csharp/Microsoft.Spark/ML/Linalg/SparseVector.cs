@@ -153,7 +153,4 @@ namespace Microsoft.Spark.ML.Linalg
             return new SparseVector(length, indices, values);
         }
     }
-
-
-
 }
