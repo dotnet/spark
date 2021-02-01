@@ -67,7 +67,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             observed.ForEach(a =>
             {
-                Assert.Equal(a, expected.FirstOrDefault(b => b == a));
+                Assert.Equal(a, expected.Where(b => b == a).FirstOrDefault());
             }
             );
             Assert.Equal("category", stringIndexer.GetInputCol());
