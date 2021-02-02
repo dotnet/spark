@@ -70,10 +70,10 @@ class DotnetBackendHandler(server: DotnetBackend, objectsTracker: JVMObjectTrack
         case "rmThread" =>
           try {
             assert(serDe.readObjectType(dis) == 'i')
-            val process = serDe.readInt(dis)
+            val processId = serDe.readInt(dis)
             assert(serDe.readObjectType(dis) == 'i')
             val threadToDelete = serDe.readInt(dis)
-            val result = ThreadPool.tryDeleteThread(process, threadToDelete)
+            val result = ThreadPool.tryDeleteThread(processId, threadToDelete)
             serDe.writeInt(dos, 0)
             serDe.writeObject(dos, result.asInstanceOf[AnyRef])
           } catch {

@@ -35,6 +35,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private const int SocketBufferThreshold = 3;
         private const int ThreadIdForRepl = 1;
 
+        private readonly int processId = Process.GetCurrentProcess().Id;
         private readonly SemaphoreSlim _socketSemaphore;
         private readonly ConcurrentQueue<ISocketWrapper> _sockets =
             new ConcurrentQueue<ISocketWrapper>();
@@ -55,7 +56,7 @@ namespace Microsoft.Spark.Interop.Ipc
             _logger.LogInfo($"JvMBridge port is {portNumber}");
 
             _jvmThreadPoolGC = new JvmThreadPoolGC(
-                _logger, this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval);
+                _logger, this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval, processId);
 
             _isRunningRepl = SparkEnvironment.ConfigurationService.IsRunningRepl();
 
@@ -203,7 +204,6 @@ namespace Microsoft.Spark.Interop.Ipc
                 // `StreamingQuery.Stop()` to be called to unblock it. However, the `Stop`
                 // call will never run because DotnetHandler will assign the method call to
                 // run on the same thread that `AwaitTermination` is running on.
-                int processId = Process.GetCurrentProcess().Id;
                 Thread thread = _isRunningRepl ? null : Thread.CurrentThread;
                 MemoryStream payloadMemoryStream = s_payloadMemoryStream ??= new MemoryStream();
                 payloadMemoryStream.Position = 0;

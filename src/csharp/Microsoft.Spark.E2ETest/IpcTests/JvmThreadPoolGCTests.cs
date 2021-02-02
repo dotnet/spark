@@ -69,8 +69,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestTryAddThread()
         {
+            int processId = Process.GetCurrentProcess().Id;
             using var threadPool = new JvmThreadPoolGC(
-                _loggerService, _jvmBridge, TimeSpan.FromMinutes(30));
+                _loggerService, _jvmBridge, TimeSpan.FromMinutes(30), processId);
 
             var thread = new Thread(() => _spark.Sql("SELECT TRUE"));
             thread.Start();
