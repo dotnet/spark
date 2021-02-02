@@ -58,22 +58,9 @@ namespace Microsoft.Spark.ML.Linalg
                     ))
                 );
 
-        internal override object FromInternal(object obj)
-        {
-            if (obj is RowConstructor rowConstructor)
-            {
-                return rowConstructor.GetRow();
-            }
-
-            return obj;
-        }
-
-        internal override bool NeedConversion() => true;
-
         /// <summary>
         /// Returns a readable string that represents this type.
         /// </summary>
-        public override string SimpleString =>
-            "struct<`type`:TINYINT,`size`:INT,`indices`:ARRAY<INT>,`values`:ARRAY<DOUBLE>>";
+        public override string SimpleString => "vector";
     }
 }
