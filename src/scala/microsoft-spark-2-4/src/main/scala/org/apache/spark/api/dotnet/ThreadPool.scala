@@ -62,7 +62,7 @@ object ThreadPool {
 
   /**
    * Get the executor if it exists, otherwise create a new one.
-   * @param processId Integer id of process.
+   * @param processId Integer id of the process.
    * @param threadId Integer id of the thread.
    * @return The new or existing executor with the given (processId, threadId).
    */
