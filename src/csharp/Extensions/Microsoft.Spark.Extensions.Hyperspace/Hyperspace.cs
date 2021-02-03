@@ -77,6 +77,39 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         public void RefreshIndex(string indexName) => _jvmObject.Invoke("refreshIndex", indexName);
 
         /// <summary>
+        /// Update indexes for the latest version of the data. This API provides a few supported refresh
+        /// modes as listed below.
+        /// </summary>
+        /// <param name="indexName">Name of the index to refresh.</param>
+        /// <param name="mode">Refresh mode. Currently supported modes are <c>incremental</c> and
+        /// <c>full</c>.</param>
+        [HyperspaceSince(HyperspaceVersions.V0_0_3)]
+        public void RefreshIndex(string indexName, string mode) =>
+            _jvmObject.Invoke("refreshIndex", indexName, mode);
+
+        /// <summary>
+        /// Optimize index by changing the underlying index data layout (e.g., compaction).
+        ///
+        /// Note: This API does NOT refresh (i.e. update) the index if the underlying data changes. It only
+        /// rearranges the index data into a better layout, by compacting small index files. The index files
+        /// larger than a threshold remain untouched to avoid rewriting large contents.
+        /// 
+        /// <c>quick</c> optimize mode is used by default.
+        /// 
+        /// Available modes:
+        /// <c>quick</c> mode: This mode allows for fast optimization. Files smaller than a predefined
+        /// threshold <c>spark.hyperspace.index.optimize.fileSizeThreshold</c> will be picked for compaction.
+        ///
+        /// <c>full</c> mode: This allows for slow but complete optimization. ALL index files are picked for
+        /// compaction.
+        /// </summary>
+        /// <param name="indexName">Name of the index to optimize.</param>
+        /// <param name="mode">Optimize mode <c>quick</c> or <c>full</c>.</param>
+        [HyperspaceSince(HyperspaceVersions.V0_0_3)]
+        public void OptimizeIndex(string indexName, string mode = "quick") =>
+            _jvmObject.Invoke("optimizeIndex", indexName, mode);
+
+        /// <summary>
         /// Cancel api to bring back index from an inconsistent state to the last known stable
         /// state.
         /// 
@@ -120,5 +153,14 @@ namespace Microsoft.Spark.Extensions.Hyperspace
                 verbose);
             redirectFunc(explainString);
         }
+
+        /// <summary>
+        /// Get index metadata and detailed index statistics for a given index.
+        /// </summary>
+        /// <param name="indexName">Name of the index to get stats for.</param>
+        /// <returns>Index metadata and statistics as a <see cref="DataFrame"/>.</returns>
+        [HyperspaceSince(HyperspaceVersions.V0_0_4)]
+        public DataFrame Index(string indexName) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("index", indexName));
     }
 }
