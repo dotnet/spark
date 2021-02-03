@@ -205,10 +205,10 @@ namespace Microsoft.Spark.Interop.Ipc
                 // call will never run because DotnetHandler will assign the method call to
                 // run on the same thread that `AwaitTermination` is running on.
                 Thread thread = _isRunningRepl ? null : Thread.CurrentThread;
+                int threadId = thread == null ? ThreadIdForRepl : thread.ManagedThreadId;
                 MemoryStream payloadMemoryStream = s_payloadMemoryStream ??= new MemoryStream();
                 payloadMemoryStream.Position = 0;
 
-                int threadId = thread == null ? ThreadIdForRepl : thread.ManagedThreadId;
                 PayloadHelper.BuildPayload(
                     payloadMemoryStream,
                     isStatic,
