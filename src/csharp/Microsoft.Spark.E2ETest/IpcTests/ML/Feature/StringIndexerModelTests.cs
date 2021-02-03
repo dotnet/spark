@@ -65,11 +65,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 new Row(new GenericRow(new object[] {"c", "1"}))
             };
 
-            observed.ForEach(a =>
-            {
-                Assert.Equal(a, expected.Where(b => b == a).FirstOrDefault());
-            }
-            );
+            Assert.Equal(expected, observed);
             Assert.Equal("category", stringIndexer.GetInputCol());
             Assert.Equal("categoryIndex", stringIndexer.GetOutputCol());
             Assert.Equal(expectedUid, stringIndexer.Uid());
