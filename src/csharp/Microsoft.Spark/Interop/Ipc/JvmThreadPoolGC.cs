@@ -38,7 +38,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <param name="loggerService">Logger service.</param>
         /// <param name="jvmBridge">The JvmBridge used to call JVM methods.</param>
         /// <param name="threadGCInterval">The interval to GC finished threads.</param>
-        /// <param name="processId"> The id of current process.</param>
+        /// <param name="processId"> The ID of the process.</param>
         public JvmThreadPoolGC(ILoggerService loggerService, IJvmBridge jvmBridge, TimeSpan threadGCInterval, int processId)
         {
             _loggerService = loggerService;
