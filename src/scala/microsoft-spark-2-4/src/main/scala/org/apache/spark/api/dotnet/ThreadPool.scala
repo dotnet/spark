@@ -39,7 +39,7 @@ object ThreadPool {
 
   /**
    * Try to delete a particular thread.
-   * @param processId Integer id of process.
+   * @param processId Integer id of the process.
    * @param threadId Integer id of the thread.
    * @return True if successful, false if thread does not exist.
    */

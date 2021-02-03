@@ -35,7 +35,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private const int SocketBufferThreshold = 3;
         private const int ThreadIdForRepl = 1;
 
-        private readonly int processId = Process.GetCurrentProcess().Id;
+        private readonly int _processId = Process.GetCurrentProcess().Id;
         private readonly SemaphoreSlim _socketSemaphore;
         private readonly ConcurrentQueue<ISocketWrapper> _sockets =
             new ConcurrentQueue<ISocketWrapper>();
@@ -56,7 +56,7 @@ namespace Microsoft.Spark.Interop.Ipc
             _logger.LogInfo($"JvMBridge port is {portNumber}");
 
             _jvmThreadPoolGC = new JvmThreadPoolGC(
-                _logger, this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval, processId);
+                _logger, this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval, _processId);
 
             _isRunningRepl = SparkEnvironment.ConfigurationService.IsRunningRepl();
 
@@ -212,7 +212,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 PayloadHelper.BuildPayload(
                     payloadMemoryStream,
                     isStatic,
-                    processId,
+                    _processId,
                     threadId,
                     classNameOrJvmObjectReference,
                     methodName,
