@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -34,6 +35,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private const int SocketBufferThreshold = 3;
         private const int ThreadIdForRepl = 1;
 
+        private readonly int _processId = Process.GetCurrentProcess().Id;
         private readonly SemaphoreSlim _socketSemaphore;
         private readonly ConcurrentQueue<ISocketWrapper> _sockets =
             new ConcurrentQueue<ISocketWrapper>();
@@ -54,7 +56,7 @@ namespace Microsoft.Spark.Interop.Ipc
             _logger.LogInfo($"JvMBridge port is {portNumber}");
 
             _jvmThreadPoolGC = new JvmThreadPoolGC(
-                _logger, this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval);
+                _logger, this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval, _processId);
 
             _isRunningRepl = SparkEnvironment.ConfigurationService.IsRunningRepl();
 
@@ -203,12 +205,15 @@ namespace Microsoft.Spark.Interop.Ipc
                 // call will never run because DotnetHandler will assign the method call to
                 // run on the same thread that `AwaitTermination` is running on.
                 Thread thread = _isRunningRepl ? null : Thread.CurrentThread;
+                int threadId = thread == null ? ThreadIdForRepl : thread.ManagedThreadId;
                 MemoryStream payloadMemoryStream = s_payloadMemoryStream ??= new MemoryStream();
                 payloadMemoryStream.Position = 0;
+
                 PayloadHelper.BuildPayload(
                     payloadMemoryStream,
                     isStatic,
-                    thread == null ? ThreadIdForRepl : thread.ManagedThreadId,
+                    _processId,
+                    threadId,
                     classNameOrJvmObjectReference,
                     methodName,
                     args);
