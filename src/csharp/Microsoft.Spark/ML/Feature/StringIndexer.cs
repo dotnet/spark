@@ -64,7 +64,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the HandleInvalid.
         /// </summary>
         /// <returns>Handle Invalid option</returns>
-        public string GetHandleInvalid() => (string)_jvmObject.Invoke("handleInvalid");
+        public string GetHandleInvalid() => (string)_jvmObject.Invoke("getHandleInvalid");
 
         /// <summary>
         /// Sets the Handle Invalid option to <see cref="StringIndexer"/>.
@@ -80,7 +80,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the InputCol.
         /// </summary>
         /// <returns>Input Col option</returns>
-        public string GetInputCol() => (string)_jvmObject.Invoke("inputCol");
+        public string GetInputCol() => (string)_jvmObject.Invoke("getInputCol");
 
         /// <summary>
         /// Sets the Input Col option to <see cref="StringIndexer"/>.
@@ -96,7 +96,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the InputCols array.
         /// </summary>
         /// <returns>Input Cols array option</returns>
-        public string[] GetInputCols() => (string[])_jvmObject.Invoke("inputCols");
+        public string[] GetInputCols() => (string[])_jvmObject.Invoke("getInputCols");
 
         /// <summary>
         /// Sets the Input Cols array option to <see cref="StringIndexer"/>.
@@ -106,13 +106,13 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="StringIndexer"/> with the Input Cols array set.
         /// </returns>
         public StringIndexer SetInputCols(string[] inputCols) =>
-            WrapAsStringIndexer((JvmObjectReference)_jvmObject.Invoke("setInputCol", inputCols));
+            WrapAsStringIndexer((JvmObjectReference)_jvmObject.Invoke("setInputCols", inputCols));
 
         /// <summary>
         /// Gets the OutputCol.
         /// </summary>
         /// <returns>Output Col option</returns>
-        public string GetOutputCol() => (string)_jvmObject.Invoke("outputCol");
+        public string GetOutputCol() => (string)_jvmObject.Invoke("getOutputCol");
 
         /// <summary>
         /// Sets the Output Col option to <see cref="StringIndexer"/>.
@@ -128,7 +128,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the OutputCols array.
         /// </summary>
         /// <returns>Output Cols array option</returns>
-        public string[] GetOutputCols() => (string[])_jvmObject.Invoke("outputCols");
+        public string[] GetOutputCols() => (string[])_jvmObject.Invoke("getOutputCols");
 
         /// <summary>
         /// Sets the Output Cols array option to <see cref="StringIndexer"/>.
@@ -144,7 +144,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the String Order Type.
         /// </summary>
         /// <returns>String Order Type</returns>
-        public string GetStringOrderType() => (string)_jvmObject.Invoke("stringOrderType");
+        public string GetStringOrderType() => (string)_jvmObject.Invoke("getStringOrderType");
 
         /// <summary>
         /// Sets the String Order Type to <see cref="StringIndexer"/>.
