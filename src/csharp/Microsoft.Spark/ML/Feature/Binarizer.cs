@@ -5,6 +5,7 @@
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
@@ -43,6 +44,14 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>New <see cref="Binarizer"/> object</returns>
         public Binarizer SetInputCol(string value) => 
             WrapAsBinarizer(_jvmObject.Invoke("setInputCol", value));
+        
+        /// <summary>
+        /// Param for threshold used to <see cref="Binarizer"/> continuous features.
+        /// </summary>
+        /// <param name="value">Threshold value</param>
+        /// <returns>New <see cref="Binarizer"/> object</returns>
+        public Binarizer SetThreshold(double value) => 
+            WrapAsBinarizer(_jvmObject.Invoke("setThreshold", value));
 
         /// <summary>
         /// The <see cref="Binarizer"/> will create a new column in the DataFrame, this is the
@@ -70,6 +79,19 @@ namespace Microsoft.Spark.ML.Feature
         /// </returns>
         public DataFrame Transform(DataFrame source) => 
             new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
+        
+        /// <summary>
+        /// Executes the <see cref="Binarizer"/> and transforms the schema.
+        /// </summary>
+        /// <param name="value">The Schema to be transformed</param>
+        /// <returns>
+        /// New <see cref="StructType"/> object with the schema <see cref="StructType"/> transformed.
+        /// </returns>
+        public StructType TransformSchema(StructType value) =>
+            new StructType(
+                (JvmObjectReference)_jvmObject.Invoke(
+                    "transformSchema",
+                    DataType.FromJson(_jvmObject.Jvm, value.Json)));
 
         /// <summary>
         /// Loads the <see cref="Binarizer"/> that was previously saved using Save
