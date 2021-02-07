@@ -46,12 +46,46 @@ namespace Microsoft.Spark.ML.Feature
             WrapAsBinarizer(_jvmObject.Invoke("setInputCol", value));
         
         /// <summary>
+        /// Gets the columns that the <see cref="Binarizer"/> should read from
+        /// </summary>
+        /// <returns>array of strings, input column</returns>
+        public string[] GetInputCols() => (string[])(_jvmObject.Invoke("getInputCols"));
+
+        /// <summary>
+        /// Sets the columns that the <see cref="Binarizer"/> should read from
+        /// </summary>
+        /// <param name="value">The name of the columns to as the source</param>
+        /// <returns>New <see cref="Binarizer"/> object</returns>
+        public Binarizer SetInputCols(string[] value) => 
+            WrapAsBinarizer(_jvmObject.Invoke("setInputCols", value));
+        
+        /// <summary>
         /// Param for threshold used to <see cref="Binarizer"/> continuous features.
         /// </summary>
         /// <param name="value">Threshold value</param>
         /// <returns>New <see cref="Binarizer"/> object</returns>
         public Binarizer SetThreshold(double value) => 
             WrapAsBinarizer(_jvmObject.Invoke("setThreshold", value));
+        
+        /// <summary>
+        /// Gets threshold used to <see cref="Binarizer"/> continuous features.
+        /// </summary>
+        /// <returns>double, the threshold</returns>
+        public double GetThreshold() => (double)(_jvmObject.Invoke("getThreshold"));
+        
+        /// <summary>
+        /// Param for thresholds used to <see cref="Binarizer"/> continuous features.
+        /// </summary>
+        /// <param name="value">Threshold values</param>
+        /// <returns>New <see cref="Binarizer"/> object</returns>
+        public Binarizer SetThresholds(double[] value) => 
+            WrapAsBinarizer(_jvmObject.Invoke("setThresholds", value));
+        
+        /// <summary>
+        /// Gets thresholds used to <see cref="Binarizer"/> continuous features.
+        /// </summary>
+        /// <returns>array of double, the thresholds</returns>
+        public double[] GetThresholds() => (double[])(_jvmObject.Invoke("getThresholds"));
 
         /// <summary>
         /// The <see cref="Binarizer"/> will create a new column in the DataFrame, this is the
@@ -68,6 +102,22 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>New <see cref="Binarizer"/> object</returns>
         public Binarizer SetOutputCol(string value) => 
             WrapAsBinarizer(_jvmObject.Invoke("setOutputCol", value));
+        
+        /// <summary>
+        /// The <see cref="Binarizer"/> will create a new columns in the DataFrame, this is the
+        /// name of the new column.
+        /// </summary>
+        /// <returns>array of strings, the output column</returns>
+        public string[] GetOutputCols() => (string[])(_jvmObject.Invoke("getOutputCols"));
+
+        /// <summary>
+        /// The <see cref="Binarizer"/> will create a new columns in the DataFrame, this is the
+        /// name of the new column.
+        /// </summary>
+        /// <param name="value">The name of the new columns</param>
+        /// <returns>New <see cref="Binarizer"/> object</returns>
+        public Binarizer SetOutputCols(string[] value) => 
+            WrapAsBinarizer(_jvmObject.Invoke("setOutputCols", value));
 
         /// <summary>
         /// Executes the <see cref="Binarizer"/> and transforms the DataFrame to include the new
