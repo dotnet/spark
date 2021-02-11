@@ -339,7 +339,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
             Assert.IsType<DeltaTable>(DeltaTable.ForName(tableName));
             DeltaTable table = Assert.IsType<DeltaTable>(DeltaTable.ForName(_spark, tableName));
 
-            table.UpgradeTableProtocol(2, 2);
+            table.UpgradeTableProtocol(1, 3);
         }
 
         /// <summary>
