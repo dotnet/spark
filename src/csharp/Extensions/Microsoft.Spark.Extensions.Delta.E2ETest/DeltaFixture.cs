@@ -29,7 +29,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 ("spark.sql.sources.parallelPartitionDiscovery.parallelism", "5"),
                 ("spark.databricks.delta.minReaderVersion", "1"),
                 ("spark.databricks.delta.minWriterVersion", "2")
-        };
+            };
 
             (string, string)[] extraConf = sparkVersion.Major switch
             {
