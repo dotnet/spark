@@ -27,7 +27,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
             {
                 ("spark.databricks.delta.snapshotPartitions", "2"),
                 ("spark.sql.sources.parallelPartitionDiscovery.parallelism", "5"),
-                ("spark.databricks.delta.minReaderVersion", "1"),
+                // Set the writer protocol version for testing UpgradeTableProtocol().
                 ("spark.databricks.delta.minWriterVersion", "2")
             };
 
