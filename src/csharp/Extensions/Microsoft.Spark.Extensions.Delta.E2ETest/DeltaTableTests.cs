@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Spark.E2ETest;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Extensions.Delta.Tables;
 using Microsoft.Spark.Sql;
@@ -337,7 +336,9 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
             _spark.Range(15).Write().Format("delta").SaveAsTable(tableName);
 
             Assert.IsType<DeltaTable>(DeltaTable.ForName(tableName));
-            Assert.IsType<DeltaTable>(DeltaTable.ForName(_spark, tableName));
+            DeltaTable table = DeltaTable.ForName(_spark, tableName);
+
+            table.UpgradeTableProtocol(1, 3);
         }
 
         /// <summary>
