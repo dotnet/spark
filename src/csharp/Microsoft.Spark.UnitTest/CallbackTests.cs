@@ -138,6 +138,17 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Empty(callbackHandler.Inputs);
             }
         }
+        
+        [Fact]
+        public void TestJvmCallbackClientProperty()
+        {
+            var server = new CallbackServer(_mockJvm.Object, run: false);
+            Assert.Throws<InvalidOperationException>(() => server.JvmCallbackClient);
+            
+            using ISocketWrapper callbackSocket = SocketFactory.CreateSocket();
+            server.Run(callbackSocket); 
+            Assert.NotNull(server.JvmCallbackClient);
+        }
 
         private void TestCallbackConnection(
             ConcurrentDictionary<int, ICallbackHandler> callbackHandlersDict,

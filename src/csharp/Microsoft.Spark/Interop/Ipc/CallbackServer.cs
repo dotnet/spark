@@ -64,8 +64,24 @@ namespace Microsoft.Spark.Interop.Ipc
         private bool _isRunning = false;
 
         private ISocketWrapper _listener;
+        
+        private JvmObjectReference _jvmCallbackClient;
 
         internal int CurrentNumConnections => _connections.Count;
+
+        internal JvmObjectReference JvmCallbackClient
+        {
+            get
+            {
+                if (_jvmCallbackClient is null)
+                {
+                    throw new InvalidOperationException(
+                        "Please make sure that CallbackServer was started before accessing JvmCallbackClient.");
+                }
+
+                return _jvmCallbackClient;
+            }
+        }
 
         internal CallbackServer(IJvmBridge jvm, bool run = true)
         {
@@ -113,7 +129,7 @@ namespace Microsoft.Spark.Interop.Ipc
 
                 // Communicate with the JVM the callback server's address and port.
                 var localEndPoint = (IPEndPoint)_listener.LocalEndPoint;
-                _jvm.CallStaticJavaMethod(
+                _jvmCallbackClient = (JvmObjectReference)_jvm.CallStaticJavaMethod(
                     "DotnetHandler",
                     "connectCallback",
                     localEndPoint.Address.ToString(),
