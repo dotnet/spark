@@ -347,3 +347,23 @@ stages:
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3)
+    - version: '3.0.2'
+      jobOptions:
+      - pool: 'Hosted VS2017'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3)
+      - pool: 'Hosted Ubuntu 1604'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3)
+    - version: '3.1.1'
+      jobOptions:
+      - pool: 'Hosted VS2017'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3)
+      - pool: 'Hosted Ubuntu 1604'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3)

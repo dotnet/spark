@@ -69,12 +69,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                 // TODO: Test dfw.Jdbc without running a local db.
 
-                dfw.Option("path", tempDir.Path).SaveAsTable("TestTable");
-
-                dfw.InsertInto("TestTable");
-
-                dfw.Option("path", $"{tempDir.Path}TestSavePath1").Save();
-                dfw.Save($"{tempDir.Path}TestSavePath2");
+                dfw.Save($"{tempDir.Path}TestSavePath1");
 
                 dfw.Json($"{tempDir.Path}TestJsonPath");
 
@@ -85,6 +80,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 dfw.Text($"{tempDir.Path}TestTextPath");
 
                 dfw.Csv($"{tempDir.Path}TestCsvPath");
+
+                dfw.Option("path", tempDir.Path).SaveAsTable("TestTable");
+
+                dfw.InsertInto("TestTable");
+
+                dfw.Option("path", $"{tempDir.Path}TestSavePath2").Save();
             }
         }
     }

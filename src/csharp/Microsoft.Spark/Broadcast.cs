@@ -130,6 +130,7 @@ namespace Microsoft.Spark
                 (2, 3) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
                 (2, 4) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
                 (3, 0) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
+                (3, 1) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
         }

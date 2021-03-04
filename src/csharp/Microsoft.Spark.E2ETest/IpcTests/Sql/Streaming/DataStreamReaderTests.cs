@@ -52,7 +52,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                     }));
 
             string jsonFilePath = Path.Combine(TestEnvironment.ResourceDirectory, "people.json");
-            Assert.IsType<DataFrame>(dsr.Format("json").Option("path", jsonFilePath).Load());
             Assert.IsType<DataFrame>(dsr.Format("json").Load(jsonFilePath));
             Assert.IsType<DataFrame>(dsr.Json(jsonFilePath));
             Assert.IsType<DataFrame>(
@@ -63,6 +62,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 dsr.Parquet(Path.Combine(TestEnvironment.ResourceDirectory, "users.parquet")));
             Assert.IsType<DataFrame>
                 (dsr.Text(Path.Combine(TestEnvironment.ResourceDirectory, "people.txt")));
+            Assert.IsType<DataFrame>(dsr.Format("json").Option("path", jsonFilePath).Load());
         }
     }
 }

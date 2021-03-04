@@ -1058,6 +1058,7 @@ namespace Microsoft.Spark.Sql
                 (2, 3, _) => ParseConnectionInfo(result, false),
                 (2, 4, _) => ParseConnectionInfo(result, false),
                 (3, 0, _) => ParseConnectionInfo(result, false),
+                (3, 1, _) => ParseConnectionInfo(result, false),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
         }
