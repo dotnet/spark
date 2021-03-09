@@ -100,6 +100,7 @@ namespace Microsoft.Spark.Worker.Processor
                 (2, 3) => SqlCommandProcessorV2_3_X.Process(evalType, stream),
                 (2, 4) => SqlCommandProcessorV2_4_X.Process(evalType, stream),
                 (3, 0) => SqlCommandProcessorV2_4_X.Process(evalType, stream),
+                (3, 1) => SqlCommandProcessorV2_4_X.Process(evalType, stream),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
         }
