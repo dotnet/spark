@@ -40,7 +40,7 @@ variables:
   backwardCompatibleTestOptions_Linux_3_0: $(backwardCompatibleTestOptions_Windows_3_0)
   forwardCompatibleTestOptions_Linux_3_0: $(forwardCompatibleTestOptions_Linux_2_4)
 
-  # Skip all forwardCompatible tests, Spark 3.0.2 is not supported in microsoft-spark-3-0_2.12-1.0.0.jar
+  # Skip all forward compatible tests since Spark 3.0.2 is not supported in microsoft-spark-3-0_2.12-1.0.0.jar
   forwardCompatibleTestOptions_Windows_3_0_2: "--filter FullyQualifiedName=NONE"
   forwardCompatibleTestOptions_Linux_3_0_2: $(forwardCompatibleTestOptions_Windows_3_0_2)
 
