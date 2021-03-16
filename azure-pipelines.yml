@@ -45,7 +45,7 @@ variables:
   forwardCompatibleTestOptions_Linux_3_0_2: $(forwardCompatibleTestOptions_Windows_3_0_2)
 
   # Skip backwardCompatible tests because Microsoft.Spark.Worker requires Spark 3.1 support in
-  # CommandProcessor.cs and TaskContextProcessor.cs. Support added in https://github.com/dotnet/spark/pull/835
+  # CommandProcessor.cs and TaskContextProcessor.cs. Support added in https://github.com/dotnet/spark/pull/836
   backwardCompatibleTestOptions_Windows_3_1: "--filter \
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf&\
