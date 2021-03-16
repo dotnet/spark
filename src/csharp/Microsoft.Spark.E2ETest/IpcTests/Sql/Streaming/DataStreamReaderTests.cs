@@ -64,7 +64,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 (dsr.Text(Path.Combine(TestEnvironment.ResourceDirectory, "people.txt")));
 
             // In Spark 3.1.1+ setting the `path` Option and then calling .Load(path) is not
-            // supported by unless `spark.sql.legacy.pathOptionBehavior.enabled` conf is set.
+            // supported unless `spark.sql.legacy.pathOptionBehavior.enabled` conf is set.
             // .Json(path), .Parquet(path), etc follow the same code path so the conf
             // needs to be set in these scenarios as well.
             Assert.IsType<DataFrame>(dsr.Format("json").Option("path", jsonFilePath).Load());
