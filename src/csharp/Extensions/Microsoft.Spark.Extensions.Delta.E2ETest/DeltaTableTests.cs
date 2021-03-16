@@ -30,6 +30,10 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// Run the end-to-end scenario from the Delta Quickstart tutorial.
         /// </summary>
         /// <see cref="https://docs.delta.io/latest/quick-start.html"/>
+        ///
+        /// Delta 0.8.0 is not compatible with Spark 3.1.1
+        /// Disable Delta tests that have code path that creates a
+        /// `org.apache.spark.sql.catalyst.expressions.Alias` object.
         [SkipIfSparkVersionIsNotInRange(Versions.V2_4_2, Versions.V3_1_1)]
         public void TestTutorialScenario()
         {
@@ -223,6 +227,10 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// <summary>
         /// Test that methods return the expected signature.
         /// </summary>
+        ///
+        /// Delta 0.8.0 is not compatible with Spark 3.1.1
+        /// Disable Delta tests that have code path that creates a
+        /// `org.apache.spark.sql.catalyst.expressions.Alias` object.
         [SkipIfSparkVersionIsNotInRange(Versions.V2_4_2, Versions.V3_1_1)]
         public void TestSignaturesV2_4_X()
         {
