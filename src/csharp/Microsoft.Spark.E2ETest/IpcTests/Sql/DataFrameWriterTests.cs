@@ -85,9 +85,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                 dfw.InsertInto("TestTable");
 
-                // In Spark 3.1.1+ setting path Option and then calling .Save(path) is not
+                // In Spark 3.1.1+ setting the `path` Option and then calling .Save(path) is not
                 // supported by unless `spark.sql.legacy.pathOptionBehavior.enabled` conf is set.
-                // .Json(path), .Parquet(path), etc calls .Save(path) under the hood so the conf
+                // .Json(path), .Parquet(path), etc follow the same code path so the conf
                 // needs to be set in these scenarios as well.
                 dfw.Option("path", $"{tempDir.Path}TestSavePath2").Save();
             }
