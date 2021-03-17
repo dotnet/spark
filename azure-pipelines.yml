@@ -5,6 +5,7 @@ trigger:
   branches:
     include:
     - master
+    - main
 
 variables:
   buildConfiguration: 'Release'
