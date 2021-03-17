@@ -167,7 +167,7 @@ object DotnetRunner extends Logging {
 
   private def validateSparkVersions: Unit = {
     if (!supportedSparkVersions(SPARK_VERSION)) {
-      val supportedVersions = supportedSparkVersions.mkString(", ")
+      val supportedVersions = supportedSparkVersions.toSeq.sorted.mkString(", ")
       throw new IllegalArgumentException(
         s"Unsupported spark version used: ${spark.SPARK_VERSION}. Normalized spark version used: ${SPARK_VERSION}." +
           s" Supported versions: ${supportedVersions}")

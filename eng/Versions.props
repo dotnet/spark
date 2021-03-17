@@ -3,9 +3,5 @@
   <PropertyGroup>
     <VersionPrefix>1.0.1</VersionPrefix>
     <PreReleaseVersionLabel>prerelease</PreReleaseVersionLabel>
-    <RestoreSources>
-      $(RestoreSources);
-      https://api.nuget.org/v3/index.json;
-    </RestoreSources>
   </PropertyGroup>
 </Project>

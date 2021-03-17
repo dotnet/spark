@@ -39,6 +39,7 @@ namespace Microsoft.Spark.Interop.Ipc
         internal static void BuildPayload(
             MemoryStream destination,
             bool isStaticMethod,
+            int processId,
             int threadId,
             object classNameOrJvmObjectReference,
             string methodName,
@@ -49,6 +50,7 @@ namespace Microsoft.Spark.Interop.Ipc
             destination.Position += sizeof(int);
 
             SerDe.Write(destination, isStaticMethod);
+            SerDe.Write(destination, processId);
             SerDe.Write(destination, threadId);
             SerDe.Write(destination, classNameOrJvmObjectReference.ToString());
             SerDe.Write(destination, methodName);

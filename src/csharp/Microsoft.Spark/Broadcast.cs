@@ -129,7 +129,7 @@ namespace Microsoft.Spark
                     CreateBroadcast_V2_3_1_AndBelow(javaSparkContext, value),
                 (2, 3) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
                 (2, 4) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
-                (3, 0) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
+                (3, _) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
         }
@@ -171,11 +171,24 @@ namespace Microsoft.Spark
             // Spark versions.
             bool encryptionEnabled = bool.Parse(
                 sc.GetConf().Get("spark.io.encryption.enabled", "false"));
+            JvmObjectReference _pythonBroadcast;
 
-            var _pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.api.python.PythonRDD",
-                "setupBroadcast",
-                _path);
+            // Spark in Databricks is different from OSS Spark and requires to pass the SparkContext object to setupBroadcast.
+            if (ConfigurationService.IsDatabricks)
+            {
+                _pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
+                    "org.apache.spark.api.python.PythonRDD",
+                    "setupBroadcast",
+                    javaSparkContext,
+                    _path);
+            }
+            else
+            {
+                _pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
+                    "org.apache.spark.api.python.PythonRDD",
+                    "setupBroadcast",
+                    _path);
+            }
 
             if (encryptionEnabled)
             {
