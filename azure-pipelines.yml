@@ -44,6 +44,54 @@ variables:
   forwardCompatibleTestOptions_Windows_3_0_2: "--filter FullyQualifiedName=NONE"
   forwardCompatibleTestOptions_Linux_3_0_2: $(forwardCompatibleTestOptions_Windows_3_0_2)
 
+  # Skip backwardCompatible tests because Microsoft.Spark.Worker requires Spark 3.1 support in
+  # CommandProcessor.cs and TaskContextProcessor.cs. Support added in https://github.com/dotnet/spark/pull/836
+  backwardCompatibleTestOptions_Windows_3_1: "--filter \
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfComplexTypesTests.TestUdfRegistrationWithReturnAsRowType)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfComplexTypesTests.TestUdfWithArrayChain)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfComplexTypesTests.TestUdfWithSimpleArrayType)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfComplexTypesTests.TestUdfWithMapType)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfComplexTypesTests.TestUdfWithRowArrayType)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfComplexTypesTests.TestUdfWithReturnAsMapType)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfComplexTypesTests.TestUdfWithReturnAsArrayOfArrayType)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfComplexTypesTests.TestUdfWithArrayOfArrayType)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfComplexTypesTests.TestUdfWithMapOfMapType)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfComplexTypesTests.TestUdfWithReturnAsSimpleArrayType)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfComplexTypesTests.TestUdfWithRowType)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfComplexTypesTests.TestUdfWithReturnAsRowType)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSerDeTests.TestExternalStaticMethodCall)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSerDeTests.TestInitExternalClassInUdf)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSerDeTests.TestUdfClosure)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithReturnAsDateType)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithReturnAsTimestampType)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithDateType)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithTimestampType)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestMultipleBroadcast)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestUnpersist)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestDestroy)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.PairRDDFunctionsTests.TestCollect)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.RDDTests.TestPipelinedRDD)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.RDDTests.TestMap)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.RDDTests.TestFlatMap)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.RDDTests.TestMapPartitions)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.RDDTests.TestMapPartitionsWithIndex)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.RDDTests.TestTextFile)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.RDDTests.TestFilter)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameVectorUdf)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestVectorUdf)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestWithColumn)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestUDF)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.SparkSessionExtensionsTests.TestVersion)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataStreamWriterTests.TestForeachBatch)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataStreamWriterTests.TestForeach)"
+  # Skip all forwardCompatible tests since microsoft-spark-3-1 jar does not get built when
+  # building forwardCompatible repo.
+  forwardCompatibleTestOptions_Windows_3_1: "--filter FullyQualifiedName=NONE"
+  backwardCompatibleTestOptions_Linux_3_1: $(backwardCompatibleTestOptions_Windows_3_1)
+  forwardCompatibleTestOptions_Linux_3_1: $(forwardCompatibleTestOptions_Windows_3_1)
+
   # Azure DevOps variables are transformed into environment variables, with these variables we
   # avoid the first time experience and telemetry to speed up the build.
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
@@ -361,3 +409,13 @@ stages:
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0_2)
+    - version: '3.1.1'
+      jobOptions:
+      - pool: 'Hosted VS2017'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
+        forwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
+      - pool: 'Hosted Ubuntu 1604'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)

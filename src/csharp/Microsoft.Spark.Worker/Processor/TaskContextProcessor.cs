@@ -23,7 +23,7 @@ namespace Microsoft.Spark.Worker.Processor
             {
                 (2, 3) => TaskContextProcessorV2_3_X.Process(stream),
                 (2, 4) => TaskContextProcessorV2_4_X.Process(stream),
-                (3, 0) => TaskContextProcessorV3_0_X.Process(stream),
+                (3, _) => TaskContextProcessorV3_0_X.Process(stream),
                 _ => throw new NotSupportedException($"Spark {_version} not supported.")
             };
         }

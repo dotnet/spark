@@ -69,12 +69,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                 // TODO: Test dfw.Jdbc without running a local db.
 
-                dfw.Option("path", tempDir.Path).SaveAsTable("TestTable");
-
-                dfw.InsertInto("TestTable");
-
-                dfw.Option("path", $"{tempDir.Path}TestSavePath1").Save();
-                dfw.Save($"{tempDir.Path}TestSavePath2");
+                dfw.Save($"{tempDir.Path}TestSavePath1");
 
                 dfw.Json($"{tempDir.Path}TestJsonPath");
 
@@ -85,6 +80,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 dfw.Text($"{tempDir.Path}TestTextPath");
 
                 dfw.Csv($"{tempDir.Path}TestCsvPath");
+
+                dfw.Option("path", tempDir.Path).SaveAsTable("TestTable");
+
+                dfw.InsertInto("TestTable");
+
+                // In Spark 3.1.1+ setting the `path` Option and then calling .Save(path) is not
+                // supported unless `spark.sql.legacy.pathOptionBehavior.enabled` conf is set.
+                // .Json(path), .Parquet(path), etc follow the same code path so the conf
+                // needs to be set in these scenarios as well.
+                dfw.Option("path", $"{tempDir.Path}TestSavePath2").Save();
             }
         }
     }
