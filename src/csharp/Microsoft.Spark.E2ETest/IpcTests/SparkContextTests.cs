@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using Microsoft.Spark.Hadoop.Conf;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
@@ -42,6 +43,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             using var tempDir = new TemporaryDirectory();
             sc.SetCheckpointDir(TestEnvironment.ResourceDirectory);
+
+            Assert.IsType<Configuration>(sc.HadoopConfiguration());
         }
     }
 }

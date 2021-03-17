@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using Microsoft.Spark.Services;
 
@@ -25,6 +26,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private readonly ILoggerService _loggerService;
         private readonly IJvmBridge _jvmBridge;
         private readonly TimeSpan _threadGCInterval;
+        private readonly int _processId;
         private readonly ConcurrentDictionary<int, Thread> _activeThreads;
 
         private readonly object _activeThreadGCTimerLock;
@@ -36,11 +38,13 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <param name="loggerService">Logger service.</param>
         /// <param name="jvmBridge">The JvmBridge used to call JVM methods.</param>
         /// <param name="threadGCInterval">The interval to GC finished threads.</param>
-        public JvmThreadPoolGC(ILoggerService loggerService, IJvmBridge jvmBridge, TimeSpan threadGCInterval)
+        /// <param name="processId"> The ID of the process.</param>
+        public JvmThreadPoolGC(ILoggerService loggerService, IJvmBridge jvmBridge, TimeSpan threadGCInterval, int processId)
         {
             _loggerService = loggerService;
             _jvmBridge = jvmBridge;
             _threadGCInterval = threadGCInterval;
+            _processId = processId;
             _activeThreads = new ConcurrentDictionary<int, Thread>();
 
             _activeThreadGCTimerLock = new object();
@@ -106,7 +110,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 // class does not need to call Join() on the .NET Thread. However, this class is
                 // responsible for sending the rmThread command to the JVM to trigger disposal
                 // of the corresponding JVM thread.
-                if ((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", threadId))
+                if ((bool)_jvmBridge.CallStaticJavaMethod("DotnetHandler", "rmThread", _processId, threadId))
                 {
                     _loggerService.LogDebug($"GC'd JVM thread {threadId}.");
                     return true;

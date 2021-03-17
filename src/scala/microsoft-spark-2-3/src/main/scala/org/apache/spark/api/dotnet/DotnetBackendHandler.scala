@@ -7,12 +7,9 @@
 package org.apache.spark.api.dotnet
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream}
-
-import scala.collection.mutable.HashMap
 import scala.language.existentials
 
 import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
-import org.apache.spark.api.dotnet.SerDe._
 import org.apache.spark.internal.Logging
 import org.apache.spark.util.Utils
 
@@ -20,9 +17,11 @@ import org.apache.spark.util.Utils
  * Handler for DotnetBackend.
  * This implementation is similar to RBackendHandler.
  */
-class DotnetBackendHandler(server: DotnetBackend)
+class DotnetBackendHandler(server: DotnetBackend, objectsTracker: JVMObjectTracker)
     extends SimpleChannelInboundHandler[Array[Byte]]
     with Logging {
+
+  private[this] val serDe = new SerDe(objectsTracker)
 
   override def channelRead0(ctx: ChannelHandlerContext, msg: Array[Byte]): Unit = {
     val reply = handleBackendRequest(msg)
@@ -41,62 +40,65 @@ class DotnetBackendHandler(server: DotnetBackend)
     val dos = new DataOutputStream(bos)
 
     // First bit is isStatic
-    val isStatic = readBoolean(dis)
-    val threadId = readInt(dis)
-    val objId = readString(dis)
-    val methodName = readString(dis)
-    val numArgs = readInt(dis)
+    val isStatic = serDe.readBoolean(dis)
+    val processId = serDe.readInt(dis)
+    val threadId = serDe.readInt(dis)
+    val objId = serDe.readString(dis)
+    val methodName = serDe.readString(dis)
+    val numArgs = serDe.readInt(dis)
 
     if (objId == "DotnetHandler") {
       methodName match {
         case "stopBackend" =>
-          writeInt(dos, 0)
-          writeType(dos, "void")
+          serDe.writeInt(dos, 0)
+          serDe.writeType(dos, "void")
           server.close()
         case "rm" =>
           try {
-            val t = readObjectType(dis)
+            val t = serDe.readObjectType(dis)
             assert(t == 'c')
-            val objToRemove = readString(dis)
-            JVMObjectTracker.remove(objToRemove)
-            writeInt(dos, 0)
-            writeObject(dos, null)
+            val objToRemove = serDe.readString(dis)
+            objectsTracker.remove(objToRemove)
+            serDe.writeInt(dos, 0)
+            serDe.writeObject(dos, null)
           } catch {
             case e: Exception =>
               logError(s"Removing $objId failed", e)
-              writeInt(dos, -1)
+              serDe.writeInt(dos, -1)
           }
         case "rmThread" =>
           try {
-            assert(readObjectType(dis) == 'i')
-            val threadToDelete = readInt(dis)
-            val result = ThreadPool.tryDeleteThread(threadToDelete)
-            writeInt(dos, 0)
-            writeObject(dos, result.asInstanceOf[AnyRef])
+            assert(serDe.readObjectType(dis) == 'i')
+            val processId = serDe.readInt(dis)
+            assert(serDe.readObjectType(dis) == 'i')
+            val threadToDelete = serDe.readInt(dis)
+            val result = ThreadPool.tryDeleteThread(processId, threadToDelete)
+            serDe.writeInt(dos, 0)
+            serDe.writeObject(dos, result.asInstanceOf[AnyRef])
           } catch {
             case e: Exception =>
               logError(s"Removing thread $threadId failed", e)
-              writeInt(dos, -1)
+              serDe.writeInt(dos, -1)
           }
         case "connectCallback" =>
-          assert(readObjectType(dis) == 'c')
-          val address = readString(dis)
-          assert(readObjectType(dis) == 'i')
-          val port = readInt(dis)
-          DotnetBackend.setCallbackClient(address, port)
-          writeInt(dos, 0)
-          writeType(dos, "void")
+          assert(serDe.readObjectType(dis) == 'c')
+          val address = serDe.readString(dis)
+          assert(serDe.readObjectType(dis) == 'i')
+          val port = serDe.readInt(dis)
+          server.setCallbackClient(address, port)
+          serDe.writeInt(dos, 0)
+          serDe.writeType(dos, "void")
         case "closeCallback" =>
           logInfo("Requesting to close callback client")
-          DotnetBackend.shutdownCallbackClient()
-          writeInt(dos, 0)
-          writeType(dos, "void")
+          server.shutdownCallbackClient()
+          serDe.writeInt(dos, 0)
+          serDe.writeType(dos, "void")
 
         case _ => dos.writeInt(-1)
       }
     } else {
       ThreadPool
-        .run(threadId, () => handleMethodCall(isStatic, objId, methodName, numArgs, dis, dos))
+        .run(processId, threadId, () => handleMethodCall(isStatic, objId, methodName, numArgs, dis, dos))
     }
 
     bos.toByteArray
@@ -131,7 +133,7 @@ class DotnetBackendHandler(server: DotnetBackend)
       val cls = if (isStatic) {
         Utils.classForName(objId)
       } else {
-        JVMObjectTracker.get(objId) match {
+        objectsTracker.get(objId) match {
           case None => throw new IllegalArgumentException("Object not found " + objId)
           case Some(o) =>
             obj = o
@@ -159,8 +161,8 @@ class DotnetBackendHandler(server: DotnetBackend)
         val ret = selectedMethods(index.get).invoke(obj, args: _*)
 
         // Write status bit
-        writeInt(dos, 0)
-        writeObject(dos, ret.asInstanceOf[AnyRef])
+        serDe.writeInt(dos, 0)
+        serDe.writeObject(dos, ret.asInstanceOf[AnyRef])
       } else if (methodName == "<init>") {
         // methodName should be "<init>" for constructor
         val ctor = cls.getConstructors.filter { x =>
@@ -169,15 +171,15 @@ class DotnetBackendHandler(server: DotnetBackend)
 
         val obj = ctor.newInstance(args: _*)
 
-        writeInt(dos, 0)
-        writeObject(dos, obj.asInstanceOf[AnyRef])
+        serDe.writeInt(dos, 0)
+        serDe.writeObject(dos, obj.asInstanceOf[AnyRef])
       } else {
         throw new IllegalArgumentException(
           "invalid method " + methodName + " for object " + objId)
       }
     } catch {
       case e: Throwable =>
-        val jvmObj = JVMObjectTracker.get(objId)
+        val jvmObj = objectsTracker.get(objId)
         val jvmObjName = jvmObj match {
           case Some(jObj) => jObj.getClass.getName
           case None => "NullObject"
@@ -199,15 +201,15 @@ class DotnetBackendHandler(server: DotnetBackend)
           methods.foreach(m => logDebug(m.toString))
         }
 
-        writeInt(dos, -1)
-        writeString(dos, Utils.exceptionString(e.getCause))
+        serDe.writeInt(dos, -1)
+        serDe.writeString(dos, Utils.exceptionString(e.getCause))
     }
   }
 
   // Read a number of arguments from the data input stream
   def readArgs(numArgs: Int, dis: DataInputStream): Array[java.lang.Object] = {
     (0 until numArgs).map { arg =>
-      readObject(dis)
+      serDe.readObject(dis)
     }.toArray
   }
 
@@ -324,42 +326,4 @@ class DotnetBackendHandler(server: DotnetBackend)
   }
 
   def logError(id: String, e: Exception): Unit = {}
-}
-
-/**
- * Tracks JVM objects returned to .NET which is useful for invoking calls from .NET on JVM objects.
- */
-private object JVMObjectTracker {
-
-  // Multiple threads may access objMap and increase objCounter. Because get method return Option,
-  // it is convenient to use a Scala map instead of java.util.concurrent.ConcurrentHashMap.
-  private[this] val objMap = new HashMap[String, Object]
-  private[this] var objCounter: Int = 1
-
-  def getObject(id: String): Object = {
-    synchronized {
-      objMap(id)
-    }
-  }
-
-  def get(id: String): Option[Object] = {
-    synchronized {
-      objMap.get(id)
-    }
-  }
-
-  def put(obj: Object): String = {
-    synchronized {
-      val objId = objCounter.toString
-      objCounter = objCounter + 1
-      objMap.put(objId, obj)
-      objId
-    }
-  }
-
-  def remove(id: String): Option[Object] = {
-    synchronized {
-      objMap.remove(id)
-    }
-  }
 }
