@@ -67,7 +67,7 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
 | ![Ubuntu icon](docs/img/ubuntu-icon-32.png) | ![Windows icon](docs/img/windows-icon-32.png) |
 | :---:         |          :---: |
 | Ubuntu | Windows |
-| | [![Build Status](https://dnceng.visualstudio.com/public/_apis/build/status/dotnet.spark?branchName=master)](https://dev.azure.com/dnceng/public/_build?definitionId=459&branchName=master)|
+| | [![Build Status](https://dnceng.visualstudio.com/public/_apis/build/status/dotnet.spark?branchName=main)](https://dev.azure.com/dnceng/public/_build?definitionId=459&branchName=main)|
 
 ## Building from Source
 
