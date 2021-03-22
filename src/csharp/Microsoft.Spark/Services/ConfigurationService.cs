@@ -16,6 +16,7 @@ namespace Microsoft.Spark.Services
     /// </summary>
     internal sealed class ConfigurationService : IConfigurationService
     {
+        public const string WorkerVerDirEnvVarNameFormat = "DOTNET_WORKER_V{0}_DIR";
         public const string WorkerDirEnvVarName = "DOTNET_WORKER_DIR";
         public const string WorkerReadBufferSizeEnvVarName = "spark.dotnet.worker.readBufferSize";
         public const string WorkerWriteBufferSizeEnvVarName =
@@ -45,7 +46,7 @@ namespace Microsoft.Spark.Services
         {
             get
             {
-                string envVar = Environment.GetEnvironmentVariable("DOTNET_JVM_THREAD_GC_INTERVAL");
+                string envVar = GetEnvironmentVariable("DOTNET_JVM_THREAD_GC_INTERVAL");
                 return string.IsNullOrEmpty(envVar) ? TimeSpan.FromMinutes(5) : TimeSpan.Parse(envVar);
             }
         }
@@ -59,7 +60,7 @@ namespace Microsoft.Spark.Services
         public int GetBackendPortNumber()
         {
             if (!int.TryParse(
-                Environment.GetEnvironmentVariable(DotnetBackendPortEnvVarName),
+                GetEnvironmentVariable(DotnetBackendPortEnvVarName),
                 out int portNumber))
             {
                 _logger.LogInfo($"'{DotnetBackendPortEnvVarName}' environment variable is not set.");
@@ -77,7 +78,7 @@ namespace Microsoft.Spark.Services
         public int GetNumBackendThreads()
         {
             if (!int.TryParse(
-                Environment.GetEnvironmentVariable(DotnetNumBackendThreadsEnvVarName),
+                GetEnvironmentVariable(DotnetNumBackendThreadsEnvVarName),
                 out int numThreads))
             {
                 numThreads = DotnetNumBackendThreadsDefault;
@@ -97,14 +98,26 @@ namespace Microsoft.Spark.Services
                 return _workerPath;
             }
 
-            string workerDir = Environment.GetEnvironmentVariable(WorkerDirEnvVarName);
+            // The Microsoft.Spark major assembly version is used to construct the
+            // WorkerVerDirEnvVarNameFormat environment variable. If the environment
+            // variable is set, the worker path is constructed based on it.
+            var microsoftSparkVersion = new Version(AssemblyInfoProvider.MicrosoftSparkAssemblyInfo().AssemblyVersion);
+            string workerVerDirEnvVarName = string.Format(WorkerVerDirEnvVarNameFormat, microsoftSparkVersion.Major);
+            string workerVerDir = GetEnvironmentVariable(workerVerDirEnvVarName);
+            if (!string.IsNullOrEmpty(workerVerDir))
+            {
+                _workerPath = Path.Combine(workerVerDir, s_procFileName);
+                _logger.LogDebug($"Using the environment variable {workerVerDirEnvVarName} to construct .NET worker path: {_workerPath}.");
+                return _workerPath;
+            }
 
             // If the WorkerDirEnvName environment variable is set, the worker path is constructed
             // based on it.
+            string workerDir = GetEnvironmentVariable(WorkerDirEnvVarName);
             if (!string.IsNullOrEmpty(workerDir))
             {
                 _workerPath = Path.Combine(workerDir, s_procFileName);
-                _logger.LogDebug($"Using the environment variable to construct .NET worker path: {_workerPath}.");
+                _logger.LogDebug($"Using the environment variable {WorkerDirEnvVarName} to construct .NET worker path: {_workerPath}.");
                 return _workerPath;
             }
 
