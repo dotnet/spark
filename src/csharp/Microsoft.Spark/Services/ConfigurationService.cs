@@ -16,11 +16,12 @@ namespace Microsoft.Spark.Services
     /// </summary>
     internal sealed class ConfigurationService : IConfigurationService
     {
-        public const string WorkerVerDirEnvVarNameFormat = "DOTNET_WORKER_V{0}_DIR";
         public const string WorkerDirEnvVarName = "DOTNET_WORKER_DIR";
         public const string WorkerReadBufferSizeEnvVarName = "spark.dotnet.worker.readBufferSize";
         public const string WorkerWriteBufferSizeEnvVarName =
             "spark.dotnet.worker.writeBufferSize";
+
+        internal const string WorkerVerDirEnvVarNameFormat = "DOTNET_WORKER_V{0}_DIR";
 
         private const string DotnetBackendPortEnvVarName = "DOTNETBACKEND_PORT";
         private const int DotnetBackendDebugPort = 5567;
@@ -29,15 +30,27 @@ namespace Microsoft.Spark.Services
         private const int DotnetNumBackendThreadsDefault = 10;
 
         private static readonly string s_procBaseFileName = "Microsoft.Spark.Worker";
-        private static readonly string s_procFileName =
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
-            $"{s_procBaseFileName}.exe" :
-            s_procBaseFileName;
 
         private readonly ILoggerService _logger =
             LoggerServiceFactory.GetLogger(typeof(ConfigurationService));
 
         private string _workerPath;
+
+        /// <summary>
+        /// The Microsoft.Spark major assembly version is used to construct the
+        /// WorkerVerDirEnvVarNameFormat environment variable.
+        /// </summary>
+        internal static string WorkerVerDirEnvVarName { get; } =
+            string.Format(
+                WorkerVerDirEnvVarNameFormat,
+                new Version(AssemblyInfoProvider.MicrosoftSparkAssemblyInfo().AssemblyVersion).Major);
+
+        /// <summary>
+        /// The Microsoft.Spark.Worker filename.
+        /// </summary>
+        internal static string ProcFileName { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
+            $"{s_procBaseFileName}.exe" :
+            s_procBaseFileName;
 
         /// <summary>
         /// How often to run GC on JVM ThreadPool threads. Defaults to 5 minutes.
@@ -98,16 +111,13 @@ namespace Microsoft.Spark.Services
                 return _workerPath;
             }
 
-            // The Microsoft.Spark major assembly version is used to construct the
-            // WorkerVerDirEnvVarNameFormat environment variable. If the environment
-            // variable is set, the worker path is constructed based on it.
-            var microsoftSparkVersion = new Version(AssemblyInfoProvider.MicrosoftSparkAssemblyInfo().AssemblyVersion);
-            string workerVerDirEnvVarName = string.Format(WorkerVerDirEnvVarNameFormat, microsoftSparkVersion.Major);
-            string workerVerDir = GetEnvironmentVariable(workerVerDirEnvVarName);
+            // If the WorkerVerDirEnvVarName environment variable is set, the worker path is constructed
+            // based on it.
+            string workerVerDir = GetEnvironmentVariable(WorkerVerDirEnvVarName);
             if (!string.IsNullOrEmpty(workerVerDir))
             {
-                _workerPath = Path.Combine(workerVerDir, s_procFileName);
-                _logger.LogDebug($"Using the environment variable {workerVerDirEnvVarName} to construct .NET worker path: {_workerPath}.");
+                _workerPath = Path.Combine(workerVerDir, ProcFileName);
+                _logger.LogDebug($"Using the environment variable {WorkerVerDirEnvVarName} to construct .NET worker path: {_workerPath}.");
                 return _workerPath;
             }
 
@@ -116,13 +126,13 @@ namespace Microsoft.Spark.Services
             string workerDir = GetEnvironmentVariable(WorkerDirEnvVarName);
             if (!string.IsNullOrEmpty(workerDir))
             {
-                _workerPath = Path.Combine(workerDir, s_procFileName);
+                _workerPath = Path.Combine(workerDir, ProcFileName);
                 _logger.LogDebug($"Using the environment variable {WorkerDirEnvVarName} to construct .NET worker path: {_workerPath}.");
                 return _workerPath;
             }
 
             // Otherwise, the worker executable name is returned meaning it should be PATH.
-            _workerPath = s_procFileName;
+            _workerPath = ProcFileName;
             return _workerPath;
         }
 
