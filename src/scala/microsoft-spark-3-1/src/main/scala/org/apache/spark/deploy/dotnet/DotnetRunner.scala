@@ -19,9 +19,10 @@ import org.apache.spark
 import org.apache.spark.api.dotnet.DotnetBackend
 import org.apache.spark.deploy.{PythonRunner, SparkHadoopUtil}
 import org.apache.spark.internal.Logging
+import org.apache.spark.internal.config.dotnet.Dotnet.DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK
 import org.apache.spark.util.dotnet.{Utils => DotnetUtils}
 import org.apache.spark.util.{RedirectThread, Utils}
-import org.apache.spark.{SecurityManager, SparkConf, SparkUserAppException}
+import org.apache.spark.{SecurityManager, SparkConf, SparkEnv, SparkUserAppException}
 
 import scala.collection.JavaConverters._
 import scala.io.StdIn
@@ -34,6 +35,7 @@ import scala.util.Try
  */
 object DotnetRunner extends Logging {
   private val DEBUG_PORT = 5567
+  private val supportedSparkMajorMinorVersion = List("3", "1")
   private val supportedSparkVersions = Set[String]("3.1.1")
 
   val SPARK_VERSION = DotnetUtils.normalizeSparkVersion(spark.SPARK_VERSION)
@@ -43,7 +45,8 @@ object DotnetRunner extends Logging {
       throw new IllegalArgumentException("At least one argument is expected.")
     }
 
-    validateSparkVersions
+    val conf = Option(SparkEnv.get).map(_.conf).getOrElse(new SparkConf())
+    validateSparkVersions(conf)
 
     val settings = initializeSettings(args)
 
@@ -164,12 +167,18 @@ object DotnetRunner extends Logging {
     }
   }
 
-  private def validateSparkVersions: Unit = {
-    if (!supportedSparkVersions(SPARK_VERSION)) {
+  private def validateSparkVersions(conf: SparkConf): Unit = {
+    val ignorePatchVersion = conf.get(DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK)
+    val majorMinorVersion = supportedSparkMajorMinorVersion.mkString("", ".", ".")
+    if (!SPARK_VERSION.startsWith(majorMinorVersion)) {
+      throw new IllegalArgumentException(
+        s"Unsupported spark version used: ${spark.SPARK_VERSION}. Normalized spark version used: $SPARK_VERSION." +
+          s" Supported spark major.minor version: $majorMinorVersion")
+    } else if (!ignorePatchVersion && !supportedSparkVersions(SPARK_VERSION)) {
       val supportedVersions = supportedSparkVersions.toSeq.sorted.mkString(", ")
       throw new IllegalArgumentException(
-        s"Unsupported spark version used: ${spark.SPARK_VERSION}. Normalized spark version used: ${SPARK_VERSION}." +
-          s" Supported versions: ${supportedVersions}")
+        s"Unsupported spark version used: ${spark.SPARK_VERSION}. Normalized spark version used: $SPARK_VERSION." +
+          s" Supported versions: $supportedVersions")
     }
   }
 

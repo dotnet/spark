@@ -11,4 +11,8 @@ import org.apache.spark.internal.config.ConfigBuilder
 private[spark] object Dotnet {
   val DOTNET_NUM_BACKEND_THREADS = ConfigBuilder("spark.dotnet.numDotnetBackendThreads").intConf
     .createWithDefault(10)
+
+  val DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK =
+    ConfigBuilder("spark.dotnet.ignoreSparkPatchVersionCheck").booleanConf
+      .createWithDefault(false)
 }
