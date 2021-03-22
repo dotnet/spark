@@ -48,7 +48,9 @@ namespace Microsoft.Spark.UnitTest
             Environment.SetEnvironmentVariable(ConfigurationService.WorkerDirEnvVarName, workerDir);
 
             // Only ConfigurationService.WorkerDirEnvVarName is set, WorkerExePath will be built using it.
-            Assert.Equal(Path.Combine(workerDir, ConfigurationService.ProcFileName), configService.GetWorkerExePath());
+            Assert.Equal(
+                Path.Combine(workerDir, ConfigurationService.ProcFileName),
+                configService.GetWorkerExePath());
         }
 
         [Fact]
@@ -63,7 +65,9 @@ namespace Microsoft.Spark.UnitTest
             // ConfigurationService.WorkerDirEnvVarName and ConfigurationService.WorkerVerDirEnvVarName
             // environment variables are set. ConfigurationService.WorkerVerDirEnvVarName will take
             // precedence.
-            Assert.Equal(Path.Combine(workerVerDir, ConfigurationService.ProcFileName), configService.GetWorkerExePath());
+            Assert.Equal(
+                Path.Combine(workerVerDir, ConfigurationService.ProcFileName),
+                configService.GetWorkerExePath());
         }
 
         public void Dispose()
