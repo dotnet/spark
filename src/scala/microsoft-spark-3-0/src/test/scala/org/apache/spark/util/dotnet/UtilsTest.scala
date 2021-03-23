@@ -20,7 +20,7 @@ class UtilsTest {
     conf.set(DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK, true)
 
     val sparkVersion = "3.0.3"
-    val sparkMajorMinorVersionPrefix = "3.0."
+    val sparkMajorMinorVersionPrefix = "3.0"
     val supportedSparkVersions = Set[String]("3.0.0", "3.0.1", "3.0.2")
 
     Utils.validateSparkVersions(
@@ -38,7 +38,7 @@ class UtilsTest {
 
     val sparkVersion = "3.0.3"
     val normalizedSparkVersion = Utils.normalizeSparkVersion(sparkVersion)
-    val sparkMajorMinorVersionPrefix = "3.0."
+    val sparkMajorMinorVersionPrefix = "3.0"
     val supportedSparkVersions = Set[String]("3.0.0", "3.0.1", "3.0.2")
 
     val exception = assertThrows(
@@ -66,7 +66,7 @@ class UtilsTest {
 
     val sparkVersion = "2.4.4"
     val normalizedSparkVersion = Utils.normalizeSparkVersion(sparkVersion)
-    val sparkMajorMinorVersionPrefix = "3.0."
+    val sparkMajorMinorVersionPrefix = "3.0"
     val supportedSparkVersions = Set[String]("3.0.0", "3.0.1", "3.0.2")
 
     val exception = assertThrows(
