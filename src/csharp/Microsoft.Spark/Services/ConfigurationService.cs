@@ -118,7 +118,7 @@ namespace Microsoft.Spark.Services
             {
                 _workerPath = Path.Combine(workerVerDir, ProcFileName);
                 _logger.LogDebug(
-                    "Using the environment variable {0} to construct .NET worker path: {1}.",
+                    "Using the {0} environment variable to construct .NET worker path: {1}.",
                     WorkerVerDirEnvVarName,
                     _workerPath);
                 return _workerPath;
@@ -131,7 +131,7 @@ namespace Microsoft.Spark.Services
             {
                 _workerPath = Path.Combine(workerDir, ProcFileName);
                 _logger.LogDebug(
-                    "Using the environment variable {0} to construct .NET worker path: {1}.",
+                    "Using the {0} environment variable to construct .NET worker path: {1}.",
                     WorkerDirEnvVarName,
                     _workerPath);
                 return _workerPath;
