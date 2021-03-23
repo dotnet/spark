@@ -192,23 +192,24 @@ object Utils extends Logging {
       .mkString(".")
   }
 
-    /**
-     * Validates the spark version by verifying:
-     *   - Spark version starts with sparkMajorMinorVersionPrefix.
-     *   - If ignoreSparkPatchVersionCheck spark conf is
-     *     - true: valid
-     *     - false: check if the spark version is in supportedSparkVersions.
-     * @param conf Spark conf.
-     * @param sparkVersion The spark version.
-     * @param sparkMajorMinorVersionPrefix The spark major and minor version to validate against.
-     * @param supportedSparkVersions The set of supported spark versions.
-     */
+  /**
+   * Validates the spark version by verifying:
+   *   - Spark version starts with sparkMajorMinorVersionPrefix.
+   *   - If ignoreSparkPatchVersionCheck spark conf is
+   *     - true: valid
+   *     - false: check if the spark version is in supportedSparkVersions.
+   * @param conf Spark conf.
+   * @param sparkVersion The spark version.
+   * @param normalizedSparkVersion: The normalized spark version.
+   * @param sparkMajorMinorVersionPrefix The spark major and minor version to validate against.
+   * @param supportedSparkVersions The set of supported spark versions.
+   */
   def validateSparkVersions(
       conf: SparkConf,
       sparkVersion: String,
+      normalizedSparkVersion: String,
       sparkMajorMinorVersionPrefix: String,
       supportedSparkVersions: Set[String]): Unit = {
-    val normalizedSparkVersion = normalizeSparkVersion(sparkVersion)
     val ignorePatchVersion = conf.get(DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK)
 
     if (!normalizedSparkVersion.startsWith(sparkMajorMinorVersionPrefix)) {
