@@ -21,7 +21,8 @@ namespace Microsoft.Spark.UnitTest
             {
                 WorkerDir = new EnvVar {
                     Name = ConfigurationService.DefaultWorkerDirEnvVarName,
-                    Value = Environment.GetEnvironmentVariable(ConfigurationService.DefaultWorkerDirEnvVarName)
+                    Value = Environment.GetEnvironmentVariable(
+                        ConfigurationService.DefaultWorkerDirEnvVarName)
                 },
                 WorkerMajorMinorBuildDir = new EnvVar
                 {
@@ -120,7 +121,8 @@ namespace Microsoft.Spark.UnitTest
                     _workerDirEnvVars.WorkerMajorMinorBuildDir.Name, "workerMajorMinorBuildDir");
                 Assert.False(
                     string.IsNullOrWhiteSpace(
-                        Environment.GetEnvironmentVariable(_workerDirEnvVars.WorkerMajorMinorBuildDir.Name)));
+                        Environment.GetEnvironmentVariable(
+                            _workerDirEnvVars.WorkerMajorMinorBuildDir.Name)));
                 Assert.False(
                     string.IsNullOrWhiteSpace(
                         Environment.GetEnvironmentVariable(_workerDirEnvVars.WorkerMajorMinorDir.Name)));
