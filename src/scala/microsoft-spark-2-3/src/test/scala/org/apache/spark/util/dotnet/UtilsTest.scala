@@ -17,15 +17,12 @@ class UtilsTest {
 
   @Test
   def shouldIgnorePatchVersion(): Unit = {
-    val conf = new SparkConf()
-    conf.set(DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK, true)
-
     val sparkVersion = "2.3.5"
     val sparkMajorMinorVersionPrefix = "2.3"
     val supportedSparkVersions = Set[String]("2.3.0", "2.3.1", "2.3.2", "2.3.3", "2.3.4")
 
     Utils.validateSparkVersions(
-      conf,
+      true,
       sparkVersion,
       Utils.normalizeSparkVersion(sparkVersion),
       sparkMajorMinorVersionPrefix,
@@ -34,9 +31,6 @@ class UtilsTest {
 
   @Test
   def shouldThrowForUnsupportedVersion(): Unit = {
-    val conf = new SparkConf()
-    conf.set(DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK, false)
-
     val sparkVersion = "2.3.5"
     val normalizedSparkVersion = Utils.normalizeSparkVersion(sparkVersion)
     val sparkMajorMinorVersionPrefix = "2.3"
@@ -47,7 +41,7 @@ class UtilsTest {
       new ThrowingRunnable {
         override def run(): Unit = {
           Utils.validateSparkVersions(
-            conf,
+            false,
             sparkVersion,
             normalizedSparkVersion,
             sparkMajorMinorVersionPrefix,
@@ -56,17 +50,14 @@ class UtilsTest {
       })
 
     assertEquals(
-      s"Unsupported spark version used: $sparkVersion. " +
-        s"Normalized spark version used: $normalizedSparkVersion. " +
-        s"Supported versions: ${supportedSparkVersions.toSeq.sorted.mkString(", ")}",
+      s"Unsupported spark version used: '$sparkVersion'. " +
+        s"Normalized spark version used: '$normalizedSparkVersion'. " +
+        s"Supported versions: '${supportedSparkVersions.toSeq.sorted.mkString(", ")}'.",
       exception.getMessage)
   }
 
   @Test
   def shouldThrowForUnsupportedMajorMinorVersion(): Unit = {
-    val conf = new SparkConf()
-    conf.set(DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK, false)
-
     val sparkVersion = "2.4.4"
     val normalizedSparkVersion = Utils.normalizeSparkVersion(sparkVersion)
     val sparkMajorMinorVersionPrefix = "2.3"
@@ -77,7 +68,7 @@ class UtilsTest {
       new ThrowingRunnable {
         override def run(): Unit = {
           Utils.validateSparkVersions(
-            conf,
+            false,
             sparkVersion,
             normalizedSparkVersion,
             sparkMajorMinorVersionPrefix,
@@ -86,9 +77,9 @@ class UtilsTest {
       })
 
     assertEquals(
-      s"Unsupported spark version used: $sparkVersion. " +
-        s"Normalized spark version used: $normalizedSparkVersion. " +
-        s"Supported spark major.minor version: $sparkMajorMinorVersionPrefix",
+      s"Unsupported spark version used: '$sparkVersion'. " +
+        s"Normalized spark version used: '$normalizedSparkVersion'. " +
+        s"Supported spark major.minor version: '$sparkMajorMinorVersionPrefix'.",
       exception.getMessage)
   }
 }

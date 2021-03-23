@@ -195,39 +195,37 @@ object Utils extends Logging {
   /**
    * Validates the normalized spark version by verifying:
    *   - Spark version starts with sparkMajorMinorVersionPrefix.
-   *   - If ignoreSparkPatchVersionCheck spark conf is
+   *   - If ignoreSparkPatchVersion is
    *     - true: valid
    *     - false: check if the spark version is in supportedSparkVersions.
-   * @param conf Spark conf.
+   * @param ignoreSparkPatchVersion Ignore spark patch version.
    * @param sparkVersion The spark version.
    * @param normalizedSparkVersion: The normalized spark version.
    * @param supportedSparkMajorMinorVersionPrefix The spark major and minor version to validate against.
    * @param supportedSparkVersions The set of supported spark versions.
    */
   def validateSparkVersions(
-      conf: SparkConf,
+      ignoreSparkPatchVersion: Boolean,
       sparkVersion: String,
       normalizedSparkVersion: String,
       supportedSparkMajorMinorVersionPrefix: String,
       supportedSparkVersions: Set[String]): Unit = {
-    val ignorePatchVersion = conf.get(DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK)
-
     if (!normalizedSparkVersion.startsWith(s"$supportedSparkMajorMinorVersionPrefix.")) {
       throw new IllegalArgumentException(
-        s"Unsupported spark version used: $sparkVersion. " +
-          s"Normalized spark version used: $normalizedSparkVersion. " +
-          s"Supported spark major.minor version: $supportedSparkMajorMinorVersionPrefix")
-    } else if (ignorePatchVersion) {
+        s"Unsupported spark version used: '$sparkVersion'. " +
+          s"Normalized spark version used: '$normalizedSparkVersion'. " +
+          s"Supported spark major.minor version: '$supportedSparkMajorMinorVersionPrefix'.")
+    } else if (ignoreSparkPatchVersion) {
       logWarning(
-        s"Ignoring spark patch version. Spark version used: $sparkVersion. " +
-          s"Normalized spark version used: $normalizedSparkVersion. " +
-          s"Spark major.minor prefix used: $supportedSparkMajorMinorVersionPrefix")
+        s"Ignoring spark patch version. Spark version used: '$sparkVersion'. " +
+          s"Normalized spark version used: '$normalizedSparkVersion'. " +
+          s"Spark major.minor prefix used: '$supportedSparkMajorMinorVersionPrefix'.")
     } else if (!supportedSparkVersions(normalizedSparkVersion)) {
       val supportedVersions = supportedSparkVersions.toSeq.sorted.mkString(", ")
       throw new IllegalArgumentException(
-        s"Unsupported spark version used: $sparkVersion. " +
-          s"Normalized spark version used: $normalizedSparkVersion. " +
-          s"Supported versions: $supportedVersions")
+        s"Unsupported spark version used: '$sparkVersion'. " +
+          s"Normalized spark version used: '$normalizedSparkVersion'. " +
+          s"Supported versions: '$supportedVersions'.")
     }
   }
 

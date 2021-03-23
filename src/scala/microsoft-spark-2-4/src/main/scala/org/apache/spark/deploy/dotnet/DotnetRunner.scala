@@ -19,9 +19,10 @@ import org.apache.spark
 import org.apache.spark.api.dotnet.DotnetBackend
 import org.apache.spark.deploy.{PythonRunner, SparkHadoopUtil}
 import org.apache.spark.internal.Logging
+import org.apache.spark.internal.config.dotnet.Dotnet.DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK
 import org.apache.spark.util.dotnet.{Utils => DotnetUtils}
 import org.apache.spark.util.{RedirectThread, Utils}
-import org.apache.spark.{SecurityManager, SparkConf, SparkEnv, SparkUserAppException}
+import org.apache.spark.{SecurityManager, SparkConf, SparkUserAppException}
 
 import scala.collection.JavaConverters._
 import scala.io.StdIn
@@ -46,7 +47,11 @@ object DotnetRunner extends Logging {
     }
 
     DotnetUtils.validateSparkVersions(
-      Option(SparkEnv.get).map(_.conf).getOrElse(new SparkConf()),
+      sys.props
+        .getOrElse(
+          DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK.key,
+          DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK.defaultValue.get.toString)
+        .toBoolean,
       spark.SPARK_VERSION,
       SPARK_VERSION,
       supportedSparkMajorMinorVersionPrefix,
