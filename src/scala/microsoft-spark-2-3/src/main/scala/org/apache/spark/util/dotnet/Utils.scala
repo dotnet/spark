@@ -14,7 +14,9 @@ import java.util.{Timer, TimerTask}
 
 import org.apache.commons.compress.archivers.zip.{ZipArchiveEntry, ZipArchiveOutputStream, ZipFile}
 import org.apache.commons.io.{FileUtils, IOUtils}
+import org.apache.spark.SparkConf
 import org.apache.spark.internal.Logging
+import org.apache.spark.internal.config.dotnet.Dotnet.DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK
 
 import scala.collection.JavaConverters._
 import scala.collection.Set
@@ -189,6 +191,44 @@ object Utils extends Logging {
         }
       })
       .mkString(".")
+  }
+
+  /**
+   * Validates the spark version by verifying:
+   *   - Spark version starts with sparkMajorMinorVersionPrefix.
+   *   - If ignoreSparkPatchVersionCheck spark conf is
+   *     - true: valid
+   *     - false: check if the spark version is in supportedSparkVersions.
+   * @param conf Spark conf.
+   * @param sparkVersion The spark version.
+   * @param sparkMajorMinorVersionPrefix The spark major and minor version to validate against.
+   * @param supportedSparkVersions The set of supported spark versions.
+   */
+  def validateSparkVersions(
+      conf: SparkConf,
+      sparkVersion: String,
+      sparkMajorMinorVersionPrefix: String,
+      supportedSparkVersions: Set[String]): Unit = {
+    val normalizedSparkVersion = normalizeSparkVersion(sparkVersion)
+    val ignorePatchVersion = conf.get(DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK)
+
+    if (!normalizedSparkVersion.startsWith(sparkMajorMinorVersionPrefix)) {
+      throw new IllegalArgumentException(
+        s"Unsupported spark version used: $sparkVersion. " +
+          s"Normalized spark version used: $normalizedSparkVersion. " +
+          s"Supported spark major.minor version: $sparkMajorMinorVersionPrefix")
+    } else if (ignorePatchVersion) {
+      logWarning(
+        s"Ignoring spark patch version. Spark version used: $sparkVersion. " +
+          s"Normalized spark version used: $normalizedSparkVersion. " +
+          s"Spark major.minor prefix used: $sparkMajorMinorVersionPrefix")
+    } else if (!supportedSparkVersions(normalizedSparkVersion)) {
+      val supportedVersions = supportedSparkVersions.toSeq.sorted.mkString(", ")
+      throw new IllegalArgumentException(
+        s"Unsupported spark version used: $sparkVersion. " +
+          s"Normalized spark version used: $normalizedSparkVersion. " +
+          s"Supported versions: $supportedVersions")
+    }
   }
 
   private[spark] def listZipFileEntries(file: File): Array[String] = {
