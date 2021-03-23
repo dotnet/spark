@@ -76,6 +76,9 @@ namespace Microsoft.Spark.UnitTest
                 Assert.True(
                     string.IsNullOrWhiteSpace(
                         Environment.GetEnvironmentVariable(_workerDirEnvVars.WorkerMajorDir.Name)));
+                Assert.True(
+                    string.IsNullOrWhiteSpace(
+                        Environment.GetEnvironmentVariable(_workerDirEnvVars.WorkerDir.Name)));
                 Assert.Equal(
                     ConfigurationService.DefaultWorkerDirEnvVarName, configService.WorkerDirEnvVarName);
             }
@@ -94,6 +97,9 @@ namespace Microsoft.Spark.UnitTest
                 Assert.False(
                     string.IsNullOrWhiteSpace(
                         Environment.GetEnvironmentVariable(_workerDirEnvVars.WorkerMajorDir.Name)));
+                Assert.True(
+                    string.IsNullOrWhiteSpace(
+                        Environment.GetEnvironmentVariable(_workerDirEnvVars.WorkerDir.Name)));
                 Assert.Equal(_workerDirEnvVars.WorkerMajorDir.Name, configService.WorkerDirEnvVarName);
             }
 
@@ -112,6 +118,9 @@ namespace Microsoft.Spark.UnitTest
                 Assert.False(
                     string.IsNullOrWhiteSpace(
                         Environment.GetEnvironmentVariable(_workerDirEnvVars.WorkerMajorDir.Name)));
+                Assert.True(
+                    string.IsNullOrWhiteSpace(
+                        Environment.GetEnvironmentVariable(_workerDirEnvVars.WorkerDir.Name)));
                 Assert.Equal(_workerDirEnvVars.WorkerMajorMinorDir.Name, configService.WorkerDirEnvVarName);
             }
 
@@ -129,6 +138,9 @@ namespace Microsoft.Spark.UnitTest
                 Assert.False(
                     string.IsNullOrWhiteSpace(
                         Environment.GetEnvironmentVariable(_workerDirEnvVars.WorkerMajorDir.Name)));
+                Assert.True(
+                    string.IsNullOrWhiteSpace(
+                        Environment.GetEnvironmentVariable(_workerDirEnvVars.WorkerDir.Name)));
                 Assert.Equal(
                     _workerDirEnvVars.WorkerMajorMinorBuildDir.Name, configService.WorkerDirEnvVarName);
             }
