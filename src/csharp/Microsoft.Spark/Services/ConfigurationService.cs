@@ -16,12 +16,12 @@ namespace Microsoft.Spark.Services
     /// </summary>
     internal sealed class ConfigurationService : IConfigurationService
     {
-        public const string WorkerDirEnvVarName = "DOTNET_WORKER_DIR";
         public const string WorkerReadBufferSizeEnvVarName = "spark.dotnet.worker.readBufferSize";
         public const string WorkerWriteBufferSizeEnvVarName =
             "spark.dotnet.worker.writeBufferSize";
 
-        internal const string WorkerVerDirEnvVarNameFormat = "DOTNET_WORKER_V{0}_DIR";
+        internal const string DefaultWorkerDirEnvVarName = "DOTNET_WORKER_DIR";
+        internal const string WorkerVerDirEnvVarNameFormat = "DOTNET_WORKER_{0}_DIR";
 
         private const string DotnetBackendPortEnvVarName = "DOTNETBACKEND_PORT";
         private const int DotnetBackendDebugPort = 5567;
@@ -35,15 +35,7 @@ namespace Microsoft.Spark.Services
             LoggerServiceFactory.GetLogger(typeof(ConfigurationService));
 
         private string _workerPath;
-
-        /// <summary>
-        /// The Microsoft.Spark major assembly version is used to construct the
-        /// WorkerVerDirEnvVarNameFormat environment variable.
-        /// </summary>
-        internal static string WorkerVerDirEnvVarName { get; } =
-            string.Format(
-                WorkerVerDirEnvVarNameFormat,
-                new Version(AssemblyInfoProvider.MicrosoftSparkAssemblyInfo().AssemblyVersion).Major);
+        private string _workerDirEnvVarName;
 
         /// <summary>
         /// The Microsoft.Spark.Worker filename.
@@ -51,6 +43,45 @@ namespace Microsoft.Spark.Services
         internal static string ProcFileName { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
             $"{s_procBaseFileName}.exe" :
             s_procBaseFileName;
+
+        /// <summary>
+        /// Returns the environment variable name that defines the path to the
+        /// Microsoft.Spark.Worker. Using the Microsoft.Spark assembly version
+        /// we use the first environment variable that is defined in the
+        /// following order and default to DOTNET_WORKER_DIR if not:
+        /// 
+        /// - DOTNET_WORKER_{MAJOR}_{MINOR}_{BUILD}_DIR
+        /// - DOTNET_WORKER_{MAJOR}_{MINOR}_DIR
+        /// - DOTNET_WORKER_{MAJOR}_DIR
+        /// </summary>
+        internal string WorkerDirEnvVarName
+        {
+            get
+            {
+                if (_workerDirEnvVarName != null)
+                {
+                    return _workerDirEnvVarName;
+                }
+
+                var version = new Version(AssemblyInfoProvider.MicrosoftSparkAssemblyInfo().AssemblyVersion);
+                var versionComponents = new int[] { version.Major, version.Minor, version.Build };
+                for (int i = versionComponents.Length; i > 0; --i)
+                {
+                    var span = new ReadOnlySpan<int>(versionComponents, 0, i);
+                    string verEnvVarName = string.Format(
+                        WorkerVerDirEnvVarNameFormat,
+                        string.Join("_", span.ToArray()));
+                    if (!string.IsNullOrWhiteSpace(GetEnvironmentVariable(verEnvVarName)))
+                    {
+                        _workerDirEnvVarName = verEnvVarName;
+                        return _workerDirEnvVarName;
+                    }
+                }
+
+                _workerDirEnvVarName = DefaultWorkerDirEnvVarName;
+                return _workerDirEnvVarName;
+            }
+        }
 
         /// <summary>
         /// How often to run GC on JVM ThreadPool threads. Defaults to 5 minutes.
@@ -108,19 +139,6 @@ namespace Microsoft.Spark.Services
         {
             if (_workerPath != null)
             {
-                return _workerPath;
-            }
-
-            // If the WorkerVerDirEnvVarName environment variable is set, the worker path is constructed
-            // based on it.
-            string workerVerDir = GetEnvironmentVariable(WorkerVerDirEnvVarName);
-            if (!string.IsNullOrEmpty(workerVerDir))
-            {
-                _workerPath = Path.Combine(workerVerDir, ProcFileName);
-                _logger.LogDebug(
-                    "Using the {0} environment variable to construct .NET worker path: {1}.",
-                    WorkerVerDirEnvVarName,
-                    _workerPath);
                 return _workerPath;
             }
 
