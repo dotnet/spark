@@ -27,6 +27,7 @@ class UtilsTest {
     Utils.validateSparkVersions(
       conf,
       sparkVersion,
+      Utils.normalizeSparkVersion(sparkVersion),
       sparkMajorMinorVersionPrefix,
       supportedSparkVersions)
   }
@@ -47,6 +48,7 @@ class UtilsTest {
           Utils.validateSparkVersions(
             conf,
             sparkVersion,
+            Utils.normalizeSparkVersion(sparkVersion),
             sparkMajorMinorVersionPrefix,
             supportedSparkVersions)
         }
@@ -69,6 +71,7 @@ class UtilsTest {
           Utils.validateSparkVersions(
             conf,
             sparkVersion,
+            Utils.normalizeSparkVersion(sparkVersion),
             sparkMajorMinorVersionPrefix,
             supportedSparkVersions)
         }

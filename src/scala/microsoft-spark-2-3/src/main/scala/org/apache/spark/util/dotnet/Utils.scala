@@ -194,7 +194,7 @@ object Utils extends Logging {
   }
 
   /**
-   * Validates the spark version by verifying:
+   * Validates the normalized spark version by verifying:
    *   - Spark version starts with sparkMajorMinorVersionPrefix.
    *   - If ignoreSparkPatchVersionCheck spark conf is
    *     - true: valid

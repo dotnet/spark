@@ -26,6 +26,7 @@ class UtilsTest {
     Utils.validateSparkVersions(
       conf,
       sparkVersion,
+      Utils.normalizeSparkVersion(sparkVersion),
       sparkMajorMinorVersionPrefix,
       supportedSparkVersions)
   }
@@ -39,13 +40,16 @@ class UtilsTest {
     val sparkMajorMinorVersionPrefix = "3.0."
     val supportedSparkVersions = Set[String]("3.0.0", "3.0.1", "3.0.2")
 
-    assertThrows(classOf[IllegalArgumentException], () => {
-      Utils.validateSparkVersions(
-        conf,
-        sparkVersion,
-        sparkMajorMinorVersionPrefix,
-        supportedSparkVersions)
-    })
+    assertThrows(
+      classOf[IllegalArgumentException],
+      () => {
+        Utils.validateSparkVersions(
+          conf,
+          sparkVersion,
+          Utils.normalizeSparkVersion(sparkVersion),
+          sparkMajorMinorVersionPrefix,
+          supportedSparkVersions)
+      })
   }
 
   @Test
@@ -57,12 +61,15 @@ class UtilsTest {
     val sparkMajorMinorVersionPrefix = "3.0."
     val supportedSparkVersions = Set[String]("3.0.0", "3.0.1", "3.0.2")
 
-    assertThrows(classOf[IllegalArgumentException], () => {
-      Utils.validateSparkVersions(
-        conf,
-        sparkVersion,
-        sparkMajorMinorVersionPrefix,
-        supportedSparkVersions)
-    })
+    assertThrows(
+      classOf[IllegalArgumentException],
+      () => {
+        Utils.validateSparkVersions(
+          conf,
+          sparkVersion,
+          Utils.normalizeSparkVersion(sparkVersion),
+          sparkMajorMinorVersionPrefix,
+          supportedSparkVersions)
+      })
   }
 }
