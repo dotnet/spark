@@ -32,61 +32,10 @@ namespace Microsoft.Spark.UnitTest
                     string.Format(ConfigurationService.WorkerVerDirEnvVarNameFormat, version.Major))
             };
 
-            Environment.SetEnvironmentVariable(_workerDirEnvVars.WorkerDir.Name, "");
-            Environment.SetEnvironmentVariable(_workerDirEnvVars.WorkerMajorMinorBuildDir.Name, "");
-            Environment.SetEnvironmentVariable(_workerDirEnvVars.WorkerMajorMinorDir.Name, "");
-            Environment.SetEnvironmentVariable(_workerDirEnvVars.WorkerMajorDir.Name, "");
-        }
-
-        [Fact]
-        public void TestWorkerEnvName()
-        {
-            {
-                var configService = new ConfigurationService();
-
-                Assert.False(_workerDirEnvVars.WorkerMajorMinorBuildDir.IsSet());
-                Assert.False(_workerDirEnvVars.WorkerMajorMinorDir.IsSet());
-                Assert.False(_workerDirEnvVars.WorkerMajorDir.IsSet());
-                Assert.False(_workerDirEnvVars.WorkerDir.IsSet());
-                Assert.Equal(
-                    ConfigurationService.DefaultWorkerDirEnvVarName, configService.WorkerDirEnvVarName);
-            }
-
-            {
-                var configService = new ConfigurationService();
-                Environment.SetEnvironmentVariable(_workerDirEnvVars.WorkerMajorDir.Name, "workerMajorDir");
-
-                Assert.False(_workerDirEnvVars.WorkerMajorMinorBuildDir.IsSet());
-                Assert.False(_workerDirEnvVars.WorkerMajorMinorDir.IsSet());
-                Assert.True(_workerDirEnvVars.WorkerMajorDir.IsSet());
-                Assert.False(_workerDirEnvVars.WorkerDir.IsSet());
-                Assert.Equal(_workerDirEnvVars.WorkerMajorDir.Name, configService.WorkerDirEnvVarName);
-            }
-
-            {
-                var configService = new ConfigurationService();
-                Environment.SetEnvironmentVariable(
-                    _workerDirEnvVars.WorkerMajorMinorDir.Name, "workerMajorMinorDir");
-
-                Assert.False(_workerDirEnvVars.WorkerMajorMinorBuildDir.IsSet());
-                Assert.True(_workerDirEnvVars.WorkerMajorMinorDir.IsSet());
-                Assert.True(_workerDirEnvVars.WorkerMajorDir.IsSet());
-                Assert.False(_workerDirEnvVars.WorkerDir.IsSet());
-                Assert.Equal(_workerDirEnvVars.WorkerMajorMinorDir.Name, configService.WorkerDirEnvVarName);
-            }
-
-            {
-                var configService = new ConfigurationService();
-                Environment.SetEnvironmentVariable(
-                    _workerDirEnvVars.WorkerMajorMinorBuildDir.Name, "workerMajorMinorBuildDir");
-
-                Assert.True(_workerDirEnvVars.WorkerMajorMinorBuildDir.IsSet());
-                Assert.True(_workerDirEnvVars.WorkerMajorMinorDir.IsSet());
-                Assert.True(_workerDirEnvVars.WorkerMajorDir.IsSet());
-                Assert.False(_workerDirEnvVars.WorkerDir.IsSet());
-                Assert.Equal(
-                    _workerDirEnvVars.WorkerMajorMinorBuildDir.Name, configService.WorkerDirEnvVarName);
-            }
+            Environment.SetEnvironmentVariable(_workerDirEnvVars.WorkerDir.Name, null);
+            Environment.SetEnvironmentVariable(_workerDirEnvVars.WorkerMajorMinorBuildDir.Name, null);
+            Environment.SetEnvironmentVariable(_workerDirEnvVars.WorkerMajorMinorDir.Name, null);
+            Environment.SetEnvironmentVariable(_workerDirEnvVars.WorkerMajorDir.Name, null);
         }
 
         [Fact]
@@ -94,10 +43,10 @@ namespace Microsoft.Spark.UnitTest
         {
             var configService = new ConfigurationService();
 
-            Assert.False(_workerDirEnvVars.WorkerMajorMinorBuildDir.IsSet());
-            Assert.False(_workerDirEnvVars.WorkerMajorMinorDir.IsSet());
-            Assert.False(_workerDirEnvVars.WorkerMajorDir.IsSet());
-            Assert.False(_workerDirEnvVars.WorkerDir.IsSet());
+            Assert.False(IsEnvVarSet(_workerDirEnvVars.WorkerMajorMinorBuildDir.Name));
+            Assert.False(IsEnvVarSet(_workerDirEnvVars.WorkerMajorMinorDir.Name));
+            Assert.False(IsEnvVarSet(_workerDirEnvVars.WorkerMajorDir.Name));
+            Assert.False(IsEnvVarSet(_workerDirEnvVars.WorkerDir.Name));
 
             // Environment variables not set, only Microsoft.Spark.Worker filename should be returned.
             Assert.Equal(ConfigurationService.ProcFileName, configService.GetWorkerExePath());
@@ -107,13 +56,13 @@ namespace Microsoft.Spark.UnitTest
         public void TestWorkerExePathWithWorkerDirEnvVar()
         {
             var configService = new ConfigurationService();
-            var workerDir = "workerDir";
+            string workerDir = "workerDir";
             Environment.SetEnvironmentVariable(_workerDirEnvVars.WorkerDir.Name, workerDir);
 
-            Assert.False(_workerDirEnvVars.WorkerMajorMinorBuildDir.IsSet());
-            Assert.False(_workerDirEnvVars.WorkerMajorMinorDir.IsSet());
-            Assert.False(_workerDirEnvVars.WorkerMajorDir.IsSet());
-            Assert.True(_workerDirEnvVars.WorkerDir.IsSet());
+            Assert.False(IsEnvVarSet(_workerDirEnvVars.WorkerMajorMinorBuildDir.Name));
+            Assert.False(IsEnvVarSet(_workerDirEnvVars.WorkerMajorMinorDir.Name));
+            Assert.False(IsEnvVarSet(_workerDirEnvVars.WorkerMajorDir.Name));
+            Assert.True(IsEnvVarSet(_workerDirEnvVars.WorkerDir.Name));
 
             // Only WorkerDir is set, WorkerExePath will be built using it.
             Assert.Equal(
@@ -124,23 +73,63 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestWorkerExePathWithEnvVarPrecedence()
         {
-            var configService = new ConfigurationService();
-            var workerDir = "workerDir";
-            Environment.SetEnvironmentVariable(_workerDirEnvVars.WorkerDir.Name, workerDir);
-            var workerMajorDir = "workerMajorDir";
-            Environment.SetEnvironmentVariable(_workerDirEnvVars.WorkerMajorDir.Name, workerMajorDir);
+            {
+                var configService = new ConfigurationService();
+                string workerDir = "workerDir";
+                Environment.SetEnvironmentVariable(_workerDirEnvVars.WorkerDir.Name, workerDir);
 
-            Assert.False(_workerDirEnvVars.WorkerMajorMinorBuildDir.IsSet());
-            Assert.False(_workerDirEnvVars.WorkerMajorMinorDir.IsSet());
-            Assert.True(_workerDirEnvVars.WorkerMajorDir.IsSet());
-            Assert.True(_workerDirEnvVars.WorkerDir.IsSet());
+                Assert.False(IsEnvVarSet(_workerDirEnvVars.WorkerMajorMinorBuildDir.Name));
+                Assert.False(IsEnvVarSet(_workerDirEnvVars.WorkerMajorMinorDir.Name));
+                Assert.False(IsEnvVarSet(_workerDirEnvVars.WorkerMajorDir.Name));
+                Assert.True(IsEnvVarSet(_workerDirEnvVars.WorkerDir.Name));
+                Assert.Equal(
+                    Path.Combine(workerDir, ConfigurationService.ProcFileName),
+                    configService.GetWorkerExePath());
+            }
 
-            // WorkerDir and WorkerMajorDir environment variables are set.
-            // Ensure that the environment variable constructed with the
-            // assembly version takes precedence.
-            Assert.Equal(
-                Path.Combine(workerMajorDir, ConfigurationService.ProcFileName),
-                configService.GetWorkerExePath());
+            {
+                var configService = new ConfigurationService();
+                string workerMajorDir = "workerMajorDir";
+                Environment.SetEnvironmentVariable(_workerDirEnvVars.WorkerMajorDir.Name, workerMajorDir);
+
+                Assert.False(IsEnvVarSet(_workerDirEnvVars.WorkerMajorMinorBuildDir.Name));
+                Assert.False(IsEnvVarSet(_workerDirEnvVars.WorkerMajorMinorDir.Name));
+                Assert.True(IsEnvVarSet(_workerDirEnvVars.WorkerMajorDir.Name));
+                Assert.True(IsEnvVarSet(_workerDirEnvVars.WorkerDir.Name));
+                Assert.Equal(
+                    Path.Combine(workerMajorDir, ConfigurationService.ProcFileName),
+                    configService.GetWorkerExePath());
+            }
+
+            {
+                var configService = new ConfigurationService();
+                string workerMajorMinorDir = "workerMajorMinorDir";
+                Environment.SetEnvironmentVariable(
+                    _workerDirEnvVars.WorkerMajorMinorDir.Name, workerMajorMinorDir);
+
+                Assert.False(IsEnvVarSet(_workerDirEnvVars.WorkerMajorMinorBuildDir.Name));
+                Assert.True(IsEnvVarSet(_workerDirEnvVars.WorkerMajorMinorDir.Name));
+                Assert.True(IsEnvVarSet(_workerDirEnvVars.WorkerMajorDir.Name));
+                Assert.True(IsEnvVarSet(_workerDirEnvVars.WorkerDir.Name));
+                Assert.Equal(
+                    Path.Combine(workerMajorMinorDir, ConfigurationService.ProcFileName),
+                    configService.GetWorkerExePath());
+            }
+
+            {
+                var configService = new ConfigurationService();
+                string workerMajorMinorBuildDir = "workerMajorMinorBuildDir";
+                Environment.SetEnvironmentVariable(
+                    _workerDirEnvVars.WorkerMajorMinorBuildDir.Name, workerMajorMinorBuildDir);
+
+                Assert.True(IsEnvVarSet(_workerDirEnvVars.WorkerMajorMinorBuildDir.Name));
+                Assert.True(IsEnvVarSet(_workerDirEnvVars.WorkerMajorMinorDir.Name));
+                Assert.True(IsEnvVarSet(_workerDirEnvVars.WorkerMajorDir.Name));
+                Assert.True(IsEnvVarSet(_workerDirEnvVars.WorkerDir.Name));
+                Assert.Equal(
+                    Path.Combine(workerMajorMinorBuildDir, ConfigurationService.ProcFileName),
+                    configService.GetWorkerExePath());
+            }
         }
 
         public void Dispose()
@@ -158,6 +147,9 @@ namespace Microsoft.Spark.UnitTest
                 _workerDirEnvVars.WorkerMajorDir.Name,
                 _workerDirEnvVars.WorkerMajorDir.Value);
         }
+
+        public bool IsEnvVarSet(string name) =>
+            !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(name));
 
         private class WorkerDirEnvVars
         {
@@ -178,7 +170,6 @@ namespace Microsoft.Spark.UnitTest
                 Value = Environment.GetEnvironmentVariable(name);
             }
 
-            public bool IsSet() => !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(Name));
         }
     }
 }
