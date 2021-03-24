@@ -115,7 +115,7 @@ namespace Microsoft.Spark.UnitTest
             Assert.False(_workerDirEnvVars.WorkerMajorDir.IsSet());
             Assert.True(_workerDirEnvVars.WorkerDir.IsSet());
 
-            // Only ConfigurationService.WorkerDirEnvVarName is set, WorkerExePath will be built using it.
+            // Only WorkerDir is set, WorkerExePath will be built using it.
             Assert.Equal(
                 Path.Combine(workerDir, ConfigurationService.ProcFileName),
                 configService.GetWorkerExePath());
