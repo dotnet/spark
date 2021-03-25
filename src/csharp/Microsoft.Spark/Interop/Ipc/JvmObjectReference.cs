@@ -149,6 +149,7 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <summary>
         /// An unique identifier for an object created on the JVM.
         /// </summary>
+        ///
         internal JvmObjectId Id { get; }
 
         /// <summary>
