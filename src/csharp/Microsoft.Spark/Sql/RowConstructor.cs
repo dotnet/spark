@@ -11,16 +11,16 @@ using Razorvine.Pickle;
 namespace Microsoft.Spark.Sql
 {
     /// <summary>
-    /// RowConstructorConstructor is a custom unpickler for GenericRowWithSchema in Spark.
+    /// RowConstructor is a custom unpickler for GenericRowWithSchema in Spark.
     /// Refer to spark/sql/core/src/main/scala/org/apache/spark/sql/execution/python/
     /// EvaluatePython.scala how GenericRowWithSchema is being pickled.
     /// </summary>
-    internal sealed class RowConstructorConstructor : IObjectConstructor
+    internal sealed class RowConstructor : IObjectConstructor
     {
         /// <summary>
         /// Cache the schemas of the rows being received. Multiple schemas may be
         /// sent per batch if there are nested rows contained in the row. Note that
-        /// this is thread local variable because one RowConstructorConstructor object is
+        /// this is thread local variable because one RowConstructor object is
         /// registered to the Unpickler and there could be multiple threads unpickling
         /// the data using the same registered object.
         /// </summary>
@@ -29,13 +29,15 @@ namespace Microsoft.Spark.Sql
 
         /// <summary>
         /// Used by Unpickler to pass unpickled schema for handling. The Unpickler
-        /// will reuse the <see cref="RowConstructorConstructor"/> object when
+        /// will reuse the <see cref="RowConstructor"/> object when
         /// it needs to start constructing a <see cref="Row"/>. The schema is passed
         /// to <see cref="construct(object[])"/> and the returned
         /// <see cref="IObjectConstructor"/> is used to build the rest of the <see cref="Row"/>.
         /// </summary>
         /// <param name="args">Unpickled schema</param>
-        /// <returns>New RowConstructor object capturing the schema.</returns>
+        /// <returns>
+        /// New <see cref="RowWithSchemaConstructor"/>object capturing the schema.
+        /// </returns>
         public object construct(object[] args)
         {
             if (s_schemaCache is null)
@@ -44,7 +46,7 @@ namespace Microsoft.Spark.Sql
             }
 
             Debug.Assert((args != null) && (args.Length == 1) && (args[0] is string));
-            return new RowConstructor(GetSchema((string)args[0]));
+            return new RowWithSchemaConstructor(GetSchema(s_schemaCache, (string)args[0]));
         }
 
         /// <summary>
@@ -62,13 +64,12 @@ namespace Microsoft.Spark.Sql
             s_schemaCache?.Clear();
         }
 
-        private static StructType GetSchema(string schemaString)
+        private static StructType GetSchema(IDictionary<string, StructType> schemaCache, string schemaString)
         {
-            Debug.Assert(s_schemaCache != null);
-            if (!s_schemaCache.TryGetValue(schemaString, out StructType schema))
+            if (!schemaCache.TryGetValue(schemaString, out StructType schema))
             {
                 schema = (StructType)DataType.ParseDataType(schemaString);
-                s_schemaCache.Add(schemaString, schema);
+                schemaCache.Add(schemaString, schema);
             }
 
             return schema;
@@ -76,14 +77,14 @@ namespace Microsoft.Spark.Sql
     }
 
     /// <summary>
-    /// Created from <see cref="RowConstructorConstructor"/> and subsequently used
+    /// Created from <see cref="RowConstructor"/> and subsequently used
     /// by the Unpickler to construct a <see cref="Row"/>.
     /// </summary>
-    internal sealed class RowConstructor : IObjectConstructor
+    internal sealed class RowWithSchemaConstructor : IObjectConstructor
     {
         private readonly StructType _schema;
 
-        internal RowConstructor(StructType schema)
+        internal RowWithSchemaConstructor(StructType schema)
         {
             _schema = schema;
         }

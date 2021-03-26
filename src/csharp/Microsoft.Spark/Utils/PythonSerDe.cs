@@ -19,12 +19,12 @@ namespace Microsoft.Spark.Utils
     /// </summary>
     internal class PythonSerDe
     {
-        // One RowConstructorConstructor object is registered to the Unpickler and
+        // One RowConstructor object is registered to the Unpickler and
         // there could be multiple threads unpickling row data using
         // this object. However there is no issue as the field(s) that are
         // reused by this object are instantiated on a per-thread basis and
         // therefore not shared between threads.
-        private static readonly RowConstructorConstructor s_rowConstructorConstructor;
+        private static readonly RowConstructor s_rowConstructor;
 
         static PythonSerDe()
         {
@@ -33,9 +33,9 @@ namespace Microsoft.Spark.Utils
             Unpickler.registerConstructor(
                 "pyspark.sql.types", "_parse_datatype_json_string", new StringConstructor());
 
-            s_rowConstructorConstructor = new RowConstructorConstructor();
+            s_rowConstructor = new RowConstructor();
             Unpickler.registerConstructor(
-                "pyspark.sql.types", "_create_row_inbound_converter", s_rowConstructorConstructor);
+                "pyspark.sql.types", "_create_row_inbound_converter", s_rowConstructor);
 
             // Register custom picklers.
             Pickler.registerCustomPickler(typeof(Row), new RowPickler());
@@ -65,7 +65,7 @@ namespace Microsoft.Spark.Utils
                 object unpickledItems = unpickler.loads(
                     new ReadOnlyMemory<byte>(buffer, 0, messageLength),
                     stackCapacity: 102); // Spark sends batches of 100 rows, and +2 is for markers.
-                s_rowConstructorConstructor.Reset();
+                s_rowConstructor.Reset();
                 Debug.Assert(unpickledItems != null);
                 return (unpickledItems as object[]);
             }
