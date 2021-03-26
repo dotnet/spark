@@ -126,6 +126,46 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         }
 
         /// <summary>
+        /// UDF that returns a timestamp string.
+        /// </summary>
+        [Fact]
+        public void TestUdfWithDuplicateTimestamps()
+        {
+            var timestamp = new Timestamp(2020, 1, 1, 0, 0, 0, 0);
+            var schema = new StructType(new StructField[]
+            {
+                new StructField("ts", new TimestampType())
+            });
+            var data = new GenericRow[]
+            {
+                new GenericRow(new object[] { timestamp }),
+                new GenericRow(new object[] { timestamp }),
+                new GenericRow(new object[] { timestamp })
+            };
+
+            var expectedTimestamp = new Timestamp(1970, 1, 2, 0, 0, 0, 0);
+            string tsString = expectedTimestamp.ToString();
+            var returnType = new StructType(new[] { new StructField("tsString", new StringType()) });
+            Func<Column, Column> udf =
+                Udf<Row>(row => new GenericRow(new string[] { tsString }), returnType);
+
+            DataFrame df = _spark.CreateDataFrame(data, schema);
+            Column newCol = udf(Struct(df.Col("ts")))
+                .GetField("tsString")
+                .Cast("timestamp")
+                .Alias("tsStringCastToTs");
+
+            Row[] rows = df.Select(newCol).Collect().ToArray();
+
+            Assert.Equal(3, rows.Length);
+            foreach (Row row in rows)
+            {
+                Assert.Single(row.Values);
+                Assert.Equal(expectedTimestamp, row.Values[0]);
+            }
+        }
+
+        /// <summary>
         /// UDF that returns Timestamp type.
         /// </summary>
         [Fact]

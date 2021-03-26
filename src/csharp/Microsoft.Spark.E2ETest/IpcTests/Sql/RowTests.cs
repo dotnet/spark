@@ -24,59 +24,89 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestWithDuplicatedRows()
         {
+            var timestamp = new Timestamp(2020, 1, 1, 0, 0, 0, 0);
             var schema = new StructType(new StructField[]
             {
                 new StructField("ts", new TimestampType())
             });
-
             var data = new GenericRow[]
             {
-                new GenericRow(new object[] { new Timestamp(2020, 1, 1, 0, 0, 0, 0) })
+                new GenericRow(new object[] { timestamp })
             };
 
             DataFrame df = _spark.CreateDataFrame(data, schema);
+            Row[] rows = df
+                .WithColumn("tsRow", Struct("ts"))
+                .WithColumn("tsRowRow", Struct("tsRow"))
+                .Collect()
+                .ToArray();
 
-            df.WithColumn("tsRow", Struct("ts")).WithColumn("tsRowRow", Struct("tsRow")).Collect().ToArray();
+            Assert.Single(rows);
+
+            Row row = rows[0];
+            Assert.Equal(3, row.Values.Length);
+            Assert.Equal(timestamp, row.Values[0]);
+
+            Row tsRow = row.Values[1] as Row;
+            Assert.Single(tsRow.Values);
+            Assert.Equal(timestamp, tsRow.Values[0]);
+
+            Row tsRowRow = row.Values[2] as Row;
+            Assert.Single(tsRowRow.Values);
+            Assert.Equal(tsRowRow.Values[0], tsRow);
         }
 
         [Fact]
         public void TestWithDuplicateTimestamps()
         {
+            var timestamp = new Timestamp(2020, 1, 1, 0, 0, 0, 0);
             var schema = new StructType(new StructField[]
             {
                 new StructField("ts", new TimestampType())
             });
-
             var data = new GenericRow[]
             {
-                new GenericRow(new object[] { new Timestamp(2020, 1, 1, 0, 0, 0, 0) }),
-                new GenericRow(new object[] { new Timestamp(2020, 1, 1, 0, 0, 0, 0) }),
-                new GenericRow(new object[] { new Timestamp(2020, 1, 1, 0, 0, 0, 0) })
+                new GenericRow(new object[] { timestamp }),
+                new GenericRow(new object[] { timestamp }),
+                new GenericRow(new object[] { timestamp })
             };
 
             DataFrame df = _spark.CreateDataFrame(data, schema);
+            Row[] rows = df.Collect().ToArray();
 
-            df.Collect().ToArray();
+            Assert.Equal(3, rows.Length);
+            foreach (Row row in rows)
+            {
+                Assert.Single(row.Values);
+                Assert.Equal(timestamp, row.GetAs<Timestamp>(0));
+            }
         }
 
         [Fact]
         public void TestWithDuplicateDates()
         {
+            var date = new Date(2020, 1, 1);
             var schema = new StructType(new StructField[]
             {
                 new StructField("date", new DateType())
             });
-
             var data = new GenericRow[]
             {
-                new GenericRow(new object[] { new Date(2020, 1, 1) }),
-                new GenericRow(new object[] { new Date(2020, 1, 1) }),
-                new GenericRow(new object[] { new Date(2020, 1, 1) })
+                new GenericRow(new object[] { date }),
+                new GenericRow(new object[] { date }),
+                new GenericRow(new object[] { date })
             };
 
             DataFrame df = _spark.CreateDataFrame(data, schema);
 
-            df.Collect().ToArray();
+            Row[] rows = df.Collect().ToArray();
+
+            Assert.Equal(3, rows.Length);
+            foreach (Row row in rows)
+            {
+                Assert.Single(row.Values);
+                Assert.Equal(date, row.GetAs<Date>(0));
+            }
         }
     }
 }

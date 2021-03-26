@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Spark.Sql.Types;
 using Razorvine.Pickle;
 
@@ -38,6 +39,7 @@ namespace Microsoft.Spark.Sql
                 s_schemaCache = new Dictionary<string, StructType>();
             }
 
+            Debug.Assert((args != null) && (args.Length == 1) && (args[0] is string));
             return new RowConstructor(GetSchema((string)args[0]));
         }
 
@@ -58,6 +60,7 @@ namespace Microsoft.Spark.Sql
 
         private static StructType GetSchema(string schemaString)
         {
+            Debug.Assert(s_schemaCache != null);
             if (!s_schemaCache.TryGetValue(schemaString, out StructType schema))
             {
                 schema = (StructType)DataType.ParseDataType(schemaString);
@@ -68,6 +71,10 @@ namespace Microsoft.Spark.Sql
         }
     }
 
+    /// <summary>
+    /// Created from <see cref="RowConstructorConstructor"/> and subsequently used
+    /// by the Unpickler to construct a <see cref="Row"/>.
+    /// </summary>
     internal sealed class RowConstructor : IObjectConstructor
     {
         private readonly StructType _schema;
