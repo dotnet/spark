@@ -31,6 +31,15 @@ namespace Microsoft.Spark.Sql
             return ApplyFunction("col", columnName);
         }
 
+        public static Column ApplyTonicUdf(Column col, string replacement, string statistics, int baseSeed)
+        {
+            return new Column(
+                (JvmObjectReference)Jvm.CallStaticJavaMethod(
+                    "com.tonic.udfs.GeneratorCaller",
+                    "create",
+                    new object[] {col, replacement, statistics, baseSeed}));
+        }
+        
         /// <summary>
         /// Returns a Column based on the given column name. Alias for Column().
         /// </summary>
