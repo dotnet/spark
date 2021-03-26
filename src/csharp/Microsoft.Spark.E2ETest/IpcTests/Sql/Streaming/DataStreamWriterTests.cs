@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Streaming;

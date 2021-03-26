@@ -98,10 +98,7 @@ namespace Microsoft.Spark.RDD
             {
                 // Refer to the AutoBatchedPickler class in spark/core/src/main/scala/org/apache/
                 // spark/api/python/SerDeUtil.scala regarding how the Rows may be batched.
-                return PythonSerDe.GetUnpickledObjects(stream, length)
-                    .Cast<RowConstructor>()
-                    .Select(rc => rc.GetRow())
-                    .ToArray();
+                return PythonSerDe.GetUnpickledObjects(stream, length).Cast<Row>().ToArray();
             }
         }
     }
