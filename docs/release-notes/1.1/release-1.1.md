@@ -98,11 +98,11 @@ The following table outlines the supported Spark versions along with the microso
     <tbody align="center">
         <tr>
             <td>2.3.*</td>
-            <td>microsoft-spark-2-3_2.11-1.0.1.jar</td>
+            <td>microsoft-spark-2-3_2.11-1.1.0.jar</td>
         </tr>
         <tr>
             <td>2.4.0</td>
-            <td rowspan=7>microsoft-spark-2-4_2.11-1.0.1.jar</td>
+            <td rowspan=7>microsoft-spark-2-4_2.11-1.1.0.jar</td>
         </tr>
         <tr>
             <td>2.4.1</td>
@@ -153,7 +153,7 @@ The following table outlines the supported Delta versions along with the Microso
     <tbody align="center">
         <tr>
             <td>0.1.0</td>
-            <td rowspan=8>1.0.1</td>
+            <td rowspan=9>1.1.0</td>
         </tr>
         <tr>
             <td>0.2.0</td>
@@ -196,7 +196,7 @@ The following table outlines the supported Hyperspace versions along with the Mi
     <tbody align="center">
         <tr>
             <td>0.1.0</td>
-            <td rowspan=2>1.1.0</td>
+            <td rowspan=3>1.1.0</td>
         </tr>
         <tr>
             <td>0.2.0</td>
