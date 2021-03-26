@@ -28,7 +28,11 @@ namespace Microsoft.Spark.Sql
         private static IDictionary<string, StructType> s_schemaCache;
 
         /// <summary>
-        /// Used by Unpickler to pass unpickled schema for handling.
+        /// Used by Unpickler to pass unpickled schema for handling. The Unpickler
+        /// will reuse the <see cref="RowConstructorConstructor"/> object when
+        /// it needs to start constructing a <see cref="Row"/>. The schema is passed
+        /// to <see cref="construct(object[])"/> and the returned
+        /// <see cref="IObjectConstructor"/> is used to build the rest of the <see cref="Row"/>.
         /// </summary>
         /// <param name="args">Unpickled schema</param>
         /// <returns>New RowConstructor object capturing the schema.</returns>
