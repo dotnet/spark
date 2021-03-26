@@ -1,11 +1,22 @@
-# .NET for Apache Spark 1.0.1 Release Notes
+# .NET for Apache Spark 1.1 Release Notes
 
 ### New Features/Improvements
 
-* Support for Arrow 2.0 and GroupedMapUdf in Spark 3.0.0 ([#654](https://github.com/dotnet/spark/issues/654))
+* Support for Arrow 2.0 and GroupedMapUdf in Spark 3.0.0 ([#711](https://github.com/dotnet/spark/pull/711))
 * Use pattern matching in arrow test utils to improve readability ([#725](https://github.com/dotnet/spark/pull/725))
 * Check whether file is found before trying to dereference it ([#759](https://github.com/dotnet/spark/pull/759))
 * Ml/feature hasher has only internal contructors ([#761](https://github.com/dotnet/spark/pull/761))
+* Support for stop words removers ([#726](https://github.com/dotnet/spark/pull/726))
+* Support for adding NGram functionality ([#734](https://github.com/dotnet/spark/pull/734))
+* Add support for SQLTransformer ML feature ([#781](https://github.com/dotnet/spark/pull/781))
+* Add skeletal support for FileSystem extension ([#787](https://github.com/dotnet/spark/pull/787))
+* Using (processId, threadId) as key to mantain threadpool executor instead of only threadId ([#793](https://github.com/dotnet/spark/pull/793))
+* Support for Hyperspace 0.4.0 ([#815](https://github.com/dotnet/spark/pull/815))
+* Support for Delta Lake 0.8.0 ([#823](https://github.com/dotnet/spark/pull/823))
+* Add support for Spark 3.0.2 ([#833](https://github.com/dotnet/spark/pull/833))
+* Migrating master to main branch ([#847](https://github.com/dotnet/spark/pull/847), [#849](https://github.com/dotnet/spark/pull/849))
+* Add DOTNET_WORKER_<ver>_DIR environment variable ([#861](https://github.com/dotnet/spark/pull/861))
+* Add spark.dotnet.ignoreSparkPatchVersionCheck conf to ignore patch version in DotnetRunner ([#862](https://github.com/dotnet/spark/pull/862))
 
 ### Bug Fixes
 
@@ -13,12 +24,16 @@
 * Fix package-worker.ps1 to handle output path with ":" ([#742](https://github.com/dotnet/spark/pull/742))
 * Fixes for TimestampType and DateType conversion ([#765](https://github.com/dotnet/spark/pull/765))
 * Fix for using Broadcast variables in Databricks ([#766](https://github.com/dotnet/spark/pull/766))
+* Fix macOS Catalina Permissions ([#784](https://github.com/dotnet/spark/pull/784))
+* Fix for memory leak in JVMObjectTracker ([#801](https://github.com/dotnet/spark/pull/801))
 
 ### Infrastructure / Documentation / Etc.
 
 * Fix flaky CallbackTests.TestCallbackHandlers Test ([#745](https://github.com/dotnet/spark/pull/745))
 * Run E2E tests on Linux in build pipeline and add Backward/Forward E2E tests ([#737](https://github.com/dotnet/spark/pull/737))
 * Add comments and cleanup azure pipeline ([#764](https://github.com/dotnet/spark/pull/764))
+* Update dotnet-interactive deprecated feed ([#807](https://github.com/dotnet/spark/pull/807), [#808](https://github.com/dotnet/spark/pull/808))
+* Remove unnecessary RestoreSources ([#812](https://github.com/dotnet/spark/pull/812))
 
 ### Breaking Changes
 
