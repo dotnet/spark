@@ -94,7 +94,7 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Readable string representation for this type.
         /// </summary>
-        public override string ToString() => _dateTime.ToString("yyyy-MM-dd HH:mm:ss.ffffff");
+        public override string ToString() => _dateTime.ToString("yyyy-MM-dd HH:mm:ss.ffffffZ");
 
         /// <summary>
         /// Checks if the given object is same as the current object.
