@@ -22,10 +22,10 @@
 
 * Fix signer information mismatch issue ([#752](https://github.com/dotnet/spark/pull/752))
 * Fix package-worker.ps1 to handle output path with ":" ([#742](https://github.com/dotnet/spark/pull/742))
-* Fixes for TimestampType and DateType conversion ([#765](https://github.com/dotnet/spark/pull/765))
 * Fix for using Broadcast variables in Databricks ([#766](https://github.com/dotnet/spark/pull/766))
 * Fix macOS Catalina Permissions ([#784](https://github.com/dotnet/spark/pull/784))
 * Fix for memory leak in JVMObjectTracker ([#801](https://github.com/dotnet/spark/pull/801))
+* Bug Fix for Spark 3.x - Avoid converting converted Row values ([#868](https://github.com/dotnet/spark/pull/868))
 
 ### Infrastructure / Documentation / Etc.
 
