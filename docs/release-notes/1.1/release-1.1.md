@@ -3,7 +3,7 @@
 ### Deprecation notice for Spark 2.3
 
 We are planning to drop the support for Spark 2.3 in the 2.0 release, which is scheduled in April 2021.
-The last Spark 2.3 release (2.3.4) was back in September 2019, and no new release is planned for Spark 2.3. Since there have been no new features introduced for Spark 2.3 in the last few releases of .NET for Apache Spark, if you are relying on Spark 2.3, you should be able to continue using .NET for Apache Spark v1.0.0.
+The last Spark 2.3 release (2.3.4) was back in September 2019, and no new release is planned for Spark 2.3. Since there have been no new features introduced for Spark 2.3 in the last few releases of .NET for Apache Spark, if you are relying on Spark 2.3, you should be able to continue using .NET for Apache Spark 1.x.
 
 ### New Features/Improvements
 
