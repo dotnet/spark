@@ -309,17 +309,5 @@ namespace Microsoft.Spark.Sql.Types
                 fieldJObject => new StructField(fieldJObject)).ToList();
             return this;
         }
-
-        internal override bool NeedConversion() => true;
-
-        internal override object FromInternal(object obj)
-        {
-            if (obj is RowConstructor rowConstructor)
-            {
-                return rowConstructor.GetRow();
-            }
-
-            return obj;
-        }
     }
 }
