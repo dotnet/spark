@@ -35,7 +35,7 @@ namespace Microsoft.Spark.Sql
 
                 foreach (object unpickled in unpickledObjects)
                 {
-                    yield return (unpickled as RowConstructor).GetRow();
+                    yield return unpickled as Row;
                 }
             }
         }

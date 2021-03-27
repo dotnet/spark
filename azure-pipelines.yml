@@ -33,9 +33,12 @@ variables:
 
   # Filter DataFrameTests.TestDataFrameGroupedMapUdf and DataFrameTests.TestGroupedMapUdf backwardCompatible
   # tests due to https://github.com/dotnet/spark/pull/711
+  # Filter UdfSimpleTypesTests.TestUdfWithDuplicateTimestamps 3.x backwardCompatible test due to bug related
+  # to duplicate types that NeedConversion.  Bug fixed in https://github.com/dotnet/spark/pull/868
   backwardCompatibleTestOptions_Windows_3_0: "--filter \
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)"
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)&\
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithDuplicateTimestamps)"
   forwardCompatibleTestOptions_Windows_3_0: ""
   backwardCompatibleTestOptions_Linux_3_0: $(backwardCompatibleTestOptions_Windows_3_0)
   forwardCompatibleTestOptions_Linux_3_0: $(forwardCompatibleTestOptions_Linux_2_4)

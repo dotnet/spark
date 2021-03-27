@@ -22,86 +22,31 @@ namespace Microsoft.Spark.Sql
         /// sent per batch if there are nested rows contained in the row. Note that
         /// this is thread local variable because one RowConstructor object is
         /// registered to the Unpickler and there could be multiple threads unpickling
-        /// the data using the same object registered.
+        /// the data using the same registered object.
         /// </summary>
         [ThreadStatic]
         private static IDictionary<string, StructType> s_schemaCache;
 
         /// <summary>
-        /// The RowConstructor that created this instance.
+        /// Used by Unpickler to pass unpickled schema for handling. The Unpickler
+        /// will reuse the <see cref="RowConstructor"/> object when
+        /// it needs to start constructing a <see cref="Row"/>. The schema is passed
+        /// to <see cref="construct(object[])"/> and the returned
+        /// <see cref="IObjectConstructor"/> is used to build the rest of the <see cref="Row"/>.
         /// </summary>
-        private readonly RowConstructor _parent;
-
-        /// <summary>
-        /// Stores the args passed from construct().
-        /// </summary>
-        private readonly object[] _args;
-
-        public RowConstructor() : this(null, null)
-        {
-        }
-
-        public RowConstructor(RowConstructor parent, object[] args)
-        {
-            _parent = parent;
-            _args = args;
-        }
-
-        /// <summary>
-        /// Used by Unpickler to pass unpickled data for handling.
-        /// </summary>
-        /// <param name="args">Unpickled data</param>
-        /// <returns>New RowConstructor object capturing args data</returns>
+        /// <param name="args">Unpickled schema</param>
+        /// <returns>
+        /// New <see cref="RowWithSchemaConstructor"/>object capturing the schema.
+        /// </returns>
         public object construct(object[] args)
         {
-            // Every first call to construct() contains the schema data. When
-            // a new RowConstructor object is returned from this function,
-            // construct() is called on the returned object with the actual
-            // row data. The original RowConstructor object may be reused by the
-            // Unpickler and each subsequent construct() call can contain the
-            // schema data or a RowConstructor object that contains row data.
             if (s_schemaCache is null)
             {
                 s_schemaCache = new Dictionary<string, StructType>();
             }
 
-            // Return a new RowConstructor where the args either represent the
-            // schema or the row data. The parent becomes important when calling
-            // GetRow() on the RowConstructor containing the row data.
-            //
-            // - When args is the schema, return a new RowConstructor where the
-            // parent is set to the calling RowConstructor object.
-            //
-            // - In the case where args is the row data, construct() is called on a
-            // RowConstructor object that contains the schema for the row data. A
-            // new RowConstructor is returned where the parent is set to the schema
-            // containing RowConstructor.
-            return new RowConstructor(this, args);
-        }
-
-        /// <summary>
-        /// Construct a Row object from unpickled data. This is only to be called
-        /// on a RowConstructor that contains the row data.
-        /// </summary>
-        /// <returns>A row object with unpickled data</returns>
-        public Row GetRow()
-        {
-            Debug.Assert(_parent != null);
-
-            // It is possible that an entry of a Row (row1) may itself be a Row (row2).
-            // If the entry is a RowConstructor then it will be a RowConstructor
-            // which contains the data for row2. Therefore we will call GetRow()
-            // on the RowConstructor to materialize row2 and replace the RowConstructor
-            // entry in row1.
-            for (int i = 0; i < _args.Length; ++i)
-            {
-                if (_args[i] is RowConstructor rowConstructor)
-                {
-                    _args[i] = rowConstructor.GetRow();
-                }
-            }
-
-            return new Row(_args, _parent.GetSchema());
+            Debug.Assert((args != null) && (args.Length == 1) && (args[0] is string));
+            return new RowWithSchemaConstructor(GetSchema(s_schemaCache, (string)args[0]));
         }
 
         /// <summary>
@@ -109,7 +54,7 @@ namespace Microsoft.Spark.Sql
         /// row there is an accompanying set of schemas and row entries. If the
         /// schema was not cached, then it would need to be parsed and converted
         /// to a StructType for every row in the batch. A new batch may contain
-        /// rows from a different table, so calling <c>Reset</c> after each
+        /// rows from a different table, so calling <see cref="Reset"/> after each
         /// batch would aid in preventing the cache from growing too large.
         /// Caching the schemas for each batch, ensures that each schema is
         /// only parsed and converted to a StructType once per batch.
@@ -119,23 +64,36 @@ namespace Microsoft.Spark.Sql
             s_schemaCache?.Clear();
         }
 
-        /// <summary>
-        /// Get or cache the schema string contained in args. Calling this
-        /// is only valid if the child args contain the row values.
-        /// </summary>
-        /// <returns></returns>
-        private StructType GetSchema()
+        private static StructType GetSchema(IDictionary<string, StructType> schemaCache, string schemaString)
         {
-            Debug.Assert(s_schemaCache != null);
-            Debug.Assert((_args != null) && (_args.Length == 1) && (_args[0] is string));
-            var schemaString = (string)_args[0];
-            if (!s_schemaCache.TryGetValue(schemaString, out StructType schema))
+            if (!schemaCache.TryGetValue(schemaString, out StructType schema))
             {
                 schema = (StructType)DataType.ParseDataType(schemaString);
-                s_schemaCache.Add(schemaString, schema);
+                schemaCache.Add(schemaString, schema);
             }
 
             return schema;
         }
+    }
+
+    /// <summary>
+    /// Created from <see cref="RowConstructor"/> and subsequently used
+    /// by the Unpickler to construct a <see cref="Row"/>.
+    /// </summary>
+    internal sealed class RowWithSchemaConstructor : IObjectConstructor
+    {
+        private readonly StructType _schema;
+
+        internal RowWithSchemaConstructor(StructType schema)
+        {
+            _schema = schema;
+        }
+
+        /// <summary>
+        /// Used by Unpickler to pass unpickled row values for handling.
+        /// </summary>
+        /// <param name="args">Unpickled row values.</param>
+        /// <returns>Row object.</returns>
+        public object construct(object[] args) => new Row(args, _schema);
     }
 }
