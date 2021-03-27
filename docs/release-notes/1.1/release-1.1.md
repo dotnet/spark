@@ -68,11 +68,11 @@ The following table describes the oldest version of the worker that the current 
     <tbody align="center">
         <tr>
             <td>v1.0.0</td>
-            <td>GroupedMap in Spark 3.0 is not compatible with Worker 1.0 <a href="https://github.com/dotnet/spark/pull/654">(#654)</a>\*</td>
+            <td>GroupedMap in Spark 3.0 is not compatible with Worker 1.0 <a href="https://github.com/dotnet/spark/pull/654">(#654)</a>*</td>
         </tr>
     </tbody>
 </table>
-\* This is not a breaking change since this feature never worked with Worker 1.0.0.
+* This is not a breaking change since this feature never worked with Worker 1.0.0.
 
 #### Forward compatibility
 
