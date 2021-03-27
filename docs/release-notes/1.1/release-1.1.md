@@ -196,10 +196,13 @@ The following table outlines the supported Hyperspace versions along with the Mi
     <tbody align="center">
         <tr>
             <td>0.1.0</td>
-            <td rowspan=3>1.1.0</td>
+            <td rowspan=4>1.1.0</td>
         </tr>
         <tr>
             <td>0.2.0</td>
+        </tr>
+		<tr>
+            <td>0.3.0</td>
         </tr>
 		<tr>
             <td>0.4.0</td>
