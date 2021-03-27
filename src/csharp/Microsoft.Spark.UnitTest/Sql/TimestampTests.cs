@@ -71,5 +71,14 @@ namespace Microsoft.Spark.UnitTest
                     () => new Timestamp(2020, 1, 2, 15, 30, 30, 1234567));
             }
         }
+
+        [Fact]
+        public void TestTimestampToString()
+        {
+            var dateTimeObj = new DateTime(2021, 01, 01);
+            Assert.Equal(
+                new Timestamp(DateTime.Parse(new Timestamp(dateTimeObj).ToString())),
+                new Timestamp(dateTimeObj));
+        }
     }
 }
