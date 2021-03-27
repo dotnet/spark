@@ -144,18 +144,12 @@ namespace Microsoft.Spark.E2ETest.UdfTests
             };
 
             var expectedTimestamp = new Timestamp(1970, 1, 2, 0, 0, 0, 0);
-            string tsString = expectedTimestamp.ToString();
-            var returnType = new StructType(new[] { new StructField("tsString", new StringType()) });
-            Func<Column, Column> udf =
-                Udf<Row>(row => new GenericRow(new string[] { tsString }), returnType);
+            Func<Column, Column> udf = Udf<Timestamp, Timestamp>(
+                ts => new Timestamp(1970, 1, 2, 0, 0, 0, 0));
 
             DataFrame df = _spark.CreateDataFrame(data, schema);
-            Column newCol = udf(Struct(df.Col("ts")))
-                .GetField("tsString")
-                .Cast("timestamp")
-                .Alias("tsStringCastToTs");
 
-            Row[] rows = df.Select(newCol).Collect().ToArray();
+            Row[] rows = df.Select(udf(df["ts"])).Collect().ToArray();
 
             Assert.Equal(3, rows.Length);
             foreach (Row row in rows)
