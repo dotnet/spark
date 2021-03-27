@@ -36,7 +36,6 @@ The last Spark 2.3 release (2.3.4) was back in September 2019, and no new releas
 
 * Fix flaky CallbackTests.TestCallbackHandlers Test ([#745](https://github.com/dotnet/spark/pull/745))
 * Run E2E tests on Linux in build pipeline and add Backward/Forward E2E tests ([#737](https://github.com/dotnet/spark/pull/737))
-* Add comments and cleanup azure pipeline ([#764](https://github.com/dotnet/spark/pull/764))
 * Update dotnet-interactive deprecated feed ([#807](https://github.com/dotnet/spark/pull/807), [#808](https://github.com/dotnet/spark/pull/808))
 * Remove unnecessary RestoreSources ([#812](https://github.com/dotnet/spark/pull/812))
 * Migrating master to main branch ([#847](https://github.com/dotnet/spark/pull/847), [#849](https://github.com/dotnet/spark/pull/849))
