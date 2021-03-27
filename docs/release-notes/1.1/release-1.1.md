@@ -1,5 +1,10 @@
 # .NET for Apache Spark 1.1 Release Notes
 
+### Deprecation notice for Spark 2.3
+
+We are planning to drop the support for Spark 2.3 in the 2.0 release, which is scheduled in April 2021.
+The last Spark 2.3 release (2.3.4) was back in September 2019, and no new release is planned for Spark 2.3. Since there have been no new features introduced for Spark 2.3 in the last few releases of .NET for Apache Spark, if you are relying on Spark 2.3, you should be able to continue using .NET for Apache Spark v1.0.0.
+
 ### New Features/Improvements
 
 * Support for Arrow 2.0 and GroupedMapUdf in Spark 3.0.0 ([#711](https://github.com/dotnet/spark/pull/711))
@@ -14,7 +19,6 @@
 * Support for Hyperspace 0.4.0 ([#815](https://github.com/dotnet/spark/pull/815))
 * Support for Delta Lake 0.8.0 ([#823](https://github.com/dotnet/spark/pull/823))
 * Add support for Spark 3.0.2 ([#833](https://github.com/dotnet/spark/pull/833))
-* Migrating master to main branch ([#847](https://github.com/dotnet/spark/pull/847), [#849](https://github.com/dotnet/spark/pull/849))
 * Add DOTNET_WORKER_<ver>_DIR environment variable ([#861](https://github.com/dotnet/spark/pull/861))
 * Add spark.dotnet.ignoreSparkPatchVersionCheck conf to ignore patch version in DotnetRunner ([#862](https://github.com/dotnet/spark/pull/862))
 
@@ -26,6 +30,7 @@
 * Fix macOS Catalina Permissions ([#784](https://github.com/dotnet/spark/pull/784))
 * Fix for memory leak in JVMObjectTracker ([#801](https://github.com/dotnet/spark/pull/801))
 * Bug Fix for Spark 3.x - Avoid converting converted Row values ([#868](https://github.com/dotnet/spark/pull/868))
+* Add 'Z' to the string format in Timestamp.ToString() to indicate UTC time ([#871](https://github.com/dotnet/spark/pull/871))
 
 ### Infrastructure / Documentation / Etc.
 
@@ -34,6 +39,7 @@
 * Add comments and cleanup azure pipeline ([#764](https://github.com/dotnet/spark/pull/764))
 * Update dotnet-interactive deprecated feed ([#807](https://github.com/dotnet/spark/pull/807), [#808](https://github.com/dotnet/spark/pull/808))
 * Remove unnecessary RestoreSources ([#812](https://github.com/dotnet/spark/pull/812))
+* Migrating master to main branch ([#847](https://github.com/dotnet/spark/pull/847), [#849](https://github.com/dotnet/spark/pull/849))
 
 ### Breaking Changes
 
@@ -62,10 +68,11 @@ The following table describes the oldest version of the worker that the current 
     <tbody align="center">
         <tr>
             <td>v1.0.0</td>
-            <td>GroupedMap in Spark 3.0 is not compatible with Worker 1.0 <a href="https://github.com/dotnet/spark/pull/654">(#654)</a></td>
+            <td>GroupedMap in Spark 3.0 is not compatible with Worker 1.0 <a href="https://github.com/dotnet/spark/pull/654">(#654)</a>\*</td>
         </tr>
     </tbody>
 </table>
+\* This is not a breaking change since this feature never worked with Worker 1.0.0.
 
 #### Forward compatibility
 
