@@ -16,27 +16,20 @@ variables:
   backwardCompatibleRelease: '1.0.0'
   forwardCompatibleRelease: '1.0.0'
 
-  # Filter UdfSimpleTypesTests.TestUdfWithReturnAsTimestampType and UdfSimpleTypesTests.TestUdfWithTimestampType
-  # backward and forward compatibility tests due to bug with Timestamp.ToString(). This is not a breaking change.
-  # Please see https://github.com/dotnet/spark/pull/871
-  backwardCompatibleTestOptions_Windows_2_3: "--filter \
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithReturnAsTimestampType)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithTimestampType)"
-  forwardCompatibleTestOptions_Windows_2_3: $(backwardCompatibleTestOptions_Windows_2_3)
-  backwardCompatibleTestOptions_Linux_2_3: $(backwardCompatibleTestOptions_Windows_2_3)
-  forwardCompatibleTestOptions_Linux_2_3: $(backwardCompatibleTestOptions_Windows_2_3)
+  backwardCompatibleTestOptions_Windows_2_3: ""
+  forwardCompatibleTestOptions_Windows_2_3: ""
+  backwardCompatibleTestOptions_Linux_2_3: ""
+  forwardCompatibleTestOptions_Linux_2_3: ""
 
-  backwardCompatibleTestOptions_Windows_2_4: $(backwardCompatibleTestOptions_Windows_2_3)
-  forwardCompatibleTestOptions_Windows_2_4: $(backwardCompatibleTestOptions_Windows_2_3)
-  backwardCompatibleTestOptions_Linux_2_4: $(backwardCompatibleTestOptions_Windows_2_3)
+  backwardCompatibleTestOptions_Windows_2_4: ""
+  forwardCompatibleTestOptions_Windows_2_4: ""
+  backwardCompatibleTestOptions_Linux_2_4: ""
   # Filter HyperspaceTests not due to functionality changes, but to incompatible tests running on Linux.
   # Please see https://github.com/dotnet/spark/pull/737 for the fix.
   forwardCompatibleTestOptions_Linux_2_4: "--filter \
   (FullyQualifiedName!=Microsoft.Spark.Extensions.Hyperspace.E2ETest.HyperspaceTests.TestExplainAPI)&\
   (FullyQualifiedName!=Microsoft.Spark.Extensions.Hyperspace.E2ETest.HyperspaceTests.TestIndexCreateAndDelete)&\
-  (FullyQualifiedName!=Microsoft.Spark.Extensions.Hyperspace.E2ETest.HyperspaceTests.TestSignatures&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithReturnAsTimestampType)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithTimestampType)"
+  (FullyQualifiedName!=Microsoft.Spark.Extensions.Hyperspace.E2ETest.HyperspaceTests.TestSignatures)"
 
   # Filter DataFrameTests.TestDataFrameGroupedMapUdf and DataFrameTests.TestGroupedMapUdf backwardCompatible
   # tests due to https://github.com/dotnet/spark/pull/711
@@ -45,10 +38,8 @@ variables:
   backwardCompatibleTestOptions_Windows_3_0: "--filter \
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
   (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithDuplicateTimestamps)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithReturnAsTimestampType)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithTimestampType)"
-  forwardCompatibleTestOptions_Windows_3_0: $(backwardCompatibleTestOptions_Windows_2_3)
+  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithDuplicateTimestamps)"
+  forwardCompatibleTestOptions_Windows_3_0: ""
   backwardCompatibleTestOptions_Linux_3_0: $(backwardCompatibleTestOptions_Windows_3_0)
   forwardCompatibleTestOptions_Linux_3_0: $(forwardCompatibleTestOptions_Linux_2_4)
 
