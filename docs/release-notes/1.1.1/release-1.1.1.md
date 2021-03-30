@@ -1,4 +1,6 @@
-# .NET for Apache Spark 1.1 Release Notes
+# .NET for Apache Spark 1.1.1 Release Notes
+
+* Note that there was a breaking forward compatibility change that went into 1.1.0 release. This release reverts the change
 
 ### Deprecation notice for Spark 2.3
 
