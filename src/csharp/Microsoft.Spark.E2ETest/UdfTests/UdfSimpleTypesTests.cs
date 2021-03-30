@@ -118,8 +118,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
             var expected = new string[]
             {
-                "2020-01-01 00:00:00.000000Z",
-                "2020-01-02 15:30:30.123456Z"
+                "2020-01-01 00:00:00.000000",
+                "2020-01-02 15:30:30.123456"
             };
             string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
             Assert.Equal(expected, rowsToArray);
@@ -193,8 +193,8 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
                 var expected = new string[]
                 {
-                    "2020-01-04 15:30:30.123456Z",
-                    "2050-01-04 15:30:30.123456Z"
+                    "2020-01-04 15:30:30.123456",
+                    "2050-01-04 15:30:30.123456"
                 };
                 for (int i = 0; i < rows.Length; ++i)
                 {
