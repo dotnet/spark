@@ -1,6 +1,6 @@
 # .NET for Apache Spark 1.1.1 Release Notes
 
-* Note that there was a breaking forward compatibility change ([#871](https://github.com/dotnet/spark/pull/871)) that went into the 1.1.0 release. This is the re-release of 1.1.0 after reverting the change. If you happend to be using the 1.1.0 release, it is strongly encouraged to upgrade to 1.1.1.
+* Note that there was a breaking forward compatibility change ([#871](https://github.com/dotnet/spark/pull/871)) that went into the 1.1.0 release. This is the re-release of 1.1.0 after reverting the change. If you happen to be using the 1.1.0 release, it is strongly encouraged to upgrade to 1.1.1.
 
 ### Deprecation notice for Spark 2.3
 
