@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
  */
 
-
 package org.apache.spark.api.dotnet
 
 import scala.collection.mutable.HashMap
@@ -12,7 +11,7 @@ import scala.collection.mutable.HashMap
 /**
  * Tracks JVM objects returned to .NET which is useful for invoking calls from .NET on JVM objects.
  */
-private[dotnet] class JVMObjectTracker {
+class JVMObjectTracker {
 
   // Multiple threads may access objMap and increase objCounter. Because get method return Option,
   // it is convenient to use a Scala map instead of java.util.concurrent.ConcurrentHashMap.
