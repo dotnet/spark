@@ -846,5 +846,37 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(Bucket(Lit(1), col));
             Assert.IsType<Column>(Bucket(1, col));
         }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.1.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_1_0)]
+        public void TestSignaturesV3_1_X()
+        {
+            Column col = Column("col");
+
+            Assert.IsType<Column>(PercentileApprox(col, col, col));
+
+            Assert.IsType<Column>(NthValue(col, 0));
+            Assert.IsType<Column>(NthValue(col, 0, true));
+
+            Assert.IsType<Column>(Acosh(col));
+            Assert.IsType<Column>(Acosh("col"));
+
+            Assert.IsType<Column>(Asinh(col));
+            Assert.IsType<Column>(Asinh("col"));
+
+            Assert.IsType<Column>(Atanh(col));
+            Assert.IsType<Column>(Atanh("col"));
+
+            Assert.IsType<Column>(AssertTrue(col));
+            Assert.IsType<Column>(AssertTrue(col, col));
+
+            Assert.IsType<Column>(RaiseError(col));
+
+            Assert.IsType<Column>(TimestampSeconds(col));
+
+            Assert.IsType<Column>(Slice(col, col, col));
+        }
     }
 }
