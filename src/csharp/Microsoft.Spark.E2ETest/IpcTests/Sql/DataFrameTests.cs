@@ -696,10 +696,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs introduced in Spark 3.*
+        /// Test signatures for APIs introduced in Spark 3.0.*
         /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
-        public void TestSignaturesV3_X_X()
+        public void TestSignaturesV3_0_X()
         {
             // Validate ToLocalIterator
             var data = new List<GenericRow>
@@ -728,6 +728,19 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _df.Explain("codegen");
             _df.Explain("cost");
             _df.Explain("formatted");
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.1.*
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_1_0)]
+        public void TestSignaturesV3_1_X()
+        {
+            Assert.IsType<DataFrame>(_df.UnionByName(_df, true));
+
+            Assert.IsType<bool>(_df.SameSemantics(_df));
+
+            Assert.IsType<int>(_df.SemanticHash());
         }
     }
 }
