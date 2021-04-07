@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
+using System.IO;
+using System.IO.Compression;
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Hadoop.Conf;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
@@ -45,6 +47,26 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             sc.SetCheckpointDir(TestEnvironment.ResourceDirectory);
 
             Assert.IsType<Configuration>(sc.HadoopConfiguration());
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.1.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_1_0)]
+        public void TestSignaturesV3_1_X()
+        {
+            SparkContext sc = SparkContext.GetOrCreate(new SparkConf());
+
+            using var tempDirectory = new TemporaryDirectory();
+            string archivePath = Path.Combine(tempDirectory.Path, "archive.zip");
+
+            using (var fileStream = new FileStream(archivePath, FileMode.Create))
+            using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Create))
+            {
+                archive.CreateEntry("entry.txt");
+            }
+
+            sc.AddArchive(archivePath);
         }
     }
 }

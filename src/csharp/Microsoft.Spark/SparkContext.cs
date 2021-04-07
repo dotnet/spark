@@ -275,6 +275,8 @@ namespace Microsoft.Spark
         /// <remarks>
         /// If a file is added during execution, it will not be available until the next
         /// TaskSet starts.
+        /// 
+        /// A path can be added only once. Subsequent additions of the same path are ignored.
         /// </remarks>
         /// <param name="path">
         /// File path can be either a local file, a file in HDFS (or other Hadoop-supported
@@ -287,6 +289,26 @@ namespace Microsoft.Spark
         public void AddFile(string path, bool recursive = false)
         {
             _jvmObject.Invoke("addFile", path, recursive);
+        }
+
+        /// <summary>
+        /// Add an archive to be downloaded and unpacked with this Spark job on every node.
+        /// </summary>
+        /// <remarks>
+        /// If an archive is added during execution, it will not be available until the next
+        /// TaskSet starts.
+        /// 
+        /// A path can be added only once. Subsequent additions of the same path are ignored.
+        /// </remarks>
+        /// <param name="path">
+        /// Archive path can be either a local file, a file in HDFS (or other Hadoop-supported
+        /// filesystems), or an HTTP, HTTPS or FTP URI. The given path should be one of .zip,
+        /// .tar, .tar.gz, .tgz and .jar.
+        /// </param>
+        [Since(Versions.V3_1_0)]
+        public void AddArchive(string path)
+        {
+            _jvmObject.Invoke("addArchive", path);
         }
 
         /// <summary>
