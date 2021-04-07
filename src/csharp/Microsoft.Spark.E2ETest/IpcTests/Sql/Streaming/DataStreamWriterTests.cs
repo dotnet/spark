@@ -12,6 +12,7 @@ using Microsoft.Spark.Sql.Streaming;
 using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
+using static Microsoft.Spark.E2ETest.Utils.SQLUtils;
 using static Microsoft.Spark.Sql.Functions;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
@@ -65,6 +66,29 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<DataStreamWriter>(dsw.QueryName("queryName"));
 
             Assert.IsType<DataStreamWriter>(dsw.Trigger(Trigger.Once()));
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.1.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_1_0)]
+        public void TestSignaturesV3_1_X()
+        {
+            string tableName = "output_table";
+            WithTable(
+                _spark,
+                new string[] { tableName },
+                () =>
+                {
+                    using var tempDirectory = new TemporaryDirectory();
+                    var intMemoryStream = new MemoryStream<int>(_spark);
+                    DataStreamWriter dsw = intMemoryStream
+                        .ToDF()
+                        .WriteStream()
+                        .Format("parquet")
+                        .Option("checkpointLocation", tempDirectory.Path);
+                    Assert.IsType<StreamingQuery>(dsw.ToTable(tableName));
+                });
         }
 
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
