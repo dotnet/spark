@@ -1048,6 +1048,7 @@ namespace Microsoft.Spark.Sql
         /// `true` when the logical query plans inside both <see cref="DataFrame"/>s are
         /// equal and therefore return same results.
         /// </returns>
+        [Since(Versions.V3_1_0)]
         public bool SameSemantics(DataFrame other) =>
             (bool)_jvmObject.Invoke("sameSemantics", other);
 
@@ -1059,6 +1060,7 @@ namespace Microsoft.Spark.Sql
         /// simplified by tolerating the cosmetic differences such as attribute names.
         /// </remarks>
         /// <returns>Hash code of the logical query plan</returns>
+        [Since(Versions.V3_1_0)]
         public int SemanticHash() =>
             (int)_jvmObject.Invoke("semanticHash");
 
