@@ -167,6 +167,16 @@ namespace Microsoft.Spark.Sql.Streaming
         public DataFrame Parquet(string path) => LoadSource("parquet", path);
 
         /// <summary>
+        /// Define a Streaming DataFrame on a Table. The DataSource corresponding to the table should
+        /// support streaming mode.
+        /// </summary>
+        /// <param name="tableName">Name of the table</param>
+        /// <returns>DataFrame object</returns>
+        [Since(Versions.V3_1_0)]
+        public DataFrame Table(string tableName) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("table", tableName));
+
+        /// <summary>
         /// Loads text files and returns a <see cref="DataFrame"/> whose schema starts
         /// with a string column named "value", and followed by partitioned columns
         /// if there are any.
