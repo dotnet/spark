@@ -454,7 +454,7 @@ namespace Microsoft.Spark.Sql
         /// An expression that adds/replaces field in <see cref="Types.StructType"/> by name.
         /// </summary>
         /// <param name="fieldName">The name of the field</param>
-        /// <param name="column"></param>
+        /// <param name="column">Column to assign to the field</param>
         /// <returns>
         /// New column after adding/replacing field in <see cref="Types.StructType"/> by name.
         /// </returns>
