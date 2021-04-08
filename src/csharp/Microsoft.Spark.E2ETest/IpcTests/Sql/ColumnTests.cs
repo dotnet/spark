@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Xunit;
 using static Microsoft.Spark.Sql.Expressions.Window;
@@ -143,5 +144,18 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.Equal("col2", col2.ToString());
         }
 
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.1.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_1_0)]
+        public void TestSignaturesV3_1_X()
+        {
+            Column col = Column("col");
+
+            Assert.IsType<Column>(col.WithField("col2", Lit(3)));
+
+            Assert.IsType<Column>(col.DropFields("col"));
+            Assert.IsType<Column>(col.DropFields("col", "col2"));
+        }
     }
 }
