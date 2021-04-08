@@ -63,15 +63,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {
             SparkContext sc = SparkContext.GetOrCreate(new SparkConf());
 
-            using var tempDirectory = new TemporaryDirectory();
-            string archivePath = Path.Combine(tempDirectory.Path, "archive.zip");
-
-            using (var fileStream = new FileStream(archivePath, FileMode.Create))
-            using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Create))
-            {
-                archive.CreateEntry("entry.txt");
-            }
-
+            string archivePath = $"{TestEnvironment.ResourceDirectory}archive.zip";
             sc.AddArchive(archivePath);
 
             Assert.IsType<string[]>(sc.ListArchives().ToArray());
