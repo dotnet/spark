@@ -25,10 +25,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// </summary>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             DataStreamReader dsr = _spark.ReadStream();
 

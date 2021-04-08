@@ -21,12 +21,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// The purpose of this test is to ensure that JVM calls can be successfully made.
         /// Note that this is not testing functionality of each function.
         /// </summary>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             var intMemoryStream = new MemoryStream<int>(_spark);
             StreamingQuery sq1 = intMemoryStream

@@ -437,10 +437,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// </summary>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             Assert.IsType<Column>(_df["name"]);
             Assert.IsType<Column>(_df["age"]);
@@ -569,6 +569,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                 Assert.IsType<DataFrame>(df.Sum("age"));
                 Assert.IsType<DataFrame>(df.Sum("age", "tempAge"));
+
+                var values = new List<object> { 19, "twenty" };
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot("age"));
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age")));
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot("age", values));
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age"), values));
             }
 
             Assert.IsType<RelationalGroupedDataset>(_df.Rollup("age"));
@@ -669,32 +679,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _df.CreateOrReplaceGlobalTempView("global_view");
 
             Assert.IsType<string[]>(_df.InputFiles().ToArray());
-        }
 
-        /// <summary>
-        /// Test signatures for APIs introduced in Spark 2.4.*.
-        /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
-        public void TestSignaturesV2_4_X()
-        {
             _df.IsEmpty();
 
             _df.IntersectAll(_df);
 
             _df.ExceptAll(_df);
-
-            {
-                RelationalGroupedDataset df = _df.GroupBy("name");
-                var values = new List<object> { 19, "twenty" };
-
-                Assert.IsType<RelationalGroupedDataset>(df.Pivot("age"));
-
-                Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age")));
-
-                Assert.IsType<RelationalGroupedDataset>(df.Pivot("age", values));
-
-                Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age"), values));
-            }
         }
 
         /// <summary>
