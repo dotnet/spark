@@ -295,7 +295,7 @@ namespace Microsoft.Spark
         /// <summary>
         /// Returns a list of file paths that are added to resources.
         /// </summary>
-        /// <returns>List of file paths that are added to resources.</returns>
+        /// <returns>File paths that are added to resources.</returns>
         public IEnumerable<string> ListFiles() =>
             new Seq<string>((JvmObjectReference)_jvmObject.Invoke("listFiles"));
 
@@ -322,7 +322,7 @@ namespace Microsoft.Spark
         /// <summary>
         /// Returns a list of archive paths that are added to resources.
         /// </summary>
-        /// <returns>List of archive paths that are added to resources.</returns>
+        /// <returns>Archive paths that are added to resources.</returns>
         [Since(Versions.V3_1_0)]
         public IEnumerable<string> ListArchives() =>
             new Seq<string>((JvmObjectReference)_jvmObject.Invoke("listArchives"));
