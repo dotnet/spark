@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Hadoop.Conf;
 using Microsoft.Spark.UnitTest.TestUtils;
@@ -44,6 +45,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             sc.AddFile(filePath);
             sc.AddFile(filePath, true);
 
+            Assert.IsType<string[]>(sc.ListFiles().ToArray());
+
             using var tempDir = new TemporaryDirectory();
             sc.SetCheckpointDir(TestEnvironment.ResourceDirectory);
 
@@ -68,6 +71,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
 
             sc.AddArchive(archivePath);
+
+            Assert.IsType<string[]>(sc.ListArchives().ToArray());
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Hadoop.Conf;
+using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using static Microsoft.Spark.Utils.CommandSerDe;
 
@@ -292,6 +293,13 @@ namespace Microsoft.Spark
         }
 
         /// <summary>
+        /// Returns a list of file paths that are added to resources.
+        /// </summary>
+        /// <returns>List of file paths that are added to resources.</returns>
+        public IEnumerable<string> ListFiles() =>
+            new Seq<string>((JvmObjectReference)_jvmObject.Invoke("listFiles"));
+
+        /// <summary>
         /// Add an archive to be downloaded and unpacked with this Spark job on every node.
         /// </summary>
         /// <remarks>
@@ -310,6 +318,14 @@ namespace Microsoft.Spark
         {
             _jvmObject.Invoke("addArchive", path);
         }
+
+        /// <summary>
+        /// Returns a list of archive paths that are added to resources.
+        /// </summary>
+        /// <returns>List of archive paths that are added to resources.</returns>
+        [Since(Versions.V3_1_0)]
+        public IEnumerable<string> ListArchives() =>
+            new Seq<string>((JvmObjectReference)_jvmObject.Invoke("listArchives"));
 
         /// <summary>
         /// Sets the directory under which RDDs are going to be checkpointed.
