@@ -667,6 +667,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             _df.CreateGlobalTempView("global_view");
             _df.CreateOrReplaceGlobalTempView("global_view");
+
+            Assert.IsType<string[]>(_df.InputFiles());
         }
 
         /// <summary>

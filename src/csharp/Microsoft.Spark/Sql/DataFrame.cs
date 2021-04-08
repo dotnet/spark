@@ -1032,6 +1032,15 @@ namespace Microsoft.Spark.Sql
             new DataStreamWriter((JvmObjectReference)_jvmObject.Invoke("writeStream"), this);
 
         /// <summary>
+        /// Returns a best-effort snapshot of the files that compose this <see cref="DataFrame"/>.
+        /// This method simply asks each constituent BaseRelation for its respective files and takes
+        /// the union of all results. Depending on the source relations, this may not find all input
+        /// files. Duplicates are removed.
+        /// </summary>
+        /// <returns>Files that compose this DataFrame</returns>
+        public string[] InputFiles() => (string[])_jvmObject.Invoke("inputFiles");
+
+        /// <summary>
         /// Returns `true` when the logical query plans inside both <see cref="DataFrame"/>s are
         /// equal and therefore return same results.
         /// </summary>
