@@ -303,19 +303,8 @@ namespace Microsoft.Spark
                 "collectAndServe",
                 rddRef.Invoke("rdd"));
 
-            if (result is int @port)
-            {
-                // In spark 2.3.0, collectToPython() returns a port number.
-                return (@port, string.Empty);
-            }
-            else
-            {
-                // From spark >= 2.3.1, collectToPython() returns a pair
-                // where the first is a port number and the second is the secret
-                // string to use for the authentication.
-                var pair = (JvmObjectReference[])result;
-                return ((int)pair[0].Invoke("intValue"), (string)pair[1].Invoke("toString"));
-            }
+            var pair = (JvmObjectReference[])result;
+            return ((int)pair[0].Invoke("intValue"), (string)pair[1].Invoke("toString"));
         }
 
         /// <summary>
