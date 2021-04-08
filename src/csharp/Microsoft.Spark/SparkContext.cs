@@ -339,6 +339,23 @@ namespace Microsoft.Spark
         }
 
         /// <summary>
+        /// Return the directory where RDDs are checkpointed.
+        /// </summary>
+        /// <returns>
+        /// The directory where RDDs are checkpointed. Returns `null` if no checkpoint
+        /// directory has been set.
+        /// </returns>
+        public string GetCheckpointDir()
+        {
+            var optionalCheckPointDir =
+                new Option((JvmObjectReference)_jvmObject.Invoke("getCheckpointDir"));
+
+            return optionalCheckPointDir.IsDefined()
+                ? (string)optionalCheckPointDir.Get()
+                : null;
+        }
+
+        /// <summary>
         /// Broadcast a read-only variable to the cluster, returning a Microsoft.Spark.Broadcast
         /// object for reading it in distributed functions. The variable will be sent to each 
         /// executor only once.

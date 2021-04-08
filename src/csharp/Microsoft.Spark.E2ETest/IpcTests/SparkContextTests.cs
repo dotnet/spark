@@ -47,8 +47,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<string[]>(sc.ListFiles().ToArray());
 
+            Assert.Null(sc.GetCheckpointDir());
             using var tempDir = new TemporaryDirectory();
             sc.SetCheckpointDir(TestEnvironment.ResourceDirectory);
+            Assert.IsType<string>(sc.GetCheckpointDir());
 
             Assert.IsType<Configuration>(sc.HadoopConfiguration());
         }
