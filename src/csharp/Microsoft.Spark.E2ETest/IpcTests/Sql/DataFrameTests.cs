@@ -696,7 +696,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs introduced in Spark 3.0.*
+        /// Test signatures for APIs introduced in Spark 3.0.*.
+
         /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
         public void TestSignaturesV3_0_X()
