@@ -350,9 +350,7 @@ namespace Microsoft.Spark
             var optionalCheckPointDir =
                 new Option((JvmObjectReference)_jvmObject.Invoke("getCheckpointDir"));
 
-            return optionalCheckPointDir.IsDefined()
-                ? (string)optionalCheckPointDir.Get()
-                : null;
+            return optionalCheckPointDir.IsDefined() ? (string)optionalCheckPointDir.Get() : null;
         }
 
         /// <summary>
