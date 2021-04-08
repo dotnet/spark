@@ -298,12 +298,11 @@ namespace Microsoft.Spark
         private (int, string) CollectAndServe()
         {
             JvmObjectReference rddRef = GetJvmRef();
-            object result = rddRef.Jvm.CallStaticJavaMethod(
+            var pair = (JvmObjectReference[])rddRef.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.api.python.PythonRDD",
                 "collectAndServe",
                 rddRef.Invoke("rdd"));
 
-            var pair = (JvmObjectReference[])result;
             return ((int)pair[0].Invoke("intValue"), (string)pair[1].Invoke("toString"));
         }
 
