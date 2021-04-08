@@ -1038,7 +1038,7 @@ namespace Microsoft.Spark.Sql
         /// files. Duplicates are removed.
         /// </summary>
         /// <returns>Files that compose this DataFrame</returns>
-        public string[] InputFiles() => (string[])_jvmObject.Invoke("inputFiles");
+        public IEnumerable<string> InputFiles() => (string[])_jvmObject.Invoke("inputFiles");
 
         /// <summary>
         /// Returns `true` when the logical query plans inside both <see cref="DataFrame"/>s are
