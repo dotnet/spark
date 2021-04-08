@@ -14,14 +14,14 @@ namespace Microsoft.Spark.Worker.Utils
     {
         internal static string GetWorkerFactorySecret(Version version)
         {
-            return (version >= new Version(Versions.V2_3_1)) ?
+            return (version >= new Version(Versions.V2_4_0)) ?
                 GetEnvironmentVariable("PYTHON_WORKER_FACTORY_SECRET") :
                 null;
         }
 
         internal static int GetWorkerFactoryPort(Version version)
         {
-            string portStr = (version >= new Version(Versions.V2_3_1)) ?
+            string portStr = (version >= new Version(Versions.V2_4_0)) ?
                 GetEnvironmentVariable("PYTHON_WORKER_FACTORY_PORT") :
                 Console.ReadLine();
 

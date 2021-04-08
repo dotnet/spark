@@ -343,20 +343,6 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             switch (version.ToString())
             {
-                case Versions.V2_3_0:
-                case Versions.V2_3_1:
-                    return new PayloadWriter(
-                        version,
-                        new TaskContextWriterV2_3_X(),
-                        new BroadcastVariableWriterV2_3_0(),
-                        new CommandWriterV2_3_X());
-                case Versions.V2_3_2:
-                case Versions.V2_3_3:
-                    return new PayloadWriter(
-                        version,
-                        new TaskContextWriterV2_3_X(),
-                        new BroadcastVariableWriterV2_3_2(),
-                        new CommandWriterV2_3_X());
                 case Versions.V2_4_0:
                     return new PayloadWriter(
                         version,

@@ -1102,16 +1102,10 @@ namespace Microsoft.Spark.Sql
         {
             object result = _jvmObject.Invoke(funcName, args);
             Version version = SparkEnvironment.SparkVersion;
-            return (version.Major, version.Minor, version.Build) switch
+            return (version.Major, version.Minor) switch
             {
-                // In spark 2.3.0, PythonFunction.serveIterator() returns a port number.
-                (2, 3, 0) => ((int)result, string.Empty, null),
-                // From spark >= 2.3.1, PythonFunction.serveIterator() returns a pair
-                // where the first is a port number and the second is the secret
-                // string to use for the authentication.
-                (2, 3, _) => ParseConnectionInfo(result, false),
-                (2, 4, _) => ParseConnectionInfo(result, false),
-                (3, _, _) => ParseConnectionInfo(result, false),
+                (2, 4) => ParseConnectionInfo(result, false),
+                (3, _) => ParseConnectionInfo(result, false),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
         }

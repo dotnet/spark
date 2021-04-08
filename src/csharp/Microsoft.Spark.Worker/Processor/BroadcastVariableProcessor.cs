@@ -30,7 +30,7 @@ namespace Microsoft.Spark.Worker.Processor
             var broadcastVars = new BroadcastVariables();
             ISocketWrapper socket = null;
 
-            if (_version >= new Version(Versions.V2_3_2))
+            if (_version >= new Version(Versions.V2_4_0))
             {
                 broadcastVars.DecryptionServerNeeded = SerDe.ReadBool(stream);
             }

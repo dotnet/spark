@@ -21,7 +21,6 @@ namespace Microsoft.Spark.Worker.Processor
         {
             return (_version.Major, _version.Minor) switch
             {
-                (2, 3) => TaskContextProcessorV2_3_X.Process(stream),
                 (2, 4) => TaskContextProcessorV2_4_X.Process(stream),
                 (3, _) => TaskContextProcessorV3_0_X.Process(stream),
                 _ => throw new NotSupportedException($"Spark {_version} not supported.")
@@ -71,14 +70,6 @@ namespace Microsoft.Spark.Worker.Processor
                 {
                     SerDe.ReadString(stream); // address
                 }
-            }
-        }
-
-        private static class TaskContextProcessorV2_3_X
-        {
-            internal static TaskContext Process(Stream stream)
-            {
-                return ReadTaskContext(stream);
             }
         }
 
