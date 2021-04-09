@@ -532,6 +532,30 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Returns the approximate `percentile` of the numeric column `col` which
+        /// is the smallest value in the ordered `col` values (sorted from least to greatest) such that
+        /// no more than `percentage` of `col` values is less than the value or equal to that value.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="percentage">
+        /// If it is a single floating point value, it must be between 0.0 and 1.0.
+        /// When percentage is an array, each value of the percentage array must be between 0.0 and 1.0.
+        /// In this case, returns the approximate percentile array of column col
+        /// at the given percentage array.
+        /// </param>
+        /// <param name="accuracy">
+        /// Positive numeric literal which controls approximation accuracy at the cost of memory.
+        /// Higher value of accuracy yields better accuracy, 1.0/accuracy is the relative error of the
+        /// approximation.
+        /// </param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column PercentileApprox(Column column, Column percentage, Column accuracy)
+        {
+            return ApplyFunction("percentile_approx", column, percentage, accuracy);
+        }
+
+        /// <summary>
         /// Returns the skewness of the values in a group.
         /// </summary>
         /// <param name="column">Column to apply</param>
@@ -652,7 +676,7 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
-        /// Alias for VarSamp().
+        /// Alias for <see cref="VarSamp(Sql.Column)"/>.
         /// </summary>
         /// <param name="column">Column to apply</param>
         /// <returns>Column object</returns>
@@ -662,7 +686,7 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
-        /// Alias for VarSamp().
+        /// Alias for <see cref="VarSamp(string)"/>.
         /// </summary>
         /// <param name="columnName">Column name</param>
         /// <returns>Column object</returns>
@@ -850,6 +874,25 @@ namespace Microsoft.Spark.Sql
             return (defaultValue != null) ?
                 ApplyFunction("lead", columnName, offset, defaultValue) :
                 ApplyFunction("lead", columnName, offset);
+        }
+
+        /// <summary>
+        /// Returns the value that is the `offset`th row of the window frame
+        /// (counting from 1), and `null` if the size of window frame is less than `offset` rows.
+        ///
+        /// It will return the `offset`th non-null value it sees when ignoreNulls is set to true.
+        /// If all values are null, then null is returned.
+        ///
+        /// This is equivalent to the nth_value function in SQL.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="offset">Offset from the current row</param>
+        /// <param name="ignoreNulls">To ignore null or not</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column NthValue(Column column, int offset, bool ignoreNulls = false)
+        {
+            return ApplyFunction("nth_value", column, offset, ignoreNulls);
         }
 
         /// <summary>
@@ -1215,6 +1258,28 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Inverse hyperbolic cosine of <paramref name="column"/>.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column Acosh(Column column)
+        {
+            return ApplyFunction("acosh", column);
+        }
+
+        /// <summary>
+        /// Inverse hyperbolic cosine of <paramref name="columnName"/>.
+        /// </summary>
+        /// <param name="columnName">Column name</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column Acosh(string columnName)
+        {
+            return ApplyFunction("acosh", columnName);
+        }
+
+        /// <summary>
         /// Inverse sine of `column` in radians, as if computed by `java.lang.Math.asin`.
         /// </summary>
         /// <param name="column">Column to apply</param>
@@ -1232,6 +1297,28 @@ namespace Microsoft.Spark.Sql
         public static Column Asin(string columnName)
         {
             return ApplyFunction("asin", columnName);
+        }
+
+        /// <summary>
+        /// Inverse hyperbolic sine of <paramref name="column"/>.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column Asinh(Column column)
+        {
+            return ApplyFunction("asinh", column);
+        }
+
+        /// <summary>
+        /// Inverse hyperbolic sine of <paramref name="columnName"/>.
+        /// </summary>
+        /// <param name="columnName">Column name</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column Asinh(string columnName)
+        {
+            return ApplyFunction("asinh", columnName);
         }
 
         /// <summary>
@@ -1340,6 +1427,28 @@ namespace Microsoft.Spark.Sql
         public static Column Atan2(double yValue, string xName)
         {
             return ApplyFunction("atan2", yValue, xName);
+        }
+
+        /// <summary>
+        /// Inverse hyperbolic tangent of <paramref name="column"/>.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column Atanh(Column column)
+        {
+            return ApplyFunction("atanh", column);
+        }
+
+        /// <summary>
+        /// Inverse hyperbolic tangent of <paramref name="columnName"/>.
+        /// </summary>
+        /// <param name="columnName">Column name</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column Atanh(string columnName)
+        {
+            return ApplyFunction("atanh", columnName);
         }
 
         /// <summary>
@@ -2195,6 +2304,40 @@ namespace Microsoft.Spark.Sql
         public static Column XXHash64(params Column[] columns)
         {
             return ApplyFunction("xxhash64", (object)columns);
+        }
+
+        /// <summary>
+        /// Returns null if the condition is true, and throws an exception otherwise.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column AssertTrue(Column column)
+        {
+            return ApplyFunction("assert_true", column);
+        }
+
+        /// <summary>
+        /// Returns null if the condition is true; throws an exception with the error message otherwise.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="errMsg">Error message</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column AssertTrue(Column column, Column errMsg)
+        {
+            return ApplyFunction("assert_true", column, errMsg);
+        }
+
+        /// <summary>
+        /// Throws an exception with the provided error message.
+        /// </summary>
+        /// <param name="errMsg">Error message</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column RaiseError(Column errMsg)
+        {
+            return ApplyFunction("raise_error", errMsg);
         }
 
         /////////////////////////////////////////////////////////////////////////////////
@@ -3192,6 +3335,17 @@ namespace Microsoft.Spark.Sql
             return ApplyFunction("window", column, windowDuration);
         }
 
+        /// <summary>
+        /// Creates timestamp from the number of seconds since UTC epoch.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column TimestampSeconds(Column column)
+        {
+            return ApplyFunction("timestamp_seconds", column);
+        }
+
         /////////////////////////////////////////////////////////////////////////////////
         // Collection functions
         /////////////////////////////////////////////////////////////////////////////////
@@ -3232,6 +3386,20 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         [Since(Versions.V2_4_0)]
         public static Column Slice(Column column, int start, int length)
+        {
+            return ApplyFunction("slice", column, start, length);
+        }
+
+        /// <summary>
+        /// Returns an array containing all the elements in `column` from index `start`
+        /// (or starting from the end if `start` is negative) with the specified `length`.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="start">Start position in the array</param>
+        /// <param name="length">Length for slicing</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column Slice(Column column, Column start, Column length)
         {
             return ApplyFunction("slice", column, start, length);
         }
