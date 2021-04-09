@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Sql.Catalog
 {
@@ -73,6 +75,100 @@ namespace Microsoft.Spark.Sql.Catalog
                 (JvmObjectReference)_jvmObject.Invoke("createTable", tableName, path, source));
 
         /// <summary>
+        /// Creates a table based on the dataset in a data source and a set of options.
+        /// </summary>
+        /// <param name="tableName">
+        /// Is either a qualified or unqualified name that designates a table. If no database
+        /// identifier is provided, it refers to a table in the current database.
+        /// </param>
+        /// <param name="source">
+        /// Data source to use to create the table such as parquet, csv, etc.
+        /// </param>
+        /// <param name="options">Options used to table</param>
+        /// <returns>The corresponding DataFrame</returns>
+        public DataFrame CreateTable(string tableName, string source, IDictionary<string, string> options) =>
+            new DataFrame((JvmObjectReference)_jvmObject.Invoke("createTable", tableName, source, options));
+
+        /// <summary>
+        /// Creates a table based on the dataset in a data source and a set of options.
+        /// </summary>
+        /// <param name="tableName">
+        /// Is either a qualified or unqualified name that designates a table. If no database
+        /// identifier is provided, it refers to a table in the current database.
+        /// </param>
+        /// <param name="source">
+        /// Data source to use to create the table such as parquet, csv, etc.
+        /// </param>
+        /// <param name="description">Description of the table</param>
+        /// <param name="options">Options used to table</param>
+        /// <returns>The corresponding DataFrame</returns>
+        [Since(Versions.V3_1_0)]
+        public DataFrame CreateTable(
+            string tableName,
+            string source,
+            string description,
+            IDictionary<string, string> options) =>
+            new DataFrame(
+                (JvmObjectReference)_jvmObject.Invoke(
+                    "createTable", tableName, source, description, options));
+
+        /// <summary>
+        /// Create a table based on the dataset in a data source, a schema and a set of options.
+        /// </summary>
+        /// <param name="tableName">
+        /// Is either a qualified or unqualified name that designates a table. If no database
+        /// identifier is provided, it refers to a table in the current database.
+        /// </param>
+        /// <param name="source">
+        /// Data source to use to create the table such as parquet, csv, etc.
+        /// </param>
+        /// <param name="schema">Schema of the table</param>
+        /// <param name="options">Options used to table</param>
+        /// <returns>The corresponding DataFrame</returns>
+        public DataFrame CreateTable(
+            string tableName,
+            string source,
+            StructType schema,
+            IDictionary<string, string> options) =>
+            new DataFrame(
+                (JvmObjectReference)_jvmObject.Invoke(
+                    "createTable",
+                    tableName,
+                    source,
+                    DataType.FromJson(_jvmObject.Jvm, schema.Json),
+                    options));
+
+        /// <summary>
+        /// Create a table based on the dataset in a data source, a schema and a set of options.
+        /// </summary>
+        /// <param name="tableName">
+        /// Is either a qualified or unqualified name that designates a table. If no database
+        /// identifier is provided, it refers to a table in the current database.
+        /// </param>
+        /// <param name="source">
+        /// Data source to use to create the table such as parquet, csv, etc.
+        /// </param>
+        /// <param name="schema">Schema of the table</param>
+        /// <param name="description">Description of the table</param>
+        /// <param name="options">Options used to table</param>
+        /// <returns>The corresponding DataFrame</returns>
+        [Since(Versions.V3_1_0)]
+        public DataFrame CreateTable(
+            string tableName,
+            string source,
+            StructType schema,
+            string description,
+            IDictionary<string, string> options) =>
+            new DataFrame(
+                (JvmObjectReference)_jvmObject.Invoke(
+                    "createTable",
+                    tableName,
+                    source,
+                    DataType.FromJson(_jvmObject.Jvm, schema.Json),
+                    description,
+                    options));
+
+        /// <summary>
         /// Returns the current database in this session. By default your session will be
         /// connected to the "default" database (named "default") and to change database
         /// either use `SetCurrentDatabase("databaseName")` or
@@ -115,7 +211,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <param name="viewName">The unqualified name of the temporary view to be dropped.
         /// </param>
         /// <returns>bool, true if the view was dropped and false if it was not dropped.</returns>
-        public bool DropTempView(string viewName) => 
+        public bool DropTempView(string viewName) =>
             (bool)_jvmObject.Invoke("dropTempView", viewName);
 
         /// <summary>
@@ -203,7 +299,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// whether the table is temporary or not.</returns>
         public Table GetTable(string dbName, string tableName) =>
             new Table((JvmObjectReference)_jvmObject.Invoke("getTable", dbName, tableName));
-        
+
         /// <summary>
         /// Returns true if the table is currently cached in-memory. If the table is cached then it
         /// will consume memory. To remove the table from cache use `UncacheTable` or `ClearCache`
@@ -321,7 +417,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// table. If no database identifier is provided, it refers to a table in the current
         /// database.</param>
         public void RefreshTable(string tableName) => _jvmObject.Invoke("refreshTable", tableName);
-        
+
         /// <summary>
         /// Sets the current default database in this session.
         /// </summary>
@@ -347,7 +443,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <param name="tableName">Is an unqualified name that designates a table.</param>
         /// <returns>bool, true if the table exists in the specified database and false if it does
         /// not exist</returns>
-        public bool TableExists(string dbName, string tableName) => 
+        public bool TableExists(string dbName, string tableName) =>
             (bool)_jvmObject.Invoke("tableExists", dbName, tableName);
 
         /// <summary>
