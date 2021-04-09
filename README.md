@@ -57,6 +57,7 @@
 .NET for Apache Spark releases are available [here](https://github.com/dotnet/spark/releases) and NuGet packages are available [here](https://www.nuget.org/packages/Microsoft.Spark).
 
 ### First-Party Extensions
+Some extended features are available via extension NuGet packages:
 * [Microsoft.Spark.Extensions.Azure.Synapse.Analytics](https://www.nuget.org/packages/Microsoft.Spark.Extensions.Azure.Synapse.Analytics/)
 * [Microsoft.Spark.Extensions.Delta](https://www.nuget.org/packages/Microsoft.Spark.Extensions.Delta/)
 * [Microsoft.Spark.Extensions.DotNet.Interactive](https://www.nuget.org/packages/Microsoft.Spark.Extensions.DotNet.Interactive/)
