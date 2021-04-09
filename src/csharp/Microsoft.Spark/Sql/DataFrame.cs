@@ -577,6 +577,18 @@ namespace Microsoft.Spark.Sql
             WrapAsDataFrame(_jvmObject.Invoke("unionByName", other));
 
         /// <summary>
+        /// Returns a new <see cref="DataFrame"/> containing union of rows in this
+        /// <see cref="DataFrame"/> and another <see cref="DataFrame"/>, resolving
+        /// columns by name.
+        /// </summary>
+        /// <param name="other">Other DataFrame</param>
+        /// <param name="allowMissingColumns">Allow missing columns</param>
+        /// <returns>DataFrame object</returns>
+        [Since(Versions.V3_1_0)]
+        public DataFrame UnionByName(DataFrame other, bool allowMissingColumns) =>
+            WrapAsDataFrame(_jvmObject.Invoke("unionByName", other, allowMissingColumns));
+
+        /// <summary>
         /// Returns a new `DataFrame` containing rows only in both this `DataFrame`
         /// and another `DataFrame`.
         /// </summary>
@@ -1018,6 +1030,48 @@ namespace Microsoft.Spark.Sql
         /// <returns>DataStreamWriter object</returns>
         public DataStreamWriter WriteStream() =>
             new DataStreamWriter((JvmObjectReference)_jvmObject.Invoke("writeStream"), this);
+
+        /// <summary>
+        /// Returns a best-effort snapshot of the files that compose this <see cref="DataFrame"/>.
+        /// This method simply asks each constituent BaseRelation for its respective files and takes
+        /// the union of all results. Depending on the source relations, this may not find all input
+        /// files. Duplicates are removed.
+        /// </summary>
+        /// <returns>Files that compose this DataFrame</returns>
+        public IEnumerable<string> InputFiles() => (string[])_jvmObject.Invoke("inputFiles");
+
+        /// <summary>
+        /// Returns `true` when the logical query plans inside both <see cref="DataFrame"/>s are
+        /// equal and therefore return same results.
+        /// </summary>
+        /// <remarks>
+        /// The equality comparison here is simplified by tolerating the cosmetic differences
+        /// such as attribute names.
+        /// 
+        /// This API can compare both <see cref="DataFrame"/>s very fast but can still return `false`
+        /// on the <see cref="DataFrame"/> that return the same results, for instance, from different
+        /// plans. Such false negative semantic can be useful when caching as an example.
+        /// </remarks>
+        /// <param name="other">Other DataFrame</param>
+        /// <returns>
+        /// `true` when the logical query plans inside both <see cref="DataFrame"/>s are
+        /// equal and therefore return same results.
+        /// </returns>
+        [Since(Versions.V3_1_0)]
+        public bool SameSemantics(DataFrame other) =>
+            (bool)_jvmObject.Invoke("sameSemantics", other);
+
+        /// <summary>
+        /// Returns a hash code of the logical query plan against this <see cref="DataFrame"/>.
+        /// </summary>
+        /// <remarks>
+        /// Unlike the standard hash code, the hash is calculated against the query plan
+        /// simplified by tolerating the cosmetic differences such as attribute names.
+        /// </remarks>
+        /// <returns>Hash code of the logical query plan</returns>
+        [Since(Versions.V3_1_0)]
+        public int SemanticHash() =>
+            (int)_jvmObject.Invoke("semanticHash");
 
         /// <summary>
         /// Returns row objects based on the function (either "toPythonIterator",
