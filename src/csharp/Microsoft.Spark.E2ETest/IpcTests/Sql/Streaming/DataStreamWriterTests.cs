@@ -87,7 +87,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                         .WriteStream()
                         .Format("parquet")
                         .Option("checkpointLocation", tempDirectory.Path);
-                    Assert.IsType<StreamingQuery>(dsw.ToTable(tableName));
+
+                    StreamingQuery sq = dsw.ToTable(tableName);
+                    sq.Stop();
                 });
         }
 

@@ -30,7 +30,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {
             var intMemoryStream = new MemoryStream<int>(_spark);
             StreamingQuery sq = intMemoryStream
-                .ToDF().WriteStream().QueryName("testQuery").Format("console").Start();
+                .ToDF()
+                .WriteStream()
+                .QueryName("testQuery")
+                .Format("console")
+                .Trigger(Trigger.Once())
+                .Start();
+
+            sq.AwaitTermination();
+            Assert.IsType<bool>(sq.AwaitTermination(10));
 
             Assert.IsType<string>(sq.Name);
 
@@ -39,8 +47,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<string>(sq.RunId);
 
             Assert.IsType<bool>(sq.IsActive());
-
-            Assert.IsType<bool>(sq.AwaitTermination(10));
 
             sq.Explain();
 

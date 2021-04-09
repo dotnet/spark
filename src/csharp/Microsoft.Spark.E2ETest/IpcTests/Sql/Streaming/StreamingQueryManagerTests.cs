@@ -31,20 +31,18 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             var intMemoryStream = new MemoryStream<int>(_spark);
             StreamingQuery sq1 = intMemoryStream
                 .ToDF().WriteStream().QueryName("intQuery").Format("console").Start();
-            string id1 = sq1.Id;
 
             var stringMemoryStream = new MemoryStream<string>(_spark);
             StreamingQuery sq2 = stringMemoryStream
                 .ToDF().WriteStream().QueryName("stringQuery").Format("console").Start();
-            string id2 = sq2.Id;
 
             StreamingQueryManager sqm = _spark.Streams();
 
             StreamingQuery[] streamingQueries = sqm.Active().ToArray();
             Assert.Equal(2, streamingQueries.Length);
 
-            Assert.IsType<StreamingQuery>(sqm.Get(id1));
-            Assert.IsType<StreamingQuery>(sqm.Get(id2));
+            Assert.IsType<StreamingQuery>(sqm.Get(sq1.Id));
+            Assert.IsType<StreamingQuery>(sqm.Get(sq2.Id));
 
             sqm.ResetTerminated();
 
