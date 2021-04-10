@@ -1,11 +1,9 @@
 # .Net for Apache Spark Extensions
 
 ## Table of Contents
-
 * [NuGet Packages](#nuget-packages)
 
 ## NuGet Packages
-
 The following .Net for Apache Spark extensions are available as NuGet packages:
 
 ### First-Party
