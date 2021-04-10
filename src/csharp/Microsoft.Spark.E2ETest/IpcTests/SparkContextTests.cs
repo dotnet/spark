@@ -3,6 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Hadoop.Conf;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
@@ -41,10 +45,28 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             sc.AddFile(filePath);
             sc.AddFile(filePath, true);
 
+            Assert.IsType<string[]>(sc.ListFiles().ToArray());
+
             using var tempDir = new TemporaryDirectory();
             sc.SetCheckpointDir(TestEnvironment.ResourceDirectory);
 
+            Assert.IsType<string>(sc.GetCheckpointDir());
+
             Assert.IsType<Configuration>(sc.HadoopConfiguration());
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.1.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_1_0)]
+        public void TestSignaturesV3_1_X()
+        {
+            SparkContext sc = SparkContext.GetOrCreate(new SparkConf());
+
+            string archivePath = $"{TestEnvironment.ResourceDirectory}archive.zip";
+            sc.AddArchive(archivePath);
+
+            Assert.IsType<string[]>(sc.ListArchives().ToArray());
         }
     }
 }
