@@ -54,26 +54,28 @@ namespace Microsoft.Spark.E2ETest.Hadoop
             Assert.False(Directory.Exists(path));
         }
 
+        /// <summary>
+        /// Tests that Exists() returns true if the file exist.
+        /// Tests that Exists() returns false if the file doesn't exist.
+        /// </summary>
         [Fact]
         public void TestExists()
         {
             using FileSystem fs = FileSystem.Get(_spark.SparkContext.HadoopConfiguration());
 
             using var tempDirectory = new TemporaryDirectory();
+
             string path = Path.Combine(tempDirectory.Path, "temp-table");
 
-            _spark
-                .Range(25)
-                .Coalesce(1)
-                .Write()
-                .Csv(path);
+            Assert.False(fs.Exists(path));
+
+            _spark.Range(25).Coalesce(1).Write().Csv(path);
 
             Assert.True(fs.Exists(path));
 
             var dataFile = Directory.GetFiles(path, "*.csv").FirstOrDefault();
 
             Assert.NotNull(dataFile);
-
             Assert.True(fs.Exists(dataFile));
         }
     }

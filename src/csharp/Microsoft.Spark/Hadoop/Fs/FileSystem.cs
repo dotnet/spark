@@ -55,6 +55,11 @@ namespace Microsoft.Spark.Hadoop.Fs
             return (bool)_jvmObject.Invoke("delete", pathObject, recursive);
         }
 
+        /// <summary>
+        /// Check if a path exists.
+        /// </summary>
+        /// <param name="path">Source path</param>
+        /// <returns>True if the path exists else false.</returns>
         public bool Exists(string path)
         {
             JvmObjectReference pathObject =
