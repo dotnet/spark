@@ -180,6 +180,14 @@ namespace Microsoft.Spark.Sql
         public SparkSession NewSession() =>
             new SparkSession((JvmObjectReference)_jvmObject.Invoke("newSession"));
 
+        
+        /// <summary>
+        /// Returns t.
+        /// </summary>
+        /// <returns>The version of Spark on which this application is running</returns>
+        public Version Version() => SparkEnvironment.SparkVersion;
+        
+        
         /// <summary>
         /// Returns the specified table/view as a DataFrame.
         /// </summary>

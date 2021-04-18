@@ -2,10 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Hadoop.Conf;
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using static Microsoft.Spark.Utils.CommandSerDe;
@@ -386,5 +388,12 @@ namespace Microsoft.Spark
                 "toJavaRDD",
                 rdd);
         }
+
+
+        /// <summary>
+        /// Returns t.
+        /// </summary>
+        /// <returns>The version of Spark on which this application is running</returns>
+        public static Version Version() => SparkEnvironment.SparkVersion;
     }
 }

@@ -53,6 +53,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<string>(sc.GetCheckpointDir());
 
             Assert.IsType<Configuration>(sc.HadoopConfiguration());
+            
+            Assert.NotNull(SparkContext.Version());
         }
 
         /// <summary>
