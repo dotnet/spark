@@ -54,7 +54,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<Configuration>(sc.HadoopConfiguration());
             
-            Assert.NotNull(SparkContext.Version());
+            Assert.NotNull(sc.Version());
         }
 
         /// <summary>

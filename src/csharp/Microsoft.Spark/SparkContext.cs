@@ -28,6 +28,8 @@ namespace Microsoft.Spark
 
         private readonly SparkConf _conf;
 
+        private readonly Version _version;
+
         /// <summary>
         /// Create a SparkContext object with the given config.
         /// </summary>
@@ -93,6 +95,9 @@ namespace Microsoft.Spark
         {
             _jvmObject = jvmObject;
             _conf = new SparkConf((JvmObjectReference)_jvmObject.Invoke("getConf"));
+            _version = new Version((string)_jvmObject.Jvm.CallStaticJavaMethod(
+                "org.apache.spark.deploy.dotnet.DotnetRunner",
+                "SPARK_VERSION"));
         }
 
 
@@ -391,9 +396,10 @@ namespace Microsoft.Spark
 
 
         /// <summary>
-        /// Returns t.
+        /// Returns a Version object that represents the version of Spark on which this application is running
         /// </summary>
-        /// <returns>The version of Spark on which this application is running</returns>
-        public static Version Version() => SparkEnvironment.SparkVersion;
+        /// <returns>A Version object that represents the version of Spark on which this application is running</returns>
+
+        public Version Version() => _version;
     }
 }

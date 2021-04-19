@@ -23,6 +23,7 @@ namespace Microsoft.Spark.Sql
 
         private readonly Lazy<SparkContext> _sparkContext;
         private readonly Lazy<Catalog.Catalog> _catalog;
+        private readonly Lazy<Version> _version;
 
         private static readonly string s_sparkSessionClassName =
             "org.apache.spark.sql.SparkSession";
@@ -39,6 +40,10 @@ namespace Microsoft.Spark.Sql
                     (JvmObjectReference)_jvmObject.Invoke("sparkContext")));
             _catalog = new Lazy<Catalog.Catalog>(
                 () => new Catalog.Catalog((JvmObjectReference)_jvmObject.Invoke("catalog")));
+
+            _version = new Lazy<Version>(() => new Version((string)_jvmObject.Jvm.CallStaticJavaMethod(
+                "org.apache.spark.deploy.dotnet.DotnetRunner",
+                "SPARK_VERSION")));
         }
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
@@ -182,10 +187,10 @@ namespace Microsoft.Spark.Sql
 
         
         /// <summary>
-        /// Returns t.
+        /// Returns a Version object that represents the version of Spark on which this application is running
         /// </summary>
-        /// <returns>The version of Spark on which this application is running</returns>
-        public Version Version() => SparkEnvironment.SparkVersion;
+        /// <returns>A Version object that represents the version of Spark on which this application is running</returns>
+        public Version Version() => _version.Value;
         
         
         /// <summary>
