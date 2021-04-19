@@ -73,7 +73,7 @@ namespace Microsoft.Spark.E2ETest.Hadoop
 
             Assert.True(fs.Exists(path));
 
-            var dataFile = Directory.GetFiles(path, "*.csv").FirstOrDefault();
+            string dataFile = Directory.GetFiles(path, "*.csv").FirstOrDefault();
 
             Assert.NotNull(dataFile);
             Assert.True(fs.Exists(dataFile));
