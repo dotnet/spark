@@ -145,10 +145,10 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             }
 
             Version version = SparkEnvironment.SparkVersion;
-            return (version.Major, version.Minor, version.Build) switch
+            return version.Major switch
             {
-                (2, _, _) => false,
-                (3, 0, _) => true,
+                2 => false,
+                3 => true,
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
         }

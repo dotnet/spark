@@ -17,13 +17,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
     public class SparkContextTests
     {
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// </summary>
         /// <remarks>
         /// For the RDD related tests, refer to <see cref="RDDTests"/>.
         /// </remarks>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             SparkContext sc = SparkContext.GetOrCreate(new SparkConf());
 
