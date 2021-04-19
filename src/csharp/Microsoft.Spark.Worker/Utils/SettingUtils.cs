@@ -12,20 +12,10 @@ namespace Microsoft.Spark.Worker.Utils
     /// </summary>
     internal static class SettingUtils
     {
-        internal static string GetWorkerFactorySecret(Version version)
-        {
-            return (version >= new Version(Versions.V2_4_0)) ?
-                GetEnvironmentVariable("PYTHON_WORKER_FACTORY_SECRET") :
-                null;
-        }
+        internal static string GetWorkerFactorySecret() =>
+            GetEnvironmentVariable("PYTHON_WORKER_FACTORY_SECRET");
 
-        internal static int GetWorkerFactoryPort(Version version)
-        {
-            string portStr = (version >= new Version(Versions.V2_4_0)) ?
-                GetEnvironmentVariable("PYTHON_WORKER_FACTORY_PORT") :
-                Console.ReadLine();
-
-            return int.Parse(portStr.Trim());
-        }
+        internal static int GetWorkerFactoryPort() =>
+            int.Parse(GetEnvironmentVariable("PYTHON_WORKER_FACTORY_PORT").Trim());
     }
 }

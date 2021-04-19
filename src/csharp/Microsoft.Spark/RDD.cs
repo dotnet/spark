@@ -298,11 +298,12 @@ namespace Microsoft.Spark
         private (int, string) CollectAndServe()
         {
             JvmObjectReference rddRef = GetJvmRef();
+            // collectToPython() returns a pair where the first is a port number
+            // and the second is the secret string to use for the authentication.
             var pair = (JvmObjectReference[])rddRef.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.api.python.PythonRDD",
                 "collectAndServe",
                 rddRef.Invoke("rdd"));
-
             return ((int)pair[0].Invoke("intValue"), (string)pair[1].Invoke("toString"));
         }
 

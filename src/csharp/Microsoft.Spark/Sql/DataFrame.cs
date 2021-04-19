@@ -1104,6 +1104,8 @@ namespace Microsoft.Spark.Sql
             Version version = SparkEnvironment.SparkVersion;
             return (version.Major, version.Minor) switch
             {
+                // PythonFunction.serveIterator() returns a pair where the first is a port
+                // number and the second is the secret string to use for the authentication.
                 (2, 4) => ParseConnectionInfo(result, false),
                 (3, _) => ParseConnectionInfo(result, false),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")

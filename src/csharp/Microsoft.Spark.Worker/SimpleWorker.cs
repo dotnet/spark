@@ -23,7 +23,7 @@ namespace Microsoft.Spark.Worker
 
         internal void Run()
         {
-            int port = Utils.SettingUtils.GetWorkerFactoryPort(_version);
+            int port = Utils.SettingUtils.GetWorkerFactoryPort();
             Run(port);
         }
 
@@ -31,7 +31,7 @@ namespace Microsoft.Spark.Worker
         {
             try
             {
-                string secret = Utils.SettingUtils.GetWorkerFactorySecret(_version);
+                string secret = Utils.SettingUtils.GetWorkerFactorySecret();
 
                 s_logger.LogInfo($"RunSimpleWorker() is starting with port = {port}.");
 
