@@ -110,7 +110,7 @@ namespace Microsoft.Spark.Worker
                 bool reuseWorker =
                     "1".Equals(Environment.GetEnvironmentVariable("SPARK_REUSE_WORKER"));
 
-                string secret = Utils.SettingUtils.GetWorkerFactorySecret(_version);
+                string secret = Utils.SettingUtils.GetWorkerFactorySecret();
 
                 int taskRunnerId = 1;
                 int numWorkerThreads = 0;
