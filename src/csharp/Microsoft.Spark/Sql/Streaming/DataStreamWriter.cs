@@ -179,6 +179,30 @@ namespace Microsoft.Spark.Sql.Streaming
         }
 
         /// <summary>
+        /// Starts the execution of the streaming query, which will continually output results to the
+        /// given table as new data arrives. The returned <see cref="StreamingQuery"/> object can be
+        /// used to interact with the stream.
+        /// </summary>
+        /// <remarks>
+        /// For v1 table, partitioning columns provided by <see cref="PartitionBy(string[])"/> will be
+        /// respected no matter the table exists or not. A new table will be created if the table not
+        /// exists.
+        ///
+        /// For v2 table, <see cref="PartitionBy(string[])"/> will be ignored if the table already exists.
+        /// <see cref="PartitionBy(string[])"/> will be respected only if the v2 table does not exist.
+        /// Besides, the v2 table created by this API lacks some functionalities (e.g., customized
+        /// properties, options, and serde info). If you need them, please create the v2 table manually
+        /// before the execution to avoid creating a table with incomplete information.
+        /// </remarks>
+        /// <param name="tableName">Name of the table</param>
+        /// <returns>StreamingQuery object</returns>
+        [Since(Versions.V3_1_0)]
+        public StreamingQuery ToTable(string tableName)
+        {
+            return new StreamingQuery((JvmObjectReference)_jvmObject.Invoke("toTable", tableName));
+        }
+
+        /// <summary>
         /// Sets the output of the streaming query to be processed using the provided
         /// writer object. See <see cref="IForeachWriter"/> for more details on the
         /// lifecycle and semantics.
@@ -228,6 +252,7 @@ namespace Microsoft.Spark.Sql.Streaming
             _jvmObject.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.DotnetForeachBatchHelper",
                 "callForeachBatch",
+                SparkEnvironment.CallbackServer.JvmCallbackClient,
                 this,
                 callbackId);
             return this;

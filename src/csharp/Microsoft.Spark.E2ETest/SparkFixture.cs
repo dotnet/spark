@@ -35,7 +35,7 @@ namespace Microsoft.Spark.E2ETest
             /// <summary>
             /// This environment variable specifies the path where the DotNet worker is installed.
             /// </summary>
-            public const string WorkerDir = Services.ConfigurationService.WorkerDirEnvVarName;
+            public const string WorkerDir = Services.ConfigurationService.DefaultWorkerDirEnvVarName;
         }
 
         private readonly Process _process = new Process();

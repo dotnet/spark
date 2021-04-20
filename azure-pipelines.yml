@@ -4,7 +4,7 @@ trigger:
   batch: true
   branches:
     include:
-    - master
+    - main
 
 variables:
   buildConfiguration: 'Release'
@@ -16,29 +16,20 @@ variables:
   backwardCompatibleRelease: '1.0.0'
   forwardCompatibleRelease: '1.0.0'
 
-  backwardCompatibleTestOptions_Windows_2_3: ""
-  forwardCompatibleTestOptions_Windows_2_3: ""
-  backwardCompatibleTestOptions_Linux_2_3: ""
-  forwardCompatibleTestOptions_Linux_2_3: ""
-
   backwardCompatibleTestOptions_Windows_2_4: ""
   forwardCompatibleTestOptions_Windows_2_4: ""
   backwardCompatibleTestOptions_Linux_2_4: ""
-  # Filter HyperspaceTests not due to functionality changes, but to incompatible tests running on Linux.
-  # Please see https://github.com/dotnet/spark/pull/737 for the fix.
-  forwardCompatibleTestOptions_Linux_2_4: "--filter \
-  (FullyQualifiedName!=Microsoft.Spark.Extensions.Hyperspace.E2ETest.HyperspaceTests.TestExplainAPI)&\
-  (FullyQualifiedName!=Microsoft.Spark.Extensions.Hyperspace.E2ETest.HyperspaceTests.TestIndexCreateAndDelete)&\
-  (FullyQualifiedName!=Microsoft.Spark.Extensions.Hyperspace.E2ETest.HyperspaceTests.TestSignatures)"
+  forwardCompatibleTestOptions_Linux_2_4: ""
 
-  # Filter DataFrameTests.TestDataFrameGroupedMapUdf and DataFrameTests.TestGroupedMapUdf backwardCompatible
-  # tests due to https://github.com/dotnet/spark/pull/711
-  backwardCompatibleTestOptions_Windows_3: "--filter \
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestGroupedMapUdf)"
-  forwardCompatibleTestOptions_Windows_3: ""
-  backwardCompatibleTestOptions_Linux_3: $(backwardCompatibleTestOptions_Windows_3)
-  forwardCompatibleTestOptions_Linux_3: $(forwardCompatibleTestOptions_Linux_2_4)
+  backwardCompatibleTestOptions_Windows_3_0: ""
+  forwardCompatibleTestOptions_Windows_3_0: ""
+  backwardCompatibleTestOptions_Linux_3_0: ""
+  forwardCompatibleTestOptions_Linux_3_0: ""
+
+  backwardCompatibleTestOptions_Windows_3_1: ""
+  forwardCompatibleTestOptions_Windows_3_1: ""
+  backwardCompatibleTestOptions_Linux_3_1: ""
+  forwardCompatibleTestOptions_Linux_3_1: ""
 
   # Azure DevOps variables are transformed into environment variables, with these variables we
   # avoid the first time experience and telemetry to speed up the build.
@@ -210,53 +201,6 @@ stages:
     backwardCompatibleRelease: $(backwardCompatibleRelease)
     forwardCompatibleRelease: $(forwardCompatibleRelease)
     tests:
-    - version: '2.3.0'
-      jobOptions:
-      # 'Hosted Ubuntu 1604' test is disabled due to https://github.com/dotnet/spark/issues/753
-      - pool: 'Hosted VS2017'
-        testOptions: ''
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_3)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_3)
-    - version: '2.3.1'
-      jobOptions:
-      - pool: 'Hosted VS2017'
-        testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_3)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_3)
-      - pool: 'Hosted Ubuntu 1604'
-        testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_3)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_3)
-    - version: '2.3.2'
-      jobOptions:
-      - pool: 'Hosted VS2017'
-        testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_3)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_3)
-      - pool: 'Hosted Ubuntu 1604'
-        testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_3)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_3)
-    - version: '2.3.3'
-      jobOptions:
-      - pool: 'Hosted VS2017'
-        testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_3)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_3)
-      - pool: 'Hosted Ubuntu 1604'
-        testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_3)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_3)
-    - version: '2.3.4'
-      jobOptions:
-      - pool: 'Hosted VS2017'
-        testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_3)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_3)
-      - pool: 'Hosted Ubuntu 1604'
-        testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_3)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_3)
     - version: '2.4.0'
       jobOptions:
       - pool: 'Hosted VS2017'
@@ -331,19 +275,39 @@ stages:
       jobOptions:
       - pool: 'Hosted VS2017'
         testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3)
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_0)
       - pool: 'Hosted Ubuntu 1604'
         testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3)
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
     - version: '3.0.1'
       jobOptions:
       - pool: 'Hosted VS2017'
         testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3)
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_0)
       - pool: 'Hosted Ubuntu 1604'
         testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3)
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
+    - version: '3.0.2'
+      jobOptions:
+      - pool: 'Hosted VS2017'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_0)
+      - pool: 'Hosted Ubuntu 1604'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
+    - version: '3.1.1'
+      jobOptions:
+      - pool: 'Hosted VS2017'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
+        forwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
+      - pool: 'Hosted Ubuntu 1604'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)

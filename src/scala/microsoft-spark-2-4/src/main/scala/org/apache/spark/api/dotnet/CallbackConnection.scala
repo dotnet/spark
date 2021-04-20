@@ -18,23 +18,23 @@ import org.apache.spark.internal.Logging
  * @param address The address of the Dotnet CallbackServer
  * @param port The port of the Dotnet CallbackServer
  */
-class CallbackConnection(address: String, port: Int) extends Logging {
+class CallbackConnection(serDe: SerDe, address: String, port: Int) extends Logging {
   private[this] val socket: Socket = new Socket(address, port)
   private[this] val inputStream: DataInputStream = new DataInputStream(socket.getInputStream)
   private[this] val outputStream: DataOutputStream = new DataOutputStream(socket.getOutputStream)
 
   def send(
       callbackId: Int,
-      writeBody: DataOutputStream => Unit): Unit = {
+      writeBody: (DataOutputStream, SerDe) => Unit): Unit = {
     logInfo(s"Calling callback [callback id = $callbackId] ...")
 
     try {
-      SerDe.writeInt(outputStream, CallbackFlags.CALLBACK)
-      SerDe.writeInt(outputStream, callbackId)
+      serDe.writeInt(outputStream, CallbackFlags.CALLBACK)
+      serDe.writeInt(outputStream, callbackId)
 
       val byteArrayOutputStream = new ByteArrayOutputStream()
-      writeBody(new DataOutputStream(byteArrayOutputStream))
-      SerDe.writeInt(outputStream, byteArrayOutputStream.size)
+      writeBody(new DataOutputStream(byteArrayOutputStream), serDe)
+      serDe.writeInt(outputStream, byteArrayOutputStream.size)
       byteArrayOutputStream.writeTo(outputStream);
     } catch {
       case e: Exception => {
@@ -44,7 +44,7 @@ class CallbackConnection(address: String, port: Int) extends Logging {
 
     logInfo(s"Signaling END_OF_STREAM.")
     try {
-      SerDe.writeInt(outputStream, CallbackFlags.END_OF_STREAM)
+      serDe.writeInt(outputStream, CallbackFlags.END_OF_STREAM)
       outputStream.flush()
 
       val endOfStreamResponse = readFlag(inputStream)
@@ -53,7 +53,7 @@ class CallbackConnection(address: String, port: Int) extends Logging {
           logInfo(s"Received END_OF_STREAM signal. Calling callback [callback id = $callbackId] successful.")
         case _ =>  {
           throw new Exception(s"Error verifying end of stream. Expected: ${CallbackFlags.END_OF_STREAM}, " +
-              s"Received: $endOfStreamResponse")
+            s"Received: $endOfStreamResponse")
         }
       }
     } catch {
@@ -65,7 +65,7 @@ class CallbackConnection(address: String, port: Int) extends Logging {
 
   def close(): Unit = {
     try {
-      SerDe.writeInt(outputStream, CallbackFlags.CLOSE)
+      serDe.writeInt(outputStream, CallbackFlags.CLOSE)
       outputStream.flush()
     } catch {
       case e: Exception => logInfo("Unable to send close to .NET callback server.", e)
@@ -95,9 +95,9 @@ class CallbackConnection(address: String, port: Int) extends Logging {
   }
 
   private def readFlag(inputStream: DataInputStream): Int = {
-    val callbackFlag = SerDe.readInt(inputStream)
+    val callbackFlag = serDe.readInt(inputStream)
     if (callbackFlag == CallbackFlags.DOTNET_EXCEPTION_THROWN) {
-      val exceptionMessage = SerDe.readString(inputStream)
+      val exceptionMessage = serDe.readString(inputStream)
       throw new DotnetException(exceptionMessage)
     }
     callbackFlag

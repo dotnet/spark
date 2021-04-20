@@ -451,6 +451,31 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// An expression that adds/replaces field in <see cref="Types.StructType"/> by name.
+        /// </summary>
+        /// <param name="fieldName">The name of the field</param>
+        /// <param name="column">Column to assign to the field</param>
+        /// <returns>
+        /// New column after adding/replacing field in <see cref="Types.StructType"/> by name.
+        /// </returns>
+        [Since(Versions.V3_1_0)]
+        public Column WithField(string fieldName, Column column)
+        {
+            return ApplyMethod("withField", fieldName, column);
+        }
+
+        /// <summary>
+        /// An expression that drops fields in <see cref="Types.StructType"/> by name.
+        /// </summary>
+        /// <param name="fieldNames">Name of fields to drop.</param>
+        /// <returns>New column after after dropping fields.</returns>
+        [Since(Versions.V3_1_0)]
+        public Column DropFields(params string[] fieldNames)
+        {
+            return ApplyMethod("dropFields", fieldNames);
+        }
+
+        /// <summary>
         /// An expression that gets a field by name in a `StructType`.
         /// </summary>
         /// <param name="fieldName">The name of the field</param>

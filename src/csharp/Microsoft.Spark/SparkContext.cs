@@ -5,6 +5,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Microsoft.Spark.Hadoop.Conf;
+using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using static Microsoft.Spark.Utils.CommandSerDe;
 
@@ -274,6 +276,8 @@ namespace Microsoft.Spark
         /// <remarks>
         /// If a file is added during execution, it will not be available until the next
         /// TaskSet starts.
+        /// 
+        /// A path can be added only once. Subsequent additions of the same path are ignored.
         /// </remarks>
         /// <param name="path">
         /// File path can be either a local file, a file in HDFS (or other Hadoop-supported
@@ -289,6 +293,41 @@ namespace Microsoft.Spark
         }
 
         /// <summary>
+        /// Returns a list of file paths that are added to resources.
+        /// </summary>
+        /// <returns>File paths that are added to resources.</returns>
+        public IEnumerable<string> ListFiles() =>
+            new Seq<string>((JvmObjectReference)_jvmObject.Invoke("listFiles"));
+
+        /// <summary>
+        /// Add an archive to be downloaded and unpacked with this Spark job on every node.
+        /// </summary>
+        /// <remarks>
+        /// If an archive is added during execution, it will not be available until the next
+        /// TaskSet starts.
+        /// 
+        /// A path can be added only once. Subsequent additions of the same path are ignored.
+        /// </remarks>
+        /// <param name="path">
+        /// Archive path can be either a local file, a file in HDFS (or other Hadoop-supported
+        /// filesystems), or an HTTP, HTTPS or FTP URI. The given path should be one of .zip,
+        /// .tar, .tar.gz, .tgz and .jar.
+        /// </param>
+        [Since(Versions.V3_1_0)]
+        public void AddArchive(string path)
+        {
+            _jvmObject.Invoke("addArchive", path);
+        }
+
+        /// <summary>
+        /// Returns a list of archive paths that are added to resources.
+        /// </summary>
+        /// <returns>Archive paths that are added to resources.</returns>
+        [Since(Versions.V3_1_0)]
+        public IEnumerable<string> ListArchives() =>
+            new Seq<string>((JvmObjectReference)_jvmObject.Invoke("listArchives"));
+
+        /// <summary>
         /// Sets the directory under which RDDs are going to be checkpointed.
         /// </summary>
         /// <param name="directory">
@@ -297,6 +336,18 @@ namespace Microsoft.Spark
         public void SetCheckpointDir(string directory)
         {
             _jvmObject.Invoke("setCheckpointDir", directory);
+        }
+
+        /// <summary>
+        /// Return the directory where RDDs are checkpointed.
+        /// </summary>
+        /// <returns>
+        /// The directory where RDDs are checkpointed. Returns `null` if no checkpoint
+        /// directory has been set.
+        /// </returns>
+        public string GetCheckpointDir()
+        {
+            return (string)new Option((JvmObjectReference)_jvmObject.Invoke("getCheckpointDir")).OrNull();
         }
 
         /// <summary>
@@ -311,6 +362,13 @@ namespace Microsoft.Spark
         {
             return new Broadcast<T>(this, value);
         }
+
+        /// <summary>
+        /// A default Hadoop Configuration for the Hadoop code (e.g. file systems) that we reuse.
+        /// </summary>
+        /// <returns>The Hadoop Configuration.</returns>
+        public Configuration HadoopConfiguration() =>
+            new Configuration((JvmObjectReference)_jvmObject.Invoke("hadoopConfiguration"));
 
         /// <summary>
         /// Returns JVM object reference to JavaRDD object transformed
