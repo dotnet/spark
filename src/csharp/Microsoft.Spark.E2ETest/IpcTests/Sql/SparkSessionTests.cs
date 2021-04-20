@@ -4,7 +4,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Catalog;
 using Microsoft.Spark.Sql.Streaming;
@@ -24,12 +23,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// The purpose of this test is to ensure that JVM calls can be successfully made.
         /// Note that this is not testing functionality of each function.
         /// </summary>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             Assert.IsType<SparkContext>(_spark.SparkContext);
 
@@ -64,16 +63,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<UdfRegistration>(_spark.Udf());
 
             Assert.IsType<Catalog>(_spark.Catalog);
+<<<<<<< HEAD
             
             Assert.NotNull(_spark.Version());
         }
+=======
+>>>>>>> 1f1f7368949f236b2e69200845a8e5c210ecb1ee
 
-        /// <summary>
-        /// Test signatures for APIs introduced in Spark 2.4.*.
-        /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
-        public void TestSignaturesV2_4_X()
-        {
             Assert.IsType<SparkSession>(SparkSession.Active());
         }
 

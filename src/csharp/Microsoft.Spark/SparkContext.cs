@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Hadoop.Conf;
-using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using static Microsoft.Spark.Utils.CommandSerDe;
@@ -28,7 +27,7 @@ namespace Microsoft.Spark
 
         private readonly SparkConf _conf;
 
-        private readonly Version _version;
+        private readonly string _version;
 
         /// <summary>
         /// Create a SparkContext object with the given config.
@@ -95,9 +94,7 @@ namespace Microsoft.Spark
         {
             _jvmObject = jvmObject;
             _conf = new SparkConf((JvmObjectReference)_jvmObject.Invoke("getConf"));
-            _version = new Version((string)_jvmObject.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.deploy.dotnet.DotnetRunner",
-                "SPARK_VERSION"));
+            _version = (string)_jvmObject.Invoke("version");
         }
 
 
@@ -396,10 +393,10 @@ namespace Microsoft.Spark
 
 
         /// <summary>
-        /// Returns a Version object that represents the version of Spark on which this application is running
+        /// Returns a string that represents the version of Spark on which this application is running
         /// </summary>
-        /// <returns>A Version object that represents the version of Spark on which this application is running</returns>
+        /// <returns>A string that represents the version of Spark on which this application is running</returns>
 
-        public Version Version() => _version;
+        public string Version() => _version;
     }
 }

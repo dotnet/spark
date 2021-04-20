@@ -23,12 +23,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// The purpose of this test is to ensure that JVM calls can be successfully made.
         /// Note that this is not testing functionality of each function.
         /// </summary>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             //////////////////////////////
             // Basic Functions
@@ -205,6 +205,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(Map());
             Assert.IsType<Column>(Map(col));
             Assert.IsType<Column>(Map(col, col));
+
+            Assert.IsType<Column>(MapFromArrays(col, col));
 
             DataFrame df = _spark
                 .Read()
@@ -514,6 +516,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(Minute(col));
 
             Assert.IsType<Column>(MonthsBetween(col, col));
+            Assert.IsType<Column>(MonthsBetween(col, col, false));
 
             Assert.IsType<Column>(NextDay(col, "Mon"));
 
@@ -542,8 +545,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             {
                 // The following APIs are deprecated in Spark 3.0.
                 Assert.IsType<Column>(FromUtcTimestamp(col, "GMT+1"));
+                Assert.IsType<Column>(FromUtcTimestamp(col, col));
 
                 Assert.IsType<Column>(ToUtcTimestamp(col, "GMT+1"));
+                Assert.IsType<Column>(ToUtcTimestamp(col, col));
             }
 
             Assert.IsType<Column>(Window(col, "1 minute", "10 seconds", "5 seconds"));
@@ -556,9 +561,32 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(ArrayContains(col, 12345));
             Assert.IsType<Column>(ArrayContains(col, "str"));
 
+            Assert.IsType<Column>(ArraysOverlap(col, col));
+
+            Assert.IsType<Column>(Slice(col, 0, 4));
+
+            Assert.IsType<Column>(ArrayJoin(col, ":", "replacement"));
+            Assert.IsType<Column>(ArrayJoin(col, ":"));
+
             Assert.IsType<Column>(Concat());
             Assert.IsType<Column>(Concat(col));
             Assert.IsType<Column>(Concat(col, col));
+
+            Assert.IsType<Column>(ArrayPosition(col, 1));
+
+            Assert.IsType<Column>(ElementAt(col, 1));
+
+            Assert.IsType<Column>(ArraySort(col));
+
+            Assert.IsType<Column>(ArrayRemove(col, "elementToRemove"));
+
+            Assert.IsType<Column>(ArrayDistinct(col));
+
+            Assert.IsType<Column>(ArrayIntersect(col, col));
+
+            Assert.IsType<Column>(ArrayUnion(col, col));
+
+            Assert.IsType<Column>(ArrayExcept(col, col));
 
             Assert.IsType<Column>(Explode(col));
 
@@ -574,9 +602,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(JsonTuple(col, "a", "b"));
 
             var options = new Dictionary<string, string>() { { "hello", "world" } };
+            Column schema = SchemaOfJson("[{\"col\":0}]");
 
             Assert.IsType<Column>(FromJson(col, "a Int"));
             Assert.IsType<Column>(FromJson(col, "a Int", options));
+            Assert.IsType<Column>(FromJson(col, schema));
+            Assert.IsType<Column>(FromJson(col, schema, options));
+
+            Assert.IsType<Column>(SchemaOfJson("{}"));
+            Assert.IsType<Column>(SchemaOfJson(col));
 
             Assert.IsType<Column>(ToJson(col));
             Assert.IsType<Column>(ToJson(col, options));
@@ -587,11 +621,35 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(SortArray(col, true));
             Assert.IsType<Column>(SortArray(col, false));
 
+            Assert.IsType<Column>(ArrayMin(col));
+
+            Assert.IsType<Column>(ArrayMax(col));
+
+            Assert.IsType<Column>(Shuffle(col));
+
             Assert.IsType<Column>(Reverse(col));
+
+            Assert.IsType<Column>(Flatten(col));
+
+            Assert.IsType<Column>(Sequence(col, col, col));
+            Assert.IsType<Column>(Sequence(col, col));
+
+            Assert.IsType<Column>(ArrayRepeat(col, col));
+            Assert.IsType<Column>(ArrayRepeat(col, 5));
 
             Assert.IsType<Column>(MapKeys(col));
 
             Assert.IsType<Column>(MapValues(col));
+
+            Assert.IsType<Column>(MapFromEntries(col));
+
+            Assert.IsType<Column>(ArraysZip());
+            Assert.IsType<Column>(ArraysZip(col));
+            Assert.IsType<Column>(ArraysZip(col, col));
+
+            Assert.IsType<Column>(MapConcat());
+            Assert.IsType<Column>(MapConcat(col));
+            Assert.IsType<Column>(MapConcat(col, col));
 
             //////////////////////////////
             // Udf Functions
@@ -664,85 +722,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 (arg) => new Dictionary<string, string> { { arg, arg } });
             Udf<string, IDictionary<string, string[]>>(
                 (arg) => new Dictionary<string, string[]> { { arg, new[] { arg } } });
-        }
-
-        /// <summary>
-        /// Test signatures for APIs introduced in Spark 2.4.*.
-        /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
-        public void TestSignaturesV2_4_X()
-        {
-            Column col = Column("col");
-
-            col = MapFromArrays(col, col);
-
-            col = MonthsBetween(col, col, false);
-
-            if (SparkSettings.Version < new Version(Versions.V3_0_0))
-            {
-                // The following APIs are deprecated in Spark 3.0.
-                col = FromUtcTimestamp(col, col);
-
-                col = ToUtcTimestamp(col, col);
-            }
-
-            col = ArraysOverlap(col, col);
-
-            col = Slice(col, 0, 4);
-
-            col = ArrayJoin(col, ":", "replacement");
-            col = ArrayJoin(col, ":");
-
-            col = ArrayPosition(col, 1);
-
-            col = ElementAt(col, 1);
-
-            col = ArraySort(col);
-
-            col = ArrayRemove(col, "elementToRemove");
-
-            col = ArrayDistinct(col);
-
-            col = ArrayIntersect(col, col);
-
-            col = ArrayUnion(col, col);
-
-            col = ArrayExcept(col, col);
-
-            var options = new Dictionary<string, string>() { { "hello", "world" } };
-            Column schema = SchemaOfJson("[{\"col\":0}]");
-
-            col = FromJson(col, schema);
-            col = FromJson(col, schema, options);
-
-            col = SchemaOfJson("{}");
-            col = SchemaOfJson(col);
-
-            col = ArrayMin(col);
-
-            col = ArrayMax(col);
-
-            col = Shuffle(col);
-
-            col = Reverse(col);
-
-            col = Flatten(col);
-
-            col = Sequence(col, col, col);
-            col = Sequence(col, col);
-
-            col = ArrayRepeat(col, col);
-            col = ArrayRepeat(col, 5);
-
-            col = MapFromEntries(col);
-
-            col = ArraysZip();
-            col = ArraysZip(col);
-            col = ArraysZip(col, col);
-
-            col = MapConcat();
-            col = MapConcat(col);
-            col = MapConcat(col, col);
         }
 
         /// <summary>

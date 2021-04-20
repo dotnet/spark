@@ -16,10 +16,6 @@ namespace Microsoft.Spark.Worker.UnitTest
         public static IEnumerable<object[]> VersionData() =>
             new List<object[]>
             {
-                new object[] { Versions.V2_3_0 },
-                new object[] { Versions.V2_3_1 },
-                new object[] { Versions.V2_3_2 },
-                new object[] { Versions.V2_3_3 },
                 new object[] { Versions.V2_4_0 },
                 new object[] { Versions.V3_0_0 },
             };
