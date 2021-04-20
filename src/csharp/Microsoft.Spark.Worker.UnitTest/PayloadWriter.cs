@@ -51,20 +51,6 @@ namespace Microsoft.Spark.Worker.UnitTest
     }
 
     /// <summary>
-    /// TaskContextWriter for version 2.3.*.
-    /// </summary>
-    internal sealed class TaskContextWriterV2_3_X : ITaskContextWriter
-    {
-        public void Write(Stream stream, TaskContext taskContext)
-        {
-            SerDe.Write(stream, taskContext.StageId);
-            SerDe.Write(stream, taskContext.PartitionId);
-            SerDe.Write(stream, taskContext.AttemptNumber);
-            SerDe.Write(stream, taskContext.AttemptId);
-        }
-    }
-
-    /// <summary>
     /// TaskContextWriter for version 2.4.*.
     /// </summary>
     internal sealed class TaskContextWriterV2_4_X : ITaskContextWriter
@@ -136,21 +122,9 @@ namespace Microsoft.Spark.Worker.UnitTest
     }
 
     /// <summary>
-    /// BroadcastVariableWriter for version 2.3.0 and 2.3.1.
+    /// BroadcastVariableWriter for version 2.4.*.
     /// </summary>
-    internal sealed class BroadcastVariableWriterV2_3_0 : IBroadcastVariableWriter
-    {
-        public void Write(Stream stream, BroadcastVariables broadcastVars)
-        {
-            Debug.Assert(broadcastVars.Count == 0);
-            SerDe.Write(stream, broadcastVars.Count);
-        }
-    }
-
-    /// <summary>
-    /// BroadcastVariableWriter for version 2.3.2 and up.
-    /// </summary>
-    internal sealed class BroadcastVariableWriterV2_3_2 : IBroadcastVariableWriter
+    internal sealed class BroadcastVariableWriterV2_4_X : IBroadcastVariableWriter
     {
         public void Write(Stream stream, BroadcastVariables broadcastVars)
         {
@@ -203,25 +177,6 @@ namespace Microsoft.Spark.Worker.UnitTest
                     SerDe.Write(stream, serializedCommand.Length);
                     SerDe.Write(stream, serializedCommand);
                 }
-            }
-        }
-    }
-
-    /// <summary>
-    /// CommandWriter for version 2.3.*.
-    /// </summary>
-    internal sealed class CommandWriterV2_3_X : CommandWriterBase, ICommandWriter
-    {
-        public void Write(Stream stream, CommandPayload commandPayload)
-        {
-            SerDe.Write(stream, (int)commandPayload.EvalType);
-
-            Write(stream, commandPayload.Commands);
-
-            if ((commandPayload.EvalType == PythonEvalType.SQL_SCALAR_PANDAS_UDF) ||
-                (commandPayload.EvalType == PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF))
-            {
-                SerDe.Write(stream, "unused timezone");
             }
         }
     }
@@ -343,31 +298,17 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             switch (version.ToString())
             {
-                case Versions.V2_3_0:
-                case Versions.V2_3_1:
-                    return new PayloadWriter(
-                        version,
-                        new TaskContextWriterV2_3_X(),
-                        new BroadcastVariableWriterV2_3_0(),
-                        new CommandWriterV2_3_X());
-                case Versions.V2_3_2:
-                case Versions.V2_3_3:
-                    return new PayloadWriter(
-                        version,
-                        new TaskContextWriterV2_3_X(),
-                        new BroadcastVariableWriterV2_3_2(),
-                        new CommandWriterV2_3_X());
                 case Versions.V2_4_0:
                     return new PayloadWriter(
                         version,
                         new TaskContextWriterV2_4_X(),
-                        new BroadcastVariableWriterV2_3_2(),
+                        new BroadcastVariableWriterV2_4_X(),
                         new CommandWriterV2_4_X());
                 case Versions.V3_0_0:
                     return new PayloadWriter(
                         version,
                         new TaskContextWriterV3_0_X(),
-                        new BroadcastVariableWriterV2_3_2(),
+                        new BroadcastVariableWriterV2_4_X(),
                         new CommandWriterV2_4_X());
                 default:
                     throw new NotSupportedException($"Spark {version} is not supported.");

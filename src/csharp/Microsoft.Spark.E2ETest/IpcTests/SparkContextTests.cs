@@ -3,6 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using Microsoft.Spark.E2ETest.Utils;
+using Microsoft.Spark.Hadoop.Conf;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
@@ -12,13 +17,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
     public class SparkContextTests
     {
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// </summary>
         /// <remarks>
         /// For the RDD related tests, refer to <see cref="RDDTests"/>.
         /// </remarks>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             SparkContext sc = SparkContext.GetOrCreate(new SparkConf());
 
@@ -40,8 +45,28 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             sc.AddFile(filePath);
             sc.AddFile(filePath, true);
 
+            Assert.IsType<string[]>(sc.ListFiles().ToArray());
+
             using var tempDir = new TemporaryDirectory();
             sc.SetCheckpointDir(TestEnvironment.ResourceDirectory);
+
+            Assert.IsType<string>(sc.GetCheckpointDir());
+
+            Assert.IsType<Configuration>(sc.HadoopConfiguration());
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.1.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_1_0)]
+        public void TestSignaturesV3_1_X()
+        {
+            SparkContext sc = SparkContext.GetOrCreate(new SparkConf());
+
+            string archivePath = $"{TestEnvironment.ResourceDirectory}archive.zip";
+            sc.AddArchive(archivePath);
+
+            Assert.IsType<string[]>(sc.ListArchives().ToArray());
         }
     }
 }

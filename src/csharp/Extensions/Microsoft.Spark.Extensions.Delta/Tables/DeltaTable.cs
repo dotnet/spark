@@ -501,5 +501,21 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
                 "merge",
                 source,
                 condition));
+
+        /// <summary>
+        /// Updates the protocol version of the table to leverage new features. Upgrading the reader version
+        /// will prevent all clients that have an older version of Delta Lake from accessing this table.
+        /// Upgrading the writer version will prevent older versions of Delta Lake to write to this table.
+        /// The reader or writer version cannot be downgraded.
+        /// 
+        /// See online documentation and Delta's protocol specification at
+        /// <see href="https://github.com/delta-io/delta/blob/master/PROTOCOL.md">PROTOCOL.md</see> for more
+        /// details.
+        /// </summary>
+        /// <param name="readerVersion">Version of the Delta read protocol.</param>
+        /// <param name="writerVersion">Version of the Delta write protocol.</param>
+        [DeltaLakeSince(DeltaLakeVersions.V0_8_0)]
+        public void UpgradeTableProtocol(int readerVersion, int writerVersion) =>
+            _jvmObject.Invoke("upgradeTableProtocol", readerVersion, writerVersion);
     }
 }

@@ -57,7 +57,7 @@ else
     sudo apt-get -yq install dotnet-sdk-3.1
 
     sudo dotnet tool uninstall dotnet-try --tool-path /usr/share/dotnet-tools || true
-    sudo dotnet tool install dotnet-try --add-source https://dotnet.myget.org/F/dotnet-try/api/v3/index.json --tool-path /usr/share/dotnet-tools --version 1.0.19473.13
+    sudo dotnet tool install dotnet-try --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json --tool-path /usr/share/dotnet-tools --version 1.0.19473.13
 
     # copy .NET for Apache Spark jar to SPARK's jar folder
     sudo mkdir -p /tmp/temp_jar

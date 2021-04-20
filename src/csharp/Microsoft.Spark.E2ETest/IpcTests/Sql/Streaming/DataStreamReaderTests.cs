@@ -4,10 +4,13 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Streaming;
 using Microsoft.Spark.Sql.Types;
 using Xunit;
+using static Microsoft.Spark.E2ETest.Utils.SQLUtils;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
@@ -22,10 +25,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// </summary>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             DataStreamReader dsr = _spark.ReadStream();
 
@@ -52,7 +55,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                     }));
 
             string jsonFilePath = Path.Combine(TestEnvironment.ResourceDirectory, "people.json");
-            Assert.IsType<DataFrame>(dsr.Format("json").Option("path", jsonFilePath).Load());
             Assert.IsType<DataFrame>(dsr.Format("json").Load(jsonFilePath));
             Assert.IsType<DataFrame>(dsr.Json(jsonFilePath));
             Assert.IsType<DataFrame>(
@@ -63,6 +65,32 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 dsr.Parquet(Path.Combine(TestEnvironment.ResourceDirectory, "users.parquet")));
             Assert.IsType<DataFrame>
                 (dsr.Text(Path.Combine(TestEnvironment.ResourceDirectory, "people.txt")));
+
+            // In Spark 3.1.1+ setting the `path` Option and then calling .Load(path) is not
+            // supported unless `spark.sql.legacy.pathOptionBehavior.enabled` conf is set.
+            // .Json(path), .Parquet(path), etc follow the same code path so the conf
+            // needs to be set in these scenarios as well.
+            Assert.IsType<DataFrame>(dsr.Format("json").Option("path", jsonFilePath).Load());
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.1.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_1_0)]
+        public void TestSignaturesV3_1_X()
+        {
+            string tableName = "input_table";
+            WithTable(
+                _spark,
+                new string[] { tableName },
+                () =>
+                {
+                    DataStreamReader dsr = _spark.ReadStream();
+                    var intMemoryStream = new MemoryStream<int>(_spark);
+                    intMemoryStream.AddData(Enumerable.Range(1, 10).ToArray());
+                    intMemoryStream.ToDF().CreateOrReplaceTempView(tableName);
+                    Assert.IsType<DataFrame>(dsr.Table(tableName));
+                });
         }
     }
 }
