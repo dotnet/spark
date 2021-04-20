@@ -11,6 +11,7 @@ using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Streaming;
 using Microsoft.Spark.Sql.Types;
+using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark.Sql
 {
@@ -26,6 +27,12 @@ namespace Microsoft.Spark.Sql
 
         private static readonly string s_sparkSessionClassName =
             "org.apache.spark.sql.SparkSession";
+
+        /// <summary>
+        /// The created jvm process
+        /// </summary>
+        /// <returns>The created jvm bridge process helper.</returns>
+        private static JVMBridgeHelper s_jvmbridge = null;
 
         /// <summary>
         /// Constructor for SparkSession.
@@ -59,7 +66,17 @@ namespace Microsoft.Spark.Sql
         /// Creates a Builder object for SparkSession.
         /// </summary>
         /// <returns>Builder object</returns>
-        public static Builder Builder() => new Builder();
+        public static Builder Builder()
+        {
+            // We could try to detect if we don't have jvm bridge,
+            // call the helper to launch jvm bridge process.
+            if ((s_jvmbridge == null) && 
+                (JVMBridgeHelper.IsDotnetBackendPortUsing() == false))
+            {
+                s_jvmbridge = new JVMBridgeHelper();
+            }
+            return new Builder();
+        }
 
         /// <summary>
         /// Changes the SparkSession that will be returned in this thread when 
