@@ -10,7 +10,6 @@ using static Microsoft.Spark.Sql.Avro.Functions;
 
 namespace Microsoft.Spark.E2ETest.IpcTests.Avro
 {
-    //[Collection("Spark E2E Tests")]
     [Collection(Constants.AvroTestContainerName)]
     public class FunctionsTests
     {
