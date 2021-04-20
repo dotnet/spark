@@ -2,27 +2,23 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
-using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Catalog;
-using Microsoft.Spark.Sql.Types;
 using Xunit;
-using static Microsoft.Spark.Sql.Functions;
 using static Microsoft.Spark.Sql.Avro.Functions;
 
 namespace Microsoft.Spark.E2ETest.IpcTests.Avro
 {
-    [Collection("Spark E2E Tests")]
+    //[Collection("Spark E2E Tests")]
+    [Collection(Constants.AvroTestContainerName)]
     public class FunctionsTests
     {
         private readonly SparkSession _spark;
 
-        public FunctionsTests(SparkFixture fixture)
+        public FunctionsTests(AvroFixture fixture)
         {
-            _spark = fixture.Spark;
+            _spark = fixture.SparkFixture.Spark;
         }
 
         /// <summary>
@@ -31,15 +27,17 @@ namespace Microsoft.Spark.E2ETest.IpcTests.Avro
         [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
         public void TestSignaturesV3_0_X()
         {
-            Column col = Column("col");
-            string jsonSchema = "[{\"col\":0}]";
-            var options = new Dictionary<string, string>() { { "key", "value" } };
+            DataFrame df = _spark.Range(1);
+            string jsonSchema = "{\"type\":\"long\", \"name\":\"col\"}";
+            var options = new Dictionary<string, string>() { { "mode", "PERMISSIVE" } };
 
-            //Assert.IsType<Column>(FromAvro(col, jsonSchema));
-            //Assert.IsType<Column>(FromAvro(col, jsonSchema, options));
+            Column inputCol = df.Col("id");
+            Column avroCol = ToAvro(inputCol);
 
-            Assert.IsType<Column>(ToAvro(col));
-            Assert.IsType<Column>(ToAvro(col, jsonSchema));
+            Assert.IsType<Column>(avroCol);
+            Assert.IsType<Column>(ToAvro(inputCol, jsonSchema));
+            Assert.IsType<Column>(FromAvro(avroCol, jsonSchema));
+            Assert.IsType<Column>(FromAvro(avroCol, jsonSchema, options));
         }
     }
 }
