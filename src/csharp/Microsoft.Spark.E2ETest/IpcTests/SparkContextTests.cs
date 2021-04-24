@@ -3,8 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Hadoop.Conf;

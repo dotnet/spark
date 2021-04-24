@@ -63,13 +63,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<UdfRegistration>(_spark.Udf());
 
             Assert.IsType<Catalog>(_spark.Catalog);
-<<<<<<< HEAD
-            
-            Assert.NotNull(_spark.Version());
-        }
-=======
->>>>>>> 1f1f7368949f236b2e69200845a8e5c210ecb1ee
 
+            Assert.NotNull(_spark.Version());
+        
             Assert.IsType<SparkSession>(SparkSession.Active());
         }
 
