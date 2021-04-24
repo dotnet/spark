@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -26,8 +25,6 @@ namespace Microsoft.Spark
         private readonly JvmObjectReference _jvmObject;
 
         private readonly SparkConf _conf;
-
-        private readonly string _version;
 
         /// <summary>
         /// Create a SparkContext object with the given config.
@@ -94,7 +91,6 @@ namespace Microsoft.Spark
         {
             _jvmObject = jvmObject;
             _conf = new SparkConf((JvmObjectReference)_jvmObject.Invoke("getConf"));
-            _version = (string)_jvmObject.Invoke("version");
         }
 
 
@@ -396,7 +392,6 @@ namespace Microsoft.Spark
         /// Returns a string that represents the version of Spark on which this application is running
         /// </summary>
         /// <returns>A string that represents the version of Spark on which this application is running</returns>
-
-        public string Version() => _version;
+        public string Version() => (string)_jvmObject.Invoke("version");
     }
 }
