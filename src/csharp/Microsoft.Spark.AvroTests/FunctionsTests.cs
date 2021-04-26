@@ -8,7 +8,7 @@ using Microsoft.Spark.Sql;
 using Xunit;
 using static Microsoft.Spark.Sql.Avro.Functions;
 
-namespace Microsoft.Spark.E2ETest.IpcTests.Avro
+namespace Microsoft.Spark.AvroTests
 {
     [Collection(Constants.AvroTestContainerName)]
     public class FunctionsTests

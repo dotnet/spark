@@ -3,9 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using Microsoft.Spark.E2ETest;
 using Xunit;
 
-namespace Microsoft.Spark.E2ETest.IpcTests.Avro
+namespace Microsoft.Spark.AvroTests
 {
     public class AvroFixture
     {
