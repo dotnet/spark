@@ -35,6 +35,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<Column>(avroCol);
             Assert.IsType<Column>(ToAvro(inputCol, jsonSchema));
+
             Assert.IsType<Column>(FromAvro(avroCol, jsonSchema));
             Assert.IsType<Column>(FromAvro(avroCol, jsonSchema, options));
         }
