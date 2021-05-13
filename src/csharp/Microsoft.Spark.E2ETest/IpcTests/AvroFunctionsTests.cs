@@ -8,16 +8,16 @@ using Microsoft.Spark.Sql;
 using Xunit;
 using static Microsoft.Spark.Sql.Avro.Functions;
 
-namespace Microsoft.Spark.AvroTests
+namespace Microsoft.Spark.E2ETest.IpcTests
 {
-    [Collection(Constants.AvroTestContainerName)]
-    public class FunctionsTests
+    [Collection("Spark E2E Tests")]
+    public class AvroFunctionsTests
     {
         private readonly SparkSession _spark;
 
-        public FunctionsTests(AvroFixture fixture)
+        public AvroFunctionsTests(SparkFixture fixture)
         {
-            _spark = fixture.SparkFixture.Spark;
+            _spark = fixture.Spark;
         }
 
         /// <summary>

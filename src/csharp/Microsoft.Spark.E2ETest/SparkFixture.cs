@@ -57,6 +57,8 @@ namespace Microsoft.Spark.E2ETest
                     $"Environment variable '{EnvironmentVariableNames.WorkerDir}' must be set.");
             }
 
+            AddAvroPackage();
+
             BuildSparkCmd(out var filename, out var args);
 
             // Configure the process using the StartInfo properties.
@@ -112,6 +114,20 @@ namespace Microsoft.Spark.E2ETest
             Spark.SparkContext.SetLogLevel(DefaultLogLevel);
 
             Jvm = ((IJvmObjectReferenceProvider)Spark).Reference.Jvm;
+        }
+
+        public void AddAvroPackage()
+        {
+            Version sparkVersion = SparkSettings.Version;
+            string avroVersion = sparkVersion.Major switch
+            {
+                2 => $"spark-avro_2.11:{sparkVersion}",
+                3 => $"spark-avro_2.12:{sparkVersion}",
+                _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
+            };
+            Environment.SetEnvironmentVariable(
+                EnvironmentVariableNames.ExtraSparkSubmitArgs,
+                $"--packages org.apache.spark:{avroVersion}");
         }
 
         public void Dispose()
