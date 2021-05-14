@@ -57,8 +57,6 @@ namespace Microsoft.Spark.E2ETest
                     $"Environment variable '{EnvironmentVariableNames.WorkerDir}' must be set.");
             }
 
-            AddAvroPackage();
-
             BuildSparkCmd(out var filename, out var args);
 
             // Configure the process using the StartInfo properties.
@@ -116,7 +114,7 @@ namespace Microsoft.Spark.E2ETest
             Jvm = ((IJvmObjectReferenceProvider)Spark).Reference.Jvm;
         }
 
-        public void AddAvroPackage()
+        public string AddAvroPackage()
         {
             Version sparkVersion = SparkSettings.Version;
             string avroVersion = sparkVersion.Major switch
@@ -125,9 +123,8 @@ namespace Microsoft.Spark.E2ETest
                 3 => $"spark-avro_2.12:{sparkVersion}",
                 _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
             };
-            Environment.SetEnvironmentVariable(
-                EnvironmentVariableNames.ExtraSparkSubmitArgs,
-                $"--packages org.apache.spark:{avroVersion}");
+
+            return $"org.apache.spark:{avroVersion}";
         }
 
         public void Dispose()
@@ -181,6 +178,8 @@ namespace Microsoft.Spark.E2ETest
             string extraArgs = Environment.GetEnvironmentVariable(
                 EnvironmentVariableNames.ExtraSparkSubmitArgs) ?? "";
 
+            string avroArgs = extraArgs == "" ? $"--packages {AddAvroPackage()}" : $",{AddAvroPackage()}";
+
             // If there exists log4j.properties in SPARK_HOME/conf directory, Spark from 2.3.*
             // to 2.4.0 hang in E2E test. The reverse behavior is true for Spark 2.4.1; if
             // there does not exist log4j.properties, the tests hang.
@@ -191,7 +190,7 @@ namespace Microsoft.Spark.E2ETest
             string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
 
-            args = $"{logOption} {warehouseDir} {extraArgs} {classArg} --master local {jar} debug";
+            args = $"{logOption} {warehouseDir} {extraArgs}{avroArgs} {classArg} --master local {jar} debug";
         }
 
         private string GetJarPrefix()
