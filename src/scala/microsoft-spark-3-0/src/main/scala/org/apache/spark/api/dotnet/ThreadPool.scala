@@ -7,14 +7,15 @@
 package org.apache.spark.api.dotnet
 
 import java.util.concurrent.{ExecutorService, Executors}
-
 import scala.collection.mutable
+
+import org.apache.spark.internal.Logging
 
 /**
  * Pool of thread executors. There should be a 1-1 correspondence between C# threads
  * and Java threads.
  */
-object ThreadPool {
+object ThreadPool extends Logging {
 
   /**
    * Map from (processId, threadId) to corresponding executor.
@@ -29,6 +30,7 @@ object ThreadPool {
    * @param task Function to run on the thread.
    */
   def run(processId: Int, threadId: Int, task: () => Unit): Unit = {
+    logInfo(s"Calling ThreadPool.run() [process id = $processId, thread id = $threadId] ...")
     val executor = getOrCreateExecutor(processId, threadId)
     val future = executor.submit(new Runnable {
       override def run(): Unit = task()
@@ -44,6 +46,7 @@ object ThreadPool {
    * @return True if successful, false if thread does not exist.
    */
   def tryDeleteThread(processId: Int, threadId: Int): Boolean = synchronized {
+    logInfo(s"Calling ThreadPool.tryDeleteThread() [process id = $processId, thread id = $threadId] ...")
     executors.remove((processId, threadId)) match {
       case Some(executorService) =>
         executorService.shutdown()
@@ -56,6 +59,7 @@ object ThreadPool {
    * Shutdown any running ExecutorServices.
    */
   def shutdown(): Unit = synchronized {
+    logInfo(s"Calling ThreadPool.shutdown() ...")
     executors.foreach(_._2.shutdown())
     executors.clear()
   }
@@ -67,6 +71,7 @@ object ThreadPool {
    * @return The new or existing executor with the given id.
    */
   private def getOrCreateExecutor(processId: Int, threadId: Int): ExecutorService = synchronized {
+    logInfo(s"Calling ThreadPool.getOrCreateExecutor() [process id = $processId, thread id = $threadId] ...")
     executors.getOrElseUpdate((processId, threadId), Executors.newSingleThreadExecutor)
   }
 }
