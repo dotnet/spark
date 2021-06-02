@@ -389,7 +389,7 @@ namespace Microsoft.Spark
 
 
         /// <summary>
-        /// Returns a string that represents the version of Spark on which this application is running
+        /// Returns a string that represents the version of Spark on which this application is running.
         /// </summary>
         /// <returns>
         /// A string that represents the version of Spark on which this application is running.
