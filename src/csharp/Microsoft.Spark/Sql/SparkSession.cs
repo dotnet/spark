@@ -183,7 +183,9 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Returns a string that represents the version of Spark on which this application is running.
         /// </summary>
-        /// <returns>A string that represents the version of Spark on which this application is running</returns>
+        /// <returns>
+        /// A string that represents the version of Spark on which this application is running.
+        /// </returns>
         public string Version() => (string)_jvmObject.Invoke("version");
         
         
