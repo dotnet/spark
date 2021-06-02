@@ -181,7 +181,7 @@ namespace Microsoft.Spark.Sql
             new SparkSession((JvmObjectReference)_jvmObject.Invoke("newSession"));
 
         /// <summary>
-        /// Returns a string that represents the version of Spark on which this application is running
+        /// Returns a string that represents the version of Spark on which this application is running.
         /// </summary>
         /// <returns>A string that represents the version of Spark on which this application is running</returns>
         public string Version() => (string)_jvmObject.Invoke("version");
