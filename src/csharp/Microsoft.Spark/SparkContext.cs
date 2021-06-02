@@ -386,8 +386,6 @@ namespace Microsoft.Spark
                 "toJavaRDD",
                 rdd);
         }
-
-
         /// <summary>
         /// Returns a string that represents the version of Spark on which this application is running.
         /// </summary>
