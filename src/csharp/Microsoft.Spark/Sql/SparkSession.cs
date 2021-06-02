@@ -188,7 +188,6 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public string Version() => (string)_jvmObject.Invoke("version");
         
-        
         /// <summary>
         /// Returns the specified table/view as a DataFrame.
         /// </summary>
