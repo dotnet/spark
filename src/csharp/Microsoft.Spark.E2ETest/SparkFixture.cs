@@ -114,7 +114,7 @@ namespace Microsoft.Spark.E2ETest
             Jvm = ((IJvmObjectReferenceProvider)Spark).Reference.Jvm;
         }
 
-        public string AddAvroPackage()
+        public string GetAvroPackage()
         {
             Version sparkVersion = SparkSettings.Version;
             string avroVersion = sparkVersion.Major switch
