@@ -49,7 +49,7 @@ namespace Microsoft.Spark.Sql.Avro
         public static Column FromAvro(
             Column data,
             string jsonFormatSchema,
-            Dictionary<string, string> options = null)
+            Dictionary<string, string> options)
         {
             return new Column(
                 (JvmObjectReference)Jvm.CallStaticJavaMethod(
