@@ -15,14 +15,12 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     public sealed class UdfRegistration : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal UdfRegistration(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Registers the given delegate as a user-defined function with the specified name.
@@ -423,7 +421,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="className">Class name that defines UDF</param>
         public void RegisterJava<TResult>(string name, string className)
         {
-            _jvmObject.Invoke("registerJava", name, className, GetDataType<TResult>());
+            Reference.Invoke("registerJava", name, className, GetDataType<TResult>());
         }
 
         /// <summary>
@@ -433,7 +431,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="className">Class name that defines UDAF</param>
         public void RegisterJavaUDAF(string name, string className)
         {
-            _jvmObject.Invoke("registerJavaUDAF", name, className);
+            Reference.Invoke("registerJavaUDAF", name, className);
         }
 
         /// <summary>
@@ -485,18 +483,18 @@ namespace Microsoft.Spark.Sql
                 CommandSerDe.SerializedMode.Row);
 
             UserDefinedFunction udf = UserDefinedFunction.Create(
-                _jvmObject.Jvm,
+                Reference.Jvm,
                 name,
                 command,
                 evalType,
                 returnType);
 
-            _jvmObject.Invoke("registerPython", name, udf);
+            Reference.Invoke("registerPython", name, udf);
         }
 
         private JvmObjectReference GetDataType<T>()
         {
-            return DataType.FromJson(_jvmObject.Jvm, UdfUtils.GetReturnType(typeof(T)));
+            return DataType.FromJson(Reference.Jvm, UdfUtils.GetReturnType(typeof(T)));
         }
     }
 }

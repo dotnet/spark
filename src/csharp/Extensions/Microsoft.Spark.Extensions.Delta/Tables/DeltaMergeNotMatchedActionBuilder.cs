@@ -18,14 +18,12 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
     public class DeltaMergeNotMatchedActionBuilder : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal DeltaMergeNotMatchedActionBuilder(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Insert a new row to the target table based on the rules defined by <c>values</c>.
@@ -35,7 +33,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <returns>DeltaMergeBuilder object.</returns>
         [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder Insert(Dictionary<string, Column> values) =>
-            new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("insert", values));
+            new DeltaMergeBuilder((JvmObjectReference)Reference.Invoke("insert", values));
 
         /// <summary>
         /// Insert a new row to the target table based on the rules defined by <c>values</c>.
@@ -45,7 +43,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <returns>DeltaMergeBuilder object.</returns>
         [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder InsertExpr(Dictionary<string, string> values) =>
-            new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("insertExpr", values));
+            new DeltaMergeBuilder((JvmObjectReference)Reference.Invoke("insertExpr", values));
 
         /// <summary>
         /// Insert a new target Delta table row by assigning the target columns to the values of the
@@ -54,6 +52,6 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <returns>DeltaMergeBuilder object.</returns>
         [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder InsertAll() =>
-            new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("insertAll"));
+            new DeltaMergeBuilder((JvmObjectReference)Reference.Invoke("insertAll"));
     }
 }

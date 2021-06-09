@@ -9,7 +9,7 @@ namespace Microsoft.Spark.Interop.Ipc
     /// <summary>
     /// Interface of the bridge between JVM and CLR.
     /// </summary>
-    internal interface IJvmBridge : IDisposable
+    public interface IJvmBridge : IDisposable
     {
         // Each method has three overloads: one argument,
         // two arguments, and a params array of arguments.
