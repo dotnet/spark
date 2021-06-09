@@ -6,7 +6,7 @@ We have officially dropped support for Spark 2.3 in the 2.0.0 release. The last 
 
 ### New Features/Improvements
 
-* Support for Spark 3.1.0 APIs ([#886](https://github.com/dotnet/spark/pull/886), [#887](https://github.com/dotnet/spark/pull/887), [#888](https://github.com/dotnet/spark/pull/888), [#889](https://github.com/dotnet/spark/pull/889), [#890])(https://github.com/dotnet/spark/pull/890), [#893](https://github.com/dotnet/spark/pull/893))
+* Support for Spark 3.1.0 APIs ([#886](https://github.com/dotnet/spark/pull/886), [#887](https://github.com/dotnet/spark/pull/887), [#888](https://github.com/dotnet/spark/pull/888), [#889](https://github.com/dotnet/spark/pull/889), [#890](https://github.com/dotnet/spark/pull/890), [#893](https://github.com/dotnet/spark/pull/893))
 * Add `Exists(string path)` support to `Microsoft.Spark.Hadoop.Fs.FileSystem` ([909](https://github.com/dotnet/spark/pull/909))
 * Add `Version()` support to `Microsoft.Spark.SparkContext` and `Microsoft.Spark.Sql.SparkSession` ([919](https://github.com/dotnet/spark/pull/919))
 
