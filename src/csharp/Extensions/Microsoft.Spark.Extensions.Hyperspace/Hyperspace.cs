@@ -24,7 +24,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace
         public Hyperspace(SparkSession spark)
         {
             _spark = spark;
-            _jvmBridge = Reference.Jvm;
+            _jvmBridge = spark.Reference.Jvm;
             Reference = _jvmBridge.CallConstructor(s_hyperspaceClassName, spark);
         }
 
