@@ -113,20 +113,20 @@ namespace Microsoft.Spark.Interop.Ipc
             CallJavaMethod(isStatic: true, className, methodName, args);
 
         public object CallNonStaticJavaMethod(
-            JvmObjectReference objectId,
+            JvmObjectReference jvmObject,
             string methodName,
             object arg0) =>
             CallJavaMethod(isStatic: false, objectId, methodName, arg0);
 
         public object CallNonStaticJavaMethod(
-            JvmObjectReference objectId,
+            JvmObjectReference jvmObject,
             string methodName,
             object arg0,
             object arg1) =>
             CallJavaMethod(isStatic: false, objectId, methodName, arg0, arg1);
 
         public object CallNonStaticJavaMethod(
-            JvmObjectReference objectId,
+            JvmObjectReference jvmObject,
             string methodName,
             object[] args) =>
             CallJavaMethod(isStatic: false, objectId, methodName, args);

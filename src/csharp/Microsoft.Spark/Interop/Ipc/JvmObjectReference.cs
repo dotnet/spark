@@ -106,12 +106,20 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <summary>
         /// Gets the <see cref="JvmObjectReference"/> wrapped by the object.
         /// </summary>
+        /// <remarks>
+        /// This is exposed to help users interact with the JVM. It is provided with limited
+        /// support and should be used with caution.
+        /// </remarks>
         JvmObjectReference Reference { get; }
     }
 
     /// <summary>
     /// Reference to object created in JVM.
     /// </summary>
+    /// <remarks>
+    /// This is exposed to help users interact with the JVM. It is provided with limited
+    /// support and should be used with caution.
+    /// </remarks>
     public sealed class JvmObjectReference : IJvmObjectReferenceProvider
     {
         /// <summary>
@@ -154,6 +162,10 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <summary>
         /// IJvmBridge instance that created the JVM object.
         /// </summary>
+        /// <remarks>
+        /// This is exposed to help users interact with the JVM. It is provided with limited
+        /// support and should be used with caution.
+        /// </remarks>
         public IJvmBridge Jvm => Id.Jvm;
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => this;
@@ -163,6 +175,11 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         /// <param name="arg0">Parameter for the method.</param>
         /// <param name="methodName">Method name to invoke</param>
+        /// <returns>The returned object of the method call.</returns>
+        /// <remarks>
+        /// This is exposed to help users interact with the JVM. It is provided with limited
+        /// support and should be used with caution.
+        /// </remarks>
         public object Invoke(string methodName, object arg0) =>
             Jvm.CallNonStaticJavaMethod(this, methodName, arg0);
 
@@ -172,6 +189,11 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <param name="arg0">First parameter for the method.</param>
         /// <param name="arg1">Second parameter for the method.</param>
         /// <param name="methodName">Method name to invoke</param>
+        /// <returns>The returned object of the method call.</returns>
+        /// <remarks>
+        /// This is exposed to help users interact with the JVM. It is provided with limited
+        /// support and should be used with caution.
+        /// </remarks>
         public object Invoke(string methodName, object arg0, object arg1) =>
             Jvm.CallNonStaticJavaMethod(this, methodName, arg0, arg1);
 
@@ -180,7 +202,11 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         /// <param name="methodName">Method name to invoke</param>
         /// <param name="args">Parameters for the method</param>
-        /// <returns></returns>
+        /// <returns>The returned object of the method call.</returns>
+        /// <remarks>
+        /// This is exposed to help users interact with the JVM. It is provided with limited
+        /// support and should be used with caution.
+        /// </remarks>
         public object Invoke(string methodName, params object[] args)
         {
             return Jvm.CallNonStaticJavaMethod(this, methodName, args);
