@@ -114,6 +114,11 @@ namespace Microsoft.Spark.E2ETest
             Jvm = ((IJvmObjectReferenceProvider)Spark).Reference.Jvm;
         }
 
+        public string AddPackages(string args)
+        {
+            return args == "" ? $"--packages {GetAvroPackage()}" : $",{GetAvroPackage()}";
+        }
+
         public string GetAvroPackage()
         {
             Version sparkVersion = SparkSettings.Version;
@@ -177,8 +182,6 @@ namespace Microsoft.Spark.E2ETest
 
             string extraArgs = Environment.GetEnvironmentVariable(
                 EnvironmentVariableNames.ExtraSparkSubmitArgs) ?? "";
-
-            string avroArgs = extraArgs == "" ? $"--packages {AddAvroPackage()}" : $",{AddAvroPackage()}";
 
             // If there exists log4j.properties in SPARK_HOME/conf directory, Spark from 2.3.*
             // to 2.4.0 hang in E2E test. The reverse behavior is true for Spark 2.4.1; if

@@ -21,6 +21,22 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
+        /// Test signatures for Avro APIs introduced in Spark 2.4.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
+        public void TestSignaturesV2_4_X()
+        {
+            DataFrame df = _spark.Range(1);
+            string jsonSchema = "{\"type\":\"long\", \"name\":\"col\"}";
+
+            Column inputCol = df.Col("id");
+            Column avroCol = ToAvro(inputCol);
+
+            Assert.IsType<Column>(avroCol);
+            Assert.IsType<Column>(FromAvro(avroCol, jsonSchema));
+        }
+
+        /// <summary>
         /// Test signatures for Avro APIs introduced in Spark 3.0.*.
         /// </summary>
         [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
