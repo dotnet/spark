@@ -116,7 +116,16 @@ namespace Microsoft.Spark.E2ETest
 
         public string AddPackages(string args)
         {
-            return args == "" ? $"--packages {GetAvroPackage()}" : $"{args},{GetAvroPackage()}";
+            if (args != "")
+            {
+                string argPackages = args.Split(' ')[1];
+                string argConf = args.Split(' ')[2];
+                return $"{argConf} --packages {argPackages},{GetAvroPackage()}";
+            }
+            else
+            {
+                return $"--packages {GetAvroPackage()}";
+            }
         }
 
         public string GetAvroPackage()
