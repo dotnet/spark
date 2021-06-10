@@ -25,7 +25,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
     public class AssemblyKernelExtension : IKernelExtension
     {
         private const string TempDirEnvVar = "DOTNET_SPARK_EXTENSION_INTERACTIVE_TMPDIR";
-        private const string DisposeTempDirEnvVar = "DOTNET_SPARK_EXTENSION_INTERACTIVE_DISPOSE_TMPDIR";
+        private const string PreserveTempDirEnvVar = "DOTNET_SPARK_EXTENSION_INTERACTIVE_PRESERVE_TMPDIR";
 
         private readonly PackageResolver _packageResolver =
             new PackageResolver(new SupportNugetWrapper());
@@ -43,7 +43,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
                 DirectoryInfo tempDir = CreateTempDirectory();
 
-                if (EnvironmentUtils.GetEnvironmentVariableAsBool(DisposeTempDirEnvVar))
+                if (!EnvironmentUtils.GetEnvironmentVariableAsBool(PreserveTempDirEnvVar))
                 {
                     compositeKernel.RegisterForDisposal(new DisposableDirectory(tempDir));
                 }
