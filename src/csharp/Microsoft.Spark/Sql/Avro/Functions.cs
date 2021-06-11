@@ -15,8 +15,17 @@ namespace Microsoft.Spark.Sql.Avro
     public static class Functions
     {
         private static IJvmBridge Jvm { get; } = SparkEnvironment.JvmBridge;
-        private static readonly string s_30functionsClassName = "org.apache.spark.sql.avro.functions";
-        private static readonly string s_24functionsClassName = "org.apache.spark.sql.avro.package";
+        private static readonly Lazy<string> s_functionsClassName =
+            new(() =>
+            {
+                Version sparkVersion = SparkEnvironment.SparkVersion;
+                return sparkVersion.Major switch
+                {
+                    2 => "org.apache.spark.sql.avro.package",
+                    3 => "org.apache.spark.sql.avro.functions",
+                    _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
+                };
+            });
 
         /// <summary>
         /// Converts a binary column of avro format into its corresponding catalyst value. The specified
@@ -27,22 +36,12 @@ namespace Microsoft.Spark.Sql.Avro
         /// <param name="jsonFormatSchema">The avro schema in JSON string format.</param>
         /// <returns>Column object</returns>
         [Since(Versions.V2_4_0)]
-        public static Column FromAvro(Column data, string jsonFormatSchema)
-        {
-            Version sparkVersion = SparkEnvironment.SparkVersion;
-            string className = sparkVersion.Major switch
-            {
-                2 => s_24functionsClassName,
-                3 => s_30functionsClassName,
-                _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
-            };
-            return new Column(
+        public static Column FromAvro(Column data, string jsonFormatSchema) => new(
                 (JvmObjectReference)Jvm.CallStaticJavaMethod(
-                    className,
+                    s_functionsClassName.Value,
                     "from_avro",
                     data,
                     jsonFormatSchema));
-        }
 
         /// <summary>
         /// Converts a binary column of avro format into its corresponding catalyst value. The specified
@@ -58,16 +57,13 @@ namespace Microsoft.Spark.Sql.Avro
         public static Column FromAvro(
             Column data,
             string jsonFormatSchema,
-            Dictionary<string, string> options)
-        {
-            return new Column(
+            Dictionary<string, string> options) => new(
                 (JvmObjectReference)Jvm.CallStaticJavaMethod(
-                    s_30functionsClassName,
+                    s_functionsClassName.Value,
                     "from_avro",
                     data,
                     jsonFormatSchema,
                     options));
-        }
 
         /// <summary>
         /// Converts a column into binary of avro format.
@@ -75,21 +71,11 @@ namespace Microsoft.Spark.Sql.Avro
         /// <param name="data">The data column.</param>
         /// <returns>Column object</returns>
         [Since(Versions.V2_4_0)]
-        public static Column ToAvro(Column data)
-        {
-            Version sparkVersion = SparkEnvironment.SparkVersion;
-            string className = sparkVersion.Major switch
-            {
-                2 => s_24functionsClassName,
-                3 => s_30functionsClassName,
-                _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
-            };
-            return new Column(
+        public static Column ToAvro(Column data) => new(
                 (JvmObjectReference)Jvm.CallStaticJavaMethod(
-                    className,
+                    s_functionsClassName.Value,
                     "to_avro",
                     data));
-        }
 
         /// <summary>
         /// Converts a column into binary of avro format.
@@ -98,14 +84,11 @@ namespace Microsoft.Spark.Sql.Avro
         /// <param name="jsonFormatSchema">User-specified output avro schema in JSON string format.</param>
         /// <returns>Column object</returns>
         [Since(Versions.V3_0_0)]
-        public static Column ToAvro(Column data, string jsonFormatSchema)
-        {
-            return new Column(
+        public static Column ToAvro(Column data, string jsonFormatSchema) => new(
                 (JvmObjectReference)Jvm.CallStaticJavaMethod(
-                    s_30functionsClassName,
+                    s_functionsClassName.Value,
                     "to_avro",
                     data,
                     jsonFormatSchema));
-        }
     }
 }
