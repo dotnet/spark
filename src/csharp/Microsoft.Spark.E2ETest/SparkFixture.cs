@@ -118,9 +118,9 @@ namespace Microsoft.Spark.E2ETest
         {
             if (args != "")
             {
-                string argPackages = args.Split(' ')[1];
-                string argConf = args.Split(' ')[2];
-                return $"{argConf} --packages {argPackages},{GetAvroPackage()}";
+                string packages = $"{args.Split(' ',3)[1]},{GetAvroPackage()}";
+                string argConf = args.Split(' ',3)[2];
+                return $"{argConf} --packages {packages},{GetAvroPackage()}";
             }
             else
             {
