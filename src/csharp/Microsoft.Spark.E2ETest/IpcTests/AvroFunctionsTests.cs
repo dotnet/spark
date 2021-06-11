@@ -31,8 +31,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Column inputCol = df.Col("id");
             Column avroCol = ToAvro(inputCol);
-
-            Assert.IsType<Column>(avroCol);
             Assert.IsType<Column>(FromAvro(avroCol, jsonSchema));
         }
 
@@ -47,10 +45,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             var options = new Dictionary<string, string>() { { "mode", "PERMISSIVE" } };
 
             Column inputCol = df.Col("id");
-            Column avroCol = ToAvro(inputCol);
-
-            Assert.IsType<Column>(ToAvro(inputCol, jsonSchema));
-
+            Column avroCol = ToAvro(inputCol, jsonSchema);
             Assert.IsType<Column>(FromAvro(avroCol, jsonSchema, options));
         }
     }
