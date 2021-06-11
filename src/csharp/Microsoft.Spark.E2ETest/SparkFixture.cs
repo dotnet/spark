@@ -116,7 +116,7 @@ namespace Microsoft.Spark.E2ETest
             Jvm = ((IJvmObjectReferenceProvider)Spark).Reference.Jvm;
         }
 
-        public string AddPackages2(string args)
+        public string AddPackages(string args)
         {
             string packagesOption = "--packages ";
             string[] splits = args.Split(packagesOption, 2);
@@ -130,23 +130,6 @@ namespace Microsoft.Spark.E2ETest
             }
 
             return newArgs.ToString();
-        }
-
-        public string AddPackages(string args)
-        {
-            if (args != "")
-            {
-                List<string> argSplit = new(args.Split(' '));
-                int packageIndex = argSplit.FindIndex(a => a == "--packages");
-                string package = argSplit[packageIndex + 1];
-                argSplit[packageIndex] = "";
-                argSplit[packageIndex + 1] = "";
-                return $"{string.Join(" ", argSplit.ToArray())} --packages {package},{GetAvroPackage()}";
-            }
-            else
-            {
-                return $"--packages {GetAvroPackage()}";
-            }
         }
 
         public string GetAvroPackage()
@@ -223,7 +206,7 @@ namespace Microsoft.Spark.E2ETest
             string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
 
-            args = $"{logOption} {warehouseDir} {AddPackages2(extraArgs)} {classArg} --master local {jar} debug";
+            args = $"{logOption} {warehouseDir} {AddPackages(extraArgs)} {classArg} --master local {jar} debug";
         }
 
         private string GetJarPrefix()
