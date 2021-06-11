@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -116,8 +117,19 @@ namespace Microsoft.Spark.E2ETest
 
         public string AddPackages(string args)
         {
-            return args == "" ? $"--packages {GetAvroPackage()}" : $"{args.Split(' ', 3)[2]} --packages " +
-                $"{args.Split(' ', 3)[1]},{GetAvroPackage()}";
+            if (args != "")
+            {
+                List<string> argSplit = new(args.Split(' '));
+                int packageIndex = argSplit.FindIndex(a => a == "--packages");
+                string package = argSplit[packageIndex + 1];
+                argSplit[packageIndex] = "";
+                argSplit[packageIndex + 1] = "";
+                return $"{string.Join(" ", argSplit.ToArray())} --packages {package},{GetAvroPackage()}";
+            }
+            else
+            {
+                return $"--packages {GetAvroPackage()}";
+            }
         }
 
         public string GetAvroPackage()
