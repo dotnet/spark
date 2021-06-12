@@ -11,16 +11,14 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
     /// </summary>
     internal sealed class Hashtable : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         /// <summary>
         /// Create a <c>java.util.Hashtable</c> JVM object
         /// </summary>
         /// <param name="jvm">JVM bridge to use</param>
         internal Hashtable(IJvmBridge jvm) =>
-            _jvmObject = jvm.CallConstructor("java.util.Hashtable");
+            Reference = jvm.CallConstructor("java.util.Hashtable");
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Maps the specified key to the specified value in this Hashtable.
@@ -29,6 +27,6 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
         /// <param name="key">The Hashtable key</param>
         /// <param name="value">The value</param>
         internal void Put(object key, object value) =>
-            _jvmObject.Invoke("put", key, value);
+            Reference.Invoke("put", key, value);
     }
 }

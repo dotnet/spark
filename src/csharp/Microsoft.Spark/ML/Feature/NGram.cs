@@ -14,7 +14,7 @@ namespace Microsoft.Spark.ML.Feature
     /// an array of n-grams. Null values in the input array are ignored. It returns an array
     /// of n-grams where each n-gram is represented by a space-separated string of words.
     /// </summary>
-    public class NGram : FeatureBase<NGram>, IJvmObjectReferenceProvider
+    public class NGram : FeatureBase<NGram>
     {
         private static readonly string s_nGramClassName =
             "org.apache.spark.ml.feature.NGram";
@@ -40,46 +40,44 @@ namespace Microsoft.Spark.ML.Feature
         {
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-
         /// <summary>
         /// Gets the column that the <see cref="NGram"/> should read from.
         /// </summary>
         /// <returns>string, input column</returns>
-        public string GetInputCol() => (string)_jvmObject.Invoke("getInputCol");
+        public string GetInputCol() => (string)Reference.Invoke("getInputCol");
 
         /// <summary>
         /// Sets the column that the <see cref="NGram"/> should read from.
         /// </summary>
         /// <param name="value">The name of the column to as the source</param>
         /// <returns>New <see cref="NGram"/> object</returns>
-        public NGram SetInputCol(string value) => WrapAsNGram(_jvmObject.Invoke("setInputCol", value));
+        public NGram SetInputCol(string value) => WrapAsNGram(Reference.Invoke("setInputCol", value));
 
         /// <summary>
         /// Gets the output column that the <see cref="NGram"/> writes.
         /// </summary>
         /// <returns>string, the output column</returns>
-        public string GetOutputCol() => (string)_jvmObject.Invoke("getOutputCol");
+        public string GetOutputCol() => (string)Reference.Invoke("getOutputCol");
 
         /// <summary>
         /// Sets the output column that the <see cref="NGram"/> writes.
         /// </summary>
         /// <param name="value">The name of the new column</param>
         /// <returns>New <see cref="NGram"/> object</returns>
-        public NGram SetOutputCol(string value) => WrapAsNGram(_jvmObject.Invoke("setOutputCol", value));
+        public NGram SetOutputCol(string value) => WrapAsNGram(Reference.Invoke("setOutputCol", value));
 
         /// <summary>
         /// Gets N value for <see cref="NGram"/>.
         /// </summary>
         /// <returns>int, N value</returns>
-        public int GetN() => (int)_jvmObject.Invoke("getN");
+        public int GetN() => (int)Reference.Invoke("getN");
 
         /// <summary>
         /// Sets N value for <see cref="NGram"/>.
         /// </summary>
         /// <param name="value">N value</param>
         /// <returns>New <see cref="NGram"/> object</returns>
-        public NGram SetN(int value) => WrapAsNGram(_jvmObject.Invoke("setN", value));
+        public NGram SetN(int value) => WrapAsNGram(Reference.Invoke("setN", value));
 
         /// <summary>
         /// Executes the <see cref="NGram"/> and transforms the DataFrame to include the new
@@ -90,7 +88,7 @@ namespace Microsoft.Spark.ML.Feature
         /// New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/> transformed.
         /// </returns>
         public DataFrame Transform(DataFrame source) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
+            new DataFrame((JvmObjectReference)Reference.Invoke("transform", source));
 
         /// <summary>
         /// Check transform validity and derive the output schema from the input schema.
@@ -110,9 +108,9 @@ namespace Microsoft.Spark.ML.Feature
         /// </returns>
         public StructType TransformSchema(StructType value) =>
             new StructType(
-                (JvmObjectReference)_jvmObject.Invoke(
+                (JvmObjectReference)Reference.Invoke(
                     "transformSchema",
-                    DataType.FromJson(_jvmObject.Jvm, value.Json)));
+                    DataType.FromJson(Reference.Jvm, value.Json)));
 
         /// <summary>
         /// Loads the <see cref="NGram"/> that was previously saved using Save.

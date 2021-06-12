@@ -111,7 +111,7 @@ namespace Microsoft.Spark.E2ETest
                 
             Spark.SparkContext.SetLogLevel(DefaultLogLevel);
 
-            Jvm = ((IJvmObjectReferenceProvider)Spark).Reference.Jvm;
+            Jvm = Spark.Reference.Jvm;
         }
 
         public void Dispose()

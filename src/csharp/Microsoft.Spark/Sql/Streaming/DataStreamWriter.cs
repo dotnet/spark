@@ -17,16 +17,15 @@ namespace Microsoft.Spark.Sql.Streaming
     /// </summary>
     public sealed class DataStreamWriter : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
         private readonly DataFrame _df;
 
         internal DataStreamWriter(JvmObjectReference jvmObject, DataFrame df)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
             _df = df;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Specifies how data of a streaming DataFrame is written to a streaming sink.
@@ -45,7 +44,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter OutputMode(string outputMode)
         {
-            _jvmObject.Invoke("outputMode", outputMode);
+            Reference.Invoke("outputMode", outputMode);
             return this;
         }
 
@@ -64,7 +63,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter Format(string source)
         {
-            _jvmObject.Invoke("format", source);
+            Reference.Invoke("format", source);
             return this;
         }
 
@@ -76,7 +75,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter PartitionBy(params string[] colNames)
         {
-            _jvmObject.Invoke("partitionBy", (object)colNames);
+            Reference.Invoke("partitionBy", (object)colNames);
             return this;
         }
 
@@ -135,7 +134,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter Options(Dictionary<string, string> options)
         {
-            _jvmObject.Invoke("options", options);
+            Reference.Invoke("options", options);
             return this;
         }
 
@@ -146,7 +145,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter Trigger(Trigger trigger)
         {
-            _jvmObject.Invoke("trigger", trigger);
+            Reference.Invoke("trigger", trigger);
             return this;
         }
 
@@ -160,7 +159,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <returns>This DataStreamWriter object</returns>
         public DataStreamWriter QueryName(string queryName)
         {
-            _jvmObject.Invoke("queryName", queryName);
+            Reference.Invoke("queryName", queryName);
             return this;
         }
 
@@ -173,9 +172,9 @@ namespace Microsoft.Spark.Sql.Streaming
         {
             if (!string.IsNullOrEmpty(path))
             {
-                return new StreamingQuery((JvmObjectReference)_jvmObject.Invoke("start", path));
+                return new StreamingQuery((JvmObjectReference)Reference.Invoke("start", path));
             }
-            return new StreamingQuery((JvmObjectReference)_jvmObject.Invoke("start"));
+            return new StreamingQuery((JvmObjectReference)Reference.Invoke("start"));
         }
 
         /// <summary>
@@ -199,7 +198,7 @@ namespace Microsoft.Spark.Sql.Streaming
         [Since(Versions.V3_1_0)]
         public StreamingQuery ToTable(string tableName)
         {
-            return new StreamingQuery((JvmObjectReference)_jvmObject.Invoke("toTable", tableName));
+            return new StreamingQuery((JvmObjectReference)Reference.Invoke("toTable", tableName));
         }
 
         /// <summary>
@@ -216,17 +215,17 @@ namespace Microsoft.Spark.Sql.Streaming
                 new ForeachWriterWrapperUdfWrapper(
                     new ForeachWriterWrapper(writer).Process).Execute;
 
-            _jvmObject.Invoke(
+            Reference.Invoke(
                 "foreach",
-                _jvmObject.Jvm.CallConstructor(
+                Reference.Jvm.CallConstructor(
                     "org.apache.spark.sql.execution.python.PythonForeachWriter",
                     UdfUtils.CreatePythonFunction(
-                        _jvmObject.Jvm,
+                        Reference.Jvm,
                         CommandSerDe.Serialize(
                             wrapper,
                             CommandSerDe.SerializedMode.Row,
                             CommandSerDe.SerializedMode.Row)),
-                    DataType.FromJson(_jvmObject.Jvm, _df.Schema().Json)));
+                    DataType.FromJson(Reference.Jvm, _df.Schema().Json)));
 
             return this;
         }
@@ -248,8 +247,8 @@ namespace Microsoft.Spark.Sql.Streaming
         public DataStreamWriter ForeachBatch(Action<DataFrame, long> func)
         {
             int callbackId = SparkEnvironment.CallbackServer.RegisterCallback(
-                new ForeachBatchCallbackHandler(_jvmObject.Jvm, func));
-            _jvmObject.Jvm.CallStaticJavaMethod(
+                new ForeachBatchCallbackHandler(Reference.Jvm, func));
+            Reference.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.DotnetForeachBatchHelper",
                 "callForeachBatch",
                 SparkEnvironment.CallbackServer.JvmCallbackClient,
@@ -266,7 +265,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <returns>This DataStreamWriter object</returns>
         private DataStreamWriter OptionInternal(string key, object value)
         {
-            _jvmObject.Invoke("option", key, value);
+            Reference.Invoke("option", key, value);
             return this;
         }
     }

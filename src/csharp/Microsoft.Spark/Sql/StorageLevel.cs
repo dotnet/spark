@@ -31,7 +31,6 @@ namespace Microsoft.Spark.Sql
         private static StorageLevel s_memoryAndDiskSer;
         private static StorageLevel s_memoryAndDiskSer2;
         private static StorageLevel s_offHeap;
-        private readonly JvmObjectReference _jvmObject;
         private bool? _useDisk;
         private bool? _useMemory;
         private bool? _useOffHeap;
@@ -40,7 +39,7 @@ namespace Microsoft.Spark.Sql
 
         internal StorageLevel(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
         public StorageLevel(
@@ -66,7 +65,7 @@ namespace Microsoft.Spark.Sql
             _replication = replication;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Returns the StorageLevel object with all parameters set to false.
@@ -179,39 +178,39 @@ namespace Microsoft.Spark.Sql
         /// <summary>
         /// Returns bool value of UseDisk of this StorageLevel.
         /// </summary>
-        public bool UseDisk => _useDisk ??= (bool)_jvmObject.Invoke("useDisk");
+        public bool UseDisk => _useDisk ??= (bool)Reference.Invoke("useDisk");
 
         /// <summary>
         /// Returns bool value of UseMemory of this StorageLevel.
         /// </summary>
-        public bool UseMemory => _useMemory ??= (bool)_jvmObject.Invoke("useMemory");
+        public bool UseMemory => _useMemory ??= (bool)Reference.Invoke("useMemory");
 
         /// <summary>
         /// Returns bool value of UseOffHeap of this StorageLevel.
         /// </summary>
-        public bool UseOffHeap => _useOffHeap ??= (bool)_jvmObject.Invoke("useOffHeap");
+        public bool UseOffHeap => _useOffHeap ??= (bool)Reference.Invoke("useOffHeap");
 
         /// <summary>
         /// Returns bool value of Deserialized of this StorageLevel.
         /// </summary>
-        public bool Deserialized => _deserialized ??= (bool)_jvmObject.Invoke("deserialized");
+        public bool Deserialized => _deserialized ??= (bool)Reference.Invoke("deserialized");
 
         /// <summary>
         /// Returns int value of Replication of this StorageLevel.
         /// </summary>
-        public int Replication => _replication ??= (int)_jvmObject.Invoke("replication");
+        public int Replication => _replication ??= (int)Reference.Invoke("replication");
 
         /// <summary>
         /// Returns the description string of this StorageLevel.
         /// </summary>
         /// <returns>Description as string.</returns>
-        public string Description() => (string)_jvmObject.Invoke("description");
+        public string Description() => (string)Reference.Invoke("description");
 
         /// <summary>
         /// Returns the string representation of this StorageLevel.
         /// </summary>
         /// <returns>representation as string value.</returns>
-        public override string ToString() => (string)_jvmObject.Invoke("toString");
+        public override string ToString() => (string)Reference.Invoke("toString");
 
         /// <summary>
         /// Checks if the given object is same as the current object.

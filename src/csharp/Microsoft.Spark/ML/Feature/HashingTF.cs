@@ -19,7 +19,7 @@ namespace Microsoft.Spark.ML.Feature
     /// power of two as the numFeatures parameter; otherwise the features will not be mapped evenly
     /// to the columns.
     /// </summary>
-    public class HashingTF : FeatureBase<HashingTF>, IJvmObjectReferenceProvider
+    public class HashingTF : FeatureBase<HashingTF>
     {
         private static readonly string s_hashingTfClassName = 
             "org.apache.spark.ml.feature.HashingTF";
@@ -44,8 +44,6 @@ namespace Microsoft.Spark.ML.Feature
         {
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-
         /// <summary>
         /// Loads the <see cref="HashingTF"/> that was previously saved using Save
         /// </summary>
@@ -60,7 +58,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Gets the binary toggle that controls term frequency counts
         /// </summary>
         /// <returns>Flag showing whether the binary toggle is on or off</returns>
-        public bool GetBinary() => (bool)_jvmObject.Invoke("getBinary");
+        public bool GetBinary() => (bool)Reference.Invoke("getBinary");
 
         /// <summary>
         /// Binary toggle to control term frequency counts.
@@ -69,13 +67,13 @@ namespace Microsoft.Spark.ML.Feature
         ///</summary>
         /// <param name="value">binary toggle, default is false</param>
         public HashingTF SetBinary(bool value) => 
-            WrapAsHashingTF(_jvmObject.Invoke("setBinary", value));
+            WrapAsHashingTF(Reference.Invoke("setBinary", value));
 
         /// <summary>
         /// Gets the column that the <see cref="HashingTF"/> should read from
         /// </summary>
         /// <returns>string, the name of the input column</returns>
-        public string GetInputCol() => (string)_jvmObject.Invoke("getInputCol");
+        public string GetInputCol() => (string)Reference.Invoke("getInputCol");
 
         /// <summary>
         /// Sets the column that the <see cref="HashingTF"/> should read from
@@ -83,14 +81,14 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">The name of the column to as the source</param>
         /// <returns>New <see cref="HashingTF"/> object</returns>
         public HashingTF SetInputCol(string value) => 
-            WrapAsHashingTF(_jvmObject.Invoke("setInputCol", value));
+            WrapAsHashingTF(Reference.Invoke("setInputCol", value));
 
         /// <summary>
         /// The <see cref="HashingTF"/> will create a new column in the <see cref="DataFrame"/>,
         /// this is the name of the new column.
         /// </summary>
         /// <returns>string, the name of the output col</returns>
-        public string GetOutputCol() => (string)_jvmObject.Invoke("getOutputCol");
+        public string GetOutputCol() => (string)Reference.Invoke("getOutputCol");
 
         /// <summary>
         /// The <see cref="HashingTF"/> will create a new column in the <see cref="DataFrame"/>,
@@ -99,7 +97,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">The name of the new column</param>
         /// <returns>New <see cref="HashingTF"/> object</returns>
         public HashingTF SetOutputCol(string value) => 
-            WrapAsHashingTF(_jvmObject.Invoke("setOutputCol", value));
+            WrapAsHashingTF(Reference.Invoke("setOutputCol", value));
 
         /// <summary>
         /// Gets the number of features that should be used. Since a simple modulo is used to
@@ -108,7 +106,7 @@ namespace Microsoft.Spark.ML.Feature
         /// columns.
         /// </summary>
         /// <returns>The number of features to be used</returns>
-        public int GetNumFeatures() => (int)_jvmObject.Invoke("getNumFeatures");
+        public int GetNumFeatures() => (int)Reference.Invoke("getNumFeatures");
 
         /// <summary>
         /// Sets the number of features that should be used. Since a simple modulo is used to
@@ -119,7 +117,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">int</param>
         /// <returns>New <see cref="HashingTF"/> object</returns>
         public HashingTF SetNumFeatures(int value) => 
-            WrapAsHashingTF(_jvmObject.Invoke("setNumFeatures", value));
+            WrapAsHashingTF(Reference.Invoke("setNumFeatures", value));
 
         /// <summary>
         /// Executes the <see cref="HashingTF"/> and transforms the DataFrame to include the new
@@ -128,7 +126,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="source">The <see cref="DataFrame"/> to add the tokens to</param>
         /// <returns><see cref="DataFrame"/> containing the original data and the tokens</returns>
         public DataFrame Transform(DataFrame source) => 
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
+            new DataFrame((JvmObjectReference)Reference.Invoke("transform", source));
 
         private static HashingTF WrapAsHashingTF(object obj) => 
             new HashingTF((JvmObjectReference)obj);
