@@ -26,7 +26,7 @@ namespace Microsoft.Spark.E2ETest.Utils
                 typeof(T).Name);
         }
 
-        public JvmObjectReference Reference { get; }
+        public JvmObjectReference Reference { get; private set; }
 
         internal DataFrame ToDF() => new DataFrame((JvmObjectReference)Reference.Invoke("toDF"));
 
