@@ -13,14 +13,12 @@ namespace Microsoft.Spark.Sql.Catalog
     /// </summary>
     public sealed class Catalog : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal Catalog(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Caches the specified table in-memory.
@@ -33,14 +31,14 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <param name="tableName">Is either a qualified or unqualified name that designates a
         /// table. If no database identifier is provided, it refers to a table in the current
         /// database.</param>
-        public void CacheTable(string tableName) => _jvmObject.Invoke("cacheTable", tableName);
+        public void CacheTable(string tableName) => Reference.Invoke("cacheTable", tableName);
 
         /// <summary>
         /// Removes all cached tables from the in-memory cache. You can either clear all cached
         /// tables at once using this or clear each table individually using
         /// `UncacheTable("tableName")`.
         /// </summary>
-        public void ClearCache() => _jvmObject.Invoke("clearCache");
+        public void ClearCache() => Reference.Invoke("clearCache");
 
         /// <summary>
         /// Creates a table, in the hive warehouse, from the given path and returns the
@@ -55,7 +53,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <param name="path">Path to use to create the table.</param>
         /// <returns>The contents of the files in the path parameter as a `DataFrame`.</returns>
         public DataFrame CreateTable(string tableName, string path) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("createTable", tableName, path));
+            new DataFrame((JvmObjectReference)Reference.Invoke("createTable", tableName, path));
 
         /// <summary>
         /// Creates a table, in the hive warehouse, from the given path based from a data
@@ -72,7 +70,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <returns>The results of reading the files in path as a `DataFrame`.</returns>
         public DataFrame CreateTable(string tableName, string path, string source) =>
             new DataFrame(
-                (JvmObjectReference)_jvmObject.Invoke("createTable", tableName, path, source));
+                (JvmObjectReference)Reference.Invoke("createTable", tableName, path, source));
 
         /// <summary>
         /// Creates a table based on the dataset in a data source and a set of options.
@@ -87,7 +85,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <param name="options">Options used to table</param>
         /// <returns>The corresponding DataFrame</returns>
         public DataFrame CreateTable(string tableName, string source, IDictionary<string, string> options) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("createTable", tableName, source, options));
+            new DataFrame((JvmObjectReference)Reference.Invoke("createTable", tableName, source, options));
 
         /// <summary>
         /// Creates a table based on the dataset in a data source and a set of options.
@@ -109,7 +107,7 @@ namespace Microsoft.Spark.Sql.Catalog
             string description,
             IDictionary<string, string> options) =>
             new DataFrame(
-                (JvmObjectReference)_jvmObject.Invoke(
+                (JvmObjectReference)Reference.Invoke(
                     "createTable", tableName, source, description, options));
 
         /// <summary>
@@ -131,11 +129,11 @@ namespace Microsoft.Spark.Sql.Catalog
             StructType schema,
             IDictionary<string, string> options) =>
             new DataFrame(
-                (JvmObjectReference)_jvmObject.Invoke(
+                (JvmObjectReference)Reference.Invoke(
                     "createTable",
                     tableName,
                     source,
-                    DataType.FromJson(_jvmObject.Jvm, schema.Json),
+                    DataType.FromJson(Reference.Jvm, schema.Json),
                     options));
 
         /// <summary>
@@ -160,11 +158,11 @@ namespace Microsoft.Spark.Sql.Catalog
             string description,
             IDictionary<string, string> options) =>
             new DataFrame(
-                (JvmObjectReference)_jvmObject.Invoke(
+                (JvmObjectReference)Reference.Invoke(
                     "createTable",
                     tableName,
                     source,
-                    DataType.FromJson(_jvmObject.Jvm, schema.Json),
+                    DataType.FromJson(Reference.Jvm, schema.Json),
                     description,
                     options));
 
@@ -175,7 +173,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// `SparkSession.Sql("USE DATABASE databaseName")`.
         /// </summary>
         /// <returns>The database name as a string.</returns>
-        public string CurrentDatabase() => (string)_jvmObject.Invoke("currentDatabase");
+        public string CurrentDatabase() => (string)Reference.Invoke("currentDatabase");
 
         /// <summary>
         /// Check if the database with the specified name exists. This will check the list
@@ -184,7 +182,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <param name="dbName">Name of the database to check.</param>
         /// <returns>bool, true if the database exists and false if it does not exist.</returns>
         public bool DatabaseExists(string dbName) =>
-            (bool)_jvmObject.Invoke("databaseExists", dbName);
+            (bool)Reference.Invoke("databaseExists", dbName);
 
         /// <summary>
         /// Drops the global temporary view with the given view name in the catalog.
@@ -196,7 +194,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// </param>
         /// <returns>bool, true if the view was dropped and false if it was not dropped.</returns>
         public bool DropGlobalTempView(string viewName) =>
-            (bool)_jvmObject.Invoke("dropGlobalTempView", viewName);
+            (bool)Reference.Invoke("dropGlobalTempView", viewName);
 
         /// <summary>
         /// Drops the local temporary view with the given view name in the catalog.
@@ -212,7 +210,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// </param>
         /// <returns>bool, true if the view was dropped and false if it was not dropped.</returns>
         public bool DropTempView(string viewName) =>
-            (bool)_jvmObject.Invoke("dropTempView", viewName);
+            (bool)Reference.Invoke("dropTempView", viewName);
 
         /// <summary>
         /// Check if the function with the specified name exists. `FunctionsExists` includes in-built
@@ -224,7 +222,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// current database.</param>
         /// <returns>bool, true if the function exists and false it is does not.</returns>
         public bool FunctionExists(string functionName) =>
-            (bool)_jvmObject.Invoke("functionExists", functionName);
+            (bool)Reference.Invoke("functionExists", functionName);
 
         /// <summary>
         /// Check if the function with the specified name exists in the specified database. If you
@@ -235,7 +233,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <param name="functionName">Is an unqualified name that designates a function.</param>
         /// <returns>bool, true if the function exists and false it is does not.</returns>
         public bool FunctionExists(string dbName, string functionName) =>
-            (bool)_jvmObject.Invoke("functionExists", dbName, functionName);
+            (bool)Reference.Invoke("functionExists", dbName, functionName);
 
         /// <summary>
         /// Get the database with the specified name.
@@ -247,7 +245,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <returns>`Database` object which includes the name, description and locationUri of
         /// the database.</returns>
         public Database GetDatabase(string dbName) =>
-            new Database((JvmObjectReference)_jvmObject.Invoke("getDatabase", dbName));
+            new Database((JvmObjectReference)Reference.Invoke("getDatabase", dbName));
 
         /// <summary>
         /// Get the function with the specified name. If you are trying to get an in-built
@@ -259,7 +257,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <returns>`Function` object which includes the class name, database, description,
         /// whether it is temporary and the name of the function.</returns>
         public Function GetFunction(string functionName) =>
-            new Function((JvmObjectReference)_jvmObject.Invoke("getFunction", functionName));
+            new Function((JvmObjectReference)Reference.Invoke("getFunction", functionName));
 
         /// <summary>
         /// Get the function with the specified name. If you are trying to get an in-built function
@@ -273,7 +271,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// whether it is temporary and the name of the function.</returns>
         public Function GetFunction(string dbName, string functionName) =>
             new Function(
-                (JvmObjectReference)_jvmObject.Invoke("getFunction", dbName, functionName));
+                (JvmObjectReference)Reference.Invoke("getFunction", dbName, functionName));
 
         /// <summary>
         /// Get the table or view with the specified name. You can use this to find the tables
@@ -285,7 +283,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <returns>`Table` object which includes name, database, description, table type and
         /// whether the table is temporary or not.</returns>
         public Table GetTable(string tableName) =>
-            new Table((JvmObjectReference)_jvmObject.Invoke("getTable", tableName));
+            new Table((JvmObjectReference)Reference.Invoke("getTable", tableName));
 
         /// <summary>
         /// Get the table or view with the specified name in the specified database. You can use
@@ -298,7 +296,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <returns>`Table` object which includes name, database, description, table type and
         /// whether the table is temporary or not.</returns>
         public Table GetTable(string dbName, string tableName) =>
-            new Table((JvmObjectReference)_jvmObject.Invoke("getTable", dbName, tableName));
+            new Table((JvmObjectReference)Reference.Invoke("getTable", dbName, tableName));
 
         /// <summary>
         /// Returns true if the table is currently cached in-memory. If the table is cached then it
@@ -308,7 +306,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// table. If no database identifier is provided, it refers to a table in the current
         /// database.</param>
         /// <returns>bool, true if the table is cahced and false if it is not cached</returns>
-        public bool IsCached(string tableName) => (bool)_jvmObject.Invoke("isCached", tableName);
+        public bool IsCached(string tableName) => (bool)Reference.Invoke("isCached", tableName);
 
         /// <summary>
         /// Returns a list of columns for the given table/view or temporary view. The DataFrame
@@ -322,7 +320,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// nullable, if the column is partitioned and if the column is broken in buckets.
         /// </returns>
         public DataFrame ListColumns(string tableName) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("listColumns", tableName));
+            new DataFrame((JvmObjectReference)Reference.Invoke("listColumns", tableName));
 
         /// <summary>
         /// Returns a list of columns for the given table/view in the specified database.
@@ -336,7 +334,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// nullable, if the column is partitioned and if the column is broken in buckets.
         /// </returns>
         public DataFrame ListColumns(string dbName, string tableName) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("listColumns", dbName, tableName));
+            new DataFrame((JvmObjectReference)Reference.Invoke("listColumns", dbName, tableName));
 
         /// <summary>
         /// Returns a list of databases available across all sessions. The `DataFrame` contains
@@ -345,7 +343,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <returns>`DataFrame` with the  name, description and locationUri of each database.
         /// </returns>
         public DataFrame ListDatabases() =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("listDatabases"));
+            new DataFrame((JvmObjectReference)Reference.Invoke("listDatabases"));
 
         /// <summary>
         /// Returns a list of functions registered in the current database. This includes all
@@ -355,7 +353,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <returns>`DataFrame` with the class name, database, description, whether it is
         /// temporary and the name of each function.</returns>
         public DataFrame ListFunctions() =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("listFunctions"));
+            new DataFrame((JvmObjectReference)Reference.Invoke("listFunctions"));
 
         /// <summary>
         /// Returns a list of functions registered in the specified database. This includes all
@@ -366,7 +364,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <returns>`DataFrame` with the class name, database, description, whether it is
         /// temporary and the name of each function.</returns>
         public DataFrame ListFunctions(string dbName) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("listFunctions", dbName));
+            new DataFrame((JvmObjectReference)Reference.Invoke("listFunctions", dbName));
 
         /// <summary>
         /// Returns a list of tables/views in the current database. The `DataFrame` includes the
@@ -375,7 +373,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <returns>`DataFrame` with the name, database, description, table type and whether the
         /// table is temporary or not for each table in the default database</returns>
         public DataFrame ListTables() =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("listTables"));
+            new DataFrame((JvmObjectReference)Reference.Invoke("listTables"));
 
         /// <summary>
         /// Returns a list of tables/views in the specified database. The `DataFrame` includes the
@@ -385,7 +383,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <returns>`DataFrame` with the name, database, description, table type and whether the
         /// table is temporary or not for each table in the named database</returns>
         public DataFrame ListTables(string dbName) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("listTables", dbName));
+            new DataFrame((JvmObjectReference)Reference.Invoke("listTables", dbName));
 
         /// <summary>
         /// Recovers all the partitions in the directory of a table and update the catalog. This
@@ -395,7 +393,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// table. If no database identifier is provided, it refers to a table in the current
         /// database.</param>
         public void RecoverPartitions(string tableName) =>
-            _jvmObject.Invoke("recoverPartitions", tableName);
+            Reference.Invoke("recoverPartitions", tableName);
 
         /// <summary>
         /// Invalidates and refreshes all the cached data (and the associated metadata) for any
@@ -403,7 +401,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// i.e. "/" would invalidate everything that is cached.
         /// </summary>
         /// <param name="path">Path to refresh</param>
-        public void RefreshByPath(string path) => _jvmObject.Invoke("refreshByPath", path);
+        public void RefreshByPath(string path) => Reference.Invoke("refreshByPath", path);
 
         /// <summary>
         /// Invalidates and refreshes all the cached data and metadata of the given table. For
@@ -416,14 +414,14 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <param name="tableName">Is either a qualified or unqualified name that designates a
         /// table. If no database identifier is provided, it refers to a table in the current
         /// database.</param>
-        public void RefreshTable(string tableName) => _jvmObject.Invoke("refreshTable", tableName);
+        public void RefreshTable(string tableName) => Reference.Invoke("refreshTable", tableName);
 
         /// <summary>
         /// Sets the current default database in this session.
         /// </summary>
         /// <param name="dbName">The name of the database to set.</param>
         public void SetCurrentDatabase(string dbName) =>
-            _jvmObject.Invoke("setCurrentDatabase", dbName);
+            Reference.Invoke("setCurrentDatabase", dbName);
 
         /// <summary>
         /// Check if the table or view with the specified name exists. This can either be a
@@ -434,7 +432,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// database.</param>
         /// <returns>bool, true if the table exists and false if it does not exist</returns>
         public bool TableExists(string tableName) =>
-            (bool)_jvmObject.Invoke("tableExists", tableName);
+            (bool)Reference.Invoke("tableExists", tableName);
 
         /// <summary>
         /// Check if the table or view with the specified name exists in the specified database.
@@ -444,7 +442,7 @@ namespace Microsoft.Spark.Sql.Catalog
         /// <returns>bool, true if the table exists in the specified database and false if it does
         /// not exist</returns>
         public bool TableExists(string dbName, string tableName) =>
-            (bool)_jvmObject.Invoke("tableExists", dbName, tableName);
+            (bool)Reference.Invoke("tableExists", dbName, tableName);
 
         /// <summary>
         /// Removes the specified table from the in-memory cache.
@@ -455,6 +453,6 @@ namespace Microsoft.Spark.Sql.Catalog
         ///
         /// To cache a table use `CacheTable(tableName)`.
         /// </param>
-        public void UncacheTable(string tableName) => _jvmObject.Invoke("uncacheTable", tableName);
+        public void UncacheTable(string tableName) => Reference.Invoke("uncacheTable", tableName);
     }
 }

@@ -22,9 +22,7 @@ namespace Microsoft.Spark.ML.Feature.Param
     {
         private static readonly string s_ParamClassName = 
             "org.apache.spark.ml.param.Param";
-        
-        private readonly JvmObjectReference _jvmObject;
-        
+
         /// <summary>
         /// Creates a new instance of a <see cref="Param"/> which will be attached to the parent
         /// specified. The most likely use case for a <see cref="Param"/> is being read from a 
@@ -56,28 +54,28 @@ namespace Microsoft.Spark.ML.Feature.Param
 
         internal Param(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
-        
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-        
+
+        public JvmObjectReference Reference { get; private set; }
+
         /// <summary>
         /// The description of what the <see cref="Param"/> does and how it works including any
         /// defaults and the current value
         /// </summary>
         /// <returns>A description of how the <see cref="Param"/> works</returns>
-        public string Doc => (string)_jvmObject.Invoke("doc");
+        public string Doc => (string)Reference.Invoke("doc");
         
         /// <summary>
         /// The name of the <see cref="Param"/>
         /// </summary>
         /// <returns>The name of the <see cref="Param"/></returns>
-        public string Name => (string)_jvmObject.Invoke("name");
+        public string Name => (string)Reference.Invoke("name");
 
         /// <summary>
         /// The object that contains the <see cref="Param"/>
         /// </summary>
         /// <returns>The UID of the parent oject that this <see cref="Param"/> belongs to</returns>
-        public string Parent => (string)_jvmObject.Invoke("parent");
+        public string Parent => (string)Reference.Invoke("parent");
     }
 }
