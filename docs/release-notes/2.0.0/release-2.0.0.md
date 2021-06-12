@@ -10,8 +10,9 @@ We have officially dropped support for Spark 2.3 in the 2.0.0 release. The last 
 * Add `Exists(string path)` to `Microsoft.Spark.Hadoop.Fs.FileSystem` ([909](https://github.com/dotnet/spark/pull/909))
 * Add `Version()` to `Microsoft.Spark.SparkContext` and `Microsoft.Spark.Sql.SparkSession` ([919](https://github.com/dotnet/spark/pull/919))
 * Add Avro `ToAvro`, `FromAvro` APIs ([#805](https://github.com/dotnet/spark/pull/805))
-* Add public APIs to access `JvmBridge`, `JvmObjectReference`, `IJvmObjectReferenceProvider` ([#951](https://github.com/dotnet/spark/pull/951))
 * Extensions.DotNet.Interactive add ENV var to control disposal of tmp dir ([#952](https://github.com/dotnet/spark/pull/952))
+* Add public APIs to access `JvmBridge`, `JvmObjectReference`, `IJvmObjectReferenceProvider` ([#951](https://github.com/dotnet/spark/pull/951))
+  > This is exposed to help users interact with the JVM. It is provided with limited support and should be used with caution.
 
 ### Bug Fixes
 
