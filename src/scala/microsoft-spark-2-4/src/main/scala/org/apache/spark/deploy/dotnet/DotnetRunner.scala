@@ -37,7 +37,7 @@ object DotnetRunner extends Logging {
   private val DEBUG_PORT = 5567
   private val supportedSparkMajorMinorVersionPrefix = "2.4"
   private val supportedSparkVersions =
-    Set[String]("2.4.0", "2.4.1", "2.4.3", "2.4.4", "2.4.5", "2.4.6", "2.4.7")
+    Set[String]("2.4.0", "2.4.1", "2.4.3", "2.4.4", "2.4.5", "2.4.6", "2.4.7", "2.4.8")
 
   val SPARK_VERSION = DotnetUtils.normalizeSparkVersion(spark.SPARK_VERSION)
 
