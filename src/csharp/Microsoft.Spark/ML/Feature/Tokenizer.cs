@@ -12,7 +12,7 @@ namespace Microsoft.Spark.ML.Feature
     /// A <see cref="Tokenizer"/> that converts the input string to lowercase and then splits it by
     /// white spaces.
     /// </summary>
-    public class Tokenizer : FeatureBase<Tokenizer>, IJvmObjectReferenceProvider
+    public class Tokenizer : FeatureBase<Tokenizer>
     {
         private static readonly string s_tokenizerClassName = 
             "org.apache.spark.ml.feature.Tokenizer";
@@ -36,14 +36,12 @@ namespace Microsoft.Spark.ML.Feature
         internal Tokenizer(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
-        
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-        
+                
         /// <summary>
         /// Gets the column that the <see cref="Tokenizer"/> should read from
         /// </summary>
         /// <returns>string, input column</returns>
-        public string GetInputCol() => (string)(_jvmObject.Invoke("getInputCol"));
+        public string GetInputCol() => (string)(Reference.Invoke("getInputCol"));
 
         /// <summary>
         /// Sets the column that the <see cref="Tokenizer"/> should read from
@@ -51,14 +49,14 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">The name of the column to as the source</param>
         /// <returns>New <see cref="Tokenizer"/> object</returns>
         public Tokenizer SetInputCol(string value) => 
-            WrapAsTokenizer(_jvmObject.Invoke("setInputCol", value));
+            WrapAsTokenizer(Reference.Invoke("setInputCol", value));
 
         /// <summary>
         /// The <see cref="Tokenizer"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
         /// </summary>
         /// <returns>string, the output column</returns>
-        public string GetOutputCol() => (string)(_jvmObject.Invoke("getOutputCol"));
+        public string GetOutputCol() => (string)(Reference.Invoke("getOutputCol"));
 
         /// <summary>
         /// The <see cref="Tokenizer"/> will create a new column in the DataFrame, this is the
@@ -67,7 +65,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">The name of the new column</param>
         /// <returns>New <see cref="Tokenizer"/> object</returns>
         public Tokenizer SetOutputCol(string value) => 
-            WrapAsTokenizer(_jvmObject.Invoke("setOutputCol", value));
+            WrapAsTokenizer(Reference.Invoke("setOutputCol", value));
 
         /// <summary>
         /// Executes the <see cref="Tokenizer"/> and transforms the DataFrame to include the new
@@ -78,7 +76,7 @@ namespace Microsoft.Spark.ML.Feature
         /// New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/> transformed
         /// </returns>
         public DataFrame Transform(DataFrame source) => 
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
+            new DataFrame((JvmObjectReference)Reference.Invoke("transform", source));
 
         /// <summary>
         /// Loads the <see cref="Tokenizer"/> that was previously saved using Save

@@ -12,20 +12,18 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     public sealed class DataFrameNaFunctions : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal DataFrameNaFunctions(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Returns a new `DataFrame` that drops rows containing any null or NaN values.
         /// </summary>
         /// <returns>DataFrame object</returns>
-        public DataFrame Drop() => WrapAsDataFrame(_jvmObject.Invoke("drop"));
+        public DataFrame Drop() => WrapAsDataFrame(Reference.Invoke("drop"));
 
         /// <summary>
         /// Returns a new `DataFrame` that drops rows containing null or NaN values.
@@ -36,7 +34,7 @@ namespace Microsoft.Spark.Sql
         /// </remarks>
         /// <param name="how">Determines the behavior of dropping rows</param>
         /// <returns>DataFrame object</returns>
-        public DataFrame Drop(string how) => WrapAsDataFrame(_jvmObject.Invoke("drop", how));
+        public DataFrame Drop(string how) => WrapAsDataFrame(Reference.Invoke("drop", how));
 
         /// <summary>
         /// Returns a new `DataFrame` that drops rows containing any null or NaN values
@@ -45,7 +43,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columnNames">Column names</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Drop(IEnumerable<string> columnNames) =>
-            WrapAsDataFrame(_jvmObject.Invoke("drop", columnNames));
+            WrapAsDataFrame(Reference.Invoke("drop", columnNames));
 
         /// <summary>
         /// Returns a new `DataFrame` that drops rows containing any null or NaN values
@@ -59,7 +57,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columnNames">Column names</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Drop(string how, IEnumerable<string> columnNames) =>
-            WrapAsDataFrame(_jvmObject.Invoke("drop", how, columnNames));
+            WrapAsDataFrame(Reference.Invoke("drop", how, columnNames));
 
         /// <summary>
         /// Returns a new `DataFrame` that drops rows containing less than `minNonNulls`
@@ -68,7 +66,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="minNonNulls"></param>
         /// <returns>DataFrame object</returns>
         public DataFrame Drop(int minNonNulls) =>
-            WrapAsDataFrame(_jvmObject.Invoke("drop", minNonNulls));
+            WrapAsDataFrame(Reference.Invoke("drop", minNonNulls));
 
         /// <summary>
         /// Returns a new `DataFrame` that drops rows containing less than `minNonNulls`
@@ -78,7 +76,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columnNames">Column names</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Drop(int minNonNulls, IEnumerable<string> columnNames) =>
-            WrapAsDataFrame(_jvmObject.Invoke("drop", minNonNulls, columnNames));
+            WrapAsDataFrame(Reference.Invoke("drop", minNonNulls, columnNames));
 
         /// <summary>
         /// Returns a new `DataFrame` that replaces null or NaN values in numeric columns
@@ -86,7 +84,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="value">Value to replace with</param>
         /// <returns>DataFrame object</returns>
-        public DataFrame Fill(long value) => WrapAsDataFrame(_jvmObject.Invoke("fill", value));
+        public DataFrame Fill(long value) => WrapAsDataFrame(Reference.Invoke("fill", value));
 
         /// <summary>
         /// Returns a new `DataFrame` that replaces null or NaN values in numeric columns
@@ -94,7 +92,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="value">Value to replace with</param>
         /// <returns>DataFrame object</returns>
-        public DataFrame Fill(double value) => WrapAsDataFrame(_jvmObject.Invoke("fill", value));
+        public DataFrame Fill(double value) => WrapAsDataFrame(Reference.Invoke("fill", value));
 
         /// <summary>
         /// Returns a new `DataFrame` that replaces null or NaN values in numeric columns
@@ -102,7 +100,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="value">Value to replace with</param>
         /// <returns>DataFrame object</returns>
-        public DataFrame Fill(string value) => WrapAsDataFrame(_jvmObject.Invoke("fill", value));
+        public DataFrame Fill(string value) => WrapAsDataFrame(Reference.Invoke("fill", value));
 
         /// <summary>
         /// Returns a new `DataFrame` that replaces null or NaN values in specified numeric
@@ -112,7 +110,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columnNames">Column names</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Fill(long value, IEnumerable<string> columnNames) =>
-            WrapAsDataFrame(_jvmObject.Invoke("fill", value, columnNames));
+            WrapAsDataFrame(Reference.Invoke("fill", value, columnNames));
 
         /// <summary>
         /// Returns a new `DataFrame` that replaces null or NaN values in specified numeric
@@ -122,7 +120,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columnNames">Column names</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Fill(double value, IEnumerable<string> columnNames) =>
-            WrapAsDataFrame(_jvmObject.Invoke("fill", value, columnNames));
+            WrapAsDataFrame(Reference.Invoke("fill", value, columnNames));
 
         /// <summary>
         /// Returns a new `DataFrame` that replaces null or NaN values in specified string
@@ -132,14 +130,14 @@ namespace Microsoft.Spark.Sql
         /// <param name="columnNames">Column names</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Fill(string value, IEnumerable<string> columnNames) =>
-            WrapAsDataFrame(_jvmObject.Invoke("fill", value, columnNames));
+            WrapAsDataFrame(Reference.Invoke("fill", value, columnNames));
 
         /// <summary>
         /// Returns a new `DataFrame` that replaces null values in boolean columns with `value`.
         /// </summary>
         /// <param name="value">Value to replace with</param>
         /// <returns>DataFrame object</returns>
-        public DataFrame Fill(bool value) => WrapAsDataFrame(_jvmObject.Invoke("fill", value));
+        public DataFrame Fill(bool value) => WrapAsDataFrame(Reference.Invoke("fill", value));
 
         /// <summary>
         /// Returns a new `DataFrame` that replaces null or NaN values in specified boolean
@@ -149,7 +147,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columnNames">Column names</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Fill(bool value, IEnumerable<string> columnNames) =>
-            WrapAsDataFrame(_jvmObject.Invoke("fill", value, columnNames));
+            WrapAsDataFrame(Reference.Invoke("fill", value, columnNames));
 
         /// <summary>
         /// Returns a new `DataFrame` that replaces null values.
@@ -161,7 +159,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="valueMap">Values to replace null values</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Fill(IDictionary<string, int> valueMap) =>
-            WrapAsDataFrame(_jvmObject.Invoke("fill", valueMap));
+            WrapAsDataFrame(Reference.Invoke("fill", valueMap));
 
         /// <summary>
         /// Returns a new `DataFrame` that replaces null values.
@@ -173,7 +171,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="valueMap">Values to replace null values</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Fill(IDictionary<string, long> valueMap) =>
-            WrapAsDataFrame(_jvmObject.Invoke("fill", valueMap));
+            WrapAsDataFrame(Reference.Invoke("fill", valueMap));
 
         /// <summary>
         /// Returns a new `DataFrame` that replaces null values.
@@ -185,7 +183,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="valueMap">Values to replace null values</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Fill(IDictionary<string, double> valueMap) =>
-            WrapAsDataFrame(_jvmObject.Invoke("fill", valueMap));
+            WrapAsDataFrame(Reference.Invoke("fill", valueMap));
 
         /// <summary>
         /// Returns a new `DataFrame` that replaces null values.
@@ -197,7 +195,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="valueMap">Values to replace null values</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Fill(IDictionary<string, string> valueMap) =>
-            WrapAsDataFrame(_jvmObject.Invoke("fill", valueMap));
+            WrapAsDataFrame(Reference.Invoke("fill", valueMap));
 
         /// <summary>
         /// Returns a new `DataFrame` that replaces null values.
@@ -209,7 +207,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="valueMap">Values to replace null values</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Fill(IDictionary<string, bool> valueMap) =>
-            WrapAsDataFrame(_jvmObject.Invoke("fill", valueMap));
+            WrapAsDataFrame(Reference.Invoke("fill", valueMap));
 
         /// <summary>
         /// Replaces values matching keys in `replacement` map with the corresponding values.
@@ -221,7 +219,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="replacement">Map that stores the replacement values</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Replace(string columnName, IDictionary<double, double> replacement) =>
-            WrapAsDataFrame(_jvmObject.Invoke("replace", columnName, replacement));
+            WrapAsDataFrame(Reference.Invoke("replace", columnName, replacement));
 
         /// <summary>
         /// Replaces values matching keys in `replacement` map with the corresponding values.
@@ -233,7 +231,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="replacement">Map that stores the replacement values</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Replace(string columnName, IDictionary<bool, bool> replacement) =>
-            WrapAsDataFrame(_jvmObject.Invoke("replace", columnName, replacement));
+            WrapAsDataFrame(Reference.Invoke("replace", columnName, replacement));
 
         /// <summary>
         /// Replaces values matching keys in `replacement` map with the corresponding values.
@@ -245,7 +243,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="replacement">Map that stores the replacement values</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Replace(string columnName, IDictionary<string, string> replacement) =>
-            WrapAsDataFrame(_jvmObject.Invoke("replace", columnName, replacement));
+            WrapAsDataFrame(Reference.Invoke("replace", columnName, replacement));
 
         /// <summary>
         /// Replaces values matching keys in `replacement` map with the corresponding values.
@@ -259,7 +257,7 @@ namespace Microsoft.Spark.Sql
         public DataFrame Replace(
             IEnumerable<string> columnNames,
             IDictionary<double, double> replacement) =>
-            WrapAsDataFrame(_jvmObject.Invoke("replace", columnNames, replacement));
+            WrapAsDataFrame(Reference.Invoke("replace", columnNames, replacement));
 
         /// <summary>
         /// Replaces values matching keys in `replacement` map with the corresponding values.
@@ -270,7 +268,7 @@ namespace Microsoft.Spark.Sql
         public DataFrame Replace(
             IEnumerable<string> columnNames,
             IDictionary<bool, bool> replacement) =>
-            WrapAsDataFrame(_jvmObject.Invoke("replace", columnNames, replacement));
+            WrapAsDataFrame(Reference.Invoke("replace", columnNames, replacement));
 
         /// <summary>
         /// Replaces values matching keys in `replacement` map with the corresponding values.
@@ -281,7 +279,7 @@ namespace Microsoft.Spark.Sql
         public DataFrame Replace(
             IEnumerable<string> columnNames,
             IDictionary<string, string> replacement) =>
-            WrapAsDataFrame(_jvmObject.Invoke("replace", columnNames, replacement));
+            WrapAsDataFrame(Reference.Invoke("replace", columnNames, replacement));
 
         private DataFrame WrapAsDataFrame(object obj) => new DataFrame((JvmObjectReference)obj);
     }

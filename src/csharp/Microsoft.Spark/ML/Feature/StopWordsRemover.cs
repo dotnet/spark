@@ -13,7 +13,7 @@ namespace Microsoft.Spark.ML.Feature
     /// <summary>
     /// A <see cref="StopWordsRemover"/> feature transformer that filters out stop words from input.
     /// </summary>
-    public class StopWordsRemover : FeatureBase<StopWordsRemover>, IJvmObjectReferenceProvider
+    public class StopWordsRemover : FeatureBase<StopWordsRemover>
     {
         private static readonly string s_stopWordsRemoverClassName =
             "org.apache.spark.ml.feature.StopWordsRemover";
@@ -38,15 +38,13 @@ namespace Microsoft.Spark.ML.Feature
         {
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-
         /// <summary>
         /// Sets the column that the <see cref="StopWordsRemover"/> should read from.
         /// </summary>
         /// <param name="value">The name of the column to use as the source</param>
         /// <returns>New <see cref="StopWordsRemover"/> object</returns>
         public StopWordsRemover SetInputCol(string value) =>
-            WrapAsStopWordsRemover(_jvmObject.Invoke("setInputCol", value));
+            WrapAsStopWordsRemover(Reference.Invoke("setInputCol", value));
 
         /// <summary>
         /// The <see cref="StopWordsRemover"/> will create a new column in the DataFrame, this is the
@@ -55,7 +53,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">The name of the column to use as the target</param>
         /// <returns>New <see cref="StopWordsRemover"/> object</returns>
         public StopWordsRemover SetOutputCol(string value) =>
-            WrapAsStopWordsRemover(_jvmObject.Invoke("setOutputCol", value));
+            WrapAsStopWordsRemover(Reference.Invoke("setOutputCol", value));
 
         /// <summary>
         /// Executes the <see cref="StopWordsRemover"/> and transforms the DataFrame to include the new
@@ -66,20 +64,20 @@ namespace Microsoft.Spark.ML.Feature
         /// New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/> transformed
         /// </returns>
         public DataFrame Transform(DataFrame source) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
+            new DataFrame((JvmObjectReference)Reference.Invoke("transform", source));
 
         /// <summary>
         /// Gets the column that the <see cref="StopWordsRemover"/> should read from.
         /// </summary>
         /// <returns>Input column name</returns>
-        public string GetInputCol() => (string)_jvmObject.Invoke("getInputCol");
+        public string GetInputCol() => (string)Reference.Invoke("getInputCol");
 
         /// <summary>
         /// The <see cref="StopWordsRemover"/> will create a new column in the DataFrame, this is the
         /// name of the new column.
         /// </summary>
         /// <returns>The output column name</returns>
-        public string GetOutputCol() => (string)_jvmObject.Invoke("getOutputCol");
+        public string GetOutputCol() => (string)Reference.Invoke("getOutputCol");
 
         /// <summary>
         /// Sets locale for <see cref="StopWordsRemover"/> transform.
@@ -89,14 +87,14 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>New <see cref="StopWordsRemover"/> object</returns>
         [Since(Versions.V2_4_0)]
         public StopWordsRemover SetLocale(string value) =>
-            WrapAsStopWordsRemover(_jvmObject.Invoke("setLocale", value));
+            WrapAsStopWordsRemover(Reference.Invoke("setLocale", value));
 
         /// <summary>
         /// Gets locale for <see cref="StopWordsRemover"/> transform
         /// </summary>
         /// <returns>The locale</returns>
         [Since(Versions.V2_4_0)]
-        public string GetLocale() => (string)_jvmObject.Invoke("getLocale");
+        public string GetLocale() => (string)Reference.Invoke("getLocale");
 
         /// <summary>
         /// Sets case sensitivity.
@@ -104,13 +102,13 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">true if case sensitive, false otherwise</param>
         /// <returns>New <see cref="StopWordsRemover"/> object</returns>
         public StopWordsRemover SetCaseSensitive(bool value) =>
-            WrapAsStopWordsRemover(_jvmObject.Invoke("setCaseSensitive", value));
+            WrapAsStopWordsRemover(Reference.Invoke("setCaseSensitive", value));
 
         /// <summary>
         /// Gets case sensitivity.
         /// </summary>
         /// <returns>true if case sensitive, false otherwise</returns>
-        public bool GetCaseSensitive() => (bool)_jvmObject.Invoke("getCaseSensitive");
+        public bool GetCaseSensitive() => (bool)Reference.Invoke("getCaseSensitive");
 
         /// <summary>
         /// Sets custom stop words.
@@ -118,14 +116,14 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="values">Custom stop words</param>
         /// <returns>New <see cref="StopWordsRemover"/> object</returns>
         public StopWordsRemover SetStopWords(IEnumerable<string> values) =>
-            WrapAsStopWordsRemover(_jvmObject.Invoke("setStopWords", values));
+            WrapAsStopWordsRemover(Reference.Invoke("setStopWords", values));
 
         /// <summary>
         /// Gets the custom stop words.
         /// </summary>
         /// <returns>Custom stop words</returns>
         public IEnumerable<string> GetStopWords() =>
-            (IEnumerable<string>)_jvmObject.Invoke("getStopWords");
+            (IEnumerable<string>)Reference.Invoke("getStopWords");
 
         /// <summary>
         /// Check transform validity and derive the output schema from the input schema.
@@ -145,9 +143,9 @@ namespace Microsoft.Spark.ML.Feature
         /// </returns>
         public StructType TransformSchema(StructType value) =>
             new StructType(
-                (JvmObjectReference)_jvmObject.Invoke(
+                (JvmObjectReference)Reference.Invoke(
                     "transformSchema",
-                    DataType.FromJson(_jvmObject.Jvm, value.Json)));
+                    DataType.FromJson(Reference.Jvm, value.Json)));
 
         /// <summary>
         /// Load default stop words of given language for <see cref="StopWordsRemover"/>

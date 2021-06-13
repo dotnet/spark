@@ -13,7 +13,6 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     public sealed class Column : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
 
         /// <summary>
         /// Constructor for Column class.
@@ -21,10 +20,10 @@ namespace Microsoft.Spark.Sql
         /// <param name="jvmObject">JVM object reference</param>
         internal Column(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Negate the given column.
@@ -879,7 +878,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         internal JvmObjectReference Expr()
         {
-            return (JvmObjectReference)_jvmObject.Invoke("expr");
+            return (JvmObjectReference)Reference.Invoke("expr");
         }
 
         // Equals() and GetHashCode() are required to be defined when operator==/!=
@@ -902,20 +901,20 @@ namespace Microsoft.Spark.Sql
                 return true;
             }
 
-            return obj is Column other && _jvmObject.Equals(other._jvmObject);
+            return obj is Column other && Reference.Equals(other.Reference);
         }
 
         /// <summary>
         /// Calculates the hash code for this object.
         /// </summary>
         /// <returns>Hash code for this object</returns>
-        public override int GetHashCode() => _jvmObject.GetHashCode();
+        public override int GetHashCode() => Reference.GetHashCode();
 
         /// <summary>
         /// Invoke the toString method of the column instance
         /// </summary>
         /// <returns>Column name of this column</returns>
-        public override string ToString() => (string)_jvmObject.Invoke("toString");
+        public override string ToString() => (string)Reference.Invoke("toString");
 
         /// <summary>
         /// Invokes a method under "org.apache.spark.sql.functions" with the given column.
@@ -926,7 +925,7 @@ namespace Microsoft.Spark.Sql
         private static Column ApplyFunction(Column column, string name)
         {
             return new Column(
-                (JvmObjectReference)column._jvmObject.Jvm.CallStaticJavaMethod(
+                (JvmObjectReference)column.Reference.Jvm.CallStaticJavaMethod(
                     "org.apache.spark.sql.functions",
                     name,
                     column));
@@ -939,7 +938,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the operator</returns>
         private Column ApplyMethod(string op)
         {
-            return new Column((JvmObjectReference)_jvmObject.Invoke(op));
+            return new Column((JvmObjectReference)Reference.Invoke(op));
         }
 
         /// <summary>
@@ -950,7 +949,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the operator</returns>
         private Column ApplyMethod(string op, object other)
         {
-            return new Column((JvmObjectReference)_jvmObject.Invoke(op, other));
+            return new Column((JvmObjectReference)Reference.Invoke(op, other));
         }
 
         /// <summary>
@@ -962,7 +961,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New column after applying the operator</returns>
         private Column ApplyMethod(string op, object other1, object other2)
         {
-            return new Column((JvmObjectReference)_jvmObject.Invoke(op, other1, other2));
+            return new Column((JvmObjectReference)Reference.Invoke(op, other1, other2));
         }
     }
 }

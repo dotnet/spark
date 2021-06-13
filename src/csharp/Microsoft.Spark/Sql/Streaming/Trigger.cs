@@ -17,11 +17,9 @@ namespace Microsoft.Spark.Sql.Streaming
         private static readonly string s_triggerClassName = 
             "org.apache.spark.sql.streaming.Trigger";
 
-        private readonly JvmObjectReference _jvmObject;
+        internal Trigger(JvmObjectReference jvmObject) => Reference = jvmObject;
 
-        internal Trigger(JvmObjectReference jvmObject) => _jvmObject = jvmObject;
-
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// A trigger policy that runs a query periodically based on an interval 

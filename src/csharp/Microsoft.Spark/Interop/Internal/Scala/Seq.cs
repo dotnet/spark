@@ -15,18 +15,16 @@ namespace Microsoft.Spark.Interop.Internal.Scala
     /// <typeparam name="T"></typeparam>
     internal sealed class Seq<T> : IJvmObjectReferenceProvider, IEnumerable<T>
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal Seq(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public int Size => (int)_jvmObject.Invoke("size");
+        public int Size => (int)Reference.Invoke("size");
 
         public IEnumerator<T> GetEnumerator()
         {
@@ -36,6 +34,6 @@ namespace Microsoft.Spark.Interop.Internal.Scala
             }
         }
 
-        public T Apply(int index) => (T)_jvmObject.Invoke("apply", index);
+        public T Apply(int index) => (T)Reference.Invoke("apply", index);
     }
 }
