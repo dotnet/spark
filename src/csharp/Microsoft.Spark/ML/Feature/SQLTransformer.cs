@@ -12,7 +12,7 @@ namespace Microsoft.Spark.ML.Feature
     /// <summary>
     /// <see cref="SQLTransformer"/> implements the transformations which are defined by SQL statement.
     /// </summary>
-    public class SQLTransformer : FeatureBase<SQLTransformer>, IJvmObjectReferenceProvider
+    public class SQLTransformer : FeatureBase<SQLTransformer>
     {
         private static readonly string s_sqlTransformerClassName = 
             "org.apache.spark.ml.feature.SQLTransformer";
@@ -37,8 +37,6 @@ namespace Microsoft.Spark.ML.Feature
         {
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-
         /// <summary>
         /// Executes the <see cref="SQLTransformer"/> and transforms the DataFrame to include the new
         /// column.
@@ -48,7 +46,7 @@ namespace Microsoft.Spark.ML.Feature
         /// New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/> transformed.
         /// </returns>
         public DataFrame Transform(DataFrame source) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", source));
+            new DataFrame((JvmObjectReference)Reference.Invoke("transform", source));
 
         /// <summary>
         /// Executes the <see cref="SQLTransformer"/> and transforms the schema.
@@ -59,15 +57,15 @@ namespace Microsoft.Spark.ML.Feature
         /// </returns>
         public StructType TransformSchema(StructType value) =>
             new StructType(
-                (JvmObjectReference)_jvmObject.Invoke(
+                (JvmObjectReference)Reference.Invoke(
                     "transformSchema",
-                    DataType.FromJson(_jvmObject.Jvm, value.Json)));
+                    DataType.FromJson(Reference.Jvm, value.Json)));
 
         /// <summary>
         /// Gets the statement.
         /// </summary>
         /// <returns>Statement</returns>
-        public string GetStatement() => (string)_jvmObject.Invoke("getStatement");
+        public string GetStatement() => (string)Reference.Invoke("getStatement");
 
         /// <summary>
         /// Sets the statement to <see cref="SQLTransformer"/>.
@@ -77,7 +75,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="SQLTransformer"/> with the statement set.
         /// </returns>
         public SQLTransformer SetStatement(string statement) =>
-            WrapAsSQLTransformer((JvmObjectReference)_jvmObject.Invoke("setStatement", statement));
+            WrapAsSQLTransformer((JvmObjectReference)Reference.Invoke("setStatement", statement));
 
         /// <summary>
         /// Loads the <see cref="SQLTransformer"/> that was previously saved using Save.

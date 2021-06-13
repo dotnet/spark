@@ -15,14 +15,12 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
     public class DeltaMergeMatchedActionBuilder : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal DeltaMergeMatchedActionBuilder(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Update the matched table rows based on the rules defined by <c>set</c>.
@@ -32,7 +30,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <returns>DeltaMergeBuilder object.</returns>
         [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder Update(Dictionary<string, Column> set) =>
-            new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("update", set));
+            new DeltaMergeBuilder((JvmObjectReference)Reference.Invoke("update", set));
 
         /// <summary>
         /// Update the matched table rows based on the rules defined by <c>set</c>.
@@ -42,7 +40,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <returns>DeltaMergeBuilder object.</returns>
         [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder UpdateExpr(Dictionary<string, string> set) =>
-            new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("updateExpr", set));
+            new DeltaMergeBuilder((JvmObjectReference)Reference.Invoke("updateExpr", set));
 
         /// <summary>
         /// Update all the columns of the matched table row with the values of the corresponding
@@ -51,7 +49,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <returns>DeltaMergeBuilder object.</returns>
         [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder UpdateAll() =>
-            new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("updateAll"));
+            new DeltaMergeBuilder((JvmObjectReference)Reference.Invoke("updateAll"));
 
         /// <summary>
         /// Delete a matched row from the table.
@@ -59,6 +57,6 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         /// <returns>DeltaMergeBuilder object.</returns>
         [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeBuilder Delete() =>
-            new DeltaMergeBuilder((JvmObjectReference)_jvmObject.Invoke("delete"));
+            new DeltaMergeBuilder((JvmObjectReference)Reference.Invoke("delete"));
     }
 }

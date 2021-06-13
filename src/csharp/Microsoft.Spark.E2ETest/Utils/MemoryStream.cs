@@ -16,25 +16,21 @@ namespace Microsoft.Spark.E2ETest.Utils
     /// </typeparam>
     internal class MemoryStream<T> : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal MemoryStream(SparkSession sparkSession)
         {
-            JvmObjectReference sparkSessionRef =
-                ((IJvmObjectReferenceProvider)sparkSession).Reference;
-
-            _jvmObject = (JvmObjectReference)sparkSessionRef.Jvm.CallStaticJavaMethod(
+            JvmObjectReference sparkSessionRef = sparkSession.Reference;
+            Reference = (JvmObjectReference)sparkSessionRef.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.test.TestUtils",
                 "createMemoryStream",
                 sparkSessionRef.Invoke("sqlContext"),
                 typeof(T).Name);
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
-        internal DataFrame ToDF() => new DataFrame((JvmObjectReference)_jvmObject.Invoke("toDF"));
+        internal DataFrame ToDF() => new DataFrame((JvmObjectReference)Reference.Invoke("toDF"));
 
         // TODO: "addData" returns an Offset. Expose class if needed.	
-        internal void AddData(T[] data) => _jvmObject.Invoke("addData", data);
+        internal void AddData(T[] data) => Reference.Invoke("addData", data);
     }
 }

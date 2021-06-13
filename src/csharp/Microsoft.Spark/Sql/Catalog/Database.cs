@@ -11,31 +11,29 @@ namespace Microsoft.Spark.Sql.Catalog
     /// </summary>
     public sealed class Database : IJvmObjectReferenceProvider
     {
-        private JvmObjectReference _jvmObject;
-
         internal Database(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-        
+        public JvmObjectReference Reference { get; private set; }
+
         /// <summary>
         /// Description of the database.
         /// </summary>
         /// <returns>string, the description of the database.</returns>
-        public string Description => (string)_jvmObject.Invoke("description");
+        public string Description => (string)Reference.Invoke("description");
 
         /// <summary>
         /// Path (in the form of a uri) to data files
         /// </summary>
         /// <returns>string, the location of the database.</returns>
-        public string LocationUri => (string)_jvmObject.Invoke("locationUri");
+        public string LocationUri => (string)Reference.Invoke("locationUri");
 
         /// <summary>
         /// Name of the database.
         /// </summary>
         /// <returns>string, the name of the database.</returns>
-        public string Name => (string)_jvmObject.Invoke("name");
+        public string Name => (string)Reference.Invoke("name");
     }
 }

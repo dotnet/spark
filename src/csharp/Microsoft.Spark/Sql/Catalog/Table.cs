@@ -11,43 +11,41 @@ namespace Microsoft.Spark.Sql.Catalog
     /// </summary>
     public sealed class Table : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal Table(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Name of the database the table belongs to.
         /// </summary>
         /// <returns>string, the name of the database the table is in.</returns>
-        public string Database => (string)_jvmObject.Invoke("database");
+        public string Database => (string)Reference.Invoke("database");
 
         /// <summary>
         /// Description of the table.
         /// </summary>
         /// <returns>string, the description of the table.</returns>
-        public string Description => (string)_jvmObject.Invoke("description");
+        public string Description => (string)Reference.Invoke("description");
 
         /// <summary>
         /// Whether the table is temporary or not.
         /// </summary>
         /// <returns>bool, true if the table is temporary, false if it is not.</returns>
-        public bool IsTemporary => (bool)_jvmObject.Invoke("isTemporary");
+        public bool IsTemporary => (bool)Reference.Invoke("isTemporary");
 
         /// <summary>
         /// The name of the table.
         /// </summary>
         /// <returns>string, the name of the table.</returns>
-        public string Name => (string)_jvmObject.Invoke("name");
+        public string Name => (string)Reference.Invoke("name");
 
         /// <summary>
         /// The type of table (e.g. view/table)
         /// </summary>
         /// <returns>string, will return either `view` or `table` </returns>
-        public string TableType => (string)_jvmObject.Invoke("tableType");
+        public string TableType => (string)Reference.Invoke("tableType");
     }
 }

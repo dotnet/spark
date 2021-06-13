@@ -10,8 +10,7 @@ using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class CountVectorizerModel
-        : FeatureBase<CountVectorizerModel>, IJvmObjectReferenceProvider
+    public class CountVectorizerModel : FeatureBase<CountVectorizerModel>
     {
         private static readonly string s_countVectorizerModelClassName = 
             "org.apache.spark.ml.feature.CountVectorizerModel";
@@ -41,8 +40,6 @@ namespace Microsoft.Spark.ML.Feature
         internal CountVectorizerModel(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
-
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
         
         /// <summary>
         /// Loads the <see cref="CountVectorizerModel"/> that was previously saved using Save
@@ -62,7 +59,7 @@ namespace Microsoft.Spark.ML.Feature
         /// models that model binary events rather than integer counts. Default: false
         /// </summary>
         /// <returns>Toggle value of type boolean</returns>
-        public bool GetBinary() => (bool)_jvmObject.Invoke("getBinary");
+        public bool GetBinary() => (bool)Reference.Invoke("getBinary");
 
         /// <summary>
         /// Sets the binary toggle to control the output vector values. If True, all nonzero counts
@@ -74,14 +71,14 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="CountVectorizerModel"/> with the new binary toggle value set
         /// </returns>
         public CountVectorizerModel SetBinary(bool value) =>
-            WrapAsCountVectorizerModel(_jvmObject.Invoke("setBinary", value));
+            WrapAsCountVectorizerModel(Reference.Invoke("setBinary", value));
 
         /// <summary>
         /// Gets the column that the <see cref="CountVectorizerModel"/> should read from and
         /// convert into buckets. This would have been set by SetInputCol
         /// </summary>
         /// <returns>string, the input column</returns>
-        public string GetInputCol() => (string)_jvmObject.Invoke("getInputCol");
+        public string GetInputCol() => (string)Reference.Invoke("getInputCol");
         
         /// <summary>
         /// Sets the column that the <see cref="CountVectorizerModel"/> should read from.
@@ -89,14 +86,14 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">The name of the column to use as the source.</param>
         /// <returns><see cref="CountVectorizerModel"/> with the input column set</returns>
         public CountVectorizerModel SetInputCol(string value) =>
-            WrapAsCountVectorizerModel(_jvmObject.Invoke("setInputCol", value));
+            WrapAsCountVectorizerModel(Reference.Invoke("setInputCol", value));
         
         /// <summary>
         /// Gets the name of the new column the <see cref="CountVectorizerModel"/> will create in
         /// the DataFrame.
         /// </summary>
         /// <returns>The name of the output column.</returns>
-        public string GetOutputCol() => (string)_jvmObject.Invoke("getOutputCol");
+        public string GetOutputCol() => (string)Reference.Invoke("getOutputCol");
         
         /// <summary>
         /// Sets the name of the new column the <see cref="CountVectorizerModel"/> will create in
@@ -105,7 +102,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">The name of the output column which will be created.</param>
         /// <returns>New <see cref="CountVectorizerModel"/> with the output column set</returns>
         public CountVectorizerModel SetOutputCol(string value) =>
-            WrapAsCountVectorizerModel(_jvmObject.Invoke("setOutputCol", value));
+            WrapAsCountVectorizerModel(Reference.Invoke("setOutputCol", value));
         
         /// <summary>
         /// Gets the maximum number of different documents a term could appear in to be included in
@@ -115,7 +112,7 @@ namespace Microsoft.Spark.ML.Feature
         /// fraction of documents the term could appear in.
         /// </summary>
         /// <returns>The maximum document term frequency of type double.</returns>
-        public double GetMaxDF() => (double)_jvmObject.Invoke("getMaxDF");
+        public double GetMaxDF() => (double)Reference.Invoke("getMaxDF");
         
         /// <summary>
         /// Gets the minimum number of different documents a term must appear in to be included in
@@ -124,7 +121,7 @@ namespace Microsoft.Spark.ML.Feature
         /// specifies the fraction of documents.
         /// </summary>
         /// <returns>The minimum document term frequency</returns>
-        public double GetMinDF() => (double)_jvmObject.Invoke("getMinDF");
+        public double GetMinDF() => (double)Reference.Invoke("getMinDF");
 
         /// <summary>
         /// Gets the filter to ignore rare words in a document. For each document, terms with
@@ -137,7 +134,7 @@ namespace Microsoft.Spark.ML.Feature
         /// affect fitting.
         /// </summary>
         /// <returns>Minimum term frequency of type double.</returns>
-        public double GetMinTF() => (double)_jvmObject.Invoke("getMinTF");
+        public double GetMinTF() => (double)Reference.Invoke("getMinTF");
 
         /// <summary>
         /// Sets the filter to ignore rare words in a document. For each document, terms with
@@ -154,7 +151,7 @@ namespace Microsoft.Spark.ML.Feature
         /// New <see cref="CountVectorizerModel"/> with the min term frequency set
         /// </returns>
         public CountVectorizerModel SetMinTF(double value) =>
-            WrapAsCountVectorizerModel(_jvmObject.Invoke("setMinTF", value));
+            WrapAsCountVectorizerModel(Reference.Invoke("setMinTF", value));
         
         /// <summary>
         /// Gets the max size of the vocabulary. <see cref="CountVectorizerModel"/> will build a
@@ -162,7 +159,7 @@ namespace Microsoft.Spark.ML.Feature
         /// the corpus.
         /// </summary>
         /// <returns>The max size of the vocabulary of type int.</returns>
-        public int GetVocabSize() => (int)_jvmObject.Invoke("getVocabSize");
+        public int GetVocabSize() => (int)Reference.Invoke("getVocabSize");
         
         /// <summary>
         /// Check transform validity and derive the output schema from the input schema.
@@ -182,9 +179,9 @@ namespace Microsoft.Spark.ML.Feature
         /// </returns>
         public StructType TransformSchema(StructType value) => 
             new StructType(
-                (JvmObjectReference)_jvmObject.Invoke(
+                (JvmObjectReference)Reference.Invoke(
                     "transformSchema", 
-                    DataType.FromJson(_jvmObject.Jvm, value.Json)));
+                    DataType.FromJson(Reference.Jvm, value.Json)));
         
         /// <summary>
         /// Converts a DataFrame with a text document to a sparse vector of token counts.
@@ -192,7 +189,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="document"><see cref="DataFrame"/> to transform</param>
         /// <returns><see cref="DataFrame"/> containing the original data and the counts</returns>
         public DataFrame Transform(DataFrame document) => 
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", document));
+            new DataFrame((JvmObjectReference)Reference.Invoke("transform", document));
         
         private static CountVectorizerModel WrapAsCountVectorizerModel(object obj) => 
             new CountVectorizerModel((JvmObjectReference)obj);

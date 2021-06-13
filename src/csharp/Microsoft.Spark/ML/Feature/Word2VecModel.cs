@@ -8,7 +8,7 @@ using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class Word2VecModel : FeatureBase<Word2VecModel>, IJvmObjectReferenceProvider
+    public class Word2VecModel : FeatureBase<Word2VecModel>
     {
         private static readonly string s_word2VecModelClassName = 
             "org.apache.spark.ml.feature.Word2VecModel";
@@ -33,14 +33,12 @@ namespace Microsoft.Spark.ML.Feature
         {
         }
         
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
-
         /// <summary>
         /// Transform a sentence column to a vector column to represent the whole sentence.
         /// </summary>
         /// <param name="documentDF"><see cref="DataFrame"/> to transform</param>
         public DataFrame Transform(DataFrame documentDF) => 
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", documentDF));
+            new DataFrame((JvmObjectReference)Reference.Invoke("transform", documentDF));
         
         /// <summary>
         /// Find <paramref name="num"/> number of words whose vector representation most similar to
@@ -52,7 +50,7 @@ namespace Microsoft.Spark.ML.Feature
         /// vector representation.</param>
         /// <param name="num">The number of words to find that are similar to "word"</param>
         public DataFrame FindSynonyms(string word, int num) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("findSynonyms", word, num));
+            new DataFrame((JvmObjectReference)Reference.Invoke("findSynonyms", word, num));
         
         /// <summary>
         /// Loads the <see cref="Word2VecModel"/> that was previously saved using Save(string).
