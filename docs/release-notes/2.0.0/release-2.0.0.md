@@ -16,7 +16,7 @@ We have officially dropped support for Spark 2.3 in the 2.0.0 release. The last 
 
 ### Bug Fixes
 
-* Add 'Z' to the string format in Timestamp.ToString() to indicate UTC time ([#897](https://github.com/dotnet/spark/pull/897))
+* None
 
 ### Infrastructure / Documentation / Etc.
 
@@ -24,7 +24,7 @@ We have officially dropped support for Spark 2.3 in the 2.0.0 release. The last 
 
 ### Breaking Changes
 
-* None
+* Add 'Z' to the string format in Timestamp.ToString() to indicate UTC time ([#897](https://github.com/dotnet/spark/pull/897))
 
 ### Known Issues
 

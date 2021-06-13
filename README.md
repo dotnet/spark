@@ -38,10 +38,6 @@
     </thead>
     <tbody align="center">
         <tr>
-            <td >2.3</td>
-            <td rowspan=1><a href="https://github.com/dotnet/spark/releases/tag/v1.1.1">v1.1.1</a></td>
-        </tr>
-        <tr>
             <td>2.4*</td>
             <td rowspan=3><a href="https://github.com/dotnet/spark/releases/tag/v2.0.0">v2.0.0</a></td>
         </tr>
