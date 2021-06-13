@@ -15,8 +15,6 @@ namespace Microsoft.Spark.Sql.Expressions
     /// </summary>
     internal sealed class UserDefinedFunction : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal static UserDefinedFunction Create(
             string name,
             byte[] command,
@@ -46,10 +44,10 @@ namespace Microsoft.Spark.Sql.Expressions
 
         internal UserDefinedFunction(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         // Apply0 and Apply10 is defined so that a corresponding Func<> can
         // be constructed in Functions.Udf.
@@ -151,7 +149,7 @@ namespace Microsoft.Spark.Sql.Expressions
 
         internal Column Apply(params Column[] columns)
         {
-            return new Column((JvmObjectReference)_jvmObject.Invoke("apply", (object)columns));
+            return new Column((JvmObjectReference)Reference.Invoke("apply", (object)columns));
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Microsoft.Spark.Interop
     /// <summary>
     /// Contains everything needed to setup an environment for using .NET with Spark.
     /// </summary>
-    internal static class SparkEnvironment
+    public static class SparkEnvironment
     {
         private static readonly ILoggerService s_logger =
             LoggerServiceFactory.GetLogger(typeof(SparkEnvironment));
@@ -59,7 +59,14 @@ namespace Microsoft.Spark.Interop
         }
 
         private static IJvmBridge s_jvmBridge;
-        internal static IJvmBridge JvmBridge
+        /// <summary>
+        /// The bridge between the JVM and the CLR.
+        /// </summary>
+        /// <remarks>
+        /// This is exposed to help users interact with the JVM. It is provided with limited
+        /// support and should be used with caution.
+        /// </remarks>
+        public static IJvmBridge JvmBridge
         {
             get
             {

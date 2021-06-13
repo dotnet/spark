@@ -19,14 +19,12 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     public sealed class DataFrame : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal DataFrame(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Selects column based on the column name.
@@ -37,7 +35,7 @@ namespace Microsoft.Spark.Sql
         {
             get
             {
-                return WrapAsColumn(_jvmObject.Invoke("col", columnName));
+                return WrapAsColumn(Reference.Invoke("col", columnName));
             }
         }
 
@@ -45,7 +43,7 @@ namespace Microsoft.Spark.Sql
         /// Converts this strongly typed collection of data to generic `DataFrame`.
         /// </summary>
         /// <returns></returns>
-        public DataFrame ToDF() => WrapAsDataFrame(_jvmObject.Invoke("toDF"));
+        public DataFrame ToDF() => WrapAsDataFrame(Reference.Invoke("toDF"));
 
         /// <summary>
         /// Converts this strongly typed collection of data to generic `DataFrame`
@@ -54,21 +52,21 @@ namespace Microsoft.Spark.Sql
         /// <param name="colNames">Column names</param>
         /// <returns>DataFrame object</returns>
         public DataFrame ToDF(params string[] colNames) =>
-            WrapAsDataFrame(_jvmObject.Invoke("toDF", (object)colNames));
+            WrapAsDataFrame(Reference.Invoke("toDF", (object)colNames));
 
         /// <summary>
         /// Returns the schema associated with this `DataFrame`.
         /// </summary>
         /// <returns>Schema associated with this data frame</returns>
         public StructType Schema() =>
-            new StructType((JvmObjectReference)_jvmObject.Invoke("schema"));
+            new StructType((JvmObjectReference)Reference.Invoke("schema"));
 
         /// <summary>
         /// Prints the schema to the console in a nice tree format.
         /// </summary>
         public void PrintSchema() =>
             Console.WriteLine(
-                (string)((JvmObjectReference)_jvmObject.Invoke("schema")).Invoke("treeString"));
+                (string)((JvmObjectReference)Reference.Invoke("schema")).Invoke("treeString"));
 
         /// <summary>
         /// Prints the schema up to the given level to the console in a nice tree format.
@@ -76,7 +74,7 @@ namespace Microsoft.Spark.Sql
         [Since(Versions.V3_0_0)]
         public void PrintSchema(int level)
         {
-            var schema = (JvmObjectReference)_jvmObject.Invoke("schema");
+            var schema = (JvmObjectReference)Reference.Invoke("schema");
             Console.WriteLine((string)schema.Invoke("treeString", level));
         }
 
@@ -86,7 +84,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="extended">prints only physical if set to false</param>
         public void Explain(bool extended = false)
         {
-            var execution = (JvmObjectReference)_jvmObject.Invoke("queryExecution");
+            var execution = (JvmObjectReference)Reference.Invoke("queryExecution");
             Console.WriteLine((string)execution.Invoke(extended ? "toString" : "simpleString"));
         }
 
@@ -106,8 +104,8 @@ namespace Microsoft.Spark.Sql
         [Since(Versions.V3_0_0)]
         public void Explain(string mode)
         {
-            var execution = (JvmObjectReference)_jvmObject.Invoke("queryExecution");
-            var explainMode = (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
+            var execution = (JvmObjectReference)Reference.Invoke("queryExecution");
+            var explainMode = (JvmObjectReference)Reference.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.execution.ExplainMode",
                 "fromString",
                 mode);
@@ -134,21 +132,21 @@ namespace Microsoft.Spark.Sql
         /// Spark executors.
         /// </summary>
         /// <returns>True if Collect() and Take() can be run locally</returns>
-        public bool IsLocal() => (bool)_jvmObject.Invoke("isLocal");
+        public bool IsLocal() => (bool)Reference.Invoke("isLocal");
 
         /// <summary>
         /// Returns true if this DataFrame is empty.
         /// </summary>
         /// <returns>True if empty</returns>
         [Since(Versions.V2_4_0)]
-        public bool IsEmpty() => (bool)_jvmObject.Invoke("isEmpty");
+        public bool IsEmpty() => (bool)Reference.Invoke("isEmpty");
 
         /// <summary>
         /// Returns true if this `DataFrame` contains one or more sources that continuously
         /// return data as it arrives.
         /// </summary>
         /// <returns>True if streaming DataFrame</returns>
-        public bool IsStreaming() => (bool)_jvmObject.Invoke("isStreaming");
+        public bool IsStreaming() => (bool)Reference.Invoke("isStreaming");
 
         /// <summary>
         /// Returns a checkpointed version of this `DataFrame`.
@@ -162,7 +160,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="eager">Whether to checkpoint this `DataFrame` immediately</param>
         /// <returns>Checkpointed DataFrame</returns>
         public DataFrame Checkpoint(bool eager = true) =>
-            WrapAsDataFrame(_jvmObject.Invoke("checkpoint", eager));
+            WrapAsDataFrame(Reference.Invoke("checkpoint", eager));
 
         /// <summary>
         /// Returns a locally checkpointed version of this `DataFrame`.
@@ -176,7 +174,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="eager">Whether to checkpoint this `DataFrame` immediately</param>
         /// <returns>DataFrame object</returns>
         public DataFrame LocalCheckpoint(bool eager = true) =>
-            WrapAsDataFrame(_jvmObject.Invoke("localCheckpoint", eager));
+            WrapAsDataFrame(Reference.Invoke("localCheckpoint", eager));
 
         /// <summary>
         /// Defines an event time watermark for this DataFrame. A watermark tracks a point in time
@@ -191,7 +189,7 @@ namespace Microsoft.Spark.Sql
         /// </param>
         /// <returns>DataFrame object</returns>
         public DataFrame WithWatermark(string eventTime, string delayThreshold) =>
-            WrapAsDataFrame(_jvmObject.Invoke("withWatermark", eventTime, delayThreshold));
+            WrapAsDataFrame(Reference.Invoke("withWatermark", eventTime, delayThreshold));
 
         /// <summary>
         /// Displays rows of the `DataFrame` in tabular form.
@@ -202,28 +200,28 @@ namespace Microsoft.Spark.Sql
         /// <param name="vertical">If set to true, prints output rows vertically
         ///                        (one line per column value).</param>
         public void Show(int numRows = 20, int truncate = 20, bool vertical = false) =>
-            Console.WriteLine(_jvmObject.Invoke("showString", numRows, truncate, vertical));
+            Console.WriteLine(Reference.Invoke("showString", numRows, truncate, vertical));
 
         /// <summary>
         /// Returns a `DataFrameNaFunctions` for working with missing data.
         /// </summary>
         /// <returns>DataFrameNaFunctions object</returns>
         public DataFrameNaFunctions Na() =>
-            new DataFrameNaFunctions((JvmObjectReference)_jvmObject.Invoke("na"));
+            new DataFrameNaFunctions((JvmObjectReference)Reference.Invoke("na"));
 
         /// <summary>
         ///Returns a `DataFrameStatFunctions` for working statistic functions support.
         /// </summary>
         /// <returns>DataFrameNaFunctions object</returns>
         public DataFrameStatFunctions Stat() =>
-            new DataFrameStatFunctions((JvmObjectReference)_jvmObject.Invoke("stat"));
+            new DataFrameStatFunctions((JvmObjectReference)Reference.Invoke("stat"));
 
         /// <summary>
         /// Returns the content of the DataFrame as a DataFrame of JSON strings.
         /// </summary>
         /// <returns>DataFrame object with JSON strings.</returns>
         public DataFrame ToJSON() =>
-            WrapAsDataFrame(_jvmObject.Invoke("toJSON"));
+            WrapAsDataFrame(Reference.Invoke("toJSON"));
 
         /// <summary>
         /// Join with another `DataFrame`.
@@ -234,7 +232,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="right">Right side of the join operator</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Join(DataFrame right) =>
-            WrapAsDataFrame(_jvmObject.Invoke("join", right));
+            WrapAsDataFrame(Reference.Invoke("join", right));
 
         /// <summary>
         /// Inner equi-join with another `DataFrame` using the given column.
@@ -245,7 +243,7 @@ namespace Microsoft.Spark.Sql
         /// </param>
         /// <returns>DataFrame object</returns>
         public DataFrame Join(DataFrame right, string usingColumn) =>
-            WrapAsDataFrame(_jvmObject.Invoke("join", right, usingColumn));
+            WrapAsDataFrame(Reference.Invoke("join", right, usingColumn));
 
         /// <summary>
         /// Equi-join with another `DataFrame` using the given columns. A cross join with
@@ -262,7 +260,7 @@ namespace Microsoft.Spark.Sql
             DataFrame right,
             IEnumerable<string> usingColumns,
             string joinType = "inner") =>
-            WrapAsDataFrame(_jvmObject.Invoke("join", right, usingColumns, joinType));
+            WrapAsDataFrame(Reference.Invoke("join", right, usingColumns, joinType));
 
         /// <summary>
         /// Join with another `DataFrame`, using the given join expression.
@@ -274,7 +272,7 @@ namespace Microsoft.Spark.Sql
         /// `right_outer`, `left_semi`, `left_anti`.</param>
         /// <returns></returns>
         public DataFrame Join(DataFrame right, Column joinExpr, string joinType = "inner") =>
-            WrapAsDataFrame(_jvmObject.Invoke("join", right, joinExpr, joinType));
+            WrapAsDataFrame(Reference.Invoke("join", right, joinExpr, joinType));
 
         /// <summary>
         /// Explicit Cartesian join with another `DataFrame`.
@@ -285,7 +283,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="right">Right side of the join operator</param>
         /// <returns>DataFrame object</returns>
         public DataFrame CrossJoin(DataFrame right) =>
-            WrapAsDataFrame(_jvmObject.Invoke("crossJoin", right));
+            WrapAsDataFrame(Reference.Invoke("crossJoin", right));
 
         /// <summary>
         /// Returns a new `DataFrame` with each partition sorted by the given expressions.
@@ -297,7 +295,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columns">Additional column names to sort by</param>
         /// <returns>DataFrame object</returns>
         public DataFrame SortWithinPartitions(string column, params string[] columns) =>
-            WrapAsDataFrame(_jvmObject.Invoke("sortWithinPartitions", column, columns));
+            WrapAsDataFrame(Reference.Invoke("sortWithinPartitions", column, columns));
 
         /// <summary>
         /// Returns a new `DataFrame` with each partition sorted by the given expressions.
@@ -308,7 +306,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columns">Column expressions to sort by</param>
         /// <returns>DataFrame object</returns>
         public DataFrame SortWithinPartitions(params Column[] columns) =>
-            WrapAsDataFrame(_jvmObject.Invoke("sortWithinPartitions", (object)columns));
+            WrapAsDataFrame(Reference.Invoke("sortWithinPartitions", (object)columns));
 
         /// <summary>
         /// Returns a new `DataFrame` sorted by the specified column, all in ascending order.
@@ -317,7 +315,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columns">Additional column names to sort by</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Sort(string column, params string[] columns) =>
-            WrapAsDataFrame(_jvmObject.Invoke("sort", column, columns));
+            WrapAsDataFrame(Reference.Invoke("sort", column, columns));
 
         /// <summary>
         /// Returns a new `DataFrame` sorted by the given expressions.
@@ -325,7 +323,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columns">Column expressions to sort by</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Sort(params Column[] columns) =>
-            WrapAsDataFrame(_jvmObject.Invoke("sort", (object)columns));
+            WrapAsDataFrame(Reference.Invoke("sort", (object)columns));
 
         /// <summary>
         /// Returns a new Dataset sorted by the given expressions.
@@ -337,7 +335,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columns">Additional column names to sort by</param>
         /// <returns></returns>
         public DataFrame OrderBy(string column, params string[] columns) =>
-            WrapAsDataFrame(_jvmObject.Invoke("orderBy", column, columns));
+            WrapAsDataFrame(Reference.Invoke("orderBy", column, columns));
 
         /// <summary>
         /// Returns a new Dataset sorted by the given expressions.
@@ -348,7 +346,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columns">Column expressions to sort by</param>
         /// <returns>DataFrame object</returns>
         public DataFrame OrderBy(params Column[] columns) =>
-            WrapAsDataFrame(_jvmObject.Invoke("orderBy", (object)columns));
+            WrapAsDataFrame(Reference.Invoke("orderBy", (object)columns));
 
         /// <summary>
         /// Specifies some hint on the current `DataFrame`.
@@ -365,8 +363,8 @@ namespace Microsoft.Spark.Sql
             // If parameters are empty, create an empty int array so
             // that the type conversion between CLR and JVM works.
             return ((parameters == null) || (parameters.Length == 0)) ?
-                WrapAsDataFrame(_jvmObject.Invoke("hint", name, new int[] { })) :
-                WrapAsDataFrame(_jvmObject.Invoke("hint", name, parameters));
+                WrapAsDataFrame(Reference.Invoke("hint", name, new int[] { })) :
+                WrapAsDataFrame(Reference.Invoke("hint", name, parameters));
         }
 
         /// <summary>
@@ -374,7 +372,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="colName">Column name</param>
         /// <returns>Column object</returns>
-        public Column Col(string colName) => WrapAsColumn(_jvmObject.Invoke("col", colName));
+        public Column Col(string colName) => WrapAsColumn(Reference.Invoke("col", colName));
 
         /// <summary>
         /// Selects column based on the column name specified as a regex.
@@ -382,21 +380,21 @@ namespace Microsoft.Spark.Sql
         /// <param name="colName">Column name as a regex</param>
         /// <returns>Column object</returns>
         public Column ColRegex(string colName) =>
-            WrapAsColumn(_jvmObject.Invoke("colRegex", colName));
+            WrapAsColumn(Reference.Invoke("colRegex", colName));
 
         /// <summary>
         /// Returns a new `DataFrame` with an alias set.
         /// </summary>
         /// <param name="alias">Alias name</param>
         /// <returns>Column object</returns>
-        public DataFrame As(string alias) => WrapAsDataFrame(_jvmObject.Invoke("as", alias));
+        public DataFrame As(string alias) => WrapAsDataFrame(Reference.Invoke("as", alias));
 
         /// <summary>
         /// Returns a new `DataFrame` with an alias set. Same as As().
         /// </summary>
         /// <param name="alias">Alias name</param>
         /// <returns>Column object</returns>
-        public DataFrame Alias(string alias) => WrapAsDataFrame(_jvmObject.Invoke("alias", alias));
+        public DataFrame Alias(string alias) => WrapAsDataFrame(Reference.Invoke("alias", alias));
 
         /// <summary>
         /// Selects a set of column based expressions.
@@ -404,7 +402,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columns">Column expressions</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Select(params Column[] columns) =>
-            WrapAsDataFrame(_jvmObject.Invoke("select", (object)columns));
+            WrapAsDataFrame(Reference.Invoke("select", (object)columns));
 
         /// <summary>
         /// Selects a set of columns. This is a variant of Select() that can only select
@@ -414,7 +412,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columns">Additional column names</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Select(string column, params string[] columns) =>
-            WrapAsDataFrame(_jvmObject.Invoke("select", column, columns));
+            WrapAsDataFrame(Reference.Invoke("select", column, columns));
 
         /// <summary>
         /// Selects a set of SQL expressions. This is a variant of Select() that
@@ -423,7 +421,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="expressions"></param>
         /// <returns>DataFrame object</returns>
         public DataFrame SelectExpr(params string[] expressions) =>
-            WrapAsDataFrame(_jvmObject.Invoke("selectExpr", (object)expressions));
+            WrapAsDataFrame(Reference.Invoke("selectExpr", (object)expressions));
 
         /// <summary>
         /// Filters rows using the given condition.
@@ -431,7 +429,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="condition">Condition expression</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Filter(Column condition) =>
-            WrapAsDataFrame(_jvmObject.Invoke("filter", condition));
+            WrapAsDataFrame(Reference.Invoke("filter", condition));
 
         /// <summary>
         /// Filters rows using the given SQL expression.
@@ -439,7 +437,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="conditionExpr">SQL expression</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Filter(string conditionExpr) =>
-            WrapAsDataFrame(_jvmObject.Invoke("filter", conditionExpr));
+            WrapAsDataFrame(Reference.Invoke("filter", conditionExpr));
 
         /// <summary>
         /// Filters rows using the given condition. This is an alias for Filter().
@@ -447,7 +445,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="condition">Condition expression</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Where(Column condition) =>
-            WrapAsDataFrame(_jvmObject.Invoke("where", condition));
+            WrapAsDataFrame(Reference.Invoke("where", condition));
 
         /// <summary>
         /// Filters rows using the given SQL expression. This is an alias for Filter().
@@ -455,7 +453,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="conditionExpr">SQL expression</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Where(string conditionExpr) =>
-            WrapAsDataFrame(_jvmObject.Invoke("where", conditionExpr));
+            WrapAsDataFrame(Reference.Invoke("where", conditionExpr));
 
         /// <summary>
         /// Groups the DataFrame using the specified columns, so we can run aggregation on them.
@@ -463,7 +461,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columns">Column expressions</param>
         /// <returns>RelationalGroupedDataset object</returns>
         public RelationalGroupedDataset GroupBy(params Column[] columns) =>
-            WrapAsGroupedDataset(_jvmObject.Invoke("groupBy", (object)columns));
+            WrapAsGroupedDataset(Reference.Invoke("groupBy", (object)columns));
 
         /// <summary>
         /// Groups the DataFrame using the specified columns.
@@ -472,7 +470,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columns">Additional column names</param>
         /// <returns>RelationalGroupedDataset object</returns>
         public RelationalGroupedDataset GroupBy(string column, params string[] columns) =>
-            WrapAsGroupedDataset(_jvmObject.Invoke("groupBy", column, columns));
+            WrapAsGroupedDataset(Reference.Invoke("groupBy", column, columns));
 
         /// <summary>
         /// Create a multi-dimensional rollup for the current `DataFrame` using the
@@ -481,7 +479,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columns">Column expressions</param>
         /// <returns>RelationalGroupedDataset object</returns>
         public RelationalGroupedDataset Rollup(params Column[] columns) =>
-            WrapAsGroupedDataset(_jvmObject.Invoke("rollup", (object)columns));
+            WrapAsGroupedDataset(Reference.Invoke("rollup", (object)columns));
 
         /// <summary>
         /// Create a multi-dimensional rollup for the current `DataFrame` using the
@@ -491,7 +489,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columns">Additional column names</param>
         /// <returns>RelationalGroupedDataset object</returns>
         public RelationalGroupedDataset Rollup(string column, params string[] columns) =>
-            WrapAsGroupedDataset(_jvmObject.Invoke("rollup", column, columns));
+            WrapAsGroupedDataset(Reference.Invoke("rollup", column, columns));
 
         /// <summary>
         /// Create a multi-dimensional cube for the current `DataFrame` using the
@@ -500,7 +498,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columns">Column expressions</param>
         /// <returns>RelationalGroupedDataset object</returns>
         public RelationalGroupedDataset Cube(params Column[] columns) =>
-            WrapAsGroupedDataset(_jvmObject.Invoke("cube", (object)columns));
+            WrapAsGroupedDataset(Reference.Invoke("cube", (object)columns));
 
         /// <summary>
         /// Create a multi-dimensional cube for the current `DataFrame` using the
@@ -510,7 +508,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columns">Additional column names</param>
         /// <returns>RelationalGroupedDataset object</returns>
         public RelationalGroupedDataset Cube(string column, params string[] columns) =>
-            WrapAsGroupedDataset(_jvmObject.Invoke("cube", column, columns));
+            WrapAsGroupedDataset(Reference.Invoke("cube", column, columns));
 
         /// <summary>
         /// Aggregates on the entire `DataFrame` without groups.
@@ -519,7 +517,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="exprs">Additional column expressions</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Agg(Column expr, params Column[] exprs) =>
-            WrapAsDataFrame(_jvmObject.Invoke("agg", expr, exprs));
+            WrapAsDataFrame(Reference.Invoke("agg", expr, exprs));
 
         /// <summary>
         /// Define (named) metrics to observe on the Dataset. This method returns an 'observed'
@@ -540,7 +538,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>DataFrame object</returns>
         [Since(Versions.V3_0_0)]
         public DataFrame Observe(string name, Column expr, params Column[] exprs) =>
-            WrapAsDataFrame(_jvmObject.Invoke("observe", name, expr, exprs));
+            WrapAsDataFrame(Reference.Invoke("observe", name, expr, exprs));
 
         /// <summary>
         /// Create a write configuration builder for v2 sources.
@@ -549,14 +547,14 @@ namespace Microsoft.Spark.Sql
         /// <returns>DataFrameWriterV2 object</returns>
         [Since(Versions.V3_0_0)]
         public DataFrameWriterV2 WriteTo(string table) =>
-            new DataFrameWriterV2((JvmObjectReference)_jvmObject.Invoke("writeTo", table));
+            new DataFrameWriterV2((JvmObjectReference)Reference.Invoke("writeTo", table));
 
         /// <summary>
         /// Returns a new `DataFrame` by taking the first `number` rows.
         /// </summary>
         /// <param name="n">Number of rows to take</param>
         /// <returns>DataFrame object</returns>
-        public DataFrame Limit(int n) => WrapAsDataFrame(_jvmObject.Invoke("limit", n));
+        public DataFrame Limit(int n) => WrapAsDataFrame(Reference.Invoke("limit", n));
 
         /// <summary>
         /// Returns a new `DataFrame` containing union of rows in this `DataFrame`
@@ -565,7 +563,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="other">Other DataFrame</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Union(DataFrame other) =>
-            WrapAsDataFrame(_jvmObject.Invoke("union", other));
+            WrapAsDataFrame(Reference.Invoke("union", other));
 
         /// <summary>
         /// Returns a new `DataFrame` containing union of rows in this `DataFrame`
@@ -574,7 +572,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="other">Other DataFrame</param>
         /// <returns>DataFrame object</returns>
         public DataFrame UnionByName(DataFrame other) =>
-            WrapAsDataFrame(_jvmObject.Invoke("unionByName", other));
+            WrapAsDataFrame(Reference.Invoke("unionByName", other));
 
         /// <summary>
         /// Returns a new <see cref="DataFrame"/> containing union of rows in this
@@ -586,7 +584,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>DataFrame object</returns>
         [Since(Versions.V3_1_0)]
         public DataFrame UnionByName(DataFrame other, bool allowMissingColumns) =>
-            WrapAsDataFrame(_jvmObject.Invoke("unionByName", other, allowMissingColumns));
+            WrapAsDataFrame(Reference.Invoke("unionByName", other, allowMissingColumns));
 
         /// <summary>
         /// Returns a new `DataFrame` containing rows only in both this `DataFrame`
@@ -598,7 +596,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="other">Other DataFrame</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Intersect(DataFrame other) =>
-            WrapAsDataFrame(_jvmObject.Invoke("intersect", other));
+            WrapAsDataFrame(Reference.Invoke("intersect", other));
 
         /// <summary>
         /// Returns a new `DataFrame` containing rows only in both this `DataFrame`
@@ -611,7 +609,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>DataFrame object</returns>
         [Since(Versions.V2_4_0)]
         public DataFrame IntersectAll(DataFrame other) =>
-            WrapAsDataFrame(_jvmObject.Invoke("intersectAll", other));
+            WrapAsDataFrame(Reference.Invoke("intersectAll", other));
 
         /// <summary>
         /// Returns a new `DataFrame` containing rows in this `DataFrame` but
@@ -623,7 +621,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="other">Other DataFrame</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Except(DataFrame other) =>
-            WrapAsDataFrame(_jvmObject.Invoke("except", other));
+            WrapAsDataFrame(Reference.Invoke("except", other));
 
         /// <summary>
         /// Returns a new `DataFrame` containing rows in this `DataFrame` but
@@ -636,7 +634,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>DataFrame object</returns>
         [Since(Versions.V2_4_0)]
         public DataFrame ExceptAll(DataFrame other) =>
-            WrapAsDataFrame(_jvmObject.Invoke("exceptAll", other));
+            WrapAsDataFrame(Reference.Invoke("exceptAll", other));
 
         /// <summary>
         /// Returns a new `DataFrame` by sampling a fraction of rows (without replacement),
@@ -652,8 +650,8 @@ namespace Microsoft.Spark.Sql
             long? seed = null) =>
             WrapAsDataFrame(
                 seed.HasValue ?
-                _jvmObject.Invoke("sample", withReplacement, fraction, seed.GetValueOrDefault()) :
-                _jvmObject.Invoke("sample", withReplacement, fraction));
+                Reference.Invoke("sample", withReplacement, fraction, seed.GetValueOrDefault()) :
+                Reference.Invoke("sample", withReplacement, fraction));
 
         /// <summary>
         /// Randomly splits this `DataFrame` with the provided weights.
@@ -664,8 +662,8 @@ namespace Microsoft.Spark.Sql
         public DataFrame[] RandomSplit(double[] weights, long? seed = null)
         {
             var dataFrames = (JvmObjectReference[])(seed.HasValue ?
-                _jvmObject.Invoke("randomSplit", weights, seed.GetValueOrDefault()) :
-                _jvmObject.Invoke("randomSplit", weights));
+                Reference.Invoke("randomSplit", weights, seed.GetValueOrDefault()) :
+                Reference.Invoke("randomSplit", weights));
 
             return dataFrames.Select(jvmObject => new DataFrame(jvmObject)).ToArray();
         }
@@ -678,7 +676,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="col">Column expression for the new column</param>
         /// <returns>DataFrame object</returns>
         public DataFrame WithColumn(string colName, Column col) =>
-            WrapAsDataFrame(_jvmObject.Invoke("withColumn", colName, col));
+            WrapAsDataFrame(Reference.Invoke("withColumn", colName, col));
 
         /// <summary>
         /// Returns a new Dataset with a column renamed.
@@ -688,7 +686,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="newName">New column name to replace with</param>
         /// <returns>DataFrame object</returns>
         public DataFrame WithColumnRenamed(string existingName, string newName) =>
-            WrapAsDataFrame(_jvmObject.Invoke("withColumnRenamed", existingName, newName));
+            WrapAsDataFrame(Reference.Invoke("withColumnRenamed", existingName, newName));
 
         /// <summary>
         /// Returns a new `DataFrame` with columns dropped.
@@ -697,7 +695,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="colNames">Name of columns to drop</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Drop(params string[] colNames) =>
-            WrapAsDataFrame(_jvmObject.Invoke("drop", (object)colNames));
+            WrapAsDataFrame(Reference.Invoke("drop", (object)colNames));
 
         /// <summary>
         /// Returns a new `DataFrame` with a column dropped.
@@ -705,14 +703,14 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="col">Column expression</param>
         /// <returns>DataFrame object</returns>
-        public DataFrame Drop(Column col) => WrapAsDataFrame(_jvmObject.Invoke("drop", col));
+        public DataFrame Drop(Column col) => WrapAsDataFrame(Reference.Invoke("drop", col));
 
         /// <summary>
         /// Returns a new `DataFrame` that contains only the unique rows from this `DataFrame`.
         /// This is an alias for Distinct().
         /// </summary>
         /// <returns></returns>
-        public DataFrame DropDuplicates() => WrapAsDataFrame(_jvmObject.Invoke("dropDuplicates"));
+        public DataFrame DropDuplicates() => WrapAsDataFrame(Reference.Invoke("dropDuplicates"));
 
         /// <summary>
         /// Returns a new `DataFrame` with duplicate rows removed, considering only
@@ -722,7 +720,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="cols">Additional column names</param>
         /// <returns>DataFrame object</returns>
         public DataFrame DropDuplicates(string col, params string[] cols) =>
-            WrapAsDataFrame(_jvmObject.Invoke("dropDuplicates", col, cols));
+            WrapAsDataFrame(Reference.Invoke("dropDuplicates", col, cols));
 
         /// <summary>
         /// Computes basic statistics for numeric and string columns, including count, mean,
@@ -737,7 +735,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="cols">Column names</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Describe(params string[] cols) =>
-            WrapAsDataFrame(_jvmObject.Invoke("describe", (object)cols));
+            WrapAsDataFrame(Reference.Invoke("describe", (object)cols));
 
         /// <summary>
         /// Computes specified statistics for numeric and string columns.
@@ -757,7 +755,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="statistics">Statistics to compute</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Summary(params string[] statistics) =>
-            WrapAsDataFrame(_jvmObject.Invoke("summary", (object)statistics));
+            WrapAsDataFrame(Reference.Invoke("summary", (object)statistics));
 
         /// <summary>
         /// Returns the first `n` rows.
@@ -848,7 +846,7 @@ namespace Microsoft.Spark.Sql
         {
             (int port, string secret, JvmObjectReference server) =
                 ParseConnectionInfo(
-                    _jvmObject.Invoke("toPythonIterator", prefetchPartitions),
+                    Reference.Invoke("toPythonIterator", prefetchPartitions),
                     true);
             using ISocketWrapper socket = SocketFactory.CreateSocket();
             socket.Connect(IPAddress.Loopback, port, secret);
@@ -862,7 +860,7 @@ namespace Microsoft.Spark.Sql
         /// Returns the number of rows in the `DataFrame`.
         /// </summary>
         /// <returns></returns>
-        public long Count() => (long)_jvmObject.Invoke("count");
+        public long Count() => (long)Reference.Invoke("count");
 
         /// <summary>
         /// Returns a new `DataFrame` that has exactly `numPartitions` partitions.
@@ -870,7 +868,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="numPartitions">Number of partitions</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Repartition(int numPartitions) =>
-            WrapAsDataFrame(_jvmObject.Invoke("repartition", numPartitions));
+            WrapAsDataFrame(Reference.Invoke("repartition", numPartitions));
 
         /// <summary>
         /// Returns a new `DataFrame` partitioned by the given partitioning expressions into
@@ -880,7 +878,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="partitionExprs">Partitioning expressions</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Repartition(int numPartitions, params Column[] partitionExprs) =>
-            WrapAsDataFrame(_jvmObject.Invoke("repartition", numPartitions, partitionExprs));
+            WrapAsDataFrame(Reference.Invoke("repartition", numPartitions, partitionExprs));
 
         /// <summary>
         /// Returns a new `DataFrame` partitioned by the given partitioning expressions, using
@@ -889,7 +887,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="partitionExprs">Partitioning expressions</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Repartition(params Column[] partitionExprs) =>
-            WrapAsDataFrame(_jvmObject.Invoke("repartition", (object)partitionExprs));
+            WrapAsDataFrame(Reference.Invoke("repartition", (object)partitionExprs));
 
         /// <summary>
         /// Returns a new `DataFrame` partitioned by the given partitioning expressions into
@@ -906,7 +904,7 @@ namespace Microsoft.Spark.Sql
             }
 
             return WrapAsDataFrame(
-                _jvmObject.Invoke("repartitionByRange", numPartitions, partitionExprs));
+                Reference.Invoke("repartitionByRange", numPartitions, partitionExprs));
         }
 
         /// <summary>
@@ -917,7 +915,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="partitionExprs">Partitioning expressions</param>
         /// <returns>DataFrame object</returns>
         public DataFrame RepartitionByRange(params Column[] partitionExprs) =>
-            WrapAsDataFrame(_jvmObject.Invoke("repartitionByRange", (object)partitionExprs));
+            WrapAsDataFrame(Reference.Invoke("repartitionByRange", (object)partitionExprs));
 
         /// <summary>
         /// Returns a new `DataFrame` that has exactly `numPartitions` partitions, when the
@@ -927,20 +925,20 @@ namespace Microsoft.Spark.Sql
         /// <param name="numPartitions">Number of partitions</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Coalesce(int numPartitions) =>
-            WrapAsDataFrame(_jvmObject.Invoke("coalesce", numPartitions));
+            WrapAsDataFrame(Reference.Invoke("coalesce", numPartitions));
 
         /// <summary>
         /// Returns a new Dataset that contains only the unique rows from this `DataFrame`.
         /// This is an alias for DropDuplicates().
         /// </summary>
         /// <returns>DataFrame object</returns>
-        public DataFrame Distinct() => WrapAsDataFrame(_jvmObject.Invoke("distinct"));
+        public DataFrame Distinct() => WrapAsDataFrame(Reference.Invoke("distinct"));
 
         /// <summary>
         /// Persist this <see cref="DataFrame"/> with the default storage level MEMORY_AND_DISK.
         /// </summary>
         /// <returns>DataFrame object</returns>
-        public DataFrame Persist() => WrapAsDataFrame(_jvmObject.Invoke("persist"));
+        public DataFrame Persist() => WrapAsDataFrame(Reference.Invoke("persist"));
 
         /// <summary>
         /// Persist this <see cref="DataFrame"/> with the given storage level.
@@ -950,20 +948,20 @@ namespace Microsoft.Spark.Sql
         /// </param>
         /// <returns>DataFrame object</returns>
         public DataFrame Persist(StorageLevel storageLevel) =>
-            WrapAsDataFrame(_jvmObject.Invoke("persist", storageLevel));
+            WrapAsDataFrame(Reference.Invoke("persist", storageLevel));
 
         /// <summary>
         /// Persist this <see cref="DataFrame"/> with the default storage level MEMORY_AND_DISK.
         /// </summary>
         /// <returns>DataFrame object</returns>
-        public DataFrame Cache() => WrapAsDataFrame(_jvmObject.Invoke("cache"));
+        public DataFrame Cache() => WrapAsDataFrame(Reference.Invoke("cache"));
 
         /// <summary>
         /// Get the <see cref="DataFrame"/>'s current <see cref="StorageLevel"/>.
         /// </summary>
         /// <returns><see cref="StorageLevel"/> object</returns>
         public StorageLevel StorageLevel() =>
-            new StorageLevel((JvmObjectReference)_jvmObject.Invoke("storageLevel"));
+            new StorageLevel((JvmObjectReference)Reference.Invoke("storageLevel"));
 
         /// <summary>
         /// Mark the Dataset as non-persistent, and remove all blocks for it from memory and disk.
@@ -974,7 +972,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="blocking"></param>
         /// <returns></returns>
         public DataFrame Unpersist(bool blocking = false) =>
-            WrapAsDataFrame(_jvmObject.Invoke("unpersist", blocking));
+            WrapAsDataFrame(Reference.Invoke("unpersist", blocking));
 
         /// <summary>
         /// Creates a local temporary view using the given name. The lifetime of this
@@ -983,7 +981,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="viewName">Name of the view</param>
         public void CreateTempView(string viewName)
         {
-            _jvmObject.Invoke("createTempView", viewName);
+            Reference.Invoke("createTempView", viewName);
         }
 
         /// <summary>
@@ -993,7 +991,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="viewName">Name of the view</param>
         public void CreateOrReplaceTempView(string viewName)
         {
-            _jvmObject.Invoke("createOrReplaceTempView", viewName);
+            Reference.Invoke("createOrReplaceTempView", viewName);
         }
 
         /// <summary>
@@ -1003,7 +1001,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="viewName">Name of the view</param>
         public void CreateGlobalTempView(string viewName)
         {
-            _jvmObject.Invoke("createGlobalTempView", viewName);
+            Reference.Invoke("createGlobalTempView", viewName);
         }
 
         /// <summary>
@@ -1013,7 +1011,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="viewName">Name of the view</param>
         public void CreateOrReplaceGlobalTempView(string viewName)
         {
-            _jvmObject.Invoke("createOrReplaceGlobalTempView", viewName);
+            Reference.Invoke("createOrReplaceGlobalTempView", viewName);
         }
 
         /// <summary>
@@ -1022,14 +1020,14 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <returns>DataFrameWriter object</returns>
         public DataFrameWriter Write() =>
-            new DataFrameWriter((JvmObjectReference)_jvmObject.Invoke("write"));
+            new DataFrameWriter((JvmObjectReference)Reference.Invoke("write"));
 
         /// <summary>
         /// Interface for saving the content of the streaming Dataset out into external storage.
         /// </summary>
         /// <returns>DataStreamWriter object</returns>
         public DataStreamWriter WriteStream() =>
-            new DataStreamWriter((JvmObjectReference)_jvmObject.Invoke("writeStream"), this);
+            new DataStreamWriter((JvmObjectReference)Reference.Invoke("writeStream"), this);
 
         /// <summary>
         /// Returns a best-effort snapshot of the files that compose this <see cref="DataFrame"/>.
@@ -1038,7 +1036,7 @@ namespace Microsoft.Spark.Sql
         /// files. Duplicates are removed.
         /// </summary>
         /// <returns>Files that compose this DataFrame</returns>
-        public IEnumerable<string> InputFiles() => (string[])_jvmObject.Invoke("inputFiles");
+        public IEnumerable<string> InputFiles() => (string[])Reference.Invoke("inputFiles");
 
         /// <summary>
         /// Returns `true` when the logical query plans inside both <see cref="DataFrame"/>s are
@@ -1059,7 +1057,7 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         [Since(Versions.V3_1_0)]
         public bool SameSemantics(DataFrame other) =>
-            (bool)_jvmObject.Invoke("sameSemantics", other);
+            (bool)Reference.Invoke("sameSemantics", other);
 
         /// <summary>
         /// Returns a hash code of the logical query plan against this <see cref="DataFrame"/>.
@@ -1071,7 +1069,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>Hash code of the logical query plan</returns>
         [Since(Versions.V3_1_0)]
         public int SemanticHash() =>
-            (int)_jvmObject.Invoke("semanticHash");
+            (int)Reference.Invoke("semanticHash");
 
         /// <summary>
         /// Returns row objects based on the function (either "toPythonIterator",
@@ -1100,7 +1098,7 @@ namespace Microsoft.Spark.Sql
             string funcName,
             params object[] args)
         {
-            object result = _jvmObject.Invoke(funcName, args);
+            object result = Reference.Invoke(funcName, args);
             Version version = SparkEnvironment.SparkVersion;
             return (version.Major, version.Minor) switch
             {

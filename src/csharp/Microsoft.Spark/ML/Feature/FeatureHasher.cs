@@ -11,7 +11,7 @@ using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class FeatureHasher: FeatureBase<FeatureHasher>, IJvmObjectReferenceProvider
+    public class FeatureHasher: FeatureBase<FeatureHasher>
     {
         private static readonly string s_featureHasherClassName = 
             "org.apache.spark.ml.feature.FeatureHasher";
@@ -35,8 +35,6 @@ namespace Microsoft.Spark.ML.Feature
         internal FeatureHasher(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
-
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
         
         /// <summary>
         /// Loads the <see cref="FeatureHasher"/> that was previously saved using Save.
@@ -57,7 +55,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <returns>List of categorical columns, set by SetCategoricalCols</returns>
         public IEnumerable<string> GetCategoricalCols() => 
-            (string[])_jvmObject.Invoke("getCategoricalCols");
+            (string[])Reference.Invoke("getCategoricalCols");
         
         /// <summary>
         /// Marks columns as categorical columns.
@@ -65,14 +63,14 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">List of column names to mark as categorical columns</param>
         /// <returns>New <see cref="FeatureHasher"/> object</returns>
         public FeatureHasher SetCategoricalCols(IEnumerable<string> value) => 
-            WrapAsFeatureHasher(_jvmObject.Invoke("setCategoricalCols", value));
+            WrapAsFeatureHasher(Reference.Invoke("setCategoricalCols", value));
         
         /// <summary>
         /// Gets the columns that the <see cref="FeatureHasher"/> should read from and convert into
         /// hashes. This would have been set by SetInputCol.
         /// </summary>
         /// <returns>List of the input columns, set by SetInputCols</returns>
-        public IEnumerable<string> GetInputCols() => (string[])_jvmObject.Invoke("getInputCols");
+        public IEnumerable<string> GetInputCols() => (string[])Reference.Invoke("getInputCols");
 
         /// <summary>
         /// Sets the columns that the <see cref="FeatureHasher"/> should read from and convert into
@@ -81,7 +79,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">The name of the column to as use the source of the hash</param>
         /// <returns>New <see cref="FeatureHasher"/> object</returns>
         public FeatureHasher SetInputCols(IEnumerable<string> value) => 
-            WrapAsFeatureHasher(_jvmObject.Invoke("setInputCols", value));
+            WrapAsFeatureHasher(Reference.Invoke("setInputCols", value));
         
         /// <summary>
         /// Gets the number of features that should be used. Since a simple modulo is used to
@@ -90,7 +88,7 @@ namespace Microsoft.Spark.ML.Feature
         /// columns.
         /// </summary>
         /// <returns>The number of features to be used</returns>
-        public int GetNumFeatures() => (int)_jvmObject.Invoke("getNumFeatures");
+        public int GetNumFeatures() => (int)Reference.Invoke("getNumFeatures");
 
         /// <summary>
         /// Sets the number of features that should be used. Since a simple modulo is used to
@@ -101,14 +99,14 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">int value of number of features</param>
         /// <returns>New <see cref="FeatureHasher"/> object</returns>
         public FeatureHasher SetNumFeatures(int value) => 
-            WrapAsFeatureHasher(_jvmObject.Invoke("setNumFeatures", value));
+            WrapAsFeatureHasher(Reference.Invoke("setNumFeatures", value));
         
         /// <summary>
         /// Gets the name of the column the output data will be written to. This is set by
         /// SetInputCol.
         /// </summary>
         /// <returns>string, the output column</returns>
-        public string GetOutputCol() => (string)_jvmObject.Invoke("getOutputCol");
+        public string GetOutputCol() => (string)Reference.Invoke("getOutputCol");
 
         /// <summary>
         /// Sets the name of the new column in the <see cref="DataFrame"/> created by Transform.
@@ -116,7 +114,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">The name of the new column which will contain the hash</param>
         /// <returns>New <see cref="FeatureHasher"/> object</returns>
         public FeatureHasher SetOutputCol(string value) => 
-            WrapAsFeatureHasher(_jvmObject.Invoke("setOutputCol", value));
+            WrapAsFeatureHasher(Reference.Invoke("setOutputCol", value));
         
         /// <summary>
         /// Transforms the input <see cref="DataFrame"/>. It is recommended that you validate that
@@ -125,7 +123,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="value">Input <see cref="DataFrame"/> to transform</param>
         /// <returns>Transformed <see cref="DataFrame"/></returns>
         public DataFrame Transform(DataFrame value) => 
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("transform", value));
+            new DataFrame((JvmObjectReference)Reference.Invoke("transform", value));
         
         /// <summary>
         /// Check transform validity and derive the output schema from the input schema.
@@ -145,9 +143,9 @@ namespace Microsoft.Spark.ML.Feature
         /// </returns>
         public StructType TransformSchema(StructType value) => 
             new StructType(
-                (JvmObjectReference)_jvmObject.Invoke(
+                (JvmObjectReference)Reference.Invoke(
                     "transformSchema", 
-                    DataType.FromJson(_jvmObject.Jvm, value.Json)));
+                    DataType.FromJson(Reference.Jvm, value.Json)));
 
         private static FeatureHasher WrapAsFeatureHasher(object obj) => 
             new FeatureHasher((JvmObjectReference)obj);

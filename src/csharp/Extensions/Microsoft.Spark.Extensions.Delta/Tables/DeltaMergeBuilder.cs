@@ -78,14 +78,12 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
     [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
     public class DeltaMergeBuilder : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal DeltaMergeBuilder(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Build the actions to perform when the merge condition was matched. This returns
@@ -96,7 +94,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeMatchedActionBuilder WhenMatched() =>
             new DeltaMergeMatchedActionBuilder(
-                (JvmObjectReference)_jvmObject.Invoke("whenMatched"));
+                (JvmObjectReference)Reference.Invoke("whenMatched"));
 
         /// <summary>
         /// Build the actions to perform when the merge condition was matched and the given
@@ -109,7 +107,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeMatchedActionBuilder WhenMatched(string condition) =>
             new DeltaMergeMatchedActionBuilder(
-                (JvmObjectReference)_jvmObject.Invoke("whenMatched", condition));
+                (JvmObjectReference)Reference.Invoke("whenMatched", condition));
 
         /// <summary>
         /// Build the actions to perform when the merge condition was matched and the given
@@ -122,7 +120,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeMatchedActionBuilder WhenMatched(Column condition) =>
             new DeltaMergeMatchedActionBuilder(
-                (JvmObjectReference)_jvmObject.Invoke("whenMatched", condition));
+                (JvmObjectReference)Reference.Invoke("whenMatched", condition));
 
         /// <summary>
         /// Build the action to perform when the merge condition was not matched. This returns 
@@ -133,7 +131,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeNotMatchedActionBuilder WhenNotMatched() =>
             new DeltaMergeNotMatchedActionBuilder(
-                (JvmObjectReference)_jvmObject.Invoke("whenNotMatched"));
+                (JvmObjectReference)Reference.Invoke("whenNotMatched"));
 
         /// <summary>
         /// Build the actions to perform when the merge condition was not matched and the given
@@ -145,7 +143,7 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeNotMatchedActionBuilder WhenNotMatched(string condition) =>
             new DeltaMergeNotMatchedActionBuilder(
-                (JvmObjectReference)_jvmObject.Invoke("whenNotMatched", condition));
+                (JvmObjectReference)Reference.Invoke("whenNotMatched", condition));
 
         /// <summary>
         /// Build the actions to perform when the merge condition was not matched and the given
@@ -157,12 +155,12 @@ namespace Microsoft.Spark.Extensions.Delta.Tables
         [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
         public DeltaMergeNotMatchedActionBuilder WhenNotMatched(Column condition) =>
             new DeltaMergeNotMatchedActionBuilder(
-                (JvmObjectReference)_jvmObject.Invoke("whenNotMatched", condition));
+                (JvmObjectReference)Reference.Invoke("whenNotMatched", condition));
 
         /// <summary>
         /// Execute the merge operation based on the built matched and not matched actions.
         /// </summary>
         [DeltaLakeSince(DeltaLakeVersions.V0_3_0)]
-        public void Execute() => _jvmObject.Invoke("execute");
+        public void Execute() => Reference.Invoke("execute");
     }
 }
