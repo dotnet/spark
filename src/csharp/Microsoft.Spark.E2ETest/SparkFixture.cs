@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
@@ -114,6 +115,35 @@ namespace Microsoft.Spark.E2ETest
             Jvm = Spark.Reference.Jvm;
         }
 
+        public string AddPackages(string args)
+        {
+            string packagesOption = "--packages ";
+            string[] splits = args.Split(packagesOption, 2);
+
+            StringBuilder newArgs = new StringBuilder(splits[0])
+                .Append(packagesOption)
+                .Append(GetAvroPackage());
+            if (splits.Length > 1)
+            {
+                newArgs.Append(",").Append(splits[1]);
+            }
+
+            return newArgs.ToString();
+        }
+
+        public string GetAvroPackage()
+        {
+            Version sparkVersion = SparkSettings.Version;
+            string avroVersion = sparkVersion.Major switch
+            {
+                2 => $"spark-avro_2.11:{sparkVersion}",
+                3 => $"spark-avro_2.12:{sparkVersion}",
+                _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
+            };
+
+            return $"org.apache.spark:{avroVersion}";
+        }
+
         public void Dispose()
         {
             Spark.Dispose();
@@ -175,7 +205,7 @@ namespace Microsoft.Spark.E2ETest
             string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
 
-            args = $"{logOption} {warehouseDir} {extraArgs} {classArg} --master local {jar} debug";
+            args = $"{logOption} {warehouseDir} {AddPackages(extraArgs)} {classArg} --master local {jar} debug";
         }
 
         private string GetJarPrefix()
