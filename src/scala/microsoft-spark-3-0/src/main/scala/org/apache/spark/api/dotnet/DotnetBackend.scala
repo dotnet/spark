@@ -77,6 +77,7 @@ class DotnetBackend extends Logging {
   }
 
   private[dotnet] def shutdownCallbackClient(): Unit = synchronized {
+    logInfo(s"Calling DotnetBackend.shutdownCallbackClient() ...")
     callbackClient match {
       case Some(client) => client.shutdown()
       case None => logInfo("Callback server has already been shutdown.")
@@ -89,6 +90,7 @@ class DotnetBackend extends Logging {
   }
 
   def close(): Unit = {
+    logInfo(s"Calling DotnetBackend.close() ...")
     if (channelFuture != null) {
       // close is a local operation and should finish within milliseconds; timeout just to be safe
       channelFuture.channel().close().awaitUninterruptibly(10, TimeUnit.SECONDS)
