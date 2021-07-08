@@ -9,7 +9,7 @@ namespace Microsoft.Spark.Services
     /// <summary>
     /// Used to get logger service instances for different types
     /// </summary>
-    internal class LoggerServiceFactory
+    public class LoggerServiceFactory
     {
         private static Lazy<ILoggerService> s_loggerService =
             new Lazy<ILoggerService>(() => GetDefaultLogger());
