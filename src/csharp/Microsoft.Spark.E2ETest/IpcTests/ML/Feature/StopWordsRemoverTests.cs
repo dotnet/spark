@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System.IO;
-using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
@@ -23,10 +22,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         }
 
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// </summary>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             string expectedUid = "theUidWithOutLocale";
             string expectedInputCol = "input_col";
@@ -62,16 +61,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.IsType<DataFrame>(stopWordsRemover.Transform(input));
 
             TestFeatureBase(stopWordsRemover, "inputCol", "input_col");
-        }
 
-        /// <summary>
-        /// Test signatures for APIs introduced in Spark 2.4.*.
-        /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
-        public void TestSignaturesV2_4_X()
-        {
             string expectedLocale = "en_GB";
-            StopWordsRemover stopWordsRemover = new StopWordsRemover().SetLocale(expectedLocale);
+            stopWordsRemover.SetLocale(expectedLocale);
             Assert.Equal(expectedLocale, stopWordsRemover.GetLocale());
         }
     }

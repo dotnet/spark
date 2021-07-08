@@ -19,8 +19,6 @@ namespace Microsoft.Spark
     /// </remarks>
     public sealed class SparkConf : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -36,7 +34,7 @@ namespace Microsoft.Spark
 
         internal SparkConf(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
 
             // Special handling for debug mode because spark.master and spark.app.name will not
             // be set in debug mode. Driver code may override these values if SetMaster or
@@ -51,7 +49,7 @@ namespace Microsoft.Spark
             }
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// The master URL to connect to, such as "local" to run locally with one thread,
@@ -61,7 +59,7 @@ namespace Microsoft.Spark
         /// <param name="master">Spark master</param>
         public SparkConf SetMaster(string master)
         {
-            _jvmObject.Invoke("setMaster", master);
+            Reference.Invoke("setMaster", master);
             return this;
         }
 
@@ -71,7 +69,7 @@ namespace Microsoft.Spark
         /// <param name="appName">Name of the app</param>
         public SparkConf SetAppName(string appName)
         {
-            _jvmObject.Invoke("setAppName", appName);
+            Reference.Invoke("setAppName", appName);
             return this;
         }
 
@@ -82,7 +80,7 @@ namespace Microsoft.Spark
         /// <returns></returns>
         public SparkConf SetSparkHome(string sparkHome)
         {
-            _jvmObject.Invoke("setSparkHome", sparkHome);
+            Reference.Invoke("setSparkHome", sparkHome);
             return this;
         }
 
@@ -93,7 +91,7 @@ namespace Microsoft.Spark
         /// <param name="value">Config value</param>
         public SparkConf Set(string key, string value)
         {
-            _jvmObject.Invoke("set", key, value);
+            Reference.Invoke("set", key, value);
             return this;
         }
 
@@ -104,7 +102,7 @@ namespace Microsoft.Spark
         /// <param name="defaultValue">Default value to use</param>
         public int GetInt(string key, int defaultValue)
         {
-            return (int)_jvmObject.Invoke("getInt", key, defaultValue);
+            return (int)Reference.Invoke("getInt", key, defaultValue);
         }
 
         /// <summary>
@@ -114,7 +112,7 @@ namespace Microsoft.Spark
         /// <param name="defaultValue">Default value to use</param>
         public string Get(string key, string defaultValue)
         {
-            return (string)_jvmObject.Invoke("get", key, defaultValue);
+            return (string)Reference.Invoke("get", key, defaultValue);
         }
 
         /// <summary>
@@ -122,7 +120,7 @@ namespace Microsoft.Spark
         /// </summary>
         public IReadOnlyList<KeyValuePair<string, string>> GetAll()
         {
-            var kvpStringCollection = (string)_jvmObject.Jvm.CallStaticJavaMethod(
+            var kvpStringCollection = (string)Reference.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.JvmBridgeUtils",
                 "getSparkConfAsString",
                 this);

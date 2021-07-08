@@ -24,7 +24,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {
             _loggerService = LoggerServiceFactory.GetLogger(typeof(JvmThreadPoolGCTests));
             _spark = fixture.Spark;
-            _jvmBridge = ((IJvmObjectReferenceProvider)_spark).Reference.Jvm;
+            _jvmBridge = _spark.Reference.Jvm;
         }
 
         /// <summary>

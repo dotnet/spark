@@ -20,15 +20,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// </summary>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             DataFrameReader dfr = _spark.Read();
 
             Assert.IsType<DataFrameReader>(dfr.Format("json"));
-            
+
             Assert.IsType<DataFrameReader>(
                 dfr.Schema(
                     new StructType(new[]

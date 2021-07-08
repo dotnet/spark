@@ -16,7 +16,6 @@ namespace Microsoft.Spark.Extensions.Hyperspace.Index
     public sealed class IndexConfig : IJvmObjectReferenceProvider
     {
         private static readonly string s_className = "com.microsoft.hyperspace.index.IndexConfig";
-        private readonly JvmObjectReference _jvmObject;
 
         /// <summary>
         /// <see cref="IndexConfig"/> specifies the configuration of an index.
@@ -45,7 +44,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.Index
             IndexedColumns = new List<string>(indexedColumns);
             IncludedColumns = new List<string>(includedColumns);
 
-            _jvmObject = (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+            Reference = (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 s_className,
                 "apply",
                 IndexName,
@@ -59,15 +58,15 @@ namespace Microsoft.Spark.Extensions.Hyperspace.Index
         /// <param name="jvmObject">JVM object reference.</param>
         internal IndexConfig(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
-            IndexName = (string)_jvmObject.Invoke("indexName");
+            Reference = jvmObject;
+            IndexName = (string)Reference.Invoke("indexName");
             IndexedColumns = new List<string>(
-                new Seq<string>((JvmObjectReference)_jvmObject.Invoke("indexedColumns")));
+                new Seq<string>((JvmObjectReference)Reference.Invoke("indexedColumns")));
             IncludedColumns = new List<string>(
-                new Seq<string>((JvmObjectReference)_jvmObject.Invoke("includedColumns")));
+                new Seq<string>((JvmObjectReference)Reference.Invoke("includedColumns")));
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         [HyperspaceSince(HyperspaceVersions.V0_0_1)]
         public string IndexName { get; private set; }
@@ -91,12 +90,12 @@ namespace Microsoft.Spark.Extensions.Hyperspace.Index
                     "builder"));
 
         [HyperspaceSince(HyperspaceVersions.V0_0_1)]
-        public override bool Equals(object that) => (bool)_jvmObject.Invoke("equals", that);
+        public override bool Equals(object that) => (bool)Reference.Invoke("equals", that);
 
         [HyperspaceSince(HyperspaceVersions.V0_0_1)]
-        public override int GetHashCode() => (int)_jvmObject.Invoke("hashCode");
+        public override int GetHashCode() => (int)Reference.Invoke("hashCode");
 
         [HyperspaceSince(HyperspaceVersions.V0_0_1)]
-        public override string ToString() => (string)_jvmObject.Invoke("toString");
+        public override string ToString() => (string)Reference.Invoke("toString");
     }
 }

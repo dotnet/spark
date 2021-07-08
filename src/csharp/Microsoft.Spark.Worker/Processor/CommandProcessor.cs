@@ -97,9 +97,8 @@ namespace Microsoft.Spark.Worker.Processor
 
             return (version.Major, version.Minor) switch
             {
-                (2, 3) => SqlCommandProcessorV2_3_X.Process(evalType, stream),
                 (2, 4) => SqlCommandProcessorV2_4_X.Process(evalType, stream),
-                (3, 0) => SqlCommandProcessorV2_4_X.Process(evalType, stream),
+                (3, _) => SqlCommandProcessorV2_4_X.Process(evalType, stream),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
         }
@@ -222,24 +221,6 @@ namespace Microsoft.Spark.Worker.Processor
             }
 
             return commands;
-        }
-
-        private static class SqlCommandProcessorV2_3_X
-        {
-            internal static SqlCommand[] Process(PythonEvalType evalType, Stream stream)
-            {
-                SqlCommand[] sqlCommands = ReadSqlCommands(evalType, stream);
-
-                if ((evalType == PythonEvalType.SQL_SCALAR_PANDAS_UDF) ||
-                    (evalType == PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF))
-                {
-                    // Reads the timezone information. This is not going to be used until
-                    // timestamp column is supported in Arrow.
-                    SerDe.ReadString(stream);
-                }
-
-                return sqlCommands;
-            }
         }
 
         private static class SqlCommandProcessorV2_4_X

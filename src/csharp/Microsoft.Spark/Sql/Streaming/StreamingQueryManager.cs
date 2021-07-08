@@ -14,18 +14,16 @@ namespace Microsoft.Spark.Sql.Streaming
     /// </summary>
     public sealed class StreamingQueryManager : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
+        internal StreamingQueryManager(JvmObjectReference jvmObject) => Reference = jvmObject;
 
-        internal StreamingQueryManager(JvmObjectReference jvmObject) => _jvmObject = jvmObject;
-
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Returns a list of active queries associated with this SQLContext.
         /// </summary>
         /// <returns>Active queries associated with this SQLContext.</returns>
         public IEnumerable<StreamingQuery> Active() =>
-            ((JvmObjectReference[])_jvmObject.Invoke("active"))
+            ((JvmObjectReference[])Reference.Invoke("active"))
                 .Select(sq => new StreamingQuery(sq));
 
         /// <summary>
@@ -37,7 +35,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <see cref="StreamingQuery"/> if there is an active query with the given id.
         /// </returns>
         public StreamingQuery Get(string id) =>
-            new StreamingQuery((JvmObjectReference)_jvmObject.Invoke("get", id));
+            new StreamingQuery((JvmObjectReference)Reference.Invoke("get", id));
 
         /// <summary>
         /// Wait until any of the queries on the associated SQLContext has terminated since the
@@ -60,7 +58,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// Throws StreamingQueryException on the JVM if any query has terminated with an
         /// exception.
         /// </summary>
-        public void AwaitAnyTermination() => _jvmObject.Invoke("awaitAnyTermination");
+        public void AwaitAnyTermination() => Reference.Invoke("awaitAnyTermination");
 
         /// <summary>
         /// Wait until any of the queries on the associated SQLContext has terminated since the
@@ -88,12 +86,12 @@ namespace Microsoft.Spark.Sql.Streaming
         /// or not.
         /// </param>
         public void AwaitAnyTermination(long timeoutMs) =>
-            _jvmObject.Invoke("awaitAnyTermination", timeoutMs);
+            Reference.Invoke("awaitAnyTermination", timeoutMs);
 
         /// <summary>
         /// Forget about past terminated queries so that <see cref="AwaitAnyTermination()"/> can be
         /// used again to wait for new terminations
         /// </summary>
-        public void ResetTerminated() => _jvmObject.Invoke("resetTerminated");
+        public void ResetTerminated() => Reference.Invoke("resetTerminated");
     }
 }

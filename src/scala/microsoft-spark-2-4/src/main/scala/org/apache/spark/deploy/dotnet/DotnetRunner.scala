@@ -19,6 +19,7 @@ import org.apache.spark
 import org.apache.spark.api.dotnet.DotnetBackend
 import org.apache.spark.deploy.{PythonRunner, SparkHadoopUtil}
 import org.apache.spark.internal.Logging
+import org.apache.spark.internal.config.dotnet.Dotnet.DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK
 import org.apache.spark.util.dotnet.{Utils => DotnetUtils}
 import org.apache.spark.util.{RedirectThread, Utils}
 import org.apache.spark.{SecurityManager, SparkConf, SparkUserAppException}
@@ -34,8 +35,9 @@ import scala.util.Try
  */
 object DotnetRunner extends Logging {
   private val DEBUG_PORT = 5567
+  private val supportedSparkMajorMinorVersionPrefix = "2.4"
   private val supportedSparkVersions =
-    Set[String]("2.4.0", "2.4.1", "2.4.3", "2.4.4", "2.4.5", "2.4.6", "2.4.7")
+    Set[String]("2.4.0", "2.4.1", "2.4.3", "2.4.4", "2.4.5", "2.4.6", "2.4.7", "2.4.8")
 
   val SPARK_VERSION = DotnetUtils.normalizeSparkVersion(spark.SPARK_VERSION)
 
@@ -44,7 +46,16 @@ object DotnetRunner extends Logging {
       throw new IllegalArgumentException("At least one argument is expected.")
     }
 
-    validateSparkVersions
+    DotnetUtils.validateSparkVersions(
+      sys.props
+        .getOrElse(
+          DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK.key,
+          DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK.defaultValue.get.toString)
+        .toBoolean,
+      spark.SPARK_VERSION,
+      SPARK_VERSION,
+      supportedSparkMajorMinorVersionPrefix,
+      supportedSparkVersions)
 
     val settings = initializeSettings(args)
 
@@ -162,15 +173,6 @@ object DotnetRunner extends Logging {
     } else {
       logError(s"DotnetBackend did not initialize in $backendTimeout seconds")
       DotnetUtils.exit(-1)
-    }
-  }
-
-  private def validateSparkVersions: Unit = {
-    if (!supportedSparkVersions(SPARK_VERSION)) {
-      val supportedVersions = supportedSparkVersions.mkString(", ")
-      throw new IllegalArgumentException(
-        s"Unsupported spark version used: ${spark.SPARK_VERSION}. Normalized spark version used: ${SPARK_VERSION}." +
-          s" Supported versions: ${supportedVersions}")
     }
   }
 

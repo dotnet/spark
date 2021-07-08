@@ -11,44 +11,42 @@ namespace Microsoft.Spark.Sql.Catalog
     /// </summary>
     public sealed class Function : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal Function(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Name of the database the function belongs to.
         /// </summary>
         /// <returns>string, the name of the database that the function is in.</returns>
-        public string Database => (string)_jvmObject.Invoke("database");
+        public string Database => (string)Reference.Invoke("database");
 
         /// <summary>
         /// Description of the function.
         /// </summary>
         /// <returns>string, the description of the function.</returns>
-        public string Description => (string)_jvmObject.Invoke("description");
+        public string Description => (string)Reference.Invoke("description");
 
         /// <summary>
         /// Whether the function is temporary or not
         /// </summary>
         /// <returns>bool, true if the function is temporary and false if it is not temporary.
         /// </returns>
-        public bool IsTemporary => (bool)_jvmObject.Invoke("isTemporary");
+        public bool IsTemporary => (bool)Reference.Invoke("isTemporary");
 
         /// <summary>
         /// Name of the function
         /// </summary>
         /// <returns>string, the name of the function.</returns>
-        public string Name => (string)_jvmObject.Invoke("name");
+        public string Name => (string)Reference.Invoke("name");
 
         /// <summary>
         /// The fully qualified class name of the function
         /// </summary>
         /// <returns>string, the name of the class that implements the function.</returns>
-        public string ClassName => (string)_jvmObject.Invoke("className");
+        public string ClassName => (string)Reference.Invoke("className");
     }
 }

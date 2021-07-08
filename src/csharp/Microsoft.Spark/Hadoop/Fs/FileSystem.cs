@@ -20,14 +20,12 @@ namespace Microsoft.Spark.Hadoop.Fs
     /// </summary>
     public class FileSystem : IJvmObjectReferenceProvider, IDisposable
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal FileSystem(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Returns the configured <see cref="FileSystem"/>.
@@ -52,9 +50,22 @@ namespace Microsoft.Spark.Hadoop.Fs
             JvmObjectReference pathObject =
                 SparkEnvironment.JvmBridge.CallConstructor("org.apache.hadoop.fs.Path", path);
 
-            return (bool)_jvmObject.Invoke("delete", pathObject, recursive);
+            return (bool)Reference.Invoke("delete", pathObject, recursive);
         }
 
-        public void Dispose() => _jvmObject.Invoke("close");
+        /// <summary>
+        /// Check if a path exists.
+        /// </summary>
+        /// <param name="path">Source path</param>
+        /// <returns>True if the path exists else false.</returns>
+        public bool Exists(string path)
+        {
+            JvmObjectReference pathObject =
+                SparkEnvironment.JvmBridge.CallConstructor("org.apache.hadoop.fs.Path", path);
+
+            return (bool)Reference.Invoke("exists", pathObject);
+        }
+
+        public void Dispose() => Reference.Invoke("close");
     }
 }

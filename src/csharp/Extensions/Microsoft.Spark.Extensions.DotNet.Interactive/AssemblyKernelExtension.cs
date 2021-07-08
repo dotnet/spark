@@ -25,6 +25,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
     public class AssemblyKernelExtension : IKernelExtension
     {
         private const string TempDirEnvVar = "DOTNET_SPARK_EXTENSION_INTERACTIVE_TMPDIR";
+        private const string PreserveTempDirEnvVar = "DOTNET_SPARK_EXTENSION_INTERACTIVE_PRESERVE_TMPDIR";
 
         private readonly PackageResolver _packageResolver =
             new PackageResolver(new SupportNugetWrapper());
@@ -41,7 +42,11 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                 Environment.SetEnvironmentVariable(Constants.RunningREPLEnvVar, "true");
 
                 DirectoryInfo tempDir = CreateTempDirectory();
-                compositeKernel.RegisterForDisposal(new DisposableDirectory(tempDir));
+
+                if (!EnvironmentUtils.GetEnvironmentVariableAsBool(PreserveTempDirEnvVar))
+                {
+                    compositeKernel.RegisterForDisposal(new DisposableDirectory(tempDir));
+                }
 
                 compositeKernel.AddMiddleware(async (command, context, next) =>
                 {
@@ -145,10 +150,10 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             }
 
             Version version = SparkEnvironment.SparkVersion;
-            return (version.Major, version.Minor, version.Build) switch
+            return version.Major switch
             {
-                (2, _, _) => false,
-                (3, 0, _) => true,
+                2 => false,
+                3 => true,
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
         }

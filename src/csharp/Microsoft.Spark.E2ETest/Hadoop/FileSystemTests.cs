@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.IO;
+using System.Linq;
 using Microsoft.Spark.Hadoop.Fs;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
@@ -51,6 +52,31 @@ namespace Microsoft.Spark.E2ETest.Hadoop
             Assert.False(fs.Delete(path, true));
 
             Assert.False(Directory.Exists(path));
+        }
+
+        /// <summary>
+        /// Tests that Exists() returns true if the file exist.
+        /// Tests that Exists() returns false if the file doesn't exist.
+        /// </summary>
+        [Fact]
+        public void TestExists()
+        {
+            using FileSystem fs = FileSystem.Get(_spark.SparkContext.HadoopConfiguration());
+
+            using var tempDirectory = new TemporaryDirectory();
+
+            string path = Path.Combine(tempDirectory.Path, "temp-table");
+
+            Assert.False(fs.Exists(path));
+
+            _spark.Range(25).Coalesce(1).Write().Csv(path);
+
+            Assert.True(fs.Exists(path));
+
+            string dataFile = Directory.GetFiles(path, "*.csv").FirstOrDefault();
+
+            Assert.NotNull(dataFile);
+            Assert.True(fs.Exists(dataFile));
         }
     }
 }

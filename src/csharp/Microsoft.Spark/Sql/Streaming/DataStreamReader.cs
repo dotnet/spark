@@ -14,11 +14,9 @@ namespace Microsoft.Spark.Sql.Streaming
     /// </summary>
     public sealed class DataStreamReader : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
+        internal DataStreamReader(JvmObjectReference jvmObject) => Reference = jvmObject;
 
-        internal DataStreamReader(JvmObjectReference jvmObject) => _jvmObject = jvmObject;
-
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Specifies the input data source format.
@@ -27,7 +25,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <returns>This DataStreamReader object</returns>
         public DataStreamReader Format(string source)
         {
-            _jvmObject.Invoke("format", source);
+            Reference.Invoke("format", source);
             return this;
         }
 
@@ -43,7 +41,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <returns>This DataStreamReader object</returns>
         public DataStreamReader Schema(StructType schema)
         {
-            _jvmObject.Invoke("schema", DataType.FromJson(_jvmObject.Jvm, schema.Json));
+            Reference.Invoke("schema", DataType.FromJson(Reference.Jvm, schema.Json));
             return this;
         }
 
@@ -59,7 +57,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <returns>This DataStreamReader object</returns>
         public DataStreamReader Schema(string schemaString)
         {
-            _jvmObject.Invoke("schema", schemaString);
+            Reference.Invoke("schema", schemaString);
             return this;
         }
 
@@ -118,7 +116,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <returns>This DataStreamReader object</returns>
         public DataStreamReader Options(Dictionary<string, string> options)
         {
-            _jvmObject.Invoke("options", options);
+            Reference.Invoke("options", options);
             return this;
         }
 
@@ -127,7 +125,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// that don't require a path (e.g.external key-value stores).
         /// </summary>
         /// <returns>DataFrame object</returns>
-        public DataFrame Load() => new DataFrame((JvmObjectReference)_jvmObject.Invoke("load"));
+        public DataFrame Load() => new DataFrame((JvmObjectReference)Reference.Invoke("load"));
 
         /// <summary>
         /// Loads input in as a <see cref="DataFrame"/>, for data streams that read
@@ -136,7 +134,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <param name="path">File path for streaming</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Load(string path) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("load", path));
+            new DataFrame((JvmObjectReference)Reference.Invoke("load", path));
 
         /// <summary>
         /// Loads a JSON file stream and returns the results as a <see cref="DataFrame"/>.
@@ -167,6 +165,16 @@ namespace Microsoft.Spark.Sql.Streaming
         public DataFrame Parquet(string path) => LoadSource("parquet", path);
 
         /// <summary>
+        /// Define a Streaming DataFrame on a Table. The DataSource corresponding to the table should
+        /// support streaming mode.
+        /// </summary>
+        /// <param name="tableName">Name of the table</param>
+        /// <returns>DataFrame object</returns>
+        [Since(Versions.V3_1_0)]
+        public DataFrame Table(string tableName) =>
+            new DataFrame((JvmObjectReference)Reference.Invoke("table", tableName));
+
+        /// <summary>
         /// Loads text files and returns a <see cref="DataFrame"/> whose schema starts
         /// with a string column named "value", and followed by partitioned columns
         /// if there are any.
@@ -183,7 +191,7 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <returns>This DataFrameReader object</returns>
         private DataStreamReader OptionInternal(string key, object value)
         {
-            _jvmObject.Invoke("option", key, value);
+            Reference.Invoke("option", key, value);
             return this;
         }
 
@@ -194,6 +202,6 @@ namespace Microsoft.Spark.Sql.Streaming
         /// <param name="path">File path for streaming</param>
         /// <returns>DataFrame object</returns>
         private DataFrame LoadSource(string source, string path) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke(source, path));
+            new DataFrame((JvmObjectReference)Reference.Invoke(source, path));
     }
 }

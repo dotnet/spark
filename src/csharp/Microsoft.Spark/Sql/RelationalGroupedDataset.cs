@@ -18,16 +18,15 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     public sealed class RelationalGroupedDataset : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
         private readonly DataFrame _dataFrame;
 
         internal RelationalGroupedDataset(JvmObjectReference jvmObject, DataFrame dataFrame)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
             _dataFrame = dataFrame;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Compute aggregates by specifying a series of aggregate columns.
@@ -36,14 +35,14 @@ namespace Microsoft.Spark.Sql
         /// <param name="exprs">Additional columns to aggregate on</param>
         /// <returns>New DataFrame object with aggregation applied</returns>
         public DataFrame Agg(Column expr, params Column[] exprs) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("agg", expr, exprs));
+            new DataFrame((JvmObjectReference)Reference.Invoke("agg", expr, exprs));
 
         /// <summary>
         /// Count the number of rows for each group.
         /// </summary>
         /// <returns>New DataFrame object with count applied</returns>
         public DataFrame Count() =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("count"));
+            new DataFrame((JvmObjectReference)Reference.Invoke("count"));
 
         /// <summary>
         /// Compute the mean value for each numeric columns for each group.
@@ -51,7 +50,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="colNames">Name of columns to compute mean on</param>
         /// <returns>New DataFrame object with mean applied</returns>
         public DataFrame Mean(params string[] colNames) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("mean", (object)colNames));
+            new DataFrame((JvmObjectReference)Reference.Invoke("mean", (object)colNames));
 
         /// <summary>
         /// Compute the max value for each numeric columns for each group.
@@ -59,7 +58,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="colNames">Name of columns to compute max on</param>
         /// <returns>New DataFrame object with max applied</returns>
         public DataFrame Max(params string[] colNames) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("max", (object)colNames));
+            new DataFrame((JvmObjectReference)Reference.Invoke("max", (object)colNames));
 
         /// <summary>
         /// Compute the average value for each numeric columns for each group.
@@ -67,7 +66,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="colNames">Name of columns to compute average on</param>
         /// <returns>New DataFrame object with average applied</returns>
         public DataFrame Avg(params string[] colNames) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("avg", (object)colNames));
+            new DataFrame((JvmObjectReference)Reference.Invoke("avg", (object)colNames));
 
         /// <summary>
         /// Compute the min value for each numeric columns for each group.
@@ -75,7 +74,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="colNames">Name of columns to compute min on</param>
         /// <returns>New DataFrame object with min applied</returns>
         public DataFrame Min(params string[] colNames) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("min", (object)colNames));
+            new DataFrame((JvmObjectReference)Reference.Invoke("min", (object)colNames));
 
         /// <summary>
         /// Compute the sum for each numeric columns for each group.
@@ -83,7 +82,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="colNames">Name of columns to compute sum on</param>
         /// <returns>New DataFrame object with sum applied</returns>
         public DataFrame Sum(params string[] colNames) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("sum", (object)colNames));
+            new DataFrame((JvmObjectReference)Reference.Invoke("sum", (object)colNames));
 
         /// <summary>
         /// Pivots a column of the current DataFrame and performs the specified aggregation.
@@ -92,7 +91,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
         public RelationalGroupedDataset Pivot(string pivotColumn) => 
             new RelationalGroupedDataset(
-                (JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn), _dataFrame);
+                (JvmObjectReference)Reference.Invoke("pivot", pivotColumn), _dataFrame);
 
         /// <summary>
         /// Pivots a column of the current DataFrame and performs the specified aggregation.
@@ -103,7 +102,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
         public RelationalGroupedDataset Pivot(string pivotColumn, IEnumerable<object> values) =>
             new RelationalGroupedDataset(
-                (JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn, values), _dataFrame);
+                (JvmObjectReference)Reference.Invoke("pivot", pivotColumn, values), _dataFrame);
 
         /// <summary>
         /// Pivots a column of the current DataFrame and performs the specified aggregation.
@@ -112,7 +111,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
         public RelationalGroupedDataset Pivot(Column pivotColumn) => 
             new RelationalGroupedDataset(
-                (JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn), _dataFrame);
+                (JvmObjectReference)Reference.Invoke("pivot", pivotColumn), _dataFrame);
 
         /// <summary>
         /// Pivots a column of the current DataFrame and performs the specified aggregation.
@@ -123,7 +122,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
         public RelationalGroupedDataset Pivot(Column pivotColumn, IEnumerable<object> values) =>
             new RelationalGroupedDataset(
-                (JvmObjectReference)_jvmObject.Invoke("pivot", pivotColumn, values), _dataFrame);
+                (JvmObjectReference)Reference.Invoke("pivot", pivotColumn, values), _dataFrame);
 
         /// <summary>
         /// Maps each group of the current DataFrame using a UDF and
@@ -148,7 +147,7 @@ namespace Microsoft.Spark.Sql
                 new DataFrameGroupedMapUdfWrapper(func).Execute;
 
             var udf = UserDefinedFunction.Create(
-                _jvmObject.Jvm,
+                Reference.Jvm,
                 func.Method.ToString(),
                 CommandSerDe.Serialize(
                     wrapper,
@@ -166,7 +165,7 @@ namespace Microsoft.Spark.Sql
 
             Column udfColumn = udf.Apply(columns);
 
-            return new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+            return new DataFrame((JvmObjectReference)Reference.Invoke(
                 "flatMapGroupsInPandas",
                 udfColumn.Expr()));
         }
@@ -194,7 +193,7 @@ namespace Microsoft.Spark.Sql
                 new ArrowGroupedMapUdfWrapper(func).Execute;
 
             UserDefinedFunction udf = UserDefinedFunction.Create(
-                _jvmObject.Jvm,
+                Reference.Jvm,
                 func.Method.ToString(),
                 CommandSerDe.Serialize(
                     wrapper,
@@ -212,7 +211,7 @@ namespace Microsoft.Spark.Sql
 
             Column udfColumn = udf.Apply(columns);
 
-            return new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+            return new DataFrame((JvmObjectReference)Reference.Invoke(
                 "flatMapGroupsInPandas",
                 udfColumn.Expr()));
         }
