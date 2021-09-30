@@ -33,7 +33,7 @@
     <PackageReference Include="Microsoft.Data.Analysis" Version="0.18.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="Razorvine.Pyrolite" Version="4.26.0" />
-    <PackageReference Include="System.Memory" Version="4.5.2" />
+    <PackageReference Include="System.Memory" Version="4.5.3" />
   </ItemGroup>
 
   <ItemGroup>
