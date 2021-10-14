@@ -101,19 +101,7 @@ namespace Microsoft.Spark.Interop.Ipc
             TryReadBytes(s, buffer, sizeof(long));
             return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64BigEndian(buffer));
         }
-        
-        /// <summary>
-        /// Reads a decimal from a stream.
-        /// </summary>
-        /// <param name="s">The stream to be read</param>
-        /// <returns>The decimal read from stream</returns>
-        public static decimal ReadDecimal(Stream s)
-        {
-            byte[] buffer = GetThreadLocalBuffer(sizeof(long));
-            TryReadBytes(s, buffer, sizeof(long));
-            return BinaryPrimitives.ReadInt64BigEndian(buffer);
-        }
-        
+
         /// <summary>
         /// Reads a string from a stream
         /// </summary>
