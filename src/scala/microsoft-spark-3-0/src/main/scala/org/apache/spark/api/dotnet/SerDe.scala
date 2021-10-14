@@ -233,7 +233,7 @@ class SerDe(val tracker: JVMObjectTracker) {
     if (value == null || value == Unit) {
       writeType(dos, "void")
     } else {
-        value.getClass.getName match {
+      value.getClass.getName match {
         case "java.lang.String" =>
           writeType(dos, "character")
           writeString(dos, value.asInstanceOf[String])
