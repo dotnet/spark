@@ -6,6 +6,7 @@ using System;
 using System.Buffers.Binary;
 using System.IO;
 using System.Text;
+using Razorvine.Pickle.Objects;
 
 namespace Microsoft.Spark.Interop.Ipc
 {
@@ -100,7 +101,19 @@ namespace Microsoft.Spark.Interop.Ipc
             TryReadBytes(s, buffer, sizeof(long));
             return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64BigEndian(buffer));
         }
-
+        
+        /// <summary>
+        /// Reads a decimal from a stream.
+        /// </summary>
+        /// <param name="s">The stream to be read</param>
+        /// <returns>The decimal read from stream</returns>
+        public static decimal ReadDecimal(Stream s)
+        {
+            byte[] buffer = GetThreadLocalBuffer(sizeof(long));
+            TryReadBytes(s, buffer, sizeof(long));
+            return BinaryPrimitives.ReadInt64BigEndian(buffer);
+        }
+        
         /// <summary>
         /// Reads a string from a stream
         /// </summary>
@@ -322,6 +335,13 @@ namespace Microsoft.Spark.Interop.Ipc
         public static void Write(Stream s, double value) =>
             Write(s, BitConverter.DoubleToInt64Bits(value));
 
+        /// <summary>
+        /// Writes a decimal to a stream as a string.
+        /// </summary>
+        /// <param name="s">The stream to write</param>
+        /// <param name="value">The decimal to write</param>
+        public static void Write(Stream s, decimal value) => Write(s, value.ToString());
+        
         /// <summary>
         /// Writes a string to a stream.
         /// </summary>

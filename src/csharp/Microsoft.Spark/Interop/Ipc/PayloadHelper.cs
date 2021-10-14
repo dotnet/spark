@@ -32,6 +32,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private static readonly byte[] s_dictionaryTypeId = new[] { (byte)'e' };
         private static readonly byte[] s_rowArrTypeId = new[] { (byte)'R' };
         private static readonly byte[] s_objectArrTypeId = new[] { (byte)'O' };
+        private static readonly byte[] s_decimalTypeId = new[] { (byte)'m' };  
 
         private static readonly ConcurrentDictionary<Type, bool> s_isDictionaryTable =
             new ConcurrentDictionary<Type, bool>();
@@ -108,6 +109,10 @@ namespace Microsoft.Spark.Interop.Ipc
 
                     case TypeCode.Double:
                         SerDe.Write(destination, (double)arg);
+                        break;
+                    
+                    case TypeCode.Decimal:
+                        SerDe.Write(destination, (decimal)arg);
                         break;
 
                     case TypeCode.Object:
@@ -321,7 +326,9 @@ namespace Microsoft.Spark.Interop.Ipc
                 case TypeCode.Boolean:
                     return s_boolTypeId;
                 case TypeCode.Double:
-                    return s_doubleTypeId;
+                    return s_doubleTypeId;  
+                case TypeCode.Decimal:
+                    return s_decimalTypeId;
                 case TypeCode.Object:
                     if (typeof(IJvmObjectReferenceProvider).IsAssignableFrom(type))
                     {

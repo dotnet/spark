@@ -267,6 +267,9 @@ namespace Microsoft.Spark.Interop.Ipc
                     case 'd':
                         returnValue = SerDe.ReadDouble(inputStream);
                         break;
+                    case 'm':
+                        returnValue = decimal.Parse(SerDe.ReadString(inputStream));
+                        break;
                     case 'b':
                         returnValue = Convert.ToBoolean(inputStream.ReadByte());
                         break;
