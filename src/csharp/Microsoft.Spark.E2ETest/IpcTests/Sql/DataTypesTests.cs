@@ -23,7 +23,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// 
+        /// Tests that we can pass a decimal over to Apache Spark and collect it back again, include a check
+        /// for the minimum and maximum decimal that .NET can represent
         /// </summary>
         [Fact]
         public void TestDecimalType()
