@@ -17,7 +17,7 @@ import io.netty.channel.{ChannelFuture, ChannelInitializer, EventLoopGroup}
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder
 import io.netty.handler.codec.bytes.{ByteArrayDecoder, ByteArrayEncoder}
 import org.apache.spark.internal.Logging
-import org.apache.spark.internal.config.Dotnet.DOTNET_NUM_BACKEND_THREADS
+import org.apache.spark.internal.config.dotnet.Dotnet.DOTNET_NUM_BACKEND_THREADS
 import org.apache.spark.{SparkConf, SparkEnv}
 
 /**
