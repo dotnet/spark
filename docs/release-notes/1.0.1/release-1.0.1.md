@@ -3,15 +3,15 @@ This is a maintenance release which contains backported PRs to support Spark 2.4
 
 ### New Features/Improvements
 
-* Add spark.dotnet.ignoreSparkPatchVersionCheck conf to ignore patch version in DotnetRunner (#990)
+* Add spark.dotnet.ignoreSparkPatchVersionCheck conf to ignore patch version in DotnetRunner ([#990](https://github.com/dotnet/spark/pull/990))
 
 ### Bug Fixes
 
-* Fix signer information mismatch issue (#989)
+* Fix signer information mismatch issue ([#989](https://github.com/dotnet/spark/pull/989))
 
 ### Infrastructure / Documentation / Etc.
 
-* Update dotnet-interactive deprecated feed (#991, #995)
+* Update dotnet-interactive deprecated feed ([#991](https://github.com/dotnet/spark/pull/991), [#995](https://github.com/dotnet/spark/pull/995))
 
 
 ### Breaking Changes
