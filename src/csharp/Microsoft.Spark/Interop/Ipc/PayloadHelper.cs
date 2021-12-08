@@ -345,7 +345,6 @@ namespace Microsoft.Spark.Interop.Ipc
                         _ when typeof(Date).IsAssignableFrom(type) => s_dateTypeId,
                         _ when typeof(Timestamp).IsAssignableFrom(type) => s_timestampTypeId,
                     };
-                    break;
             }
 
             // TODO: Support other types.
