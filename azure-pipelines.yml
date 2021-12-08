@@ -54,7 +54,7 @@ stages:
   displayName: Build Sources
   jobs:
   - job: Build
-    pool: Windows
+    pool: Hosted VS2017
 
     variables:
       ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
@@ -168,7 +168,7 @@ stages:
       dependsOn:
         - Sign
       displayName: Publish Artifacts
-      pool: Windows
+      pool: Hosted VS2017
 
       variables:
         ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
