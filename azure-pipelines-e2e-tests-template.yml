@@ -26,13 +26,12 @@ stages:
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
         steps:
-        - ${{ if eq(lower(option.pool), 'linux') }}:
-          - task: UseDotNet@2
-            displayName: 'Use .NET Core sdk'
-            inputs:
-              packageType: sdk
-              version: 3.1.x
-              installationPath: $(Agent.ToolsDirectory)/dotnet
+        - task: UseDotNet@2
+          displayName: 'Use .NET Core sdk'
+          inputs:
+            packageType: sdk
+            version: 3.1.x
+            installationPath: $(Agent.ToolsDirectory)/dotnet
 
         - task: DownloadBuildArtifacts@0
           displayName: Download Build Artifacts
