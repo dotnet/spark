@@ -18,11 +18,11 @@ stages:
     jobs:
     - ${{ each option in test.jobOptions }}:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
-        ${{ if eq(lower(option.pool), 'windows') }}:
-          pool: Hosted VS2017
-        ${{ else }}:
-          pool:
-            name: NetCore1ESPool-Public
+        pool:
+          name: NetCore1ESPool-Public
+          ${{ if eq(lower(option.pool), 'windows') }}:
+            demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019.Open
+          ${{ else }}:
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
         steps:
