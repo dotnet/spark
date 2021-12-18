@@ -29,7 +29,7 @@ stages:
         - task: Bash@3
           inputs:
             targetType: 'inline'
-            script: 'env | sort'
+            script: 'java -version'
 
         - task: UseDotNet@2
           displayName: 'Use .NET Core sdk'
