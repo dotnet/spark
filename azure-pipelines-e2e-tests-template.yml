@@ -42,7 +42,7 @@ stages:
           displayName: 'Use Java jdk'
           inputs:
             versionSpec: '8'
-            jdkArchitectureOption: 'X64'
+            jdkArchitectureOption: 'x64'
             jdkSourceOption: 'PreInstalled'
 
         - task: DownloadBuildArtifacts@0
