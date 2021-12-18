@@ -30,7 +30,7 @@ stages:
           inputs:
             targetType: 'inline'
             script: 'env | sort'
-        
+
         - task: UseDotNet@2
           displayName: 'Use .NET Core sdk'
           inputs:
