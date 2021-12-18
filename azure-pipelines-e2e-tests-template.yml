@@ -26,6 +26,11 @@ stages:
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
         steps:
+        – task: Bash@3
+          inputs:
+            targetType: 'inline'
+            script: 'env | sort'
+        
         - task: UseDotNet@2
           displayName: 'Use .NET Core sdk'
           inputs:
@@ -37,7 +42,7 @@ stages:
           displayName: 'Use Java jdk'
           inputs:
             versionSpec: '8'
-            jdkArchitectureOption: 'x64'
+            jdkArchitectureOption: 'X64'
             jdkSourceOption: 'PreInstalled'
 
         - task: DownloadBuildArtifacts@0
