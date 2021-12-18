@@ -26,10 +26,9 @@ stages:
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
         steps:
-        - task: Bash@3
-          inputs:
-            targetType: 'inline'
-            script: 'java -version'
+        - pwsh: |
+            java -version
+            gci env:* | sort-object name
 
         - task: UseDotNet@2
           displayName: 'Use .NET Core sdk'
