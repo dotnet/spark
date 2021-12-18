@@ -26,7 +26,7 @@ stages:
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
         steps:
-        – task: Bash@3
+        - task: Bash@3
           inputs:
             targetType: 'inline'
             script: 'env | sort'
