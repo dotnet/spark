@@ -38,12 +38,12 @@ stages:
             version: 3.1.x
             installationPath: $(Agent.ToolsDirectory)/dotnet
 
-        - task: JavaToolInstaller@0
-          displayName: 'Use Java jdk'
-          inputs:
-            versionSpec: '8'
-            jdkArchitectureOption: 'x64'
-            jdkSourceOption: 'PreInstalled'
+        # - task: JavaToolInstaller@0
+        #   displayName: 'Use Java jdk'
+        #   inputs:
+        #     versionSpec: '8'
+        #     jdkArchitectureOption: 'x64'
+        #     jdkSourceOption: 'PreInstalled'
 
         - task: DownloadBuildArtifacts@0
           displayName: Download Build Artifacts
@@ -112,7 +112,7 @@ stages:
           inputs:
             command: test
             projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-            arguments: '--configuration $(buildConfiguration) ${{ option.testOptions }}'
+            arguments: '--verbosity d --configuration $(buildConfiguration) ${{ option.testOptions }}'
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
