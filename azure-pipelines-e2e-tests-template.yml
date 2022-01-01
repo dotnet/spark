@@ -112,7 +112,7 @@ stages:
           inputs:
             command: test
             projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-            arguments: '--verbosity d --configuration $(buildConfiguration) ${{ option.testOptions }}'
+            arguments: '--verbosity d --configuration $(buildConfiguration) ${{ option.testOptions }} -nodereuse:false'
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
