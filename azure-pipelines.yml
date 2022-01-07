@@ -288,7 +288,7 @@ stages:
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '3.0.0'
       jobOptions:
-      - pool: 'Windows'
+      - pool: 'Hosted VS2017'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_0)
@@ -298,7 +298,7 @@ stages:
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
     - version: '3.0.1'
       jobOptions:
-      - pool: 'Windows'
+      - pool: 'Hosted VS2017'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_0)
@@ -308,7 +308,7 @@ stages:
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
     - version: '3.0.2'
       jobOptions:
-      - pool: 'Windows'
+      - pool: 'Hosted VS2017'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_0)
@@ -318,7 +318,7 @@ stages:
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
     - version: '3.1.1'
       jobOptions:
-      - pool: 'Windows'
+      - pool: 'Hosted VS2017'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
         forwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
@@ -328,7 +328,7 @@ stages:
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
     - version: '3.1.2'
       jobOptions:
-      - pool: 'Windows'
+      - pool: 'Hosted VS2017'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
         forwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
@@ -338,7 +338,7 @@ stages:
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
     - version: '3.2.0'
       jobOptions:
-      - pool: 'Windows'
+      - pool: 'Hosted VS2017'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
         forwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
