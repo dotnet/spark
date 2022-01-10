@@ -22,6 +22,8 @@ stages:
           name: NetCore1ESPool-Public
           ${{ if eq(lower(option.pool), 'linux') }}:
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
+          ${{ else }}:
+            Hosted VS2017
 
         steps:
         - task: UseDotNet@2
