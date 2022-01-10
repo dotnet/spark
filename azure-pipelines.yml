@@ -208,7 +208,7 @@ stages:
     tests:
     - version: '2.4.0'
       jobOptions:
-      - pool: 'Hosted VS2017'
+      - pool: 'Windows'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
