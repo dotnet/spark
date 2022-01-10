@@ -20,9 +20,7 @@ stages:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
         pool:
           name: NetCore1ESPool-Public
-          ${{ if eq(lower(option.pool), 'windows') }}:
-            demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019.Open
-          ${{ else }}:
+          ${{ if eq(lower(option.pool), 'linux') }}:
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
         steps:
