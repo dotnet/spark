@@ -18,7 +18,12 @@ stages:
     jobs:
     - ${{ each option in test.jobOptions }}:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
-        pool: ${{ option.pool }}
+        pool:
+          name: NetCore1ESPool-Public
+          ${{ if eq(lower(option.pool), 'windows') }}:
+            demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019.Open
+          ${{ else }}:
+            demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
         steps:
         - task: UseDotNet@2
