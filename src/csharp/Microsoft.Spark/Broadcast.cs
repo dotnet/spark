@@ -37,7 +37,7 @@ namespace Microsoft.Spark
             _bid = (long)_jvmObject.Invoke("id");
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference => _jvmObject;
 
         /// <summary>
         /// Get the broadcasted value.
@@ -98,8 +98,7 @@ namespace Microsoft.Spark
         /// <returns>Absolute filepath of the created random file</returns>
         private string CreateTempFilePath(SparkConf conf)
         {
-            IJvmBridge jvm = ((IJvmObjectReferenceProvider)conf).Reference.Jvm;
-            var localDir = (string)jvm.CallStaticJavaMethod(
+            var localDir = (string)conf.Reference.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.util.Utils",
                 "getLocalDir",
                 conf);
@@ -116,8 +115,7 @@ namespace Microsoft.Spark
         /// <returns>Returns broadcast variable of type <see cref="JvmObjectReference"/></returns>
         private JvmObjectReference CreateBroadcast(SparkContext sc, T value)
         {
-            IJvmBridge jvm = ((IJvmObjectReferenceProvider)sc).Reference.Jvm;
-            var javaSparkContext = (JvmObjectReference)jvm.CallStaticJavaMethod(
+            var javaSparkContext = (JvmObjectReference)sc.Reference.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.api.java.JavaSparkContext",
                 "fromSparkContext",
                 sc);

@@ -14,11 +14,9 @@ namespace Microsoft.Spark.Sql
     [Since(Versions.V3_0_0)]
     public sealed class DataFrameWriterV2 : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
+        internal DataFrameWriterV2(JvmObjectReference jvmObject) => Reference = jvmObject;
 
-        internal DataFrameWriterV2(JvmObjectReference jvmObject) => _jvmObject = jvmObject;
-
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Specifies a provider for the underlying output data source. Spark's default catalog
@@ -28,7 +26,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriterV2 object</returns>
         public DataFrameWriterV2 Using(string provider)
         {
-            _jvmObject.Invoke("using", provider);
+            Reference.Invoke("using", provider);
             return this;
         }
 
@@ -40,7 +38,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriterV2 object</returns>
         public DataFrameWriterV2 Option(string key, string value)
         {
-            _jvmObject.Invoke("option", key, value);
+            Reference.Invoke("option", key, value);
             return this;
         }
 
@@ -52,7 +50,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriterV2 object</returns>
         public DataFrameWriterV2 Option(string key, bool value)
         {
-            _jvmObject.Invoke("option", key, value);
+            Reference.Invoke("option", key, value);
             return this;
         }
 
@@ -64,7 +62,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriterV2 object</returns>
         public DataFrameWriterV2 Option(string key, long value)
         {
-            _jvmObject.Invoke("option", key, value);
+            Reference.Invoke("option", key, value);
             return this;
         }
 
@@ -76,7 +74,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriterV2 object</returns>
         public DataFrameWriterV2 Option(string key, double value)
         {
-            _jvmObject.Invoke("option", key, value);
+            Reference.Invoke("option", key, value);
             return this;
         }
 
@@ -87,7 +85,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriterV2 object</returns>
         public DataFrameWriterV2 Options(Dictionary<string, string> options)
         {
-            _jvmObject.Invoke("options", options);
+            Reference.Invoke("options", options);
             return this;
         }
 
@@ -99,7 +97,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriterV2 object</returns>
         public DataFrameWriterV2 TableProperty(string property, string value)
         {
-            _jvmObject.Invoke("tableProperty", property, value);
+            Reference.Invoke("tableProperty", property, value);
             return this;
         }
 
@@ -113,41 +111,41 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriterV2 object</returns>
         public DataFrameWriterV2 PartitionedBy(Column column, params Column[] columns)
         {
-            _jvmObject.Invoke("partitionedBy", column, columns);
+            Reference.Invoke("partitionedBy", column, columns);
             return this;
         }
 
         /// <summary>
         /// Create a new table from the contents of the data frame.
         /// </summary>
-        public void Create() => _jvmObject.Invoke("create");
+        public void Create() => Reference.Invoke("create");
 
         /// <summary>
         /// Replace an existing table with the contents of the data frame.
         /// </summary>
-        public void Replace() => _jvmObject.Invoke("replace");
+        public void Replace() => Reference.Invoke("replace");
 
         /// <summary>
         /// Create a new table or replace an existing table with the contents of the data frame.
         /// </summary>
-        public void CreateOrReplace() => _jvmObject.Invoke("createOrReplace");
+        public void CreateOrReplace() => Reference.Invoke("createOrReplace");
 
         /// <summary>
         /// Append the contents of the data frame to the output table.
         /// </summary>
-        public void Append() => _jvmObject.Invoke("append");
+        public void Append() => Reference.Invoke("append");
 
         /// <summary>
         /// Overwrite rows matching the given filter condition with the contents of the data frame
         /// in the output table.
         /// </summary>
         /// <param name="condition">Condition filter to overwrite based on</param>
-        public void Overwrite(Column condition) => _jvmObject.Invoke("overwrite", condition);
+        public void Overwrite(Column condition) => Reference.Invoke("overwrite", condition);
 
         /// <summary>
         /// Overwrite all partition for which the data frame contains at least one row with the
         /// contents of the data frame in the output table.
         /// </summary>
-        public void OverwritePartitions() => _jvmObject.Invoke("overwritePartitions");
+        public void OverwritePartitions() => Reference.Invoke("overwritePartitions");
     }
 }

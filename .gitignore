@@ -370,3 +370,6 @@ hs_err_pid*
 
 # F# vs code 
 .ionide/
+
+# Mac dev
+.DS_Store
