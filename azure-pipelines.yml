@@ -208,11 +208,13 @@ stages:
     tests:
     - version: '2.4.0'
       jobOptions:
-      - pool: 'Windows'
+      - pool:
+          vmImage: 'windows-latest'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
-      - pool: 'Linux'
+      - pool:
+          vmImage: 'ubuntu-latest'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
