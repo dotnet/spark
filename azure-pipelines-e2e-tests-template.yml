@@ -21,11 +21,17 @@ stages:
         pool:
           name: NetCore1ESPool-Public
           ${{ if eq(lower(option.pool), 'windows') }}:
-            demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019.Open
+            demands: ImageOverride -equals Build.Server.Amd64.VS2019
           ${{ else }}:
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
         steps:
+        - task: UseDotNet@2
+          displayName: 'Use .NET Core sdk'
+          inputs:
+            packageType: sdk
+            version: 3.1.x
+            installationPath: $(Agent.ToolsDirectory)/dotnet
         - task: DownloadBuildArtifacts@0
           displayName: Download Build Artifacts
           inputs:
