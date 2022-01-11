@@ -210,5 +210,5 @@ stages:
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_1)
