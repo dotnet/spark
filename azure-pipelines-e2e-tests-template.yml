@@ -21,7 +21,7 @@ stages:
         pool:
           name: NetCore1ESPool-Public
           ${{ if eq(lower(option.pool), 'windows') }}:
-            demands: ImageOverride -equals Build.Windows.Amd64.VS2022.Pre.Open
+            demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019.Open
           ${{ else }}:
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
