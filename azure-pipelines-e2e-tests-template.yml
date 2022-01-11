@@ -22,7 +22,7 @@ stages:
           ${{ if eq(lower(option.pool), 'windows') }}:
             vmImage: windows-latest
           ${{ else }}:
-            demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
+            vmImage: ubuntu-latest
 
         steps:
         - task: UseDotNet@2
