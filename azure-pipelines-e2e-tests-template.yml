@@ -19,7 +19,6 @@ stages:
     - ${{ each option in test.jobOptions }}:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
         pool:
-          name: NetCore1ESPool-Public
           ${{ if eq(lower(option.pool), 'windows') }}:
             vmImage: windows-latest
 
