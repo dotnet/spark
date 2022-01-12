@@ -212,17 +212,9 @@ stages:
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
-      - pool: 'Linux'
-        testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.1'
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
-      - pool: 'Linux'
-        testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
