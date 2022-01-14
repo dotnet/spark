@@ -21,9 +21,9 @@ stages:
         pool:
           name: NetCore1ESPool-Public
           ${{ if eq(lower(option.pool), 'windows') }}:
-            demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019.Open
+            vmImage: windows-latest
           ${{ else }}:
-            demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
+            vmImage: ubuntu-latest
 
         steps:
         - task: UseDotNet@2
@@ -95,10 +95,10 @@ stages:
           workingDirectory: $(Build.BinariesDirectory)
 
         - task: DotNetCoreCLI@2
-          displayName: 'Simple tests'
+          displayName: 'E2E tests'
           inputs:
             command: test
-            projects: '**/Microsoft.Spark.E2ETest/*.csproj'
+            projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
             arguments: '--configuration $(buildConfiguration) ${{ option.testOptions }}'
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
