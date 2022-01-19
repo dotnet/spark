@@ -15,6 +15,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
 
         public DeltaFixture()
         {
+            Console.WriteLine("Here 1");
             Version sparkVersion = SparkSettings.Version;
             string deltaVersion = (sparkVersion.Major, sparkVersion.Minor) switch
             {
@@ -24,6 +25,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 (3, 2) => "delta-core_2.12:1.1.0",
                 _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
             };
+            Console.WriteLine("Here 2");
 
             (string, string)[] conf = new[]
             {
@@ -32,6 +34,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 // Set the writer protocol version for testing UpgradeTableProtocol().
                 ("spark.databricks.delta.minWriterVersion", "2")
             };
+            Console.WriteLine("Here 3");
 
             (string, string)[] extraConf = sparkVersion.Major switch
             {
@@ -44,14 +47,18 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 },
                 _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
             };
+            Console.WriteLine("Here 4");
 
             string confStr =
                 string.Join(" ", conf.Concat(extraConf).Select(c => $"--conf {c.Item1}={c.Item2}"));
+            Console.WriteLine("Here 5");
 
             Environment.SetEnvironmentVariable(
                 SparkFixture.EnvironmentVariableNames.ExtraSparkSubmitArgs,
                 $"--packages io.delta:{deltaVersion} {confStr}");
+            Console.WriteLine("Here 6");
             SparkFixture = new SparkFixture();
+            Console.WriteLine("Here end");
         }
     }
 
