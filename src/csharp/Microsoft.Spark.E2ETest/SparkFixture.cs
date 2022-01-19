@@ -50,6 +50,7 @@ namespace Microsoft.Spark.E2ETest
 
         public SparkFixture()
         {
+            Console.WriteLine("SparkFixture Here 1");
             // The worker directory must be set for the Microsoft.Spark.Worker executable.
             if (string.IsNullOrEmpty(
                 Environment.GetEnvironmentVariable(EnvironmentVariableNames.WorkerDir)))
@@ -58,7 +59,10 @@ namespace Microsoft.Spark.E2ETest
                     $"Environment variable '{EnvironmentVariableNames.WorkerDir}' must be set.");
             }
 
+            Console.WriteLine("SparkFixture Here 2");
+
             BuildSparkCmd(out var filename, out var args);
+            Console.WriteLine("SparkFixture Here 3");
 
             // Configure the process using the StartInfo properties.
             _process.StartInfo.FileName = filename;
@@ -70,6 +74,7 @@ namespace Microsoft.Spark.E2ETest
             _process.StartInfo.RedirectStandardInput = true;
             _process.StartInfo.RedirectStandardOutput = true;
             _process.StartInfo.RedirectStandardError = true;
+            Console.WriteLine("SparkFixture Here 4");
 
             bool isSparkReady = false;
             _process.OutputDataReceived += (sender, arguments) =>
@@ -94,16 +99,16 @@ namespace Microsoft.Spark.E2ETest
                     isSparkReady = true;
                 }
             };
-
+            Console.WriteLine("SparkFixture Here 5");
             _process.Start();
             _process.BeginOutputReadLine();
-
+            Console.WriteLine("SparkFixture Here 6");
             bool processExited = false;
             while (!isSparkReady && !processExited)
             {
                 processExited = _process.WaitForExit(500);
             }
-
+            Console.WriteLine("SparkFixture Here 7");
             if (processExited)
             {
                 _process.Dispose();
@@ -112,7 +117,7 @@ namespace Microsoft.Spark.E2ETest
                 throw new Exception(
                     $"Process exited prematurely with '{filename} {args}'.");
             }
-
+            Console.WriteLine("SparkFixture Here 8");
             Spark = SparkSession
                 .Builder()
                 // Lower the shuffle partitions to speed up groupBy() operations.
@@ -125,6 +130,7 @@ namespace Microsoft.Spark.E2ETest
             Spark.SparkContext.SetLogLevel(DefaultLogLevel);
 
             Jvm = Spark.Reference.Jvm;
+            Console.WriteLine("SparkFixture Here end");
         }
 
         public string AddPackages(string args)
