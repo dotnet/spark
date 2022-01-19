@@ -94,34 +94,10 @@ stages:
           workingDirectory: $(Build.BinariesDirectory)
 
         - task: DotNetCoreCLI@2
-          displayName: 'E2E tests'
+          displayName: 'Delta tests'
           inputs:
             command: test
-            projects: '**/Microsoft.Spark.E2ETest/*.csproj'
-            arguments: '--configuration $(buildConfiguration) ${{ option.testOptions }}'
-            workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
-          env:
-            HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
-            SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
-            DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
-
-        - task: DotNetCoreCLI@2
-          displayName: 'FileSystem tests'
-          inputs:
-            command: test
-            projects: '**/Microsoft.Spark.Extensions.FileSystem.E2ETest/*.csproj'
-            arguments: '--configuration $(buildConfiguration) ${{ option.testOptions }}'
-            workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
-          env:
-            HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
-            SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
-            DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
-
-        - task: DotNetCoreCLI@2
-          displayName: 'Hyperspace tests'
-          inputs:
-            command: test
-            projects: '**/Microsoft.Spark.Extensions.Hyperspace.E2ETest/*.csproj'
+            projects: '**/Microsoft.Spark.Extensions.Delta.E2ETest/*.csproj'
             arguments: '--configuration $(buildConfiguration) ${{ option.testOptions }}'
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
