@@ -99,6 +99,7 @@ namespace Microsoft.Spark.E2ETest
                     isSparkReady = true;
                 }
             };
+            Console.WriteLine("isSparkReady is -> ", isSparkReady);
             Console.WriteLine("SparkFixture Here 5");
             _process.Start();
             _process.BeginOutputReadLine();
