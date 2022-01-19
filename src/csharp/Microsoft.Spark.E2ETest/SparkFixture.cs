@@ -96,7 +96,12 @@ namespace Microsoft.Spark.E2ETest
                 if (!isSparkReady &&
                     arguments.Data.Contains("Backend running debug mode"))
                 {
+                    Console.WriteLine("isSparkReady is true");
                     isSparkReady = true;
+                }
+                if (!arguments.Data.Contains("Backend running debug mode"))
+                {
+                    Console.WriteLine("Backend running debug mode not in Data");
                 }
             };
             Console.WriteLine("isSparkReady is -> ", isSparkReady);
