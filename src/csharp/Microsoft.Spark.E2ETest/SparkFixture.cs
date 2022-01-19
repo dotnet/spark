@@ -106,7 +106,9 @@ namespace Microsoft.Spark.E2ETest
             bool processExited = false;
             while (!isSparkReady && !processExited)
             {
+                Console.WriteLine("SparkFixture Here 6.1");
                 processExited = _process.WaitForExit(500);
+                Console.WriteLine("SparkFixture Here 6.2");
             }
             Console.WriteLine("SparkFixture Here 7");
             if (processExited)
