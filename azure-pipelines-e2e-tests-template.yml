@@ -87,7 +87,7 @@ stages:
           displayName: 'E2E tests'
           inputs:
             command: test
-            projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+            projects: '**/Microsoft.Spark.Extensions.Delta.E2ETest/*.csproj'
             arguments: '--configuration $(buildConfiguration) ${{ option.testOptions }}'
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
