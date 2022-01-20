@@ -1,5 +1,7 @@
 # Spark .NET build
 
+Adding Command: configure
+
 trigger:
   batch: true
   branches:
