@@ -26,6 +26,10 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <XUnitCoreSettingsFile>$(MSBuildThisFileDirectory)xunit.runner.json</XUnitCoreSettingsFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)..\..\LICENSE"
              Pack="true"
