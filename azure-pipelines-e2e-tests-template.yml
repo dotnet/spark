@@ -106,7 +106,6 @@ stages:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
             SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
             DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
-            DEFAULT_ARTIFACT_REPOSITORY: 'https://repos.spark-packages.org/'
 
         # - pwsh: |
         #     echo "Downloading ${env:BACKWARD_COMPATIBLE_WORKER_URL}"
