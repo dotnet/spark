@@ -41,7 +41,7 @@ namespace Microsoft.Spark.E2ETest
 
         private readonly Process _process = new Process();
         private readonly TemporaryDirectory _tempDirectory = new TemporaryDirectory();
-        
+
         public const string DefaultLogLevel = "ERROR";
 
         internal SparkSession Spark { get; }
@@ -50,7 +50,6 @@ namespace Microsoft.Spark.E2ETest
 
         public SparkFixture()
         {
-            Console.WriteLine("SparkFixture Here 1");
             // The worker directory must be set for the Microsoft.Spark.Worker executable.
             if (string.IsNullOrEmpty(
                 Environment.GetEnvironmentVariable(EnvironmentVariableNames.WorkerDir)))
@@ -59,10 +58,7 @@ namespace Microsoft.Spark.E2ETest
                     $"Environment variable '{EnvironmentVariableNames.WorkerDir}' must be set.");
             }
 
-            Console.WriteLine("SparkFixture Here 2");
-
             BuildSparkCmd(out var filename, out var args);
-            Console.WriteLine("SparkFixture Here 3");
 
             // Configure the process using the StartInfo properties.
             _process.StartInfo.FileName = filename;
@@ -74,50 +70,29 @@ namespace Microsoft.Spark.E2ETest
             _process.StartInfo.RedirectStandardInput = true;
             _process.StartInfo.RedirectStandardOutput = true;
             _process.StartInfo.RedirectStandardError = true;
-            Console.WriteLine("SparkFixture Here 4");
 
             bool isSparkReady = false;
             _process.OutputDataReceived += (sender, arguments) =>
             {
                 // Scala-side driver for .NET emits the following message after it is
                 // launched and ready to accept connections.
-                if (arguments == null)
-                {
-                    Console.WriteLine("arguments is null");
-                }
-                else if (arguments.Data == null)
-                {
-                    Console.WriteLine("arguments.Data is null");
-                }
-                else
-                {
-                    Console.WriteLine("nothing is null");
-                }
                 if (!isSparkReady &&
                     arguments.Data.Contains("Backend running debug mode"))
                 {
-                    Console.WriteLine("isSparkReady is true");
                     isSparkReady = true;
                 }
-                if (!arguments.Data.Contains("Backend running debug mode"))
-                {
-                    Console.WriteLine("Backend running debug mode not in Data");
-                }
             };
-            Console.WriteLine($"isSparkReady is -> {isSparkReady}");
-            Console.WriteLine("SparkFixture Here 5");
+
             _process.Start();
             _process.BeginErrorReadLine();
             _process.BeginOutputReadLine();
-            Console.WriteLine("SparkFixture Here 6");
+
             bool processExited = false;
             while (!isSparkReady && !processExited)
             {
-                Console.WriteLine("SparkFixture Here 6.1");
                 processExited = _process.WaitForExit(500);
-                Console.WriteLine("SparkFixture Here 6.2");
             }
-            Console.WriteLine("SparkFixture Here 7");
+
             if (processExited)
             {
                 _process.Dispose();
@@ -126,7 +101,7 @@ namespace Microsoft.Spark.E2ETest
                 throw new Exception(
                     $"Process exited prematurely with '{filename} {args}'.");
             }
-            Console.WriteLine("SparkFixture Here 8");
+
             Spark = SparkSession
                 .Builder()
                 // Lower the shuffle partitions to speed up groupBy() operations.
@@ -135,11 +110,10 @@ namespace Microsoft.Spark.E2ETest
                 .Config("spark.ui.showConsoleProgress", false)
                 .AppName("Microsoft.Spark.E2ETest")
                 .GetOrCreate();
-                
+
             Spark.SparkContext.SetLogLevel(DefaultLogLevel);
 
             Jvm = Spark.Reference.Jvm;
-            Console.WriteLine("SparkFixture Here end");
         }
 
         public string AddPackages(string args)

@@ -31,11 +31,6 @@ variables:
   backwardCompatibleTestOptions_Linux_3_1: ""
   forwardCompatibleTestOptions_Linux_3_1: ""
 
-  backwardCompatibleTestOptions_Windows_3_2: ""
-  forwardCompatibleTestOptions_Windows_3_2: ""
-  backwardCompatibleTestOptions_Linux_3_2: ""
-  forwardCompatibleTestOptions_Linux_3_2: ""
-
   # Azure DevOps variables are transformed into environment variables, with these variables we
   # avoid the first time experience and telemetry to speed up the build.
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
@@ -336,13 +331,3 @@ stages:
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
-    - version: '3.2.0'
-      jobOptions:
-      - pool: 'Windows'
-        testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
-        forwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
-      - pool: 'Linux'
-        testOptions: ""
-        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
-        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
