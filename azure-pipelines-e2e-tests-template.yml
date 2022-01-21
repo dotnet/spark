@@ -18,33 +18,14 @@ stages:
     jobs:
     - ${{ each option in test.jobOptions }}:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
-        ${{ if eq(lower(option.pool), 'windows') }}:
-          pool:
-            vmImage: windows-2019
-        ${{ else }}:
-          pool:
-            name: NetCore1ESPool-Public
+        pool:
+          name: NetCore1ESPool-Public
+          ${{ if eq(lower(option.pool), 'windows') }}:
+            demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019.Open
+          ${{ else }}:
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
         steps:
-        - pwsh: |
-            java -version
-            gci env:* | sort-object name
-
-        - task: UseDotNet@2
-          displayName: 'Use .NET Core sdk'
-          inputs:
-            packageType: sdk
-            version: 3.1.x
-            installationPath: $(Agent.ToolsDirectory)/dotnet
-
-        # - task: JavaToolInstaller@0
-        #   displayName: 'Use Java jdk'
-        #   inputs:
-        #     versionSpec: '8'
-        #     jdkArchitectureOption: 'x64'
-        #     jdkSourceOption: 'PreInstalled'
-
         - task: DownloadBuildArtifacts@0
           displayName: Download Build Artifacts
           inputs:
@@ -118,6 +99,7 @@ stages:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
             SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
             DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
+            DEFAULT_ARTIFACT_REPOSITORY: 'https://repos.spark-packages.org/'
 
         # - pwsh: |
         #     echo "Downloading ${env:BACKWARD_COMPATIBLE_WORKER_URL}"
