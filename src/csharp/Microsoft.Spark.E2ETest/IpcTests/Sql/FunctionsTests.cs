@@ -805,5 +805,20 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<Column>(Slice(col, col, col));
         }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.2.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_2_0)]
+        public void TestSignaturesV3_2_X()
+        {
+            Column col = Column("col");
+
+            Assert.IsType<Column>(TypedLit(1));
+
+            Assert.IsType<Column>(Count_Distinct(col, col, col));
+
+            Assert.IsType<Column>(Product(col));
+        }
     }
 }
