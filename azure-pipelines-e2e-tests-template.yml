@@ -26,6 +26,13 @@ stages:
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
         steps:
+        - task: UseDotNet@2
+          displayName: 'Use .NET Core sdk'
+          inputs:
+            packageType: sdk
+            version: 3.1.x
+            installationPath: $(Agent.ToolsDirectory)/dotnet
+
         - task: DownloadBuildArtifacts@0
           displayName: Download Build Artifacts
           inputs:
@@ -93,7 +100,7 @@ stages:
           inputs:
             command: test
             projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-            arguments: '--verbosity d --configuration $(buildConfiguration) ${{ option.testOptions }} -nodereuse:false'
+            arguments: '--configuration $(buildConfiguration) ${{ option.testOptions }}'
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
