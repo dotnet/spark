@@ -84,6 +84,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 dfw.Option("path", tempDir.Path).SaveAsTable("TestTable");
 
                 dfw.InsertInto("TestTable");
+                //spark.sql.legacy.allowNonEmptyLocationInCTAS = true
 
                 // In Spark 3.1.1+ setting the `path` Option and then calling .Save(path) is not
                 // supported unless `spark.sql.legacy.pathOptionBehavior.enabled` conf is set.
