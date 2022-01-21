@@ -107,6 +107,7 @@ namespace Microsoft.Spark.E2ETest
             Console.WriteLine($"isSparkReady is -> {isSparkReady}");
             Console.WriteLine("SparkFixture Here 5");
             _process.Start();
+            _process.BeginErrorReadLine();
             _process.BeginOutputReadLine();
             Console.WriteLine("SparkFixture Here 6");
             bool processExited = false;
@@ -237,7 +238,8 @@ namespace Microsoft.Spark.E2ETest
             string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
 
-            args = $"{logOption} {warehouseDir} {AddPackages(extraArgs)} {repositories} {classArg} --master local {jar} debug";
+            args = $"{logOption} {warehouseDir} {AddPackages(extraArgs)} {repositories} {classArg} " +
+                $"--master local {jar} debug";
         }
 
         private string GetJarPrefix()
