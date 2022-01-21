@@ -18,11 +18,11 @@ stages:
     jobs:
     - ${{ each option in test.jobOptions }}:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
-        pool:
-          name: NetCore1ESPool-Public
-          ${{ if eq(lower(option.pool), 'windows') }}:
-            demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019.Open
-          ${{ else }}:
+        ${{ if eq(lower(option.pool), 'windows') }}:
+          pool: Hosted 2017
+        ${{ else }}:
+          pool:
+            name: NetCore1ESPool-Public
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
         steps:
@@ -106,6 +106,7 @@ stages:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
             SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
             DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
+            DEFAULT_ARTIFACT_REPOSITORY: 'https://repos.spark-packages.org/'
 
         # - pwsh: |
         #     echo "Downloading ${env:BACKWARD_COMPATIBLE_WORKER_URL}"
