@@ -84,6 +84,7 @@ namespace Microsoft.Spark.E2ETest
             };
 
             _process.Start();
+            _process.BeginErrorReadLine();
             _process.BeginOutputReadLine();
 
             bool processExited = false;
