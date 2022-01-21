@@ -18,11 +18,11 @@ stages:
     jobs:
     - ${{ each option in test.jobOptions }}:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
-        pool:
-          name: NetCore1ESPool-Public
-          ${{ if eq(lower(option.pool), 'windows') }}:
-            demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019.Open
-          ${{ else }}:
+        ${{ if eq(lower(option.pool), 'windows') }}:
+          pool: Hosted VS2017
+        ${{ else }}:
+          pool:
+            name: NetCore1ESPool-Public
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
         steps:
@@ -32,6 +32,7 @@ stages:
             packageType: sdk
             version: 3.1.x
             installationPath: $(Agent.ToolsDirectory)/dotnet
+
         - task: DownloadBuildArtifacts@0
           displayName: Download Build Artifacts
           inputs:
