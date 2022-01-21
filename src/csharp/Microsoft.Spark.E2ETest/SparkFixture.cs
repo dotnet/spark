@@ -193,9 +193,10 @@ namespace Microsoft.Spark.E2ETest
                 Path.Combine(_tempDirectory.Path, "spark-warehouse")).AbsoluteUri;
             string warehouseDir = $"--conf spark.sql.warehouse.dir={warehouseUri}";
 
-            // Spark2 < 2.4.8 and Spark3 < 3.1.2 use bintray as the repository service for spark-packages.
-            // As of  May 1st, 2021 bintray has been sunset and is no longer available. Specify
-            // additional remote repositories to search for the maven coordinates given with --packages.
+            // Spark24 < 2.4.8, Spark30 < 3.0.3 and Spark31 < 3.1.2 use bintray as the repository
+            // service for spark-packages. As of  May 1st, 2021 bintray has been sunset and is no
+            // longer available. Specify additional remote repositories to search for the maven
+            // coordinates given with --packages.
             string repositories = "--repositories https://repos.spark-packages.org/";
 
             string extraArgs = Environment.GetEnvironmentVariable(
