@@ -74,24 +74,16 @@ namespace Microsoft.Spark.E2ETest
             bool isSparkReady = false;
             _process.OutputDataReceived += (sender, arguments) =>
             {
-                Console.WriteLine(arguments.Data ?? string.Empty);
                 // Scala-side driver for .NET emits the following message after it is
                 // launched and ready to accept connections.
                 if (!isSparkReady &&
-                    arguments.Data != null &&
                     arguments.Data.Contains("Backend running debug mode"))
                 {
                     isSparkReady = true;
                 }
             };
 
-            _process.ErrorDataReceived += (sender, arguments) =>
-            {
-                Console.WriteLine(arguments.Data ?? string.Empty);
-            };
-
             _process.Start();
-            _process.BeginErrorReadLine();
             _process.BeginOutputReadLine();
 
             bool processExited = false;
@@ -200,6 +192,9 @@ namespace Microsoft.Spark.E2ETest
                 Path.Combine(_tempDirectory.Path, "spark-warehouse")).AbsoluteUri;
             string warehouseDir = $"--conf spark.sql.warehouse.dir={warehouseUri}";
 
+            // Spark2 < 2.4.8 and Spark3 < 3.1.2 use bintray as the repository service for spark-packages.
+            // As of  May 1st, 2021 bintray has been sunset and is no longer available. Specify
+            // additional remote repositories to search for the maven coordinates given with --packages.
             string repositories = "--repositories https://repos.spark-packages.org/";
 
             string extraArgs = Environment.GetEnvironmentVariable(
