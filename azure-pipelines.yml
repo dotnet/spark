@@ -13,8 +13,8 @@ variables:
   MSBUILDSINGLELOADCONTEXT: 1
   ArtifactPath: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries'
 
-  backwardCompatibleRelease: '1.0.0'
-  forwardCompatibleRelease: '1.0.0'
+  backwardCompatibleRelease: '2.0.0'
+  forwardCompatibleRelease: '2.0.0'
 
   backwardCompatibleTestOptions_Windows_2_4: ""
   forwardCompatibleTestOptions_Windows_2_4: ""
@@ -30,6 +30,11 @@ variables:
   forwardCompatibleTestOptions_Windows_3_1: ""
   backwardCompatibleTestOptions_Linux_3_1: ""
   forwardCompatibleTestOptions_Linux_3_1: ""
+
+  backwardCompatibleTestOptions_Windows_3_2: ""
+  forwardCompatibleTestOptions_Windows_3_2: ""
+  backwardCompatibleTestOptions_Linux_3_2: ""
+  forwardCompatibleTestOptions_Linux_3_2: ""
 
   # Azure DevOps variables are transformed into environment variables, with these variables we
   # avoid the first time experience and telemetry to speed up the build.
@@ -331,3 +336,13 @@ stages:
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
+    - version: '3.2.0'
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
+        forwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)

@@ -51,7 +51,6 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
             Environment.SetEnvironmentVariable(
                 SparkFixture.EnvironmentVariableNames.ExtraSparkSubmitArgs,
                 $"--packages io.delta:{deltaVersion} {confStr}");
-
             SparkFixture = new SparkFixture();
         }
     }
