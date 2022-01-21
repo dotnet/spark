@@ -74,6 +74,7 @@ namespace Microsoft.Spark.E2ETest
             bool isSparkReady = false;
             _process.OutputDataReceived += (sender, arguments) =>
             {
+                Console.WriteLine(arguments.Data ?? string.Empty);
                 // Scala-side driver for .NET emits the following message after it is
                 // launched and ready to accept connections.
                 if (!isSparkReady &&
@@ -81,11 +82,15 @@ namespace Microsoft.Spark.E2ETest
                 {
                     isSparkReady = true;
                 }
+            };
 
-                Console.WriteLine(arguments.Data);
+            _process.ErrorDataReceived += (sender, arguments) =>
+            {
+                Console.WriteLine(arguments.Data ?? string.Empty);
             };
 
             _process.Start();
+            _process.BeginErrorReadLine();
             _process.BeginOutputReadLine();
 
             bool processExited = false;
