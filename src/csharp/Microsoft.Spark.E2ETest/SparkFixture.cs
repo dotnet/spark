@@ -81,6 +81,8 @@ namespace Microsoft.Spark.E2ETest
                 {
                     isSparkReady = true;
                 }
+
+                Console.WriteLine(arguments.Data);
             };
 
             _process.Start();
