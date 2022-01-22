@@ -70,7 +70,7 @@ namespace Microsoft.Spark.Sql
             return new Column(
                 (JvmObjectReference)Jvm.CallStaticJavaMethod(
                     s_functionsClassName,
-                    "typedLit",
+                    "typedlit",
                     literal));
         }
 
