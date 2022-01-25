@@ -141,6 +141,10 @@ namespace Microsoft.Spark.Worker
             {
                 DateTime bootTime = DateTime.UtcNow;
 
+                int pid = Process.GetCurrentProcess().Id;
+                SerDe.Write(outputStream, pid);
+                outputStream.Flush();
+
                 Payload payload = new PayloadProcessor(version).Process(inputStream);
                 if (payload is null)
                 {
