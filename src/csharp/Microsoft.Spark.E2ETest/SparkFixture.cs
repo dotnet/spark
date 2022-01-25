@@ -108,7 +108,6 @@ namespace Microsoft.Spark.E2ETest
                 .Config("spark.sql.shuffle.partitions", "3")
                 .Config("spark.ui.enabled", false)
                 .Config("spark.ui.showConsoleProgress", false)
-                .Config("spark.sql.legacy.allowNonEmptyLocationInCTAS", true)
                 .AppName("Microsoft.Spark.E2ETest")
                 .GetOrCreate();
                 
