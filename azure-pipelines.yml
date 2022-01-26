@@ -390,3 +390,13 @@ stages:
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
+    - version: '3.2.1'
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
+        forwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
