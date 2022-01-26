@@ -365,7 +365,7 @@ stages:
       - pool: 'Windows'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
-        forwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_1)
       - pool: 'Linux'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
@@ -375,7 +375,7 @@ stages:
       - pool: 'Windows'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
-        forwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_1)
       - pool: 'Linux'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
@@ -385,7 +385,7 @@ stages:
       - pool: 'Windows'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
-        forwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_2)
       - pool: 'Linux'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
@@ -395,7 +395,7 @@ stages:
       - pool: 'Windows'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
-        forwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_2)
       - pool: 'Linux'
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
