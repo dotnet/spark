@@ -60,5 +60,11 @@ namespace Microsoft.Spark.Worker.UnitTest
             
             return rowsReceived;
         }
+
+        public static int ReadInt(Stream inputStream)
+        {
+            int value = SerDe.ReadInt32(inputStream);
+            return value;
+        }
     }
 }

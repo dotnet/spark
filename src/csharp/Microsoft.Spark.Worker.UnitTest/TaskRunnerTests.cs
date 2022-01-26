@@ -40,6 +40,8 @@ namespace Microsoft.Spark.Worker.UnitTest
                 System.IO.Stream inputStream = serverSocket.InputStream;
                 System.IO.Stream outputStream = serverSocket.OutputStream;
 
+                int pid = PayloadReader.ReadInt(inputStream);
+
                 payloadWriter.WriteTestData(outputStream);
                 // Now process the bytes flowing in from the client.
                 List<object[]> rowsReceived = PayloadReader.Read(inputStream);
