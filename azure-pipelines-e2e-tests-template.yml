@@ -26,6 +26,13 @@ stages:
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
         steps:
+        - script: 'wget https://archive.apache.org/dist/maven/maven-3/3.5.3/binaries/apache-maven-3.5.3-bin.zip'
+
+        - task: ExtractFiles@1
+          inputs:
+              archiveFilePatterns: 'apache-maven-3.5.3-bin.zip'
+              destinationFolder: '$(build.sourcesdirectory)/maven'
+
         - task: UseDotNet@2
           displayName: 'Use .NET Core sdk'
           inputs:
@@ -136,6 +143,7 @@ stages:
         - task: Maven@3
           displayName: 'Maven build src for forward compatible release v${{ parameters.forwardCompatibleRelease }}'
           inputs:
+             mavenDirectory: '$(build.sourcesdirectory)/maven/apache-maven-3.5.3'
              mavenPomFile: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark-${{ parameters.forwardCompatibleRelease }}$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala$(PATH_SEPARATOR)pom.xml
 
         - task: DotNetCoreCLI@2
