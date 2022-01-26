@@ -143,7 +143,9 @@ stages:
         - task: Maven@3
           displayName: 'Maven build src for forward compatible release v${{ parameters.forwardCompatibleRelease }}'
           inputs:
+             mavenVersionOption: 'Path'
              mavenDirectory: '$(build.sourcesdirectory)/maven/apache-maven-3.5.3'
+             mavenSetM2Home: true
              mavenPomFile: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark-${{ parameters.forwardCompatibleRelease }}$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala$(PATH_SEPARATOR)pom.xml
 
         - task: DotNetCoreCLI@2
