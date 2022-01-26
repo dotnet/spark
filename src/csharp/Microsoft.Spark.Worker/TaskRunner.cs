@@ -129,6 +129,12 @@ namespace Microsoft.Spark.Worker
             s_logger.LogInfo($"Stopping TaskRunner [{TaskId}]");
         }
 
+        private Version GetSparkVersion()
+        {
+            return new Version(Environment.
+                    GetEnvironmentVariable("DOTNET_WORKER_SPARK_VERSION"));
+        }
+
         private Payload ProcessStream(
             Stream inputStream,
             Stream outputStream,
@@ -141,10 +147,7 @@ namespace Microsoft.Spark.Worker
             {
                 DateTime bootTime = DateTime.UtcNow;
 
-                var sparkVersion = new Version(
-                Environment.GetEnvironmentVariable("DOTNET_WORKER_SPARK_VERSION"));
-
-                if (sparkVersion.Major == 3 && sparkVersion.Minor == 2)
+                if (version.Major == 3 && version.Minor == 2)
                 {
                     int pid = Process.GetCurrentProcess().Id;
                     SerDe.Write(outputStream, pid);

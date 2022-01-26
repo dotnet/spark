@@ -55,7 +55,10 @@ namespace Microsoft.Spark.Worker.UnitTest
             clientSockets.Add(clientSocket);
             clientSocket.Connect(ipEndpoint.Address, port);
 
-            int pid = PayloadReader.ReadInt(clientSocket.InputStream);
+            if (version.Major == 3 && version.Minor == 2)
+            {
+                int pid = PayloadReader.ReadInt(clientSocket.InputStream);
+            }
 
             // Now process the bytes flowing in from the client.
             PayloadWriter payloadWriter = new PayloadWriterFactory().Create(version);
