@@ -141,9 +141,15 @@ namespace Microsoft.Spark.Worker
             {
                 DateTime bootTime = DateTime.UtcNow;
 
-                int pid = Process.GetCurrentProcess().Id;
-                SerDe.Write(outputStream, pid);
-                outputStream.Flush();
+                var sparkVersion = new Version(
+                Environment.GetEnvironmentVariable("DOTNET_WORKER_SPARK_VERSION"));
+
+                if (sparkVersion.Major == 3 && sparkVersion.Minor == 2)
+                {
+                    int pid = Process.GetCurrentProcess().Id;
+                    SerDe.Write(outputStream, pid);
+                    outputStream.Flush();
+                }
 
                 Payload payload = new PayloadProcessor(version).Process(inputStream);
                 if (payload is null)
