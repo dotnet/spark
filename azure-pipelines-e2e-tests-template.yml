@@ -26,7 +26,7 @@ stages:
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
         steps:
-        - script: 'wget https://archive.apache.org/dist/maven/maven-3/3.5.3/binaries/apache-maven-3.5.3-bin.zip'
+        - script: 'curl -k -L -o apache-maven-3.5.3-bin.zip https://archive.apache.org/dist/maven/maven-3/3.5.3/binaries/apache-maven-3.5.3-bin.zip'
 
         - task: ExtractFiles@1
           inputs:
