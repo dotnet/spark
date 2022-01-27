@@ -81,7 +81,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                 dfw.Csv($"{tempDir.Path}TestCsvPath");
 
-                dfw.Option("path", tempDir.Path).SaveAsTable("TestTable");
+                // In Spark 3.2.0+ cannot create table with location to a non-empty directory.
+                // To allow overwriting the existing non-empty directory, set
+                // 'spark.sql.legacy.allowNonEmptyLocationInCTAS' to true.
+                dfw.Option("path", $"{tempDir.Path}EmptyDir").SaveAsTable("TestTable");
 
                 dfw.InsertInto("TestTable");
 
