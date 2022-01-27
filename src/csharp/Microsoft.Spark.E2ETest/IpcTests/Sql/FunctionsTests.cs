@@ -814,8 +814,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         {
             Column col = Column("col");
 
-            Assert.IsType<Column>(TypedLit(1));
-
             Assert.IsType<Column>(Count_Distinct(col, col, col));
 
             Assert.IsType<Column>(Product(col));

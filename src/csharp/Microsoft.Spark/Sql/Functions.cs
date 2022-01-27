@@ -55,25 +55,6 @@ namespace Microsoft.Spark.Sql
                     literal));
         }
 
-        /// <summary>
-        /// Creates a Column of literal value.
-        /// The passed in object is returned directly if it is already a [[Column]]. If the object is a Scala
-        /// Symbol, it is converted into a Column also. Otherwise, a new [[Column]] is created to represent 
-        /// the literal value. The difference between this function and [[lit]] is that this function can 
-        /// handle parameterized scala types e.g.: List, Seq and Map.
-        /// </summary>
-        /// <param name="literal">Literal value</param>
-        /// <returns>Column object</returns>
-        [Since(Versions.V3_2_0)]
-        public static Column TypedLit(object literal)
-        {
-            return new Column(
-                (JvmObjectReference)Jvm.CallStaticJavaMethod(
-                    s_functionsClassName,
-                    "typedlit",
-                    literal));
-        }
-
         /////////////////////////////////////////////////////////////////////////////////
         // Sort functions
         /////////////////////////////////////////////////////////////////////////////////
