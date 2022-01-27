@@ -41,24 +41,29 @@ stages:
 
         - pwsh: |
             $framework = "netcoreapp3.1"
+
             if ($env:AGENT_OS -eq 'Windows_NT') {
               $runtimeIdentifier = "win-x64"
             } else {
               $runtimeIdentifier = "linux-x64"
             }
+
             $pathSeparator = [IO.Path]::DirectorySeparatorChar
             $artifactPath = "$(Build.ArtifactStagingDirectory)${pathSeparator}Microsoft.Spark.Binaries"
             echo "##vso[task.setvariable variable=PATH_SEPARATOR]$pathSeparator"
             echo "##vso[task.setvariable variable=ArtifactPath]$artifactPath"
+
             $backwardCompatibleRelease = "${{ parameters.backwardCompatibleRelease }}"
             echo "##vso[task.setvariable variable=BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR]$(Build.BinariesDirectory)${pathSeparator}Microsoft.Spark.Worker-${backwardCompatibleRelease}"
             echo "##vso[task.setvariable variable=BACKWARD_COMPATIBLE_WORKER_URL]https://github.com/dotnet/spark/releases/download/v${backwardCompatibleRelease}/Microsoft.Spark.Worker.${framework}.${runtimeIdentifier}-${backwardCompatibleRelease}.zip"
+
             $dotnetWorkerDir = "${artifactPath}${pathSeparator}Microsoft.Spark.Worker${pathSeparator}${framework}${pathSeparator}${runtimeIdentifier}"
             echo "##vso[task.setvariable variable=CURRENT_DOTNET_WORKER_DIR]$dotnetWorkerDir"
             if ($env:AGENT_OS -eq 'Linux') {
               chmod +x "${dotnetWorkerDir}${pathSeparator}Microsoft.Spark.Worker"
             }
           displayName: 'Setup Variables and Permissions'
+
         - checkout: self
           path: s$(PATH_SEPARATOR)dotnet-spark
 
@@ -82,12 +87,14 @@ stages:
               Expand-Archive -Path hadoop.zip -Destination .
               New-Item -ItemType Directory -Force -Path hadoop\bin
               cp hadoop-2.8.1\winutils.exe hadoop\bin
+
         - pwsh: |
             echo "Downloading Spark ${{ test.version }}"
             curl -k -L -o spark-${{ test.version }}.tgz https://archive.apache.org/dist/spark/spark-${{ test.version }}/spark-${{ test.version }}-bin-hadoop2.7.tgz
             tar xzvf spark-${{ test.version }}.tgz
           displayName: 'Download Spark Distro ${{ test.version }}'
           workingDirectory: $(Build.BinariesDirectory)
+
         - task: DotNetCoreCLI@2
           displayName: 'E2E tests'
           inputs:
