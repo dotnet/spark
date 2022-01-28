@@ -837,8 +837,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<Column>(NextDay(col, col));
 
-            Assert.IsType<Column>(SessionWindow(col, "5 seconds"));
-            Assert.IsType<Column>(SessionWindow(col, col));
+            Assert.IsType<Column>(Session_Window(col, "5 seconds"));
+            Assert.IsType<Column>(Session_Window(col, col));
 
             Assert.IsType<Column>(Call_UDF("name", col, col));
         }

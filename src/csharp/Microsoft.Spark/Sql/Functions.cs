@@ -273,6 +273,7 @@ namespace Microsoft.Spark.Sql
 
         /// <summary>
         /// Returns the number of distinct items in a group.
+        /// An alias of `Count_Distinct`, and it is encouraged to use `Count_Distinct` directly.
         /// </summary>
         /// <param name="column">Column to apply</param>
         /// <param name="columns">Additional columns to apply</param>
@@ -284,7 +285,6 @@ namespace Microsoft.Spark.Sql
 
         /// <summary>
         /// Returns the number of distinct items in a group.
-        /// An alias of `Count_Distinct`, and it is encouraged to use `Count_Distinct` directly.
         /// </summary>
         /// <param name="columnName">Column name</param>
         /// <param name="columnNames">Additional column names</param>
@@ -569,7 +569,7 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
-        /// Returns the product of all numerical elements in a group
+        /// Returns the product of all numerical elements in a group.
         /// </summary>
         /// <param name="column">Column to apply</param>
         /// <returns>Column object</returns>
@@ -2884,8 +2884,8 @@ namespace Microsoft.Spark.Sql
         /// Splits a string into arrays of sentences, where each sentence is an array of words.
         /// </summary>
         /// <param name="str">String to split</param>
-        /// <param name="language">Language used to split sentence</param>
-        /// <param name="country">Country of origin of language</param>
+        /// <param name="language">Language of the locale</param>
+        /// <param name="country">Country of the locale</param>
         /// <returns>Column object</returns>
         [Since(Versions.V3_2_0)]
         public static Column Sentences(Column str, Column language, Column country)
@@ -3199,7 +3199,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="date">Date column</param>
         /// <param name="dayOfWeek">
-        /// One of the following (case-insensitive):
+        /// A column of the day of week. One of the following (case-insensitive):
         ///   "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun".
         /// </param>
         /// <returns>Column object</returns>
@@ -3511,7 +3511,7 @@ namespace Microsoft.Spark.Sql
         /// '1 second'</param>
         /// <returns>Column object</returns>
         [Since(Versions.V3_2_0)]
-        public static Column SessionWindow(Column timeColumn, string gapDuration)
+        public static Column Session_Window(Column timeColumn, string gapDuration)
         {
             return ApplyFunction("session_window", timeColumn, gapDuration);
         }
@@ -3526,7 +3526,7 @@ namespace Microsoft.Spark.Sql
         /// dynamically based on the input row.</param>
         /// <returns>Column object</returns>
         [Since(Versions.V3_2_0)]
-        public static Column SessionWindow(Column timeColumn, Column gapDuration)
+        public static Column Session_Window(Column timeColumn, Column gapDuration)
         {
             return ApplyFunction("session_window", timeColumn, gapDuration);
         }
