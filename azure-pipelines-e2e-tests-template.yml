@@ -127,7 +127,7 @@ stages:
             if ($env:AGENT_OS -eq 'Linux') {
               chmod +x "${env:BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR}${env:PATH_SEPARATOR}Microsoft.Spark.Worker"
             }
-          condition: eq($ {{ test.disableCompatTests }}, false)
+          condition: eq(${{ test.disableCompatTests }}, false)
           displayName: 'Setup Backward Compatible Microsoft Spark Worker ${{ parameters.backwardCompatibleRelease }}'
           workingDirectory: $(Build.BinariesDirectory)
 
