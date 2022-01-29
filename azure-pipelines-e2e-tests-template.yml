@@ -35,7 +35,7 @@ stages:
             targetType: inline
             script: |
               sudo apt update
-              sudo apt install maven
+              sudo apt -y install maven
               mvn -version
 
         - task: UseDotNet@2
@@ -148,7 +148,7 @@ stages:
         - task: Maven@3
           displayName: 'Maven build src for forward compatible release v${{ parameters.forwardCompatibleRelease }}'
           inputs:
-            mavenVersionOption: 'Path'
+            mavenVersionOption: 'Default'
             mavenPomFile: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark-${{ parameters.forwardCompatibleRelease }}$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala$(PATH_SEPARATOR)pom.xml
 
         - task: DotNetCoreCLI@2
