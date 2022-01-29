@@ -29,6 +29,7 @@ stages:
         - pwsh: |
             apt install maven
             mvn -version
+        
           condition: ${{ if eq(lower(option.pool), 'linux') }}
           displayName: 'install Maven on Linux'
 
