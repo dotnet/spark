@@ -30,8 +30,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             {
                 if ((typedVersion.Major == 3 && typedVersion.Minor >= 2) || typedVersion.Major > 3)
                 {
-                    System.IO.Stream inputStream = serverSocket.InputStream;
-                    int pid = SerDe.ReadInt32(inputStream);
+                    int pid = SerDe.ReadInt32(serverSocket.InputStream);
                 }
 
                 TaskRunnerTests.TestTaskRunnerReadWrite(serverSocket, payloadWriter);
