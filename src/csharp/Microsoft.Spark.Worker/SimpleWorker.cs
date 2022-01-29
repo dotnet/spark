@@ -40,7 +40,7 @@ namespace Microsoft.Spark.Worker
                 ISocketWrapper socket = SocketFactory.CreateSocket();
                 socket.Connect(IPAddress.Loopback, port, secret);
 
-                if (_version.Major >= 3 && _version.Minor >= 2)
+                if (_version.Major == 3 && _version.Minor >= 2 || _version.Major > 3)
                 {
                     int pid = Process.GetCurrentProcess().Id;
                     SerDe.Write(socket.OutputStream, pid);

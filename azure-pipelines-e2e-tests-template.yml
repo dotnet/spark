@@ -34,7 +34,8 @@ stages:
             pwsh: true
             targetType: inline
             script: |
-              apt install maven
+              sudo apt update
+              sudo apt install maven
               mvn -version
 
         - task: UseDotNet@2

@@ -28,7 +28,8 @@ namespace Microsoft.Spark.Worker.UnitTest
             PayloadWriter payloadWriter = new PayloadWriterFactory().Create(typedVersion);
             using (ISocketWrapper serverSocket = serverListener.Accept())
             {
-                if (payloadWriter.Version.Major >= 3 && payloadWriter.Version.Minor >= 2)
+                if (payloadWriter.Version.Major == 3 && payloadWriter.Version.Minor >= 2
+                    || payloadWriter.Version.Major > 3)
                 {
                     System.IO.Stream inputStream = serverSocket.InputStream;
                     int pid = SerDe.ReadInt32(inputStream);
