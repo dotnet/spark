@@ -27,7 +27,7 @@ stages:
 
         steps:
         - task: PowerShell@2
-          condition: eq( lower(option.pool), 'linux')
+          condition: eq( $env:AGENT_OS, 'Linux')
           displayName: Install Maven for Linux agent
           inputs:
             workingDirectory: $(Build.BinariesDirectory)
