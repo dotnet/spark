@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
 using Xunit;
 
@@ -25,7 +26,16 @@ namespace Microsoft.Spark.Worker.UnitTest
             Task clientTask = Task.Run(() => simpleWorker.Run(ipEndpoint.Port));
 
             PayloadWriter payloadWriter = new PayloadWriterFactory().Create(typedVersion);
-            TaskRunnerTests.TestTaskRunnerReadWrite(serverListener, payloadWriter);
+            ISocketWrapper serverSocket = serverListener.Accept();
+
+            if (payloadWriter.Version.Major >= 3 && payloadWriter.Version.Minor >= 2)
+            {
+                System.IO.Stream inputStream = serverSocket.InputStream;
+                int pid = SerDe.ReadInt32(inputStream);
+            }
+
+            TaskRunnerTests.TestTaskRunnerReadWrite(serverSocket, payloadWriter);
+            serverSocket.Dispose();
 
             Assert.True(clientTask.Wait(5000));
         }

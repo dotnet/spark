@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -26,41 +27,37 @@ namespace Microsoft.Spark.Worker.UnitTest
             var taskRunner = new TaskRunner(0, clientSocket, false, payloadWriter.Version);
             Task clientTask = Task.Run(() => taskRunner.Run());
 
-            TestTaskRunnerReadWrite(serverListener, payloadWriter);
+            ISocketWrapper serverSocket = serverListener.Accept();
 
+            TestTaskRunnerReadWrite(serverSocket, payloadWriter);
+
+            serverSocket.Dispose();
             Assert.True(clientTask.Wait(5000));
         }
 
         internal static void TestTaskRunnerReadWrite(
-            ISocketWrapper serverListener,
+            ISocketWrapper serverSocket,
             PayloadWriter payloadWriter)
         {
-            using (ISocketWrapper serverSocket = serverListener.Accept())
+            System.IO.Stream inputStream = serverSocket.InputStream;
+            System.IO.Stream outputStream = serverSocket.OutputStream;
+
+            payloadWriter.WriteTestData(outputStream);
+            // Now process the bytes flowing in from the client.
+            List<object[]> rowsReceived = PayloadReader.Read(inputStream);
+
+            // Validate rows received.
+            Assert.Equal(10, rowsReceived.Count);
+            for (int i = 0; i < 10; ++i)
             {
-                System.IO.Stream inputStream = serverSocket.InputStream;
-                System.IO.Stream outputStream = serverSocket.OutputStream;
-
-                if (payloadWriter.Version.Major == 3 && payloadWriter.Version.Minor == 2)
-                {
-                    int pid = PayloadReader.ReadInt(inputStream);
-                }
-
-                payloadWriter.WriteTestData(outputStream);
-                // Now process the bytes flowing in from the client.
-                List<object[]> rowsReceived = PayloadReader.Read(inputStream);
-
-                // Validate rows received.
-                Assert.Equal(10, rowsReceived.Count);
-                for (int i = 0; i < 10; ++i)
-                {
-                    // Two UDFs registered, thus expecting two columns.
-                    // Refer to TestData.GetDefaultCommandPayload().
-                    object[] row = rowsReceived[i];
-                    Assert.Equal(2, rowsReceived[i].Length);
-                    Assert.Equal($"udf2 udf1 {i}", row[0]);
-                    Assert.Equal(i + i, row[1]);
-                }
+                // Two UDFs registered, thus expecting two columns.
+                // Refer to TestData.GetDefaultCommandPayload().
+                object[] row = rowsReceived[i];
+                Assert.Equal(2, rowsReceived[i].Length);
+                Assert.Equal($"udf2 udf1 {i}", row[0]);
+                Assert.Equal(i + i, row[1]);
             }
         }
     }
+    
 }

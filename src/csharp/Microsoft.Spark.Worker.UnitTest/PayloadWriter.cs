@@ -304,12 +304,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                         new TaskContextWriterV2_4_X(),
                         new BroadcastVariableWriterV2_4_X(),
                         new CommandWriterV2_4_X());
-                case Versions.V3_0_0:
-                    return new PayloadWriter(
-                        version,
-                        new TaskContextWriterV3_0_X(),
-                        new BroadcastVariableWriterV2_4_X(),
-                        new CommandWriterV2_4_X());
+                case Versions.V3_0_0: 
                 case Versions.V3_2_0:
                     return new PayloadWriter(
                         version,
