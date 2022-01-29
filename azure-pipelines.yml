@@ -208,6 +208,7 @@ stages:
     forwardCompatibleRelease: $(forwardCompatibleRelease)
     tests:
     - version: '2.4.0'
+      disableCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -218,6 +219,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.1'
+      disableCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -228,6 +230,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.3'
+      disableCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -238,6 +241,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.4'
+      disableCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -248,6 +252,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.5'
+      disableCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -258,6 +263,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.6'
+      disableCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -268,6 +274,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.7'
+      disableCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -278,6 +285,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.8'
+      disableCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -288,6 +296,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '3.0.0'
+      disableCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -298,6 +307,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
     - version: '3.0.1'
+      disableCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -308,6 +318,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
     - version: '3.0.2'
+      disableCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -318,6 +329,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
     - version: '3.1.1'
+      disableCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -328,6 +340,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
     - version: '3.1.2'
+      disableCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -338,6 +351,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
     - version: '3.2.0'
+      disableCompatTests: true
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -348,6 +362,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
     - version: '3.2.1'
+      disableCompatTests: true
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
