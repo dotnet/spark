@@ -127,6 +127,7 @@ stages:
            if ($env:AGENT_OS -eq 'Linux') {
            chmod +x "${env:BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR}${env:PATH_SEPARATOR}Microsoft.Spark.Worker"
            }
+          condition: and(ne('${{ test.version }}', '3.2.0'), ne('${{ test.version }}', '3.2.1'))
           displayName: 'Setup Backward Compatible Microsoft Spark Worker ${{ parameters.backwardCompatibleRelease }}'
           workingDirectory: $(Build.BinariesDirectory)
 
@@ -147,7 +148,7 @@ stages:
 
         - task: Maven@3
           displayName: 'Maven build src for forward compatible release v${{ parameters.forwardCompatibleRelease }}'
-          condition: ne('${{ test.version }}', '3.2.0')
+          condition: and(ne('${{ test.version }}', '3.2.0'), ne('${{ test.version }}', '3.2.1'))
           inputs:
             mavenVersionOption: 'Default'
             mavenPomFile: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark-${{ parameters.forwardCompatibleRelease }}$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala$(PATH_SEPARATOR)pom.xml
