@@ -26,16 +26,16 @@ namespace Microsoft.Spark.Worker.UnitTest
             Task clientTask = Task.Run(() => simpleWorker.Run(ipEndpoint.Port));
 
             PayloadWriter payloadWriter = new PayloadWriterFactory().Create(typedVersion);
-            ISocketWrapper serverSocket = serverListener.Accept();
-
-            if (payloadWriter.Version.Major >= 3 && payloadWriter.Version.Minor >= 2)
+            using (ISocketWrapper serverSocket = serverListener.Accept())
             {
-                System.IO.Stream inputStream = serverSocket.InputStream;
-                int pid = SerDe.ReadInt32(inputStream);
-            }
+                if (payloadWriter.Version.Major >= 3 && payloadWriter.Version.Minor >= 2)
+                {
+                    System.IO.Stream inputStream = serverSocket.InputStream;
+                    int pid = SerDe.ReadInt32(inputStream);
+                }
 
-            TaskRunnerTests.TestTaskRunnerReadWrite(serverSocket, payloadWriter);
-            serverSocket.Dispose();
+                TaskRunnerTests.TestTaskRunnerReadWrite(serverSocket, payloadWriter);
+            }
 
             Assert.True(clientTask.Wait(5000));
         }

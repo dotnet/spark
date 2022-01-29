@@ -27,9 +27,9 @@ stages:
 
         steps:
         - pwsh: |
-          ${{ if eq(lower(option.pool), 'linux') }}:
-              apt install maven
-              mvn -version
+            apt install maven
+            mvn -version
+          condition: ${{ if eq(lower(option.pool), 'linux') }}
           displayName: 'install Maven on Linux'
 
         - task: UseDotNet@2
@@ -114,27 +114,27 @@ stages:
             DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
 
         - pwsh: |
-             echo "Downloading ${env:BACKWARD_COMPATIBLE_WORKER_URL}"
-             curl -k -L -o Microsoft.Spark.Worker-${{ parameters.backwardCompatibleRelease }}.zip ${env:BACKWARD_COMPATIBLE_WORKER_URL}
-             unzip Microsoft.Spark.Worker-${{ parameters.backwardCompatibleRelease }}.zip -d $([System.IO.Directory]::GetParent($env:BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR).FullName)
+           echo "Downloading ${env:BACKWARD_COMPATIBLE_WORKER_URL}"
+           curl -k -L -o Microsoft.Spark.Worker-${{ parameters.backwardCompatibleRelease }}.zip ${env:BACKWARD_COMPATIBLE_WORKER_URL}
+           unzip Microsoft.Spark.Worker-${{ parameters.backwardCompatibleRelease }}.zip -d $([System.IO.Directory]::GetParent($env:BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR).FullName)
 
-             if ($env:AGENT_OS -eq 'Linux') {
-               chmod +x "${env:BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR}${env:PATH_SEPARATOR}Microsoft.Spark.Worker"
-             }
+           if ($env:AGENT_OS -eq 'Linux') {
+           chmod +x "${env:BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR}${env:PATH_SEPARATOR}Microsoft.Spark.Worker"
+           }
           displayName: 'Setup Backward Compatible Microsoft Spark Worker ${{ parameters.backwardCompatibleRelease }}'
           workingDirectory: $(Build.BinariesDirectory)
 
         - task: DotNetCoreCLI@2
           displayName: 'E2E Backward Compatibility Tests'
           inputs:
-             command: test
-             projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-             arguments: '--configuration $(buildConfiguration) ${{ option.backwardCompatibleTestOptions }}'
-             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
+            command: test
+            projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+            arguments: '--configuration $(buildConfiguration) ${{ option.backwardCompatibleTestOptions }}'
+            workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
-             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
-             SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
-             DOTNET_WORKER_DIR: $(BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR)
+            HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
+            SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
+            DOTNET_WORKER_DIR: $(BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR)
 
         - checkout: forwardCompatibleRelease
           path: s$(PATH_SEPARATOR)dotnet-spark-${{ parameters.forwardCompatibleRelease }}
@@ -142,19 +142,17 @@ stages:
         - task: Maven@3
           displayName: 'Maven build src for forward compatible release v${{ parameters.forwardCompatibleRelease }}'
           inputs:
-             mavenVersionOption: 'Path'
-             mavenDirectory: '$(build.sourcesdirectory)/maven/apache-maven-3.5.3'
-             mavenSetM2Home: true
-             mavenPomFile: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark-${{ parameters.forwardCompatibleRelease }}$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala$(PATH_SEPARATOR)pom.xml
+            mavenVersionOption: 'Path'
+            mavenPomFile: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark-${{ parameters.forwardCompatibleRelease }}$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala$(PATH_SEPARATOR)pom.xml
 
         - task: DotNetCoreCLI@2
           displayName: 'E2E Forward Compatibility Tests'
           inputs:
-             command: test
-             projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-             arguments: '--configuration $(buildConfiguration) ${{ option.forwardCompatibleTestOptions }}'
-             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark-${{ parameters.forwardCompatibleRelease }}
+            command: test
+            projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+            arguments: '--configuration $(buildConfiguration) ${{ option.forwardCompatibleTestOptions }}'
+            workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark-${{ parameters.forwardCompatibleRelease }}
           env:
-             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
-             SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
-             DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
+            HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
+            SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
+            DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
