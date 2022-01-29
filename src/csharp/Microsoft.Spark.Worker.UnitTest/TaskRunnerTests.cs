@@ -27,11 +27,11 @@ namespace Microsoft.Spark.Worker.UnitTest
             var taskRunner = new TaskRunner(0, clientSocket, false, payloadWriter.Version);
             Task clientTask = Task.Run(() => taskRunner.Run());
 
-            ISocketWrapper serverSocket = serverListener.Accept();
+            using (ISocketWrapper serverSocket = serverListener.Accept())
+            {
+                TestTaskRunnerReadWrite(serverSocket, payloadWriter);
+            }
 
-            TestTaskRunnerReadWrite(serverSocket, payloadWriter);
-
-            serverSocket.Dispose();
             Assert.True(clientTask.Wait(5000));
         }
 

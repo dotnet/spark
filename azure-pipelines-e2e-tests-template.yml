@@ -26,12 +26,16 @@ stages:
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
 
         steps:
-        - pwsh: |
-            apt install maven
-            mvn -version
-        
-          condition: ${{ if eq(lower(option.pool), 'linux') }}
-          displayName: 'install Maven on Linux'
+        - task: PowerShell@2
+          condition: eq( lower(option.pool), 'linux') )
+          displayName: Install Maven for Linux agent
+          inputs:
+            workingDirectory: $(Build.BinariesDirectory)
+            pwsh: true
+            targetType: inline
+            script: |
+              apt install maven
+              mvn -version
 
         - task: UseDotNet@2
           displayName: 'Use .NET Core sdk'
