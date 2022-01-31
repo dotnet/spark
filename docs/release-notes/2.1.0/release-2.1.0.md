@@ -33,13 +33,11 @@ The following table describes the oldest version of the worker that the current 
     <thead>
         <tr>
             <th>Oldest compatible Microsoft.Spark.Worker version</th>
-            <th>Incompatible features</th>
         </tr>
     </thead>
     <tbody align="center">
         <tr>
             <td>v2.0.0</td>
-            <td>User-Defined functions in Spark 3.2.x are not compatible with Worker 2.0.0</td>
         </tr>
     </tbody>
 </table>
@@ -111,7 +109,7 @@ The following table outlines the supported Spark versions along with the microso
         </tr>
         <tr>
             <td>3.1.1</td>
-            <td rowspan=3>microsoft-spark-3-1_2.12-2.1.0.jar</td>
+            <td rowspan=2>microsoft-spark-3-1_2.12-2.1.0.jar</td>
         </tr>
         <tr>
             <td>3.1.2</td>
@@ -140,7 +138,7 @@ The following table outlines the supported Delta versions along with the Microso
     <tbody align="center">
         <tr>
             <td>0.1.0</td>
-            <td rowspan=9>2.1.0</td>
+            <td rowspan=11>2.1.0</td>
         </tr>
         <tr>
             <td>0.2.0</td>
