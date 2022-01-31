@@ -8,10 +8,10 @@ parameters:
 - name: forwardCompatibleRelease
   type: string
   default: ''
-- name: enableForwardCompatibleTests
+- name: tests.enableForwardCompatibleTests
   type: boolean
   default: true
-- name: enableBackwardCompatibleTests
+- name: tests.enableBackwardCompatibleTests
   type: boolean
   default: true
   

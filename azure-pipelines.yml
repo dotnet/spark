@@ -206,8 +206,6 @@ stages:
   parameters:
     backwardCompatibleRelease: $(backwardCompatibleRelease)
     forwardCompatibleRelease: $(forwardCompatibleRelease)
-    enableForwardCompatibleTests: true
-    enableBackwardCompatibleTests: true
     tests:
     - version: '2.4.0'
       jobOptions:
