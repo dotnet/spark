@@ -8,10 +8,10 @@ parameters:
 - name: forwardCompatibleRelease
   type: string
   default: ''
-- name: enableFwdCompatTests
+- name: enableForwardCompatibleTests
   type: boolean
   default: true
-- name: enableBkwdCompatTests
+- name: enableBackwardCompatibleTests
   type: boolean
   default: true
   
@@ -134,13 +134,13 @@ stages:
             if ($env:AGENT_OS -eq 'Linux') {
               chmod +x "${env:BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR}${env:PATH_SEPARATOR}Microsoft.Spark.Worker"
             }
-          condition: ${{ test.enableBkwdCompatTests }}
+          condition: ${{ test.enableBackwardCompatibleTests }}
           displayName: 'Setup Backward Compatible Microsoft Spark Worker ${{ parameters.backwardCompatibleRelease }}'
           workingDirectory: $(Build.BinariesDirectory)
 
         - task: DotNetCoreCLI@2
           displayName: 'E2E Backward Compatibility Tests'
-          condition: ${{ test.enableBkwdCompatTests }}
+          condition: ${{ test.enableBackwardCompatibleTests }}
           inputs:
             command: test
             projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
@@ -156,13 +156,13 @@ stages:
 
         - task: Maven@3
           displayName: 'Maven build src for forward compatible release v${{ parameters.forwardCompatibleRelease }}'
-          condition: ${{ test.enableFwdCompatTests }}
+          condition: ${{ test.enableForwardCompatibleTests }}
           inputs:
             mavenPomFile: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark-${{ parameters.forwardCompatibleRelease }}$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala$(PATH_SEPARATOR)pom.xml
 
         - task: DotNetCoreCLI@2
           displayName: 'E2E Forward Compatibility Tests'
-          condition: ${{ test.enableFwdCompatTests }}
+          condition: ${{ test.enableForwardCompatibleTests }}
           inputs:
             command: test
             projects: '**/Microsoft.Spark*.E2ETest/*.csproj'

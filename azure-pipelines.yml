@@ -206,8 +206,8 @@ stages:
   parameters:
     backwardCompatibleRelease: $(backwardCompatibleRelease)
     forwardCompatibleRelease: $(forwardCompatibleRelease)
-    enableFwdCompatTests: true
-    enableBkwdCompatTests: true
+    enableForwardCompatibleTests: true
+    enableBackwardCompatibleTests: true
     tests:
     - version: '2.4.0'
       jobOptions:
@@ -340,8 +340,8 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
     - version: '3.2.0'
-      enableFwdCompatTests: false
-      enableBkwdCompatTests: false
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -352,8 +352,8 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
     - version: '3.2.1'
-      enableFwdCompatTests: false
-      enableBkwdCompatTests: false
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
