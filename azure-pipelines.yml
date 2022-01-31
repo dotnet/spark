@@ -206,10 +206,10 @@ stages:
   parameters:
     backwardCompatibleRelease: $(backwardCompatibleRelease)
     forwardCompatibleRelease: $(forwardCompatibleRelease)
+    enableFwdCompatTests: true
+    enableBkwdCompatTests: true
     tests:
     - version: '2.4.0'
-      disableFwdCompatTests: false
-      disableBkwdCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -220,8 +220,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.1'
-      disableFwdCompatTests: false
-      disableBkwdCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -232,8 +230,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.3'
-      disableFwdCompatTests: false
-      disableBkwdCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -244,8 +240,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.4'
-      disableFwdCompatTests: false
-      disableBkwdCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -256,8 +250,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.5'
-      disableFwdCompatTests: false
-      disableBkwdCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -268,8 +260,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.6'
-      disableFwdCompatTests: false
-      disableBkwdCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -280,8 +270,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.7'
-      disableFwdCompatTests: false
-      disableBkwdCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -292,8 +280,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.8'
-      disableFwdCompatTests: false
-      disableBkwdCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -304,8 +290,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '3.0.0'
-      disableFwdCompatTests: false
-      disableBkwdCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -316,8 +300,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
     - version: '3.0.1'
-      disableFwdCompatTests: false
-      disableBkwdCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -328,8 +310,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
     - version: '3.0.2'
-      disableFwdCompatTests: false
-      disableBkwdCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -340,8 +320,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
     - version: '3.1.1'
-      disableFwdCompatTests: false
-      disableBkwdCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -352,8 +330,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
     - version: '3.1.2'
-      disableFwdCompatTests: false
-      disableBkwdCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -364,8 +340,8 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
     - version: '3.2.0'
-      disableFwdCompatTests: true
-      disableBkwdCompatTests: true
+      enableFwdCompatTests: false
+      enableBkwdCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
@@ -376,8 +352,8 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
     - version: '3.2.1'
-      disableFwdCompatTests: true
-      disableBkwdCompatTests: true
+      enableFwdCompatTests: false
+      enableBkwdCompatTests: false
       jobOptions:
       - pool: 'Windows'
         testOptions: ""
