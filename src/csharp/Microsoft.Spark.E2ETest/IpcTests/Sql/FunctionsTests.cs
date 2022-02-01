@@ -805,5 +805,42 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<Column>(Slice(col, col, col));
         }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.2.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_2_0)]
+        public void TestSignaturesV3_2_X()
+        {
+            Column col = Column("col");
+
+            Assert.IsType<Column>(Count_Distinct(col, col, col));
+
+            Assert.IsType<Column>(Product(col));
+
+            Assert.IsType<Column>(Sum_Distinct(col));
+
+            Assert.IsType<Column>(Lag(col, 2, null, true));
+
+            Assert.IsType<Column>(Lead(col, 2, null, true));
+
+            Assert.IsType<Column>(Bitwise_Not(col));
+
+            Assert.IsType<Column>(Shiftleft(col, 2));
+
+            Assert.IsType<Column>(Shiftright(col, 2));
+
+            Assert.IsType<Column>(Shiftrightunsigned(col, 2));
+
+            Assert.IsType<Column>(Sentences(col, col, col));
+            Assert.IsType<Column>(Sentences(col));
+
+            Assert.IsType<Column>(NextDay(col, col));
+
+            Assert.IsType<Column>(Session_Window(col, "5 seconds"));
+            Assert.IsType<Column>(Session_Window(col, col));
+
+            Assert.IsType<Column>(Call_UDF("name", col, col));
+        }
     }
 }
