@@ -4,6 +4,7 @@
 
 * Support for Spark 3.2.0 and 3.2.1 ([#1010](https://github.com/dotnet/spark/pull/1010))
 * Add Spark 3.2.0 Functions APIs ([#1013](https://github.com/dotnet/spark/pull/1013))
+* Update Microsoft.Data.Analysis version to 0.18.0 ([#977](https://github.com/dotnet/spark/pull/977))
 
 ### Bug Fixes
 
