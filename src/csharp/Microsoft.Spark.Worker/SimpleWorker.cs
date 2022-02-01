@@ -3,7 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Diagnostics;
 using System.Net;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
 
@@ -37,6 +39,13 @@ namespace Microsoft.Spark.Worker
 
                 ISocketWrapper socket = SocketFactory.CreateSocket();
                 socket.Connect(IPAddress.Loopback, port, secret);
+
+                if ((_version.Major == 3 && _version.Minor >= 2) || _version.Major > 3)
+                {
+                    int pid = Process.GetCurrentProcess().Id;
+                    SerDe.Write(socket.OutputStream, pid);
+                    socket.OutputStream.Flush();
+                }
 
                 new TaskRunner(0, socket, false, _version).Run();
             }
