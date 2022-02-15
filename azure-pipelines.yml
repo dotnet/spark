@@ -122,7 +122,7 @@ stages:
       displayName: Sign Artifacts
       pool:
         name: NetCore1ESPool-Internal
-        queue: ImageOverride -equals build.windows.10.amd64.vs2017
+        demands: ImageOverride -equals build.windows.10.amd64.vs2017
 
       variables:
         ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
