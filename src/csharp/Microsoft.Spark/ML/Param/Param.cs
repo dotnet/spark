@@ -99,7 +99,7 @@ namespace Microsoft.Spark.ML.Feature.Param
             Reference = jvmObject;
         }
 
-        public JvmObjectReference Reference { get; init; }
+        public JvmObjectReference Reference { get; private set; }
     }
 
     /// <summary>
@@ -121,7 +121,7 @@ namespace Microsoft.Spark.ML.Feature.Param
             Reference = jvmObject;
         }
 
-        public JvmObjectReference Reference { get; init; }
+        public JvmObjectReference Reference { get; private set; }
 
         public ParamMap Put<T>(Param param, T value) =>
             WrapAsParamMap((JvmObjectReference)Reference.Invoke("put", param, value));

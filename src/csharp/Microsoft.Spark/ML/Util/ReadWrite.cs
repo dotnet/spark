@@ -19,7 +19,7 @@ namespace Microsoft.Spark.ML.Feature
     {
         public ScalaMLWriter(JvmObjectReference jvmObject) => Reference = jvmObject;
 
-        public JvmObjectReference Reference { get; init; }
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>Saves the ML instances to the input path.</summary>
         public void Save(string path) => Reference.Invoke("save", path);
@@ -71,7 +71,7 @@ namespace Microsoft.Spark.ML.Feature
     {
         public ScalaMLReader(JvmObjectReference jvmObject) => Reference = jvmObject;
 
-        public JvmObjectReference Reference { get; init; }
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Loads the ML component from the input path.

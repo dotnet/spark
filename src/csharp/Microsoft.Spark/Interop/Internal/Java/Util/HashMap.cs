@@ -19,7 +19,7 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
         internal HashMap(IJvmBridge jvm) =>
             Reference = jvm.CallConstructor("java.util.HashMap");
 
-        public JvmObjectReference Reference { get; init; }
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Associates the specified value with the specified key in this map. 

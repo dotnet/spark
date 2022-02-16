@@ -40,7 +40,7 @@ namespace Microsoft.Spark.ML.Feature
             Reference = jvmObject;
         }
 
-        public JvmObjectReference Reference { get; init; }
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Returns the JVM toString value rather than the .NET ToString default
