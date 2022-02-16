@@ -5,7 +5,6 @@
     <RootNamespace>Microsoft.Spark</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>9.0</LangVersion>
     <IsPackable>true</IsPackable>
 
     <Description>.NET for Apache Spark</Description>
