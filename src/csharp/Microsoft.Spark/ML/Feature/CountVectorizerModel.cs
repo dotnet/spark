@@ -10,7 +10,7 @@ using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class CountVectorizerModel : FeatureBase<CountVectorizerModel>
+    public class CountVectorizerModel : ScalaModel<CountVectorizerModel>, ScalaMLWritable, ScalaMLReadable<CountVectorizerModel>
     {
         private static readonly string s_countVectorizerModelClassName = 
             "org.apache.spark.ml.feature.CountVectorizerModel";
@@ -177,7 +177,7 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="StructType"/> of the output schema that would have been derived from the
         /// input schema, if Transform had been called.
         /// </returns>
-        public StructType TransformSchema(StructType value) => 
+        public override StructType TransformSchema(StructType value) => 
             new StructType(
                 (JvmObjectReference)Reference.Invoke(
                     "transformSchema", 
@@ -188,8 +188,27 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="document"><see cref="DataFrame"/> to transform</param>
         /// <returns><see cref="DataFrame"/> containing the original data and the counts</returns>
-        public DataFrame Transform(DataFrame document) => 
+        public override DataFrame Transform(DataFrame document) => 
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", document));
+        
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+        
+        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
+        public ScalaMLWriter Write() =>
+            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+        
+        void ScalaMLWritable.Save(string path) => Write().Save(path);
+        
+        /// <returns>an <see cref="ScalaMLReader&lt;CountVectorizerModel&gt;"/> instance for this ML instance.</returns>
+        public ScalaMLReader<CountVectorizerModel> Read() =>
+            new ScalaMLReader<CountVectorizerModel>((JvmObjectReference)Reference.Invoke("read"));
+        
+        CountVectorizerModel ScalaMLReadable<CountVectorizerModel>.Load(string path) => Read().Load(path);
         
         private static CountVectorizerModel WrapAsCountVectorizerModel(object obj) => 
             new CountVectorizerModel((JvmObjectReference)obj);

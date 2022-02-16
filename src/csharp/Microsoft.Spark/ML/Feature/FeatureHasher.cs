@@ -11,7 +11,7 @@ using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class FeatureHasher: FeatureBase<FeatureHasher>
+    public class FeatureHasher: ScalaTransformer, ScalaMLWritable, ScalaMLReadable<FeatureHasher>
     {
         private static readonly string s_featureHasherClassName = 
             "org.apache.spark.ml.feature.FeatureHasher";
@@ -122,7 +122,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">Input <see cref="DataFrame"/> to transform</param>
         /// <returns>Transformed <see cref="DataFrame"/></returns>
-        public DataFrame Transform(DataFrame value) => 
+        public override DataFrame Transform(DataFrame value) => 
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", value));
         
         /// <summary>
@@ -141,11 +141,30 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="StructType"/> of the output schema that would have been derived from the
         /// input schema, if Transform had been called.
         /// </returns>
-        public StructType TransformSchema(StructType value) => 
+        public override StructType TransformSchema(StructType value) => 
             new StructType(
                 (JvmObjectReference)Reference.Invoke(
                     "transformSchema", 
                     DataType.FromJson(Reference.Jvm, value.Json)));
+        
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+        
+        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
+        public ScalaMLWriter Write() =>
+            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+        
+        void ScalaMLWritable.Save(string path) => Write().Save(path);
+        
+        /// <returns>an <see cref="ScalaMLReader&lt;FeatureHasher&gt;"/> instance for this ML instance.</returns>
+        public ScalaMLReader<FeatureHasher> Read() =>
+            new ScalaMLReader<FeatureHasher>((JvmObjectReference)Reference.Invoke("read"));
+        
+        FeatureHasher ScalaMLReadable<FeatureHasher>.Load(string path) => Read().Load(path);
 
         private static FeatureHasher WrapAsFeatureHasher(object obj) => 
             new FeatureHasher((JvmObjectReference)obj);

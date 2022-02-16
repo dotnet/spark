@@ -12,7 +12,7 @@ namespace Microsoft.Spark.ML.Feature
     /// A <see cref="Tokenizer"/> that converts the input string to lowercase and then splits it by
     /// white spaces.
     /// </summary>
-    public class Tokenizer : FeatureBase<Tokenizer>
+    public class Tokenizer : ScalaTransformer, ScalaMLWritable, ScalaMLReadable<Tokenizer>
     {
         private static readonly string s_tokenizerClassName = 
             "org.apache.spark.ml.feature.Tokenizer";
@@ -75,7 +75,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>
         /// New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/> transformed
         /// </returns>
-        public DataFrame Transform(DataFrame source) => 
+        public override DataFrame Transform(DataFrame source) => 
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", source));
 
         /// <summary>
@@ -89,6 +89,25 @@ namespace Microsoft.Spark.ML.Feature
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_tokenizerClassName, "load", path));
         }
+
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+        
+        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
+        public ScalaMLWriter Write() =>
+            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+
+        void ScalaMLWritable.Save(string path) => Write().Save(path);
+        
+        /// <returns>an <see cref="ScalaMLReader&lt;Tokenizer&gt;"/> instance for this ML instance.</returns>
+        public ScalaMLReader<Tokenizer> Read() =>
+            new ScalaMLReader<Tokenizer>((JvmObjectReference)Reference.Invoke("read"));
+        
+        Tokenizer ScalaMLReadable<Tokenizer>.Load(string path) => Read().Load(path);
         
         private static Tokenizer WrapAsTokenizer(object obj) => 
             new Tokenizer((JvmObjectReference)obj);

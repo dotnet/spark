@@ -8,7 +8,7 @@ using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class Word2VecModel : FeatureBase<Word2VecModel>
+    public class Word2VecModel : ScalaModel<Word2VecModel>, ScalaMLWritable, ScalaMLReadable<Word2VecModel>
     {
         private static readonly string s_word2VecModelClassName = 
             "org.apache.spark.ml.feature.Word2VecModel";
@@ -37,7 +37,7 @@ namespace Microsoft.Spark.ML.Feature
         /// Transform a sentence column to a vector column to represent the whole sentence.
         /// </summary>
         /// <param name="documentDF"><see cref="DataFrame"/> to transform</param>
-        public DataFrame Transform(DataFrame documentDF) => 
+        public override DataFrame Transform(DataFrame documentDF) => 
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", documentDF));
         
         /// <summary>
@@ -62,6 +62,25 @@ namespace Microsoft.Spark.ML.Feature
         public static Word2VecModel Load(string path) => WrapAsWord2VecModel(
             SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 s_word2VecModelClassName, "load", path));
+        
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+        
+        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
+        public ScalaMLWriter Write() =>
+            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+        
+        void ScalaMLWritable.Save(string path) => Write().Save(path);
+        
+        /// <returns>an <see cref="ScalaMLReader&lt;Word2VecModel&gt;"/> instance for this ML instance.</returns>
+        public ScalaMLReader<Word2VecModel> Read() =>
+            new ScalaMLReader<Word2VecModel>((JvmObjectReference)Reference.Invoke("read"));
+        
+        Word2VecModel ScalaMLReadable<Word2VecModel>.Load(string path) => Read().Load(path);
         
         private static Word2VecModel WrapAsWord2VecModel(object obj) => 
             new Word2VecModel((JvmObjectReference)obj);

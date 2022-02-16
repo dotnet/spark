@@ -19,7 +19,7 @@ namespace Microsoft.Spark.ML.Feature
     /// power of two as the numFeatures parameter; otherwise the features will not be mapped evenly
     /// to the columns.
     /// </summary>
-    public class HashingTF : FeatureBase<HashingTF>
+    public class HashingTF : ScalaTransformer, ScalaMLWritable, ScalaMLReadable<HashingTF>
     {
         private static readonly string s_hashingTfClassName = 
             "org.apache.spark.ml.feature.HashingTF";
@@ -125,8 +125,27 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="source">The <see cref="DataFrame"/> to add the tokens to</param>
         /// <returns><see cref="DataFrame"/> containing the original data and the tokens</returns>
-        public DataFrame Transform(DataFrame source) => 
+        public override DataFrame Transform(DataFrame source) => 
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", source));
+
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+        
+        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
+        public ScalaMLWriter Write() =>
+            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+
+        void ScalaMLWritable.Save(string path) => Write().Save(path);
+        
+        /// <returns>an <see cref="ScalaMLReader&lt;HashingTF&gt;"/> instance for this ML instance.</returns>
+        public ScalaMLReader<HashingTF> Read() =>
+            new ScalaMLReader<HashingTF>((JvmObjectReference)Reference.Invoke("read"));
+        
+        HashingTF ScalaMLReadable<HashingTF>.Load(string path) => Read().Load(path);
 
         private static HashingTF WrapAsHashingTF(object obj) => 
             new HashingTF((JvmObjectReference)obj);

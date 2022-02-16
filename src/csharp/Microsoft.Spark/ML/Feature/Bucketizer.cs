@@ -20,7 +20,7 @@ namespace Microsoft.Spark.ML.Feature
     /// will be thrown. The splits parameter is only used for single column usage, and splitsArray
     /// is for multiple columns.
     /// </summary>
-    public class Bucketizer : FeatureBase<Bucketizer>
+    public class Bucketizer : ScalaModel<Bucketizer>, ScalaMLWritable, ScalaMLReadable<Bucketizer>
     {
         private static readonly string s_bucketizerClassName = 
             "org.apache.spark.ml.feature.Bucketizer";
@@ -171,7 +171,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>
         /// <see cref="DataFrame"/> containing the original data and the new bucketed columns
         /// </returns>
-        public DataFrame Transform(DataFrame source) => 
+        public override DataFrame Transform(DataFrame source) => 
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", source));
 
         /// <summary>
@@ -190,6 +190,25 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>New <see cref="Bucketizer"/> object</returns>
         public Bucketizer SetHandleInvalid(string value) => 
             WrapAsBucketizer(Reference.Invoke("setHandleInvalid", value.ToString()));
+
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+        
+        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
+        public ScalaMLWriter Write() =>
+            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+        
+        void ScalaMLWritable.Save(string path) => Write().Save(path);
+        
+        /// <returns>an <see cref="ScalaMLReader&lt;Bucketizer&gt;"/> instance for this ML instance.</returns>
+        public ScalaMLReader<Bucketizer> Read() =>
+            new ScalaMLReader<Bucketizer>((JvmObjectReference)Reference.Invoke("read"));
+        
+        Bucketizer ScalaMLReadable<Bucketizer>.Load(string path) => Read().Load(path);
 
         private static Bucketizer WrapAsBucketizer(object obj) => 
             new Bucketizer((JvmObjectReference)obj);

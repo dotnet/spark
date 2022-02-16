@@ -14,7 +14,7 @@ namespace Microsoft.Spark.ML.Feature
     /// an array of n-grams. Null values in the input array are ignored. It returns an array
     /// of n-grams where each n-gram is represented by a space-separated string of words.
     /// </summary>
-    public class NGram : FeatureBase<NGram>
+    public class NGram : ScalaTransformer, ScalaMLWritable, ScalaMLReadable<NGram>
     {
         private static readonly string s_nGramClassName =
             "org.apache.spark.ml.feature.NGram";
@@ -87,7 +87,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>
         /// New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/> transformed.
         /// </returns>
-        public DataFrame Transform(DataFrame source) =>
+        public override DataFrame Transform(DataFrame source) =>
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", source));
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="StructType"/> of the output schema that would have been derived from the
         /// input schema, if Transform had been called.
         /// </returns>
-        public StructType TransformSchema(StructType value) =>
+        public override StructType TransformSchema(StructType value) =>
             new StructType(
                 (JvmObjectReference)Reference.Invoke(
                     "transformSchema",
@@ -123,6 +123,25 @@ namespace Microsoft.Spark.ML.Feature
                     s_nGramClassName,
                     "load",
                     path));
+        
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+        
+        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
+        public ScalaMLWriter Write() =>
+            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+        
+        void ScalaMLWritable.Save(string path) => Write().Save(path);
+        
+        /// <returns>an <see cref="ScalaMLReader&lt;NGram&gt;"/> instance for this ML instance.</returns>
+        public ScalaMLReader<NGram> Read() =>
+            new ScalaMLReader<NGram>((JvmObjectReference)Reference.Invoke("read"));
+        
+        NGram ScalaMLReadable<NGram>.Load(string path) => Read().Load(path);
 
         private static NGram WrapAsNGram(object obj) => new NGram((JvmObjectReference)obj);
     }

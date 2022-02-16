@@ -8,7 +8,7 @@ using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class CountVectorizer : FeatureBase<CountVectorizer>
+    public class CountVectorizer : ScalaEstimator<CountVectorizerModel>, ScalaMLWritable, ScalaMLReadable<CountVectorizer>
     {
         private static readonly string s_countVectorizerClassName = 
             "org.apache.spark.ml.feature.CountVectorizer";
@@ -36,7 +36,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>Fits a model to the input data.</summary>
         /// <param name="dataFrame">The <see cref="DataFrame"/> to fit the model to.</param>
         /// <returns><see cref="CountVectorizerModel"/></returns>
-        public CountVectorizerModel Fit(DataFrame dataFrame) => 
+        public override CountVectorizerModel Fit(DataFrame dataFrame) => 
             new CountVectorizerModel((JvmObjectReference)Reference.Invoke("fit", dataFrame));
 
         /// <summary>
@@ -189,6 +189,25 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns><see cref="CountVectorizer"/> with the max vocab value set</returns>
         public CountVectorizer SetVocabSize(int value) => 
             WrapAsCountVectorizer(Reference.Invoke("setVocabSize", value));
+        
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+        
+        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
+        public ScalaMLWriter Write() =>
+            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+        
+        void ScalaMLWritable.Save(string path) => Write().Save(path);
+        
+        /// <returns>an <see cref="ScalaMLReader&lt;CountVectorizer&gt;"/> instance for this ML instance.</returns>
+        public ScalaMLReader<CountVectorizer> Read() =>
+            new ScalaMLReader<CountVectorizer>((JvmObjectReference)Reference.Invoke("read"));
+        
+        CountVectorizer ScalaMLReadable<CountVectorizer>.Load(string path) => Read().Load(path);
         
         private static CountVectorizer WrapAsCountVectorizer(object obj) => 
             new CountVectorizer((JvmObjectReference)obj);

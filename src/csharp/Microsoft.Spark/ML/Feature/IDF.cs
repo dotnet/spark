@@ -17,7 +17,7 @@ namespace Microsoft.Spark.ML.Feature
     /// of documents (controlled by the variable minDocFreq). For terms that are not in at least
     /// minDocFreq documents, the IDF is found as 0, resulting in TF-IDFs of 0.
     /// </summary>
-    public class IDF : FeatureBase<IDF>
+    public class IDF : ScalaEstimator<IDFModel>, ScalaMLWritable, ScalaMLReadable<IDF>
     {
         private static readonly string s_IDFClassName = "org.apache.spark.ml.feature.IDF";
         
@@ -89,7 +89,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="source">The <see cref="DataFrame"/> to fit the model to</param>
         /// <returns>New <see cref="IDFModel"/> object</returns>
-        public IDFModel Fit(DataFrame source) => 
+        public override IDFModel Fit(DataFrame source) => 
             new IDFModel((JvmObjectReference)Reference.Invoke("fit", source));
 
         /// <summary>
@@ -102,6 +102,25 @@ namespace Microsoft.Spark.ML.Feature
             return WrapAsIDF(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_IDFClassName, "load", path));
         }
+
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+        
+        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
+        public ScalaMLWriter Write() =>
+            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+        
+        void ScalaMLWritable.Save(string path) => Write().Save(path);
+        
+        /// <returns>an <see cref="ScalaMLReader&lt;IDF&gt;"/> instance for this ML instance.</returns>
+        public ScalaMLReader<IDF> Read() =>
+            new ScalaMLReader<IDF>((JvmObjectReference)Reference.Invoke("read"));
+        
+        IDF ScalaMLReadable<IDF>.Load(string path) => Read().Load(path);
  
         private static IDF WrapAsIDF(object obj) => new IDF((JvmObjectReference)obj);
     }

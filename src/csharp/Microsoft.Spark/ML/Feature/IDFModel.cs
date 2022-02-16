@@ -12,7 +12,7 @@ namespace Microsoft.Spark.ML.Feature
     /// A <see cref="IDFModel"/> that converts the input string to lowercase and then splits it by
     /// white spaces.
     /// </summary>
-    public class IDFModel : FeatureBase<IDFModel>
+    public class IDFModel : ScalaModel<IDFModel>, ScalaMLWritable, ScalaMLReadable<IDFModel>
     {
         private static readonly string s_IDFModelClassName = 
             "org.apache.spark.ml.feature.IDFModel";
@@ -81,7 +81,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="source">The <see cref="DataFrame"/> to add the tokens to</param>
         /// <returns><see cref="DataFrame"/> containing the original data and the tokens</returns>
-        public DataFrame Transform(DataFrame source) => 
+        public override DataFrame Transform(DataFrame source) => 
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", source));
 
         /// <summary>
@@ -95,6 +95,25 @@ namespace Microsoft.Spark.ML.Feature
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_IDFModelClassName, "load", path));
         }
+
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+        
+        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
+        public ScalaMLWriter Write() =>
+            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+        
+        void ScalaMLWritable.Save(string path) => Write().Save(path);
+        
+        /// <returns>an <see cref="ScalaMLReader&lt;IDFModel&gt;"/> instance for this ML instance.</returns>
+        public ScalaMLReader<IDFModel> Read() =>
+            new ScalaMLReader<IDFModel>((JvmObjectReference)Reference.Invoke("read"));
+        
+        IDFModel ScalaMLReadable<IDFModel>.Load(string path) => Read().Load(path);
 
         private static IDFModel WrapAsIDFModel(object obj) => 
             new IDFModel((JvmObjectReference)obj);

@@ -12,7 +12,7 @@ namespace Microsoft.Spark.ML.Feature
     /// <summary>
     /// <see cref="SQLTransformer"/> implements the transformations which are defined by SQL statement.
     /// </summary>
-    public class SQLTransformer : FeatureBase<SQLTransformer>
+    public class SQLTransformer : ScalaTransformer, ScalaMLWritable, ScalaMLReadable<SQLTransformer>
     {
         private static readonly string s_sqlTransformerClassName = 
             "org.apache.spark.ml.feature.SQLTransformer";
@@ -45,7 +45,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>
         /// New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/> transformed.
         /// </returns>
-        public DataFrame Transform(DataFrame source) =>
+        public override DataFrame Transform(DataFrame source) =>
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", source));
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>
         /// New <see cref="StructType"/> object with the schema <see cref="StructType"/> transformed.
         /// </returns>
-        public StructType TransformSchema(StructType value) =>
+        public override StructType TransformSchema(StructType value) =>
             new StructType(
                 (JvmObjectReference)Reference.Invoke(
                     "transformSchema",
@@ -88,6 +88,25 @@ namespace Microsoft.Spark.ML.Feature
                     s_sqlTransformerClassName, 
                     "load", 
                     path));
+        
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+        
+        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
+        public ScalaMLWriter Write() =>
+            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+        
+        void ScalaMLWritable.Save(string path) => Write().Save(path);
+        
+        /// <returns>an <see cref="ScalaMLReader&lt;SQLTransformer&gt;"/> instance for this ML instance.</returns>
+        public ScalaMLReader<SQLTransformer> Read() =>
+            new ScalaMLReader<SQLTransformer>((JvmObjectReference)Reference.Invoke("read"));
+        
+        SQLTransformer ScalaMLReadable<SQLTransformer>.Load(string path) => Read().Load(path);
 
         private static SQLTransformer WrapAsSQLTransformer(object obj) =>
             new SQLTransformer((JvmObjectReference)obj);

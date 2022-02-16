@@ -78,4 +78,60 @@ namespace Microsoft.Spark.ML.Feature.Param
         /// <returns>The UID of the parent oject that this <see cref="Param"/> belongs to</returns>
         public string Parent => (string)Reference.Invoke("parent");
     }
+
+    /// <summary>
+    /// A param and its value.
+    /// </summary>
+    public sealed class ParamPair<T> : IJvmObjectReferenceProvider
+    {
+        private static readonly string s_ParamPairClassName = "org.apache.spark.ml.param.ParamPair";
+
+        /// <summary>
+        /// Creates a new instance of a <see cref="ParamPair&lt;T&gt;"/>
+        /// </summary>
+        public ParamPair(Param param, T value)
+            : this(SparkEnvironment.JvmBridge.CallConstructor(s_ParamPairClassName, param, value))
+        {
+        }
+
+        internal ParamPair(JvmObjectReference jvmObject)
+        {
+            Reference = jvmObject;
+        }
+
+        public JvmObjectReference Reference { get; init; }
+    }
+
+    /// <summary>
+    /// A param to value map.
+    /// </summary>
+    public class ParamMap : IJvmObjectReferenceProvider
+    {
+        private static readonly string s_ParamMapClassName = "org.apache.spark.ml.param.ParamMap";
+
+        /// <summary>
+        /// Creates a new instance of a <see cref="ParamMap"/>
+        /// </summary>
+        public ParamMap() : this(SparkEnvironment.JvmBridge.CallConstructor(s_ParamMapClassName))
+        {
+        }
+
+        public ParamMap(JvmObjectReference jvmObject)
+        {
+            Reference = jvmObject;
+        }
+
+        public JvmObjectReference Reference { get; init; }
+
+        public ParamMap Put<T>(Param param, T value) =>
+            WrapAsParamMap((JvmObjectReference)Reference.Invoke("put", param, value));
+
+        public override string ToString() =>
+            (string)Reference.Invoke("toString");
+
+
+        private static ParamMap WrapAsParamMap(object obj) =>
+            new ParamMap((JvmObjectReference)obj);
+
+    }
 }
