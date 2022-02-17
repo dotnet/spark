@@ -158,13 +158,9 @@ namespace Microsoft.Spark.ML.Feature
         public ScalaMLWriter Write() =>
             new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
         
-        void ScalaMLWritable.Save(string path) => Write().Save(path);
-        
         /// <returns>an <see cref="ScalaMLReader&lt;FeatureHasher&gt;"/> instance for this ML instance.</returns>
         public ScalaMLReader<FeatureHasher> Read() =>
             new ScalaMLReader<FeatureHasher>((JvmObjectReference)Reference.Invoke("read"));
-        
-        FeatureHasher ScalaMLReadable<FeatureHasher>.Load(string path) => Read().Load(path);
 
         private static FeatureHasher WrapAsFeatureHasher(object obj) => 
             new FeatureHasher((JvmObjectReference)obj);

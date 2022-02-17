@@ -100,14 +100,10 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
         public ScalaMLWriter Write() =>
             new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
-
-        void ScalaMLWritable.Save(string path) => Write().Save(path);
         
         /// <returns>an <see cref="ScalaMLReader&lt;Tokenizer&gt;"/> instance for this ML instance.</returns>
         public ScalaMLReader<Tokenizer> Read() =>
             new ScalaMLReader<Tokenizer>((JvmObjectReference)Reference.Invoke("read"));
-        
-        Tokenizer ScalaMLReadable<Tokenizer>.Load(string path) => Read().Load(path);
         
         private static Tokenizer WrapAsTokenizer(object obj) => 
             new Tokenizer((JvmObjectReference)obj);

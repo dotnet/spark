@@ -201,13 +201,9 @@ namespace Microsoft.Spark.ML.Feature
         public ScalaMLWriter Write() =>
             new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
         
-        void ScalaMLWritable.Save(string path) => Write().Save(path);
-        
         /// <returns>an <see cref="ScalaMLReader&lt;CountVectorizer&gt;"/> instance for this ML instance.</returns>
         public ScalaMLReader<CountVectorizer> Read() =>
             new ScalaMLReader<CountVectorizer>((JvmObjectReference)Reference.Invoke("read"));
-        
-        CountVectorizer ScalaMLReadable<CountVectorizer>.Load(string path) => Read().Load(path);
         
         private static CountVectorizer WrapAsCountVectorizer(object obj) => 
             new CountVectorizer((JvmObjectReference)obj);

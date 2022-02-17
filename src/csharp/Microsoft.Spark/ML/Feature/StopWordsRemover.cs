@@ -178,14 +178,10 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
         public ScalaMLWriter Write() =>
             new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
-
-        void ScalaMLWritable.Save(string path) => Write().Save(path);
         
         /// <returns>an <see cref="ScalaMLReader&lt;StopWordsRemover&gt;"/> instance for this ML instance.</returns>
         public ScalaMLReader<StopWordsRemover> Read() =>
             new ScalaMLReader<StopWordsRemover>((JvmObjectReference)Reference.Invoke("read"));
-        
-        StopWordsRemover ScalaMLReadable<StopWordsRemover>.Load(string path) => Read().Load(path);
 
         private static StopWordsRemover WrapAsStopWordsRemover(object obj) =>
             new StopWordsRemover((JvmObjectReference)obj);

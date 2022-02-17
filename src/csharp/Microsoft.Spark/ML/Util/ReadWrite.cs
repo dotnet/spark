@@ -111,8 +111,6 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>an <see cref="ScalaMLReader&lt;T&gt;"/> instance for this ML instance.</returns>
         ScalaMLReader<T> Read();
 
-        /// <summary>Reads an ML instance from the input path</summary>
-        T Load(string path);
     }
 
 }

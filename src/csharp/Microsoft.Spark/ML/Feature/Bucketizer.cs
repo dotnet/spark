@@ -202,13 +202,9 @@ namespace Microsoft.Spark.ML.Feature
         public ScalaMLWriter Write() =>
             new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
         
-        void ScalaMLWritable.Save(string path) => Write().Save(path);
-        
         /// <returns>an <see cref="ScalaMLReader&lt;Bucketizer&gt;"/> instance for this ML instance.</returns>
         public ScalaMLReader<Bucketizer> Read() =>
             new ScalaMLReader<Bucketizer>((JvmObjectReference)Reference.Invoke("read"));
-        
-        Bucketizer ScalaMLReadable<Bucketizer>.Load(string path) => Read().Load(path);
 
         private static Bucketizer WrapAsBucketizer(object obj) => 
             new Bucketizer((JvmObjectReference)obj);

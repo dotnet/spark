@@ -47,17 +47,9 @@ namespace Microsoft.Spark.ML.Feature
         {
         }
 
-        public Pipeline SetStages(ScalaPipelineStage[] value)
-        {
-            var arrayList = new ArrayList(SparkEnvironment.JvmBridge);
-            foreach (var pipelineStage in value)
-            {
-                arrayList.Add(pipelineStage);
-            }
-            return WrapAsPipeline((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "org.apache.spark.api.dotnet.DotnetHelper", "setPipelineStages", Reference, (object)arrayList));
-        }
-
+        public Pipeline SetStages(ScalaPipelineStage[] value) =>
+            WrapAsPipeline((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                "org.apache.spark.api.dotnet.DotnetHelper", "setPipelineStages", Reference, (object)value.ToArrayList()));
 
         public ScalaPipelineStage[] GetStages()
         {
@@ -98,14 +90,10 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
         public ScalaMLWriter Write() =>
             new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
-        
-        void ScalaMLWritable.Save(string path) => Write().Save(path);
 
         /// <returns>an <see cref="ScalaMLReader&lt;Pipeline&gt;"/> instance for this ML instance.</returns>
         public ScalaMLReader<Pipeline> Read() =>
             new ScalaMLReader<Pipeline>((JvmObjectReference)Reference.Invoke("read"));
-        
-        Pipeline ScalaMLReadable<Pipeline>.Load(string path) => Read().Load(path);
 
         private static Pipeline WrapAsPipeline(object obj) =>
             new Pipeline((JvmObjectReference)obj);

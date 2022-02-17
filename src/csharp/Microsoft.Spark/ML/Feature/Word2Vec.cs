@@ -199,13 +199,9 @@ namespace Microsoft.Spark.ML.Feature
         public ScalaMLWriter Write() =>
             new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
         
-        void ScalaMLWritable.Save(string path) => Write().Save(path);
-        
         /// <returns>an <see cref="ScalaMLReader&lt;Word2Vec&gt;"/> instance for this ML instance.</returns>
         public ScalaMLReader<Word2Vec> Read() =>
             new ScalaMLReader<Word2Vec>((JvmObjectReference)Reference.Invoke("read"));
-        
-        Word2Vec ScalaMLReadable<Word2Vec>.Load(string path) => Read().Load(path);
         
         private static Word2Vec WrapAsWord2Vec(object obj) => 
             new Word2Vec((JvmObjectReference)obj);

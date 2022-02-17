@@ -53,13 +53,9 @@ namespace Microsoft.Spark.ML.Feature
         public ScalaMLWriter Write() =>
             new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
 
-        void ScalaMLWritable.Save(string path) => Write().Save(path);
-
         /// <returns>an <see cref="ScalaMLReader&lt;PipelineModel&gt;"/> instance for this ML instance.</returns>
         public ScalaMLReader<PipelineModel> Read() =>
             new ScalaMLReader<PipelineModel>((JvmObjectReference)Reference.Invoke("read"));
-
-        PipelineModel ScalaMLReadable<PipelineModel>.Load(string path) => Read().Load(path);
 
         private static PipelineModel WrapAsPipelineModel(object obj) =>
             new PipelineModel((JvmObjectReference)obj);

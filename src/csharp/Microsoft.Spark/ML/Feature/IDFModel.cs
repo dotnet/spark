@@ -107,13 +107,9 @@ namespace Microsoft.Spark.ML.Feature
         public ScalaMLWriter Write() =>
             new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
         
-        void ScalaMLWritable.Save(string path) => Write().Save(path);
-        
         /// <returns>an <see cref="ScalaMLReader&lt;IDFModel&gt;"/> instance for this ML instance.</returns>
         public ScalaMLReader<IDFModel> Read() =>
             new ScalaMLReader<IDFModel>((JvmObjectReference)Reference.Invoke("read"));
-        
-        IDFModel ScalaMLReadable<IDFModel>.Load(string path) => Read().Load(path);
 
         private static IDFModel WrapAsIDFModel(object obj) => 
             new IDFModel((JvmObjectReference)obj);

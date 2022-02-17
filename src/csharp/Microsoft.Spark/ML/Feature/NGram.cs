@@ -135,13 +135,9 @@ namespace Microsoft.Spark.ML.Feature
         public ScalaMLWriter Write() =>
             new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
         
-        void ScalaMLWritable.Save(string path) => Write().Save(path);
-        
         /// <returns>an <see cref="ScalaMLReader&lt;NGram&gt;"/> instance for this ML instance.</returns>
         public ScalaMLReader<NGram> Read() =>
             new ScalaMLReader<NGram>((JvmObjectReference)Reference.Invoke("read"));
-        
-        NGram ScalaMLReadable<NGram>.Load(string path) => Read().Load(path);
 
         private static NGram WrapAsNGram(object obj) => new NGram((JvmObjectReference)obj);
     }

@@ -100,13 +100,9 @@ namespace Microsoft.Spark.ML.Feature
         public ScalaMLWriter Write() =>
             new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
         
-        void ScalaMLWritable.Save(string path) => Write().Save(path);
-        
         /// <returns>an <see cref="ScalaMLReader&lt;SQLTransformer&gt;"/> instance for this ML instance.</returns>
         public ScalaMLReader<SQLTransformer> Read() =>
             new ScalaMLReader<SQLTransformer>((JvmObjectReference)Reference.Invoke("read"));
-        
-        SQLTransformer ScalaMLReadable<SQLTransformer>.Load(string path) => Read().Load(path);
 
         private static SQLTransformer WrapAsSQLTransformer(object obj) =>
             new SQLTransformer((JvmObjectReference)obj);
