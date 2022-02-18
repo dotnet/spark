@@ -49,7 +49,7 @@ namespace Microsoft.Spark.ML.Feature
 
         public Pipeline SetStages(ScalaPipelineStage[] value) =>
             WrapAsPipeline((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "org.apache.spark.api.dotnet.DotnetHelper", "setPipelineStages", Reference, (object)value.ToArrayList()));
+                "org.apache.spark.api.dotnet.DotnetHelper", "setPipelineStages", Reference, value.ToArrayList()));
 
         public ScalaPipelineStage[] GetStages()
         {
