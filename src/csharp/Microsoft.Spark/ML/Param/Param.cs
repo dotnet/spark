@@ -52,10 +52,7 @@ namespace Microsoft.Spark.ML.Feature.Param
         {
         }
 
-        internal Param(JvmObjectReference jvmObject)
-        {
-            Reference = jvmObject;
-        }
+        internal Param(JvmObjectReference jvmObject) => Reference = jvmObject;
 
         public JvmObjectReference Reference { get; private set; }
 
@@ -94,10 +91,7 @@ namespace Microsoft.Spark.ML.Feature.Param
         {
         }
 
-        internal ParamPair(JvmObjectReference jvmObject)
-        {
-            Reference = jvmObject;
-        }
+        internal ParamPair(JvmObjectReference jvmObject) => Reference = jvmObject;
 
         public JvmObjectReference Reference { get; private set; }
     }
@@ -116,22 +110,26 @@ namespace Microsoft.Spark.ML.Feature.Param
         {
         }
 
-        public ParamMap(JvmObjectReference jvmObject)
-        {
-            Reference = jvmObject;
-        }
+        public ParamMap(JvmObjectReference jvmObject) => Reference = jvmObject;
 
         public JvmObjectReference Reference { get; private set; }
 
+        /// <summary>
+        /// Puts a (param, value) pair (overwrites if the input param exists).
+        /// </summary>
+        /// <param name="param">The param to be add</param>
+        /// <param name="value">The param value to be add</param>
         public ParamMap Put<T>(Param param, T value) =>
             WrapAsParamMap((JvmObjectReference)Reference.Invoke("put", param, value));
 
+        /// <summary>
+        /// Returns the string representation of this ParamMap.
+        /// </summary>
+        /// <returns>representation as string value.</returns>
         public override string ToString() =>
             (string)Reference.Invoke("toString");
 
-
         private static ParamMap WrapAsParamMap(object obj) =>
             new ParamMap((JvmObjectReference)obj);
-
     }
 }
