@@ -175,10 +175,16 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="path">The path to save the object to</param>
         public void Save(string path) => Reference.Invoke("save", path);
         
+        /// <summary>
+        /// Get the corresponding ScalaMLWriter instance.
+        /// </summary>
         /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
         public ScalaMLWriter Write() =>
             new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
         
+        /// <summary>
+        /// Get the corresponding ScalaMLReader instance.
+        /// </summary>
         /// <returns>an <see cref="ScalaMLReader&lt;StopWordsRemover&gt;"/> instance for this ML instance.</returns>
         public ScalaMLReader<StopWordsRemover> Read() =>
             new ScalaMLReader<StopWordsRemover>((JvmObjectReference)Reference.Invoke("read"));

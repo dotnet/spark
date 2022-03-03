@@ -16,7 +16,6 @@ using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark.ML.Feature
 {
-
     /// <summary>
     /// Params is used for components that take parameters. This also provides
     /// an internal param map to store parameter values attached to the instance.
@@ -24,7 +23,6 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public abstract class Params : Identifiable, IJvmObjectReferenceProvider
     {
-
         internal Params(string className)
             : this(SparkEnvironment.JvmBridge.CallConstructor(className))
         {
@@ -127,7 +125,6 @@ namespace Microsoft.Spark.ML.Feature
 
             return (T)constructor.Invoke(new object[] { reference });
         }
-
     }
 
     /// <summary>
@@ -135,7 +132,6 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public abstract class ScalaPipelineStage : Params
     {
-
         internal ScalaPipelineStage(string className) : base(className)
         {
         }
@@ -169,7 +165,6 @@ namespace Microsoft.Spark.ML.Feature
                 (JvmObjectReference)Reference.Invoke(
                     "transformSchema",
                     DataType.FromJson(Reference.Jvm, schema.Json)));
-
     }
 
     /// <summary>
@@ -177,7 +172,6 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public abstract class ScalaTransformer : ScalaPipelineStage
     {
-
         internal ScalaTransformer(string className) : base(className)
         {
         }
@@ -199,7 +193,6 @@ namespace Microsoft.Spark.ML.Feature
         /// </returns>
         public virtual DataFrame Transform(DataFrame dataset) =>
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", dataset));
-
     }
 
     /// <summary>
@@ -209,7 +202,6 @@ namespace Microsoft.Spark.ML.Feature
     public interface Estimator<out M>
     {
         M Fit(DataFrame dataset);
-
     }
 
     /// <summary>
@@ -218,7 +210,6 @@ namespace Microsoft.Spark.ML.Feature
     /// <typeparam name="M"/>
     public abstract class ScalaEstimator<M> : ScalaPipelineStage, Estimator<M> where M : ScalaModel<M>
     {
-
         internal ScalaEstimator(string className) : base(className)
         {
         }
@@ -238,7 +229,6 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>fitted model</returns>
         public virtual M Fit(DataFrame dataset) =>
             WrapAsType<M>((JvmObjectReference)Reference.Invoke("fit", dataset));
-
     }
 
     /// <summary>
@@ -247,9 +237,7 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public interface Model<out M>
     {
-
         bool HasParent();
-
     }
 
     /// <summary>
@@ -275,15 +263,16 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Sets the parent of this model (Java API).
         /// </summary>
+        /// <returns>type parameter M</returns>
         public M SetParent(ScalaEstimator<M> parent) =>
             WrapAsType<M>((JvmObjectReference)Reference.Invoke("setParent", parent));
 
         /// <summary>
         /// Indicates whether this Model has a corresponding parent.
         /// </summary>
+        /// <returns>bool</returns>
         public bool HasParent() =>
             (bool)Reference.Invoke("hasParent");
-
     }
 
     /// <summary>
@@ -291,7 +280,6 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public abstract class ScalaEvaluator : Params
     {
-
         internal ScalaEvaluator(string className) : base(className)
         {
         }
@@ -317,17 +305,22 @@ namespace Microsoft.Spark.ML.Feature
         /// Indicates whether the metric returned by evaluate should be maximized (true, default) or minimized (false).
         /// A given evaluator may support multiple metrics which may be maximized or minimized.
         /// </summary>
+        /// <returns>bool</returns>
         public bool IsLargerBetter =>
             (bool)Reference.Invoke("isLargerBetter");
-
     }
 
+    /// <summary>
+    /// DotnetHelper is used to hold basic general helper functions that
+    /// are used within ML scope.
+    /// </summary>
     public class DotnetHelper
     {
-
         /// <summary>
-        /// Helper function for getting the exact class name from jvm.
+        /// Helper function for getting the exact class name from jvm object.
         /// </summary>
+        /// <param name="jvmObject">The reference to object created in JVM.</param>
+        /// <returns>A string Tuple2 of constructor class name and method name</returns>
         public static (string, string) GetUnderlyingType(JvmObjectReference jvmObject)
         {
             JvmObjectReference jvmClass = (JvmObjectReference)jvmObject.Invoke("getClass");
@@ -341,5 +334,4 @@ namespace Microsoft.Spark.ML.Feature
             return (constructorClass, methodName);
         }
     }
-
 }

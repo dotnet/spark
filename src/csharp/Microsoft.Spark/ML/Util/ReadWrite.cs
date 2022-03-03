@@ -11,7 +11,6 @@ using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.ML.Feature
 {
-
     /// <summary>
     /// Class for utility classes that can save ML instances in Spark's internal format.
     /// </summary>
@@ -22,9 +21,15 @@ namespace Microsoft.Spark.ML.Feature
         public JvmObjectReference Reference { get; private set; }
 
         /// <summary>Saves the ML instances to the input path.</summary>
+        /// <param name="path">The path to save the object to</param>
         public void Save(string path) => Reference.Invoke("save", path);
 
-        public void SaveImpl(string path) => Reference.Invoke("saveImpl", path);
+        /// <summary>
+        /// save() handles overwriting and then calls this method. 
+        /// Subclasses should override this method to implement the actual saving of the instance.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        protected void SaveImpl(string path) => Reference.Invoke("saveImpl", path);
 
         /// <summary>Overwrites if the output path already exists.</summary>
         public ScalaMLWriter Overwrite()
@@ -37,13 +42,16 @@ namespace Microsoft.Spark.ML.Feature
         /// Adds an option to the underlying MLWriter. See the documentation for the specific model's
         /// writer for possible options. The option name (key) is case-insensitive.
         /// </summary>
+        /// <param name="key">key of the option</param>
+        /// <param name="value">value of the option</param>
         public ScalaMLWriter Option(string key, string value)
         {
             Reference.Invoke("option", key, value);
             return this;
         }
 
-        /// <summary>for Java compatibility</summary>
+        /// <summary>Sets the Spark Session to use for saving/loading.</summary>
+        /// <param name="sparkSession">The Spark Session to be set</param>
         public ScalaMLWriter Session(SparkSession sparkSession)
         {
             Reference.Invoke("session", sparkSession);
@@ -56,10 +64,14 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public interface ScalaMLWritable
     {
+        /// <summary>
+        /// Get the corresponding ScalaMLWriter instance.
+        /// </summary>
         /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
         ScalaMLWriter Write();
 
         /// <summary>Saves this ML instance to the input path</summary>
+        /// <param name="path">The path to save the object to</param>
         void Save(string path);
     }
 
@@ -76,9 +88,13 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Loads the ML component from the input path.
         /// </summary>
+        /// <param name="path">The path the previous instance of type T was saved to</param>
+        /// <returns>The type T instance</returns>
         public T Load(string path) =>
             WrapAsType((JvmObjectReference)Reference.Invoke("load", path));
 
+        /// <summary>Sets the Spark Session to use for saving/loading.</summary>
+        /// <param name="sparkSession">The Spark Session to be set</param>
         public ScalaMLReader<T> Session(SparkSession sparkSession)
         {
             Reference.Invoke("session", sparkSession);
@@ -108,9 +124,10 @@ namespace Microsoft.Spark.ML.Feature
     /// </typeparam>
     public interface ScalaMLReadable<T>
     {
+        /// <summary>
+        /// Get the corresponding ScalaMLReader instance.
+        /// </summary>
         /// <returns>an <see cref="ScalaMLReader&lt;T&gt;"/> instance for this ML instance.</returns>
         ScalaMLReader<T> Read();
-
     }
-
 }

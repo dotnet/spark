@@ -7,8 +7,18 @@ using Microsoft.Spark.Interop.Internal.Java.Util;
 
 namespace System
 {
+    /// <summary>
+    /// ArrayExtensions host custom extension methods for the
+    /// dotnet base class array T[].
+    /// </summary>
     public static class ArrayExtensions
     {
+        /// <summary>
+        /// A custom extension method that helps transform from dotnet
+        /// array of type T to java.util.ArrayList.
+        /// </summary>
+        /// <param name="array">an array instance</param>
+        /// <returns><see cref="ArrayList"/></returns>
         internal static ArrayList ToArrayList<T>(this T[] array)
         {
             var arrayList = new ArrayList(SparkEnvironment.JvmBridge);

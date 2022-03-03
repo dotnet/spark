@@ -46,12 +46,15 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
         internal bool ContainsValue(object value) =>
             (bool)Reference.Invoke("containsValue", value);
 
+        /// <summary>
+        /// Returns a Set view of the keys contained in this map. 
+        /// </summary>
+        /// <return>An array of object hosting the keys contained in the map</return>
         internal object[] KeySet()
         {
             JvmObjectReference jvmObject = (JvmObjectReference)Reference.Invoke("keySet");
             var result = (object[])jvmObject.Invoke("toArray");
             return result;
         }
-
     }
 }

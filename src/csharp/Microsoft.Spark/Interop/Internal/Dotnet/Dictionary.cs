@@ -11,8 +11,10 @@ namespace System.Collections.Generic
     {
         /// <summary>
         /// A custom extension method that helps transform from dotnet
-        /// Dictionary and java.util.HashMap.
+        /// Dictionary&lt;string, string&gt; to java.util.HashMap.
         /// </summary>
+        /// <param name="value">a Dictionary instance</param>
+        /// <returns><see cref="HashMap"/></returns>
         internal static HashMap ToHashMap(this Dictionary<string, string> value)
         {
             var hashMap = new HashMap(SparkEnvironment.JvmBridge);
@@ -23,6 +25,12 @@ namespace System.Collections.Generic
             return hashMap;
         }
 
+        /// <summary>
+        /// A custom extension method that helps transform from dotnet
+        /// Dictionary&lt;string, object&gt; to java.util.HashMap.
+        /// </summary>
+        /// <param name="value">a Dictionary instance</param>
+        /// <returns><see cref="HashMap"/></returns>
         internal static HashMap ToHashMap(this Dictionary<string, object> value)
         {
             var hashMap = new HashMap(SparkEnvironment.JvmBridge);
@@ -32,6 +40,5 @@ namespace System.Collections.Generic
             }
             return hashMap;
         }
-
     }
 }
