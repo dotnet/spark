@@ -21,6 +21,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             _spark = fixture.Spark;
         }
 
+        /// <summary>
+        /// Create a <see cref="Pipeline"/> and test the
+        /// available methods. Test the FeatureBase methods 
+        /// using <see cref="TestFeatureBase"/>.
+        /// </summary>
         [Fact]
         public void TestPipeline()
         {
@@ -31,7 +36,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             Pipeline pipeline = new Pipeline()
                 .SetStages(stages);
-            var returnStages = pipeline.GetStages();
+            ScalaPipelineStage[] returnStages = pipeline.GetStages();
             
             Assert.Equal(stages[0].Uid(), returnStages[0].Uid());
             Assert.Equal(stages[0].ToString(), returnStages[0].ToString());
@@ -50,6 +55,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             TestFeatureBase(pipeline, "stages", stages);
         }
 
+        /// <summary>
+        /// Create a <see cref="Pipeline"/> and test the
+        /// fit and read/write methods.
+        /// </summary>
         [Fact]
         public void TestPipelineFit()
         {
@@ -90,6 +99,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
                 Pipeline loadedPipeline = Pipeline.Load(savePath);
                 Assert.Equal(pipeline.Uid(), loadedPipeline.Uid());
+
+                string writePath = Path.Join(tempDirectory.Path, "pipelineWithWrite");
+                pipeline.Write().Save(writePath);
+
+                Pipeline loadedPipelineWithRead = pipeline.Read().Load(writePath);
+                Assert.Equal(pipeline.Uid(), loadedPipelineWithRead.Uid());
             }
             
             TestFeatureBase(pipeline, "stages", stages);

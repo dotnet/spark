@@ -21,27 +21,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             _spark = fixture.Spark;
         }
 
-        [Fact]
-        public void TestPipelineModel()
-        {
-
-            var stages = new ScalaTransformer[] {
-                new Bucketizer(),
-                new Bucketizer()
-            };
-
-            PipelineModel pipelineModel = new PipelineModel("randomUID", stages);
-            
-            using (var tempDirectory = new TemporaryDirectory())
-            {
-                string savePath = Path.Join(tempDirectory.Path, "pipelineModel");
-                pipelineModel.Save(savePath);
-
-                PipelineModel loadedPipelineModel = PipelineModel.Load(savePath);
-                Assert.Equal(pipelineModel.Uid(), loadedPipelineModel.Uid());
-            }
-        }
-
+        /// <summary>
+        /// Create a <see cref="PipelineModel"/> and test the
+        /// available methods.
+        /// </summary>
         [Fact]
         public void TestPipelineModelTransform()
         {
@@ -84,6 +67,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
                 PipelineModel loadedPipelineModel = PipelineModel.Load(savePath);
                 Assert.Equal(pipelineModel.Uid(), loadedPipelineModel.Uid());
+
+                string writePath = Path.Join(tempDirectory.Path, "pipelineModelWithWrite");
+                pipelineModel.Write().Save(writePath);
+
+                PipelineModel loadedPipelineModelWithRead = pipelineModel.Read().Load(writePath);
+                Assert.Equal(pipelineModel.Uid(), loadedPipelineModelWithRead.Uid());
             }
         }
     }

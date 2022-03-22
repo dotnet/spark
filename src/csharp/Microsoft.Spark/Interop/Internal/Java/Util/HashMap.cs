@@ -35,6 +35,7 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
         /// or null if this map contains no mapping for the key.
         /// </summary>
         /// <param name="key">value whose presence in this map is to be tested</param>
+        /// <return>value associated with the specified key</return>
         internal object Get(object key) =>
             Reference.Invoke("get", key);
 

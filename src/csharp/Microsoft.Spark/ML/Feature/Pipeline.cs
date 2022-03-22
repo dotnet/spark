@@ -18,9 +18,10 @@ namespace Microsoft.Spark.ML.Feature
     /// A Pipeline consists of a sequence of stages, each of which is either an Estimator or a Transformer.
     /// When Pipeline.fit is called, the stages are executed in order. If a stage is an Estimator, its 
     /// Estimator.fit method will be called on the input dataset to fit a model. Then the model, which is a 
-    /// transformer, will be used to transform the dataset as the input to the next stage. If a stage is a Transformer,
-    /// its Transformer.transform method will be called to produce the dataset for the next stage. The fitted model from
-    /// a Pipeline is a PipelineModel, which consists of fitted models and transformers, corresponding to the pipeline
+    /// transformer, will be used to transform the dataset as the input to the next stage. 
+    /// If a stage is a Transformer, its Transformer.transform method will be called to produce the 
+    /// dataset for the next stage. The fitted model from a Pipeline is a PipelineModel, which consists of 
+    /// fitted models and transformers, corresponding to the pipeline
     /// stages. If there are no stages, the pipeline acts as an identity transformer.
     /// </summary>
     public class Pipeline : ScalaEstimator<PipelineModel>, ScalaMLWritable, ScalaMLReadable<Pipeline>
@@ -61,7 +62,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Get the stages of pipeline instance.
         /// </summary>
-        /// <returns>A sequence of stages</returns>
+        /// <returns>A sequence of <see cref="ScalaPipelineStage"/> stages</returns>
         public ScalaPipelineStage[] GetStages()
         {
             JvmObjectReference[] jvmObjects = (JvmObjectReference[])Reference.Invoke("getStages");

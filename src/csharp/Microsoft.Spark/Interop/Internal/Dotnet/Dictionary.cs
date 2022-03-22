@@ -17,8 +17,8 @@ namespace System.Collections.Generic
         /// <returns><see cref="HashMap"/></returns>
         internal static HashMap ToHashMap(this Dictionary<string, string> value)
         {
-            var hashMap = new HashMap(SparkEnvironment.JvmBridge);
-            foreach (var item in value)
+            HashMap hashMap = new HashMap(SparkEnvironment.JvmBridge);
+            foreach (KeyValuePair<string, string> item in value)
             {
                 hashMap.Put(item.Key, item.Value);
             }
@@ -33,8 +33,8 @@ namespace System.Collections.Generic
         /// <returns><see cref="HashMap"/></returns>
         internal static HashMap ToHashMap(this Dictionary<string, object> value)
         {
-            var hashMap = new HashMap(SparkEnvironment.JvmBridge);
-            foreach (var item in value)
+            HashMap hashMap = new HashMap(SparkEnvironment.JvmBridge);
+            foreach (KeyValuePair<string, object> item in value)
             {
                 hashMap.Put(item.Key, item.Value);
             }
