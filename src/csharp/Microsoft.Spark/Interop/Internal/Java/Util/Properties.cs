@@ -12,14 +12,12 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
     /// </summary>
     internal class Properties : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         /// <summary>
         /// Create a <c>java.util.Properties</c> JVM object
         /// </summary>
         /// <param name="jvm">JVM bridge to use</param>
         internal Properties(IJvmBridge jvm) =>
-            _jvmObject = jvm.CallConstructor("java.util.Properties");
+            Reference = jvm.CallConstructor("java.util.Properties");
 
         /// <summary>
         /// Create a <c>java.util.Properties</c> JVM object and populate the entries
@@ -30,11 +28,11 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
         /// <c>java.util.Properties</c> JVM object</param>
         internal Properties(IJvmBridge jvm, Dictionary<string, string> properties) : this(jvm)
         {
-            if (_jvmObject != null)
+            if (Reference != null)
             {
                 foreach (KeyValuePair<string, string> property in properties)
                 {
-                    _jvmObject.Invoke(
+                    Reference.Invoke(
                         "setProperty",
                         property.Key,
                         property.Value);
@@ -42,6 +40,6 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
             }
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
     }
 }

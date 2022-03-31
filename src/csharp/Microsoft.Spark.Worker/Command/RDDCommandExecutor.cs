@@ -68,7 +68,7 @@ namespace Microsoft.Spark.Worker.Command
             RDD.Collector.IDeserializer deserializer =
                 RDD.Collector.GetDeserializer(deserializerMode);
 
-            var messageLength = 0;
+            int messageLength;
             while ((messageLength = SerDe.ReadInt32(inputStream)) !=
                 (int)SpecialLengths.END_OF_DATA_SECTION)
             {
@@ -90,8 +90,7 @@ namespace Microsoft.Spark.Worker.Command
             CommandSerDe.SerializedMode serializerMode,
             object message)
         {
-            MemoryStream writeOutputStream = s_writeOutputStream ??
-                (s_writeOutputStream = new MemoryStream());
+            MemoryStream writeOutputStream = s_writeOutputStream ??= new MemoryStream();
             writeOutputStream.Position = 0;
             Serialize(serializerMode, message, writeOutputStream);
             SerDe.Write(stream, (int)writeOutputStream.Position);
@@ -112,8 +111,7 @@ namespace Microsoft.Spark.Worker.Command
             switch (serializerMode)
             {
                 case CommandSerDe.SerializedMode.Byte:
-                    BinaryFormatter formatter = s_binaryFormatter ??
-                        (s_binaryFormatter = new BinaryFormatter());
+                    BinaryFormatter formatter = s_binaryFormatter ??= new BinaryFormatter();
                     formatter.Serialize(stream, message);
                     break;
                 case CommandSerDe.SerializedMode.None:

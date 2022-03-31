@@ -143,7 +143,7 @@ namespace Microsoft.Spark.Utils
         internal static UdfData Serialize(Delegate udf)
         {
             MethodInfo method = udf.Method;
-            var target = udf.Target;
+            object target = udf.Target;
 
             var udfData = new UdfData()
             {
@@ -201,12 +201,15 @@ namespace Microsoft.Spark.Utils
                 BindingFlags.Public |
                 BindingFlags.NonPublic))
             {
-                fields.Add(new FieldData()
+                if (!field.GetCustomAttributes(typeof(NonSerializedAttribute)).Any())
                 {
-                    TypeData = SerializeType(field.FieldType),
-                    Name = field.Name,
-                    Value = field.GetValue(target)
-                });
+                    fields.Add(new FieldData()
+                    {
+                        TypeData = SerializeType(field.FieldType),
+                        Name = field.Name,
+                        Value = field.GetValue(target)
+                    });
+                }
             }
 
             // Even when an UDF does not have any closure, GetFields() returns some fields
@@ -214,7 +217,7 @@ namespace Microsoft.Spark.Utils
             // For now, one way to distinguish is to check if any of the field's type
             // is same as the target type. If so, fields will be emptied out.
             // TODO: Follow up with the dotnet team.
-            var doesUdfHaveClosure = fields.
+            bool doesUdfHaveClosure = fields.
                 Where((field) => field.TypeData.Name.Equals(targetTypeData.Name)).
                 Count() == 0;
 
@@ -230,7 +233,7 @@ namespace Microsoft.Spark.Utils
         private static object DeserializeTargetData(TargetData targetData)
         {
             Type targetType = DeserializeType(targetData.TypeData);
-            var target = FormatterServices.GetUninitializedObject(targetType);
+            object target = FormatterServices.GetUninitializedObject(targetType);
 
             foreach (FieldData field in targetData.Fields ?? Enumerable.Empty<FieldData>())
             {
@@ -257,8 +260,21 @@ namespace Microsoft.Spark.Utils
         private static Type DeserializeType(TypeData typeData) =>
             s_typeCache.GetOrAdd(
                 typeData,
-                td => AssemblyLoader.LoadAssembly(
-                    td.AssemblyName,
-                    td.AssemblyFileName).GetType(td.Name));
+                td =>
+                {
+                    Type type = AssemblyLoader.LoadAssembly(
+                        td.AssemblyName,
+                        td.AssemblyFileName)?.GetType(td.Name, true);
+                    if (type == null)
+                    {
+                        throw new FileNotFoundException(
+                            string.Format(
+                                "Assembly '{0}' file not found '{1}'",
+                                td.AssemblyName,
+                                td.AssemblyFileName));
+                    }
+
+                    return type;
+                });
     }
 }

@@ -78,6 +78,25 @@ type Basic() =
 
             let joinedDf3 = df.Join(df, df.["name"].EqualTo(df.["name"]), "outer")
             joinedDf3.Show()
+            
+            // Union of two data frames
+            let unionDf = df.Union(df)
+            unionDf.Show()
+
+            // Add new column to data frame
+            df.WithColumn("location", Functions.Lit("Seattle")).Show()
+
+            // Rename existing column
+            df.WithColumnRenamed("name", "fullname").Show()
+
+            // Filter rows with null age
+            df.Filter(df.["age"].IsNull()).Show()
+
+            // Fill null values in age column with -1
+            df.Na().Fill(-1L, ["age"]).Show()
+
+            // Drop age column
+            df.Drop(df.["age"]).Show()
 
             spark.Stop()
             0

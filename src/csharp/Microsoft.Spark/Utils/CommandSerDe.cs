@@ -44,7 +44,7 @@ namespace Microsoft.Spark.Utils
         ///  - RDD: * <see cref="RDD{T}.MapUdfWrapper{I, O}"/>
         ///         * <see cref="RDD{T}.FlatMapUdfWrapper{I, O}"/>
         ///         * <see cref="RDD{T}.MapPartitionsUdfWrapper{I, O}"/>
-        ///         * <see cref="RDD.WorkerFunction.WrokerFuncChainHelper"/>
+        ///         * <see cref="RDD.WorkerFunction.WorkerFuncChainHelper"/>
         /// </summary>
         [Serializable]
         private sealed class UdfWrapperNode
@@ -110,9 +110,9 @@ namespace Microsoft.Spark.Utils
             var commandPayloadBytesList = new List<byte[]>();
 
             // Add serializer mode.
-            var modeBytes = Encoding.UTF8.GetBytes(serializerMode.ToString());
-            var length = modeBytes.Length;
-            var lengthAsBytes = BitConverter.GetBytes(length);
+            byte[] modeBytes = Encoding.UTF8.GetBytes(serializerMode.ToString());
+            int length = modeBytes.Length;
+            byte[] lengthAsBytes = BitConverter.GetBytes(length);
             Array.Reverse(lengthAsBytes);
             commandPayloadBytesList.Add(lengthAsBytes);
             commandPayloadBytesList.Add(modeBytes);
@@ -128,8 +128,8 @@ namespace Microsoft.Spark.Utils
             // Add run mode:
             // N - normal
             // R - repl
-            var runMode = Environment.GetEnvironmentVariable("SPARK_NET_RUN_MODE") ?? "N";
-            var runModeBytes = Encoding.UTF8.GetBytes(runMode);
+            string runMode = Environment.GetEnvironmentVariable("SPARK_NET_RUN_MODE") ?? "N";
+            byte[] runModeBytes = Encoding.UTF8.GetBytes(runMode);
             lengthAsBytes = BitConverter.GetBytes(runModeBytes.Length);
             Array.Reverse(lengthAsBytes);
             commandPayloadBytesList.Add(lengthAsBytes);
@@ -138,7 +138,7 @@ namespace Microsoft.Spark.Utils
             if ("R".Equals(runMode, StringComparison.InvariantCultureIgnoreCase))
             {
                 // add compilation dump directory
-                var compilationDumpDirBytes = Encoding.UTF8.GetBytes(
+                byte[] compilationDumpDirBytes = Encoding.UTF8.GetBytes(
                     Environment.GetEnvironmentVariable("SPARK_NET_SCRIPT_COMPILATION_DIR") ?? ".");
                 lengthAsBytes = BitConverter.GetBytes(compilationDumpDirBytes.Length);
                 Array.Reverse(lengthAsBytes);
@@ -164,8 +164,8 @@ namespace Microsoft.Spark.Utils
             {
                 formatter.Serialize(stream, udfWrapperData);
 
-                var udfBytes = stream.ToArray();
-                var udfBytesLengthAsBytes = BitConverter.GetBytes(udfBytes.Length);
+                byte[] udfBytes = stream.ToArray();
+                byte[] udfBytesLengthAsBytes = BitConverter.GetBytes(udfBytes.Length);
                 Array.Reverse(udfBytesLengthAsBytes);
                 commandPayloadBytesList.Add(udfBytesLengthAsBytes);
                 commandPayloadBytesList.Add(udfBytes);
@@ -181,7 +181,8 @@ namespace Microsoft.Spark.Utils
             List<UdfSerDe.UdfData> udfs)
         {
             UdfSerDe.UdfData udfData = UdfSerDe.Serialize(func);
-            if (udfData.MethodName != UdfWrapperMethodName)
+            if ((udfData.MethodName != UdfWrapperMethodName) ||
+                !Attribute.IsDefined(func.Target.GetType(), typeof(UdfWrapperAttribute)))
             {
                 // Found the actual UDF.
                 if (parent != null)
@@ -216,11 +217,65 @@ namespace Microsoft.Spark.Utils
             }
         }
 
-        internal static T Deserialize<T>(
+        internal static object DeserializeArrowOrDataFrameUdf(
             Stream stream,
             out SerializedMode serializerMode,
             out SerializedMode deserializerMode,
-            out string runMode) where T : Delegate
+            out string runMode)
+        {
+            UdfWrapperData udfWrapperData = GetUdfWrapperDataFromStream(
+                stream,
+                out serializerMode,
+                out deserializerMode,
+                out runMode);
+
+            int nodeIndex = 0;
+            int udfIndex = 0;
+            UdfWrapperNode node = udfWrapperData.UdfWrapperNodes[nodeIndex];
+            Type nodeType = Type.GetType(node.TypeName);
+            Delegate udf;
+            if (nodeType == typeof(DataFrameGroupedMapUdfWrapper))
+            {
+                udf = (DataFrameGroupedMapWorkerFunction.ExecuteDelegate)DeserializeUdfs<DataFrameGroupedMapWorkerFunction.ExecuteDelegate>(
+                        udfWrapperData,
+                        ref nodeIndex,
+                        ref udfIndex);
+            }
+            else if (nodeType == typeof(DataFrameWorkerFunction) || nodeType.IsSubclassOf(typeof(DataFrameUdfWrapper)))
+            {
+                udf = (DataFrameWorkerFunction.ExecuteDelegate)DeserializeUdfs<DataFrameWorkerFunction.ExecuteDelegate>(
+                        udfWrapperData,
+                        ref nodeIndex,
+                        ref udfIndex);
+            }
+            else if (nodeType == typeof(ArrowGroupedMapUdfWrapper))
+            {
+                udf = (ArrowGroupedMapWorkerFunction.ExecuteDelegate)DeserializeUdfs<ArrowGroupedMapWorkerFunction.ExecuteDelegate>(
+                        udfWrapperData,
+                        ref nodeIndex,
+                        ref udfIndex);
+            }
+            else 
+            {
+                udf = (ArrowWorkerFunction.ExecuteDelegate)
+                    DeserializeUdfs<ArrowWorkerFunction.ExecuteDelegate>(
+                        udfWrapperData,
+                        ref nodeIndex,
+                        ref udfIndex);
+            }
+
+            // Check all the data is consumed.
+            Debug.Assert(nodeIndex == udfWrapperData.UdfWrapperNodes.Length);
+            Debug.Assert(udfIndex == udfWrapperData.Udfs.Length);
+
+            return udf;
+        }
+
+        private static UdfWrapperData GetUdfWrapperDataFromStream(
+            Stream stream,
+            out SerializedMode serializerMode,
+            out SerializedMode deserializerMode,
+            out string runMode)
         {
             if (!Enum.TryParse(SerDe.ReadString(stream), out serializerMode))
             {
@@ -234,16 +289,28 @@ namespace Microsoft.Spark.Utils
 
             runMode = SerDe.ReadString(stream);
 
-            var serializedCommand = SerDe.ReadBytes(stream);
+            byte[] serializedCommand = SerDe.ReadBytes(stream);
 
             var bf = new BinaryFormatter();
             var ms = new MemoryStream(serializedCommand, false);
 
-            var udfWrapperData = (UdfWrapperData)bf.Deserialize(ms);
+            return (UdfWrapperData)bf.Deserialize(ms);
+        }
 
-            var nodeIndex = 0;
-            var udfIndex = 0;
-            var udf = (T)DeserializeUdfs<T>(udfWrapperData, ref nodeIndex, ref udfIndex);
+        internal static T Deserialize<T>(
+            Stream stream,
+            out SerializedMode serializerMode,
+            out SerializedMode deserializerMode,
+            out string runMode) where T : Delegate
+        {
+            UdfWrapperData udfWrapperData = GetUdfWrapperDataFromStream(
+                stream,
+                out serializerMode,
+                out deserializerMode,
+                out runMode);
+            int nodeIndex = 0;
+            int udfIndex = 0;
+            T udf = (T)DeserializeUdfs<T>(udfWrapperData, ref nodeIndex, ref udfIndex);
 
             // Check all the data is consumed.
             Debug.Assert(nodeIndex == udfWrapperData.UdfWrapperNodes.Length);
@@ -258,7 +325,7 @@ namespace Microsoft.Spark.Utils
             ref int udfIndex)
         {
             UdfWrapperNode node = data.UdfWrapperNodes[nodeIndex++];
-            var nodeType = Type.GetType(node.TypeName);
+            Type nodeType = Type.GetType(node.TypeName);
 
             if (node.HasUdf)
             {

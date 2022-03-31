@@ -19,9 +19,8 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     public sealed class SparkSession : IDisposable, IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         private readonly Lazy<SparkContext> _sparkContext;
+        private readonly Lazy<Catalog.Catalog> _catalog;
 
         private static readonly string s_sparkSessionClassName =
             "org.apache.spark.sql.SparkSession";
@@ -32,13 +31,15 @@ namespace Microsoft.Spark.Sql
         /// <param name="jvmObject">Reference to the JVM SparkSession object</param>
         internal SparkSession(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
             _sparkContext = new Lazy<SparkContext>(
                 () => new SparkContext(
-                    (JvmObjectReference)_jvmObject.Invoke("sparkContext")));
+                    (JvmObjectReference)Reference.Invoke("sparkContext")));
+            _catalog = new Lazy<Catalog.Catalog>(
+                () => new Catalog.Catalog((JvmObjectReference)Reference.Invoke("catalog")));
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Returns SparkContext object associated with this SparkSession.
@@ -46,22 +47,59 @@ namespace Microsoft.Spark.Sql
         public SparkContext SparkContext => _sparkContext.Value;
 
         /// <summary>
+        /// Interface through which the user may create, drop, alter or query underlying databases,
+        /// tables, functions etc.
+        /// </summary>
+        /// <returns>Catalog object</returns>
+        public Catalog.Catalog Catalog => _catalog.Value;
+
+        /// <summary>
         /// Creates a Builder object for SparkSession.
         /// </summary>
         /// <returns>Builder object</returns>
         public static Builder Builder() => new Builder();
 
-        /// Note that *ActiveSession() APIs are not exposed because these APIs work with a
-        /// thread-local variable, which stores the session variable. Since the Netty server
-        /// that handles the requests is multi-threaded, any thread can invoke these APIs,
-        /// resulting in unexpected behaviors if different threads are used.
+        /// <summary>
+        /// Changes the SparkSession that will be returned in this thread when 
+        /// <see cref="Builder.GetOrCreate"/> is called. This can be used to ensure that a given
+        /// thread receives a SparkSession with an isolated session, instead of the global
+        /// (first created) context.
+        /// </summary>
+        /// <param name="session">SparkSession object</param>
+        public static void SetActiveSession(SparkSession session) =>
+            session.Reference.Jvm.CallStaticJavaMethod(
+                s_sparkSessionClassName, "setActiveSession", session);
+
+        /// <summary>
+        /// Clears the active SparkSession for current thread. Subsequent calls to
+        /// <see cref="Builder.GetOrCreate"/> will return the first created context
+        /// instead of a thread-local override.
+        /// </summary>
+        public static void ClearActiveSession() =>
+            SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                s_sparkSessionClassName, "clearActiveSession");
+
+        /// <summary>
+        /// Returns the active SparkSession for the current thread, returned by the builder.
+        /// </summary>
+        /// <returns>Return null, when calling this function on executors</returns>
+        public static SparkSession GetActiveSession()
+        {
+            var optionalSession = new Option(
+                (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
+                    s_sparkSessionClassName, "getActiveSession"));
+
+            return optionalSession.IsDefined()
+                ? new SparkSession((JvmObjectReference)optionalSession.Get())
+                : null;
+        }
 
         /// <summary>
         /// Sets the default SparkSession that is returned by the builder.
         /// </summary>
         /// <param name="session">SparkSession object</param>
         public static void SetDefaultSession(SparkSession session) =>
-            session._jvmObject.Jvm.CallStaticJavaMethod(
+            session.Reference.Jvm.CallStaticJavaMethod(
                 s_sparkSessionClassName, "setDefaultSession", session);
 
         /// <summary>
@@ -116,7 +154,15 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <returns>The RuntimeConfig object</returns>
         public RuntimeConfig Conf() =>
-            new RuntimeConfig((JvmObjectReference)_jvmObject.Invoke("conf"));
+            new RuntimeConfig((JvmObjectReference)Reference.Invoke("conf"));
+
+        /// <summary>
+        /// Returns a <see cref="StreamingQueryManager"/> that allows managing all the
+        /// <see cref="StreamingQuery"/> instances active on <c>this</c> context.
+        /// </summary>
+        /// <returns><see cref="StreamingQueryManager"/> object</returns>
+        public StreamingQueryManager Streams() =>
+            new StreamingQueryManager((JvmObjectReference)Reference.Invoke("streams"));
 
         /// <summary>
         /// Start a new session with isolated SQL configurations, temporary tables, registered
@@ -130,20 +176,28 @@ namespace Microsoft.Spark.Sql
         /// </remarks>
         /// <returns>New SparkSession object</returns>
         public SparkSession NewSession() =>
-            new SparkSession((JvmObjectReference)_jvmObject.Invoke("newSession"));
+            new SparkSession((JvmObjectReference)Reference.Invoke("newSession"));
 
+        /// <summary>
+        /// Returns a string that represents the version of Spark on which this application is running.
+        /// </summary>
+        /// <returns>
+        /// A string that represents the version of Spark on which this application is running.
+        /// </returns>
+        public string Version() => (string)Reference.Invoke("version");
+        
         /// <summary>
         /// Returns the specified table/view as a DataFrame.
         /// </summary>
         /// <param name="tableName">Name of a table or view</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Table(string tableName) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("table", tableName));
+            new DataFrame((JvmObjectReference)Reference.Invoke("table", tableName));
 
         /// <summary>
-        /// Creates a <see cref="DataFrame"/> from an <see cref="IEnumerable"/> containing 
+        /// Creates a <see cref="DataFrame"/> from an <see cref="IEnumerable"/> containing
         /// <see cref="GenericRow"/>s using the given schema.
-        /// It is important to make sure that the structure of every <see cref="GenericRow"/> of 
+        /// It is important to make sure that the structure of every <see cref="GenericRow"/> of
         /// the provided <see cref="IEnumerable"/> matches
         /// the provided schema. Otherwise, there will be runtime exception.
         /// </summary>
@@ -151,10 +205,10 @@ namespace Microsoft.Spark.Sql
         /// <param name="schema">Schema as StructType</param>
         /// <returns>DataFrame object</returns>
         public DataFrame CreateDataFrame(IEnumerable<GenericRow> data, StructType schema) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+            new DataFrame((JvmObjectReference)Reference.Invoke(
                 "createDataFrame",
                 data,
-                DataType.FromJson(_jvmObject.Jvm, schema.Json)));
+                DataType.FromJson(Reference.Jvm, schema.Json)));
 
         /// <summary>
         /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="int"/>
@@ -162,31 +216,80 @@ namespace Microsoft.Spark.Sql
         /// <param name="data"><see cref="IEnumerable"/> of type <see cref="int"/></param>
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<int> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new IntegerType(), false));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type
+        /// <see cref="Nullable{Int32}"/>
+        /// </summary>
+        /// <param name="data"><see cref="IEnumerable"/> of type
+        /// <see cref="Nullable{Int32}"/></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<int?> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new IntegerType()));
 
         /// <summary>
-        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="string"/>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type
+        /// <see cref="string"/>
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data"><see cref="IEnumerable"/> of type <see cref="string"/></param>
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<string> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new StringType()));
 
         /// <summary>
-        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="double"/>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type
+        /// <see cref="double"/>
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data"><see cref="IEnumerable"/> of type <see cref="double"/></param>
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<double> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DoubleType(), false));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type
+        /// <see cref="Nullable{Double}"/>
+        /// </summary>
+        /// <param name="data"><see cref="IEnumerable"/> of type
+        /// <see cref="Nullable{Double}"/></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<double?> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DoubleType()));
 
         /// <summary>
         /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="bool"/>
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data"><see cref="IEnumerable"/> of type <see cref="bool"/></param>
         /// <returns>Dataframe object</returns>
         public DataFrame CreateDataFrame(IEnumerable<bool> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new BooleanType(), false));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type
+        /// <see cref="Nullable{Boolean}"/>
+        /// </summary>
+        /// <param name="data"><see cref="IEnumerable"/> of type
+        /// <see cref="Nullable{Boolean}"/></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<bool?> data) =>
             CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new BooleanType()));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type <see cref="Date"/>
+        /// </summary>
+        /// <param name="data"><see cref="IEnumerable"/> of type <see cref="Date"/></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<Date> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new DateType()));
+
+        /// <summary>
+        /// Creates a Dataframe given data as <see cref="IEnumerable"/> of type
+        /// <see cref="Timestamp"/>
+        /// </summary>
+        /// <param name="data"><see cref="IEnumerable"/> of type <see cref="Timestamp"/></param>
+        /// <returns>Dataframe object</returns>
+        public DataFrame CreateDataFrame(IEnumerable<Timestamp> data) =>
+            CreateDataFrame(ToGenericRows(data), SchemaWithSingleColumn(new TimestampType()));
 
         /// <summary>
         /// Executes a SQL query using Spark, returning the result as a DataFrame.
@@ -194,7 +297,31 @@ namespace Microsoft.Spark.Sql
         /// <param name="sqlText">SQL query text</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Sql(string sqlText) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("sql", sqlText));
+            new DataFrame((JvmObjectReference)Reference.Invoke("sql", sqlText));
+
+        /// <summary>
+        /// Execute an arbitrary string command inside an external execution engine rather than
+        /// Spark. This could be useful when user wants to execute some commands out of Spark. For
+        /// example, executing custom DDL/DML command for JDBC, creating index for ElasticSearch,
+        /// creating cores for Solr and so on.
+        /// The command will be eagerly executed after this method is called and the returned
+        /// DataFrame will contain the output of the command(if any).
+        /// </summary>
+        /// <param name="runner">The class name of the runner that implements
+        /// `ExternalCommandRunner`</param>
+        /// <param name="command">The target command to be executed</param>
+        /// <param name="options">The options for the runner</param>
+        /// <returns>>DataFrame object</returns>
+        [Since(Versions.V3_0_0)]
+        public DataFrame ExecuteCommand(
+            string runner,
+            string command,
+            Dictionary<string, string> options) =>
+            new DataFrame((JvmObjectReference)Reference.Invoke(
+                "executeCommand",
+                runner,
+                command,
+                options));
 
         /// <summary>
         /// Returns a DataFrameReader that can be used to read non-streaming data in
@@ -202,7 +329,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <returns>DataFrameReader object</returns>
         public DataFrameReader Read() =>
-            new DataFrameReader((JvmObjectReference)_jvmObject.Invoke("read"));
+            new DataFrameReader((JvmObjectReference)Reference.Invoke("read"));
 
         /// <summary>
         /// Creates a DataFrame with a single column named id, containing elements in
@@ -211,7 +338,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="end">The end value (exclusive)</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Range(long end) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("range", end));
+            new DataFrame((JvmObjectReference)Reference.Invoke("range", end));
 
         /// <summary>
         /// Creates a DataFrame with a single column named id, containing elements in 
@@ -221,7 +348,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="end">The end value (exclusive)</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Range(long start, long end) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("range", start, end));
+            new DataFrame((JvmObjectReference)Reference.Invoke("range", start, end));
 
         /// <summary>
         /// Creates a DataFrame with a single column named id, containing elements in
@@ -232,7 +359,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="step">Step value to use when creating the range</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Range(long start, long end, long step) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("range", start, end, step));
+            new DataFrame((JvmObjectReference)Reference.Invoke("range", start, end, step));
 
         /// <summary>
         /// Creates a DataFrame with a single column named id, containing elements in
@@ -246,14 +373,14 @@ namespace Microsoft.Spark.Sql
         /// <returns>DataFrame object</returns>
         public DataFrame Range(long start, long end, long step, int numPartitions) =>
             new DataFrame(
-                (JvmObjectReference)_jvmObject.Invoke("range", start, end, step, numPartitions));
+                (JvmObjectReference)Reference.Invoke("range", start, end, step, numPartitions));
 
         /// <summary>
         /// Returns a DataStreamReader that can be used to read streaming data in as a DataFrame.
         /// </summary>
         /// <returns>DataStreamReader object</returns>
         public DataStreamReader ReadStream() =>
-            new DataStreamReader((JvmObjectReference)_jvmObject.Invoke("readStream"));
+            new DataStreamReader((JvmObjectReference)Reference.Invoke("readStream"));
 
         /// <summary>
         /// Returns UDFRegistraion object with which user-defined functions (UDF) can 
@@ -261,28 +388,21 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <returns>UDFRegistration object</returns>
         public UdfRegistration Udf() =>
-            new UdfRegistration((JvmObjectReference)_jvmObject.Invoke("udf"));
-
-        /// <summary>
-        /// Interface through which the user may create, drop, alter or query underlying databases,
-        /// tables, functions etc.
-        /// </summary>
-        /// <returns>Catalog object</returns>
-        public Catalog.Catalog Catalog() =>
-            new Catalog.Catalog((JvmObjectReference)_jvmObject.Invoke("catalog"));
+            new UdfRegistration((JvmObjectReference)Reference.Invoke("udf"));
 
         /// <summary>
         /// Stops the underlying SparkContext.
         /// </summary>
-        public void Stop() => _jvmObject.Invoke("stop");
+        public void Stop() => Reference.Invoke("stop");
 
         /// <summary>
         /// Returns a single column schema of the given datatype.
         /// </summary>
         /// <param name="dataType">Datatype of the column</param>
+        /// <param name="isNullable">Indicates if values of the column can be null</param>
         /// <returns>Schema as StructType</returns>
-        private StructType SchemaWithSingleColumn(DataType dataType) =>
-            new StructType(new[] { new StructField("_1", dataType) });
+        private StructType SchemaWithSingleColumn(DataType dataType, bool isNullable = true) =>
+            new StructType(new[] { new StructField("_1", dataType, isNullable) });
 
         /// <summary>
         /// This method is transforming each element of IEnumerable of type T input into a single 

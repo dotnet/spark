@@ -16,14 +16,12 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     public sealed class DataFrameReader : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal DataFrameReader(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Specifies the input data source format.
@@ -32,7 +30,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameReader object</returns>
         public DataFrameReader Format(string source)
         {
-            _jvmObject.Invoke("format", source);
+            Reference.Invoke("format", source);
             return this;
         }
         
@@ -48,7 +46,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameReader object</returns>
         public DataFrameReader Schema(StructType schema)
         {
-            _jvmObject.Invoke("schema", DataType.FromJson(_jvmObject.Jvm, schema.Json));
+            Reference.Invoke("schema", DataType.FromJson(Reference.Jvm, schema.Json));
             return this;
         }
         
@@ -64,7 +62,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameReader object</returns>
         public DataFrameReader Schema(string schemaString)
         {
-            _jvmObject.Invoke("schema", schemaString);
+            Reference.Invoke("schema", schemaString);
             return this;
         }
 
@@ -119,7 +117,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameReader object</returns>
         public DataFrameReader Options(Dictionary<string, string> options)
         {
-            _jvmObject.Invoke("options", options);
+            Reference.Invoke("options", options);
             return this;
         }
 
@@ -128,7 +126,7 @@ namespace Microsoft.Spark.Sql
         /// (e.g. external key-value stores).
         /// </summary>
         /// <returns>DataFrame object</returns>
-        public DataFrame Load() => new DataFrame((JvmObjectReference)_jvmObject.Invoke("load"));
+        public DataFrame Load() => new DataFrame((JvmObjectReference)Reference.Invoke("load"));
 
         /// <summary>
         /// Loads input in as a DataFrame, for data sources that require a path 
@@ -137,7 +135,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="path">Input path</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Load(string path) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("load", path));
+            new DataFrame((JvmObjectReference)Reference.Invoke("load", path));
 
         /// <summary>
         /// Loads input in as a DataFrame from the given paths.
@@ -149,7 +147,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="paths">Input paths</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Load(params string[] paths) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke("load", (object)paths));
+            new DataFrame((JvmObjectReference)Reference.Invoke("load", (object)paths));
 
         /// <summary>
         /// Construct a DataFrame representing the database table accessible via JDBC URL
@@ -160,11 +158,11 @@ namespace Microsoft.Spark.Sql
         /// <param name="properties">JDBC database connection arguments</param>
         /// <returns>DataFrame representing the database table accessible via JDBC</returns>
         public DataFrame Jdbc(string url, string table, Dictionary<string, string> properties) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+            new DataFrame((JvmObjectReference)Reference.Invoke(
                 "jdbc",
                 url,
                 table,
-                new Properties(_jvmObject.Jvm, properties)));
+                new Properties(Reference.Jvm, properties)));
 
         /// <summary>
         /// Construct a DataFrame representing the database table accessible via JDBC URL
@@ -195,7 +193,7 @@ namespace Microsoft.Spark.Sql
             long upperBound,
             int numPartitions,
             Dictionary<string, string> properties) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+            new DataFrame((JvmObjectReference)Reference.Invoke(
                 "jdbc",
                 url,
                 table,
@@ -203,7 +201,7 @@ namespace Microsoft.Spark.Sql
                 lowerBound,
                 upperBound,
                 numPartitions,
-                new Properties(_jvmObject.Jvm, properties)));
+                new Properties(Reference.Jvm, properties)));
 
         /// <summary>
         /// Construct a DataFrame representing the database table accessible via JDBC URL
@@ -221,12 +219,12 @@ namespace Microsoft.Spark.Sql
             string table,
             IEnumerable<string> predicates,
             Dictionary<string, string> properties) =>
-            new DataFrame((JvmObjectReference)_jvmObject.Invoke(
+            new DataFrame((JvmObjectReference)Reference.Invoke(
                 "jdbc",
                 url,
                 table,
                 predicates,
-                new Properties(_jvmObject.Jvm, properties)));
+                new Properties(Reference.Jvm, properties)));
 
         /// <summary>
         /// Loads a JSON file (one object per line) and returns the result as a DataFrame.
@@ -255,6 +253,14 @@ namespace Microsoft.Spark.Sql
         /// <param name="paths">Input paths</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Orc(params string[] paths) => LoadSource("orc", paths);
+        
+        /// <summary>
+        /// Returns the specified table as a DataFrame.
+        /// </summary>
+        /// <param name="tableName">Name of the table to read</param>
+        /// <returns>DataFrame object</returns>
+        public DataFrame Table(string tableName) =>
+            new DataFrame((JvmObjectReference)Reference.Invoke("table", tableName));
 
         /// <summary>
         /// Loads text files and returns a DataFrame whose schema starts with a string column
@@ -272,7 +278,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameReader object</returns>
         private DataFrameReader OptionInternal(string key, object value)
         {
-            _jvmObject.Invoke("option", key, value);
+            Reference.Invoke("option", key, value);
             return this;
         }
 
@@ -289,7 +295,7 @@ namespace Microsoft.Spark.Sql
                 throw new ArgumentException($"paths cannot be empty for source: {source}");
             }
 
-            return new DataFrame((JvmObjectReference)_jvmObject.Invoke(source, (object)paths));
+            return new DataFrame((JvmObjectReference)Reference.Invoke(source, (object)paths));
         }
     }
 }

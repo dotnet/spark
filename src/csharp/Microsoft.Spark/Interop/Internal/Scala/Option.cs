@@ -11,33 +11,31 @@ namespace Microsoft.Spark.Interop.Internal.Scala
     /// </summary>
     internal sealed class Option : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal Option(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Returns true if the option is None, false otherwise.
         /// </summary>
         /// <returns>true if the option is None, false otherwise</returns>
-        internal bool IsEmpty() => (bool)_jvmObject.Invoke("isEmpty");
+        internal bool IsEmpty() => (bool)Reference.Invoke("isEmpty");
 
         /// <summary>
         /// Returns true if the option is an instance of Some, false otherwise.
         /// </summary>
         /// <returns>true if the option is an instance of Some, false otherwise</returns>
-        internal bool IsDefined() => (bool)_jvmObject.Invoke("isDefined");
+        internal bool IsDefined() => (bool)Reference.Invoke("isDefined");
 
         /// <summary>
         /// Returns the option's value as object type if the option is nonempty,
         /// otherwise throws an exception on JVM side.
         /// </summary>
         /// <returns>object that this Option is referencing to</returns>
-        internal object Get() => _jvmObject.Invoke("get");
+        internal object Get() => Reference.Invoke("get");
 
         /// <summary>
         /// Returns the option's value if it is nonempty, or `null` if it is empty.

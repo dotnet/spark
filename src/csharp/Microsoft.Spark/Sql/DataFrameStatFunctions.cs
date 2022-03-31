@@ -12,14 +12,12 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     public sealed class DataFrameStatFunctions : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal DataFrameStatFunctions(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Calculates the approximate quantiles of a numerical column of a DataFrame.
@@ -38,7 +36,7 @@ namespace Microsoft.Spark.Sql
             string columnName,
             IEnumerable<double> probabilities,
             double relativeError) =>
-            (double[])_jvmObject.Invoke(
+            (double[])Reference.Invoke(
                 "approxQuantile", columnName, probabilities, relativeError);
 
         /// <summary>
@@ -48,7 +46,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="colName2">Second column name</param>
         /// <returns>The covariance of the two columns</returns>
         public double Cov(string colName1, string colName2) =>
-            (double)_jvmObject.Invoke("cov", colName1, colName2);
+            (double)Reference.Invoke("cov", colName1, colName2);
 
         /// <summary>
         /// Calculates the correlation of two columns of a DataFrame.
@@ -61,7 +59,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="method">Method name for calculating correlation</param>
         /// <returns>The Pearson Correlation Coefficient</returns>
         public double Corr(string colName1, string colName2, string method) =>
-            (double)_jvmObject.Invoke("corr", colName1, colName2, method);
+            (double)Reference.Invoke("corr", colName1, colName2, method);
 
         /// <summary>
         /// Calculates the Pearson Correlation Coefficient of two columns of a DataFrame.
@@ -70,7 +68,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="colName2">Second column name</param>
         /// <returns>The Pearson Correlation Coefficient</returns>
         public double Corr(string colName1, string colName2) =>
-            (double)_jvmObject.Invoke("corr", colName1, colName2);
+            (double)Reference.Invoke("corr", colName1, colName2);
 
         /// <summary>
         /// Computes a pair-wise frequency table of the given columns, also known as 
@@ -80,7 +78,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="colName2">Second column name</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Crosstab(string colName1, string colName2) =>
-            WrapAsDataFrame(_jvmObject.Invoke("crosstab", colName1, colName2));
+            WrapAsDataFrame(Reference.Invoke("crosstab", colName1, colName2));
 
         /// <summary>
         /// Finding frequent items for columns, possibly with false positives.
@@ -92,7 +90,7 @@ namespace Microsoft.Spark.Sql
         /// </param>
         /// <returns>DataFrame object</returns>
         public DataFrame FreqItems(IEnumerable<string> columnNames, double support) =>
-            WrapAsDataFrame(_jvmObject.Invoke("freqItems", columnNames, support));
+            WrapAsDataFrame(Reference.Invoke("freqItems", columnNames, support));
 
         /// <summary>
         /// Finding frequent items for columns, possibly with false positives with
@@ -101,7 +99,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="columnNames">Column names</param>
         /// <returns>DataFrame object</returns>
         public DataFrame FreqItems(IEnumerable<string> columnNames) =>
-            WrapAsDataFrame(_jvmObject.Invoke("freqItems", columnNames));
+            WrapAsDataFrame(Reference.Invoke("freqItems", columnNames));
 
         /// <summary>
         /// Returns a stratified sample without replacement based on the fraction given
@@ -119,7 +117,23 @@ namespace Microsoft.Spark.Sql
             string columnName,
             IDictionary<T, double> fractions,
             long seed) =>
-            WrapAsDataFrame(_jvmObject.Invoke("sampleBy", columnName, fractions, seed));
+            WrapAsDataFrame(Reference.Invoke("sampleBy", columnName, fractions, seed));
+
+        /// <summary>
+        /// Returns a stratified sample without replacement based on the fraction given
+        /// on each stratum.
+        /// </summary>
+        /// <typeparam name="T">Stratum type</typeparam>
+        /// <param name="column">Column that defines strata</param>
+        /// <param name="fractions">
+        /// Sampling fraction for each stratum. If a stratum is not specified, we treat
+        /// its fraction as zero.
+        /// </param>
+        /// <param name="seed">Random seed</param>
+        /// <returns>DataFrame object</returns>
+        [Since(Versions.V3_0_0)]
+        public DataFrame SampleBy<T>(Column column, IDictionary<T, double> fractions, long seed) =>
+            WrapAsDataFrame(Reference.Invoke("sampleBy", column, fractions, seed));
 
         private DataFrame WrapAsDataFrame(object obj) => new DataFrame((JvmObjectReference)obj);
     }

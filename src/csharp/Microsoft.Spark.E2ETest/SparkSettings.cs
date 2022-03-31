@@ -32,10 +32,16 @@ namespace Microsoft.Spark.E2ETest
         private static void InitVersion()
         {
             // First line of the RELEASE file under SPARK_HOME will be something similar to:
-            // Spark 2.3.2 built for Hadoop 2.7.3
+            // Spark 2.4.0 built for Hadoop 2.7.3
             string firstLine =
                 File.ReadLines($"{SparkHome}{Path.DirectorySeparatorChar}RELEASE").First();
-            Version = new Version(firstLine.Split(' ')[1]);
+
+            // Grab "2.4.0" from "Spark 2.4.0 built for Hadoop 2.7.3"
+            string versionStr = firstLine.Split(' ')[1];
+
+            // Strip anything below version number.
+            // For example, "3.0.0-preview" should become "3.0.0".
+            Version = new Version(versionStr.Split('-')[0]);
         }
     }
 }

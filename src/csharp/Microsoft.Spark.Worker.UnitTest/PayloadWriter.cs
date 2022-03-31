@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Utils;
+using Razorvine.Pickle;
 using static Microsoft.Spark.Utils.UdfUtils;
 
 namespace Microsoft.Spark.Worker.UnitTest
@@ -47,20 +48,6 @@ namespace Microsoft.Spark.Worker.UnitTest
     internal interface ITaskContextWriter
     {
         void Write(Stream stream, TaskContext taskContext);
-    }
-
-    /// <summary>
-    /// TaskContextWriter for version 2.3.*.
-    /// </summary>
-    internal sealed class TaskContextWriterV2_3_X : ITaskContextWriter
-    {
-        public void Write(Stream stream, TaskContext taskContext)
-        {
-            SerDe.Write(stream, taskContext.StageId);
-            SerDe.Write(stream, taskContext.PartitionId);
-            SerDe.Write(stream, taskContext.AttemptNumber);
-            SerDe.Write(stream, taskContext.AttemptId);
-        }
     }
 
     /// <summary>
@@ -135,21 +122,9 @@ namespace Microsoft.Spark.Worker.UnitTest
     }
 
     /// <summary>
-    /// BroadcastVariableWriter for version 2.3.0 and 2.3.1.
+    /// BroadcastVariableWriter for version 2.4.*.
     /// </summary>
-    internal sealed class BroadcastVariableWriterV2_3_0 : IBroadcastVariableWriter
-    {
-        public void Write(Stream stream, BroadcastVariables broadcastVars)
-        {
-            Debug.Assert(broadcastVars.Count == 0);
-            SerDe.Write(stream, broadcastVars.Count);
-        }
-    }
-
-    /// <summary>
-    /// BroadcastVariableWriter for version 2.3.2 and up.
-    /// </summary>
-    internal sealed class BroadcastVariableWriterV2_3_2 : IBroadcastVariableWriter
+    internal sealed class BroadcastVariableWriterV2_4_X : IBroadcastVariableWriter
     {
         public void Write(Stream stream, BroadcastVariables broadcastVars)
         {
@@ -202,25 +177,6 @@ namespace Microsoft.Spark.Worker.UnitTest
                     SerDe.Write(stream, serializedCommand.Length);
                     SerDe.Write(stream, serializedCommand);
                 }
-            }
-        }
-    }
-
-    /// <summary>
-    /// CommandWriter for version 2.3.*.
-    /// </summary>
-    internal sealed class CommandWriterV2_3_X : CommandWriterBase, ICommandWriter
-    {
-        public void Write(Stream stream, CommandPayload commandPayload)
-        {
-            SerDe.Write(stream, (int)commandPayload.EvalType);
-
-            Write(stream, commandPayload.Commands);
-
-            if ((commandPayload.EvalType == PythonEvalType.SQL_SCALAR_PANDAS_UDF) ||
-                (commandPayload.EvalType == PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF))
-            {
-                SerDe.Write(stream, "unused timezone");
             }
         }
     }
@@ -289,6 +245,29 @@ namespace Microsoft.Spark.Worker.UnitTest
             _commandWriter.Write(stream, commandPayload);
         }
 
+        public void WriteTestData(Stream stream)
+        {
+            Payload payload = TestData.GetDefaultPayload();
+            CommandPayload commandPayload = TestData.GetDefaultCommandPayload();
+
+            Write(stream, payload, commandPayload);
+
+            // Write 10 rows to the output stream.
+            var pickler = new Pickler();
+            for (int i = 0; i < 10; ++i)
+            {
+                byte[] pickled = pickler.dumps(
+                    new[] { new object[] { i.ToString(), i, i } });
+                SerDe.Write(stream, pickled.Length);
+                SerDe.Write(stream, pickled);
+            }
+
+            // Signal the end of data and stream.
+            SerDe.Write(stream, (int)SpecialLengths.END_OF_DATA_SECTION);
+            SerDe.Write(stream, (int)SpecialLengths.END_OF_STREAM);
+            stream.Flush();
+        }
+
         private static void Write(Stream stream, IEnumerable<string> includeItems)
         {
             if (includeItems is null)
@@ -319,31 +298,18 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             switch (version.ToString())
             {
-                case Versions.V2_3_0:
-                case Versions.V2_3_1:
-                    return new PayloadWriter(
-                        version,
-                        new TaskContextWriterV2_3_X(),
-                        new BroadcastVariableWriterV2_3_0(),
-                        new CommandWriterV2_3_X());
-                case Versions.V2_3_2:
-                case Versions.V2_3_3:
-                    return new PayloadWriter(
-                        version,
-                        new TaskContextWriterV2_3_X(),
-                        new BroadcastVariableWriterV2_3_2(),
-                        new CommandWriterV2_3_X());
                 case Versions.V2_4_0:
                     return new PayloadWriter(
                         version,
                         new TaskContextWriterV2_4_X(),
-                        new BroadcastVariableWriterV2_3_2(),
+                        new BroadcastVariableWriterV2_4_X(),
                         new CommandWriterV2_4_X());
-                case Versions.V3_0_0:
+                case Versions.V3_0_0: 
+                case Versions.V3_2_0:
                     return new PayloadWriter(
                         version,
                         new TaskContextWriterV3_0_X(),
-                        new BroadcastVariableWriterV2_3_2(),
+                        new BroadcastVariableWriterV2_4_X(),
                         new CommandWriterV2_4_X());
                 default:
                     throw new NotSupportedException($"Spark {version} is not supported.");

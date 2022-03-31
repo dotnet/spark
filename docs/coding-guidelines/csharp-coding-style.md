@@ -1,7 +1,31 @@
 C# Coding Style
 ===============
 
-We use the same [coding style](https://github.com/dotnet/corefx/blob/master/Documentation/coding-guidelines/coding-style.md) and [EditorConfig](https://editorconfig.org "EditorConfig homepage") file (`.editorconfig`) used by [dotnet/corefx](https://github.com/dotnet/corefx) with the following differences:
+We use the same [coding style](https://github.com/dotnet/runtime/blob/master/docs/coding-guidelines/coding-style.md) and [EditorConfig](https://editorconfig.org "EditorConfig homepage") file (`.editorconfig`) used by [dotnet/runtime](https://github.com/dotnet/runtime) with the following differences:
+
+* **`var` must be used when `new`, `as`, or cast operator is used (and it can be used only with these operators).**
+    ```C#
+    var foo = new Foo(); // OK
+    Foo foo = new Foo(); // NOT OK
+
+    var bar = foo as Bar; // OK
+    Bar bar = foo as Bar; // NOT OK
+    
+    var bar = (Bar)foo; // OK
+    Bar bar = (Bar)foo; // NOT OK
+
+    string str = "hello"; // OK
+    var str = "hello"; // NOT OK
+    int i = 0; // OK
+    var i = 0; // NOT OK
+
+    var arr = new string[] { "abc", "def" }; // OK
+    string[] arr = new[] { "abc", "def" }; // NOT OK
+    var arr = new[] { "abc", "def" }; // NOT OK
+
+    string str = foo.GetString(); // Function name shouldn't matter.
+    var str = foo.GetString(); // NOT OK
+    ```
 
 * **A single line statement block must go with braces.**
 
@@ -33,7 +57,7 @@ We use the same [coding style](https://github.com/dotnet/corefx/blob/master/Docu
     arr[i++]; // Post increment operator usage is intended.
     ```
 
-* **The max number of characters in a line is 100.**
+* **The max number of characters in a line is 110.**
     
     This can be easily done using the following line-break rules:
     

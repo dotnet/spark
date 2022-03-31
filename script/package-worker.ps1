@@ -1,6 +1,3 @@
-Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
-Install-Module -Name Microsoft.PowerShell.Archive -Scope CurrentUser -Force -AllowClobber -Verbose -MinimumVersion 1.2.3.0
-
 $version = $args[0]
 $worker_dir = $args[1]
 $output_dir = $args[2]
@@ -20,7 +17,7 @@ foreach ($framework in $frameworks)
         # Generate additional tar.gz worker files only for linux-x64.
         if ($runtime.Name.ToLower().Equals("linux-x64"))
         {
-            tar czf "$output_dir/$filename.tar.gz" $worker_version_dir
+            tar czf "$output_dir/$filename.tar.gz" $worker_version_dir --force-local
         }
         
         Compress-Archive -DestinationPath "$output_dir/$filename.zip" -Path $worker_version_dir -CompressionLevel Optimal

@@ -12,17 +12,18 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Microsoft.Spark.Extensions.Delta.E2ETest" />
+    <InternalsVisibleTo Include="Microsoft.Spark.Extensions.Hyperspace.E2ETest" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Spark.E2ETest.ExternalLibrary\Microsoft.Spark.E2ETest.ExternalLibrary.csproj" />
-    <ProjectReference Include="..\Microsoft.Spark.Experimental\Microsoft.Spark.Experimental.csproj" />
     <ProjectReference Include="..\Microsoft.Spark.Worker\Microsoft.Spark.Worker.csproj" />
     <ProjectReference Include="..\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\Microsoft.Spark.UnitTest\TestUtils\ArrowTestUtils.cs" />
+    <Compile Include="..\Microsoft.Spark.UnitTest\TestUtils\TemporaryDirectory.cs" />
   </ItemGroup>
 
 </Project>

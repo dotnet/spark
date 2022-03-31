@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
 using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark.Interop.Internal.Java.Util
@@ -11,7 +12,6 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
     /// </summary>
     internal sealed class ArrayList : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
 
         /// <summary>
         /// Create a <c>java.util.ArrayList</c> JVM object
@@ -19,9 +19,22 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
         /// <param name="jvm">JVM bridge to use</param>
         internal ArrayList(IJvmBridge jvm)
         {
-            _jvmObject = jvm.CallConstructor("java.util.ArrayList");
+            Reference = jvm.CallConstructor("java.util.ArrayList");
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
+
+        internal void Add(object element)
+        {
+            Reference.Invoke("add", element);
+        }
+
+        internal void AddAll(IEnumerable<object> collection)
+        {
+            foreach (object elem in collection)
+            {
+                Add(elem);
+            }
+        }
     }
 }

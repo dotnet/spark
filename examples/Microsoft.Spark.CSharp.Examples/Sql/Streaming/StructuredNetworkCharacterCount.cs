@@ -22,7 +22,7 @@ namespace Microsoft.Spark.Examples.Sql.Streaming
         {
             // Default to running on localhost:9999
             string hostname = "localhost";
-            var port = 9999;
+            int port = 9999;
 
             // User designated their own host and port
             if (args.Length == 2)

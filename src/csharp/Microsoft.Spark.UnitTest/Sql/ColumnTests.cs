@@ -12,71 +12,12 @@ using Xunit;
 
 namespace Microsoft.Spark.UnitTest
 {
-    public class ColumnTestsFixture : IDisposable
-    {
-        internal Mock<IJvmBridge> MockJvm { get; }
-
-        public ColumnTestsFixture()
-        {
-            MockJvm = new Mock<IJvmBridge>();
-
-            MockJvm
-                .Setup(m => m.CallStaticJavaMethod(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-            MockJvm
-                .Setup(m => m.CallStaticJavaMethod(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object>(),
-                    It.IsAny<object>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-            MockJvm
-                .Setup(m => m.CallStaticJavaMethod(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object[]>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-
-            MockJvm
-                .Setup(m => m.CallNonStaticJavaMethod(
-                    It.IsAny<JvmObjectReference>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-            MockJvm
-                .Setup(m => m.CallNonStaticJavaMethod(
-                    It.IsAny<JvmObjectReference>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object>(),
-                    It.IsAny<object>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-            MockJvm
-                .Setup(m => m.CallNonStaticJavaMethod(
-                    It.IsAny<JvmObjectReference>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object[]>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-        }
-
-        public void Dispose()
-        {
-        }
-    }
-
-    public class ColumnTests : IClassFixture<ColumnTestsFixture>
+    [Collection("Spark Unit Tests")]
+    public class ColumnTests
     {
         private readonly Mock<IJvmBridge> _mockJvm;
 
-        public ColumnTests(ColumnTestsFixture fixture)
+        public ColumnTests(SparkFixture fixture)
         {
             _mockJvm = fixture.MockJvm;
         }
@@ -311,7 +252,7 @@ namespace Microsoft.Spark.UnitTest
         {
             Column column1 = CreateColumn("col1");
             Column column2 = CreateColumn("col2");
-            var value = 0;
+            int value = 0;
             column1.When(column2, value);
             VerifyNonStaticCall(column1, "when", column2, value);
         }
@@ -320,8 +261,8 @@ namespace Microsoft.Spark.UnitTest
         public void TestBetweenCondition()
         {
             Column column1 = CreateColumn("col1");
-            var val1 = 1;
-            var val2 = 2;
+            int val1 = 1;
+            int val2 = 2;
             column1.Between(val1, val2);
             VerifyNonStaticCall(column1, "between", val1, val2);
         }
@@ -331,8 +272,8 @@ namespace Microsoft.Spark.UnitTest
         {
             {
                 Column column1 = CreateColumn("col1");
-                var pos = 1;
-                var len = 2;
+                int pos = 1;
+                int len = 2;
                 column1.SubStr(pos, len);
                 VerifyNonStaticCall(column1, "substr", pos, len);
             }
@@ -512,7 +453,7 @@ namespace Microsoft.Spark.UnitTest
         {
             // These operators take string as the operand.
             Column column = CreateColumn("col");
-            var literal = "hello";
+            string literal = "hello";
             System.Reflection.MethodInfo func = column.GetType().GetMethod(
                 funcName,
                 new Type[] { typeof(string) });

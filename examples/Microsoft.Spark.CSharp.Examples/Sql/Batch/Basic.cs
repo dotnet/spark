@@ -26,7 +26,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             SparkSession spark = SparkSession
                 .Builder()
-                .AppName(".NET Spark SQL basic example")
+                .AppName("SQL basic example using .NET for Apache Spark")
                 .Config("spark.some.config.option", "some-value")
                 .GetOrCreate();
 
@@ -90,7 +90,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             // UDF return type as array.
             Func<Column, Column> udfArray =
-                Udf<string, string[]>((str) => new string[] { str, str + str });
+                Udf<string, string[]>((str) => new[] { str, str + str });
             df.Select(Explode(udfArray(df["name"]))).Show();
 
             // UDF return type as map.
@@ -108,6 +108,25 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             DataFrame joinedDf3 = df.Join(df, df["name"] == df["name"], "outer");
             joinedDf3.Show();
+            
+            // Union of two data frames
+            DataFrame unionDf = df.Union(df);
+            unionDf.Show();
+
+            // Add new column to data frame
+            df.WithColumn("location", Lit("Seattle")).Show();
+
+            // Rename existing column
+            df.WithColumnRenamed("name", "fullname").Show();
+
+            // Filter rows with null age
+            df.Filter(Col("age").IsNull()).Show();
+
+            // Fill null values in age column with -1
+            df.Na().Fill(-1, new[] { "age" }).Show();
+
+            // Drop age column
+            df.Drop(new[] { "age" }).Show();
 
             spark.Stop();
         }

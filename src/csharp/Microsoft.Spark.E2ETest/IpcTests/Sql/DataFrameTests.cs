@@ -3,15 +3,22 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Apache.Arrow;
+using Microsoft.Data.Analysis;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
+using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
+using static Microsoft.Spark.Sql.ArrowFunctions;
+using static Microsoft.Spark.Sql.DataFrameFunctions;
 using static Microsoft.Spark.Sql.Functions;
 using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
 using Column = Microsoft.Spark.Sql.Column;
+using DataFrame = Microsoft.Spark.Sql.DataFrame;
+using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 using Int32Type = Apache.Arrow.Types.Int32Type;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
@@ -161,8 +168,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                         .ToArray());
 
             // Single UDF.
-            Func<Column, Column, Column> udf1 =
-                ExperimentalFunctions.VectorUdf(udf1Func);
+            Func<Column, Column, Column> udf1 = VectorUdf(udf1Func);
             {
                 Row[] rows = _df.Select(udf1(_df["age"], _df["name"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
@@ -172,11 +178,76 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
 
             // Chained UDFs.
-            Func<Column, Column> udf2 = ExperimentalFunctions.VectorUdf<StringArray, StringArray>(
+            Func<Column, Column> udf2 = VectorUdf<StringArray, StringArray>(
                 (strings) => (StringArray)ToArrowArray(
                     Enumerable.Range(0, strings.Length)
                         .Select(i => $"hello {strings.GetString(i)}!")
                         .ToArray()));
+            {
+                Row[] rows = _df
+                    .Select(udf2(udf1(_df["age"], _df["name"])))
+                    .Collect()
+                    .ToArray();
+                Assert.Equal(3, rows.Length);
+                Assert.Equal("hello Michael is 0!", rows[0].GetAs<string>(0));
+                Assert.Equal("hello Andy is 30!", rows[1].GetAs<string>(0));
+                Assert.Equal("hello Justin is 19!", rows[2].GetAs<string>(0));
+            }
+
+            // Multiple UDFs:
+            {
+                Row[] rows = _df
+                    .Select(udf1(_df["age"], _df["name"]), udf2(_df["name"]))
+                    .Collect()
+                    .ToArray();
+                Assert.Equal(3, rows.Length);
+                Assert.Equal("Michael is 0", rows[0].GetAs<string>(0));
+                Assert.Equal("hello Michael!", rows[0].GetAs<string>(1));
+
+                Assert.Equal("Andy is 30", rows[1].GetAs<string>(0));
+                Assert.Equal("hello Andy!", rows[1].GetAs<string>(1));
+
+                Assert.Equal("Justin is 19", rows[2].GetAs<string>(0));
+                Assert.Equal("hello Justin!", rows[2].GetAs<string>(1));
+            }
+
+            // Register UDF
+            {
+                _df.CreateOrReplaceTempView("people");
+                _spark.Udf().RegisterVector("udf1", udf1Func);
+                Row[] rows = _spark.Sql("SELECT udf1(age, name) FROM people")
+                    .Collect()
+                    .ToArray();
+                Assert.Equal(3, rows.Length);
+                Assert.Equal("Michael is 0", rows[0].GetAs<string>(0));
+                Assert.Equal("Andy is 30", rows[1].GetAs<string>(0));
+                Assert.Equal("Justin is 19", rows[2].GetAs<string>(0));
+            }
+        }
+
+        [Fact]
+        public void TestDataFrameVectorUdf()
+        {
+            Func<Int32DataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn> udf1Func =
+                (ages, names) =>
+                {
+                    long i = 0;
+                    return names.Apply(cur => $"{cur} is {ages[i++] ?? 0}");
+                };
+
+            // Single UDF.
+            Func<Column, Column, Column> udf1 = VectorUdf(udf1Func);
+            {
+                Row[] rows = _df.Select(udf1(_df["age"], _df["name"])).Collect().ToArray();
+                Assert.Equal(3, rows.Length);
+                Assert.Equal("Michael is 0", rows[0].GetAs<string>(0));
+                Assert.Equal("Andy is 30", rows[1].GetAs<string>(0));
+                Assert.Equal("Justin is 19", rows[2].GetAs<string>(0));
+            }
+
+            // Chained UDFs.
+            Func<Column, Column> udf2 = VectorUdf<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+                (strings) => strings.Apply(cur => $"hello {cur}!"));
             {
                 Row[] rows = _df
                     .Select(udf2(udf1(_df["age"], _df["name"])))
@@ -240,6 +311,84 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                         new StructField("age", new IntegerType()),
                         new StructField("nameCharCount", new IntegerType())
                     }),
+                    batch => ArrowBasedCountCharacters(batch))
+                .Collect()
+                .ToArray();
+
+            Assert.Equal(3, rows.Length);
+            foreach (Row row in rows)
+            {
+                int? age = row.GetAs<int?>("age");
+                int charCount = row.GetAs<int>("nameCharCount");
+                switch (age)
+                {
+                    case null:
+                        Assert.Equal(7, charCount);
+                        break;
+                    case 19:
+                        Assert.Equal(11, charCount);
+                        break;
+                    case 30:
+                        Assert.Equal(8, charCount);
+                        break;
+                    default:
+                        throw new Exception($"Unexpected age: {age}.");
+                }
+            }
+        }
+
+        private static RecordBatch ArrowBasedCountCharacters(RecordBatch records)
+        {
+            StringArray nameColumn = records.Column("name") as StringArray;
+
+            int characterCount = 0;
+
+            for (int i = 0; i < nameColumn.Length; ++i)
+            {
+                string current = nameColumn.GetString(i);
+                characterCount += current.Length;
+            }
+
+            int ageFieldIndex = records.Schema.GetFieldIndex("age");
+            Field ageField = records.Schema.GetFieldByIndex(ageFieldIndex);
+
+            // Return 1 record, if we were given any. 0, otherwise.
+            int returnLength = records.Length > 0 ? 1 : 0;
+
+            return new RecordBatch(
+                new Schema.Builder()
+                    .Field(ageField)
+                    .Field(f => f.Name("name_CharCount").DataType(Int32Type.Default))
+                    .Build(),
+                new IArrowArray[]
+                {
+                    records.Column(ageFieldIndex),
+                    new Int32Array.Builder().Append(characterCount).Build()
+                },
+                returnLength);
+        }
+
+        [Fact]
+        public void TestDataFrameGroupedMapUdf()
+        {
+            DataFrame df = _spark
+                .Read()
+                .Schema("age INT, name STRING")
+                .Json($"{TestEnvironment.ResourceDirectory}more_people.json");
+            // Data:
+            // { "name":"Michael"}
+            // { "name":"Andy", "age":30}
+            // { "name":"Seth", "age":30}
+            // { "name":"Justin", "age":19}
+            // { "name":"Kathy", "age":19}
+
+            Row[] rows = df.GroupBy("age")
+                .Apply(
+                    new StructType(new[]
+                    {
+                        new StructField("age", new IntegerType()),
+                        new StructField("nameCharCount", new IntegerType())
+                    }),
                     batch => CountCharacters(batch))
                 .Collect()
                 .ToArray();
@@ -266,43 +415,32 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        private static RecordBatch CountCharacters(RecordBatch records)
+        private static FxDataFrame CountCharacters(FxDataFrame dataFrame)
         {
-            int stringFieldIndex = records.Schema.GetFieldIndex("name");
-            StringArray stringValues = records.Column(stringFieldIndex) as StringArray;
-
             int characterCount = 0;
 
-            for (int i = 0; i < stringValues.Length; ++i)
+            var characterCountColumn = new Int32DataFrameColumn("nameCharCount");
+            var ageColumn = new Int32DataFrameColumn("age");
+            ArrowStringDataFrameColumn fieldColumn = dataFrame.Columns.GetArrowStringColumn("name");
+            for (long i = 0; i < dataFrame.Rows.Count; ++i)
             {
-                string current = stringValues.GetString(i);
-                characterCount += current.Length;
+                characterCount += fieldColumn[i].Length;
             }
 
-            int groupFieldIndex = records.Schema.GetFieldIndex("age");
-            Field groupField = records.Schema.GetFieldByIndex(groupFieldIndex);
+            if (dataFrame.Rows.Count > 0)
+            {
+                characterCountColumn.Append(characterCount);
+                ageColumn.Append(dataFrame.Columns.GetInt32Column("age")[0]);
+            }
 
-            // Return 1 record, if we were given any. 0, otherwise.
-            int returnLength = records.Length > 0 ? 1 : 0;
-
-            return new RecordBatch(
-                new Schema.Builder()
-                    .Field(groupField)
-                    .Field(f => f.Name("name_CharCount").DataType(Int32Type.Default))
-                    .Build(),
-                new IArrowArray[]
-                {
-                    records.Column(groupFieldIndex),
-                    new Int32Array.Builder().Append(characterCount).Build()
-                },
-                returnLength);
+            return new FxDataFrame(ageColumn, characterCountColumn);
         }
 
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// </summary>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             Assert.IsType<Column>(_df["name"]);
             Assert.IsType<Column>(_df["age"]);
@@ -320,6 +458,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _df.Explain(false);
 
             Assert.Equal(2, _df.Columns().ToArray().Length);
+
+            var expected = new List<Tuple<string, string>>
+            {
+                new Tuple<string, string>("age", "integer"),
+                new Tuple<string, string>("name", "string")
+            };
+            Assert.Equal(expected, _df.DTypes());
 
             Assert.IsType<bool>(_df.IsLocal());
 
@@ -343,6 +488,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _df.Show(10);
             _df.Show(10, 10);
             _df.Show(10, 10, true);
+
+            Assert.IsType<DataFrame>(_df.ToJSON());
 
             Assert.IsType<DataFrame>(_df.Join(_df));
             Assert.IsType<DataFrame>(_df.Join(_df, "name"));
@@ -405,7 +552,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<RelationalGroupedDataset>(_df.GroupBy(_df["age"], _df["name"]));
 
             {
-                RelationalGroupedDataset df = 
+                RelationalGroupedDataset df =
                     _df.WithColumn("tempAge", _df["age"]).GroupBy("name");
 
                 Assert.IsType<DataFrame>(df.Mean("age"));
@@ -422,6 +569,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                 Assert.IsType<DataFrame>(df.Sum("age"));
                 Assert.IsType<DataFrame>(df.Sum("age", "tempAge"));
+
+                var values = new List<object> { 19, "twenty" };
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot("age"));
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age")));
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot("age", values));
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age"), values));
             }
 
             Assert.IsType<RelationalGroupedDataset>(_df.Rollup("age"));
@@ -483,6 +640,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<Row>(_df.First());
 
+            Assert.IsType<DataFrame>(_df.Transform(df => df.Drop("age")));
+
             Assert.IsType<Row[]>(_df.Take(3).ToArray());
 
             Assert.IsType<Row[]>(_df.Collect().ToArray());
@@ -505,7 +664,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<DataFrame>(_df.Persist());
 
+            Assert.IsType<DataFrame>(_df.Persist(StorageLevel.DISK_ONLY));
+
             Assert.IsType<DataFrame>(_df.Cache());
+
+            Assert.IsType<StorageLevel>(_df.StorageLevel());
 
             Assert.IsType<DataFrame>(_df.Unpersist());
 
@@ -514,19 +677,63 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             _df.CreateGlobalTempView("global_view");
             _df.CreateOrReplaceGlobalTempView("global_view");
-        }
 
-        /// <summary>
-        /// Test signatures for APIs introduced in Spark 2.4.*.
-        /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
-        public void TestSignaturesV2_4_X()
-        {
+            Assert.IsType<string[]>(_df.InputFiles().ToArray());
+
             _df.IsEmpty();
 
             _df.IntersectAll(_df);
 
             _df.ExceptAll(_df);
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.0.*.
+
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
+        public void TestSignaturesV3_0_X()
+        {
+            // Validate ToLocalIterator
+            var data = new List<GenericRow>
+            {
+                new GenericRow(new object[] { "Alice", 20}),
+                new GenericRow(new object[] { "Bob", 30})
+            };
+            var schema = new StructType(new List<StructField>()
+            {
+                new StructField("Name", new StringType()),
+                new StructField("Age", new IntegerType())
+            });
+            DataFrame df = _spark.CreateDataFrame(data, schema);
+            IEnumerable<Row> actual = df.ToLocalIterator(true).ToArray();
+            IEnumerable<Row> expected = data.Select(r => new Row(r.Values, schema));
+            Assert.Equal(expected, actual);
+
+            Assert.IsType<DataFrame>(df.Observe("metrics", Count("Name").As("CountNames")));
+
+            Assert.IsType<Row[]>(_df.Tail(1).ToArray());
+
+            _df.PrintSchema(1);
+
+            _df.Explain("simple");
+            _df.Explain("extended");
+            _df.Explain("codegen");
+            _df.Explain("cost");
+            _df.Explain("formatted");
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.1.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_1_0)]
+        public void TestSignaturesV3_1_X()
+        {
+            Assert.IsType<DataFrame>(_df.UnionByName(_df, true));
+
+            Assert.IsType<bool>(_df.SameSemantics(_df));
+
+            Assert.IsType<int>(_df.SemanticHash());
         }
     }
 }

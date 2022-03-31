@@ -5,9 +5,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
 
@@ -30,11 +32,18 @@ namespace Microsoft.Spark.Interop.Ipc
         [ThreadStatic]
         private static MemoryStream s_payloadMemoryStream;
 
+        private const int SocketBufferThreshold = 3;
+        private const int ThreadIdForRepl = 1;
+
+        private readonly int _processId = Process.GetCurrentProcess().Id;
+        private readonly SemaphoreSlim _socketSemaphore;
         private readonly ConcurrentQueue<ISocketWrapper> _sockets =
             new ConcurrentQueue<ISocketWrapper>();
         private readonly ILoggerService _logger =
             LoggerServiceFactory.GetLogger(typeof(JvmBridge));
         private readonly int _portNumber;
+        private readonly JvmThreadPoolGC _jvmThreadPoolGC;
+        private readonly bool _isRunningRepl;
 
         internal JvmBridge(int portNumber)
         {
@@ -45,10 +54,33 @@ namespace Microsoft.Spark.Interop.Ipc
 
             _portNumber = portNumber;
             _logger.LogInfo($"JvMBridge port is {portNumber}");
+
+            _jvmThreadPoolGC = new JvmThreadPoolGC(
+                _logger, this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval, _processId);
+
+            _isRunningRepl = SparkEnvironment.ConfigurationService.IsRunningRepl();
+
+            int numBackendThreads = SparkEnvironment.ConfigurationService.GetNumBackendThreads();
+            int maxNumSockets = numBackendThreads;
+            if (numBackendThreads >= (2 * SocketBufferThreshold))
+            {
+                // Set the max number of concurrent sockets to be less than the number of
+                // JVM backend threads to allow some buffer.
+                maxNumSockets -= SocketBufferThreshold;
+            }
+            _logger.LogInfo($"The number of JVM backend thread is set to {numBackendThreads}. " +
+                $"The max number of concurrent sockets in JvmBridge is set to {maxNumSockets}.");
+            _socketSemaphore = new SemaphoreSlim(maxNumSockets, maxNumSockets);
         }
 
         private ISocketWrapper GetConnection()
         {
+            // Limit the number of connections to the JVM backend. Netty is configured
+            // to use a set number of threads to process incoming connections. Each
+            // new connection is delegated to these threads in a round robin fashion.
+            // A deadlock can occur on the JVM if a new connection is scheduled on a
+            // blocked thread.
+            _socketSemaphore.Wait();
             if (!_sockets.TryDequeue(out ISocketWrapper socket))
             {
                 socket = SocketFactory.CreateSocket();
@@ -81,23 +113,23 @@ namespace Microsoft.Spark.Interop.Ipc
             CallJavaMethod(isStatic: true, className, methodName, args);
 
         public object CallNonStaticJavaMethod(
-            JvmObjectReference objectId,
+            JvmObjectReference jvmObject,
             string methodName,
             object arg0) =>
-            CallJavaMethod(isStatic: false, objectId, methodName, arg0);
+            CallJavaMethod(isStatic: false, jvmObject, methodName, arg0);
 
         public object CallNonStaticJavaMethod(
-            JvmObjectReference objectId,
+            JvmObjectReference jvmObject,
             string methodName,
             object arg0,
             object arg1) =>
-            CallJavaMethod(isStatic: false, objectId, methodName, arg0, arg1);
+            CallJavaMethod(isStatic: false, jvmObject, methodName, arg0, arg1);
 
         public object CallNonStaticJavaMethod(
-            JvmObjectReference objectId,
+            JvmObjectReference jvmObject,
             string methodName,
             object[] args) =>
-            CallJavaMethod(isStatic: false, objectId, methodName, args);
+            CallJavaMethod(isStatic: false, jvmObject, methodName, args);
 
         private object CallJavaMethod(
             bool isStatic,
@@ -105,7 +137,7 @@ namespace Microsoft.Spark.Interop.Ipc
             string methodName,
             object arg0)
         {
-            object[] oneArgArray = s_oneArgArray ?? (s_oneArgArray = new object[1]);
+            object[] oneArgArray = s_oneArgArray ??= new object[1];
             oneArgArray[0] = arg0;
 
             try
@@ -129,7 +161,7 @@ namespace Microsoft.Spark.Interop.Ipc
             object arg0,
             object arg1)
         {
-            object[] twoArgArray = s_twoArgArray ?? (s_twoArgArray = new object[2]);
+            object[] twoArgArray = s_twoArgArray ??= new object[2];
             twoArgArray[0] = arg0;
             twoArgArray[1] = arg1;
 
@@ -158,12 +190,30 @@ namespace Microsoft.Spark.Interop.Ipc
             ISocketWrapper socket = null;
             try
             {
-                MemoryStream payloadMemoryStream = s_payloadMemoryStream ??
-                    (s_payloadMemoryStream = new MemoryStream());
+                // dotnet-interactive does not have a dedicated thread to process
+                // code submissions and each code submission can be processed in different
+                // threads. DotnetHandler uses the CLR thread id to ensure that the same
+                // JVM thread is used to handle the request, which means that code submitted
+                // through dotnet-interactive may be executed in different JVM threads. To
+                // mitigate this, when running in the REPL, submit requests to the DotnetHandler
+                // using the same thread id. This mitigation has some limitations in multithreaded
+                // scenarios. If a JVM method is blocking and needs a JVM method call issued by a
+                // separate thread to unblock it, then this scenario is not supported.
+                //
+                // ie, `StreamingQuery.AwaitTermination()` is a blocking call and requires
+                // `StreamingQuery.Stop()` to be called to unblock it. However, the `Stop`
+                // call will never run because DotnetHandler will assign the method call to
+                // run on the same thread that `AwaitTermination` is running on.
+                Thread thread = _isRunningRepl ? null : Thread.CurrentThread;
+                int threadId = thread == null ? ThreadIdForRepl : thread.ManagedThreadId;
+                MemoryStream payloadMemoryStream = s_payloadMemoryStream ??= new MemoryStream();
                 payloadMemoryStream.Position = 0;
+
                 PayloadHelper.BuildPayload(
                     payloadMemoryStream,
                     isStatic,
+                    _processId,
+                    threadId,
                     classNameOrJvmObjectReference,
                     methodName,
                     args);
@@ -177,6 +227,11 @@ namespace Microsoft.Spark.Interop.Ipc
                     (int)payloadMemoryStream.Position);
                 outputStream.Flush();
 
+                if (thread != null)
+                {
+                    _jvmThreadPoolGC.TryAddThread(thread);
+                }
+
                 Stream inputStream = socket.InputStream;
                 int isMethodCallFailed = SerDe.ReadInt32(inputStream);
                 if (isMethodCallFailed != 0)
@@ -189,7 +244,7 @@ namespace Microsoft.Spark.Interop.Ipc
                         args);
                     _logger.LogError(errorMessage);
                     _logger.LogError(jvmFullStackTrace);
-                    throw new Exception(errorMessage);
+                    throw new Exception(errorMessage, new JvmException(jvmFullStackTrace));
                 }
 
                 char typeAsChar = Convert.ToChar(inputStream.ReadByte());
@@ -230,8 +285,30 @@ namespace Microsoft.Spark.Interop.Ipc
             catch (Exception e)
             {
                 _logger.LogException(e);
-                socket?.Dispose();
+
+                if (e.InnerException is JvmException)
+                {
+                    // DotnetBackendHandler caught JVM exception and passed back to dotnet.
+                    // We can reuse this connection.
+                    _sockets.Enqueue(socket);
+                }
+                else
+                {
+                    // In rare cases we may hit the Netty connection thread deadlock.
+                    // If max backend threads is 10 and we are currently using 10 active
+                    // connections (0 in the _sockets queue). When we hit this exception,
+                    // the socket?.Dispose() will not requeue this socket and we will release
+                    // the semaphore. Then in the next thread (assuming the other 9 connections
+                    // are still busy), a new connection will be made to the backend and this
+                    // connection may be scheduled on the blocked Netty thread.
+                    socket?.Dispose();
+                }
+
                 throw;
+            }
+            finally
+            {
+                _socketSemaphore.Release();
             }
 
             return returnValue;
@@ -244,9 +321,9 @@ namespace Microsoft.Spark.Interop.Ipc
             object[] args)
         {
             var errorMessage = new StringBuilder("JVM method execution failed: ");
-            const string ConstructorFormat = "Constructor failed for class {0}";
-            const string StaticMethodFormat = "Static method {0} failed for class {1}";
-            const string NonStaticMethodFormat = "Nonstatic method {0} failed for class {1}";
+            const string ConstructorFormat = "Constructor failed for class '{0}'";
+            const string StaticMethodFormat = "Static method '{0}' failed for class '{1}'";
+            const string NonStaticMethodFormat = "Nonstatic method '{0}' failed for class '{1}'";
 
             try
             {
@@ -365,6 +442,14 @@ namespace Microsoft.Spark.Interop.Ipc
                     }
                     returnValue = doubleArray;
                     break;
+                case 'A':
+                    var doubleArrayArray = new double[numOfItemsInList][];
+                    for (int itemIndex = 0; itemIndex < numOfItemsInList; ++itemIndex)
+                    {
+                        doubleArrayArray[itemIndex] = ReadCollection(s) as double[];
+                    }
+                    returnValue = doubleArrayArray;
+                    break;
                 case 'b':
                     var boolArray = new bool[numOfItemsInList];
                     for (int itemIndex = 0; itemIndex < numOfItemsInList; ++itemIndex)
@@ -403,6 +488,7 @@ namespace Microsoft.Spark.Interop.Ipc
 
         public void Dispose()
         {
+            _jvmThreadPoolGC.Dispose();
             while (_sockets.TryDequeue(out ISocketWrapper socket))
             {
                 if (socket != null)

@@ -7,6 +7,8 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Services;
+using Microsoft.Spark.Worker.Utils;
 
 namespace Microsoft.Spark.Worker.Processor
 {
@@ -54,10 +56,20 @@ namespace Microsoft.Spark.Worker.Processor
 
             payload.SplitIndex = BinaryPrimitives.ReadInt32BigEndian(splitIndexBytes);
             payload.Version = SerDe.ReadString(stream);
-            payload.TaskContext = new TaskContextProcessor(_version).Process(stream);
-            payload.SparkFilesDir = SerDe.ReadString(stream);
 
-            if (Utils.SettingUtils.IsDatabricks)
+            payload.TaskContext = new TaskContextProcessor(_version).Process(stream);
+            TaskContextHolder.Set(payload.TaskContext);
+
+            payload.SparkFilesDir = SerDe.ReadString(stream);
+            SparkFiles.SetRootDirectory(payload.SparkFilesDir);
+
+            // Register additional assembly handlers after SparkFilesDir has been set
+            // and before any deserialization occurs. BroadcastVariableProcessor may
+            // deserialize objects from assemblies that are not currently loaded within
+            // our current context.
+            AssemblyLoaderHelper.RegisterAssemblyHandler();
+
+            if (ConfigurationService.IsDatabricks)
             {
                 SerDe.ReadString(stream);
                 SerDe.ReadString(stream);

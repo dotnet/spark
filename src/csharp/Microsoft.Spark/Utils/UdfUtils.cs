@@ -5,12 +5,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Apache.Arrow;
+using Microsoft.Data.Analysis;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Internal.Java.Util;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Utils
 {
@@ -71,7 +72,11 @@ namespace Microsoft.Spark.Utils
             SQL_SCALAR_PANDAS_UDF = 200,
             SQL_GROUPED_MAP_PANDAS_UDF = 201,
             SQL_GROUPED_AGG_PANDAS_UDF = 202,
-            SQL_WINDOW_AGG_PANDAS_UDF = 203
+            SQL_WINDOW_AGG_PANDAS_UDF = 203,
+
+            SQL_SCALAR_PANDAS_ITER_UDF = 204,
+            SQL_MAP_PANDAS_ITER_UDF = 205,
+            SQL_COGROUPED_MAP_PANDAS_UDF = 206
         }
 
         /// <summary>
@@ -92,6 +97,8 @@ namespace Microsoft.Spark.Utils
                 {typeof(int), "integer"},
                 {typeof(long), "long"},
                 {typeof(short), "short"},
+                {typeof(Date), "date"},
+                {typeof(Timestamp), "timestamp"},
 
                 // Arrow array types
                 {typeof(BooleanArray), "boolean"},
@@ -103,6 +110,15 @@ namespace Microsoft.Spark.Utils
                 {typeof(DoubleArray), "double"},
                 {typeof(StringArray), "string"},
                 {typeof(BinaryArray), "binary"},
+
+                {typeof(BooleanDataFrameColumn), "boolean"},
+                {typeof(ByteDataFrameColumn), "byte"},
+                {typeof(Int16DataFrameColumn), "short"},
+                {typeof(Int32DataFrameColumn), "integer"},
+                {typeof(Int64DataFrameColumn), "long"},
+                {typeof(SingleDataFrameColumn), "float"},
+                {typeof(DoubleDataFrameColumn), "double"},
+                {typeof(ArrowStringDataFrameColumn), "string"},
             };
 
         /// <summary>
@@ -151,6 +167,9 @@ namespace Microsoft.Spark.Utils
         internal static JvmObjectReference CreatePythonFunction(IJvmBridge jvm, byte[] command)
         {
             var arrayList = new ArrayList(jvm);
+            var broadcastVariables = new ArrayList(jvm);
+            broadcastVariables.AddAll(JvmBroadcastRegistry.GetAll());
+            JvmBroadcastRegistry.Clear();
 
             return (JvmObjectReference)jvm.CallStaticJavaMethod(
                 "org.apache.spark.sql.api.dotnet.SQLUtils",
@@ -159,27 +178,32 @@ namespace Microsoft.Spark.Utils
                 CreateEnvVarsForPythonFunction(jvm),
                 arrayList, // Python includes
                 SparkEnvironment.ConfigurationService.GetWorkerExePath(),
-                Versions.CurrentVersion,
-                arrayList, // Broadcast variables
+                // Used to check the compatibility of UDFs between the driver and worker.
+                AssemblyInfoProvider.MicrosoftSparkAssemblyInfo().AssemblyVersion,
+                broadcastVariables,
                 null); // Accumulator
         }
 
         private static IJvmObjectReferenceProvider CreateEnvVarsForPythonFunction(IJvmBridge jvm)
         {
             var environmentVars = new Hashtable(jvm);
-            string assemblySearchPath = string.Join(",",
-                new[]
-                {
-                    Environment.GetEnvironmentVariable(
-                        AssemblySearchPathResolver.AssemblySearchPathsEnvVarName),
-                    SparkFiles.GetRootDirectory()
-                }.Where(s => !string.IsNullOrWhiteSpace(s)));
-
+            string assemblySearchPath = Environment.GetEnvironmentVariable(
+                AssemblySearchPathResolver.AssemblySearchPathsEnvVarName);
             if (!string.IsNullOrEmpty(assemblySearchPath))
             {
                 environmentVars.Put(
                     AssemblySearchPathResolver.AssemblySearchPathsEnvVarName,
                     assemblySearchPath);
+            }
+            // DOTNET_WORKER_SPARK_VERSION is used to handle different versions
+            // of Spark on the worker.
+            environmentVars.Put(
+                "DOTNET_WORKER_SPARK_VERSION",
+                SparkEnvironment.SparkVersion.ToString());
+
+            if (SparkEnvironment.ConfigurationService.IsRunningRepl())
+            {
+                environmentVars.Put(Constants.RunningREPLEnvVar, "true");
             }
 
             return environmentVars;

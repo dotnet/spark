@@ -30,10 +30,10 @@ If you already have all the pre-requisites, skip to the [build](windows-instruct
   3. Install **[Java 1.8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)** 
      - Select the appropriate version for your operating system e.g., jdk-8u201-windows-x64.exe for Win x64 machine.
      - Install using the installer and verify you are able to run `java` from your command-line
-  4. Install **[Apache Maven 3.6.0+](https://maven.apache.org/download.cgi)**
-     - Download [Apache Maven 3.6.0](http://mirror.metrocast.net/apache/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.zip)
-     - Extract to a local directory e.g., `c:\bin\apache-maven-3.6.0\`
-     - Add Apache Maven to your [PATH environment variable](https://www.java.com/en/download/help/path.xml) e.g., `c:\bin\apache-maven-3.6.0\bin`
+  4. Install **[Apache Maven 3.6.3+](https://maven.apache.org/download.cgi)**
+     - Download [Apache Maven 3.6.3](http://mirror.metrocast.net/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.zip)
+     - Extract to a local directory e.g., `c:\bin\apache-maven-3.6.3\`
+     - Add Apache Maven to your [PATH environment variable](https://www.java.com/en/download/help/path.xml) e.g., `c:\bin\apache-maven-3.6.3\bin`
      - Verify you are able to run `mvn` from your command-line
   5. Install **[Apache Spark 2.3+](https://spark.apache.org/downloads.html)**
      - Download [Apache Spark 2.3+](https://spark.apache.org/downloads.html) and extract it into a local folder (e.g., `c:\bin\spark-2.3.2-bin-hadoop2.7\`) using [7-zip](https://www.7-zip.org/).
@@ -88,7 +88,7 @@ git clone https://github.com/dotnet/spark.git c:\github\dotnet-spark
 
 ## Building Spark .NET Scala Extensions Layer
 
-When you submit a .NET application, Spark .NET has the necessary logic written in Scala that inform Apache Spark how to handle your requests (e.g., request to create a new Spark Session, request to transfer data from .NET side to JVM side etc.). This logic can be found in the [Spark .NET Scala Source Code](../../../src/scala).
+When you submit a .NET application, Spark .NET has the necessary logic written in Scala that inform Apache Spark how to handle your requests (e.g., request to create a new Spark Session, request to transfer data from .NET side to JVM side etc.). This logic can be found in the [Spark .NET Scala Source Code](../../src/scala).
 
 Regardless of whether you are using .NET Framework or .NET Core, you will need to build the Spark .NET Scala extension layer. This is easy to do:
 
@@ -97,8 +97,9 @@ cd src\scala
 mvn clean package 
 ```
 You should see JARs created for the supported Spark versions:
-* `microsoft-spark-2.3.x\target\microsoft-spark-2.3.x-<version>.jar`
-* `microsoft-spark-2.4.x\target\microsoft-spark-2.4.x-<version>.jar`
+* `microsoft-spark-2-3\target\microsoft-spark-2-3_2.11-<version>.jar`
+* `microsoft-spark-2-4\target\microsoft-spark-2-4_2.11-<version>.jar`
+* `microsoft-spark-3-0\target\microsoft-spark-3-0_2.12-<version>.jar`
 
 ## Building .NET Samples Application
 
