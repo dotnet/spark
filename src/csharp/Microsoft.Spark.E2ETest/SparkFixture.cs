@@ -41,7 +41,7 @@ namespace Microsoft.Spark.E2ETest
 
         private readonly Process _process = new Process();
         private readonly TemporaryDirectory _tempDirectory = new TemporaryDirectory();
-        
+
         public const string DefaultLogLevel = "ERROR";
 
         internal SparkSession Spark { get; }
@@ -77,7 +77,7 @@ namespace Microsoft.Spark.E2ETest
                 // Scala-side driver for .NET emits the following message after it is
                 // launched and ready to accept connections.
                 if (!isSparkReady &&
-                    arguments.Data.Contains("back end running debug mode"))
+                    arguments.Data.Contains("Backend running debug mode"))
                 {
                     isSparkReady = true;
                 }
@@ -110,7 +110,7 @@ namespace Microsoft.Spark.E2ETest
                 .Config("spark.ui.showConsoleProgress", false)
                 .AppName("Microsoft.Spark.E2ETest")
                 .GetOrCreate();
-                
+
             Spark.SparkContext.SetLogLevel(DefaultLogLevel);
 
             Jvm = Spark.Reference.Jvm;

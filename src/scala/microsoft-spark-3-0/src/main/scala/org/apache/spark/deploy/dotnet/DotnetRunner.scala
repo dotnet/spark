@@ -161,7 +161,7 @@ object DotnetRunner extends Logging {
       } else {
         // scalastyle:off println
         println("***********************************************************************")
-        println("* .NET back end running debug mode. Press enter to exit *")
+        println("* .NET Backend running debug mode. Press enter to exit *")
         println("***********************************************************************")
         // scalastyle:on println
 
