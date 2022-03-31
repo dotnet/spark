@@ -62,7 +62,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestPipelineFit()
         {
-
             DataFrame input = _spark.Sql("SELECT array('hello', 'I', 'AM', 'a', 'string', 'TO', " +
                 "'TOKENIZE') as input from range(100)");
 
@@ -72,7 +71,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             const double minTf = 10;
             const int vocabSize = 10000;
             
-            var countVectorizer = new CountVectorizer()
+            CountVectorizer countVectorizer = new CountVectorizer()
                 .SetInputCol(inputColumn)
                 .SetOutputCol(outputColumn)
                 .SetMinDF(minDf)
@@ -83,8 +82,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 countVectorizer
             };
 
-            Pipeline pipeline = new Pipeline()
-                .SetStages(stages);
+            Pipeline pipeline = new Pipeline().SetStages(stages);
             PipelineModel pipelineModel = pipeline.Fit(input);
             
             DataFrame output = pipelineModel.Transform(input);

@@ -77,26 +77,6 @@ namespace Microsoft.Spark.ML.Feature.Param
     }
 
     /// <summary>
-    /// A param and its value.
-    /// </summary>
-    public sealed class ParamPair<T> : IJvmObjectReferenceProvider
-    {
-        private static readonly string s_ParamPairClassName = "org.apache.spark.ml.param.ParamPair";
-
-        /// <summary>
-        /// Creates a new instance of a <see cref="ParamPair&lt;T&gt;"/>
-        /// </summary>
-        public ParamPair(Param param, T value)
-            : this(SparkEnvironment.JvmBridge.CallConstructor(s_ParamPairClassName, param, value))
-        {
-        }
-
-        internal ParamPair(JvmObjectReference jvmObject) => Reference = jvmObject;
-
-        public JvmObjectReference Reference { get; private set; }
-    }
-
-    /// <summary>
     /// A param to value map.
     /// </summary>
     public class ParamMap : IJvmObjectReferenceProvider

@@ -256,8 +256,9 @@ namespace Microsoft.Spark.ML.Feature
         }
 
         /// <summary>
-        /// Sets the parent of this model (Java API).
+        /// Sets the parent of this model.
         /// </summary>
+        /// <param name="parent">The parent of the ScalaModel to be set</param>
         /// <returns>type parameter M</returns>
         public M SetParent(ScalaEstimator<M> parent) =>
             WrapAsType<M>((JvmObjectReference)Reference.Invoke("setParent", parent));
@@ -297,7 +298,8 @@ namespace Microsoft.Spark.ML.Feature
             (double)Reference.Invoke("evaluate", dataset);
 
         /// <summary>
-        /// Indicates whether the metric returned by evaluate should be maximized (true, default) or minimized (false).
+        /// Indicates whether the metric returned by evaluate should be maximized 
+        /// (true, default) or minimized (false).
         /// A given evaluator may support multiple metrics which may be maximized or minimized.
         /// </summary>
         /// <returns>bool</returns>

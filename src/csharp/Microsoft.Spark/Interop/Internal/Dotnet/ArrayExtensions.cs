@@ -22,7 +22,7 @@ namespace System
         internal static ArrayList ToArrayList<T>(this T[] array)
         {
             var arrayList = new ArrayList(SparkEnvironment.JvmBridge);
-            foreach (var item in array)
+            foreach (T item in array)
             {
                 arrayList.Add(item);
             }

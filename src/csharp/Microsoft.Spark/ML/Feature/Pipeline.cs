@@ -57,7 +57,8 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns><see cref="Pipeline"/> object</returns>
         public Pipeline SetStages(ScalaPipelineStage[] value) =>
             WrapAsPipeline((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "org.apache.spark.api.dotnet.DotnetHelper", "setPipelineStages", Reference, value.ToArrayList()));
+                "org.apache.spark.api.dotnet.DotnetHelper", "setPipelineStages",
+                Reference, value.ToArrayList()));
 
         /// <summary>
         /// Get the stages of pipeline instance.
@@ -69,7 +70,7 @@ namespace Microsoft.Spark.ML.Feature
             ScalaPipelineStage[] result = new ScalaPipelineStage[jvmObjects.Length];
             for (int i = 0; i < jvmObjects.Length; i++)
             {
-                var (constructorClass, methodName) = DotnetHelper.GetUnderlyingType(jvmObjects[i]);
+                (string constructorClass, string methodName) = DotnetHelper.GetUnderlyingType(jvmObjects[i]);
                 Type type = Type.GetType(constructorClass);
                 MethodInfo method = type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Static);
                 result[i] = (ScalaPipelineStage)method.Invoke(null, new object[] {jvmObjects[i]});

@@ -26,7 +26,8 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
         /// <param name="stages">Stages for the PipelineModel.</param>
         public PipelineModel(string uid, ScalaTransformer[] stages)
-            : this(SparkEnvironment.JvmBridge.CallConstructor(s_pipelineModelClassName, uid, stages.ToArrayList()))
+            : this(SparkEnvironment.JvmBridge.CallConstructor(
+                s_pipelineModelClassName, uid, stages.ToArrayList()))
         {
         }
 
