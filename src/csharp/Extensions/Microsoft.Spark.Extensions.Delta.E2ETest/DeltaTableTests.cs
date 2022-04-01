@@ -30,7 +30,11 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// Run the end-to-end scenario from the Delta Quickstart tutorial.
         /// </summary>
         /// <see cref="https://docs.delta.io/latest/quick-start.html"/>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
+        ///
+        /// Delta 0.8.0 is not compatible with Spark 3.1.1
+        /// Disable Delta tests that have code paths that create an
+        /// `org.apache.spark.sql.catalyst.expressions.Alias` object.
+        [SkipIfSparkVersionIsNotInRange(Versions.V2_4_2, Versions.V3_1_1)]
         public void TestTutorialScenario()
         {
             using var tempDirectory = new TemporaryDirectory();
@@ -223,8 +227,12 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// <summary>
         /// Test that methods return the expected signature.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
-        public void TestSignatures()
+        ///
+        /// Delta 0.8.0 is not compatible with Spark 3.1.1
+        /// Disable Delta tests that have code paths that create an
+        /// `org.apache.spark.sql.catalyst.expressions.Alias` object.
+        [SkipIfSparkVersionIsNotInRange(Versions.V2_4_2, Versions.V3_1_1)]
+        public void TestSignaturesV2_4_X()
         {
             using var tempDirectory = new TemporaryDirectory();
             string path = Path.Combine(tempDirectory.Path, "delta-table");
@@ -324,6 +332,21 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 {
                     new StructField("id", new IntegerType())
                 })));
+        }
+
+        /// <summary>
+        /// Test that Delta Lake 0.7+ methods return the expected signature.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
+        public void TestSignaturesV3_0_X()
+        {
+            string tableName = "my_new_table";
+            _spark.Range(15).Write().Format("delta").SaveAsTable(tableName);
+
+            Assert.IsType<DeltaTable>(DeltaTable.ForName(tableName));
+            DeltaTable table = DeltaTable.ForName(_spark, tableName);
+
+            table.UpgradeTableProtocol(1, 3);
         }
 
         /// <summary>

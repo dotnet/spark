@@ -2,10 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Catalog;
 using Microsoft.Spark.Sql.Streaming;
@@ -25,22 +23,28 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// The purpose of this test is to ensure that JVM calls can be successfully made.
         /// Note that this is not testing functionality of each function.
         /// </summary>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             Assert.IsType<SparkContext>(_spark.SparkContext);
 
             Assert.IsType<Builder>(SparkSession.Builder());
+
+            SparkSession.ClearActiveSession();
+            SparkSession.SetActiveSession(_spark);
+            Assert.IsType<SparkSession>(SparkSession.GetActiveSession());
 
             SparkSession.ClearDefaultSession();
             SparkSession.SetDefaultSession(_spark);
             Assert.IsType<SparkSession>(SparkSession.GetDefaultSession());
 
             Assert.IsType<RuntimeConfig>(_spark.Conf());
+
+            Assert.IsType<StreamingQueryManager>(_spark.Streams());
 
             Assert.IsType<SparkSession>(_spark.NewSession());
 
@@ -59,14 +63,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<UdfRegistration>(_spark.Udf());
 
             Assert.IsType<Catalog>(_spark.Catalog);
-        }
 
-        /// <summary>
-        /// Test signatures for APIs introduced in Spark 2.4.*.
-        /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
-        public void TestSignaturesV2_4_X()
-        {
+            Assert.NotNull(_spark.Version());
+        
             Assert.IsType<SparkSession>(SparkSession.Active());
         }
 
@@ -75,12 +74,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// </summary>
         [Fact]
         public void TestCreateDataFrame()
-        {            
+        {
             // Calling CreateDataFrame with schema
             {
-                var data = new List<GenericRow>();
-                data.Add(new GenericRow(new object[] { "Alice", 20, new Date(2020, 1, 1) }));
-                data.Add(new GenericRow(new object[] { "Bob", 30, new Date(2020, 1, 2) }));
+                var data = new List<GenericRow>
+                {
+                    new GenericRow(new object[] { "Alice", 20, new Date(2020, 1, 1) }),
+                    new GenericRow(new object[] { "Bob", 30, new Date(2020, 1, 2) })
+                };
 
                 var schema = new StructType(new List<StructField>()
                 {
@@ -94,7 +95,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Calling CreateDataFrame(IEnumerable<string> _) without schema
             {
-                var data = new List<string>(new string[] { "Alice", "Bob" });
+                var data = new string[] { "Alice", "Bob", null };
                 StructType schema = SchemaWithSingleColumn(new StringType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
@@ -103,7 +104,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Calling CreateDataFrame(IEnumerable<int> _) without schema
             {
-                var data = new List<int>(new int[] { 1, 2 });
+                var data = new int[] { 1, 2 };
+                StructType schema = SchemaWithSingleColumn(new IntegerType(), false);
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
+            }
+
+            // Calling CreateDataFrame(IEnumerable<int?> _) without schema
+            {
+                var data = new int?[] { 1, 2, null };
                 StructType schema = SchemaWithSingleColumn(new IntegerType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
@@ -112,7 +122,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Calling CreateDataFrame(IEnumerable<double> _) without schema
             {
-                var data = new List<double>(new double[] { 1.2, 2.3 });
+                var data = new double[] { 1.2, 2.3 };
+                StructType schema = SchemaWithSingleColumn(new DoubleType(), false);
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
+            }
+
+            // Calling CreateDataFrame(IEnumerable<double?> _) without schema
+            {
+                var data = new double?[] { 1.2, 2.3, null };
                 StructType schema = SchemaWithSingleColumn(new DoubleType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
@@ -121,19 +140,29 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Calling CreateDataFrame(IEnumerable<bool> _) without schema
             {
-                var data = new List<bool>(new bool[] { true, false });
+                var data = new bool[] { true, false };
+                StructType schema = SchemaWithSingleColumn(new BooleanType(), false);
+
+                DataFrame df = _spark.CreateDataFrame(data);
+                ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
+            }
+
+            // Calling CreateDataFrame(IEnumerable<bool?> _) without schema
+            {
+                var data = new bool?[] { true, false, null };
                 StructType schema = SchemaWithSingleColumn(new BooleanType());
 
                 DataFrame df = _spark.CreateDataFrame(data);
                 ValidateDataFrame(df, data.Select(a => new object[] { a }), schema);
             }
-            
+
             // Calling CreateDataFrame(IEnumerable<Date> _) without schema
             {
                 var data = new Date[]
                 {
                     new Date(2020, 1, 1),
-                    new Date(2020, 1, 2)
+                    new Date(2020, 1, 2),
+                    null
                 };
                 StructType schema = SchemaWithSingleColumn(new DateType());
 
@@ -151,7 +180,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             var data = new Timestamp[]
                 {
                     new Timestamp(2020, 1, 1, 0, 0, 0, 0),
-                    new Timestamp(2020, 1, 2, 15, 30, 30, 0)
+                    new Timestamp(2020, 1, 2, 15, 30, 30, 0),
+                    null
                 };
             StructType schema = SchemaWithSingleColumn(new TimestampType());
 
@@ -172,8 +202,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// Returns a single column schema of the given datatype.
         /// </summary>
         /// <param name="dataType">Datatype of the column</param>
+        /// <param name="isNullable">Indicates if values of the column can be null</param>
         /// <returns>Schema as StructType</returns>
-        private StructType SchemaWithSingleColumn(DataType dataType) =>
-            new StructType(new[] { new StructField("_1", dataType) });
+        private StructType SchemaWithSingleColumn(DataType dataType, bool isNullable = true) =>
+            new StructType(new[] { new StructField("_1", dataType, isNullable) });
     }
 }

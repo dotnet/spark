@@ -34,14 +34,14 @@ namespace Microsoft.Spark.Worker
         /// Also, _taskRunners is used to bound the number of worker threads since it
         /// gives you the total number of active TaskRunners.
         /// </summary>
-        private ConcurrentDictionary<int, TaskRunner> _taskRunners =
+        private readonly ConcurrentDictionary<int, TaskRunner> _taskRunners =
             new ConcurrentDictionary<int, TaskRunner>();
 
         /// <summary>
         /// Each worker thread picks up the TaskRunner from _waitingTaskRunners
         /// and runs it.
         /// </summary>
-        private BlockingCollection<TaskRunner> _waitingTaskRunners =
+        private readonly BlockingCollection<TaskRunner> _waitingTaskRunners =
             new BlockingCollection<TaskRunner>();
 
         private readonly Version _version;
@@ -110,7 +110,7 @@ namespace Microsoft.Spark.Worker
                 bool reuseWorker =
                     "1".Equals(Environment.GetEnvironmentVariable("SPARK_REUSE_WORKER"));
 
-                string secret = Utils.SettingUtils.GetWorkerFactorySecret(_version);
+                string secret = Utils.SettingUtils.GetWorkerFactorySecret();
 
                 int taskRunnerId = 1;
                 int numWorkerThreads = 0;
@@ -128,7 +128,7 @@ namespace Microsoft.Spark.Worker
                         SerDe.Write(socket.OutputStream, taskRunnerId);
                         socket.OutputStream.Flush();
 
-                        if (Utils.SettingUtils.IsDatabricks)
+                        if (ConfigurationService.IsDatabricks)
                         {
                             SerDe.ReadString(socket.InputStream);
                         }

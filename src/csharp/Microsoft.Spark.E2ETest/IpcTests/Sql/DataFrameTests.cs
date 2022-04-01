@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Apache.Arrow;
 using Microsoft.Data.Analysis;
@@ -11,6 +12,8 @@ using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
+using static Microsoft.Spark.Sql.ArrowFunctions;
+using static Microsoft.Spark.Sql.DataFrameFunctions;
 using static Microsoft.Spark.Sql.Functions;
 using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
 using Column = Microsoft.Spark.Sql.Column;
@@ -165,8 +168,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                         .ToArray());
 
             // Single UDF.
-            Func<Column, Column, Column> udf1 =
-                ExperimentalFunctions.VectorUdf(udf1Func);
+            Func<Column, Column, Column> udf1 = VectorUdf(udf1Func);
             {
                 Row[] rows = _df.Select(udf1(_df["age"], _df["name"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
@@ -176,7 +178,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
 
             // Chained UDFs.
-            Func<Column, Column> udf2 = ExperimentalFunctions.VectorUdf<StringArray, StringArray>(
+            Func<Column, Column> udf2 = VectorUdf<StringArray, StringArray>(
                 (strings) => (StringArray)ToArrowArray(
                     Enumerable.Range(0, strings.Length)
                         .Select(i => $"hello {strings.GetString(i)}!")
@@ -234,8 +236,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 };
 
             // Single UDF.
-            Func<Column, Column, Column> udf1 =
-                ExperimentalDataFrameFunctions.VectorUdf(udf1Func);
+            Func<Column, Column, Column> udf1 = VectorUdf(udf1Func);
             {
                 Row[] rows = _df.Select(udf1(_df["age"], _df["name"])).Collect().ToArray();
                 Assert.Equal(3, rows.Length);
@@ -245,7 +246,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
 
             // Chained UDFs.
-            Func<Column, Column> udf2 = ExperimentalDataFrameFunctions.VectorUdf<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
+            Func<Column, Column> udf2 = VectorUdf<ArrowStringDataFrameColumn, ArrowStringDataFrameColumn>(
                 (strings) => strings.Apply(cur => $"hello {cur}!"));
             {
                 Row[] rows = _df
@@ -367,7 +368,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 returnLength);
         }
 
-
         [Fact]
         public void TestDataFrameGroupedMapUdf()
         {
@@ -437,10 +437,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// </summary>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             Assert.IsType<Column>(_df["name"]);
             Assert.IsType<Column>(_df["age"]);
@@ -458,6 +458,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _df.Explain(false);
 
             Assert.Equal(2, _df.Columns().ToArray().Length);
+
+            var expected = new List<Tuple<string, string>>
+            {
+                new Tuple<string, string>("age", "integer"),
+                new Tuple<string, string>("name", "string")
+            };
+            Assert.Equal(expected, _df.DTypes());
 
             Assert.IsType<bool>(_df.IsLocal());
 
@@ -481,6 +488,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             _df.Show(10);
             _df.Show(10, 10);
             _df.Show(10, 10, true);
+
+            Assert.IsType<DataFrame>(_df.ToJSON());
 
             Assert.IsType<DataFrame>(_df.Join(_df));
             Assert.IsType<DataFrame>(_df.Join(_df, "name"));
@@ -560,6 +569,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                 Assert.IsType<DataFrame>(df.Sum("age"));
                 Assert.IsType<DataFrame>(df.Sum("age", "tempAge"));
+
+                var values = new List<object> { 19, "twenty" };
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot("age"));
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age")));
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot("age", values));
+
+                Assert.IsType<RelationalGroupedDataset>(df.Pivot(Col("age"), values));
             }
 
             Assert.IsType<RelationalGroupedDataset>(_df.Rollup("age"));
@@ -621,6 +640,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<Row>(_df.First());
 
+            Assert.IsType<DataFrame>(_df.Transform(df => df.Drop("age")));
+
             Assert.IsType<Row[]>(_df.Take(3).ToArray());
 
             Assert.IsType<Row[]>(_df.Collect().ToArray());
@@ -643,7 +664,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<DataFrame>(_df.Persist());
 
+            Assert.IsType<DataFrame>(_df.Persist(StorageLevel.DISK_ONLY));
+
             Assert.IsType<DataFrame>(_df.Cache());
+
+            Assert.IsType<StorageLevel>(_df.StorageLevel());
 
             Assert.IsType<DataFrame>(_df.Unpersist());
 
@@ -652,19 +677,63 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             _df.CreateGlobalTempView("global_view");
             _df.CreateOrReplaceGlobalTempView("global_view");
-        }
 
-        /// <summary>
-        /// Test signatures for APIs introduced in Spark 2.4.*.
-        /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
-        public void TestSignaturesV2_4_X()
-        {
+            Assert.IsType<string[]>(_df.InputFiles().ToArray());
+
             _df.IsEmpty();
 
             _df.IntersectAll(_df);
 
             _df.ExceptAll(_df);
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.0.*.
+
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
+        public void TestSignaturesV3_0_X()
+        {
+            // Validate ToLocalIterator
+            var data = new List<GenericRow>
+            {
+                new GenericRow(new object[] { "Alice", 20}),
+                new GenericRow(new object[] { "Bob", 30})
+            };
+            var schema = new StructType(new List<StructField>()
+            {
+                new StructField("Name", new StringType()),
+                new StructField("Age", new IntegerType())
+            });
+            DataFrame df = _spark.CreateDataFrame(data, schema);
+            IEnumerable<Row> actual = df.ToLocalIterator(true).ToArray();
+            IEnumerable<Row> expected = data.Select(r => new Row(r.Values, schema));
+            Assert.Equal(expected, actual);
+
+            Assert.IsType<DataFrame>(df.Observe("metrics", Count("Name").As("CountNames")));
+
+            Assert.IsType<Row[]>(_df.Tail(1).ToArray());
+
+            _df.PrintSchema(1);
+
+            _df.Explain("simple");
+            _df.Explain("extended");
+            _df.Explain("codegen");
+            _df.Explain("cost");
+            _df.Explain("formatted");
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.1.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_1_0)]
+        public void TestSignaturesV3_1_X()
+        {
+            Assert.IsType<DataFrame>(_df.UnionByName(_df, true));
+
+            Assert.IsType<bool>(_df.SameSemantics(_df));
+
+            Assert.IsType<int>(_df.SemanticHash());
         }
     }
 }

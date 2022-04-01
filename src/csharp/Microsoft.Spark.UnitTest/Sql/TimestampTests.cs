@@ -29,7 +29,7 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Equal(DateTimeKind.Utc, timestamp.ToDateTime().Kind);
 
                 // Validate ToString().
-                Assert.Equal("2020-01-01 08:30:30.000123", timestamp.ToString());
+                Assert.Equal("2020-01-01 08:30:30.000123Z", timestamp.ToString());
 
                 // Validate ToDateTime().
                 Assert.Equal(testDate, timestamp.ToDateTime());
@@ -57,7 +57,7 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Equal(DateTimeKind.Utc, timestamp.ToDateTime().Kind);
 
                 // Validate ToString().
-                Assert.Equal("2020-01-02 15:30:30.123456", timestamp.ToString());
+                Assert.Equal("2020-01-02 15:30:30.123456Z", timestamp.ToString());
 
                 // Validate ToDateTime().
                 Assert.Equal(
@@ -70,6 +70,15 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Throws<ArgumentOutOfRangeException>(
                     () => new Timestamp(2020, 1, 2, 15, 30, 30, 1234567));
             }
+        }
+
+        [Fact]
+        public void TestTimestampToString()
+        {
+            var dateTimeObj = new DateTime(2021, 01, 01);
+            Assert.Equal(
+                new Timestamp(DateTime.Parse(new Timestamp(dateTimeObj).ToString())),
+                new Timestamp(dateTimeObj));
         }
     }
 }

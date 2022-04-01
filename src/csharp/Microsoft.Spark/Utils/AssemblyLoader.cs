@@ -189,12 +189,12 @@ namespace Microsoft.Spark.Utils
         {
             foreach (string searchPath in s_searchPaths.Value)
             {
-                string assemblyPath = Path.Combine(searchPath, assemblyFileName);
-                if (File.Exists(assemblyPath))
+                var assemblyFile = new FileInfo(Path.Combine(searchPath, assemblyFileName));
+                if (assemblyFile.Exists)
                 {
                     try
                     {
-                        assembly = LoadFromFile(assemblyPath);
+                        assembly = LoadFromFile(assemblyFile.FullName);
                         return true;
                     }
                     catch (Exception ex) when (
@@ -217,7 +217,7 @@ namespace Microsoft.Spark.Utils
         /// </summary>
         /// <param name="assemblyName">Assembly name</param>
         /// <returns>Normalized assembly name</returns>
-        private static string NormalizeAssemblyName(string assemblyName)
+        internal static string NormalizeAssemblyName(string assemblyName)
         {
             // Check if the assembly name follows the Roslyn naming convention.
             // Roslyn assembly name: "\u211B*4b31b71b-d4bd-4642-9f63-eef5f5d99197#1-14"

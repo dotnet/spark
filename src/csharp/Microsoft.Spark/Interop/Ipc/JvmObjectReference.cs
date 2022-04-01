@@ -101,18 +101,26 @@ namespace Microsoft.Spark.Interop.Ipc
     /// <summary>
     /// Implemented by objects that contain a <see cref="JvmObjectReference"/>.
     /// </summary>
-    internal interface IJvmObjectReferenceProvider
+    public interface IJvmObjectReferenceProvider
     {
         /// <summary>
         /// Gets the <see cref="JvmObjectReference"/> wrapped by the object.
         /// </summary>
+        /// <remarks>
+        /// This is exposed to help users interact with the JVM. It is provided with limited
+        /// support and should be used with caution.
+        /// </remarks>
         JvmObjectReference Reference { get; }
     }
 
     /// <summary>
     /// Reference to object created in JVM.
     /// </summary>
-    internal sealed class JvmObjectReference : IJvmObjectReferenceProvider
+    /// <remarks>
+    /// This is exposed to help users interact with the JVM. It is provided with limited
+    /// support and should be used with caution.
+    /// </remarks>
+    public sealed class JvmObjectReference : IJvmObjectReferenceProvider
     {
         /// <summary>
         /// The time when this reference was created.
@@ -154,7 +162,11 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <summary>
         /// IJvmBridge instance that created the JVM object.
         /// </summary>
-        internal IJvmBridge Jvm => Id.Jvm;
+        /// <remarks>
+        /// This is exposed to help users interact with the JVM. It is provided with limited
+        /// support and should be used with caution.
+        /// </remarks>
+        public IJvmBridge Jvm => Id.Jvm;
 
         JvmObjectReference IJvmObjectReferenceProvider.Reference => this;
 
@@ -163,7 +175,12 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         /// <param name="arg0">Parameter for the method.</param>
         /// <param name="methodName">Method name to invoke</param>
-        internal object Invoke(string methodName, object arg0) =>
+        /// <returns>The returned object of the method call.</returns>
+        /// <remarks>
+        /// This is exposed to help users interact with the JVM. It is provided with limited
+        /// support and should be used with caution.
+        /// </remarks>
+        public object Invoke(string methodName, object arg0) =>
             Jvm.CallNonStaticJavaMethod(this, methodName, arg0);
 
         /// <summary>
@@ -172,7 +189,12 @@ namespace Microsoft.Spark.Interop.Ipc
         /// <param name="arg0">First parameter for the method.</param>
         /// <param name="arg1">Second parameter for the method.</param>
         /// <param name="methodName">Method name to invoke</param>
-        internal object Invoke(string methodName, object arg0, object arg1) =>
+        /// <returns>The returned object of the method call.</returns>
+        /// <remarks>
+        /// This is exposed to help users interact with the JVM. It is provided with limited
+        /// support and should be used with caution.
+        /// </remarks>
+        public object Invoke(string methodName, object arg0, object arg1) =>
             Jvm.CallNonStaticJavaMethod(this, methodName, arg0, arg1);
 
         /// <summary>
@@ -180,8 +202,12 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         /// <param name="methodName">Method name to invoke</param>
         /// <param name="args">Parameters for the method</param>
-        /// <returns></returns>
-        internal object Invoke(string methodName, params object[] args)
+        /// <returns>The returned object of the method call.</returns>
+        /// <remarks>
+        /// This is exposed to help users interact with the JVM. It is provided with limited
+        /// support and should be used with caution.
+        /// </remarks>
+        public object Invoke(string methodName, params object[] args)
         {
             return Jvm.CallNonStaticJavaMethod(this, methodName, args);
         }
@@ -236,7 +262,7 @@ namespace Microsoft.Spark.Interop.Ipc
             var classObject = (JvmObjectReference)Invoke("getClass");
             var className = (string)classObject.Invoke("getName");
 
-            return $"Java object reference id={Id}, type name={className}, creation time (UTC)={_creationTime.ToString("o")}";
+            return $"Java object reference id={Id}, type name={className}, creation time (UTC)={_creationTime:o}";
         }
     }
 }

@@ -17,8 +17,6 @@ namespace Microsoft.Spark.Sql
         private readonly Dictionary<string, string> _options =
             new Dictionary<string, string>() { { "spark.app.kind", "sparkdotnet" } };
 
-        private readonly JvmObjectReference _jvmObject;
-
         internal Builder()
             : this(
                 (JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
@@ -29,10 +27,10 @@ namespace Microsoft.Spark.Sql
 
         internal Builder(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Sets the Spark master URL to connect to, such as "local" to run locally, "local[4]" to
@@ -140,9 +138,9 @@ namespace Microsoft.Spark.Sql
                 sparkConf.Set(option.Key, option.Value);
             }
 
-            _jvmObject.Invoke("config", sparkConf);
+            Reference.Invoke("config", sparkConf);
 
-            return new SparkSession((JvmObjectReference)_jvmObject.Invoke("getOrCreate"));
+            return new SparkSession((JvmObjectReference)Reference.Invoke("getOrCreate"));
         }
     }
 }

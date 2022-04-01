@@ -20,10 +20,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// </summary>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             {
                 DataFrameWriter dfw = _spark
@@ -69,12 +69,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                 // TODO: Test dfw.Jdbc without running a local db.
 
-                dfw.Option("path", tempDir.Path).SaveAsTable("TestTable");
-
-                dfw.InsertInto("TestTable");
-
-                dfw.Option("path", $"{tempDir.Path}TestSavePath1").Save();
-                dfw.Save($"{tempDir.Path}TestSavePath2");
+                dfw.Save($"{tempDir.Path}TestSavePath1");
 
                 dfw.Json($"{tempDir.Path}TestJsonPath");
 
@@ -85,6 +80,19 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 dfw.Text($"{tempDir.Path}TestTextPath");
 
                 dfw.Csv($"{tempDir.Path}TestCsvPath");
+
+                // In Spark 3.2.0+ cannot create table with location to a non-empty directory.
+                // To allow overwriting the existing non-empty directory, set
+                // 'spark.sql.legacy.allowNonEmptyLocationInCTAS' to true.
+                dfw.Option("path", $"{tempDir.Path}EmptyDir").SaveAsTable("TestTable");
+
+                dfw.InsertInto("TestTable");
+
+                // In Spark 3.1.1+ setting the `path` Option and then calling .Save(path) is not
+                // supported unless `spark.sql.legacy.pathOptionBehavior.enabled` conf is set.
+                // .Json(path), .Parquet(path), etc follow the same code path so the conf
+                // needs to be set in these scenarios as well.
+                dfw.Option("path", $"{tempDir.Path}TestSavePath2").Save();
             }
         }
     }

@@ -3,49 +3,60 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
-using Razorvine.Pickle;
 using Xunit;
 
 namespace Microsoft.Spark.Worker.UnitTest
 {
     [Collection("Spark Unit Tests")]
-    public class DaemonWorkerTests
+    public class DaemonWorkerTests : IDisposable
     {
-        [Fact]
-        public void TestsDaemonWorkerTaskRunners()
+        private const string ReuseWorkerEnvVariable = "SPARK_REUSE_WORKER";
+        private readonly string _reuseWorker;
+
+        public DaemonWorkerTests()
+        {
+            _reuseWorker = Environment.GetEnvironmentVariable(ReuseWorkerEnvVariable);
+            Environment.SetEnvironmentVariable(ReuseWorkerEnvVariable, "1");
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.VersionData), MemberType = typeof(TestData))]
+        public void TestsDaemonWorkerTaskRunners(string version)
         {
             ISocketWrapper daemonSocket = SocketFactory.CreateSocket();
             
-            int taskRunnerNumber = 3;
-            var typedVersion = new Version(Versions.V2_4_0);
+            int taskRunnerNumber = 2;
+            var typedVersion = new Version(version);
             var daemonWorker = new DaemonWorker(typedVersion);
             
             Task.Run(() => daemonWorker.Run(daemonSocket));
 
+            var clientSockets = new List<ISocketWrapper>();
             for (int i = 0; i < taskRunnerNumber; ++i)
             {
-                CreateAndVerifyConnection(daemonSocket);
+                CreateAndVerifyConnection(daemonSocket, clientSockets, typedVersion);
             }
             
             Assert.Equal(taskRunnerNumber, daemonWorker.CurrentNumTaskRunners);
         }
 
-        private static void CreateAndVerifyConnection(ISocketWrapper daemonSocket)
+        private static void CreateAndVerifyConnection(
+            ISocketWrapper daemonSocket,
+            List<ISocketWrapper> clientSockets,
+            Version version)
         {
             var ipEndpoint = (IPEndPoint)daemonSocket.LocalEndPoint;
             int port = ipEndpoint.Port;
             ISocketWrapper clientSocket = SocketFactory.CreateSocket();
-            clientSocket.Connect(IPAddress.Loopback, port);
+            clientSockets.Add(clientSocket);
+            clientSocket.Connect(ipEndpoint.Address, port);
 
             // Now process the bytes flowing in from the client.
-            PayloadWriter payloadWriter = new PayloadWriterFactory().Create();
+            PayloadWriter payloadWriter = new PayloadWriterFactory().Create(version);
             payloadWriter.WriteTestData(clientSocket.OutputStream);
             List<object[]> rowsReceived = PayloadReader.Read(clientSocket.InputStream);
 
@@ -61,6 +72,11 @@ namespace Microsoft.Spark.Worker.UnitTest
                 Assert.Equal($"udf2 udf1 {i}", row[0]);
                 Assert.Equal(i + i, row[1]);
             }
+        }
+
+        public void Dispose()
+        {
+            Environment.SetEnvironmentVariable(ReuseWorkerEnvVariable, _reuseWorker);
         }
     }
 }

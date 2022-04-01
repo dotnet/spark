@@ -273,6 +273,7 @@ namespace Microsoft.Spark.Sql
 
         /// <summary>
         /// Returns the number of distinct items in a group.
+        /// An alias of `Count_Distinct`, and it is encouraged to use `Count_Distinct` directly.
         /// </summary>
         /// <param name="column">Column to apply</param>
         /// <param name="columns">Additional columns to apply</param>
@@ -291,6 +292,18 @@ namespace Microsoft.Spark.Sql
         public static Column CountDistinct(string columnName, params string[] columnNames)
         {
             return ApplyFunction("countDistinct", columnName, columnNames);
+        }
+
+        /// <summary>
+        /// Returns the number of distinct items in a group.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="columns">Additional columns to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Count_Distinct(Column column, params Column[] columns)
+        {
+            return ApplyFunction("count_distinct", column, columns);
         }
 
         /// <summary>
@@ -532,6 +545,41 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Returns the approximate `percentile` of the numeric column `col` which
+        /// is the smallest value in the ordered `col` values (sorted from least to greatest) such that
+        /// no more than `percentage` of `col` values is less than the value or equal to that value.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="percentage">
+        /// If it is a single floating point value, it must be between 0.0 and 1.0.
+        /// When percentage is an array, each value of the percentage array must be between 0.0 and 1.0.
+        /// In this case, returns the approximate percentile array of column col
+        /// at the given percentage array.
+        /// </param>
+        /// <param name="accuracy">
+        /// Positive numeric literal which controls approximation accuracy at the cost of memory.
+        /// Higher value of accuracy yields better accuracy, 1.0/accuracy is the relative error of the
+        /// approximation.
+        /// </param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column PercentileApprox(Column column, Column percentage, Column accuracy)
+        {
+            return ApplyFunction("percentile_approx", column, percentage, accuracy);
+        }
+
+        /// <summary>
+        /// Returns the product of all numerical elements in a group.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Product(Column column)
+        {
+            return ApplyFunction("product", column);
+        }
+
+        /// <summary>
         /// Returns the skewness of the values in a group.
         /// </summary>
         /// <param name="column">Column to apply</param>
@@ -636,6 +684,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="column">Column to apply</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_2_0)]
         public static Column SumDistinct(Column column)
         {
             return ApplyFunction("sumDistinct", column);
@@ -646,13 +695,25 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="columnName">Column name</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_2_0)]
         public static Column SumDistinct(string columnName)
         {
             return ApplyFunction("sumDistinct", columnName);
         }
 
         /// <summary>
-        /// Alias for VarSamp().
+        /// Returns the sum of distinct values in the expression.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Sum_Distinct(Column column)
+        {
+            return ApplyFunction("sum_distinct", column);
+        }
+
+        /// <summary>
+        /// Alias for <see cref="VarSamp(Sql.Column)"/>.
         /// </summary>
         /// <param name="column">Column to apply</param>
         /// <returns>Column object</returns>
@@ -662,7 +723,7 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
-        /// Alias for VarSamp().
+        /// Alias for <see cref="VarSamp(string)"/>.
         /// </summary>
         /// <param name="columnName">Column name</param>
         /// <returns>Column object</returns>
@@ -817,6 +878,25 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Window function: returns the value that is 'offset' rows before the current row,
+        /// and null if there is less than 'offset' rows before the current row.
+        /// 'ignoreNulls' determines whether null values of row are included in or eliminated from the 
+        /// calculation.
+        /// For example, an 'offset' of one will return the previous row at any given point
+        /// in the window partition.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="offset">Offset from the current row</param>
+        /// <param name="defaultValue">Default value when the offset row doesn't exist</param>
+        /// <param name="ignoreNulls">Boolean to determine whether null values are included or not</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Lag(Column column, int offset, object defaultValue, bool ignoreNulls)
+        {
+            return ApplyFunction("lag", column, offset, defaultValue, ignoreNulls);
+        }
+
+        /// <summary>
         /// Window function: returns the value that is 'offset' rows after the current row,
         /// and null if there is less than 'offset' rows after the current row.
         /// For example, an 'offset' of one will return the next row at any given point
@@ -853,6 +933,44 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Window function: returns the value that is 'offset' rows after the current row,
+        /// and null if there is less than 'offset' rows after the current row.
+        /// 'ignoreNulls' determines whether null values of row are included in or eliminated from the 
+        /// calculation.
+        /// For example, an 'offset' of one will return the next row at any given point
+        /// in the window partition.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="offset">Offset from the current row</param>
+        /// <param name="defaultValue">Default value when the offset row doesn't exist</param>
+        /// <param name="ignoreNulls">Boolean to determine whether null values are included or not</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Lead(Column column, int offset, object defaultValue, bool ignoreNulls)
+        {
+            return ApplyFunction("lead", column, offset, defaultValue, ignoreNulls);
+        }
+
+        /// <summary>
+        /// Returns the value that is the `offset`th row of the window frame
+        /// (counting from 1), and `null` if the size of window frame is less than `offset` rows.
+        ///
+        /// It will return the `offset`th non-null value it sees when ignoreNulls is set to true.
+        /// If all values are null, then null is returned.
+        ///
+        /// This is equivalent to the nth_value function in SQL.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="offset">Offset from the current row</param>
+        /// <param name="ignoreNulls">To ignore null or not</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column NthValue(Column column, int offset, bool ignoreNulls = false)
+        {
+            return ApplyFunction("nth_value", column, offset, ignoreNulls);
+        }
+
+        /// <summary>
         /// Window function: returns the ntile group id (from 1 to `n` inclusive) in an ordered
         /// window partition. For example, if `n` is 4, the first quarter of the rows will get
         /// value 1, the second quarter will get 2, the third quarter will get 3, and the last
@@ -860,7 +978,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <remarks>This is equivalent to the NTILE function in SQL.</remarks>
         /// <param name="n">Number of buckets</param>
-        /// <returns></returns>
+        /// <returns>Column object</returns>
         public static Column Ntile(int n)
         {
             return ApplyFunction("ntile", n);
@@ -1175,9 +1293,21 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="column">Column to apply</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_2_0)]
         public static Column BitwiseNOT(Column column)
         {
             return ApplyFunction("bitwiseNOT", column);
+        }
+
+        /// <summary>
+        /// Computes bitwise NOT of a number.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Bitwise_Not(Column column)
+        {
+            return ApplyFunction("bitwise_not", column);
         }
 
         /// <summary>
@@ -1215,6 +1345,28 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Inverse hyperbolic cosine of <paramref name="column"/>.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column Acosh(Column column)
+        {
+            return ApplyFunction("acosh", column);
+        }
+
+        /// <summary>
+        /// Inverse hyperbolic cosine of <paramref name="columnName"/>.
+        /// </summary>
+        /// <param name="columnName">Column name</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column Acosh(string columnName)
+        {
+            return ApplyFunction("acosh", columnName);
+        }
+
+        /// <summary>
         /// Inverse sine of `column` in radians, as if computed by `java.lang.Math.asin`.
         /// </summary>
         /// <param name="column">Column to apply</param>
@@ -1232,6 +1384,28 @@ namespace Microsoft.Spark.Sql
         public static Column Asin(string columnName)
         {
             return ApplyFunction("asin", columnName);
+        }
+
+        /// <summary>
+        /// Inverse hyperbolic sine of <paramref name="column"/>.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column Asinh(Column column)
+        {
+            return ApplyFunction("asinh", column);
+        }
+
+        /// <summary>
+        /// Inverse hyperbolic sine of <paramref name="columnName"/>.
+        /// </summary>
+        /// <param name="columnName">Column name</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column Asinh(string columnName)
+        {
+            return ApplyFunction("asinh", columnName);
         }
 
         /// <summary>
@@ -1340,6 +1514,28 @@ namespace Microsoft.Spark.Sql
         public static Column Atan2(double yValue, string xName)
         {
             return ApplyFunction("atan2", yValue, xName);
+        }
+
+        /// <summary>
+        /// Inverse hyperbolic tangent of <paramref name="column"/>.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column Atanh(Column column)
+        {
+            return ApplyFunction("atanh", column);
+        }
+
+        /// <summary>
+        /// Inverse hyperbolic tangent of <paramref name="columnName"/>.
+        /// </summary>
+        /// <param name="columnName">Column name</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column Atanh(string columnName)
+        {
+            return ApplyFunction("atanh", columnName);
         }
 
         /// <summary>
@@ -1953,9 +2149,22 @@ namespace Microsoft.Spark.Sql
         /// <param name="column">Column to apply</param>
         /// <param name="numBits">Number of bits to shift</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_2_0)]
         public static Column ShiftLeft(Column column, int numBits)
         {
             return ApplyFunction("shiftLeft", column, numBits);
+        }
+
+        /// <summary>
+        /// Shift the given value `numBits` left.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="numBits">Number of bits to shift</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Shiftleft(Column column, int numBits)
+        {
+            return ApplyFunction("shiftleft", column, numBits);
         }
 
         /// <summary>
@@ -1964,9 +2173,22 @@ namespace Microsoft.Spark.Sql
         /// <param name="column">Column to apply</param>
         /// <param name="numBits">Number of bits to shift</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_2_0)]
         public static Column ShiftRight(Column column, int numBits)
         {
             return ApplyFunction("shiftRight", column, numBits);
+        }
+
+        /// <summary>
+        /// (Signed) shift the given value `numBits` right.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="numBits">Number of bits to shift</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Shiftright(Column column, int numBits)
+        {
+            return ApplyFunction("shiftright", column, numBits);
         }
 
         /// <summary>
@@ -1975,9 +2197,22 @@ namespace Microsoft.Spark.Sql
         /// <param name="column">Column to apply</param>
         /// <param name="numBits">Number of bits to shift</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_2_0)]
         public static Column ShiftRightUnsigned(Column column, int numBits)
         {
             return ApplyFunction("shiftRightUnsigned", column, numBits);
+        }
+
+        /// <summary>
+        /// Unsigned shift the given value `numBits` right.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="numBits">Number of bits to shift</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Shiftrightunsigned(Column column, int numBits)
+        {
+            return ApplyFunction("shiftrightunsigned", column, numBits);
         }
 
         /// <summary>
@@ -2183,6 +2418,52 @@ namespace Microsoft.Spark.Sql
         public static Column Hash(params Column[] columns)
         {
             return ApplyFunction("hash", (object)columns);
+        }
+
+        /// <summary>
+        /// Calculates the hash code of given columns using the 64-bit variant of the xxHash
+        /// algorithm, and returns the result as a long column.
+        /// </summary>
+        /// <param name="columns">Columns to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column XXHash64(params Column[] columns)
+        {
+            return ApplyFunction("xxhash64", (object)columns);
+        }
+
+        /// <summary>
+        /// Returns null if the condition is true, and throws an exception otherwise.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column AssertTrue(Column column)
+        {
+            return ApplyFunction("assert_true", column);
+        }
+
+        /// <summary>
+        /// Returns null if the condition is true; throws an exception with the error message otherwise.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="errMsg">Error message</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column AssertTrue(Column column, Column errMsg)
+        {
+            return ApplyFunction("assert_true", column, errMsg);
+        }
+
+        /// <summary>
+        /// Throws an exception with the provided error message.
+        /// </summary>
+        /// <param name="errMsg">Error message</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column RaiseError(Column errMsg)
+        {
+            return ApplyFunction("raise_error", errMsg);
         }
 
         /////////////////////////////////////////////////////////////////////////////////
@@ -2523,6 +2804,25 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Splits str around matches of the given pattern.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="pattern">Regular expression pattern</param>
+        /// <param name="limit">An integer expression which controls the number of times the regex
+        /// is applied.
+        /// 1. limit greater than 0: The resulting array's length will not be more than limit, and
+        /// the resulting array's last entry will contain all input beyond the last matched regex.
+        /// 2. limit less than or equal to 0: `regex` will be applied as many times as possible,
+        /// and the resulting array can be of any size.
+        /// </param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column Split(Column column, string pattern, int limit)
+        {
+            return ApplyFunction("split", column, pattern, limit);
+        }
+
+        /// <summary>
         /// Returns the substring (or slice of byte array) starting from the given
         /// position for the given length.
         /// </summary>
@@ -2549,6 +2849,60 @@ namespace Microsoft.Spark.Sql
         public static Column SubstringIndex(Column column, string delimiter, int count)
         {
             return ApplyFunction("substring_index", column, delimiter, count);
+        }
+
+        /// <summary>
+        /// Overlay the specified portion of `src` with `replace`, starting from byte position
+        /// `pos` of `src` and proceeding for `len` bytes.
+        /// </summary>
+        /// <param name="src">Source column to replace</param>
+        /// <param name="replace">Replacing column</param>
+        /// <param name="pos">Byte position to start overlaying from</param>
+        /// <param name="len">Number of bytes to overlay</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column Overlay(Column src, Column replace, Column pos, Column len)
+        {
+            return ApplyFunction("overlay", src, replace, pos, len);
+        }
+
+        /// <summary>
+        /// Overlay the specified portion of `src` with `replace`, starting from byte position
+        /// `pos` of `src`.
+        /// </summary>
+        /// <param name="src">Source column to replace</param>
+        /// <param name="replace">Replacing column</param>
+        /// <param name="pos">Byte position to start overlaying from</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column Overlay(Column src, Column replace, Column pos)
+        {
+            return ApplyFunction("overlay", src, replace, pos);
+        }
+
+        /// <summary>
+        /// Splits a string into arrays of sentences, where each sentence is an array of words.
+        /// </summary>
+        /// <param name="str">String to split</param>
+        /// <param name="language">Language of the locale</param>
+        /// <param name="country">Country of the locale</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Sentences(Column str, Column language, Column country)
+        {
+            return ApplyFunction("sentences", str, language, country);
+        }
+
+        /// <summary>
+        /// Splits a string into arrays of sentences, where each sentence is an array of words.
+        /// The default locale is used.
+        /// </summary>
+        /// <param name="str">String to split</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Sentences(Column str)
+        {
+            return ApplyFunction("sentences", str);
         }
 
         /// <summary>
@@ -2611,6 +2965,18 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Returns the date that is `numMonths` after `startDate`.
+        /// </summary>
+        /// <param name="startDate">Start date</param>
+        /// <param name="numMonths">A column of the number of months to add to start date</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column AddMonths(Column startDate, Column numMonths)
+        {
+            return ApplyFunction("add_months", startDate, numMonths);
+        }
+
+        /// <summary>
         /// Returns the current date as a date column.
         /// </summary>
         /// <returns>Column object</returns>
@@ -2652,12 +3018,36 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Returns the date that is `days` days after `start`.
+        /// </summary>
+        /// <param name="start">Start date</param>
+        /// <param name="days">A column of number of days to add to start data</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column DateAdd(Column start, Column days)
+        {
+            return ApplyFunction("date_add", start, days);
+        }
+
+        /// <summary>
         /// Returns the date that is `days` days before `start`.
         /// </summary>
         /// <param name="start">Start date</param>
         /// <param name="days">Number of days to subtract from start data</param>
         /// <returns>Column object</returns>
         public static Column DateSub(Column start, int days)
+        {
+            return ApplyFunction("date_sub", start, days);
+        }
+
+        /// <summary>
+        /// Returns the date that is `days` days before `start`.
+        /// </summary>
+        /// <param name="start">Start date</param>
+        /// <param name="days">A column of number of days to subtract from start data</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column DateSub(Column start, Column days)
         {
             return ApplyFunction("date_sub", start, days);
         }
@@ -2799,6 +3189,22 @@ namespace Microsoft.Spark.Sql
         /// </param>
         /// <returns>Column object</returns>
         public static Column NextDay(Column date, string dayOfWeek)
+        {
+            return ApplyFunction("next_day", date, dayOfWeek);
+        }
+
+        /// <summary>
+        /// Given a date column, returns the first date which is later than the value of
+        /// the date column that is on the specified day of the week.
+        /// </summary>
+        /// <param name="date">Date column</param>
+        /// <param name="dayOfWeek">
+        /// A column of the day of week. One of the following (case-insensitive):
+        ///   "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun".
+        /// </param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column NextDay(Column date, Column dayOfWeek)
         {
             return ApplyFunction("next_day", date, dayOfWeek);
         }
@@ -3096,6 +3502,46 @@ namespace Microsoft.Spark.Sql
             return ApplyFunction("window", column, windowDuration);
         }
 
+        /// <summary>
+        /// Generates session window given a timestamp specifying column.
+        /// </summary>
+        /// <param name="timeColumn">The column or the expression to use as the timestamp for windowing by 
+        /// time</param>
+        /// <param name="gapDuration">A string specifying the timeout of the session, e.g. '10 minutes',
+        /// '1 second'</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Session_Window(Column timeColumn, string gapDuration)
+        {
+            return ApplyFunction("session_window", timeColumn, gapDuration);
+        }
+
+        /// <summary>
+        /// Generates session window given a timestamp specifying column.
+        /// </summary>
+        /// <param name="timeColumn">The column or the expression to use as the timestamp for windowing by 
+        /// time</param>
+        /// <param name="gapDuration">A column specifying the timeout of the session. It could be static 
+        /// value, e.g. `10 minutes`, `1 second`, or an expression/UDF that specifies gap duration 
+        /// dynamically based on the input row.</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Session_Window(Column timeColumn, Column gapDuration)
+        {
+            return ApplyFunction("session_window", timeColumn, gapDuration);
+        }
+
+        /// <summary>
+        /// Creates timestamp from the number of seconds since UTC epoch.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column TimestampSeconds(Column column)
+        {
+            return ApplyFunction("timestamp_seconds", column);
+        }
+
         /////////////////////////////////////////////////////////////////////////////////
         // Collection functions
         /////////////////////////////////////////////////////////////////////////////////
@@ -3136,6 +3582,20 @@ namespace Microsoft.Spark.Sql
         /// <returns>Column object</returns>
         [Since(Versions.V2_4_0)]
         public static Column Slice(Column column, int start, int length)
+        {
+            return ApplyFunction("slice", column, start, length);
+        }
+
+        /// <summary>
+        /// Returns an array containing all the elements in `column` from index `start`
+        /// (or starting from the end if `start` is negative) with the specified `length`.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="start">Start position in the array</param>
+        /// <param name="length">Length for slicing</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_1_0)]
+        public static Column Slice(Column column, Column start, Column length)
         {
             return ApplyFunction("slice", column, start, length);
         }
@@ -3227,7 +3687,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="column">Column to apply</param>
         /// <param name="element">Element to remove</param>
-        /// <returns></returns>
+        /// <returns>Column object</returns>
         [Since(Versions.V2_4_0)]
         public static Column ArrayRemove(Column column, object element)
         {
@@ -3414,6 +3874,18 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Parses a JSON string and infers its schema in DDL format.
+        /// </summary>
+        /// <param name="json">String literal containing a JSON string.</param>
+        /// <param name="options">Options to control how the json is parsed.</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column SchemaOfJson(Column json, Dictionary<string, string> options)
+        {
+            return ApplyFunction("schema_of_json", json, options);
+        }
+
+        /// <summary>
         /// Converts a column containing a `StructType`, `ArrayType` of `StructType`s,
         /// a `MapType` or `ArrayType` of `MapType`s into a JSON string.
         /// </summary>
@@ -3579,6 +4051,17 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Returns an unordered array of all entries in the given map.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column MapEntries(Column column)
+        {
+            return ApplyFunction("map_entries", column);
+        }
+
+        /// <summary>
         /// Returns a map created from the given array of entries.
         /// </summary>
         /// <param name="column">Column to apply</param>
@@ -3610,6 +4093,170 @@ namespace Microsoft.Spark.Sql
         public static Column MapConcat(params Column[] columns)
         {
             return ApplyFunction("map_concat", (object)columns);
+        }
+
+        /// <summary>
+        /// Parses a column containing a CSV string into a `StructType` with the specified schema.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="schema">The schema to use when parsing the CSV string</param>
+        /// <param name="options">Options to control how the CSV is parsed.</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column FromCsv(
+            Column column,
+            StructType schema,
+            Dictionary<string, string> options)
+        {
+            return ApplyFunction(
+                "from_csv",
+                column,
+                DataType.FromJson(Jvm, schema.Json),
+                options);
+        }
+
+        /// <summary>
+        /// Parses a column containing a CSV string into a `StructType` with the specified schema.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="schema">The schema to use when parsing the CSV string</param>
+        /// <param name="options">Options to control how the CSV is parsed.</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column FromCsv(
+            Column column,
+            Column schema,
+            Dictionary<string, string> options)
+        {
+            return ApplyFunction("from_csv", column, schema, options);
+        }
+
+        /// <summary>
+        /// Parses a CSV string and infers its schema in DDL format.
+        /// </summary>
+        /// <param name="csv">CSV string to parse</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column SchemaOfCsv(string csv)
+        {
+            return ApplyFunction("schema_of_csv", csv);
+        }
+
+        /// <summary>
+        /// Parses a CSV string and infers its schema in DDL format.
+        /// </summary>
+        /// <param name="csv">CSV string to parse</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column SchemaOfCsv(Column csv)
+        {
+            return ApplyFunction("schema_of_csv", csv);
+        }
+
+        /// <summary>
+        /// Parses a CSV string and infers its schema in DDL format.
+        /// </summary>
+        /// <param name="csv">CSV string to parse</param>
+        /// <param name="options">Options to control how the CSV is parsed.</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column SchemaOfCsv(Column csv, Dictionary<string, string> options)
+        {
+            return ApplyFunction("schema_of_csv", csv, options);
+        }
+
+        /// <summary>
+        /// Converts a column containing a `StructType` into a CSV string with the specified
+        /// schema.
+        /// </summary>
+        /// <param name="column">A column containing a struct.</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column ToCsv(Column column)
+        {
+            return ApplyFunction("to_csv", column);
+        }
+
+        /// <summary>
+        /// Converts a column containing a `StructType` into a CSV string with the specified
+        /// schema.
+        /// </summary>
+        /// <param name="column">A column containing a struct.</param>
+        /// <param name="options">Options to control how the struct column is converted into a CSV
+        /// string</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column ToCsv(Column column, Dictionary<string, string> options)
+        {
+            return ApplyFunction("to_csv", column, options);
+        }
+
+        /// <summary>
+        /// A transform for timestamps and dates to partition data into years.
+        /// </summary>
+        /// <param name="column">A column containing a struct.</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column Years(Column column)
+        {
+            return ApplyFunction("years", column);
+        }
+
+        /// <summary>
+        /// A transform for timestamps and dates to partition data into months.
+        /// </summary>
+        /// <param name="column">A column containing a struct.</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column Months(Column column)
+        {
+            return ApplyFunction("months", column);
+        }
+
+        /// <summary>
+        /// A transform for timestamps and dates to partition data into days.
+        /// </summary>
+        /// <param name="column">A column containing a struct.</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column Days(Column column)
+        {
+            return ApplyFunction("days", column);
+        }
+
+        /// <summary>
+        /// A transform for timestamps to partition data into hours.
+        /// </summary>
+        /// <param name="column">A column containing a struct.</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column Hours(Column column)
+        {
+            return ApplyFunction("hours", column);
+        }
+
+        /// <summary>
+        /// A transform for any type that partitions by a hash of the input column.
+        /// </summary>
+        /// <param name="numBuckets">A column containing number of buckets</param>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column Bucket(Column numBuckets, Column column)
+        {
+            return ApplyFunction("bucket", numBuckets, column);
+        }
+
+        /// <summary>
+        /// A transform for any type that partitions by a hash of the input column.
+        /// </summary>
+        /// <param name="numBuckets">Number of buckets</param>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_0_0)]
+        public static Column Bucket(int numBuckets, Column column)
+        {
+            return ApplyFunction("bucket", numBuckets, column);
         }
 
         /////////////////////////////////////////////////////////////////////////////////
@@ -3981,273 +4628,28 @@ namespace Microsoft.Spark.Sql
             return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply10;
         }
 
-        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
-        /// <typeparam name="T">Specifies the type of the first argument to the UDF.</typeparam>
-        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-        /// <param name="udf">The Vector UDF function implementation.</param>
-        /// <returns>
-        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
-        /// </returns>
-        internal static Func<Column, Column> VectorUdf<T, TResult>(Func<T, TResult> udf)
-            where T : IArrowArray
-            where TResult : IArrowArray
-        {
-            return CreateVectorUdf<TResult>(
-                udf.Method.ToString(),
-                UdfUtils.CreateVectorUdfWrapper(udf)).Apply1;
-        }
-
-        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
-        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
-        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
-        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-        /// <param name="udf">The Vector UDF function implementation.</param>
-        /// <returns>
-        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
-        /// </returns>
-        internal static Func<Column, Column, Column> VectorUdf<T1, T2, TResult>(Func<T1, T2, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where TResult : IArrowArray
-        {
-            return CreateVectorUdf<TResult>(
-                udf.Method.ToString(),
-                UdfUtils.CreateVectorUdfWrapper(udf)).Apply2;
-        }
-
-        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
-        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
-        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
-        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
-        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-        /// <param name="udf">The Vector UDF function implementation.</param>
-        /// <returns>
-        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
-        /// </returns>
-        internal static Func<Column, Column, Column, Column> VectorUdf<T1, T2, T3, TResult>(
-            Func<T1, T2, T3, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where TResult : IArrowArray
-        {
-            return CreateVectorUdf<TResult>(
-                udf.Method.ToString(),
-                UdfUtils.CreateVectorUdfWrapper(udf)).Apply3;
-        }
-
-        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
-        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
-        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
-        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
-        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
-        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-        /// <param name="udf">The Vector UDF function implementation.</param>
-        /// <returns>
-        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
-        /// </returns>
-        internal static Func<Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, TResult>(
-            Func<T1, T2, T3, T4, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where TResult : IArrowArray
-        {
-            return CreateVectorUdf<TResult>(
-                udf.Method.ToString(),
-                UdfUtils.CreateVectorUdfWrapper(udf)).Apply4;
-        }
-
-        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
-        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
-        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
-        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
-        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
-        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
-        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-        /// <param name="udf">The Vector UDF function implementation.</param>
-        /// <returns>
-        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
-        /// </returns>
-        internal static Func<Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, TResult>(
-            Func<T1, T2, T3, T4, T5, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where TResult : IArrowArray
-        {
-            return CreateVectorUdf<TResult>(
-                udf.Method.ToString(),
-                UdfUtils.CreateVectorUdfWrapper(udf)).Apply5;
-        }
-
-        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
-        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
-        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
-        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
-        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
-        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
-        /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
-        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-        /// <param name="udf">The Vector UDF function implementation.</param>
-        /// <returns>
-        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
-        /// </returns>
-        internal static Func<Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, TResult>(
-            Func<T1, T2, T3, T4, T5, T6, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where T6 : IArrowArray
-            where TResult : IArrowArray
-        {
-            return CreateVectorUdf<TResult>(
-                udf.Method.ToString(),
-                UdfUtils.CreateVectorUdfWrapper(udf)).Apply6;
-        }
-
-        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
-        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
-        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
-        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
-        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
-        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
-        /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
-        /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
-        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-        /// <param name="udf">The Vector UDF function implementation.</param>
-        /// <returns>
-        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
-        /// </returns>
-        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, TResult>(
-            Func<T1, T2, T3, T4, T5, T6, T7, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where T6 : IArrowArray
-            where T7 : IArrowArray
-            where TResult : IArrowArray
-        {
-            return CreateVectorUdf<TResult>(
-                udf.Method.ToString(),
-                UdfUtils.CreateVectorUdfWrapper(udf)).Apply7;
-        }
-
-        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
-        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
-        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
-        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
-        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
-        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
-        /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
-        /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
-        /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
-        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-        /// <param name="udf">The Vector UDF function implementation.</param>
-        /// <returns>
-        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
-        /// </returns>
-        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where T6 : IArrowArray
-            where T7 : IArrowArray
-            where T8 : IArrowArray
-            where TResult : IArrowArray
-        {
-            return CreateVectorUdf<TResult>(
-                udf.Method.ToString(),
-                UdfUtils.CreateVectorUdfWrapper(udf)).Apply8;
-        }
-
-        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
-        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
-        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
-        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
-        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
-        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
-        /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
-        /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
-        /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
-        /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
-        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-        /// <param name="udf">The Vector UDF function implementation.</param>
-        /// <returns>
-        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
-        /// </returns>
-        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where T6 : IArrowArray
-            where T7 : IArrowArray
-            where T8 : IArrowArray
-            where T9 : IArrowArray
-            where TResult : IArrowArray
-        {
-            return CreateVectorUdf<TResult>(
-                udf.Method.ToString(),
-                UdfUtils.CreateVectorUdfWrapper(udf)).Apply9;
-        }
-
-        /// <summary>Creates a Vector UDF from the specified delegate.</summary>
-        /// <typeparam name="T1">Specifies the type of the first argument to the UDF.</typeparam>
-        /// <typeparam name="T2">Specifies the type of the second argument to the UDF.</typeparam>
-        /// <typeparam name="T3">Specifies the type of the third argument to the UDF.</typeparam>
-        /// <typeparam name="T4">Specifies the type of the fourth argument to the UDF.</typeparam>
-        /// <typeparam name="T5">Specifies the type of the fifth argument to the UDF.</typeparam>
-        /// <typeparam name="T6">Specifies the type of the sixth argument to the UDF.</typeparam>
-        /// <typeparam name="T7">Specifies the type of the seventh argument to the UDF.</typeparam>
-        /// <typeparam name="T8">Specifies the type of the eighth argument to the UDF.</typeparam>
-        /// <typeparam name="T9">Specifies the type of the ninth argument to the UDF.</typeparam>
-        /// <typeparam name="T10">Specifies the type of the tenth argument to the UDF.</typeparam>
-        /// <typeparam name="TResult">Specifies the return type of the UDF.</typeparam>
-        /// <param name="udf">The Vector UDF function implementation.</param>
-        /// <returns>
-        /// A delegate that returns a <see cref="Column"/> for the result of the Vector UDF.
-        /// </returns>
-        internal static Func<Column, Column, Column, Column, Column, Column, Column, Column, Column, Column, Column> VectorUdf<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> udf)
-            where T1 : IArrowArray
-            where T2 : IArrowArray
-            where T3 : IArrowArray
-            where T4 : IArrowArray
-            where T5 : IArrowArray
-            where T6 : IArrowArray
-            where T7 : IArrowArray
-            where T8 : IArrowArray
-            where T9 : IArrowArray
-            where T10 : IArrowArray
-            where TResult : IArrowArray
-        {
-            return CreateVectorUdf<TResult>(
-                udf.Method.ToString(),
-                UdfUtils.CreateVectorUdfWrapper(udf)).Apply10;
-        }
-
         /// <summary>
-        /// Call an user-defined function registered via SparkSession.Udf().Register().
+        /// Call a user-defined function registered via SparkSession.Udf().Register().
         /// </summary>
         /// <param name="udfName">Name of the registered UDF</param>
         /// <param name="columns">Columns to apply</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_2_0)]
         public static Column CallUDF(string udfName, params Column[] columns)
         {
             return ApplyFunction("callUDF", udfName, columns);
+        }
+
+        /// <summary>
+        /// Call a user-defined function registered via SparkSession.Udf().Register().
+        /// </summary>
+        /// <param name="udfName">Name of the registered UDF</param>
+        /// <param name="columns">Columns to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Call_UDF(string udfName, params Column[] columns)
+        {
+            return ApplyFunction("call_udf", udfName, columns);
         }
 
         private static UserDefinedFunction CreateUdf<TResult>(string name, Delegate execute)

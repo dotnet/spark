@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
@@ -35,7 +36,7 @@ namespace Microsoft.Spark.E2ETest
             /// <summary>
             /// This environment variable specifies the path where the DotNet worker is installed.
             /// </summary>
-            public const string WorkerDir = Services.ConfigurationService.WorkerDirEnvVarName;
+            public const string WorkerDir = Services.ConfigurationService.DefaultWorkerDirEnvVarName;
         }
 
         private readonly Process _process = new Process();
@@ -83,6 +84,7 @@ namespace Microsoft.Spark.E2ETest
             };
 
             _process.Start();
+            _process.BeginErrorReadLine();
             _process.BeginOutputReadLine();
 
             bool processExited = false;
@@ -111,7 +113,36 @@ namespace Microsoft.Spark.E2ETest
                 
             Spark.SparkContext.SetLogLevel(DefaultLogLevel);
 
-            Jvm = ((IJvmObjectReferenceProvider)Spark).Reference.Jvm;
+            Jvm = Spark.Reference.Jvm;
+        }
+
+        public string AddPackages(string args)
+        {
+            string packagesOption = "--packages ";
+            string[] splits = args.Split(packagesOption, 2);
+
+            StringBuilder newArgs = new StringBuilder(splits[0])
+                .Append(packagesOption)
+                .Append(GetAvroPackage());
+            if (splits.Length > 1)
+            {
+                newArgs.Append(",").Append(splits[1]);
+            }
+
+            return newArgs.ToString();
+        }
+
+        public string GetAvroPackage()
+        {
+            Version sparkVersion = SparkSettings.Version;
+            string avroVersion = sparkVersion.Major switch
+            {
+                2 => $"spark-avro_2.11:{sparkVersion}",
+                3 => $"spark-avro_2.12:{sparkVersion}",
+                _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
+            };
+
+            return $"org.apache.spark:{avroVersion}";
         }
 
         public void Dispose()
@@ -150,7 +181,8 @@ namespace Microsoft.Spark.E2ETest
             string scalaDir = Path.Combine(curDir, "..", "..", "..", "..", "..", "src", "scala");
             string jarDir = Path.Combine(scalaDir, jarPrefix, "target");
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
-            string jar = Path.Combine(jarDir, $"{jarPrefix}-{assemblyVersion}.jar");
+            string scalaVersion = (SparkSettings.Version.Major == 3) ? "2.12" : "2.11";
+            string jar = Path.Combine(jarDir, $"{jarPrefix}_{scalaVersion}-{assemblyVersion}.jar");
 
             if (!File.Exists(jar))
             {
@@ -160,6 +192,12 @@ namespace Microsoft.Spark.E2ETest
             string warehouseUri = new Uri(
                 Path.Combine(_tempDirectory.Path, "spark-warehouse")).AbsoluteUri;
             string warehouseDir = $"--conf spark.sql.warehouse.dir={warehouseUri}";
+
+            // Spark24 < 2.4.8, Spark30 < 3.0.3 and Spark31 < 3.1.2 use bintray as the repository
+            // service for spark-packages. As of  May 1st, 2021 bintray has been sunset and is no
+            // longer available. Specify additional remote repositories to search for the maven
+            // coordinates given with --packages.
+            string repositories = "--repositories https://repos.spark-packages.org/";
 
             string extraArgs = Environment.GetEnvironmentVariable(
                 EnvironmentVariableNames.ExtraSparkSubmitArgs) ?? "";
@@ -174,13 +212,14 @@ namespace Microsoft.Spark.E2ETest
             string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
 
-            args = $"{logOption} {warehouseDir} {extraArgs} {classArg} --master local {jar} debug";
+            args = $"{logOption} {warehouseDir} {AddPackages(extraArgs)} {repositories} {classArg} " +
+                $"--master local {jar} debug";
         }
 
         private string GetJarPrefix()
         {
             Version sparkVersion = SparkSettings.Version;
-            return $"microsoft-spark-{sparkVersion.Major}.{sparkVersion.Minor}.x";
+            return $"microsoft-spark-{sparkVersion.Major}-{sparkVersion.Minor}";
         }
     }
 

@@ -53,7 +53,7 @@ namespace Microsoft.Spark.Sql.Types
         /// <summary>
         /// Normalized type name.
         /// </summary>
-        public string TypeName => _typeName ?? (_typeName = NormalizeTypeName(GetType().Name));
+        public string TypeName => _typeName ??= NormalizeTypeName(GetType().Name);
 
         /// <summary>
         /// Simple string version of the current data type.

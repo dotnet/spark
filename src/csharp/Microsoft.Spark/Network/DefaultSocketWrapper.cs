@@ -77,12 +77,10 @@ namespace Microsoft.Spark.Network
 
             if (!string.IsNullOrWhiteSpace(secret))
             {
-                using (NetworkStream stream = CreateNetworkStream())
+                using NetworkStream stream = CreateNetworkStream();
+                if (!Authenticator.AuthenticateAsClient(stream, secret))
                 {
-                    if (!Authenticator.AuthenticateAsClient(stream, secret))
-                    {
-                        throw new Exception($"Failed to authenticate for port: {port}.");
-                    }
+                    throw new Exception($"Failed to authenticate for port: {port}.");
                 }
             }
         }
@@ -103,16 +101,16 @@ namespace Microsoft.Spark.Network
         /// </summary>
         /// <returns>The underlying Stream instance that be used to receive data</returns>
         public Stream InputStream =>
-            _inputStream ?? (_inputStream = CreateStream(
-                ConfigurationService.WorkerReadBufferSizeEnvVarName));
+            _inputStream ??= CreateStream(
+                ConfigurationService.WorkerReadBufferSizeEnvVarName);
 
         /// <summary>
         /// Returns a stream used to send data only.
         /// </summary>
         /// <returns>The underlying Stream instance that be used to send data</returns>
         public Stream OutputStream =>
-            _outputStream ?? (_outputStream = CreateStream(
-                ConfigurationService.WorkerWriteBufferSizeEnvVarName));
+            _outputStream ??= CreateStream(
+                ConfigurationService.WorkerWriteBufferSizeEnvVarName);
 
         private Stream CreateStream(string bufferSizeEnvVarName)
         {
@@ -138,5 +136,10 @@ namespace Microsoft.Spark.Network
         /// Returns the local endpoint.
         /// </summary>
         public EndPoint LocalEndPoint => _innerSocket.LocalEndPoint;
+
+        /// <summary>
+        /// Returns the remote endpoint.
+        /// </summary>
+        public EndPoint RemoteEndPoint => _innerSocket.RemoteEndPoint;
     }
 }

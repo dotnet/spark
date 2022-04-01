@@ -12,7 +12,6 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
     /// </summary>
     internal sealed class ArrayList : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
 
         /// <summary>
         /// Create a <c>java.util.ArrayList</c> JVM object
@@ -20,14 +19,14 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
         /// <param name="jvm">JVM bridge to use</param>
         internal ArrayList(IJvmBridge jvm)
         {
-            _jvmObject = jvm.CallConstructor("java.util.ArrayList");
+            Reference = jvm.CallConstructor("java.util.ArrayList");
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         internal void Add(object element)
         {
-            _jvmObject.Invoke("add", element);
+            Reference.Invoke("add", element);
         }
 
         internal void AddAll(IEnumerable<object> collection)

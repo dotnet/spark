@@ -5,6 +5,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Microsoft.Spark.Hadoop.Conf;
+using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using static Microsoft.Spark.Utils.CommandSerDe;
 
@@ -20,8 +22,6 @@ namespace Microsoft.Spark
     /// </summary>
     public sealed class SparkContext : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         private readonly SparkConf _conf;
 
         /// <summary>
@@ -31,10 +31,7 @@ namespace Microsoft.Spark
         /// Any settings in this config overrides the default configs as well as system properties.
         /// </param>
         public SparkContext(SparkConf conf)
-            : this(
-                ((IJvmObjectReferenceProvider)conf).Reference.Jvm.CallConstructor(
-                    "org.apache.spark.SparkContext",
-                    conf))
+            : this(conf.Reference.Jvm.CallConstructor("org.apache.spark.SparkContext", conf))
         {
         }
 
@@ -87,12 +84,12 @@ namespace Microsoft.Spark
         /// <param name="jvmObject">JVM object reference for this SparkContext object</param>
         internal SparkContext(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
-            _conf = new SparkConf((JvmObjectReference)_jvmObject.Invoke("getConf"));
+            Reference = jvmObject;
+            _conf = new SparkConf((JvmObjectReference)Reference.Invoke("getConf"));
         }
 
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Returns SparkConf object associated with this SparkContext object.
@@ -113,7 +110,7 @@ namespace Microsoft.Spark
         /// </returns>
         public static SparkContext GetOrCreate(SparkConf conf)
         {
-            IJvmBridge jvm = ((IJvmObjectReferenceProvider)conf).Reference.Jvm;
+            IJvmBridge jvm = conf.Reference.Jvm;
             return new SparkContext(
                 (JvmObjectReference)jvm.CallStaticJavaMethod(
                     "org.apache.spark.SparkContext",
@@ -130,7 +127,7 @@ namespace Microsoft.Spark
         /// <param name="logLevel">The desired log level as a string.</param>
         public void SetLogLevel(string logLevel)
         {
-            _jvmObject.Invoke("setLogLevel", logLevel);
+            Reference.Invoke("setLogLevel", logLevel);
         }
 
         /// <summary>
@@ -138,13 +135,13 @@ namespace Microsoft.Spark
         /// </summary>
         public void Stop()
         {
-            _jvmObject.Invoke("stop");
+            Reference.Invoke("stop");
         }
 
         /// <summary>
         /// Default level of parallelism to use when not given by user (e.g. Parallelize()).
         /// </summary>
-        public int DefaultParallelism => (int)_jvmObject.Invoke("defaultParallelism");
+        public int DefaultParallelism => (int)Reference.Invoke("defaultParallelism");
 
         /// <summary>
         /// Creates a modified version of <see cref="SparkConf"/> with the parameters that can be
@@ -187,7 +184,7 @@ namespace Microsoft.Spark
         /// <param name="value">Description of the current job</param>
         public void SetJobDescription(string value)
         {
-            _jvmObject.Invoke("setJobDescription", value);
+            Reference.Invoke("setJobDescription", value);
         }
 
         /// <summary>
@@ -208,7 +205,7 @@ namespace Microsoft.Spark
         /// </param>
         public void SetJobGroup(string groupId, string description, bool interruptOnCancel = false)
         {
-            _jvmObject.Invoke("setJobGroup", groupId, description, interruptOnCancel);
+            Reference.Invoke("setJobGroup", groupId, description, interruptOnCancel);
         }
 
         /// <summary>
@@ -216,7 +213,7 @@ namespace Microsoft.Spark
         /// </summary>
         public void ClearJobGroup()
         {
-            _jvmObject.Invoke("clearJobGroup");
+            Reference.Invoke("clearJobGroup");
         }
 
         /// <summary>
@@ -240,10 +237,10 @@ namespace Microsoft.Spark
             }
 
             return new RDD<T>(
-                (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
+                (JvmObjectReference)Reference.Jvm.CallStaticJavaMethod(
                     "org.apache.spark.api.dotnet.DotnetRDD",
                     "createJavaRDDFromArray",
-                    _jvmObject,
+                    Reference,
                     values,
                     numSlices ?? DefaultParallelism),
                 this,
@@ -260,7 +257,7 @@ namespace Microsoft.Spark
         internal RDD<string> TextFile(string path, int? minPartitions = null)
         {
             return new RDD<string>(
-                WrapAsJavaRDD((JvmObjectReference)_jvmObject.Invoke(
+                WrapAsJavaRDD((JvmObjectReference)Reference.Invoke(
                     "textFile",
                     path,
                     minPartitions ?? DefaultParallelism)),
@@ -274,6 +271,8 @@ namespace Microsoft.Spark
         /// <remarks>
         /// If a file is added during execution, it will not be available until the next
         /// TaskSet starts.
+        /// 
+        /// A path can be added only once. Subsequent additions of the same path are ignored.
         /// </remarks>
         /// <param name="path">
         /// File path can be either a local file, a file in HDFS (or other Hadoop-supported
@@ -285,8 +284,43 @@ namespace Microsoft.Spark
         /// </param>
         public void AddFile(string path, bool recursive = false)
         {
-            _jvmObject.Invoke("addFile", path, recursive);
+            Reference.Invoke("addFile", path, recursive);
         }
+
+        /// <summary>
+        /// Returns a list of file paths that are added to resources.
+        /// </summary>
+        /// <returns>File paths that are added to resources.</returns>
+        public IEnumerable<string> ListFiles() =>
+            new Seq<string>((JvmObjectReference)Reference.Invoke("listFiles"));
+
+        /// <summary>
+        /// Add an archive to be downloaded and unpacked with this Spark job on every node.
+        /// </summary>
+        /// <remarks>
+        /// If an archive is added during execution, it will not be available until the next
+        /// TaskSet starts.
+        /// 
+        /// A path can be added only once. Subsequent additions of the same path are ignored.
+        /// </remarks>
+        /// <param name="path">
+        /// Archive path can be either a local file, a file in HDFS (or other Hadoop-supported
+        /// filesystems), or an HTTP, HTTPS or FTP URI. The given path should be one of .zip,
+        /// .tar, .tar.gz, .tgz and .jar.
+        /// </param>
+        [Since(Versions.V3_1_0)]
+        public void AddArchive(string path)
+        {
+            Reference.Invoke("addArchive", path);
+        }
+
+        /// <summary>
+        /// Returns a list of archive paths that are added to resources.
+        /// </summary>
+        /// <returns>Archive paths that are added to resources.</returns>
+        [Since(Versions.V3_1_0)]
+        public IEnumerable<string> ListArchives() =>
+            new Seq<string>((JvmObjectReference)Reference.Invoke("listArchives"));
 
         /// <summary>
         /// Sets the directory under which RDDs are going to be checkpointed.
@@ -296,7 +330,19 @@ namespace Microsoft.Spark
         /// </param>
         public void SetCheckpointDir(string directory)
         {
-            _jvmObject.Invoke("setCheckpointDir", directory);
+            Reference.Invoke("setCheckpointDir", directory);
+        }
+
+        /// <summary>
+        /// Return the directory where RDDs are checkpointed.
+        /// </summary>
+        /// <returns>
+        /// The directory where RDDs are checkpointed. Returns `null` if no checkpoint
+        /// directory has been set.
+        /// </returns>
+        public string GetCheckpointDir()
+        {
+            return (string)new Option((JvmObjectReference)Reference.Invoke("getCheckpointDir")).OrNull();
         }
 
         /// <summary>
@@ -313,6 +359,13 @@ namespace Microsoft.Spark
         }
 
         /// <summary>
+        /// A default Hadoop Configuration for the Hadoop code (e.g. file systems) that we reuse.
+        /// </summary>
+        /// <returns>The Hadoop Configuration.</returns>
+        public Configuration HadoopConfiguration() =>
+            new Configuration((JvmObjectReference)Reference.Invoke("hadoopConfiguration"));
+
+        /// <summary>
         /// Returns JVM object reference to JavaRDD object transformed
         /// from a Scala RDD object.
         /// </summary>
@@ -323,10 +376,17 @@ namespace Microsoft.Spark
         /// <returns>JVM object reference to JavaRDD object</returns>
         private JvmObjectReference WrapAsJavaRDD(JvmObjectReference rdd)
         {
-            return (JvmObjectReference)_jvmObject.Jvm.CallStaticJavaMethod(
+            return (JvmObjectReference)Reference.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.api.dotnet.DotnetRDD",
                 "toJavaRDD",
                 rdd);
         }
+        /// <summary>
+        /// Returns a string that represents the version of Spark on which this application is running.
+        /// </summary>
+        /// <returns>
+        /// A string that represents the version of Spark on which this application is running.
+        /// </returns>
+        public string Version() => (string)Reference.Invoke("version");
     }
 }

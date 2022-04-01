@@ -13,6 +13,7 @@ using Microsoft.Spark.Utils;
 using Microsoft.Spark.Worker.Command;
 using Microsoft.Spark.Worker.Processor;
 using Microsoft.Spark.Worker.Utils;
+using static Microsoft.Spark.Utils.AssemblyInfoProvider;
 
 namespace Microsoft.Spark.Worker
 {
@@ -150,7 +151,7 @@ namespace Microsoft.Spark.Worker
 
                 DateTime initTime = DateTime.UtcNow;
 
-                CommandExecutorStat commandExecutorStat = new CommandExecutor().Execute(
+                CommandExecutorStat commandExecutorStat = new CommandExecutor(version).Execute(
                     inputStream,
                     outputStream,
                     payload.SplitIndex,
@@ -213,18 +214,15 @@ namespace Microsoft.Spark.Worker
             }
         }
 
-        private void ValidateVersion(string versionStr)
+        private void ValidateVersion(string driverMicrosoftSparkVersion)
         {
-            // Initial version was shipped with version "1.0", so this needs to be adjusted
-            // to be compatible going forward.
-            if (versionStr == "1.0")
+            string workerVersion = MicrosoftSparkWorkerAssemblyInfo().AssemblyVersion;
+            // Worker is compatibile only within the same major version.
+            if (new Version(driverMicrosoftSparkVersion).Major != new Version(workerVersion).Major)
             {
-                versionStr = "0.1.0";
-            }
-
-            if (new Version(versionStr) < new Version(Versions.CurrentVersion))
-            {
-                throw new Exception($"Upgrade Microsoft.Spark to '{Versions.CurrentVersion}+' from '{versionStr}+'.");
+                throw new Exception("The major version of Microsoft.Spark.Worker " +
+                    $"({workerVersion}) does not match with Microsoft.Spark " +
+                    $"({driverMicrosoftSparkVersion}) on the driver.");
             }
         }
 

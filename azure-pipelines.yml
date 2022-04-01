@@ -4,26 +4,38 @@ trigger:
   batch: true
   branches:
     include:
-    - master
+    - main
 
 variables:
   buildConfiguration: 'Release'
   _SignType: real
   _TeamName: DotNetSpark
   MSBUILDSINGLELOADCONTEXT: 1
-  # backwardCompatibleRelease/forwardCompatibleRelease is the "oldest" releases that work with the current release
-  backwardCompatibleRelease: '0.9.0'
-  forwardCompatibleRelease: '0.9.0'
-  TestsToFilterOut: "(FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameGroupedMapUdf)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.DataFrameTests.TestDataFrameVectorUdf)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestDestroy)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestMultipleBroadcastWithoutEncryption)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.BroadcastTests.TestUnpersist)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithReturnAsTimestampType)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.UdfTests.UdfSimpleTypesTests.TestUdfWithTimestampType)&\
-  (FullyQualifiedName!=Microsoft.Spark.E2ETest.IpcTests.SparkSessionTests.TestCreateDataFrameWithTimestamp)"
-  LatestDotnetWorkerDir: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker\netcoreapp3.1\win-x64'
-  BackwardCompatibleDotnetWorkerDir: $(Build.BinariesDirectory)\Microsoft.Spark.Worker-$(backwardCompatibleRelease)
+  ArtifactPath: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries'
+
+  backwardCompatibleRelease: '2.0.0'
+  forwardCompatibleRelease: '2.0.0'
+
+  backwardCompatibleTestOptions_Windows_2_4: ""
+  forwardCompatibleTestOptions_Windows_2_4: ""
+  backwardCompatibleTestOptions_Linux_2_4: ""
+  forwardCompatibleTestOptions_Linux_2_4: ""
+
+  backwardCompatibleTestOptions_Windows_3_0: ""
+  forwardCompatibleTestOptions_Windows_3_0: ""
+  backwardCompatibleTestOptions_Linux_3_0: ""
+  forwardCompatibleTestOptions_Linux_3_0: ""
+
+  backwardCompatibleTestOptions_Windows_3_1: ""
+  forwardCompatibleTestOptions_Windows_3_1: ""
+  backwardCompatibleTestOptions_Linux_3_1: ""
+  forwardCompatibleTestOptions_Linux_3_1: ""
+
+  # Skip all forward/backward compatibility tests since Spark 3.2 is not supported before this release.
+  backwardCompatibleTestOptions_Windows_3_2: "--filter FullyQualifiedName=NONE"
+  forwardCompatibleTestOptions_Windows_3_2: $(backwardCompatibleTestOptions_Windows_3_2)
+  backwardCompatibleTestOptions_Linux_3_2: $(backwardCompatibleTestOptions_Windows_3_2)
+  forwardCompatibleTestOptions_Linux_3_2: $(backwardCompatibleTestOptions_Windows_3_2)
 
   # Azure DevOps variables are transformed into environment variables, with these variables we
   # avoid the first time experience and telemetry to speed up the build.
@@ -38,436 +50,340 @@ resources:
     name: dotnet/spark
     ref: refs/tags/v$(forwardCompatibleRelease)
 
-jobs:
-- job: Build
-  displayName: Build and Test Sources
-  pool: Hosted VS2017
-
-  variables:
-    ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-      _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-    HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
-
-  steps:
-  - checkout: self
-    path: s\master
-  - checkout: forwardCompatibleRelease
-    path: s\$(forwardCompatibleRelease)
-
-  - task: Maven@3
-    displayName: 'Maven build src'
-    inputs:
-      mavenPomFile: master/src/scala/pom.xml
-
-  - task: Maven@3
-    displayName: 'Maven build benchmark'
-    inputs:
-      mavenPomFile: master/benchmark/scala/pom.xml
-
-  - task: BatchScript@1
-    displayName: Download Spark Distros & Winutils.exe
-    inputs:
-      filename: master\script\download-spark-distros.cmd
-      arguments: $(Build.BinariesDirectory)
-
-  - task: BatchScript@1
-    displayName: Download backward compatible worker v$(backwardCompatibleRelease)
-    inputs:
-      filename: master\script\download-worker-release.cmd
-      arguments: '$(Build.BinariesDirectory) $(backwardCompatibleRelease)'
-
-  - script: master\build.cmd -pack
-              -c $(buildConfiguration)
-              -ci
-              $(_OfficialBuildIdArgs)
-              /p:PublishSparkWorker=true
-              /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
-    displayName: '.NET build'
-
-  - task: DotNetCoreCLI@2
-    displayName: '.NET unit tests'
-    inputs:
-      command: test
-      projects: 'master/**/*UnitTest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.0'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.1'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.2'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.3'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.4'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.4-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.0'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.1'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-  
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.3'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark*.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.4'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark*.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.5'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark*.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.0 with backward compatible worker v$(backwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.1 with backward compatible worker v$(backwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.2 with backward compatible worker v$(backwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.3 with backward compatible worker v$(backwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.4 with backward compatible worker v$(backwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.4-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.0 with backward compatible worker v$(backwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.1 with backward compatible worker v$(backwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
-  
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.3 with backward compatible worker v$(backwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark*.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.4 with backward compatible worker v$(backwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark*.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.5 with backward compatible worker v$(backwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: 'master/**/Microsoft.Spark*.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration) --filter $(TestsToFilterOut)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(BackwardCompatibleDotnetWorkerDir)
-
-  - task: Maven@3
-    displayName: 'Maven build src for forward compatible release v$(forwardCompatibleRelease)'
-    inputs:
-      mavenPomFile: $(forwardCompatibleRelease)/src/scala/pom.xml
-      
-  - script: $(forwardCompatibleRelease)\build.cmd
-              -c $(buildConfiguration)
-              -ci
-              $(_OfficialBuildIdArgs)
-              /p:PublishSparkWorker=false
-    displayName: '.NET build for forward compatible release v$(forwardCompatibleRelease)'
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.0 from forward compatible release v$(forwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.0-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.1 from forward compatible release v$(forwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.1-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.2 from forward compatible release v$(forwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.2-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.3 from forward compatible release v$(forwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.3-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.3.4 from forward compatible release v$(forwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.3.4-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.0 from forward compatible release v$(forwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.0-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.1 from forward compatible release v$(forwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.1-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-  
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.3 from forward compatible release v$(forwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark*.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.3-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.4 from forward compatible release v$(forwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark*.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.4-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - task: DotNetCoreCLI@2
-    displayName: 'E2E tests for Spark 2.4.5 from forward compatible release v$(forwardCompatibleRelease)'
-    inputs:
-      command: test
-      projects: '$(forwardCompatibleRelease)/**/Microsoft.Spark*.E2ETest/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    env:
-      SPARK_HOME: $(Build.BinariesDirectory)\spark-2.4.5-bin-hadoop2.7
-      DOTNET_WORKER_DIR: $(LatestDotnetWorkerDir)
-
-  - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-    - task: CopyFiles@2
-      displayName: Stage .NET artifacts
-      inputs:
-        sourceFolder: $(Build.SourcesDirectory)/master/artifacts/packages/$(buildConfiguration)/Shipping
-        contents: |
-          **/*.nupkg
-          **/*.snupkg
-        targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/packages/$(buildConfiguration)/Shipping
-
-    - task: CopyFiles@2
-      displayName: Stage build logs
-      inputs:
-        sourceFolder: $(Build.SourcesDirectory)/master/artifacts/log
-        targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/log
-
-    - task: PublishBuildArtifacts@1
-      inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        artifactName:  Microsoft.Spark.Binaries
-
-- ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-  - job: SignPublish
-    dependsOn:
-      - Build
-    displayName: Sign and Publish Artifacts
-    pool:
-      name: NetCoreInternal-Pool
-      queue: buildpool.windows.10.amd64.vs2017
+stages:
+- stage: Build
+  displayName: Build Sources
+  jobs:
+  - job: Build
+    pool: Hosted VS2017
 
     variables:
       ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
         _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
 
     steps:
-    - task: DownloadBuildArtifacts@0
-      displayName: Download Build Artifacts
+    - task: Maven@3
+      displayName: 'Maven build src'
       inputs:
-        artifactName: Microsoft.Spark.Binaries
-        downloadPath: $(Build.ArtifactStagingDirectory)
-    
-    - task: MicroBuildSigningPlugin@2
-      displayName: Install MicroBuild plugin
+        mavenPomFile: src/scala/pom.xml
+
+    - task: Maven@3
+      displayName: 'Maven build benchmark'
       inputs:
-        signType: $(_SignType)
-        zipSources: false
-        feedSource: https://dnceng.pkgs.visualstudio.com/_packaging/MicroBuildToolset/nuget/v3/index.json
-      env:
-        TeamName: $(_TeamName)
-      condition: and(succeeded(), in(variables['_SignType'], 'real', 'test'), eq(variables['Agent.Os'], 'Windows_NT'))
-    
-    - task: PowerShell@2
-      displayName: Sign artifacts and Package Microsoft.Spark.Worker
+        mavenPomFile: benchmark/scala/pom.xml
+
+    - script: build.cmd -pack
+                -c $(buildConfiguration)
+                -ci
+                $(_OfficialBuildIdArgs)
+                /p:PublishSparkWorker=true
+                /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
+      displayName: '.NET build'
+
+    - task: DotNetCoreCLI@2
+      displayName: '.NET unit tests'
       inputs:
-        filePath: eng\common\build.ps1
-        arguments: -restore -sign -publish
-                   -c $(buildConfiguration)
-                   -ci
-                   $(_OfficialBuildIdArgs)
-                   /p:DotNetSignType=$(_SignType)
-                   /p:SparkPackagesDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\BuildArtifacts\artifacts\packages
-                   /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries\Microsoft.Spark.Worker
-                   /p:SparkWorkerPackageOutputDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries
+        command: test
+        projects: '**/*UnitTest/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+
+    - task: CopyFiles@2
+      displayName: Stage Maven build jars
+      inputs:
+        sourceFolder: $(Build.SourcesDirectory)/src/scala
+        contents: '**/*.jar'
+        targetFolder: $(Build.ArtifactStagingDirectory)/Jars
+
+    - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+      - task: CopyFiles@2
+        displayName: Stage .NET artifacts
+        inputs:
+          sourceFolder: $(Build.SourcesDirectory)/artifacts/packages/$(buildConfiguration)/Shipping
+          contents: |
+            **/*.nupkg
+            **/*.snupkg
+          targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/packages/$(buildConfiguration)/Shipping
+
+      - task: CopyFiles@2
+        displayName: Stage build logs
+        inputs:
+          sourceFolder: $(Build.SourcesDirectory)/artifacts/log
+          targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/log
 
     - task: PublishBuildArtifacts@1
       inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries'
+        pathtoPublish: '$(Build.ArtifactStagingDirectory)'
         artifactName:  Microsoft.Spark.Binaries
+
+  - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+    - job: Sign
+      dependsOn:
+        - Build
+      displayName: Sign Artifacts
+      pool:
+        name: NetCore1ESPool-Internal
+        demands: ImageOverride -equals build.windows.10.amd64.vs2017
+
+      variables:
+        ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+          _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+
+      steps:
+      - task: DownloadBuildArtifacts@0
+        displayName: Download Build Artifacts
+        inputs:
+          artifactName: Microsoft.Spark.Binaries
+          downloadPath: $(Build.ArtifactStagingDirectory)
+
+      - task: MicroBuildSigningPlugin@2
+        displayName: Install MicroBuild plugin
+        inputs:
+          signType: $(_SignType)
+          zipSources: false
+          feedSource: https://dnceng.pkgs.visualstudio.com/_packaging/MicroBuildToolset/nuget/v3/index.json
+        env:
+          TeamName: $(_TeamName)
+        condition: and(succeeded(), in(variables['_SignType'], 'real', 'test'), eq(variables['Agent.Os'], 'Windows_NT'))
+
+      - task: PowerShell@2
+        displayName: Sign artifacts
+        inputs:
+          filePath: eng\common\build.ps1
+          arguments: -restore -sign
+                     -c $(buildConfiguration)
+                     -ci
+                     $(_OfficialBuildIdArgs)
+                     /p:DotNetSignType=$(_SignType)
+                     /p:SparkPackagesDir=$(ArtifactPath)\BuildArtifacts\artifacts\packages
+                     /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathtoPublish: '$(ArtifactPath)'
+          artifactName:  Microsoft.Spark.Binaries
+
+  # The "Publish" stage is separated out from the "Sign" stage because we need to install powershell module
+  # to zip files correctly for macOS; installing the module is not allowed in NetCoreInternal-Pool.
+  - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+    - job: Publish
+      dependsOn:
+        - Sign
+      displayName: Publish Artifacts
+      pool: Hosted VS2017
+
+      variables:
+        ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+          _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+
+      steps:
+      # The following module needs to be installed to zip files correctly for macOS.
+      - powershell: Install-Module -Name Microsoft.PowerShell.Archive -Scope CurrentUser -Force -AllowClobber -Verbose -MinimumVersion 1.2.5
+        displayName: Install Microsoft.PowerShell.Archive
+
+      - task: DownloadBuildArtifacts@0
+        displayName: Download Signed Artifacts
+        inputs:
+          artifactName: Microsoft.Spark.Binaries
+          downloadPath: $(Build.ArtifactStagingDirectory)
+
+      - task: PowerShell@2
+        displayName: Package Microsoft.Spark.Worker
+        inputs:
+          filePath: eng\common\build.ps1
+          arguments: -restore -publish
+                     -c $(buildConfiguration)
+                     -ci
+                     $(_OfficialBuildIdArgs)
+                     /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
+                     /p:SparkWorkerPackageOutputDir=$(ArtifactPath)
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathtoPublish: '$(ArtifactPath)'
+          artifactName:  Microsoft.Spark.Binaries
+
+- template: azure-pipelines-e2e-tests-template.yml
+  parameters:
+    backwardCompatibleRelease: $(backwardCompatibleRelease)
+    forwardCompatibleRelease: $(forwardCompatibleRelease)
+    tests:
+    - version: '2.4.0'
+      enableForwardCompatibleTests: true
+      enableBackwardCompatibleTests: true
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '2.4.1'
+      enableForwardCompatibleTests: true
+      enableBackwardCompatibleTests: true
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '2.4.3'
+      enableForwardCompatibleTests: true
+      enableBackwardCompatibleTests: true
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '2.4.4'
+      enableForwardCompatibleTests: true
+      enableBackwardCompatibleTests: true
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '2.4.5'
+      enableForwardCompatibleTests: true
+      enableBackwardCompatibleTests: true
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '2.4.6'
+      enableForwardCompatibleTests: true
+      enableBackwardCompatibleTests: true
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '2.4.7'
+      enableForwardCompatibleTests: true
+      enableBackwardCompatibleTests: true
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '2.4.8'
+      enableForwardCompatibleTests: true
+      enableBackwardCompatibleTests: true
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '3.0.0'
+      enableForwardCompatibleTests: true
+      enableBackwardCompatibleTests: true
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_0)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
+    - version: '3.0.1'
+      enableForwardCompatibleTests: true
+      enableBackwardCompatibleTests: true
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_0)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
+    - version: '3.0.2'
+      enableForwardCompatibleTests: true
+      enableBackwardCompatibleTests: true
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_0)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
+    - version: '3.1.1'
+      enableForwardCompatibleTests: true
+      enableBackwardCompatibleTests: true
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_1)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
+    - version: '3.1.2'
+      enableForwardCompatibleTests: true
+      enableBackwardCompatibleTests: true
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_1)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
+    - version: '3.2.0'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_2)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
+    - version: '3.2.1'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_2)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)

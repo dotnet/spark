@@ -11,14 +11,12 @@ namespace Microsoft.Spark.Sql.Expressions
     /// </summary>
     public sealed class WindowSpec : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
-
         internal WindowSpec(JvmObjectReference jvmObject)
         {
-            _jvmObject = jvmObject;
+            Reference = jvmObject;
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Defines the partitioning columns in a `WindowSpec`.
@@ -27,7 +25,7 @@ namespace Microsoft.Spark.Sql.Expressions
         /// <param name="colNames">Additional column names</param>
         /// <returns>WindowSpec object</returns>
         public WindowSpec PartitionBy(string colName, params string[] colNames) =>
-            WrapAsWindowSpec(_jvmObject.Invoke("partitionBy", colName, colNames));
+            WrapAsWindowSpec(Reference.Invoke("partitionBy", colName, colNames));
 
         /// <summary>
         /// Defines the partitioning columns in a `WindowSpec`.
@@ -35,7 +33,7 @@ namespace Microsoft.Spark.Sql.Expressions
         /// <param name="columns">Column expressions</param>
         /// <returns>WindowSpec object</returns>
         public WindowSpec PartitionBy(params Column[] columns) =>
-            WrapAsWindowSpec(_jvmObject.Invoke("partitionBy", (object)columns));
+            WrapAsWindowSpec(Reference.Invoke("partitionBy", (object)columns));
 
         /// <summary>
         /// Defines the ordering columns in a `WindowSpec`.
@@ -44,7 +42,7 @@ namespace Microsoft.Spark.Sql.Expressions
         /// <param name="colNames">Additional column names</param>
         /// <returns>WindowSpec object</returns>
         public WindowSpec OrderBy(string colName, params string[] colNames) =>
-            WrapAsWindowSpec(_jvmObject.Invoke("orderBy", colName, colNames));
+            WrapAsWindowSpec(Reference.Invoke("orderBy", colName, colNames));
 
         /// <summary>
         /// Defines the ordering columns in a `WindowSpec`.
@@ -52,7 +50,7 @@ namespace Microsoft.Spark.Sql.Expressions
         /// <param name="columns">Column expressions</param>
         /// <returns>WindowSpec object</returns>
         public WindowSpec OrderBy(params Column[] columns) =>
-            WrapAsWindowSpec(_jvmObject.Invoke("orderBy", (object)columns));
+            WrapAsWindowSpec(Reference.Invoke("orderBy", (object)columns));
 
         /// <summary>
         /// Defines the frame boundaries, from `start` (inclusive) to `end` (inclusive).
@@ -67,7 +65,7 @@ namespace Microsoft.Spark.Sql.Expressions
         /// </param>
         /// <returns>WindowSpec object</returns>
         public WindowSpec RowsBetween(long start, long end) =>
-            WrapAsWindowSpec(_jvmObject.Invoke("rowsBetween", start, end));
+            WrapAsWindowSpec(Reference.Invoke("rowsBetween", start, end));
 
         /// <summary>
         /// Defines the frame boundaries, from `start` (inclusive) to `end` (inclusive).
@@ -82,7 +80,7 @@ namespace Microsoft.Spark.Sql.Expressions
         /// </param>
         /// <returns>WindowSpec object</returns>
         public WindowSpec RangeBetween(long start, long end) =>
-            WrapAsWindowSpec(_jvmObject.Invoke("rangeBetween", start, end));
+            WrapAsWindowSpec(Reference.Invoke("rangeBetween", start, end));
 
         /// <summary>
         /// Defines the frame boundaries, from `start` (inclusive) to `end` (inclusive).
@@ -102,7 +100,7 @@ namespace Microsoft.Spark.Sql.Expressions
         [Deprecated(Versions.V2_4_0)]
         [Removed(Versions.V3_0_0)]
         public WindowSpec RangeBetween(Column start, Column end) =>
-            WrapAsWindowSpec(_jvmObject.Invoke("rangeBetween", start, end));
+            WrapAsWindowSpec(Reference.Invoke("rangeBetween", start, end));
 
         private WindowSpec WrapAsWindowSpec(object obj) => new WindowSpec((JvmObjectReference)obj);
     }

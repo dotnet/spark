@@ -2,12 +2,14 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
-
 
 namespace Microsoft.Spark
 {
@@ -35,7 +37,7 @@ namespace Microsoft.Spark
             _bid = (long)_jvmObject.Invoke("id");
         }
 
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference => _jvmObject;
 
         /// <summary>
         /// Get the broadcasted value.
@@ -96,8 +98,7 @@ namespace Microsoft.Spark
         /// <returns>Absolute filepath of the created random file</returns>
         private string CreateTempFilePath(SparkConf conf)
         {
-            IJvmBridge jvm = ((IJvmObjectReferenceProvider)conf).Reference.Jvm;
-            var localDir = (string)jvm.CallStaticJavaMethod(
+            var localDir = (string)conf.Reference.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.util.Utils",
                 "getLocalDir",
                 conf);
@@ -114,8 +115,7 @@ namespace Microsoft.Spark
         /// <returns>Returns broadcast variable of type <see cref="JvmObjectReference"/></returns>
         private JvmObjectReference CreateBroadcast(SparkContext sc, T value)
         {
-            IJvmBridge jvm = ((IJvmObjectReferenceProvider)sc).Reference.Jvm;
-            var javaSparkContext = (JvmObjectReference)jvm.CallStaticJavaMethod(
+            var javaSparkContext = (JvmObjectReference)sc.Reference.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.api.java.JavaSparkContext",
                 "fromSparkContext",
                 sc);
@@ -123,42 +123,21 @@ namespace Microsoft.Spark
             Version version = SparkEnvironment.SparkVersion;
             return (version.Major, version.Minor) switch
             {
-                (2, 3) when version.Build == 0 || version.Build == 1 =>
-                    CreateBroadcast_V2_3_1_AndBelow(javaSparkContext, value),
-                (2, 3) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
-                (2, 4) => CreateBroadcast_V2_3_2_AndAbove(javaSparkContext, sc, value),
+                (2, 4) => CreateBroadcast_V2_4_X(javaSparkContext, sc, value),
+                (3, _) => CreateBroadcast_V2_4_X(javaSparkContext, sc, value),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
         }
 
         /// <summary>
-        /// Calls the necessary functions to create org.apache.spark.broadcast.Broadcast object
-        /// for Spark versions 2.3.0 and 2.3.1 and returns the JVMObjectReference object.
-        /// </summary>
-        /// <param name="javaSparkContext">Java Spark context object</param>
-        /// <param name="value">Broadcast value of type object</param>
-        /// <returns>Returns broadcast variable of type <see cref="JvmObjectReference"/></returns>
-        private JvmObjectReference CreateBroadcast_V2_3_1_AndBelow(
-            JvmObjectReference javaSparkContext,
-            object value)
-        {
-            WriteToFile(value);
-            return (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.api.python.PythonRDD",
-                "readBroadcastFromFile",
-                javaSparkContext,
-                _path);
-        }
-
-        /// <summary>
         /// Calls the necessary Spark functions to create org.apache.spark.broadcast.Broadcast
-        /// object for Spark versions 2.3.2 and above, and returns the JVMObjectReference object.
+        /// object for Spark versions 2.4.0 and above, and returns the JVMObjectReference object.
         /// </summary>
         /// <param name="javaSparkContext">Java Spark context object</param>
         /// <param name="sc">SparkContext object</param>
         /// <param name="value">Broadcast value of type object</param>
         /// <returns>Returns broadcast variable of type <see cref="JvmObjectReference"/></returns>
-        private JvmObjectReference CreateBroadcast_V2_3_2_AndAbove(
+        private JvmObjectReference CreateBroadcast_V2_4_X(
             JvmObjectReference javaSparkContext,
             SparkContext sc,
             object value)
@@ -168,22 +147,63 @@ namespace Microsoft.Spark
             // Spark versions.
             bool encryptionEnabled = bool.Parse(
                 sc.GetConf().Get("spark.io.encryption.enabled", "false"));
+            JvmObjectReference _pythonBroadcast;
+
+            // Spark in Databricks is different from OSS Spark and requires to pass the SparkContext object to setupBroadcast.
+            if (ConfigurationService.IsDatabricks)
+            {
+                _pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
+                    "org.apache.spark.api.python.PythonRDD",
+                    "setupBroadcast",
+                    javaSparkContext,
+                    _path);
+            }
+            else
+            {
+                _pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
+                    "org.apache.spark.api.python.PythonRDD",
+                    "setupBroadcast",
+                    _path);
+            }
 
             if (encryptionEnabled)
             {
-                throw new NotImplementedException("Broadcast encryption is not supported yet.");
+                var pair = (JvmObjectReference[])_pythonBroadcast.Invoke("setupEncryptionServer");
+
+                using (ISocketWrapper socket = SocketFactory.CreateSocket())
+                {
+                    socket.Connect(
+                        IPAddress.Loopback,
+                        (int)pair[0].Invoke("intValue"), // port number
+                        (string)pair[1].Invoke("toString")); // secret
+                    WriteToStream(value, socket.OutputStream);
+                }
+                _pythonBroadcast.Invoke("waitTillDataReceived");
             }
             else
             {
                 WriteToFile(value);
             }
 
-            var pythonBroadcast = (JvmObjectReference)javaSparkContext.Jvm.CallStaticJavaMethod(
-                "org.apache.spark.api.python.PythonRDD",
-                "setupBroadcast",
-                _path);
+            return (JvmObjectReference)javaSparkContext.Invoke("broadcast", _pythonBroadcast);
+        }
 
-            return (JvmObjectReference)javaSparkContext.Invoke("broadcast", pythonBroadcast);
+        /// TODO: This is not performant in the case of Broadcast encryption as it writes to stream
+        /// only after serializing the whole value, instead of serializing and writing in chunks
+        /// like Python.
+        /// <summary>
+        /// Function to write the broadcast value into the stream.
+        /// </summary>
+        /// <param name="value">Broadcast value to be written to the stream</param>
+        /// <param name="stream">Stream to write value to</param>
+        private void WriteToStream(object value, Stream stream)
+        {
+            using var ms = new MemoryStream();
+            Dump(value, ms);
+            SerDe.Write(stream, ms.Length);
+            ms.WriteTo(stream);
+            // -1 length indicates to the receiving end that we're done.
+            SerDe.Write(stream, -1);
         }
 
         /// <summary>
@@ -261,28 +281,26 @@ namespace Microsoft.Spark
     /// </summary>
     internal static class JvmBroadcastRegistry
     {
-        [ThreadStatic]
-        private static readonly List<JvmObjectReference> s_jvmBroadcastVariables =
-            new List<JvmObjectReference>();
+        private static ThreadLocal<List<JvmObjectReference>> s_jvmBroadcastVariables = 
+            new ThreadLocal<List<JvmObjectReference>>(() => new List<JvmObjectReference>());
 
         /// <summary>
         /// Adds a JVMObjectReference object of type <see cref="Broadcast{T}"/> to the list.
         /// </summary>
         /// <param name="broadcastJvmObject">JVMObjectReference of the Broadcast variable</param>
         internal static void Add(JvmObjectReference broadcastJvmObject) =>
-            s_jvmBroadcastVariables.Add(broadcastJvmObject);
+            s_jvmBroadcastVariables.Value.Add(broadcastJvmObject);
 
         /// <summary>
         /// Clears s_jvmBroadcastVariables of all the JVMObjectReference objects of type
         /// <see cref="Broadcast{T}"/>.
         /// </summary>
-        internal static void Clear() => s_jvmBroadcastVariables.Clear();
+        internal static void Clear() => s_jvmBroadcastVariables.Value.Clear();
 
         /// <summary>
         /// Returns the static member s_jvmBroadcastVariables.
         /// </summary>
         /// <returns>A list of all broadcast objects of type <see cref="JvmObjectReference"/></returns>
-        internal static List<JvmObjectReference> GetAll() => s_jvmBroadcastVariables;
+        internal static List<JvmObjectReference> GetAll() => s_jvmBroadcastVariables.Value;
     }
 }
-

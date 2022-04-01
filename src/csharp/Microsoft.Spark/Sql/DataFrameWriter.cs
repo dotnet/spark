@@ -14,11 +14,9 @@ namespace Microsoft.Spark.Sql
     /// </summary>
     public sealed class DataFrameWriter : IJvmObjectReferenceProvider
     {
-        private readonly JvmObjectReference _jvmObject;
+        internal DataFrameWriter(JvmObjectReference jvmObject) => Reference = jvmObject;
 
-        internal DataFrameWriter(JvmObjectReference jvmObject) => _jvmObject = jvmObject;
-
-        JvmObjectReference IJvmObjectReferenceProvider.Reference => _jvmObject;
+        public JvmObjectReference Reference { get; private set; }
 
         /// <summary>
         /// Specifies the behavior when data or table already exists.
@@ -48,7 +46,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriter object</returns>
         public DataFrameWriter Mode(string saveMode)
         {
-            _jvmObject.Invoke("mode", saveMode);
+            Reference.Invoke("mode", saveMode);
             return this;
         }
 
@@ -60,7 +58,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriter object</returns>
         public DataFrameWriter Format(string source)
         {
-            _jvmObject.Invoke("format", source);
+            Reference.Invoke("format", source);
             return this;
         }
 
@@ -115,7 +113,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriter object</returns>
         public DataFrameWriter Options(Dictionary<string, string> options)
         {
-            _jvmObject.Invoke("options", options);
+            Reference.Invoke("options", options);
             return this;
         }
 
@@ -127,7 +125,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriter object</returns>
         public DataFrameWriter PartitionBy(params string[] colNames)
         {
-            _jvmObject.Invoke("partitionBy", (object)colNames);
+            Reference.Invoke("partitionBy", (object)colNames);
             return this;
         }
 
@@ -144,7 +142,7 @@ namespace Microsoft.Spark.Sql
             string colName,
             params string[] colNames)
         {
-            _jvmObject.Invoke("bucketBy", numBuckets, colName, colNames);
+            Reference.Invoke("bucketBy", numBuckets, colName, colNames);
             return this;
         }
 
@@ -156,7 +154,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriter object</returns>
         public DataFrameWriter SortBy(string colName, params string[] colNames)
         {
-            _jvmObject.Invoke("sortBy", colName, colNames);
+            Reference.Invoke("sortBy", colName, colNames);
             return this;
         }
 
@@ -164,25 +162,25 @@ namespace Microsoft.Spark.Sql
         /// Saves the content of the DataFrame at the specified path.
         /// </summary>
         /// <param name="path">Path to save the content</param>
-        public void Save(string path) => _jvmObject.Invoke("save", path);
+        public void Save(string path) => Reference.Invoke("save", path);
 
         /// <summary>
         /// Saves the content of the DataFrame as the specified table.
         /// </summary>
-        public void Save() => _jvmObject.Invoke("save");
+        public void Save() => Reference.Invoke("save");
 
         /// <summary>
         /// Inserts the content of the DataFrame to the specified table. It requires that
         /// the schema of the DataFrame is the same as the schema of the table.
         /// </summary>
         /// <param name="tableName">Name of the table</param>
-        public void InsertInto(string tableName) => _jvmObject.Invoke("insertInto", tableName);
+        public void InsertInto(string tableName) => Reference.Invoke("insertInto", tableName);
 
         /// <summary>
         /// Saves the content of the DataFrame as the specified table.
         /// </summary>
         /// <param name="tableName">Name of the table</param>
-        public void SaveAsTable(string tableName) => _jvmObject.Invoke("saveAsTable", tableName);
+        public void SaveAsTable(string tableName) => Reference.Invoke("saveAsTable", tableName);
 
         /// <summary>
         /// Saves the content of the DataFrame to a external database table via JDBC
@@ -192,38 +190,38 @@ namespace Microsoft.Spark.Sql
         /// <param name="properties">JDBC database connection arguments</param>
         public void Jdbc(string url, string table, Dictionary<string, string> properties)
         {
-            _jvmObject.Invoke("jdbc", url, table, new Properties(_jvmObject.Jvm, properties));
+            Reference.Invoke("jdbc", url, table, new Properties(Reference.Jvm, properties));
         }
 
         /// <summary>
         /// Saves the content of the DataFrame in JSON format at the specified path.
         /// </summary>
         /// <param name="path">Path to save the content</param>
-        public void Json(string path) => _jvmObject.Invoke("json", path);
+        public void Json(string path) => Reference.Invoke("json", path);
 
         /// <summary>
         /// Saves the content of the DataFrame in Parquet format at the specified path.
         /// </summary>
         /// <param name="path">Path to save the content</param>
-        public void Parquet(string path) => _jvmObject.Invoke("parquet", path);
+        public void Parquet(string path) => Reference.Invoke("parquet", path);
 
         /// <summary>
         /// Saves the content of the DataFrame in ORC format at the specified path.
         /// </summary>
         /// <param name="path">Path to save the content</param>
-        public void Orc(string path) => _jvmObject.Invoke("orc", path);
+        public void Orc(string path) => Reference.Invoke("orc", path);
 
         /// <summary>
         /// Saves the content of the DataFrame in a text file at the specified path.
         /// </summary>
         /// <param name="path">Path to save the content</param>
-        public void Text(string path) => _jvmObject.Invoke("text", path);
+        public void Text(string path) => Reference.Invoke("text", path);
 
         /// <summary>
         /// Saves the content of the DataFrame in CSV format at the specified path.
         /// </summary>
         /// <param name="path">Path to save the content</param>
-        public void Csv(string path) => _jvmObject.Invoke("csv", path);
+        public void Csv(string path) => Reference.Invoke("csv", path);
 
         /// <summary>
         /// Helper function to add given key/value pair as a new option.
@@ -233,7 +231,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>This DataFrameWriter object</returns>
         private DataFrameWriter OptionInternal(string key, object value)
         {
-            _jvmObject.Invoke("option", key, value);
+            Reference.Invoke("option", key, value);
             return this;
         }
     }

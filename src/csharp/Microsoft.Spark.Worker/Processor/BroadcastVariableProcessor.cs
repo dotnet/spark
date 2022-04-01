@@ -3,9 +3,12 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Network;
 
 namespace Microsoft.Spark.Worker.Processor
 {
@@ -25,19 +28,23 @@ namespace Microsoft.Spark.Worker.Processor
         internal BroadcastVariables Process(Stream stream)
         {
             var broadcastVars = new BroadcastVariables();
+            ISocketWrapper socket = null;
 
-            if (_version >= new Version(Versions.V2_3_2))
-            {
-                broadcastVars.DecryptionServerNeeded = SerDe.ReadBool(stream);
-            }
-
+            broadcastVars.DecryptionServerNeeded = SerDe.ReadBool(stream);
             broadcastVars.Count = Math.Max(SerDe.ReadInt32(stream), 0);
 
             if (broadcastVars.DecryptionServerNeeded)
             {
                 broadcastVars.DecryptionServerPort = SerDe.ReadInt32(stream);
                 broadcastVars.Secret = SerDe.ReadString(stream);
-                // TODO: Handle the authentication.
+                if (broadcastVars.Count > 0)
+                {
+                    socket = SocketFactory.CreateSocket();
+                    socket.Connect(
+                        IPAddress.Loopback,
+                        broadcastVars.DecryptionServerPort,
+                        broadcastVars.Secret);
+                }
             }
 
             var formatter = new BinaryFormatter();
@@ -48,13 +55,21 @@ namespace Microsoft.Spark.Worker.Processor
                 {
                     if (broadcastVars.DecryptionServerNeeded)
                     {
-                        throw new NotImplementedException(
-                            "broadcastDecryptionServer is not implemented.");
+                        long readBid = SerDe.ReadInt64(socket.InputStream);
+                        if (bid != readBid)
+                        {
+                            throw new Exception("The Broadcast Id received from the encryption " +
+                                $"server {readBid} is different from the Broadcast Id received " +
+                                $"from the payload {bid}.");
+                        }
+                        object value = formatter.Deserialize(socket.InputStream);
+                        BroadcastRegistry.Add(bid, value);
                     }
                     else
                     {
                         string path = SerDe.ReadString(stream);
-                        using FileStream fStream = File.Open(path, FileMode.Open, FileAccess.Read);
+                        using FileStream fStream = 
+                            File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
                         object value = formatter.Deserialize(fStream);
                         BroadcastRegistry.Add(bid, value);
                     }
@@ -65,6 +80,7 @@ namespace Microsoft.Spark.Worker.Processor
                     BroadcastRegistry.Remove(bid);
                 }
             }
+            socket?.Dispose();
             return broadcastVars;
         }
     }

@@ -4,10 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Catalog;
 using Microsoft.Spark.Sql.Types;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
@@ -25,12 +23,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// The purpose of this test is to ensure that JVM calls can be successfully made.
         /// Note that this is not testing functionality of each function.
         /// </summary>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             //////////////////////////////
             // Basic Functions
@@ -207,6 +205,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(Map());
             Assert.IsType<Column>(Map(col));
             Assert.IsType<Column>(Map(col, col));
+
+            Assert.IsType<Column>(MapFromArrays(col, col));
 
             DataFrame df = _spark
                 .Read()
@@ -516,6 +516,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(Minute(col));
 
             Assert.IsType<Column>(MonthsBetween(col, col));
+            Assert.IsType<Column>(MonthsBetween(col, col, false));
 
             Assert.IsType<Column>(NextDay(col, "Mon"));
 
@@ -544,8 +545,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             {
                 // The following APIs are deprecated in Spark 3.0.
                 Assert.IsType<Column>(FromUtcTimestamp(col, "GMT+1"));
+                Assert.IsType<Column>(FromUtcTimestamp(col, col));
 
                 Assert.IsType<Column>(ToUtcTimestamp(col, "GMT+1"));
+                Assert.IsType<Column>(ToUtcTimestamp(col, col));
             }
 
             Assert.IsType<Column>(Window(col, "1 minute", "10 seconds", "5 seconds"));
@@ -558,9 +561,32 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(ArrayContains(col, 12345));
             Assert.IsType<Column>(ArrayContains(col, "str"));
 
+            Assert.IsType<Column>(ArraysOverlap(col, col));
+
+            Assert.IsType<Column>(Slice(col, 0, 4));
+
+            Assert.IsType<Column>(ArrayJoin(col, ":", "replacement"));
+            Assert.IsType<Column>(ArrayJoin(col, ":"));
+
             Assert.IsType<Column>(Concat());
             Assert.IsType<Column>(Concat(col));
             Assert.IsType<Column>(Concat(col, col));
+
+            Assert.IsType<Column>(ArrayPosition(col, 1));
+
+            Assert.IsType<Column>(ElementAt(col, 1));
+
+            Assert.IsType<Column>(ArraySort(col));
+
+            Assert.IsType<Column>(ArrayRemove(col, "elementToRemove"));
+
+            Assert.IsType<Column>(ArrayDistinct(col));
+
+            Assert.IsType<Column>(ArrayIntersect(col, col));
+
+            Assert.IsType<Column>(ArrayUnion(col, col));
+
+            Assert.IsType<Column>(ArrayExcept(col, col));
 
             Assert.IsType<Column>(Explode(col));
 
@@ -576,9 +602,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(JsonTuple(col, "a", "b"));
 
             var options = new Dictionary<string, string>() { { "hello", "world" } };
+            Column schema = SchemaOfJson("[{\"col\":0}]");
 
             Assert.IsType<Column>(FromJson(col, "a Int"));
             Assert.IsType<Column>(FromJson(col, "a Int", options));
+            Assert.IsType<Column>(FromJson(col, schema));
+            Assert.IsType<Column>(FromJson(col, schema, options));
+
+            Assert.IsType<Column>(SchemaOfJson("{}"));
+            Assert.IsType<Column>(SchemaOfJson(col));
 
             Assert.IsType<Column>(ToJson(col));
             Assert.IsType<Column>(ToJson(col, options));
@@ -589,11 +621,35 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(SortArray(col, true));
             Assert.IsType<Column>(SortArray(col, false));
 
+            Assert.IsType<Column>(ArrayMin(col));
+
+            Assert.IsType<Column>(ArrayMax(col));
+
+            Assert.IsType<Column>(Shuffle(col));
+
             Assert.IsType<Column>(Reverse(col));
+
+            Assert.IsType<Column>(Flatten(col));
+
+            Assert.IsType<Column>(Sequence(col, col, col));
+            Assert.IsType<Column>(Sequence(col, col));
+
+            Assert.IsType<Column>(ArrayRepeat(col, col));
+            Assert.IsType<Column>(ArrayRepeat(col, 5));
 
             Assert.IsType<Column>(MapKeys(col));
 
             Assert.IsType<Column>(MapValues(col));
+
+            Assert.IsType<Column>(MapFromEntries(col));
+
+            Assert.IsType<Column>(ArraysZip());
+            Assert.IsType<Column>(ArraysZip(col));
+            Assert.IsType<Column>(ArraysZip(col, col));
+
+            Assert.IsType<Column>(MapConcat());
+            Assert.IsType<Column>(MapConcat(col));
+            Assert.IsType<Column>(MapConcat(col, col));
 
             //////////////////////////////
             // Udf Functions
@@ -668,133 +724,123 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 (arg) => new Dictionary<string, string[]> { { arg, new[] { arg } } });
         }
 
-        [Fact]
-        /// Tests for the Catclog Functions - returned from SparkSession.Catalog
-        public void CatalogFunctions()
-        {
-            Catalog catalog = _spark.Catalog;
-
-            Assert.IsType<DataFrame>(catalog.ListDatabases());
-            Assert.IsType<DataFrame>(catalog.ListFunctions());
-            Assert.IsType<DataFrame>(catalog.ListFunctions("default"));
-
-            DataFrame table = catalog.CreateTable("users",
-                Path.Combine(TestEnvironment.ResourceDirectory, "users.parquet"));
-            Assert.IsType<DataFrame>(table);
-
-            Assert.IsType<string>(catalog.CurrentDatabase());
-            Assert.IsType<bool>(catalog.DatabaseExists("default"));
-
-            Assert.IsType<bool>(catalog.DropGlobalTempView("no-view"));
-            Assert.IsType<bool>(catalog.DropTempView("no-view"));
-            Assert.IsType<bool>(catalog.FunctionExists("default", "functionname"));
-            Assert.IsType<bool>(catalog.FunctionExists("functionname"));
-            Assert.IsType<Database>(catalog.GetDatabase("default"));
-            Assert.IsType<Function>(catalog.GetFunction("abs"));
-            Assert.IsType<Function>(catalog.GetFunction(null, "abs"));
-            Assert.IsType<Table>(catalog.GetTable("users"));
-            Assert.IsType<Table>(catalog.GetTable("default", "users"));
-            Assert.IsType<bool>(catalog.IsCached("users"));
-            Assert.IsType<DataFrame>(catalog.ListColumns("users"));
-            Assert.IsType<DataFrame>(catalog.ListColumns("default", "users"));
-            Assert.IsType<DataFrame>(catalog.ListDatabases());
-            Assert.IsType<DataFrame>(catalog.ListFunctions());
-            Assert.IsType<DataFrame>(catalog.ListFunctions("default"));
-            Assert.IsType<DataFrame>(catalog.ListTables());
-            Assert.IsType<DataFrame>(catalog.ListTables("default"));
-
-            catalog.RefreshByPath("/");
-            catalog.RefreshTable("users");
-            catalog.SetCurrentDatabase("default");
-            catalog.CacheTable("users");
-            catalog.UncacheTable("users");
-            catalog.ClearCache();
-
-            Assert.IsType<bool>(catalog.TableExists("users"));
-            Assert.IsType<bool>(catalog.TableExists("default", "users"));
-
-            _spark.Sql(@"CREATE TABLE IF NOT EXISTS usersp USING PARQUET PARTITIONED BY (name)  
-                            AS SELECT * FROM users");
-            catalog.RecoverPartitions("usersp");
-        }
-
         /// <summary>
-        /// Test signatures for APIs introduced in Spark 2.4.*.
+        /// Test signatures for APIs introduced in Spark 3.0.*.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
-        public void TestSignaturesV2_4_X()
+        [SkipIfSparkVersionIsLessThan(Versions.V3_0_0)]
+        public void TestSignaturesV3_0_X()
         {
             Column col = Column("col");
 
-            col = MapFromArrays(col, col);
+            Assert.IsType<Column>(XXHash64());
+            Assert.IsType<Column>(XXHash64(col));
+            Assert.IsType<Column>(XXHash64(col, col));
 
-            col = MonthsBetween(col, col, false);
+            Assert.IsType<Column>(Split(col, "\t", 1));
+            Assert.IsType<Column>(Split(col, "\t", -1));
 
-            if (SparkSettings.Version < new Version(Versions.V3_0_0))
-            {
-                // The following APIs are deprecated in Spark 3.0.
-                col = FromUtcTimestamp(col, col);
+            Assert.IsType<Column>(Overlay(col, col, col));
+            Assert.IsType<Column>(Overlay(col, col, col, col));
 
-                col = ToUtcTimestamp(col, col);
-            }
+            Assert.IsType<Column>(AddMonths(col, col));
 
-            col = ArraysOverlap(col, col);
+            Assert.IsType<Column>(DateAdd(col, col));
 
-            col = Slice(col, 0, 4);
-
-            col = ArrayJoin(col, ":", "replacement");
-            col = ArrayJoin(col, ":");
-
-            col = ArrayPosition(col, 1);
-
-            col = ElementAt(col, 1);
-
-            col = ArraySort(col);
-
-            col = ArrayRemove(col, "elementToRemove");
-
-            col = ArrayDistinct(col);
-
-            col = ArrayIntersect(col, col);
-
-            col = ArrayUnion(col, col);
-
-            col = ArrayExcept(col, col);
+            Assert.IsType<Column>(DateSub(col, col));
 
             var options = new Dictionary<string, string>() { { "hello", "world" } };
-            Column schema = SchemaOfJson("[{\"col\":0}]");
+            Assert.IsType<Column>(SchemaOfJson(col, options));
 
-            col = FromJson(col, schema);
-            col = FromJson(col, schema, options);
+            Assert.IsType<Column>(MapEntries(col));
 
-            col = SchemaOfJson("{}");
-            col = SchemaOfJson(col);
+            Column schemaCol = SchemaOfCsv("[{\"col\":0}]");
+            Assert.IsType<Column>(FromCsv(col, schemaCol, options));
 
-            col = ArrayMin(col);
+            Assert.IsType<Column>(SchemaOfCsv(col));
+            Assert.IsType<Column>(SchemaOfCsv(col, options));
 
-            col = ArrayMax(col);
+            Assert.IsType<Column>(ToCsv(col));
+            Assert.IsType<Column>(ToCsv(col, options));
 
-            col = Shuffle(col);
+            Assert.IsType<Column>(Years(col));
 
-            col = Reverse(col);
+            Assert.IsType<Column>(Months(col));
 
-            col = Flatten(col);
+            Assert.IsType<Column>(Days(col));
 
-            col = Sequence(col, col, col);
-            col = Sequence(col, col);
+            Assert.IsType<Column>(Hours(col));
 
-            col = ArrayRepeat(col, col);
-            col = ArrayRepeat(col, 5);
+            Assert.IsType<Column>(Bucket(Lit(1), col));
+            Assert.IsType<Column>(Bucket(1, col));
+        }
 
-            col = MapFromEntries(col);
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.1.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_1_0)]
+        public void TestSignaturesV3_1_X()
+        {
+            Column col = Column("col");
 
-            col = ArraysZip();
-            col = ArraysZip(col);
-            col = ArraysZip(col, col);
+            Assert.IsType<Column>(PercentileApprox(col, col, col));
 
-            col = MapConcat();
-            col = MapConcat(col);
-            col = MapConcat(col, col);
+            Assert.IsType<Column>(NthValue(col, 0));
+            Assert.IsType<Column>(NthValue(col, 0, true));
+
+            Assert.IsType<Column>(Acosh(col));
+            Assert.IsType<Column>(Acosh("col"));
+
+            Assert.IsType<Column>(Asinh(col));
+            Assert.IsType<Column>(Asinh("col"));
+
+            Assert.IsType<Column>(Atanh(col));
+            Assert.IsType<Column>(Atanh("col"));
+
+            Assert.IsType<Column>(AssertTrue(col));
+            Assert.IsType<Column>(AssertTrue(col, col));
+
+            Assert.IsType<Column>(RaiseError(col));
+
+            Assert.IsType<Column>(TimestampSeconds(col));
+
+            Assert.IsType<Column>(Slice(col, col, col));
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.2.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_2_0)]
+        public void TestSignaturesV3_2_X()
+        {
+            Column col = Column("col");
+
+            Assert.IsType<Column>(Count_Distinct(col, col, col));
+
+            Assert.IsType<Column>(Product(col));
+
+            Assert.IsType<Column>(Sum_Distinct(col));
+
+            Assert.IsType<Column>(Lag(col, 2, null, true));
+
+            Assert.IsType<Column>(Lead(col, 2, null, true));
+
+            Assert.IsType<Column>(Bitwise_Not(col));
+
+            Assert.IsType<Column>(Shiftleft(col, 2));
+
+            Assert.IsType<Column>(Shiftright(col, 2));
+
+            Assert.IsType<Column>(Shiftrightunsigned(col, 2));
+
+            Assert.IsType<Column>(Sentences(col, col, col));
+            Assert.IsType<Column>(Sentences(col));
+
+            Assert.IsType<Column>(NextDay(col, col));
+
+            Assert.IsType<Column>(Session_Window(col, "5 seconds"));
+            Assert.IsType<Column>(Session_Window(col, col));
+
+            Assert.IsType<Column>(Call_UDF("name", col, col));
         }
     }
 }

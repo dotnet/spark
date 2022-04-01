@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Xunit;
@@ -21,21 +22,23 @@ namespace Microsoft.Spark.E2ETest.UdfTests
         public UdfSimpleTypesTests(SparkFixture fixture)
         {
             _spark = fixture.Spark;
-            var data = new List<GenericRow>();
-            data.Add(new GenericRow(
-                new object[]
-                {
-                    null,
-                    new Date(2020, 1, 1),
-                    new Timestamp(2020, 1, 1, 0, 0, 0, 0)
-                }));
-            data.Add(new GenericRow(
-                new object[]
-                {
-                    30,
-                    new Date(2020, 1, 2),
-                    new Timestamp(2020, 1, 2, 15, 30, 30, 123456)
-                }));
+            var data = new List<GenericRow>
+            {
+                new GenericRow(
+                    new object[]
+                    {
+                        null,
+                        new Date(2020, 1, 1),
+                        new Timestamp(2020, 1, 1, 0, 0, 0, 0)
+                    }),
+                new GenericRow(
+                    new object[]
+                    {
+                        30,
+                        new Date(2020, 1, 2),
+                        new Timestamp(2020, 1, 2, 15, 30, 30, 123456)
+                    })
+            };
             var schema = new StructType(new List<StructField>()
                 {
                     new StructField("age", new IntegerType()),
@@ -115,11 +118,45 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
             var expected = new string[]
             {
-                "2020-01-01 00:00:00.000000",
-                "2020-01-02 15:30:30.123456"
+                "2020-01-01 00:00:00.000000Z",
+                "2020-01-02 15:30:30.123456Z"
             };
             string[] rowsToArray = rows.Select(x => x[0].ToString()).ToArray();
             Assert.Equal(expected, rowsToArray);
+        }
+
+        /// <summary>
+        /// UDF that returns a timestamp string.
+        /// </summary>
+        [Fact]
+        public void TestUdfWithDuplicateTimestamps()
+        {
+            var timestamp = new Timestamp(2020, 1, 1, 0, 0, 0, 0);
+            var schema = new StructType(new StructField[]
+            {
+                new StructField("ts", new TimestampType())
+            });
+            var data = new GenericRow[]
+            {
+                new GenericRow(new object[] { timestamp }),
+                new GenericRow(new object[] { timestamp }),
+                new GenericRow(new object[] { timestamp })
+            };
+
+            var expectedTimestamp = new Timestamp(1970, 1, 2, 0, 0, 0, 0);
+            Func<Column, Column> udf = Udf<Timestamp, Timestamp>(
+                ts => new Timestamp(1970, 1, 2, 0, 0, 0, 0));
+
+            DataFrame df = _spark.CreateDataFrame(data, schema);
+
+            Row[] rows = df.Select(udf(df["ts"])).Collect().ToArray();
+
+            Assert.Equal(3, rows.Length);
+            foreach (Row row in rows)
+            {
+                Assert.Single(row.Values);
+                Assert.Equal(expectedTimestamp, row.Values[0]);
+            }
         }
 
         /// <summary>
@@ -156,14 +193,38 @@ namespace Microsoft.Spark.E2ETest.UdfTests
 
                 var expected = new string[]
                 {
-                    "2020-01-04 15:30:30.123456",
-                    "2050-01-04 15:30:30.123456"
+                    "2020-01-04 15:30:30.123456Z",
+                    "2050-01-04 15:30:30.123456Z"
                 };
                 for (int i = 0; i < rows.Length; ++i)
                 {
                     Assert.Equal(1, rows[i].Size());
                     Assert.Equal(expected[i], rows[i].GetAs<string>(0));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Test to validate UDFs defined in separate threads work.
+        /// </summary>
+        [Fact]
+        public void TestUdfWithMultipleThreads()
+        {
+            try
+            {
+                static void DefineUdf() => Udf<string, string>(str => str);
+
+                // Define a UDF in the main thread.
+                Udf<string, string>(str => str);
+
+                // Verify a UDF can be defined in a separate thread.
+                Thread t = new Thread(DefineUdf);
+                t.Start();
+                t.Join();
+            }
+            catch (Exception)
+            {
+                Assert.True(false);
             }
         }
     }

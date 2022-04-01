@@ -12,6 +12,7 @@ using Microsoft.Spark.Sql.Streaming;
 using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
+using static Microsoft.Spark.E2ETest.Utils.SQLUtils;
 using static Microsoft.Spark.Sql.Functions;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
@@ -27,10 +28,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         /// <summary>
-        /// Test signatures for APIs up to Spark 2.3.*.
+        /// Test signatures for APIs up to Spark 2.4.*.
         /// </summary>
         [Fact]
-        public void TestSignaturesV2_3_X()
+        public void TestSignaturesV2_4_X()
         {
             DataFrame df = _spark
                 .ReadStream()
@@ -65,6 +66,94 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<DataStreamWriter>(dsw.QueryName("queryName"));
 
             Assert.IsType<DataStreamWriter>(dsw.Trigger(Trigger.Once()));
+        }
+
+        /// <summary>
+        /// Test signatures for APIs introduced in Spark 3.1.*.
+        /// </summary>
+        [SkipIfSparkVersionIsLessThan(Versions.V3_1_0)]
+        public void TestSignaturesV3_1_X()
+        {
+            string tableName = "output_table";
+            WithTable(
+                _spark,
+                new string[] { tableName },
+                () =>
+                {
+                    using var tempDirectory = new TemporaryDirectory();
+                    var intMemoryStream = new MemoryStream<int>(_spark);
+                    DataStreamWriter dsw = intMemoryStream
+                        .ToDF()
+                        .WriteStream()
+                        .Format("parquet")
+                        .Option("checkpointLocation", tempDirectory.Path);
+
+                    StreamingQuery sq = dsw.ToTable(tableName);
+                    sq.Stop();
+                });
+        }
+
+        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
+        public void TestForeachBatch()
+        {
+            // Temporary folder to put our test stream input.
+            using var srcTempDirectory = new TemporaryDirectory();
+            // Temporary folder to write ForeachBatch output.
+            using var dstTempDirectory = new TemporaryDirectory();
+
+            Func<Column, Column> outerUdf = Udf<int, int>(i => i + 100);
+
+            // id column: [0, 1, ..., 9]
+            WriteCsv(0, 10, Path.Combine(srcTempDirectory.Path, "input1.csv"));
+
+            DataStreamWriter dsw = _spark
+                .ReadStream()
+                .Schema("id INT")
+                .Csv(srcTempDirectory.Path)
+                .WriteStream()
+                .ForeachBatch((df, id) =>
+                {
+                    Func<Column, Column> innerUdf = Udf<int, int>(i => i + 200);
+                    df.Select(outerUdf(innerUdf(Col("id"))))
+                        .Write()
+                        .Csv(Path.Combine(dstTempDirectory.Path, id.ToString()));
+                });
+
+            StreamingQuery sq = dsw.Start();
+
+            // Process until all available data in the source has been processed and committed
+            // to the ForeachBatch sink. 
+            sq.ProcessAllAvailable();
+
+            // Add new file to the source path. The spark stream will read any new files
+            // added to the source path.
+            // id column: [10, 11, ..., 19]
+            WriteCsv(10, 10, Path.Combine(srcTempDirectory.Path, "input2.csv"));
+
+            // Process until all available data in the source has been processed and committed
+            // to the ForeachBatch sink.
+            sq.ProcessAllAvailable();
+            sq.Stop();
+
+            // Verify folders in the destination path.
+            string[] csvPaths =
+                Directory.GetDirectories(dstTempDirectory.Path).OrderBy(s => s).ToArray();
+            var expectedPaths = new string[]
+            {
+                Path.Combine(dstTempDirectory.Path, "0"),
+                Path.Combine(dstTempDirectory.Path, "1"),
+            };
+            Assert.True(expectedPaths.SequenceEqual(csvPaths));
+
+            // Read the generated csv paths and verify contents.
+            DataFrame df = _spark
+                .Read()
+                .Schema("id INT")
+                .Csv(csvPaths[0], csvPaths[1])
+                .Sort("id");
+
+            IEnumerable<int> actualIds = df.Collect().Select(r => r.GetAs<int>("id"));
+            Assert.True(Enumerable.Range(300, 20).SequenceEqual(actualIds));
         }
 
         [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
@@ -198,6 +287,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.Equal(
                 expectedOutput.Select(i => new object[] { i }),
                 foreachWriterOutputDF.Collect().Select(r => r.Values));
+        }
+
+        private void WriteCsv(int start, int count, string path)
+        {
+            using var streamWriter = new StreamWriter(path);
+            foreach (int i in Enumerable.Range(start, count))
+            {
+                streamWriter.WriteLine(i);
+            }
         }
 
         [Serializable]
