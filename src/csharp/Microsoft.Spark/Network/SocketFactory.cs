@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Net;
+
 namespace Microsoft.Spark.Network
 {
     /// <summary>
@@ -18,6 +20,11 @@ namespace Microsoft.Spark.Network
         public static ISocketWrapper CreateSocket()
         {
             return new DefaultSocketWrapper();
+        }
+
+        public static ISocketWrapper CreateSocket(IPAddress ip)
+        {
+            return new DefaultSocketWrapper(ip);
         }
     }
 }

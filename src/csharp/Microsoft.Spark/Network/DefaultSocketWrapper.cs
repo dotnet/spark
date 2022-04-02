@@ -27,10 +27,10 @@ namespace Microsoft.Spark.Network
         /// 
         /// This socket is bound to provided IP address with port 0.
         /// </summary>
-        public DefaultSocketWrapper() :
+        public DefaultSocketWrapper(IPAddress ipAddress) :
             this(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
         {
-            _innerSocket.Bind(new IPEndPoint(IPAddress.Any, 0));
+            _innerSocket.Bind(new IPEndPoint(ipAddress, 0));
         }
 
         /// <summary>

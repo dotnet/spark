@@ -34,7 +34,7 @@ class DotnetBackend extends Logging {
   @volatile
   private[dotnet] var callbackClient: Option[CallbackClient] = None
 
-  def init(portNumber: Int): Int = {
+  def init(ipAddress: String, portNumber: Int): Int = {
     val conf = Option(SparkEnv.get).map(_.conf).getOrElse(new SparkConf())
     val numBackendThreads = conf.get(DOTNET_NUM_BACKEND_THREADS)
     logInfo(s"The number of DotnetBackend threads is set to $numBackendThreads.")

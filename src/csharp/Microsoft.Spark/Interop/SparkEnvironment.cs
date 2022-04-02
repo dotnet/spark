@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Net;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Services;
 
@@ -70,8 +71,9 @@ namespace Microsoft.Spark.Interop
         {
             get
             {
+                IPEndPoint jvmBackendEndPoint = ConfigurationService.GetBackendIPEndpoint();
                 return s_jvmBridge ??=
-                    JvmBridgeFactory.Create(ConfigurationService.GetBackendPortNumber());
+                    JvmBridgeFactory.Create(jvmBackendEndPoint.Address, jvmBackendEndPoint.Port);
             }
             set
             {

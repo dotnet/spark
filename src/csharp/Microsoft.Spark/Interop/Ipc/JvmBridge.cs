@@ -41,17 +41,22 @@ namespace Microsoft.Spark.Interop.Ipc
             new ConcurrentQueue<ISocketWrapper>();
         private readonly ILoggerService _logger =
             LoggerServiceFactory.GetLogger(typeof(JvmBridge));
+        private readonly IPAddress _ipAddress;
         private readonly int _portNumber;
         private readonly JvmThreadPoolGC _jvmThreadPoolGC;
         private readonly bool _isRunningRepl;
 
-        internal JvmBridge(int portNumber)
+        internal JvmBridge(int portNumber): this(IPAddress.Loopback, portNumber)
+        {
+        }
+
+        internal JvmBridge(IPAddress ipAddress, int portNumber)
         {
             if (portNumber == 0)
             {
                 throw new Exception("Port number is not set.");
             }
-
+            _ipAddress = ipAddress;
             _portNumber = portNumber;
             _logger.LogInfo($"JvMBridge port is {portNumber}");
 
@@ -85,7 +90,7 @@ namespace Microsoft.Spark.Interop.Ipc
             {
                 IPEndPoint dotnetBackendIPEndpoint = SparkEnvironment.ConfigurationService.GetBackendIPEndpoint();
                 socket = SocketFactory.CreateSocket();
-                socket.Connect(dotnetBackendIPEndpoint.Address, dotnetBackendIPEndpoint.Port);
+                socket.Connect(_ipAddress, _portNumber);
             }
 
             return socket;

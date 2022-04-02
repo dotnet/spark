@@ -849,7 +849,8 @@ namespace Microsoft.Spark.Sql
                     Reference.Invoke("toPythonIterator", prefetchPartitions),
                     true);
             using ISocketWrapper socket = SocketFactory.CreateSocket();
-            socket.Connect(IPAddress.Loopback, port, secret);
+            IPEndPoint dotnetBackendIPEndpoint = SparkEnvironment.ConfigurationService.GetBackendIPEndpoint();
+            socket.Connect(dotnetBackendIPEndpoint.Address, port, secret);
             foreach (Row row in new RowCollector().Collect(socket, server))
             {
                 yield return row;
