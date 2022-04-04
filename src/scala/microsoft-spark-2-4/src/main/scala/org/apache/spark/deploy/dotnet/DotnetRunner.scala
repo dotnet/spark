@@ -14,7 +14,6 @@ import java.util.Locale
 import java.util.concurrent.{Semaphore, TimeUnit}
 
 import org.apache.commons.io.FilenameUtils
-import org.apache.commons.validator.routines.InetAddressValidator
 import org.apache.hadoop.fs.Path
 import org.apache.spark
 import org.apache.spark.api.dotnet.DotnetBackend
