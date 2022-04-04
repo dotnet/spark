@@ -19,7 +19,7 @@ namespace Microsoft.Spark.Network
         /// </returns>
         public static ISocketWrapper CreateSocket()
         {
-            return new DefaultSocketWrapper();
+            return new DefaultSocketWrapper(IPAddress.Loopback);
         }
 
         public static ISocketWrapper CreateSocket(IPAddress ip)
