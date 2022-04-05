@@ -7,6 +7,7 @@
 package org.apache.spark.internal.config.dotnet
 
 import org.apache.spark.internal.config.ConfigBuilder
+import org.apache.spark.network.util.ByteUnit
 
 private[spark] object Dotnet {
   val DOTNET_NUM_BACKEND_THREADS = ConfigBuilder("spark.dotnet.numDotnetBackendThreads").intConf
@@ -15,4 +16,14 @@ private[spark] object Dotnet {
   val DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK =
     ConfigBuilder("spark.dotnet.ignoreSparkPatchVersionCheck").booleanConf
       .createWithDefault(false)
+
+  val ERROR_REDIRECITON_ENABLED =
+    ConfigBuilder("spark.impulse.error.classification.enabled").booleanConf
+      .createWithDefault(false)
+
+  val ERROR_BUFFER_SIZE =
+    ConfigBuilder("spark.impulse.error.buffer.size")
+      .bytesConf(ByteUnit.BYTE)
+      .checkValue(_ >= 0, "The error buffer size must not be negative")
+      .createWithDefault(10240)
 }
