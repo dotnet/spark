@@ -58,7 +58,7 @@ namespace Microsoft.Spark.Interop.Ipc
             }
             _ipAddress = ipAddress;
             _portNumber = portNumber;
-            _logger.LogInfo($"JvMBridge port is {portNumber}");
+            _logger.LogInfo($"JvMBridge IP is {_ipAddress} port is {_portNumber}");
 
             _jvmThreadPoolGC = new JvmThreadPoolGC(
                 _logger, this, SparkEnvironment.ConfigurationService.JvmThreadGCInterval, _processId);
