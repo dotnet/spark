@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
@@ -11,7 +10,7 @@ using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class FeatureHasher: ScalaTransformer, ScalaMLWritable, ScalaMLReadable<FeatureHasher>
+    public class FeatureHasher: ScalaTransformer, IScalaMLWritable, IScalaMLReadable<FeatureHasher>
     {
         private static readonly string s_featureHasherClassName = 
             "org.apache.spark.ml.feature.FeatureHasher";

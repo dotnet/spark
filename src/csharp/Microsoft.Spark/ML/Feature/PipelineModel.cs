@@ -3,19 +3,15 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Linq;
-using System.Reflection;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql;
-using Microsoft.Spark.Interop.Internal.Java.Util;
 
 namespace Microsoft.Spark.ML.Feature
 {
     /// <summary>
     /// <see cref="PipelineModel"/> Represents a fitted pipeline.
     /// </summary>
-    public class PipelineModel : ScalaModel<PipelineModel>, ScalaMLWritable, ScalaMLReadable<PipelineModel>
+    public class PipelineModel : ScalaModel<PipelineModel>, IScalaMLWritable, IScalaMLReadable<PipelineModel>
     {
         private static readonly string s_pipelineModelClassName = "org.apache.spark.ml.PipelineModel";
 
@@ -27,7 +23,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="stages">Stages for the PipelineModel.</param>
         public PipelineModel(string uid, ScalaTransformer[] stages)
             : this(SparkEnvironment.JvmBridge.CallConstructor(
-                s_pipelineModelClassName, uid, stages.ToArrayList()))
+                s_pipelineModelClassName, uid, stages.ToJavaArrayList()))
         {
         }
 

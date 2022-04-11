@@ -13,7 +13,7 @@ namespace Microsoft.Spark.ML.Feature
     /// <summary>
     /// A <see cref="StopWordsRemover"/> feature transformer that filters out stop words from input.
     /// </summary>
-    public class StopWordsRemover : ScalaTransformer, ScalaMLWritable, ScalaMLReadable<StopWordsRemover>
+    public class StopWordsRemover : ScalaTransformer, IScalaMLWritable, IScalaMLReadable<StopWordsRemover>
     {
         private static readonly string s_stopWordsRemoverClassName =
             "org.apache.spark.ml.feature.StopWordsRemover";

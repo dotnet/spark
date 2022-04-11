@@ -2,12 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
@@ -19,7 +16,7 @@ namespace Microsoft.Spark.ML.Feature
     /// power of two as the numFeatures parameter; otherwise the features will not be mapped evenly
     /// to the columns.
     /// </summary>
-    public class HashingTF : ScalaTransformer, ScalaMLWritable, ScalaMLReadable<HashingTF>
+    public class HashingTF : ScalaTransformer, IScalaMLWritable, IScalaMLReadable<HashingTF>
     {
         private static readonly string s_hashingTfClassName = 
             "org.apache.spark.ml.feature.HashingTF";

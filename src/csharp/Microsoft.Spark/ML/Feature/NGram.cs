@@ -14,7 +14,7 @@ namespace Microsoft.Spark.ML.Feature
     /// an array of n-grams. Null values in the input array are ignored. It returns an array
     /// of n-grams where each n-gram is represented by a space-separated string of words.
     /// </summary>
-    public class NGram : ScalaTransformer, ScalaMLWritable, ScalaMLReadable<NGram>
+    public class NGram : ScalaTransformer, IScalaMLWritable, IScalaMLReadable<NGram>
     {
         private static readonly string s_nGramClassName =
             "org.apache.spark.ml.feature.NGram";

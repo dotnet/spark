@@ -8,7 +8,7 @@ using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class CountVectorizer : ScalaEstimator<CountVectorizerModel>, ScalaMLWritable, ScalaMLReadable<CountVectorizer>
+    public class CountVectorizer : ScalaEstimator<CountVectorizerModel>, IScalaMLWritable, IScalaMLReadable<CountVectorizer>
     {
         private static readonly string s_countVectorizerClassName = 
             "org.apache.spark.ml.feature.CountVectorizer";

@@ -2,10 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
-using System.Linq;
-using System.Reflection;
-using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 
@@ -62,7 +58,7 @@ namespace Microsoft.Spark.ML.Feature
     /// <summary>
     /// Interface for classes that provide ScalaMLWriter.
     /// </summary>
-    public interface ScalaMLWritable
+    public interface IScalaMLWritable
     {
         /// <summary>
         /// Get the corresponding ScalaMLWriter instance.

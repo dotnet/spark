@@ -18,8 +18,9 @@ namespace System
         /// array of type T to java.util.ArrayList.
         /// </summary>
         /// <param name="array">an array instance</param>
+        /// <typeparam name="T">elements type of param array</typeparam>
         /// <returns><see cref="ArrayList"/></returns>
-        internal static ArrayList ToArrayList<T>(this T[] array)
+        internal static ArrayList ToJavaArrayList<T>(this T[] array)
         {
             var arrayList = new ArrayList(SparkEnvironment.JvmBridge);
             foreach (T item in array)

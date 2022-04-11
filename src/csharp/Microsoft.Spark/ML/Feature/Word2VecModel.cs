@@ -8,7 +8,7 @@ using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class Word2VecModel : ScalaModel<Word2VecModel>, ScalaMLWritable, ScalaMLReadable<Word2VecModel>
+    public class Word2VecModel : ScalaModel<Word2VecModel>, IScalaMLWritable, IScalaMLReadable<Word2VecModel>
     {
         private static readonly string s_word2VecModelClassName = 
             "org.apache.spark.ml.feature.Word2VecModel";

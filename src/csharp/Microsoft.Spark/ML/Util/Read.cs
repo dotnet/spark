@@ -56,7 +56,7 @@ namespace Microsoft.Spark.ML.Feature
     /// <typeparam name="T">
     /// ML instance type
     /// </typeparam>
-    public interface ScalaMLReadable<T>
+    public interface IScalaMLReadable<T>
     {
         /// <summary>
         /// Get the corresponding ScalaMLReader instance.

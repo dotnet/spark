@@ -17,7 +17,7 @@ namespace Microsoft.Spark.ML.Feature
     /// of documents (controlled by the variable minDocFreq). For terms that are not in at least
     /// minDocFreq documents, the IDF is found as 0, resulting in TF-IDFs of 0.
     /// </summary>
-    public class IDF : ScalaEstimator<IDFModel>, ScalaMLWritable, ScalaMLReadable<IDF>
+    public class IDF : ScalaEstimator<IDFModel>, IScalaMLWritable, IScalaMLReadable<IDF>
     {
         private static readonly string s_IDFClassName = "org.apache.spark.ml.feature.IDF";
         

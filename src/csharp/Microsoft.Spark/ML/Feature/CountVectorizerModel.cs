@@ -10,7 +10,7 @@ using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class CountVectorizerModel : ScalaModel<CountVectorizerModel>, ScalaMLWritable, ScalaMLReadable<CountVectorizerModel>
+    public class CountVectorizerModel : ScalaModel<CountVectorizerModel>, IScalaMLWritable, IScalaMLReadable<CountVectorizerModel>
     {
         private static readonly string s_countVectorizerModelClassName = 
             "org.apache.spark.ml.feature.CountVectorizerModel";

@@ -12,7 +12,7 @@ namespace Microsoft.Spark.ML.Feature
     /// A <see cref="IDFModel"/> that converts the input string to lowercase and then splits it by
     /// white spaces.
     /// </summary>
-    public class IDFModel : ScalaModel<IDFModel>, ScalaMLWritable, ScalaMLReadable<IDFModel>
+    public class IDFModel : ScalaModel<IDFModel>, IScalaMLWritable, IScalaMLReadable<IDFModel>
     {
         private static readonly string s_IDFModelClassName = 
             "org.apache.spark.ml.feature.IDFModel";

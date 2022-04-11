@@ -13,12 +13,12 @@ namespace System.Collections.Generic
         /// A custom extension method that helps transform from dotnet
         /// Dictionary&lt;string, string&gt; to java.util.HashMap.
         /// </summary>
-        /// <param name="value">a Dictionary instance</param>
+        /// <param name="dictionary">a Dictionary instance</param>
         /// <returns><see cref="HashMap"/></returns>
-        internal static HashMap ToHashMap(this Dictionary<string, string> value)
+        internal static HashMap ToJavaHashMap(this Dictionary<string, string> dictionary)
         {
-            HashMap hashMap = new HashMap(SparkEnvironment.JvmBridge);
-            foreach (KeyValuePair<string, string> item in value)
+            var hashMap = new HashMap(SparkEnvironment.JvmBridge);
+            foreach (KeyValuePair<string, string> item in dictionary)
             {
                 hashMap.Put(item.Key, item.Value);
             }
@@ -29,12 +29,12 @@ namespace System.Collections.Generic
         /// A custom extension method that helps transform from dotnet
         /// Dictionary&lt;string, object&gt; to java.util.HashMap.
         /// </summary>
-        /// <param name="value">a Dictionary instance</param>
+        /// <param name="dictionary">a Dictionary instance</param>
         /// <returns><see cref="HashMap"/></returns>
-        internal static HashMap ToHashMap(this Dictionary<string, object> value)
+        internal static HashMap ToJavaHashMap(this Dictionary<string, object> dictionary)
         {
-            HashMap hashMap = new HashMap(SparkEnvironment.JvmBridge);
-            foreach (KeyValuePair<string, object> item in value)
+            var hashMap = new HashMap(SparkEnvironment.JvmBridge);
+            foreach (KeyValuePair<string, object> item in dictionary)
             {
                 hashMap.Put(item.Key, item.Value);
             }

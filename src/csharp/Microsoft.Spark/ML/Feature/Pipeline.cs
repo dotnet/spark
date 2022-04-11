@@ -3,12 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Interop.Internal.Java.Util;
 
 namespace Microsoft.Spark.ML.Feature
 {
@@ -24,7 +22,7 @@ namespace Microsoft.Spark.ML.Feature
     /// fitted models and transformers, corresponding to the pipeline
     /// stages. If there are no stages, the pipeline acts as an identity transformer.
     /// </summary>
-    public class Pipeline : ScalaEstimator<PipelineModel>, ScalaMLWritable, ScalaMLReadable<Pipeline>
+    public class Pipeline : ScalaEstimator<PipelineModel>, IScalaMLWritable, IScalaMLReadable<Pipeline>
     {
         private static readonly string s_pipelineClassName = "org.apache.spark.ml.Pipeline";
 
@@ -57,8 +55,8 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns><see cref="Pipeline"/> object</returns>
         public Pipeline SetStages(ScalaPipelineStage[] value) =>
             WrapAsPipeline((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "org.apache.spark.api.dotnet.DotnetHelper", "setPipelineStages",
-                Reference, value.ToArrayList()));
+                "org.apache.spark.api.dotnet.MLUtils", "setPipelineStages",
+                Reference, value.ToJavaArrayList()));
 
         /// <summary>
         /// Get the stages of pipeline instance.
@@ -70,7 +68,7 @@ namespace Microsoft.Spark.ML.Feature
             ScalaPipelineStage[] result = new ScalaPipelineStage[jvmObjects.Length];
             for (int i = 0; i < jvmObjects.Length; i++)
             {
-                (string constructorClass, string methodName) = DotnetHelper.GetUnderlyingType(jvmObjects[i]);
+                (string constructorClass, string methodName) = DotnetUtils.GetUnderlyingType(jvmObjects[i]);
                 Type type = Type.GetType(constructorClass);
                 MethodInfo method = type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Static);
                 result[i] = (ScalaPipelineStage)method.Invoke(null, new object[] {jvmObjects[i]});

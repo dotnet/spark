@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Collections.Generic;
 using Microsoft.Spark.Interop.Ipc;
 
 namespace Microsoft.Spark.Interop.Internal.Java.Util
@@ -48,12 +47,12 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
             (bool)Reference.Invoke("containsValue", value);
 
         /// <summary>
-        /// Returns a Set view of the keys contained in this map. 
+        /// Returns an array of the keys contained in this map.
         /// </summary>
         /// <return>An array of object hosting the keys contained in the map</return>
         internal object[] KeySet()
         {
-            JvmObjectReference jvmObject = (JvmObjectReference)Reference.Invoke("keySet");
+            var jvmObject = (JvmObjectReference)Reference.Invoke("keySet");
             var result = (object[])jvmObject.Invoke("toArray");
             return result;
         }

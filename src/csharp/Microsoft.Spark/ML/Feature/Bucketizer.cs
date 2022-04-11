@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Spark.Interop;
@@ -20,7 +19,7 @@ namespace Microsoft.Spark.ML.Feature
     /// will be thrown. The splits parameter is only used for single column usage, and splitsArray
     /// is for multiple columns.
     /// </summary>
-    public class Bucketizer : ScalaModel<Bucketizer>, ScalaMLWritable, ScalaMLReadable<Bucketizer>
+    public class Bucketizer : ScalaModel<Bucketizer>, IScalaMLWritable, IScalaMLReadable<Bucketizer>
     {
         private static readonly string s_bucketizerClassName = 
             "org.apache.spark.ml.feature.Bucketizer";

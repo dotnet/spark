@@ -12,7 +12,7 @@ namespace Microsoft.Spark.ML.Feature
     /// A <see cref="Tokenizer"/> that converts the input string to lowercase and then splits it by
     /// white spaces.
     /// </summary>
-    public class Tokenizer : ScalaTransformer, ScalaMLWritable, ScalaMLReadable<Tokenizer>
+    public class Tokenizer : ScalaTransformer, IScalaMLWritable, IScalaMLReadable<Tokenizer>
     {
         private static readonly string s_tokenizerClassName = 
             "org.apache.spark.ml.feature.Tokenizer";

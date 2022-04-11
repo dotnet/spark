@@ -12,7 +12,7 @@ namespace Microsoft.Spark.ML.Feature
     /// <summary>
     /// <see cref="SQLTransformer"/> implements the transformations which are defined by SQL statement.
     /// </summary>
-    public class SQLTransformer : ScalaTransformer, ScalaMLWritable, ScalaMLReadable<SQLTransformer>
+    public class SQLTransformer : ScalaTransformer, IScalaMLWritable, IScalaMLReadable<SQLTransformer>
     {
         private static readonly string s_sqlTransformerClassName = 
             "org.apache.spark.ml.feature.SQLTransformer";
