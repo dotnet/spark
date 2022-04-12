@@ -10,9 +10,9 @@ namespace Microsoft.Spark.ML.Feature
     /// <summary>
     /// Class for utility classes that can save ML instances in Spark's internal format.
     /// </summary>
-    public class ScalaMLWriter : IJvmObjectReferenceProvider
+    public class JavaMLWriter : IJvmObjectReferenceProvider
     {
-        public ScalaMLWriter(JvmObjectReference jvmObject) => Reference = jvmObject;
+        public JavaMLWriter(JvmObjectReference jvmObject) => Reference = jvmObject;
 
         public JvmObjectReference Reference { get; private set; }
 
@@ -28,7 +28,7 @@ namespace Microsoft.Spark.ML.Feature
         protected void SaveImpl(string path) => Reference.Invoke("saveImpl", path);
 
         /// <summary>Overwrites if the output path already exists.</summary>
-        public ScalaMLWriter Overwrite()
+        public JavaMLWriter Overwrite()
         {
             Reference.Invoke("overwrite");
             return this;
@@ -40,7 +40,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="key">key of the option</param>
         /// <param name="value">value of the option</param>
-        public ScalaMLWriter Option(string key, string value)
+        public JavaMLWriter Option(string key, string value)
         {
             Reference.Invoke("option", key, value);
             return this;
@@ -48,7 +48,7 @@ namespace Microsoft.Spark.ML.Feature
 
         /// <summary>Sets the Spark Session to use for saving/loading.</summary>
         /// <param name="sparkSession">The Spark Session to be set</param>
-        public ScalaMLWriter Session(SparkSession sparkSession)
+        public JavaMLWriter Session(SparkSession sparkSession)
         {
             Reference.Invoke("session", sparkSession);
             return this;
@@ -56,15 +56,15 @@ namespace Microsoft.Spark.ML.Feature
     }
 
     /// <summary>
-    /// Interface for classes that provide ScalaMLWriter.
+    /// Interface for classes that provide JavaMLWriter.
     /// </summary>
-    public interface IScalaMLWritable
+    public interface IJavaMLWritable
     {
         /// <summary>
-        /// Get the corresponding ScalaMLWriter instance.
+        /// Get the corresponding JavaMLWriter instance.
         /// </summary>
-        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
-        ScalaMLWriter Write();
+        /// <returns>a <see cref="JavaMLWriter"/> instance for this ML instance.</returns>
+        JavaMLWriter Write();
 
         /// <summary>Saves this ML instance to the input path</summary>
         /// <param name="path">The path to save the object to</param>

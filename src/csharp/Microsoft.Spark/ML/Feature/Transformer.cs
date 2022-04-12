@@ -8,19 +8,19 @@ using Microsoft.Spark.Interop.Ipc;
 namespace Microsoft.Spark.ML.Feature
 {
     /// <summary>
-    /// <see cref="ScalaTransformer"/> Abstract class for transformers that transform one dataset into another.
+    /// <see cref="JavaTransformer"/> Abstract class for transformers that transform one dataset into another.
     /// </summary>
-    public abstract class ScalaTransformer : ScalaPipelineStage
+    public abstract class JavaTransformer : JavaPipelineStage
     {
-        internal ScalaTransformer(string className) : base(className)
+        internal JavaTransformer(string className) : base(className)
         {
         }
 
-        internal ScalaTransformer(string className, string uid) : base(className, uid)
+        internal JavaTransformer(string className, string uid) : base(className, uid)
         {
         }
 
-        internal ScalaTransformer(JvmObjectReference jvmObject) : base(jvmObject)
+        internal JavaTransformer(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
 

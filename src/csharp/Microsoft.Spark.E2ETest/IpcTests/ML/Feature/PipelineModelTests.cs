@@ -42,7 +42,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .SetHandleInvalid(expectedHandle)
                 .SetSplits(expectedSplits);
 
-            var stages = new ScalaTransformer[] {
+            var stages = new JavaTransformer[] {
                 bucketizer
             };
 

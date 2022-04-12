@@ -50,7 +50,7 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
         /// Returns an array of the keys contained in this map.
         /// </summary>
         /// <return>An array of object hosting the keys contained in the map</return>
-        internal object[] KeySet()
+        internal object[] Keys()
         {
             var jvmObject = (JvmObjectReference)Reference.Invoke("keySet");
             var result = (object[])jvmObject.Invoke("toArray");

@@ -17,10 +17,13 @@ namespace Microsoft.Spark.ML.Feature
     /// of documents (controlled by the variable minDocFreq). For terms that are not in at least
     /// minDocFreq documents, the IDF is found as 0, resulting in TF-IDFs of 0.
     /// </summary>
-    public class IDF : ScalaEstimator<IDFModel>, IScalaMLWritable, IScalaMLReadable<IDF>
+    public class IDF :
+        JavaEstimator<IDFModel>,
+        IJavaMLWritable,
+        IJavaMLReadable<IDF>
     {
         private static readonly string s_IDFClassName = "org.apache.spark.ml.feature.IDF";
-        
+
         /// <summary>
         /// Create a <see cref="IDF"/> without any parameters
         /// </summary>
@@ -36,11 +39,11 @@ namespace Microsoft.Spark.ML.Feature
         public IDF(string uid) : base(s_IDFClassName, uid)
         {
         }
-        
+
         internal IDF(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
-        
+
         /// <summary>
         /// Gets the column that the <see cref="IDF"/> should read from
         /// </summary>
@@ -67,7 +70,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">The name of the new column</param>
         /// <returns>New <see cref="IDF"/> object</returns>
-        public IDF SetOutputCol(string value) => 
+        public IDF SetOutputCol(string value) =>
             WrapAsIDF(Reference.Invoke("setOutputCol", value));
 
         /// <summary>
@@ -81,7 +84,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">int, the minimum of documents a term should appear in</param>
         /// <returns>New <see cref="IDF"/> object</returns>
-        public IDF SetMinDocFreq(int value) => 
+        public IDF SetMinDocFreq(int value) =>
             WrapAsIDF(Reference.Invoke("setMinDocFreq", value));
 
         /// <summary>
@@ -89,7 +92,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="source">The <see cref="DataFrame"/> to fit the model to</param>
         /// <returns>New <see cref="IDFModel"/> object</returns>
-        public override IDFModel Fit(DataFrame source) => 
+        public override IDFModel Fit(DataFrame source) =>
             new IDFModel((JvmObjectReference)Reference.Invoke("fit", source));
 
         /// <summary>
@@ -109,21 +112,21 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="path">The path to save the object to</param>
         public void Save(string path) => Reference.Invoke("save", path);
-        
+
         /// <summary>
-        /// Get the corresponding ScalaMLWriter instance.
+        /// Get the corresponding JavaMLWriter instance.
         /// </summary>
-        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
-        public ScalaMLWriter Write() =>
-            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
-        
+        /// <returns>a <see cref="JavaMLWriter"/> instance for this ML instance.</returns>
+        public JavaMLWriter Write() =>
+            new JavaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+
         /// <summary>
-        /// Get the corresponding ScalaMLReader instance.
+        /// Get the corresponding JavaMLReader instance.
         /// </summary>
-        /// <returns>an <see cref="ScalaMLReader&lt;IDF&gt;"/> instance for this ML instance.</returns>
-        public ScalaMLReader<IDF> Read() =>
-            new ScalaMLReader<IDF>((JvmObjectReference)Reference.Invoke("read"));
- 
+        /// <returns>an <see cref="JavaMLReader&lt;IDF&gt;"/> instance for this ML instance.</returns>
+        public JavaMLReader<IDF> Read() =>
+            new JavaMLReader<IDF>((JvmObjectReference)Reference.Invoke("read"));
+
         private static IDF WrapAsIDF(object obj) => new IDF((JvmObjectReference)obj);
     }
 }

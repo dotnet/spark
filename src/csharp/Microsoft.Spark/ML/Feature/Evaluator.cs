@@ -8,19 +8,19 @@ using Microsoft.Spark.Interop.Ipc;
 namespace Microsoft.Spark.ML.Feature
 {
     /// <summary>
-    /// <see cref="ScalaEvaluator"/> Abstract Class for evaluators that compute metrics from predictions.
+    /// <see cref="JavaEvaluator"/> Abstract Class for evaluators that compute metrics from predictions.
     /// </summary>
-    public abstract class ScalaEvaluator : Params
+    public abstract class JavaEvaluator : Params
     {
-        internal ScalaEvaluator(string className) : base(className)
+        internal JavaEvaluator(string className) : base(className)
         {
         }
 
-        internal ScalaEvaluator(string className, string uid) : base(className, uid)
+        internal JavaEvaluator(string className, string uid) : base(className, uid)
         {
         }
 
-        internal ScalaEvaluator(JvmObjectReference jvmObject) : base(jvmObject)
+        internal JavaEvaluator(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
 

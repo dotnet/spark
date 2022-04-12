@@ -8,11 +8,14 @@ using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class CountVectorizer : ScalaEstimator<CountVectorizerModel>, IScalaMLWritable, IScalaMLReadable<CountVectorizer>
+    public class CountVectorizer :
+        JavaEstimator<CountVectorizerModel>,
+        IJavaMLWritable,
+        IJavaMLReadable<CountVectorizer>
     {
-        private static readonly string s_countVectorizerClassName = 
+        private static readonly string s_countVectorizerClassName =
             "org.apache.spark.ml.feature.CountVectorizer";
-        
+
         /// <summary>
         /// Creates a <see cref="CountVectorizer"/> without any parameters.
         /// </summary>
@@ -28,7 +31,7 @@ namespace Microsoft.Spark.ML.Feature
         public CountVectorizer(string uid) : base(s_countVectorizerClassName, uid)
         {
         }
-        
+
         internal CountVectorizer(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
@@ -36,7 +39,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>Fits a model to the input data.</summary>
         /// <param name="dataFrame">The <see cref="DataFrame"/> to fit the model to.</param>
         /// <returns><see cref="CountVectorizerModel"/></returns>
-        public override CountVectorizerModel Fit(DataFrame dataFrame) => 
+        public override CountVectorizerModel Fit(DataFrame dataFrame) =>
             new CountVectorizerModel((JvmObjectReference)Reference.Invoke("fit", dataFrame));
 
         /// <summary>
@@ -49,8 +52,8 @@ namespace Microsoft.Spark.ML.Feature
         public static CountVectorizer Load(string path) =>
             WrapAsCountVectorizer((JvmObjectReference)
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_countVectorizerClassName,"load", path));
-        
+                    s_countVectorizerClassName, "load", path));
+
         /// <summary>
         /// Gets the binary toggle to control the output vector values. If True, all nonzero counts
         /// (after minTF filter applied) are set to 1. This is useful for discrete probabilistic
@@ -58,7 +61,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <returns>boolean</returns>
         public bool GetBinary() => (bool)Reference.Invoke("getBinary");
-        
+
         /// <summary>
         /// Sets the binary toggle to control the output vector values. If True, all nonzero counts
         /// (after minTF filter applied) are set to 1. This is useful for discrete probabilistic
@@ -75,7 +78,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <returns>The input column of type string</returns>
         public string GetInputCol() => (string)Reference.Invoke("getInputCol");
-        
+
         /// <summary>
         /// Sets the column that the <see cref="CountVectorizer"/> should read from.
         /// </summary>
@@ -83,14 +86,14 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns><see cref="CountVectorizer"/> with the input column set</returns>
         public CountVectorizer SetInputCol(string value) =>
             WrapAsCountVectorizer((JvmObjectReference)Reference.Invoke("setInputCol", value));
-        
+
         /// <summary>
         /// Gets the name of the new column the <see cref="CountVectorizer"/> creates in the
         /// DataFrame.
         /// </summary>
         /// <returns>The name of the output column.</returns>
         public string GetOutputCol() => (string)Reference.Invoke("getOutputCol");
-        
+
         /// <summary>
         /// Sets the name of the new column the <see cref="CountVectorizer"/> creates in the
         /// DataFrame.
@@ -99,7 +102,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>New <see cref="CountVectorizer"/> with the output column set</returns>
         public CountVectorizer SetOutputCol(string value) =>
             WrapAsCountVectorizer((JvmObjectReference)Reference.Invoke("setOutputCol", value));
-        
+
         /// <summary>
         /// Gets the maximum number of different documents a term could appear in to be included in
         /// the vocabulary. A term that appears more than the threshold will be ignored. If this is
@@ -123,7 +126,7 @@ namespace Microsoft.Spark.ML.Feature
         [Since(Versions.V2_4_0)]
         public CountVectorizer SetMaxDF(double value) =>
             WrapAsCountVectorizer((JvmObjectReference)Reference.Invoke("setMaxDF", value));
-        
+
         /// <summary>
         /// Gets the minimum number of different documents a term must appear in to be included in
         /// the vocabulary. If this is an integer greater than or equal to 1, this specifies the
@@ -132,7 +135,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <returns>The minimum document term frequency</returns>
         public double GetMinDF() => (double)Reference.Invoke("getMinDF");
-        
+
         /// <summary>
         /// Sets the minimum number of different documents a term must appear in to be included in
         /// the vocabulary. If this is an integer greater than or equal to 1, this specifies the
@@ -143,7 +146,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>New <see cref="CountVectorizer"/> with the min df value set</returns>
         public CountVectorizer SetMinDF(double value) =>
             WrapAsCountVectorizer((JvmObjectReference)Reference.Invoke("setMinDF", value));
-        
+
         /// <summary>
         /// Gets the filter to ignore rare words in a document. For each document, terms with
         /// frequency/count less than the given threshold are ignored. If this is an integer
@@ -171,7 +174,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>New <see cref="CountVectorizer"/> with the min term frequency set</returns>
         public CountVectorizer SetMinTF(double value) =>
             WrapAsCountVectorizer((JvmObjectReference)Reference.Invoke("setMinTF", value));
-        
+
         /// <summary>
         /// Gets the max size of the vocabulary. <see cref="CountVectorizer"/> will build a
         /// vocabulary that only considers the top vocabSize terms ordered by term frequency across
@@ -179,7 +182,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <returns>The max size of the vocabulary of type int.</returns>
         public int GetVocabSize() => (int)Reference.Invoke("getVocabSize");
-        
+
         /// <summary>
         /// Sets the max size of the vocabulary. <see cref="CountVectorizer"/> will build a
         /// vocabulary that only considers the top vocabSize terms ordered by term frequency across
@@ -187,31 +190,31 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">The max vocabulary size</param>
         /// <returns><see cref="CountVectorizer"/> with the max vocab value set</returns>
-        public CountVectorizer SetVocabSize(int value) => 
+        public CountVectorizer SetVocabSize(int value) =>
             WrapAsCountVectorizer(Reference.Invoke("setVocabSize", value));
-        
+
         /// <summary>
         /// Saves the object so that it can be loaded later using Load. Note that these objects
         /// can be shared with Scala by Loading or Saving in Scala.
         /// </summary>
         /// <param name="path">The path to save the object to</param>
         public void Save(string path) => Reference.Invoke("save", path);
-        
+
         /// <summary>
-        /// Get the corresponding ScalaMLWriter instance.
+        /// Get the corresponding JavaMLWriter instance.
         /// </summary>
-        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
-        public ScalaMLWriter Write() =>
-            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
-        
+        /// <returns>a <see cref="JavaMLWriter"/> instance for this ML instance.</returns>
+        public JavaMLWriter Write() =>
+            new JavaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+
         /// <summary>
-        /// Get the corresponding ScalaMLReader instance.
+        /// Get the corresponding JavaMLReader instance.
         /// </summary>
-        /// <returns>an <see cref="ScalaMLReader&lt;CountVectorizer&gt;"/> instance for this ML instance.</returns>
-        public ScalaMLReader<CountVectorizer> Read() =>
-            new ScalaMLReader<CountVectorizer>((JvmObjectReference)Reference.Invoke("read"));
-        
-        private static CountVectorizer WrapAsCountVectorizer(object obj) => 
+        /// <returns>an <see cref="JavaMLReader&lt;CountVectorizer&gt;"/> instance for this ML instance.</returns>
+        public JavaMLReader<CountVectorizer> Read() =>
+            new JavaMLReader<CountVectorizer>((JvmObjectReference)Reference.Invoke("read"));
+
+        private static CountVectorizer WrapAsCountVectorizer(object obj) =>
             new CountVectorizer((JvmObjectReference)obj);
     }
 }

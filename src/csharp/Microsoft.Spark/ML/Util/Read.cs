@@ -13,9 +13,9 @@ namespace Microsoft.Spark.ML.Feature
     /// Class for utility classes that can load ML instances.
     /// </summary>
     /// <typeparam name="T">ML instance type</typeparam>
-    public class ScalaMLReader<T> : IJvmObjectReferenceProvider
+    public class JavaMLReader<T> : IJvmObjectReferenceProvider
     {
-        public ScalaMLReader(JvmObjectReference jvmObject) => Reference = jvmObject;
+        public JavaMLReader(JvmObjectReference jvmObject) => Reference = jvmObject;
 
         public JvmObjectReference Reference { get; private set; }
 
@@ -29,7 +29,7 @@ namespace Microsoft.Spark.ML.Feature
 
         /// <summary>Sets the Spark Session to use for saving/loading.</summary>
         /// <param name="sparkSession">The Spark Session to be set</param>
-        public ScalaMLReader<T> Session(SparkSession sparkSession)
+        public JavaMLReader<T> Session(SparkSession sparkSession)
         {
             Reference.Invoke("session", sparkSession);
             return this;
@@ -56,12 +56,12 @@ namespace Microsoft.Spark.ML.Feature
     /// <typeparam name="T">
     /// ML instance type
     /// </typeparam>
-    public interface IScalaMLReadable<T>
+    public interface IJavaMLReadable<T>
     {
         /// <summary>
-        /// Get the corresponding ScalaMLReader instance.
+        /// Get the corresponding JavaMLReader instance.
         /// </summary>
-        /// <returns>an <see cref="ScalaMLReader&lt;T&gt;"/> instance for this ML instance.</returns>
-        ScalaMLReader<T> Read();
+        /// <returns>an <see cref="JavaMLReader&lt;T&gt;"/> instance for this ML instance.</returns>
+        JavaMLReader<T> Read();
     }
 }

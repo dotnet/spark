@@ -29,14 +29,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestPipeline()
         {
-            var stages = new ScalaPipelineStage[] {
+            var stages = new JavaPipelineStage[] {
                 new Bucketizer(),
                 new CountVectorizer()
             };
 
             Pipeline pipeline = new Pipeline()
                 .SetStages(stages);
-            ScalaPipelineStage[] returnStages = pipeline.GetStages();
+            JavaPipelineStage[] returnStages = pipeline.GetStages();
             
             Assert.Equal(stages[0].Uid(), returnStages[0].Uid());
             Assert.Equal(stages[0].ToString(), returnStages[0].ToString());
@@ -78,7 +78,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .SetMinTF(minTf)
                 .SetVocabSize(vocabSize);
 
-            var stages = new ScalaPipelineStage[] {
+            var stages = new JavaPipelineStage[] {
                 countVectorizer
             };
 

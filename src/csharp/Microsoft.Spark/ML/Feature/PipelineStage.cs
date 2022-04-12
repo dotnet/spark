@@ -9,19 +9,19 @@ using Microsoft.Spark.Interop.Ipc;
 namespace Microsoft.Spark.ML.Feature
 {
     /// <summary>
-    /// <see cref="ScalaPipelineStage"/> A stage in a pipeline, either an Estimator or a Transformer.
+    /// <see cref="JavaPipelineStage"/> A stage in a pipeline, either an Estimator or a Transformer.
     /// </summary>
-    public abstract class ScalaPipelineStage : Params
+    public abstract class JavaPipelineStage : Params
     {
-        internal ScalaPipelineStage(string className) : base(className)
+        internal JavaPipelineStage(string className) : base(className)
         {
         }
 
-        internal ScalaPipelineStage(string className, string uid) : base(className, uid)
+        internal JavaPipelineStage(string className, string uid) : base(className, uid)
         {
         }
 
-        internal ScalaPipelineStage(JvmObjectReference jvmObject) : base(jvmObject)
+        internal JavaPipelineStage(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
 

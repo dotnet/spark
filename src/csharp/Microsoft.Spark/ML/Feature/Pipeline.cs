@@ -10,7 +10,6 @@ using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.ML.Feature
 {
-
     /// <summary>
     /// <see cref="Pipeline"/> A simple pipeline, which acts as an estimator. 
     /// A Pipeline consists of a sequence of stages, each of which is either an Estimator or a Transformer.
@@ -22,7 +21,10 @@ namespace Microsoft.Spark.ML.Feature
     /// fitted models and transformers, corresponding to the pipeline
     /// stages. If there are no stages, the pipeline acts as an identity transformer.
     /// </summary>
-    public class Pipeline : ScalaEstimator<PipelineModel>, IScalaMLWritable, IScalaMLReadable<Pipeline>
+    public class Pipeline :
+        JavaEstimator<PipelineModel>,
+        IJavaMLWritable,
+        IJavaMLReadable<Pipeline>
     {
         private static readonly string s_pipelineClassName = "org.apache.spark.ml.Pipeline";
 
@@ -53,7 +55,7 @@ namespace Microsoft.Spark.ML.Feature
         /// A sequence of stages, each of which is either an Estimator or a Transformer.
         /// </param>
         /// <returns><see cref="Pipeline"/> object</returns>
-        public Pipeline SetStages(ScalaPipelineStage[] value) =>
+        public Pipeline SetStages(JavaPipelineStage[] value) =>
             WrapAsPipeline((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 "org.apache.spark.api.dotnet.MLUtils", "setPipelineStages",
                 Reference, value.ToJavaArrayList()));
@@ -61,17 +63,17 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>
         /// Get the stages of pipeline instance.
         /// </summary>
-        /// <returns>A sequence of <see cref="ScalaPipelineStage"/> stages</returns>
-        public ScalaPipelineStage[] GetStages()
+        /// <returns>A sequence of <see cref="JavaPipelineStage"/> stages</returns>
+        public JavaPipelineStage[] GetStages()
         {
             JvmObjectReference[] jvmObjects = (JvmObjectReference[])Reference.Invoke("getStages");
-            ScalaPipelineStage[] result = new ScalaPipelineStage[jvmObjects.Length];
+            JavaPipelineStage[] result = new JavaPipelineStage[jvmObjects.Length];
             for (int i = 0; i < jvmObjects.Length; i++)
             {
                 (string constructorClass, string methodName) = DotnetUtils.GetUnderlyingType(jvmObjects[i]);
                 Type type = Type.GetType(constructorClass);
                 MethodInfo method = type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Static);
-                result[i] = (ScalaPipelineStage)method.Invoke(null, new object[] {jvmObjects[i]});
+                result[i] = (JavaPipelineStage)method.Invoke(null, new object[] { jvmObjects[i] });
             }
             return result;
         }
@@ -99,21 +101,20 @@ namespace Microsoft.Spark.ML.Feature
         public void Save(string path) => Reference.Invoke("save", path);
 
         /// <summary>
-        /// Get the corresponding ScalaMLWriter instance.
+        /// Get the corresponding JavaMLWriter instance.
         /// </summary>
-        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
-        public ScalaMLWriter Write() =>
-            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+        /// <returns>a <see cref="JavaMLWriter"/> instance for this ML instance.</returns>
+        public JavaMLWriter Write() =>
+            new JavaMLWriter((JvmObjectReference)Reference.Invoke("write"));
 
         /// <summary>
-        /// Get the corresponding ScalaMLReader instance.
+        /// Get the corresponding JavaMLReader instance.
         /// </summary>
-        /// <returns>an <see cref="ScalaMLReader&lt;Pipeline&gt;"/> instance for this ML instance.</returns>
-        public ScalaMLReader<Pipeline> Read() =>
-            new ScalaMLReader<Pipeline>((JvmObjectReference)Reference.Invoke("read"));
+        /// <returns>an <see cref="JavaMLReader&lt;Pipeline&gt;"/> instance for this ML instance.</returns>
+        public JavaMLReader<Pipeline> Read() =>
+            new JavaMLReader<Pipeline>((JvmObjectReference)Reference.Invoke("read"));
 
         private static Pipeline WrapAsPipeline(object obj) =>
             new Pipeline((JvmObjectReference)obj);
     }
-
 }

@@ -8,7 +8,7 @@ using Microsoft.Spark.Interop.Ipc;
 namespace Microsoft.Spark.ML.Feature
 {
     /// <summary>
-    /// A helper interface for ScalaEstimator, so that when we have an array of ScalaEstimators
+    /// A helper interface for JavaEstimator, so that when we have an array of JavaEstimators
     /// with different type params, we can hold all of them with Estimator&lt;object&gt;.
     /// </summary>
     public interface IEstimator<out M>
@@ -20,17 +20,17 @@ namespace Microsoft.Spark.ML.Feature
     /// Abstract Class for estimators that fit models to data.
     /// </summary>
     /// <typeparam name="M"/>
-    public abstract class ScalaEstimator<M> : ScalaPipelineStage, IEstimator<M> where M : ScalaModel<M>
+    public abstract class JavaEstimator<M> : JavaPipelineStage, IEstimator<M> where M : JavaModel<M>
     {
-        internal ScalaEstimator(string className) : base(className)
+        internal JavaEstimator(string className) : base(className)
         {
         }
 
-        internal ScalaEstimator(string className, string uid) : base(className, uid)
+        internal JavaEstimator(string className, string uid) : base(className, uid)
         {
         }
 
-        internal ScalaEstimator(JvmObjectReference jvmObject) : base(jvmObject)
+        internal JavaEstimator(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
 

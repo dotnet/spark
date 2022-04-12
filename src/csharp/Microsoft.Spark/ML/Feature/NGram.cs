@@ -14,7 +14,10 @@ namespace Microsoft.Spark.ML.Feature
     /// an array of n-grams. Null values in the input array are ignored. It returns an array
     /// of n-grams where each n-gram is represented by a space-separated string of words.
     /// </summary>
-    public class NGram : ScalaTransformer, IScalaMLWritable, IScalaMLReadable<NGram>
+    public class NGram :
+        JavaTransformer,
+        IJavaMLWritable,
+        IJavaMLReadable<NGram>
     {
         private static readonly string s_nGramClassName =
             "org.apache.spark.ml.feature.NGram";
@@ -123,27 +126,27 @@ namespace Microsoft.Spark.ML.Feature
                     s_nGramClassName,
                     "load",
                     path));
-        
+
         /// <summary>
         /// Saves the object so that it can be loaded later using Load. Note that these objects
         /// can be shared with Scala by Loading or Saving in Scala.
         /// </summary>
         /// <param name="path">The path to save the object to</param>
         public void Save(string path) => Reference.Invoke("save", path);
-        
+
         /// <summary>
-        /// Get the corresponding ScalaMLWriter instance.
+        /// Get the corresponding JavaMLWriter instance.
         /// </summary>
-        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
-        public ScalaMLWriter Write() =>
-            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
-        
+        /// <returns>a <see cref="JavaMLWriter"/> instance for this ML instance.</returns>
+        public JavaMLWriter Write() =>
+            new JavaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+
         /// <summary>
-        /// Get the corresponding ScalaMLReader instance.
+        /// Get the corresponding JavaMLReader instance.
         /// </summary>
-        /// <returns>an <see cref="ScalaMLReader&lt;NGram&gt;"/> instance for this ML instance.</returns>
-        public ScalaMLReader<NGram> Read() =>
-            new ScalaMLReader<NGram>((JvmObjectReference)Reference.Invoke("read"));
+        /// <returns>an <see cref="JavaMLReader&lt;NGram&gt;"/> instance for this ML instance.</returns>
+        public JavaMLReader<NGram> Read() =>
+            new JavaMLReader<NGram>((JvmObjectReference)Reference.Invoke("read"));
 
         private static NGram WrapAsNGram(object obj) => new NGram((JvmObjectReference)obj);
     }

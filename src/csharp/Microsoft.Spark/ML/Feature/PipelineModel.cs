@@ -11,7 +11,10 @@ namespace Microsoft.Spark.ML.Feature
     /// <summary>
     /// <see cref="PipelineModel"/> Represents a fitted pipeline.
     /// </summary>
-    public class PipelineModel : ScalaModel<PipelineModel>, IScalaMLWritable, IScalaMLReadable<PipelineModel>
+    public class PipelineModel :
+        JavaModel<PipelineModel>,
+        IJavaMLWritable,
+        IJavaMLReadable<PipelineModel>
     {
         private static readonly string s_pipelineModelClassName = "org.apache.spark.ml.PipelineModel";
 
@@ -21,7 +24,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
         /// <param name="stages">Stages for the PipelineModel.</param>
-        public PipelineModel(string uid, ScalaTransformer[] stages)
+        public PipelineModel(string uid, JavaTransformer[] stages)
             : this(SparkEnvironment.JvmBridge.CallConstructor(
                 s_pipelineModelClassName, uid, stages.ToJavaArrayList()))
         {
@@ -47,18 +50,18 @@ namespace Microsoft.Spark.ML.Feature
         public void Save(string path) => Reference.Invoke("save", path);
 
         /// <summary>
-        /// Get the corresponding ScalaMLWriter instance.
+        /// Get the corresponding JavaMLWriter instance.
         /// </summary>
-        /// <returns>a <see cref="ScalaMLWriter"/> instance for this ML instance.</returns>
-        public ScalaMLWriter Write() =>
-            new ScalaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+        /// <returns>a <see cref="JavaMLWriter"/> instance for this ML instance.</returns>
+        public JavaMLWriter Write() =>
+            new JavaMLWriter((JvmObjectReference)Reference.Invoke("write"));
 
         /// <summary>
-        /// Get the corresponding ScalaMLReader instance.
+        /// Get the corresponding JavaMLReader instance.
         /// </summary>
-        /// <returns>an <see cref="ScalaMLReader&lt;PipelineModel&gt;"/> instance for this ML instance.</returns>
-        public ScalaMLReader<PipelineModel> Read() =>
-            new ScalaMLReader<PipelineModel>((JvmObjectReference)Reference.Invoke("read"));
+        /// <returns>an <see cref="JavaMLReader&lt;PipelineModel&gt;"/> instance for this ML instance.</returns>
+        public JavaMLReader<PipelineModel> Read() =>
+            new JavaMLReader<PipelineModel>((JvmObjectReference)Reference.Invoke("read"));
 
         private static PipelineModel WrapAsPipelineModel(object obj) =>
             new PipelineModel((JvmObjectReference)obj);

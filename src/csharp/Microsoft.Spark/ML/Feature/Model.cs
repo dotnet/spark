@@ -7,7 +7,7 @@ using Microsoft.Spark.Interop.Ipc;
 namespace Microsoft.Spark.ML.Feature
 {
     /// <summary>
-    /// A helper interface for ScalaModel, so that when we have an array of ScalaModels
+    /// A helper interface for JavaModel, so that when we have an array of JavaModels
     /// with different type params, we can hold all of them with Model&lt;object&gt;.
     /// </summary>
     public interface IModel<out M>
@@ -21,26 +21,26 @@ namespace Microsoft.Spark.ML.Feature
     /// <typeparam name="M">
     /// Model Type.
     /// </typeparam>
-    public abstract class ScalaModel<M> : ScalaTransformer, IModel<M> where M : ScalaModel<M>
+    public abstract class JavaModel<M> : JavaTransformer, IModel<M> where M : JavaModel<M>
     {
-        internal ScalaModel(string className) : base(className)
+        internal JavaModel(string className) : base(className)
         {
         }
 
-        internal ScalaModel(string className, string uid) : base(className, uid)
+        internal JavaModel(string className, string uid) : base(className, uid)
         {
         }
 
-        internal ScalaModel(JvmObjectReference jvmObject) : base(jvmObject)
+        internal JavaModel(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
 
         /// <summary>
         /// Sets the parent of this model.
         /// </summary>
-        /// <param name="parent">The parent of the ScalaModel to be set</param>
+        /// <param name="parent">The parent of the JavaModel to be set</param>
         /// <returns>type parameter M</returns>
-        public M SetParent(ScalaEstimator<M> parent) =>
+        public M SetParent(JavaEstimator<M> parent) =>
             WrapAsType<M>((JvmObjectReference)Reference.Invoke("setParent", parent));
 
         /// <summary>
