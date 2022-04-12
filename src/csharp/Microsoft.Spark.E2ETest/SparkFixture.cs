@@ -84,6 +84,7 @@ namespace Microsoft.Spark.E2ETest
             };
 
             _process.Start();
+            _process.BeginErrorReadLine();
             _process.BeginOutputReadLine();
 
             bool processExited = false;
@@ -192,6 +193,12 @@ namespace Microsoft.Spark.E2ETest
                 Path.Combine(_tempDirectory.Path, "spark-warehouse")).AbsoluteUri;
             string warehouseDir = $"--conf spark.sql.warehouse.dir={warehouseUri}";
 
+            // Spark24 < 2.4.8, Spark30 < 3.0.3 and Spark31 < 3.1.2 use bintray as the repository
+            // service for spark-packages. As of  May 1st, 2021 bintray has been sunset and is no
+            // longer available. Specify additional remote repositories to search for the maven
+            // coordinates given with --packages.
+            string repositories = "--repositories https://repos.spark-packages.org/";
+
             string extraArgs = Environment.GetEnvironmentVariable(
                 EnvironmentVariableNames.ExtraSparkSubmitArgs) ?? "";
 
@@ -205,7 +212,8 @@ namespace Microsoft.Spark.E2ETest
             string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
 
-            args = $"{logOption} {warehouseDir} {AddPackages(extraArgs)} {classArg} --master local {jar} debug";
+            args = $"{logOption} {warehouseDir} {AddPackages(extraArgs)} {repositories} {classArg} " +
+                $"--master local {jar} debug";
         }
 
         private string GetJarPrefix()
