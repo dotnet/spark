@@ -57,7 +57,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns><see cref="Pipeline"/> object</returns>
         public Pipeline SetStages(JavaPipelineStage[] value) =>
             WrapAsPipeline((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "org.apache.spark.api.dotnet.MLUtils", "setPipelineStages",
+                "org.apache.spark.mllib.api.dotnet.MLUtils", "setPipelineStages",
                 Reference, value.ToJavaArrayList()));
 
         /// <summary>
