@@ -18,11 +18,11 @@ private[spark] object Dotnet {
       .createWithDefault(false)
 
   val ERROR_REDIRECITON_ENABLED =
-    ConfigBuilder("spark.impulse.error.classification.enabled").booleanConf
+    ConfigBuilder("spark.nonjvm.error.forwarding.enabled").booleanConf
       .createWithDefault(false)
 
   val ERROR_BUFFER_SIZE =
-    ConfigBuilder("spark.impulse.error.buffer.size")
+    ConfigBuilder("spark.nonjvm.error.buffer.size")
       .bytesConf(ByteUnit.BYTE)
       .checkValue(_ >= 0, "The error buffer size must not be negative")
       .createWithDefault(10240)
