@@ -5,7 +5,7 @@
  * See the LICENSE file in the project root for more information.
  */
 
-package org.apache.spark.api.dotnet
+package org.apache.spark.mllib.api.dotnet
 
 import org.apache.spark.ml._
 import scala.collection.JavaConverters._

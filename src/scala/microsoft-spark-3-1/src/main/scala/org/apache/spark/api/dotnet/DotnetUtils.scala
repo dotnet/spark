@@ -6,7 +6,6 @@
 
 package org.apache.spark.api.dotnet
 
-import org.apache.spark.ml._
 import scala.collection.JavaConverters._
 
 /** DotnetUtils object that hosts some helper functions
