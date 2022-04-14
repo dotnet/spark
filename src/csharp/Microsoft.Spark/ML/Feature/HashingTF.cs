@@ -2,12 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
@@ -19,9 +16,12 @@ namespace Microsoft.Spark.ML.Feature
     /// power of two as the numFeatures parameter; otherwise the features will not be mapped evenly
     /// to the columns.
     /// </summary>
-    public class HashingTF : FeatureBase<HashingTF>
+    public class HashingTF :
+        JavaTransformer,
+        IJavaMLWritable,
+        IJavaMLReadable<HashingTF>
     {
-        private static readonly string s_hashingTfClassName = 
+        private static readonly string s_hashingTfClassName =
             "org.apache.spark.ml.feature.HashingTF";
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Microsoft.Spark.ML.Feature
         public HashingTF(string uid) : base(s_hashingTfClassName, uid)
         {
         }
-        
+
         internal HashingTF(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
@@ -66,7 +66,7 @@ namespace Microsoft.Spark.ML.Feature
         /// models that model binary events rather than integer counts
         ///</summary>
         /// <param name="value">binary toggle, default is false</param>
-        public HashingTF SetBinary(bool value) => 
+        public HashingTF SetBinary(bool value) =>
             WrapAsHashingTF(Reference.Invoke("setBinary", value));
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">The name of the column to as the source</param>
         /// <returns>New <see cref="HashingTF"/> object</returns>
-        public HashingTF SetInputCol(string value) => 
+        public HashingTF SetInputCol(string value) =>
             WrapAsHashingTF(Reference.Invoke("setInputCol", value));
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">The name of the new column</param>
         /// <returns>New <see cref="HashingTF"/> object</returns>
-        public HashingTF SetOutputCol(string value) => 
+        public HashingTF SetOutputCol(string value) =>
             WrapAsHashingTF(Reference.Invoke("setOutputCol", value));
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">int</param>
         /// <returns>New <see cref="HashingTF"/> object</returns>
-        public HashingTF SetNumFeatures(int value) => 
+        public HashingTF SetNumFeatures(int value) =>
             WrapAsHashingTF(Reference.Invoke("setNumFeatures", value));
 
         /// <summary>
@@ -125,10 +125,31 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="source">The <see cref="DataFrame"/> to add the tokens to</param>
         /// <returns><see cref="DataFrame"/> containing the original data and the tokens</returns>
-        public DataFrame Transform(DataFrame source) => 
+        public override DataFrame Transform(DataFrame source) =>
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", source));
 
-        private static HashingTF WrapAsHashingTF(object obj) => 
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+
+        /// <summary>
+        /// Get the corresponding JavaMLWriter instance.
+        /// </summary>
+        /// <returns>a <see cref="JavaMLWriter"/> instance for this ML instance.</returns>
+        public JavaMLWriter Write() =>
+            new JavaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+
+        /// <summary>
+        /// Get the corresponding JavaMLReader instance.
+        /// </summary>
+        /// <returns>an <see cref="JavaMLReader&lt;HashingTF&gt;"/> instance for this ML instance.</returns>
+        public JavaMLReader<HashingTF> Read() =>
+            new JavaMLReader<HashingTF>((JvmObjectReference)Reference.Invoke("read"));
+
+        private static HashingTF WrapAsHashingTF(object obj) =>
             new HashingTF((JvmObjectReference)obj);
     }
 }

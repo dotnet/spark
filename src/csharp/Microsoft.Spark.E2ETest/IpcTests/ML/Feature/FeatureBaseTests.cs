@@ -25,7 +25,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         /// <param name="paramName">The name of a parameter that can be set on this object</param>
         /// <param name="paramValue">A parameter value that can be set on this object</param>
         public void TestFeatureBase(
-            FeatureBase<T> testObject, 
+            Params testObject, 
             string paramName, 
             object paramValue)
         {
@@ -37,8 +37,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Equal(param.Parent, testObject.Uid());
 
             Assert.NotEmpty(testObject.ExplainParam(param));
-            testObject.Set(param, paramValue);
-            Assert.IsAssignableFrom<Identifiable>(testObject.Clear(param));
+            testObject.Set<T>(param, paramValue);
+            Assert.IsAssignableFrom<Identifiable>(testObject.Clear<T>(param));
 
             Assert.IsType<string>(testObject.Uid());
         }

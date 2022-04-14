@@ -8,9 +8,12 @@ using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class Word2VecModel : FeatureBase<Word2VecModel>
+    public class Word2VecModel :
+        JavaModel<Word2VecModel>,
+        IJavaMLWritable,
+        IJavaMLReadable<Word2VecModel>
     {
-        private static readonly string s_word2VecModelClassName = 
+        private static readonly string s_word2VecModelClassName =
             "org.apache.spark.ml.feature.Word2VecModel";
 
         /// <summary>
@@ -28,18 +31,18 @@ namespace Microsoft.Spark.ML.Feature
         public Word2VecModel(string uid) : base(s_word2VecModelClassName, uid)
         {
         }
-        
+
         internal Word2VecModel(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
-        
+
         /// <summary>
         /// Transform a sentence column to a vector column to represent the whole sentence.
         /// </summary>
         /// <param name="documentDF"><see cref="DataFrame"/> to transform</param>
-        public DataFrame Transform(DataFrame documentDF) => 
+        public override DataFrame Transform(DataFrame documentDF) =>
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", documentDF));
-        
+
         /// <summary>
         /// Find <paramref name="num"/> number of words whose vector representation most similar to
         /// the supplied vector. If the supplied vector is the vector representation of a word in
@@ -51,7 +54,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="num">The number of words to find that are similar to "word"</param>
         public DataFrame FindSynonyms(string word, int num) =>
             new DataFrame((JvmObjectReference)Reference.Invoke("findSynonyms", word, num));
-        
+
         /// <summary>
         /// Loads the <see cref="Word2VecModel"/> that was previously saved using Save(string).
         /// </summary>
@@ -62,8 +65,29 @@ namespace Microsoft.Spark.ML.Feature
         public static Word2VecModel Load(string path) => WrapAsWord2VecModel(
             SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                 s_word2VecModelClassName, "load", path));
-        
-        private static Word2VecModel WrapAsWord2VecModel(object obj) => 
+
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+
+        /// <summary>
+        /// Get the corresponding JavaMLWriter instance.
+        /// </summary>
+        /// <returns>a <see cref="JavaMLWriter"/> instance for this ML instance.</returns>
+        public JavaMLWriter Write() =>
+            new JavaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+
+        /// <summary>
+        /// Get the corresponding JavaMLReader instance.
+        /// </summary>
+        /// <returns>an <see cref="JavaMLReader&lt;Word2VecModel&gt;"/> instance for this ML instance.</returns>
+        public JavaMLReader<Word2VecModel> Read() =>
+            new JavaMLReader<Word2VecModel>((JvmObjectReference)Reference.Invoke("read"));
+
+        private static Word2VecModel WrapAsWord2VecModel(object obj) =>
             new Word2VecModel((JvmObjectReference)obj);
     }
 }
