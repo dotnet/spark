@@ -21,7 +21,7 @@ namespace Microsoft.Spark.ML.Feature.Param
         {
         }
 
-        public ParamMap(JvmObjectReference jvmObject) => Reference = jvmObject;
+        internal ParamMap(JvmObjectReference jvmObject) => Reference = jvmObject;
 
         public JvmObjectReference Reference { get; private set; }
 

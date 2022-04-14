@@ -15,7 +15,7 @@ namespace Microsoft.Spark.ML.Feature
     /// <typeparam name="T">ML instance type</typeparam>
     public class JavaMLReader<T> : IJvmObjectReferenceProvider
     {
-        public JavaMLReader(JvmObjectReference jvmObject) => Reference = jvmObject;
+        internal JavaMLReader(JvmObjectReference jvmObject) => Reference = jvmObject;
 
         public JvmObjectReference Reference { get; private set; }
 

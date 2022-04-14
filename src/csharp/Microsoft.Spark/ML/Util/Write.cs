@@ -12,7 +12,7 @@ namespace Microsoft.Spark.ML.Feature
     /// </summary>
     public class JavaMLWriter : IJvmObjectReferenceProvider
     {
-        public JavaMLWriter(JvmObjectReference jvmObject) => Reference = jvmObject;
+        internal JavaMLWriter(JvmObjectReference jvmObject) => Reference = jvmObject;
 
         public JvmObjectReference Reference { get; private set; }
 
