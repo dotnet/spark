@@ -8,9 +8,12 @@ using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class Word2Vec : FeatureBase<Word2Vec>
+    public class Word2Vec :
+        JavaEstimator<Word2VecModel>,
+        IJavaMLWritable,
+        IJavaMLReadable<Word2Vec>
     {
-        private static readonly string s_word2VecClassName = 
+        private static readonly string s_word2VecClassName =
             "org.apache.spark.ml.feature.Word2Vec";
 
         /// <summary>
@@ -28,11 +31,11 @@ namespace Microsoft.Spark.ML.Feature
         public Word2Vec(string uid) : base(s_word2VecClassName, uid)
         {
         }
-        
+
         internal Word2Vec(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
-        
+
         /// <summary>
         /// Gets the column that the <see cref="Word2Vec"/> should read from.
         /// </summary>
@@ -44,7 +47,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">The name of the column to as the source.</param>
         /// <returns><see cref="Word2Vec"/></returns>
-        public Word2Vec SetInputCol(string value) => 
+        public Word2Vec SetInputCol(string value) =>
             WrapAsWord2Vec(Reference.Invoke("setInputCol", value));
 
         /// <summary>
@@ -60,9 +63,9 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">The name of the output column which will be created.</param>
         /// <returns>New <see cref="Word2Vec"/></returns>
-        public Word2Vec SetOutputCol(string value) => 
+        public Word2Vec SetOutputCol(string value) =>
             WrapAsWord2Vec(Reference.Invoke("setOutputCol", value));
-        
+
         /// <summary>
         /// Gets the vector size, the dimension of the code that you want to transform from words.
         /// </summary>
@@ -70,7 +73,7 @@ namespace Microsoft.Spark.ML.Feature
         /// The vector size, the dimension of the code that you want to transform from words.
         /// </returns>
         public int GetVectorSize() => (int)(Reference.Invoke("getVectorSize"));
-        
+
         /// <summary>
         /// Sets the vector size, the dimension of the code that you want to transform from words.
         /// </summary>
@@ -78,7 +81,7 @@ namespace Microsoft.Spark.ML.Feature
         /// The dimension of the code that you want to transform from words.
         /// </param>
         /// <returns><see cref="Word2Vec"/></returns>
-        public Word2Vec SetVectorSize(int value) => 
+        public Word2Vec SetVectorSize(int value) =>
             WrapAsWord2Vec(Reference.Invoke("setVectorSize", value));
 
         /// <summary>
@@ -100,9 +103,9 @@ namespace Microsoft.Spark.ML.Feature
         /// vocabulary, the default is 5.
         /// </param>
         /// <returns><see cref="Word2Vec"/></returns>
-        public virtual Word2Vec SetMinCount(int value) => 
+        public virtual Word2Vec SetMinCount(int value) =>
             WrapAsWord2Vec(Reference.Invoke("setMinCount", value));
-        
+
         /// <summary>Gets the maximum number of iterations.</summary>
         /// <returns>The maximum number of iterations.</returns>
         public int GetMaxIter() => (int)Reference.Invoke("getMaxIter");
@@ -110,14 +113,14 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>Maximum number of iterations (&gt;= 0).</summary>
         /// <param name="value">The number of iterations.</param>
         /// <returns><see cref="Word2Vec"/></returns>
-        public Word2Vec SetMaxIter(int value) => 
+        public Word2Vec SetMaxIter(int value) =>
             WrapAsWord2Vec(Reference.Invoke("setMaxIter", value));
 
         /// <summary>
         /// Gets the maximum length (in words) of each sentence in the input data.
         /// </summary>
         /// <returns>The maximum length (in words) of each sentence in the input data.</returns>
-        public virtual int GetMaxSentenceLength() => 
+        public virtual int GetMaxSentenceLength() =>
             (int)Reference.Invoke("getMaxSentenceLength");
 
         /// <summary>
@@ -127,13 +130,13 @@ namespace Microsoft.Spark.ML.Feature
         /// The maximum length (in words) of each sentence in the input data.
         /// </param>
         /// <returns><see cref="Word2Vec"/></returns>
-        public Word2Vec SetMaxSentenceLength(int value) => 
+        public Word2Vec SetMaxSentenceLength(int value) =>
             WrapAsWord2Vec(Reference.Invoke("setMaxSentenceLength", value));
 
         /// <summary>Gets the number of partitions for sentences of words.</summary>
         /// <returns>The number of partitions for sentences of words.</returns>
         public int GetNumPartitions() => (int)Reference.Invoke("getNumPartitions");
-        
+
         /// <summary>Sets the number of partitions for sentences of words.</summary>
         /// <param name="value">
         /// The number of partitions for sentences of words, default is 1.
@@ -145,7 +148,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>Gets the value that is used for the random seed.</summary>
         /// <returns>The value that is used for the random seed.</returns>
         public long GetSeed() => (long)Reference.Invoke("getSeed");
-        
+
         /// <summary>Random seed.</summary>
         /// <param name="value">The value to use for the random seed.</param>
         /// <returns><see cref="Word2Vec"/></returns>
@@ -155,7 +158,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>Gets the size to be used for each iteration of optimization.</summary>
         /// <returns>The size to be used for each iteration of optimization.</returns>
         public double GetStepSize() => (double)Reference.Invoke("getStepSize");
-        
+
         /// <summary>Step size to be used for each iteration of optimization (&gt; 0).</summary>
         /// <param name="value">Value to use for the step size.</param>
         /// <returns><see cref="Word2Vec"/></returns>
@@ -165,7 +168,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <summary>Gets the window size (context words from [-window, window]).</summary>
         /// <returns>The window size.</returns>
         public int GetWindowSize() => (int)Reference.Invoke("getWindowSize");
-        
+
         /// <summary>The window size (context words from [-window, window]).</summary>
         /// <param name="value">
         /// The window size (context words from [-window, window]), default is 5.
@@ -173,11 +176,11 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns><see cref="Word2Vec"/></returns>
         public Word2Vec SetWindowSize(int value) =>
             WrapAsWord2Vec(Reference.Invoke("setWindowSize", value));
-        
+
         /// <summary>Fits a model to the input data.</summary>
         /// <param name="dataFrame">The <see cref="DataFrame"/> to fit the model to.</param>
         /// <returns><see cref="Word2VecModel"/></returns>
-        public Word2VecModel Fit(DataFrame dataFrame) => 
+        public override Word2VecModel Fit(DataFrame dataFrame) =>
             new Word2VecModel((JvmObjectReference)Reference.Invoke("fit", dataFrame));
 
         /// <summary>
@@ -187,8 +190,29 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>New <see cref="Word2Vec"/> object, loaded from path.</returns>
         public static Word2Vec Load(string path) => WrapAsWord2Vec(
             SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_word2VecClassName, "load", path));
-        
-        private static Word2Vec WrapAsWord2Vec(object obj) => 
+
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+
+        /// <summary>
+        /// Get the corresponding JavaMLWriter instance.
+        /// </summary>
+        /// <returns>a <see cref="JavaMLWriter"/> instance for this ML instance.</returns>
+        public JavaMLWriter Write() =>
+            new JavaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+
+        /// <summary>
+        /// Get the corresponding JavaMLReader instance.
+        /// </summary>
+        /// <returns>an <see cref="JavaMLReader&lt;Word2Vec&gt;"/> instance for this ML instance.</returns>
+        public JavaMLReader<Word2Vec> Read() =>
+            new JavaMLReader<Word2Vec>((JvmObjectReference)Reference.Invoke("read"));
+
+        private static Word2Vec WrapAsWord2Vec(object obj) =>
             new Word2Vec((JvmObjectReference)obj);
     }
 }
