@@ -20,7 +20,6 @@ import org.apache.spark
 import org.apache.spark.api.dotnet.DotnetBackend
 import org.apache.spark.deploy.{PythonRunner, SparkHadoopUtil}
 import org.apache.spark.internal.Logging
-import org.apache.spark.internal.config.ConfigBuilder
 import org.apache.spark.internal.config.dotnet.Dotnet.{DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK,
     ERROR_BUFFER_SIZE, ERROR_REDIRECITON_ENABLED}
 import org.apache.spark.util.dotnet.{Utils => DotnetUtils}
@@ -155,7 +154,8 @@ object DotnetRunner extends Logging {
             stderrBuffer = new CircularBuffer(circularBufferSize)
             val teeOutputStream = new TeeOutputStream(System.out, stderrBuffer)
               // Redirect stdout and stderr of .NET process to System.out and to buffer.
-            new RedirectThread(process.getInputStream, teeOutputStream, "redirect .NET stdout and stderr").start()
+            new RedirectThread(process.getInputStream, teeOutputStream,
+                "redirect .NET stdout and stderr").start()
           } else {
             // Redirect stdout and stderr of .NET process.
             new RedirectThread(process.getInputStream, System.out, "redirect .NET stdout").start()

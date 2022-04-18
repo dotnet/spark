@@ -7,7 +7,6 @@
 package org.apache.spark.internal.config.dotnet
 
 import org.apache.spark.internal.config.ConfigBuilder
-import org.apache.spark.network.util.ByteUnit
 
 private[spark] object Dotnet {
   val DOTNET_NUM_BACKEND_THREADS = ConfigBuilder("spark.dotnet.numDotnetBackendThreads").intConf
@@ -23,7 +22,7 @@ private[spark] object Dotnet {
 
   val ERROR_BUFFER_SIZE =
     ConfigBuilder("spark.nonjvm.error.buffer.size")
-      .bytesConf(ByteUnit.BYTE)
+      .intConf()
       .checkValue(_ >= 0, "The error buffer size must not be negative")
       .createWithDefault(10240)
 }
