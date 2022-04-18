@@ -12,11 +12,14 @@ namespace Microsoft.Spark.ML.Feature
     /// A <see cref="Tokenizer"/> that converts the input string to lowercase and then splits it by
     /// white spaces.
     /// </summary>
-    public class Tokenizer : FeatureBase<Tokenizer>
+    public class Tokenizer :
+        JavaTransformer,
+        IJavaMLWritable,
+        IJavaMLReadable<Tokenizer>
     {
-        private static readonly string s_tokenizerClassName = 
+        private static readonly string s_tokenizerClassName =
             "org.apache.spark.ml.feature.Tokenizer";
-        
+
         /// <summary>
         /// Create a <see cref="Tokenizer"/> without any parameters
         /// </summary>
@@ -32,11 +35,11 @@ namespace Microsoft.Spark.ML.Feature
         public Tokenizer(string uid) : base(s_tokenizerClassName, uid)
         {
         }
-        
+
         internal Tokenizer(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
-                
+
         /// <summary>
         /// Gets the column that the <see cref="Tokenizer"/> should read from
         /// </summary>
@@ -48,7 +51,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">The name of the column to as the source</param>
         /// <returns>New <see cref="Tokenizer"/> object</returns>
-        public Tokenizer SetInputCol(string value) => 
+        public Tokenizer SetInputCol(string value) =>
             WrapAsTokenizer(Reference.Invoke("setInputCol", value));
 
         /// <summary>
@@ -64,7 +67,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">The name of the new column</param>
         /// <returns>New <see cref="Tokenizer"/> object</returns>
-        public Tokenizer SetOutputCol(string value) => 
+        public Tokenizer SetOutputCol(string value) =>
             WrapAsTokenizer(Reference.Invoke("setOutputCol", value));
 
         /// <summary>
@@ -75,7 +78,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>
         /// New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/> transformed
         /// </returns>
-        public DataFrame Transform(DataFrame source) => 
+        public override DataFrame Transform(DataFrame source) =>
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", source));
 
         /// <summary>
@@ -89,8 +92,29 @@ namespace Microsoft.Spark.ML.Feature
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
                     s_tokenizerClassName, "load", path));
         }
-        
-        private static Tokenizer WrapAsTokenizer(object obj) => 
+
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+
+        /// <summary>
+        /// Get the corresponding JavaMLWriter instance.
+        /// </summary>
+        /// <returns>a <see cref="JavaMLWriter"/> instance for this ML instance.</returns>
+        public JavaMLWriter Write() =>
+            new JavaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+
+        /// <summary>
+        /// Get the corresponding JavaMLReader instance.
+        /// </summary>
+        /// <returns>an <see cref="JavaMLReader&lt;Tokenizer&gt;"/> instance for this ML instance.</returns>
+        public JavaMLReader<Tokenizer> Read() =>
+            new JavaMLReader<Tokenizer>((JvmObjectReference)Reference.Invoke("read"));
+
+        private static Tokenizer WrapAsTokenizer(object obj) =>
             new Tokenizer((JvmObjectReference)obj);
     }
 }
