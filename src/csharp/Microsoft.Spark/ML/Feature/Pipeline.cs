@@ -72,6 +72,14 @@ namespace Microsoft.Spark.ML.Feature
             {
                 (string constructorClass, string methodName) = DotnetUtils.GetUnderlyingType(jvmObjects[i]);
                 Type type = Type.GetType(constructorClass);
+                if (type == null)
+                {
+                    foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        type = assembly.GetType(constructorClass);
+                        if (type != null) break;
+                    }
+                }
                 MethodInfo method = type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Static);
                 result[i] = (JavaPipelineStage)method.Invoke(null, new object[] { jvmObjects[i] });
             }
