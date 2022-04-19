@@ -153,7 +153,7 @@ object DotnetRunner extends Logging {
 
             stderrBuffer = new CircularBuffer(circularBufferSize)
             val teeOutputStream = new TeeOutputStream(System.out, stderrBuffer)
-              // Redirect stdout and stderr of .NET process to System.out and to buffer.
+            // Redirect stdout and stderr of .NET process to System.out and to buffer.
             new RedirectThread(process.getInputStream, teeOutputStream,
                 "redirect .NET stdout and stderr").start()
           } else {
