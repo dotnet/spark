@@ -1,4 +1,4 @@
-# .NET for Apache Spark 2.1.0 Release Notes
+# .NET for Apache Spark 2.1.1 Release Notes
 
 ### New Features/Improvements
 
