@@ -123,6 +123,7 @@ object DotnetRunner extends Logging {
       if (!runInDebugMode) {
         var returnCode = -1
         var process: Process = null
+
         try {
           val builder = new ProcessBuilder(processParameters)
           val env = builder.environment()

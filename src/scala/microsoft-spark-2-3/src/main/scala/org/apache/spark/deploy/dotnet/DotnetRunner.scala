@@ -14,14 +14,16 @@ import java.util.Locale
 import java.util.concurrent.{Semaphore, TimeUnit}
 
 import org.apache.commons.io.FilenameUtils
+import org.apache.commons.io.output.TeeOutputStream
 import org.apache.hadoop.fs.Path
 import org.apache.spark
 import org.apache.spark.api.dotnet.DotnetBackend
 import org.apache.spark.deploy.{PythonRunner, SparkHadoopUtil}
 import org.apache.spark.internal.Logging
-import org.apache.spark.internal.config.dotnet.Dotnet.DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK
+import org.apache.spark.internal.config.dotnet.Dotnet.{DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK,
+    ERROR_BUFFER_SIZE, ERROR_REDIRECITON_ENABLED}
 import org.apache.spark.util.dotnet.{Utils => DotnetUtils}
-import org.apache.spark.util.{RedirectThread, Utils}
+import org.apache.spark.util.{CircularBuffer, RedirectThread, Utils}
 import org.apache.spark.{SecurityManager, SparkConf, SparkUserAppException}
 
 import scala.collection.JavaConverters._
@@ -122,6 +124,17 @@ object DotnetRunner extends Logging {
       if (!runInDebugMode) {
         var returnCode = -1
         var process: Process = null
+        val enableLogRedirection: Boolean = sys.props
+            .getOrElse(
+              ERROR_REDIRECITON_ENABLED.key,
+              ERROR_REDIRECITON_ENABLED.defaultValue.get.toString)
+            .toBoolean
+        val circularBufferSize = sys.props
+            .getOrElse(
+              ERROR_BUFFER_SIZE.key,
+              ERROR_BUFFER_SIZE.defaultValue.get.toString).toInt
+        val stderrBuffer = new CircularBuffer(circularBufferSize)
+
         try {
           val builder = new ProcessBuilder(processParameters)
           val env = builder.environment()
@@ -136,9 +149,17 @@ object DotnetRunner extends Logging {
 
           // Redirect stdin of JVM process to stdin of .NET process.
           new RedirectThread(System.in, process.getOutputStream, "redirect JVM input").start()
-          // Redirect stdout and stderr of .NET process.
-          new RedirectThread(process.getInputStream, System.out, "redirect .NET stdout").start()
-          new RedirectThread(process.getErrorStream, System.out, "redirect .NET stderr").start()
+
+          if(enableLogRedirection) {
+            val teeOutputStream = new TeeOutputStream(System.out, stderrBuffer)
+            // Redirect stdout and stderr of .NET process to System.out and to buffer.
+            new RedirectThread(process.getInputStream, teeOutputStream,
+            "redirect .NET stdout and stderr").start()
+          } else {
+              // Redirect stdout and stderr of .NET process.
+              new RedirectThread(process.getInputStream, System.out, "redirect .NET stdout").start()
+              new RedirectThread(process.getErrorStream, System.out, "redirect .NET stderr").start()
+          }
 
           process.waitFor()
         } catch {
@@ -150,7 +171,11 @@ object DotnetRunner extends Logging {
         }
 
         if (returnCode != 0) {
-          throw new SparkUserAppException(returnCode)
+          if(enableLogRedirection && stderrBuffer != null) {
+              throw new DotNetUserAppException(returnCode, Some(stderrBuffer.toString))
+          } else {
+              throw new SparkUserAppException(returnCode)
+          }
         } else {
           logInfo(s".NET application exited successfully")
         }
