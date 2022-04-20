@@ -125,8 +125,16 @@ object DotnetRunner extends Logging {
       if (!runInDebugMode) {
         var returnCode = -1
         var process: Process = null
-        var enableLogRedirection: Boolean = false
-        var stderrBuffer: CircularBuffer = null
+        val enableLogRedirection: Boolean = sys.props
+            .getOrElse(
+              ERROR_REDIRECITON_ENABLED.key,
+              ERROR_REDIRECITON_ENABLED.defaultValue.get.toString)
+            .toBoolean
+        val circularBufferSize = sys.props
+            .getOrElse(
+              ERROR_BUFFER_SIZE.key,
+              ERROR_BUFFER_SIZE.defaultValue.get.toString).toInt
+        val stderrBuffer = new CircularBuffer(circularBufferSize)
 
         try {
           val builder = new ProcessBuilder(processParameters)
@@ -137,9 +145,6 @@ object DotnetRunner extends Logging {
             env.put(key, value)
             logInfo(s"Adding key=$key and value=$value to environment")
           }
-          enableLogRedirection = env.getOrDefault(
-                  ERROR_REDIRECITON_ENABLED.key,
-                  ERROR_REDIRECITON_ENABLED.defaultValue.get.toString).toBoolean
 
           builder.redirectErrorStream(true) // Ugly but needed for stdout and stderr to synchronize
           process = builder.start()
@@ -148,11 +153,6 @@ object DotnetRunner extends Logging {
           new RedirectThread(System.in, process.getOutputStream, "redirect JVM input").start()
 
           if(enableLogRedirection) {
-            val circularBufferSize = env.getOrDefault(
-                    ERROR_BUFFER_SIZE.key,
-                    ERROR_BUFFER_SIZE.defaultValue.get.toString).toInt
-
-            stderrBuffer = new CircularBuffer(circularBufferSize)
             val teeOutputStream = new TeeOutputStream(System.out, stderrBuffer)
             // Redirect stdout and stderr of .NET process to System.out and to buffer.
             new RedirectThread(process.getInputStream, teeOutputStream,
