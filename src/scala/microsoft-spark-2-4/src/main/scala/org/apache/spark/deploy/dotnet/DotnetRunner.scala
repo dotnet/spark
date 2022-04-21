@@ -126,15 +126,15 @@ object DotnetRunner extends Logging {
         var returnCode = -1
         var process: Process = null
         val enableLogRedirection: Boolean = sys.props
-            .getOrElse(
-              ERROR_REDIRECITON_ENABLED.key,
-              ERROR_REDIRECITON_ENABLED.defaultValue.get.toString)
-            .toBoolean
-        val circularBufferSize = sys.props
-            .getOrElse(
-              ERROR_BUFFER_SIZE.key,
-              ERROR_BUFFER_SIZE.defaultValue.get.toString).toInt
-        val stderrBuffer = new CircularBuffer(circularBufferSize)
+          .getOrElse(
+            ERROR_REDIRECITON_ENABLED.key,
+            ERROR_REDIRECITON_ENABLED.defaultValue.get.toString).toBoolean
+        val stderrBuffer: Option[CircularBuffer] = Option(enableLogRedirection).collect {
+          case true => new CircularBuffer(
+            sys.props.getOrElse(
+            ERROR_BUFFER_SIZE.key,
+            ERROR_BUFFER_SIZE.defaultValue.get.toString).toInt)
+        }
 
         try {
           val builder = new ProcessBuilder(processParameters)
@@ -150,18 +150,13 @@ object DotnetRunner extends Logging {
           process = builder.start()
 
           // Redirect stdin of JVM process to stdin of .NET process.
-          new RedirectThread(System.in, process.getOutputStream, "redirect JVM input").start()
-
-          if(enableLogRedirection) {
-            val teeOutputStream = new TeeOutputStream(System.out, stderrBuffer)
-            // Redirect stdout and stderr of .NET process to System.out and to buffer.
-            new RedirectThread(process.getInputStream, teeOutputStream,
-                "redirect .NET stdout and stderr").start()
-          } else {
-            // Redirect stdout and stderr of .NET process.
-            new RedirectThread(process.getInputStream, System.out, "redirect .NET stdout").start()
-            new RedirectThread(process.getErrorStream, System.out, "redirect .NET stderr").start()
-          }
+          new RedirectThread(
+            process.getInputStream,
+            stderrBuffer match {
+                case Some(buffer) => new TeeOutputStream(System.out, buffer)
+                case _ => System.out
+            },
+            "redirect .NET stdout and stderr").start()
 
           process.waitFor()
         } catch {
@@ -172,8 +167,8 @@ object DotnetRunner extends Logging {
           closeBackend(dotnetBackend)
         }
         if (returnCode != 0) {
-          if(enableLogRedirection && stderrBuffer != null) {
-              throw new DotNetUserAppException(returnCode, Some(stderrBuffer.toString))
+          if(stderrBuffer.isDefined) {
+              throw new DotNetUserAppException(returnCode, Some(stderrBuffer.get.toString))
           } else {
             throw new SparkUserAppException(returnCode)
           }
