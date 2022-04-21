@@ -149,7 +149,8 @@ object DotnetRunner extends Logging {
 
           // Redirect stdin of JVM process to stdin of .NET process.
           new RedirectThread(System.in, process.getOutputStream, "redirect JVM input").start()
-          // Redirect stdin of JVM process to stdin of .NET process.
+          // Redirect stdout and stderr of .NET process to System.out and to buffer
+          // if log direction is enabled. If not, redirect only to System.out.
           new RedirectThread(
             process.getInputStream,
             stderrBuffer match {
