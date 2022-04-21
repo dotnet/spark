@@ -170,7 +170,7 @@ object DotnetRunner extends Logging {
         }
         if (returnCode != 0) {
           if (stderrBuffer.isDefined) {
-              throw new DotNetUserAppException(returnCode, Some(stderrBuffer.get.toString))
+            throw new DotNetUserAppException(returnCode, Some(stderrBuffer.get.toString))
           } else {
             throw new SparkUserAppException(returnCode)
           }
