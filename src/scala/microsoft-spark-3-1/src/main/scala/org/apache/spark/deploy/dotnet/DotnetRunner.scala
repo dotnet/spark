@@ -20,8 +20,10 @@ import org.apache.spark
 import org.apache.spark.api.dotnet.DotnetBackend
 import org.apache.spark.deploy.{PythonRunner, SparkHadoopUtil}
 import org.apache.spark.internal.Logging
-import org.apache.spark.internal.config.dotnet.Dotnet.{DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK,
-    ERROR_BUFFER_SIZE, ERROR_REDIRECITON_ENABLED}
+import org.apache.spark.internal.config.dotnet.Dotnet.{
+  DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK,
+  ERROR_BUFFER_SIZE, ERROR_REDIRECITON_ENABLED
+}
 import org.apache.spark.util.dotnet.{Utils => DotnetUtils}
 import org.apache.spark.util.{CircularBuffer, RedirectThread, Utils}
 import org.apache.spark.{SecurityManager, SparkConf, SparkUserAppException}
@@ -131,8 +133,8 @@ object DotnetRunner extends Logging {
         val stderrBuffer: Option[CircularBuffer] = Option(enableLogRedirection).collect {
           case true => new CircularBuffer(
             sys.props.getOrElse(
-            ERROR_BUFFER_SIZE.key,
-            ERROR_BUFFER_SIZE.defaultValue.get.toString).toInt)
+              ERROR_BUFFER_SIZE.key,
+              ERROR_BUFFER_SIZE.defaultValue.get.toString).toInt)
         }
 
         try {
@@ -154,8 +156,8 @@ object DotnetRunner extends Logging {
           new RedirectThread(
             process.getInputStream,
             stderrBuffer match {
-                case Some(buffer) => new TeeOutputStream(System.out, buffer)
-                case _ => System.out
+              case Some(buffer) => new TeeOutputStream(System.out, buffer)
+              case _ => System.out
             },
             "redirect .NET stdout and stderr").start()
 
