@@ -148,6 +148,8 @@ object DotnetRunner extends Logging {
           process = builder.start()
 
           // Redirect stdin of JVM process to stdin of .NET process.
+          new RedirectThread(System.in, process.getOutputStream, "redirect JVM input").start()
+          // Redirect stdin of JVM process to stdin of .NET process.
           new RedirectThread(
             process.getInputStream,
             stderrBuffer match {
@@ -165,7 +167,7 @@ object DotnetRunner extends Logging {
           closeBackend(dotnetBackend)
         }
         if (returnCode != 0) {
-          if(stderrBuffer.isDefined) {
+          if (stderrBuffer.isDefined) {
               throw new DotNetUserAppException(returnCode, Some(stderrBuffer.get.toString))
           } else {
             throw new SparkUserAppException(returnCode)

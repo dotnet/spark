@@ -144,10 +144,11 @@ object DotnetRunner extends Logging {
             env.put(key, value)
             logInfo(s"Adding key=$key and value=$value to environment")
           }
-
           builder.redirectErrorStream(true) // Ugly but needed for stdout and stderr to synchronize
           process = builder.start()
 
+          // Redirect stdin of JVM process to stdin of .NET process.
+          new RedirectThread(System.in, process.getOutputStream, "redirect JVM input").start()
           // Redirect stdin of JVM process to stdin of .NET process.
           new RedirectThread(
             process.getInputStream,
@@ -166,7 +167,7 @@ object DotnetRunner extends Logging {
           closeBackend(dotnetBackend)
         }
         if (returnCode != 0) {
-          if(stderrBuffer.isDefined) {
+          if (stderrBuffer.isDefined) {
               throw new DotNetUserAppException(returnCode, Some(stderrBuffer.get.toString))
           } else {
             throw new SparkUserAppException(returnCode)
