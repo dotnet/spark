@@ -11,7 +11,7 @@ This is a maintenance release which contains backported PRs to support capturing
 
 ### Infrastructure / Documentation / Etc.
 
-* None
+* Fix build pipeline due to bintray no longer available as spark-package repository ([#1052](https://github.com/dotnet/spark/pull/1052))
 
 
 ### Breaking Changes
