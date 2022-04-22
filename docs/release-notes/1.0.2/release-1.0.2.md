@@ -3,7 +3,7 @@ This is a maintenance release which contains backported PRs to support capturing
 
 ### New Features/Improvements
 
-* Capture dotnet application error stack trace ([#1047](https://github.com/dotnet/spark/pull/1047))
+* Capture dotnet application error stack trace ([#1054](https://github.com/dotnet/spark/pull/1054))
 
 ### Bug Fixes
 
