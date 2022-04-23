@@ -90,8 +90,12 @@ stages:
         - Build
       displayName: Sign Artifacts
       pool:
-        name: NetCore1ESPool-Internal
-        demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019
+        ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+          name: NetCore1ESPool-Public
+          demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019.Open
+        ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+          name: NetCore1ESPool-Internal
+          demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019
 
       variables:
         ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
