@@ -12,6 +12,7 @@ This is a maintenance release which contains backported PRs to support capturing
 ### Infrastructure / Documentation / Etc.
 
 * Fix build pipeline due to bintray no longer available as spark-package repository ([#1052](https://github.com/dotnet/spark/pull/1052))
+* Switch to 1ES hosted pools ([#1056](https://github.com/dotnet/spark/pull/1056))
 
 
 ### Breaking Changes
