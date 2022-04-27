@@ -137,11 +137,10 @@ namespace Microsoft.Spark.ML.Feature
         internal static object ConstructInstanceFromJvmObject(
             JvmObjectReference jvmObject,
             Type parentType,
-            string className)
+            string className = "s_className")
         {
             var jvmClass = (JvmObjectReference)jvmObject.Invoke("getClass");
             var returnClass = (string)jvmClass.Invoke("getTypeName");
-
             Type constructorClass = null;
             object instance = null;
             // search within the assemblies to find the real type that matches returnClass name
@@ -163,7 +162,6 @@ namespace Microsoft.Spark.ML.Feature
                     break;
                 }
             }
-
             return instance;
         }
     }
