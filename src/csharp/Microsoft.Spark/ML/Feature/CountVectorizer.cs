@@ -13,13 +13,13 @@ namespace Microsoft.Spark.ML.Feature
         IJavaMLWritable,
         IJavaMLReadable<CountVectorizer>
     {
-        private static readonly string s_countVectorizerClassName =
+        private static readonly string s_className =
             "org.apache.spark.ml.feature.CountVectorizer";
 
         /// <summary>
         /// Creates a <see cref="CountVectorizer"/> without any parameters.
         /// </summary>
-        public CountVectorizer() : base(s_countVectorizerClassName)
+        public CountVectorizer() : base(s_className)
         {
         }
 
@@ -28,7 +28,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="CountVectorizer"/> a unique ID.
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public CountVectorizer(string uid) : base(s_countVectorizerClassName, uid)
+        public CountVectorizer(string uid) : base(s_className, uid)
         {
         }
 
@@ -52,7 +52,7 @@ namespace Microsoft.Spark.ML.Feature
         public static CountVectorizer Load(string path) =>
             WrapAsCountVectorizer((JvmObjectReference)
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_countVectorizerClassName, "load", path));
+                    s_className, "load", path));
 
         /// <summary>
         /// Gets the binary toggle to control the output vector values. If True, all nonzero counts

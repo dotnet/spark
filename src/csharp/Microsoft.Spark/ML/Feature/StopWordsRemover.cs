@@ -18,13 +18,13 @@ namespace Microsoft.Spark.ML.Feature
         IJavaMLWritable,
         IJavaMLReadable<StopWordsRemover>
     {
-        private static readonly string s_stopWordsRemoverClassName =
+        private static readonly string s_className =
             "org.apache.spark.ml.feature.StopWordsRemover";
 
         /// <summary>
         /// Create a <see cref="StopWordsRemover"/> without any parameters.
         /// </summary>
-        public StopWordsRemover() : base(s_stopWordsRemoverClassName)
+        public StopWordsRemover() : base(s_className)
         {
         }
 
@@ -33,7 +33,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="StopWordsRemover"/> a unique ID.
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public StopWordsRemover(string uid) : base(s_stopWordsRemoverClassName, uid)
+        public StopWordsRemover(string uid) : base(s_className, uid)
         {
         }
 
@@ -160,7 +160,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>Default stop words for the given language</returns>
         public static string[] LoadDefaultStopWords(string language) =>
             (string[])SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                s_stopWordsRemoverClassName, "loadDefaultStopWords", language);
+                s_className, "loadDefaultStopWords", language);
 
         /// <summary>
         /// Loads the <see cref="StopWordsRemover"/> that was previously saved using Save.
@@ -169,7 +169,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>New <see cref="StopWordsRemover"/> object, loaded from path</returns>
         public static StopWordsRemover Load(string path) =>
             WrapAsStopWordsRemover(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_stopWordsRemoverClassName, "load", path));
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_className, "load", path));
 
         /// <summary>
         /// Saves the object so that it can be loaded later using Load. Note that these objects

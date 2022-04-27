@@ -16,7 +16,7 @@ namespace Microsoft.Spark.ML.Feature
         IJavaMLWritable,
         IJavaMLReadable<PipelineModel>
     {
-        private static readonly string s_pipelineModelClassName = "org.apache.spark.ml.PipelineModel";
+        private static readonly string s_className = "org.apache.spark.ml.PipelineModel";
 
         /// <summary>
         /// Creates a <see cref="PipelineModel"/> with a UID that is used to give the
@@ -26,7 +26,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="stages">Stages for the PipelineModel.</param>
         public PipelineModel(string uid, JavaTransformer[] stages)
             : this(SparkEnvironment.JvmBridge.CallConstructor(
-                s_pipelineModelClassName, uid, stages.ToJavaArrayList()))
+                s_className, uid, stages.ToJavaArrayList()))
         {
         }
 
@@ -40,7 +40,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="path">The path the previous <see cref="PipelineModel"/> was saved to</param>
         /// <returns>New <see cref="PipelineModel"/> object, loaded from path.</returns>
         public static PipelineModel Load(string path) => WrapAsPipelineModel(
-            SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_pipelineModelClassName, "load", path));
+            SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_className, "load", path));
 
         /// <summary>
         /// Saves the object so that it can be loaded later using Load. Note that these objects

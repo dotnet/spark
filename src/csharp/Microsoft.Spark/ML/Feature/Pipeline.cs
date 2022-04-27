@@ -26,12 +26,12 @@ namespace Microsoft.Spark.ML.Feature
         IJavaMLWritable,
         IJavaMLReadable<Pipeline>
     {
-        private static readonly string s_pipelineClassName = "org.apache.spark.ml.Pipeline";
+        private static readonly string s_className = "org.apache.spark.ml.Pipeline";
 
         /// <summary>
         /// Creates a <see cref="Pipeline"/> without any parameters.
         /// </summary>
-        public Pipeline() : base(s_pipelineClassName)
+        public Pipeline() : base(s_className)
         {
         }
 
@@ -40,7 +40,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="Pipeline"/> a unique ID.
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public Pipeline(string uid) : base(s_pipelineClassName, uid)
+        public Pipeline(string uid) : base(s_className, uid)
         {
         }
 
@@ -70,18 +70,9 @@ namespace Microsoft.Spark.ML.Feature
             JavaPipelineStage[] result = new JavaPipelineStage[jvmObjects.Length];
             for (int i = 0; i < jvmObjects.Length; i++)
             {
-                (string constructorClass, string methodName) = DotnetUtils.GetUnderlyingType(jvmObjects[i]);
-                Type type = Type.GetType(constructorClass);
-                if (type == null)
-                {
-                    foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-                    {
-                        type = assembly.GetType(constructorClass);
-                        if (type != null) break;
-                    }
-                }
-                MethodInfo method = type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Static);
-                result[i] = (JavaPipelineStage)method.Invoke(null, new object[] { jvmObjects[i] });
+                var instance = DotnetUtils.ConstructInstanceFromJvmObject(
+                    jvmObjects[i], typeof(JavaPipelineStage), "s_className");
+                if (instance != null) result[i] = (JavaPipelineStage)instance;
             }
             return result;
         }
@@ -99,7 +90,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="path">The path the previous <see cref="Pipeline"/> was saved to</param>
         /// <returns>New <see cref="Pipeline"/> object, loaded from path.</returns>
         public static Pipeline Load(string path) => WrapAsPipeline(
-            SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_pipelineClassName, "load", path));
+            SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_className, "load", path));
 
         /// <summary>
         /// Saves the object so that it can be loaded later using Load. Note that these objects

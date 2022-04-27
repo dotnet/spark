@@ -17,13 +17,13 @@ namespace Microsoft.Spark.ML.Feature
         IJavaMLWritable,
         IJavaMLReadable<Tokenizer>
     {
-        private static readonly string s_tokenizerClassName =
+        private static readonly string s_className =
             "org.apache.spark.ml.feature.Tokenizer";
 
         /// <summary>
         /// Create a <see cref="Tokenizer"/> without any parameters
         /// </summary>
-        public Tokenizer() : base(s_tokenizerClassName)
+        public Tokenizer() : base(s_className)
         {
         }
 
@@ -32,7 +32,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="Tokenizer"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public Tokenizer(string uid) : base(s_tokenizerClassName, uid)
+        public Tokenizer(string uid) : base(s_className, uid)
         {
         }
 
@@ -90,7 +90,7 @@ namespace Microsoft.Spark.ML.Feature
         {
             return WrapAsTokenizer(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_tokenizerClassName, "load", path));
+                    s_className, "load", path));
         }
 
         /// <summary>

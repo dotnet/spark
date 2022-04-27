@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Spark.Interop;
@@ -127,21 +128,43 @@ namespace Microsoft.Spark.ML.Feature
     internal class DotnetUtils
     {
         /// <summary>
-        /// Helper function for getting the exact class name from jvm object.
+        /// Helper function for reconstructing the exact dotnet object from jvm object.
         /// </summary>
         /// <param name="jvmObject">The reference to object created in JVM.</param>
-        /// <returns>A string Tuple2 of constructor class name and method name</returns>
-        internal static (string, string) GetUnderlyingType(JvmObjectReference jvmObject)
+        /// <param name="parentType">The parent class of the target type.</param>
+        /// <param name="className">The private static string field name of the dotnet class.</param>
+        /// <returns>the object instance</returns>
+        internal static object ConstructInstanceFromJvmObject(
+            JvmObjectReference jvmObject,
+            Type parentType,
+            string className)
         {
             var jvmClass = (JvmObjectReference)jvmObject.Invoke("getClass");
             var returnClass = (string)jvmClass.Invoke("getTypeName");
-            string[] dotnetClass = returnClass.Replace("com.microsoft.azure.synapse.ml", "Synapse.ML")
-                .Replace("org.apache.spark.ml", "Microsoft.Spark.ML")
-                .Split(".".ToCharArray());
-            string[] renameClass = dotnetClass.Select(x => char.ToUpper(x[0]) + x.Substring(1)).ToArray();
-            string constructorClass = string.Join(".", renameClass);
-            string methodName = "WrapAs" + dotnetClass[dotnetClass.Length - 1];
-            return (constructorClass, methodName);
+
+            Type constructorClass = null;
+            object instance = null;
+            // search within the assemblies to find the real type that matches returnClass name
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                foreach (Type type in assembly.GetTypes().Where(
+                    type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(parentType)))
+                {
+                    FieldInfo info = type.GetField(className, BindingFlags.NonPublic | BindingFlags.Static);
+                    var classNameValue = (string)info.GetValue(null);
+                    if (classNameValue == returnClass) {constructorClass = type; break;}
+                }
+                if (constructorClass != null)
+                {
+                    instance = assembly.CreateInstance(
+                        constructorClass.FullName, false,
+                        BindingFlags.Instance | BindingFlags.NonPublic,
+                        null, new object[] { jvmObject }, null, null);
+                    break;
+                }
+            }
+
+            return instance;
         }
     }
 }
