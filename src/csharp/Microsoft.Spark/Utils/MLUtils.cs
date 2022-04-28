@@ -35,7 +35,7 @@ namespace Microsoft.Spark.Utils
                     type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(parentType)))
                 {
                     FieldInfo info = type.GetField(className, BindingFlags.NonPublic | BindingFlags.Static);
-                    var classNameValue = (string)info.GetValue(null);
+                    var classNameValue = type.ContainsGenericParameters ? null : (string)info.GetValue(null);
                     if (classNameValue != null) classMapping.Add(classNameValue, type);
                 }
             }
