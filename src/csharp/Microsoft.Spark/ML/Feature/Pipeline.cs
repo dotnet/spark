@@ -3,10 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Reflection;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Utils;
+using System.Collections.Generic;
 
 namespace Microsoft.Spark.ML.Feature
 {
@@ -68,10 +69,11 @@ namespace Microsoft.Spark.ML.Feature
         {
             JvmObjectReference[] jvmObjects = (JvmObjectReference[])Reference.Invoke("getStages");
             JavaPipelineStage[] result = new JavaPipelineStage[jvmObjects.Length];
+            Dictionary<string, Type> classMapping = MLUtils.ConstructJavaClassMapping(
+                typeof(JavaPipelineStage));
             for (int i = 0; i < jvmObjects.Length; i++)
             {
-                var instance = DotnetUtils.ConstructInstanceFromJvmObject(
-                    jvmObjects[i], typeof(JavaPipelineStage));
+                var instance = MLUtils.ConstructInstanceFromJvmObject(jvmObjects[i], classMapping);
                 if (instance != null) result[i] = (JavaPipelineStage)instance;
             }
             return result;

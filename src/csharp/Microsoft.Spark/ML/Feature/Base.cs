@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Spark.Interop;
@@ -118,51 +117,6 @@ namespace Microsoft.Spark.ML.Feature
                 });
 
             return (T)constructor.Invoke(new object[] { reference });
-        }
-    }
-
-    /// <summary>
-    /// DotnetUtils is used to hold basic general helper functions that
-    /// are used within ML scope.
-    /// </summary>
-    internal class DotnetUtils
-    {
-        /// <summary>
-        /// Helper function for reconstructing the exact dotnet object from jvm object.
-        /// </summary>
-        /// <param name="jvmObject">The reference to object created in JVM.</param>
-        /// <param name="parentType">The parent class of the target type.</param>
-        /// <param name="className">The private static string field name of the dotnet class.</param>
-        /// <returns>the object instance</returns>
-        internal static object ConstructInstanceFromJvmObject(
-            JvmObjectReference jvmObject,
-            Type parentType,
-            string className = "s_className")
-        {
-            var jvmClass = (JvmObjectReference)jvmObject.Invoke("getClass");
-            var returnClass = (string)jvmClass.Invoke("getTypeName");
-            Type constructorClass = null;
-            object instance = null;
-            // search within the assemblies to find the real type that matches returnClass name
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                foreach (Type type in assembly.GetTypes().Where(
-                    type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(parentType)))
-                {
-                    FieldInfo info = type.GetField(className, BindingFlags.NonPublic | BindingFlags.Static);
-                    var classNameValue = (string)info.GetValue(null);
-                    if (classNameValue == returnClass) {constructorClass = type; break;}
-                }
-                if (constructorClass != null)
-                {
-                    instance = assembly.CreateInstance(
-                        constructorClass.FullName, false,
-                        BindingFlags.Instance | BindingFlags.NonPublic,
-                        null, new object[] { jvmObject }, null, null);
-                    break;
-                }
-            }
-            return instance;
         }
     }
 }
