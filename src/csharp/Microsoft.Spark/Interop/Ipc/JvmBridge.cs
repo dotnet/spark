@@ -187,7 +187,7 @@ namespace Microsoft.Spark.Interop.Ipc
         {
             object returnValue = null;
             ISocketWrapper socket = null;
-            bool acquiredSemaphore = false;
+            var acquiredSemaphore = false;
 
             try
             {
