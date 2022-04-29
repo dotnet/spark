@@ -80,7 +80,6 @@ namespace Microsoft.Spark.Interop.Ipc
             // new connection is delegated to these threads in a round robin fashion.
             // A deadlock can occur on the JVM if a new connection is scheduled on a
             // blocked thread.
-            _socketSemaphore.Wait();
             if (!_sockets.TryDequeue(out ISocketWrapper socket))
             {
                 socket = SocketFactory.CreateSocket();
@@ -188,6 +187,8 @@ namespace Microsoft.Spark.Interop.Ipc
         {
             object returnValue = null;
             ISocketWrapper socket = null;
+            bool acquiredSemaphore = false;
+
             try
             {
                 // dotnet-interactive does not have a dedicated thread to process
@@ -218,6 +219,8 @@ namespace Microsoft.Spark.Interop.Ipc
                     methodName,
                     args);
 
+                _socketSemaphore.Wait();
+                acquiredSemaphore = true;
                 socket = GetConnection();
 
                 Stream outputStream = socket.OutputStream;
@@ -290,7 +293,10 @@ namespace Microsoft.Spark.Interop.Ipc
                 {
                     // DotnetBackendHandler caught JVM exception and passed back to dotnet.
                     // We can reuse this connection.
-                    _sockets.Enqueue(socket);
+                    if (socket != null) // Safety check
+                    {
+                        _sockets.Enqueue(socket);
+                    }
                 }
                 else
                 {
@@ -308,7 +314,10 @@ namespace Microsoft.Spark.Interop.Ipc
             }
             finally
             {
-                _socketSemaphore.Release();
+                if (acquiredSemaphore) // only release the semaphore if we know we acquired it above
+                {
+                    _socketSemaphore.Release();
+                }
             }
 
             return returnValue;
