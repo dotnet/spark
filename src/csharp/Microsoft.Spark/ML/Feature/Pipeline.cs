@@ -69,11 +69,11 @@ namespace Microsoft.Spark.ML.Feature
         {
             JvmObjectReference[] jvmObjects = (JvmObjectReference[])Reference.Invoke("getStages");
             JavaPipelineStage[] result = new JavaPipelineStage[jvmObjects.Length];
-            Dictionary<string, Type> classMapping = MLUtils.ConstructJavaClassMapping(
-                typeof(JavaPipelineStage));
+            Dictionary<string, Type> classMapping = JvmObjectUtils.ConstructJavaClassMapping(
+                typeof(JavaPipelineStage), "s_className");
             for (int i = 0; i < jvmObjects.Length; i++)
             {
-                var instance = MLUtils.ConstructInstanceFromJvmObject(jvmObjects[i], classMapping);
+                var instance = JvmObjectUtils.ConstructInstanceFromJvmObject(jvmObjects[i], classMapping);
                 if (instance != null) result[i] = (JavaPipelineStage)instance;
             }
             return result;
