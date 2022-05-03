@@ -75,12 +75,6 @@ namespace Microsoft.Spark.Interop.Ipc
 
         private ISocketWrapper GetConnection()
         {
-            // Limit the number of connections to the JVM backend. Netty is configured
-            // to use a set number of threads to process incoming connections. Each
-            // new connection is delegated to these threads in a round robin fashion.
-            // A deadlock can occur on the JVM if a new connection is scheduled on a
-            // blocked thread.
-            _socketSemaphore.Wait();
             if (!_sockets.TryDequeue(out ISocketWrapper socket))
             {
                 socket = SocketFactory.CreateSocket();
@@ -188,8 +182,16 @@ namespace Microsoft.Spark.Interop.Ipc
         {
             object returnValue = null;
             ISocketWrapper socket = null;
+
             try
-            {
+            {                
+                // Limit the number of connections to the JVM backend. Netty is configured
+                // to use a set number of threads to process incoming connections. Each
+                // new connection is delegated to these threads in a round robin fashion.
+                // A deadlock can occur on the JVM if a new connection is scheduled on a
+                // blocked thread.
+                _socketSemaphore.Wait();
+
                 // dotnet-interactive does not have a dedicated thread to process
                 // code submissions and each code submission can be processed in different
                 // threads. DotnetHandler uses the CLR thread id to ensure that the same
@@ -290,7 +292,10 @@ namespace Microsoft.Spark.Interop.Ipc
                 {
                     // DotnetBackendHandler caught JVM exception and passed back to dotnet.
                     // We can reuse this connection.
-                    _sockets.Enqueue(socket);
+                    if (socket != null) // Safety check
+                    {
+                        _sockets.Enqueue(socket);
+                    }
                 }
                 else
                 {
