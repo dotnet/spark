@@ -11,17 +11,20 @@ using System.Collections.Generic;
 namespace Microsoft.Spark.Utils
 {
     /// <summary>
-    /// JvmObjectUtils is used to hold basic general helper functions that
-    /// are used within ML scope.
+    /// Provides general helper functions related to JVM objects.
     /// </summary>
     internal class JvmObjectUtils
     {
         /// <summary>
-        /// Helper function for constructing the mapping between java class name and dotnet class type.
+        /// Search through all assemblies in current domain and find those types
+        /// that are subclasses of the parentType. For those types we find its
+        /// javaClassFieldName value, which is its java-side consistent name, then
+        /// construct a mapping between the java class name and dotnet class type.
+        /// Please note that types containing generic parameters are not supported.
         /// </summary>
         /// <param name="parentType">The parent class of the target type.</param>
         /// <param name="javaClassFieldName">The private static string field name of the dotnet class.</param>
-        /// <returns>a mapping of className and dotnet class type</returns>
+        /// <returns>A mapping of java class name and dotnet class type.</returns>
         internal static Dictionary<string, Type> ConstructJavaClassMapping(
             Type parentType,
             string javaClassFieldName)
@@ -32,11 +35,13 @@ namespace Microsoft.Spark.Utils
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 foreach (Type type in assembly.GetTypes().Where(
-                    type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(parentType)))
+                    type => type.IsClass && !type.IsAbstract &&
+                    type.IsSubclassOf(parentType) && !type.ContainsGenericParameters))
                 {
                     FieldInfo info = type.GetField(javaClassFieldName, BindingFlags.NonPublic | BindingFlags.Static);
-                    var classNameValue = type.ContainsGenericParameters ? null : (string)info.GetValue(null);
-                    if (classNameValue != null) classMapping.Add(classNameValue, type);
+                    var classNameValue = (string)info.GetValue(null);
+                    if (classNameValue != null)
+                        classMapping.Add(classNameValue, type);
                 }
             }
             return classMapping;
@@ -47,24 +52,29 @@ namespace Microsoft.Spark.Utils
         /// </summary>
         /// <param name="jvmObject">The reference to object created in JVM.</param>
         /// <param name="classMapping">The mapping between java class name and dotnet class type.</param>
-        /// <returns>the object instance</returns>
-        internal static object ConstructInstanceFromJvmObject(
+        /// <param name="instance">The constructed dotnet object instance.</param>
+        /// <typeparam name="T">The casting type of dotnet object instance.</typeparam>
+        /// <returns>Whether we successfully constructed the dotnet object instance or not.</returns>
+        internal static bool TryConstructInstanceFromJvmObject<T>(
             JvmObjectReference jvmObject,
-            Dictionary<string, Type> classMapping)
+            Dictionary<string, Type> classMapping,
+            out T instance)
         {
             var jvmClass = (JvmObjectReference)jvmObject.Invoke("getClass");
             var returnClass = (string)jvmClass.Invoke("getTypeName");
             Type constructorClass = null;
-            object instance = null;
             if (classMapping.ContainsKey(returnClass))
             {
                 constructorClass = classMapping[returnClass];
-                instance = constructorClass.Assembly.CreateInstance(
+                instance = (T)constructorClass.Assembly.CreateInstance(
                         constructorClass.FullName, false,
                         BindingFlags.Instance | BindingFlags.NonPublic,
                         null, new object[] { jvmObject }, null, null);
+                return true;
+            } else {
+                instance = default(T);
+                return false;
             }
-            return instance;
         }
     }
 }

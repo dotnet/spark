@@ -73,8 +73,9 @@ namespace Microsoft.Spark.ML.Feature
                 typeof(JavaPipelineStage), "s_className");
             for (int i = 0; i < jvmObjects.Length; i++)
             {
-                var instance = JvmObjectUtils.ConstructInstanceFromJvmObject(jvmObjects[i], classMapping);
-                if (instance != null) result[i] = (JavaPipelineStage)instance;
+                JavaPipelineStage instance;
+                var constructed = JvmObjectUtils.TryConstructInstanceFromJvmObject(jvmObjects[i], classMapping, out instance);
+                if (constructed) result[i] = instance;
             }
             return result;
         }
