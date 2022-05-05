@@ -48,7 +48,11 @@ namespace Microsoft.Spark.Utils
         }
 
         /// <summary>
-        /// Helper function for reconstructing the exact dotnet object from jvm object.
+        /// Get java class name from the jvm object; search through the mapping
+        /// between java class name and dotnet class type for the current domain;
+        /// construct dotnet class instance by calling the constructor with jvmObject
+        /// as the parameter, and cast it to type T. If the java class name doesn't
+        /// exist in the mapping we assign the instance its default value.
         /// </summary>
         /// <param name="jvmObject">The reference to object created in JVM.</param>
         /// <param name="classMapping">The mapping between java class name and dotnet class type.</param>
@@ -71,7 +75,9 @@ namespace Microsoft.Spark.Utils
                         BindingFlags.Instance | BindingFlags.NonPublic,
                         null, new object[] { jvmObject }, null, null);
                 return true;
-            } else {
+            }
+            else
+            {
                 instance = default(T);
                 return false;
             }
