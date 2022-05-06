@@ -58,8 +58,10 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns><see cref="Pipeline"/> object</returns>
         public Pipeline SetStages(JavaPipelineStage[] value) =>
             WrapAsPipeline((JvmObjectReference)SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                "org.apache.spark.mllib.api.dotnet.MLUtils", "setPipelineStages",
-                Reference, value.ToJavaArrayList()));
+                "org.apache.spark.mllib.api.dotnet.MLUtils",
+                "setPipelineStages",
+                Reference,
+                value.ToJavaArrayList()));
 
         /// <summary>
         /// Get the stages of pipeline instance.
@@ -67,16 +69,23 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>A sequence of <see cref="JavaPipelineStage"/> stages</returns>
         public JavaPipelineStage[] GetStages()
         {
-            JvmObjectReference[] jvmObjects = (JvmObjectReference[])Reference.Invoke("getStages");
-            JavaPipelineStage[] result = new JavaPipelineStage[jvmObjects.Length];
+            var jvmObjects = (JvmObjectReference[])Reference.Invoke("getStages");
+            var result = new JavaPipelineStage[jvmObjects.Length];
             Dictionary<string, Type> classMapping = JvmObjectUtils.ConstructJavaClassMapping(
-                typeof(JavaPipelineStage), "s_className");
+                typeof(JavaPipelineStage),
+                "s_className");
+
             for (int i = 0; i < jvmObjects.Length; i++)
             {
-                JavaPipelineStage instance;
-                var constructed = JvmObjectUtils.TryConstructInstanceFromJvmObject(jvmObjects[i], classMapping, out instance);
-                if (constructed) result[i] = instance;
+                if (JvmObjectUtils.TryConstructInstanceFromJvmObject(
+                    jvmObjects[i],
+                    classMapping,
+                    out JavaPipelineStage instance))
+                {
+                    result[i] = instance;
+                }                   
             }
+
             return result;
         }
 
