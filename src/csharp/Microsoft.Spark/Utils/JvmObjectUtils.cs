@@ -34,16 +34,21 @@ namespace Microsoft.Spark.Utils
             // search within the assemblies to find the real type that matches returnClass name
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                foreach (Type type in assembly.GetTypes().Where(
-                    type => type.IsClass && !type.IsAbstract &&
-                    type.IsSubclassOf(parentType) && !type.ContainsGenericParameters))
+                foreach (Type type in assembly.GetTypes().Where(type =>
+                    type.IsClass &&
+                    !type.IsAbstract &&
+                    type.IsSubclassOf(parentType) &&
+                    !type.ContainsGenericParameters))
                 {
                     FieldInfo info = type.GetField(javaClassFieldName, BindingFlags.NonPublic | BindingFlags.Static);
                     var classNameValue = (string)info.GetValue(null);
-                    if (classNameValue != null)
+                    if (!string.IsNullOrWhiteSpace(classNameValue))
+                    {
                         classMapping.Add(classNameValue, type);
+                    }
                 }
             }
+
             return classMapping;
         }
 
@@ -66,21 +71,23 @@ namespace Microsoft.Spark.Utils
         {
             var jvmClass = (JvmObjectReference)jvmObject.Invoke("getClass");
             var returnClass = (string)jvmClass.Invoke("getTypeName");
-            Type constructorClass = null;
             if (classMapping.ContainsKey(returnClass))
             {
-                constructorClass = classMapping[returnClass];
-                instance = (T)constructorClass.Assembly.CreateInstance(
-                        constructorClass.FullName, false,
-                        BindingFlags.Instance | BindingFlags.NonPublic,
-                        null, new object[] { jvmObject }, null, null);
+                Type dotnetType = classMapping[returnClass];
+                instance = (T)dotnetType.Assembly.CreateInstance(
+                    dotnetType.FullName,
+                    false,
+                    BindingFlags.Instance | BindingFlags.NonPublic,
+                    null,
+                    new object[] { jvmObject },
+                    null,
+                    null);
+
                 return true;
             }
-            else
-            {
-                instance = default(T);
-                return false;
-            }
+
+            instance = default;
+            return false;
         }
     }
 }
