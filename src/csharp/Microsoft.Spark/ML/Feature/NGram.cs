@@ -19,13 +19,13 @@ namespace Microsoft.Spark.ML.Feature
         IJavaMLWritable,
         IJavaMLReadable<NGram>
     {
-        private static readonly string s_nGramClassName =
+        private static readonly string s_className =
             "org.apache.spark.ml.feature.NGram";
 
         /// <summary>
         /// Create a <see cref="NGram"/> without any parameters.
         /// </summary>
-        public NGram() : base(s_nGramClassName)
+        public NGram() : base(s_className)
         {
         }
 
@@ -35,7 +35,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.
         /// </param>
-        public NGram(string uid) : base(s_nGramClassName, uid)
+        public NGram(string uid) : base(s_className, uid)
         {
         }
 
@@ -123,7 +123,7 @@ namespace Microsoft.Spark.ML.Feature
         public static NGram Load(string path) =>
             WrapAsNGram(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_nGramClassName,
+                    s_className,
                     "load",
                     path));
 

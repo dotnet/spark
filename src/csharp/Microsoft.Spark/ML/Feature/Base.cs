@@ -119,29 +119,4 @@ namespace Microsoft.Spark.ML.Feature
             return (T)constructor.Invoke(new object[] { reference });
         }
     }
-
-    /// <summary>
-    /// DotnetUtils is used to hold basic general helper functions that
-    /// are used within ML scope.
-    /// </summary>
-    internal class DotnetUtils
-    {
-        /// <summary>
-        /// Helper function for getting the exact class name from jvm object.
-        /// </summary>
-        /// <param name="jvmObject">The reference to object created in JVM.</param>
-        /// <returns>A string Tuple2 of constructor class name and method name</returns>
-        internal static (string, string) GetUnderlyingType(JvmObjectReference jvmObject)
-        {
-            var jvmClass = (JvmObjectReference)jvmObject.Invoke("getClass");
-            var returnClass = (string)jvmClass.Invoke("getTypeName");
-            string[] dotnetClass = returnClass.Replace("com.microsoft.azure.synapse.ml", "Synapse.ML")
-                .Replace("org.apache.spark.ml", "Microsoft.Spark.ML")
-                .Split(".".ToCharArray());
-            string[] renameClass = dotnetClass.Select(x => char.ToUpper(x[0]) + x.Substring(1)).ToArray();
-            string constructorClass = string.Join(".", renameClass);
-            string methodName = "WrapAs" + dotnetClass[dotnetClass.Length - 1];
-            return (constructorClass, methodName);
-        }
-    }
 }
