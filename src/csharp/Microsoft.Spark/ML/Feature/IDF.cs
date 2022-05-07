@@ -22,12 +22,12 @@ namespace Microsoft.Spark.ML.Feature
         IJavaMLWritable,
         IJavaMLReadable<IDF>
     {
-        private static readonly string s_IDFClassName = "org.apache.spark.ml.feature.IDF";
+        private static readonly string s_className = "org.apache.spark.ml.feature.IDF";
 
         /// <summary>
         /// Create a <see cref="IDF"/> without any parameters
         /// </summary>
-        public IDF() : base(s_IDFClassName)
+        public IDF() : base(s_className)
         {
         }
 
@@ -36,7 +36,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="IDF"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public IDF(string uid) : base(s_IDFClassName, uid)
+        public IDF(string uid) : base(s_className, uid)
         {
         }
 
@@ -103,7 +103,7 @@ namespace Microsoft.Spark.ML.Feature
         public static IDF Load(string path)
         {
             return WrapAsIDF(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_IDFClassName, "load", path));
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_className, "load", path));
         }
 
         /// <summary>

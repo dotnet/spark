@@ -15,13 +15,13 @@ namespace Microsoft.Spark.ML.Feature
         IJavaMLWritable,
         IJavaMLReadable<FeatureHasher>
     {
-        private static readonly string s_featureHasherClassName =
+        private static readonly string s_className =
             "org.apache.spark.ml.feature.FeatureHasher";
 
         /// <summary>
         /// Creates a <see cref="FeatureHasher"/> without any parameters.
         /// </summary>
-        public FeatureHasher() : base(s_featureHasherClassName)
+        public FeatureHasher() : base(s_className)
         {
         }
 
@@ -30,7 +30,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="FeatureHasher"/> a unique ID.
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public FeatureHasher(string uid) : base(s_featureHasherClassName, uid)
+        public FeatureHasher(string uid) : base(s_className, uid)
         {
         }
 
@@ -48,7 +48,7 @@ namespace Microsoft.Spark.ML.Feature
         public static FeatureHasher Load(string path) =>
             WrapAsFeatureHasher(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_featureHasherClassName,
+                    s_className,
                     "load",
                     path));
 

@@ -21,13 +21,13 @@ namespace Microsoft.Spark.ML.Feature
         IJavaMLWritable,
         IJavaMLReadable<HashingTF>
     {
-        private static readonly string s_hashingTfClassName =
+        private static readonly string s_className =
             "org.apache.spark.ml.feature.HashingTF";
 
         /// <summary>
         /// Create a <see cref="HashingTF"/> without any parameters
         /// </summary>
-        public HashingTF() : base(s_hashingTfClassName)
+        public HashingTF() : base(s_className)
         {
         }
 
@@ -36,7 +36,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="HashingTF"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public HashingTF(string uid) : base(s_hashingTfClassName, uid)
+        public HashingTF(string uid) : base(s_className, uid)
         {
         }
 
@@ -52,7 +52,7 @@ namespace Microsoft.Spark.ML.Feature
         public static HashingTF Load(string path) =>
             WrapAsHashingTF(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_hashingTfClassName, "load", path));
+                    s_className, "load", path));
 
         /// <summary>
         /// Gets the binary toggle that controls term frequency counts
