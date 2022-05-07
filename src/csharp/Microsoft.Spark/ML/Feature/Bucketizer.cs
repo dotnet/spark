@@ -24,13 +24,13 @@ namespace Microsoft.Spark.ML.Feature
         IJavaMLWritable,
         IJavaMLReadable<Bucketizer>
     {
-        private static readonly string s_bucketizerClassName =
+        private static readonly string s_className =
             "org.apache.spark.ml.feature.Bucketizer";
 
         /// <summary>
         /// Create a <see cref="Bucketizer"/> without any parameters
         /// </summary>
-        public Bucketizer() : base(s_bucketizerClassName)
+        public Bucketizer() : base(s_className)
         {
         }
 
@@ -39,7 +39,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="Bucketizer"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public Bucketizer(string uid) : base(s_bucketizerClassName, uid)
+        public Bucketizer(string uid) : base(s_className, uid)
         {
         }
 
@@ -163,7 +163,7 @@ namespace Microsoft.Spark.ML.Feature
         public static Bucketizer Load(string path) =>
             WrapAsBucketizer(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_bucketizerClassName, "load", path));
+                    s_className, "load", path));
 
         /// <summary>
         /// Executes the <see cref="Bucketizer"/> and transforms the DataFrame to include the new

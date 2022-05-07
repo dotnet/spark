@@ -13,13 +13,13 @@ namespace Microsoft.Spark.ML.Feature
         IJavaMLWritable,
         IJavaMLReadable<Word2VecModel>
     {
-        private static readonly string s_word2VecModelClassName =
+        private static readonly string s_className =
             "org.apache.spark.ml.feature.Word2VecModel";
 
         /// <summary>
         /// Create a <see cref="Word2VecModel"/> without any parameters
         /// </summary>
-        public Word2VecModel() : base(s_word2VecModelClassName)
+        public Word2VecModel() : base(s_className)
         {
         }
 
@@ -28,7 +28,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="Word2VecModel"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public Word2VecModel(string uid) : base(s_word2VecModelClassName, uid)
+        public Word2VecModel(string uid) : base(s_className, uid)
         {
         }
 
@@ -64,7 +64,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>New <see cref="Word2VecModel"/> object, loaded from path.</returns>
         public static Word2VecModel Load(string path) => WrapAsWord2VecModel(
             SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                s_word2VecModelClassName, "load", path));
+                s_className, "load", path));
 
         /// <summary>
         /// Saves the object so that it can be loaded later using Load. Note that these objects

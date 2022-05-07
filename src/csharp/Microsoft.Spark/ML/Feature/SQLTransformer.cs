@@ -17,13 +17,13 @@ namespace Microsoft.Spark.ML.Feature
         IJavaMLWritable,
         IJavaMLReadable<SQLTransformer>
     {
-        private static readonly string s_sqlTransformerClassName =
+        private static readonly string s_className =
             "org.apache.spark.ml.feature.SQLTransformer";
 
         /// <summary>
         /// Create a <see cref="SQLTransformer"/> without any parameters.
         /// </summary>
-        public SQLTransformer() : base(s_sqlTransformerClassName)
+        public SQLTransformer() : base(s_className)
         {
         }
 
@@ -32,7 +32,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="SQLTransformer"/> a unique ID.
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public SQLTransformer(string uid) : base(s_sqlTransformerClassName, uid)
+        public SQLTransformer(string uid) : base(s_className, uid)
         {
         }
 
@@ -88,7 +88,7 @@ namespace Microsoft.Spark.ML.Feature
         public static SQLTransformer Load(string path) =>
             WrapAsSQLTransformer(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_sqlTransformerClassName,
+                    s_className,
                     "load",
                     path));
 
