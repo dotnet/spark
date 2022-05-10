@@ -14,15 +14,18 @@ namespace Microsoft.Spark.ML.Feature
     /// an array of n-grams. Null values in the input array are ignored. It returns an array
     /// of n-grams where each n-gram is represented by a space-separated string of words.
     /// </summary>
-    public class NGram : FeatureBase<NGram>
+    public class NGram :
+        JavaTransformer,
+        IJavaMLWritable,
+        IJavaMLReadable<NGram>
     {
-        private static readonly string s_nGramClassName =
+        private static readonly string s_className =
             "org.apache.spark.ml.feature.NGram";
 
         /// <summary>
         /// Create a <see cref="NGram"/> without any parameters.
         /// </summary>
-        public NGram() : base(s_nGramClassName)
+        public NGram() : base(s_className)
         {
         }
 
@@ -32,7 +35,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.
         /// </param>
-        public NGram(string uid) : base(s_nGramClassName, uid)
+        public NGram(string uid) : base(s_className, uid)
         {
         }
 
@@ -87,7 +90,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>
         /// New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/> transformed.
         /// </returns>
-        public DataFrame Transform(DataFrame source) =>
+        public override DataFrame Transform(DataFrame source) =>
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", source));
 
         /// <summary>
@@ -106,7 +109,7 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="StructType"/> of the output schema that would have been derived from the
         /// input schema, if Transform had been called.
         /// </returns>
-        public StructType TransformSchema(StructType value) =>
+        public override StructType TransformSchema(StructType value) =>
             new StructType(
                 (JvmObjectReference)Reference.Invoke(
                     "transformSchema",
@@ -120,9 +123,30 @@ namespace Microsoft.Spark.ML.Feature
         public static NGram Load(string path) =>
             WrapAsNGram(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_nGramClassName,
+                    s_className,
                     "load",
                     path));
+
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+
+        /// <summary>
+        /// Get the corresponding JavaMLWriter instance.
+        /// </summary>
+        /// <returns>a <see cref="JavaMLWriter"/> instance for this ML instance.</returns>
+        public JavaMLWriter Write() =>
+            new JavaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+
+        /// <summary>
+        /// Get the corresponding JavaMLReader instance.
+        /// </summary>
+        /// <returns>an <see cref="JavaMLReader&lt;NGram&gt;"/> instance for this ML instance.</returns>
+        public JavaMLReader<NGram> Read() =>
+            new JavaMLReader<NGram>((JvmObjectReference)Reference.Invoke("read"));
 
         private static NGram WrapAsNGram(object obj) => new NGram((JvmObjectReference)obj);
     }
