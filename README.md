@@ -23,6 +23,7 @@
 - [Contributing](#contributing)
 - [Inspiration and Special Thanks](#inspiration-and-special-thanks)
 - [How to Engage, Contribute and Provide Feedback](#how-to-engage-contribute-and-provide-feedback)
+- [Support](#support)
 - [.NET Foundation](#net-foundation)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
