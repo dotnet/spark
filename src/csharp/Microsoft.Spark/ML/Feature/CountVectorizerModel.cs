@@ -15,7 +15,7 @@ namespace Microsoft.Spark.ML.Feature
         IJavaMLWritable,
         IJavaMLReadable<CountVectorizerModel>
     {
-        private static readonly string s_countVectorizerModelClassName =
+        private static readonly string s_className =
             "org.apache.spark.ml.feature.CountVectorizerModel";
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="vocabulary">The vocabulary to use</param>
         public CountVectorizerModel(List<string> vocabulary)
             : this(SparkEnvironment.JvmBridge.CallConstructor(
-                s_countVectorizerModelClassName, vocabulary))
+                s_className, vocabulary))
         {
         }
 
@@ -36,7 +36,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="vocabulary">The vocabulary to use</param>
         public CountVectorizerModel(string uid, List<string> vocabulary)
             : this(SparkEnvironment.JvmBridge.CallConstructor(
-                s_countVectorizerModelClassName, uid, vocabulary))
+                s_className, uid, vocabulary))
         {
         }
 
@@ -54,7 +54,7 @@ namespace Microsoft.Spark.ML.Feature
         public static CountVectorizerModel Load(string path) =>
             WrapAsCountVectorizerModel(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_countVectorizerModelClassName, "load", path));
+                    s_className, "load", path));
 
         /// <summary>
         /// Gets the binary toggle to control the output vector values. If True, all nonzero counts
