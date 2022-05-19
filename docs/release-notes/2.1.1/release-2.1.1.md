@@ -4,6 +4,8 @@
 
 * Add base classes for ML and refine code base ([#1031](https://github.com/dotnet/spark/pull/1031))
 * Capture dotnet application error stack trace ([#1047](https://github.com/dotnet/spark/pull/1047))
+* Add assembly check when pipeline trying to get stages ([#1049](https://github.com/dotnet/spark/pull/1049))
+* JvmBridge semaphore fix ([#1061](https://github.com/dotnet/spark/pull/1061))
 
 ### Bug Fixes
 
