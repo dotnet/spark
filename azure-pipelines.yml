@@ -24,7 +24,8 @@ stages:
   displayName: Build Sources
   jobs:
   - job: Build
-    pool: Hosted VS2017
+    pool:
+      vmImage: 'windows-2019'
 
     variables:
       ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
@@ -91,7 +92,7 @@ stages:
       displayName: Sign Artifacts
       pool:
         name: NetCore1ESPool-Internal
-        demands: ImageOverride -equals build.windows.10.amd64.vs2017
+        demands: ImageOverride -equals build.windows.10.amd64.vs2019
 
       variables:
         ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
@@ -138,7 +139,8 @@ stages:
       dependsOn:
         - Sign
       displayName: Publish Artifacts
-      pool: Hosted VS2017
+      pool:
+        vmImage: 'windows-2019'
 
       variables:
         ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
