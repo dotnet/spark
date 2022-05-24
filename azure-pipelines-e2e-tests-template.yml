@@ -13,7 +13,8 @@ stages:
     dependsOn: Build
     jobs:
     - job: Run
-      pool: Hosted VS2017
+      pool:
+        vmImage: 'windows-2019'
   
       variables:
         ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
