@@ -24,4 +24,8 @@
     <ProjectReference Include="..\..\src\csharp\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+
 </Project>
