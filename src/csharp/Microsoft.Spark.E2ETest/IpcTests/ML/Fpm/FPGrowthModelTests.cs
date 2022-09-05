@@ -91,6 +91,5 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Fpm
             TestFeatureBase(fpm, "numPartitions", 2);
             TestFeatureBase(fpm, "predictionCol", "prediction");
         }
-
     }
 }

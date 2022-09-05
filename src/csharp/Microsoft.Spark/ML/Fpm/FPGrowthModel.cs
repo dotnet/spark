@@ -2,9 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Sql;
 
 namespace Microsoft.Spark.ML.Fpm
 {
@@ -14,22 +16,6 @@ namespace Microsoft.Spark.ML.Fpm
     public class FPGrowthModel : JavaModel<FPGrowthModel>, IJavaMLWritable, IJavaMLReadable<FPGrowthModel>
     {
         private static readonly string s_className = "org.apache.spark.ml.fpm.FPGrowthModel";
-
-        /// <summary>
-        /// Creates a <see cref="FPGrowthModel"/> without any parameters.
-        /// </summary>
-        public FPGrowthModel() : base(s_className)
-        {
-        }
-
-        /// <summary>
-        /// Creates a <see cref="FPGrowthModel"/> with a UID that is used to give the
-        /// <see cref="FPGrowthModel"/> a unique ID.
-        /// </summary>
-        /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public FPGrowthModel(string uid) : base(s_className, uid)
-        {
-        }
 
         internal FPGrowthModel(JvmObjectReference jvmObject) : base(jvmObject)
         {
