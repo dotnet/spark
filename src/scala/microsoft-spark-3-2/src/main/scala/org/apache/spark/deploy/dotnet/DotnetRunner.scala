@@ -28,6 +28,10 @@ import scala.collection.JavaConverters._
 import scala.io.StdIn
 import scala.util.Try
 
+import org.apache.hadoop.conf.Configuration
+import java.lang.NoSuchMethodException
+import java.lang.reflect.InvocationTargetException
+
 /**
  * DotnetRunner class used to launch Spark .NET applications using spark-submit.
  * It executes .NET application as a subprocess and then has it connect back to
@@ -205,6 +209,65 @@ object DotnetRunner extends Logging {
     resolvedExecutable
   }
 
+  private def callFetchFileViaReflection(
+      url: String,
+      targetDir: File,
+      conf: SparkConf,
+      hadoopConf: Configuration,
+      timestamp: Long,
+      useCache: Boolean,
+      shouldUntar: Boolean = true): File = {
+    
+    val signatureWithSecurityManager = Array(
+      classOf[String],
+      classOf[File], 
+      classOf[SparkConf],
+      classOf[SecurityManager],
+      classOf[Configuration],
+      java.lang.Long.TYPE,
+      java.lang.Boolean.TYPE,
+      java.lang.Boolean.TYPE
+    )
+
+    val signatureWithoutSecurityManager = Array(
+      classOf[String],
+      classOf[File], 
+      classOf[SparkConf],
+      classOf[Configuration],
+      classOf[Long],
+      classOf[Boolean],
+      classOf[Boolean]
+    )
+    
+    val (needSecurityManagerArg, method) = {
+      try {
+        (true, utilsClass.getMethod("fetchFile", signatureWithSecurityManager: _*))
+      } catch {
+        case _: NoSuchMethodException => 
+          (false, utilsClass.getMethod("fetchFile", signatureWithoutSecurityManager: _*))
+      }
+    }
+    
+    val args: Seq[Any] = 
+      Seq(
+        url,
+        targetDir,
+        conf
+      ) ++ (if (needSecurityManagerArg) Seq(null) else Nil) ++ Seq(
+        hadoopConf,
+        timestamp,
+        useCache, 
+        shouldUntar)
+    
+    // Unwrap InvocationTargetException to preserve exception in case of errors:
+    try {
+      method.invoke(utilsObject, args.map(_.asInstanceOf[Object]): _*).asInstanceOf[File]
+    } catch {
+      case e: InvocationTargetException => 
+        throw e.getCause()
+    }
+  }
+
   /**
    * Download HDFS file into the supplied directory and return its local path.
    * Will throw an exception if there are errors during downloading.
@@ -219,7 +282,7 @@ object DotnetRunner extends Logging {
 
     if (!localFile.exists()) { // May already exist if running multiple workers on one node
       logInfo(s"Copying user file $filePath to $driverDir")
-      Utils.fetchFile(
+      callFetchFileViaReflection(
         hdfsFilePath,
         new File(driverDir),
         sparkConf,
