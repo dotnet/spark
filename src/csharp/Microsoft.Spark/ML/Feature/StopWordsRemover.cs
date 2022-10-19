@@ -13,15 +13,18 @@ namespace Microsoft.Spark.ML.Feature
     /// <summary>
     /// A <see cref="StopWordsRemover"/> feature transformer that filters out stop words from input.
     /// </summary>
-    public class StopWordsRemover : FeatureBase<StopWordsRemover>
+    public class StopWordsRemover :
+        JavaTransformer,
+        IJavaMLWritable,
+        IJavaMLReadable<StopWordsRemover>
     {
-        private static readonly string s_stopWordsRemoverClassName =
+        private static readonly string s_className =
             "org.apache.spark.ml.feature.StopWordsRemover";
 
         /// <summary>
         /// Create a <see cref="StopWordsRemover"/> without any parameters.
         /// </summary>
-        public StopWordsRemover() : base(s_stopWordsRemoverClassName)
+        public StopWordsRemover() : base(s_className)
         {
         }
 
@@ -30,7 +33,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="StopWordsRemover"/> a unique ID.
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public StopWordsRemover(string uid) : base(s_stopWordsRemoverClassName, uid)
+        public StopWordsRemover(string uid) : base(s_className, uid)
         {
         }
 
@@ -63,7 +66,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>
         /// New <see cref="DataFrame"/> object with the source <see cref="DataFrame"/> transformed
         /// </returns>
-        public DataFrame Transform(DataFrame source) =>
+        public override DataFrame Transform(DataFrame source) =>
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", source));
 
         /// <summary>
@@ -141,7 +144,7 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="StructType"/> of the output schema that would have been derived from the
         /// input schema, if Transform had been called.
         /// </returns>
-        public StructType TransformSchema(StructType value) =>
+        public override StructType TransformSchema(StructType value) =>
             new StructType(
                 (JvmObjectReference)Reference.Invoke(
                     "transformSchema",
@@ -157,7 +160,7 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>Default stop words for the given language</returns>
         public static string[] LoadDefaultStopWords(string language) =>
             (string[])SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                s_stopWordsRemoverClassName, "loadDefaultStopWords", language);
+                s_className, "loadDefaultStopWords", language);
 
         /// <summary>
         /// Loads the <see cref="StopWordsRemover"/> that was previously saved using Save.
@@ -166,7 +169,28 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>New <see cref="StopWordsRemover"/> object, loaded from path</returns>
         public static StopWordsRemover Load(string path) =>
             WrapAsStopWordsRemover(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_stopWordsRemoverClassName, "load", path));
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_className, "load", path));
+
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+
+        /// <summary>
+        /// Get the corresponding JavaMLWriter instance.
+        /// </summary>
+        /// <returns>a <see cref="JavaMLWriter"/> instance for this ML instance.</returns>
+        public JavaMLWriter Write() =>
+            new JavaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+
+        /// <summary>
+        /// Get the corresponding JavaMLReader instance.
+        /// </summary>
+        /// <returns>an <see cref="JavaMLReader&lt;StopWordsRemover&gt;"/> instance for this ML instance.</returns>
+        public JavaMLReader<StopWordsRemover> Read() =>
+            new JavaMLReader<StopWordsRemover>((JvmObjectReference)Reference.Invoke("read"));
 
         private static StopWordsRemover WrapAsStopWordsRemover(object obj) =>
             new StopWordsRemover((JvmObjectReference)obj);
