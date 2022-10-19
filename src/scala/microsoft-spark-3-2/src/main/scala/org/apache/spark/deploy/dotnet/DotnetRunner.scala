@@ -239,6 +239,8 @@ object DotnetRunner extends Logging {
       classOf[Boolean]
     )
     
+    val utilsClass = Utils.getClass
+
     val (needSecurityManagerArg, method) = {
       try {
         (true, utilsClass.getMethod("fetchFile", signatureWithSecurityManager: _*))
@@ -261,7 +263,7 @@ object DotnetRunner extends Logging {
     
     // Unwrap InvocationTargetException to preserve exception in case of errors:
     try {
-      method.invoke(utilsObject, args.map(_.asInstanceOf[Object]): _*).asInstanceOf[File]
+      method.invoke(Utils, args.map(_.asInstanceOf[Object]): _*).asInstanceOf[File]
     } catch {
       case e: InvocationTargetException => 
         throw e.getCause()
