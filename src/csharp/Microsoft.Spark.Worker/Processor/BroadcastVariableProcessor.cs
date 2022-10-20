@@ -62,7 +62,9 @@ namespace Microsoft.Spark.Worker.Processor
                                 $"server {readBid} is different from the Broadcast Id received " +
                                 $"from the payload {bid}.");
                         }
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
                         object value = formatter.Deserialize(socket.InputStream);
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
                         BroadcastRegistry.Add(bid, value);
                     }
                     else
@@ -70,7 +72,9 @@ namespace Microsoft.Spark.Worker.Processor
                         string path = SerDe.ReadString(stream);
                         using FileStream fStream = 
                             File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
                         object value = formatter.Deserialize(fStream);
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
                         BroadcastRegistry.Add(bid, value);
                     }
                 }
