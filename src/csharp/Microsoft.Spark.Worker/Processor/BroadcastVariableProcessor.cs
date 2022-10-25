@@ -63,6 +63,7 @@ namespace Microsoft.Spark.Worker.Processor
                                 $"from the payload {bid}.");
                         }
 #pragma warning disable SYSLIB0011 // Type or member is obsolete
+                        // TODO: Replace BinaryFormatter with a new, secure serializer.
                         object value = formatter.Deserialize(socket.InputStream);
 #pragma warning restore SYSLIB0011 // Type or member is obsolete
                         BroadcastRegistry.Add(bid, value);
@@ -73,6 +74,7 @@ namespace Microsoft.Spark.Worker.Processor
                         using FileStream fStream = 
                             File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
 #pragma warning disable SYSLIB0011 // Type or member is obsolete
+                        // TODO: Replace BinaryFormatter with a new, secure serializer.
                         object value = formatter.Deserialize(fStream);
 #pragma warning restore SYSLIB0011 // Type or member is obsolete
                         BroadcastRegistry.Add(bid, value);
