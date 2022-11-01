@@ -20,7 +20,7 @@ stages:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
-            vmImage: 'windows-2019'
+            vmImage: 'windows-2022'
         ${{ else }}:
           pool:
             ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
