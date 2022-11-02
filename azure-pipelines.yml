@@ -46,7 +46,7 @@ resources:
   repositories:
   - repository: forwardCompatibleRelease
     type: github
-    endpoint: dotnet
+    endpoint: public
     name: dotnet/spark
     ref: refs/tags/v$(forwardCompatibleRelease)
 
