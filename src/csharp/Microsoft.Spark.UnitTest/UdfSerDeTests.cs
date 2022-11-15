@@ -149,6 +149,7 @@ namespace Microsoft.Spark.UnitTest
             return Deserialize(Serialize(udf));
         }
 
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
         private byte[] Serialize(Delegate udf)
         {
             UdfSerDe.UdfData udfData = UdfSerDe.Serialize(udf);
@@ -170,5 +171,6 @@ namespace Microsoft.Spark.UnitTest
                 return UdfSerDe.Deserialize(udfData);
             }
         }
+#pragma warning restore
     }
 }

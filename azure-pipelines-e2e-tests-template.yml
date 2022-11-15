@@ -57,7 +57,7 @@ stages:
             downloadPath: $(Build.ArtifactStagingDirectory)
 
         - pwsh: |
-            $framework = "netcoreapp3.1"
+            $framework = "net6.0"
 
             if ($env:AGENT_OS -eq 'Windows_NT') {
               $runtimeIdentifier = "win-x64"
