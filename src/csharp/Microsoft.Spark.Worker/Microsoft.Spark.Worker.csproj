@@ -4,6 +4,7 @@
     <TargetFrameworks>net6.0</TargetFrameworks>
     <RootNamespace>Microsoft.Spark.Worker</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <SelfContained>true</SelfContained>
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Microsoft.Spark.Worker.UnitTest" />
