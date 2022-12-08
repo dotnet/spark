@@ -58,7 +58,6 @@ stages:
 
         - pwsh: |
             $framework = "net6.0"
-            $backwardCompatibleFramework = "netcoreapp3.1"
 
             if ($env:AGENT_OS -eq 'Windows_NT') {
               $runtimeIdentifier = "win-x64"
@@ -73,7 +72,7 @@ stages:
 
             $backwardCompatibleRelease = "${{ parameters.backwardCompatibleRelease }}"
             echo "##vso[task.setvariable variable=BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR]$(Build.BinariesDirectory)${pathSeparator}Microsoft.Spark.Worker-${backwardCompatibleRelease}"
-            echo "##vso[task.setvariable variable=BACKWARD_COMPATIBLE_WORKER_URL]https://github.com/dotnet/spark/releases/download/v${backwardCompatibleRelease}/Microsoft.Spark.Worker.${backwardCompatibleFramework}.${runtimeIdentifier}-${backwardCompatibleRelease}.zip"
+            echo "##vso[task.setvariable variable=BACKWARD_COMPATIBLE_WORKER_URL]https://github.com/dotnet/spark/releases/download/v${backwardCompatibleRelease}/Microsoft.Spark.Worker.${framework}.${runtimeIdentifier}-${backwardCompatibleRelease}.zip"
 
             $dotnetWorkerDir = "${artifactPath}${pathSeparator}Microsoft.Spark.Worker${pathSeparator}${framework}${pathSeparator}${runtimeIdentifier}"
             echo "##vso[task.setvariable variable=CURRENT_DOTNET_WORKER_DIR]$dotnetWorkerDir"
