@@ -44,7 +44,7 @@ stages:
               mvn -version
 
         - task: UseDotNet@2
-          displayName: 'Use .NET Core sdk'
+          displayName: 'Use .NET 6 sdk'
           inputs:
             packageType: sdk
             version: 6.x

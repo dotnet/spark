@@ -1,10 +1,10 @@
 # Getting Started with Spark .NET on Windows
 
-These instructions will show you how to run a .NET for Apache Spark app using .NET Core on Windows.
+These instructions will show you how to run a .NET for Apache Spark app using .NET 6 on Windows.
 
 ## Pre-requisites
 
-- Download and install the following: **[.NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.1)** | **[Visual Studio 2019](https://www.visualstudio.com/downloads/)** | **[Java 1.8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)** | **[Apache Spark 2.4.1](https://archive.apache.org/dist/spark/spark-2.4.1/spark-2.4.1-bin-hadoop2.7.tgz)**
+- Download and install the following: **[.NET 6 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)** | **[Visual Studio 2019](https://www.visualstudio.com/downloads/)** | **[Java 1.8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)** | **[Apache Spark 2.4.1](https://archive.apache.org/dist/spark/spark-2.4.1/spark-2.4.1-bin-hadoop2.7.tgz)**
 - Download and install **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release:
     - Select a **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release from .NET for Apache Spark GitHub Releases page and download into your local machine (e.g., `c:\bin\Microsoft.Spark.Worker\`).
     - **IMPORTANT** Create a [new environment variable](https://www.java.com/en/download/help/path.xml) `DOTNET_WORKER_DIR` and set it to the directory where you downloaded and extracted the Microsoft.Spark.Worker (e.g., `c:\bin\Microsoft.Spark.Worker`).
@@ -12,7 +12,7 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
 For detailed instructions, you can see [Building .NET for Apache Spark from Source on Windows](../building/windows-instructions.md).
 
 ## Authoring a .NET for Apache Spark App
-- Open Visual Studio -> Create New Project -> Console App (.NET Core) -> Name: `HelloSpark`
+- Open Visual Studio -> Create New Project -> Console App (.NET 6) -> Name: `HelloSpark`
 - Install `Microsoft.Spark` Nuget package into the solution from the [spark nuget.org feed](https://www.nuget.org/profiles/spark) - see [Ways to install Nuget Package](https://docs.microsoft.com/en-us/nuget/consume-packages/ways-to-install-a-package)
 - Write the following code into `Program.cs`:
     ```csharp

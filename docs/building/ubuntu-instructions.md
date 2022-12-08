@@ -16,7 +16,7 @@ Building Spark .NET on Ubuntu 18.04
 
 If you already have all the pre-requisites, skip to the [build](ubuntu-instructions.md#building) steps below.
 
-  1. Download and install **[.NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.1)** - installing the SDK will add the `dotnet` toolchain to your path.
+  1. Download and install **[.NET 6 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)** - installing the SDK will add the `dotnet` toolchain to your path.
   2. Install **[OpenJDK 8](https://openjdk.java.net/install/)** 
      - You can use the following command:
        ```bash
@@ -117,7 +117,7 @@ You should see JARs created for the supported Spark versions:
 * `microsoft-spark-2-4/target/microsoft-spark-2-4_2.11-<version>.jar`
 * `microsoft-spark-3-0/target/microsoft-spark-3-0_2.12-<version>.jar`
 
-## Building .NET Sample Applications using .NET Core CLI
+## Building .NET Sample Applications using .NET 6 CLI
 
   1. Build the Worker
       ```bash
@@ -165,7 +165,7 @@ You should see JARs created for the supported Spark versions:
 
 # Run Samples
 
-Once you build the samples, you can use `spark-submit` to submit your .NET Core apps. Make sure you have followed the [pre-requisites](#pre-requisites) section and installed Apache Spark.
+Once you build the samples, you can use `spark-submit` to submit your .NET 6 apps. Make sure you have followed the [pre-requisites](#pre-requisites) section and installed Apache Spark.
 
   1. Set the `DOTNET_WORKER_DIR` or `PATH` environment variable to include the path where the `Microsoft.Spark.Worker` binary has been generated (e.g., `~/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/net6.0/linux-x64/publish`)
   2. Open a terminal and go to the directory where your app binary has been generated (e.g., `~/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/net6.0/linux-x64/publish`)

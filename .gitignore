@@ -49,7 +49,7 @@ dlldata.c
 # Benchmark Results
 BenchmarkDotNet.Artifacts/
 
-# .NET Core
+# .NET 6
 project.lock.json
 project.fragment.lock.json
 artifacts/
