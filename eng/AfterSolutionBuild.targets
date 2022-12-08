@@ -21,6 +21,7 @@
                    -c $(Configuration) ^
                    -f %(_PublishTarget.Framework) ^
                    -r %(_PublishTarget.RuntimeId) ^
+                   --self-contained ^
                    -o &quot;$(SparkWorkerPublishDir)\%(_PublishTarget.Framework)\%(_PublishTarget.RuntimeId)&quot; ^
                    /p:OfficialBuildId=$(OfficialBuildId)" />
 
