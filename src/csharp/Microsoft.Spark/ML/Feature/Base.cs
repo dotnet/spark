@@ -1,4 +1,7 @@
-using System;
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
 using System.Linq;
 using System.Reflection;
 using Microsoft.Spark.Interop;
@@ -7,27 +10,23 @@ using Microsoft.Spark.Interop.Ipc;
 namespace Microsoft.Spark.ML.Feature
 {
     /// <summary>
-    /// FeatureBase is to share code amongst all of the ML.Feature objects, there are a few
-    /// interfaces that the Scala code implements across all of the objects. This should help to
-    /// write the extra objects faster.
+    /// Params is used for components that take parameters. This also provides
+    /// an internal param map to store parameter values attached to the instance.
+    /// An abstract class corresponds to scala's Params trait.
     /// </summary>
-    /// <typeparam name="T">
-    /// The class that implements FeatureBase, this is needed so we can create new objects where
-    /// spark returns new objects rather than update existing objects.
-    /// </typeparam>
-    public class FeatureBase<T> : Identifiable, IJvmObjectReferenceProvider
-    {        
-        internal FeatureBase(string className)
+    public abstract class Params : Identifiable, IJvmObjectReferenceProvider
+    {
+        internal Params(string className)
             : this(SparkEnvironment.JvmBridge.CallConstructor(className))
         {
         }
-        
-        internal FeatureBase(string className, string uid)
+
+        internal Params(string className, string uid)
             : this(SparkEnvironment.JvmBridge.CallConstructor(className, uid))
         {
         }
-        
-        internal FeatureBase(JvmObjectReference jvmObject)
+
+        internal Params(JvmObjectReference jvmObject)
         {
             Reference = jvmObject;
         }
@@ -39,7 +38,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <returns>JVM toString() value</returns>
         public override string ToString() => (string)Reference.Invoke("toString");
-        
+
         /// <summary>
         /// The UID that was used to create the object. If no UID is passed in when creating the
         /// object then a random UID is created when the object is created.
@@ -48,29 +47,11 @@ namespace Microsoft.Spark.ML.Feature
         public string Uid() => (string)Reference.Invoke("uid");
 
         /// <summary>
-        /// Saves the object so that it can be loaded later using Load. Note that these objects
-        /// can be shared with Scala by Loading or Saving in Scala.
-        /// </summary>
-        /// <param name="path">The path to save the object to</param>
-        /// <returns>New object</returns>
-        public T Save(string path) => 
-            WrapAsType((JvmObjectReference)Reference.Invoke("save", path));
-
-        /// <summary>
-        /// Clears any value that was previously set for this <see cref="Param"/>. The value is
-        /// reset to the default value.
-        /// </summary>
-        /// <param name="param">The <see cref="Param"/> to set back to its original value</param>
-        /// <returns>Object reference that was used to clear the <see cref="Param"/></returns>
-        public T Clear(Param.Param param) => 
-            WrapAsType((JvmObjectReference)Reference.Invoke("clear", param));
-
-        /// <summary>
         /// Returns a description of how a specific <see cref="Param"/> works and is currently set.
         /// </summary>
         /// <param name="param">The <see cref="Param"/> to explain</param>
         /// <returns>Description of the <see cref="Param"/></returns>
-        public string ExplainParam(Param.Param param) => 
+        public string ExplainParam(Param.Param param) =>
             (string)Reference.Invoke("explainParam", param);
 
         /// <summary>
@@ -80,13 +61,30 @@ namespace Microsoft.Spark.ML.Feature
         /// <returns>Description of all the applicable <see cref="Param"/>'s</returns>
         public string ExplainParams() => (string)Reference.Invoke("explainParams");
 
+        /// <summary>Checks whether a param is explicitly set.</summary>
+        /// <param name="param">The <see cref="Param"/> to be checked.</param>
+        /// <returns>bool</returns>
+        public bool IsSet(Param.Param param) => (bool)Reference.Invoke("isSet", param);
+
+        /// <summary>Checks whether a param is explicitly set or has a default value.</summary>
+        /// <param name="param">The <see cref="Param"/> to be checked.</param>
+        /// <returns>bool</returns>
+        public bool IsDefined(Param.Param param) => (bool)Reference.Invoke("isDefined", param);
+
+        /// <summary>
+        /// Tests whether this instance contains a param with a given name.
+        /// </summary>
+        /// <param name="paramName">The <see cref="Param"/> to be test.</param>
+        /// <returns>bool</returns>
+        public bool HasParam(string paramName) => (bool)Reference.Invoke("hasParam", paramName);
+
         /// <summary>
         /// Retrieves a <see cref="Param"/> so that it can be used to set the value of the
         /// <see cref="Param"/> on the object.
         /// </summary>
         /// <param name="paramName">The name of the <see cref="Param"/> to get.</param>
         /// <returns><see cref="Param"/> that can be used to set the actual value</returns>
-        public Param.Param GetParam(string paramName) => 
+        public Param.Param GetParam(string paramName) =>
             new Param.Param((JvmObjectReference)Reference.Invoke("getParam", paramName));
 
         /// <summary>
@@ -95,10 +93,19 @@ namespace Microsoft.Spark.ML.Feature
         /// <param name="param"><see cref="Param"/> to set the value of</param>
         /// <param name="value">The value to use</param>
         /// <returns>The object that contains the newly set <see cref="Param"/></returns>
-        public T Set(Param.Param param, object value) => 
-            WrapAsType((JvmObjectReference)Reference.Invoke("set", param, value));
+        public T Set<T>(Param.Param param, object value) =>
+            WrapAsType<T>((JvmObjectReference)Reference.Invoke("set", param, value));
 
-        private static T WrapAsType(JvmObjectReference reference)
+        /// <summary>
+        /// Clears any value that was previously set for this <see cref="Param"/>. The value is
+        /// reset to the default value.
+        /// </summary>
+        /// <param name="param">The <see cref="Param"/> to set back to its original value</param>
+        /// <returns>Object reference that was used to clear the <see cref="Param"/></returns>
+        public T Clear<T>(Param.Param param) =>
+            WrapAsType<T>((JvmObjectReference)Reference.Invoke("clear", param));
+
+        protected static T WrapAsType<T>(JvmObjectReference reference)
         {
             ConstructorInfo constructor = typeof(T)
                 .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
@@ -109,7 +116,7 @@ namespace Microsoft.Spark.ML.Feature
                         (parameters[0].ParameterType == typeof(JvmObjectReference));
                 });
 
-            return (T)constructor.Invoke(new object[] {reference});
+            return (T)constructor.Invoke(new object[] { reference });
         }
     }
 }

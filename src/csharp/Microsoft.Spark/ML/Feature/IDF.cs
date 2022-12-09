@@ -17,14 +17,17 @@ namespace Microsoft.Spark.ML.Feature
     /// of documents (controlled by the variable minDocFreq). For terms that are not in at least
     /// minDocFreq documents, the IDF is found as 0, resulting in TF-IDFs of 0.
     /// </summary>
-    public class IDF : FeatureBase<IDF>
+    public class IDF :
+        JavaEstimator<IDFModel>,
+        IJavaMLWritable,
+        IJavaMLReadable<IDF>
     {
-        private static readonly string s_IDFClassName = "org.apache.spark.ml.feature.IDF";
-        
+        private static readonly string s_className = "org.apache.spark.ml.feature.IDF";
+
         /// <summary>
         /// Create a <see cref="IDF"/> without any parameters
         /// </summary>
-        public IDF() : base(s_IDFClassName)
+        public IDF() : base(s_className)
         {
         }
 
@@ -33,14 +36,14 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="IDF"/> a unique ID
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public IDF(string uid) : base(s_IDFClassName, uid)
+        public IDF(string uid) : base(s_className, uid)
         {
         }
-        
+
         internal IDF(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
-        
+
         /// <summary>
         /// Gets the column that the <see cref="IDF"/> should read from
         /// </summary>
@@ -67,7 +70,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">The name of the new column</param>
         /// <returns>New <see cref="IDF"/> object</returns>
-        public IDF SetOutputCol(string value) => 
+        public IDF SetOutputCol(string value) =>
             WrapAsIDF(Reference.Invoke("setOutputCol", value));
 
         /// <summary>
@@ -81,7 +84,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">int, the minimum of documents a term should appear in</param>
         /// <returns>New <see cref="IDF"/> object</returns>
-        public IDF SetMinDocFreq(int value) => 
+        public IDF SetMinDocFreq(int value) =>
             WrapAsIDF(Reference.Invoke("setMinDocFreq", value));
 
         /// <summary>
@@ -89,7 +92,7 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="source">The <see cref="DataFrame"/> to fit the model to</param>
         /// <returns>New <see cref="IDFModel"/> object</returns>
-        public IDFModel Fit(DataFrame source) => 
+        public override IDFModel Fit(DataFrame source) =>
             new IDFModel((JvmObjectReference)Reference.Invoke("fit", source));
 
         /// <summary>
@@ -100,9 +103,30 @@ namespace Microsoft.Spark.ML.Feature
         public static IDF Load(string path)
         {
             return WrapAsIDF(
-                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_IDFClassName, "load", path));
+                SparkEnvironment.JvmBridge.CallStaticJavaMethod(s_className, "load", path));
         }
- 
+
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+
+        /// <summary>
+        /// Get the corresponding JavaMLWriter instance.
+        /// </summary>
+        /// <returns>a <see cref="JavaMLWriter"/> instance for this ML instance.</returns>
+        public JavaMLWriter Write() =>
+            new JavaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+
+        /// <summary>
+        /// Get the corresponding JavaMLReader instance.
+        /// </summary>
+        /// <returns>an <see cref="JavaMLReader&lt;IDF&gt;"/> instance for this ML instance.</returns>
+        public JavaMLReader<IDF> Read() =>
+            new JavaMLReader<IDF>((JvmObjectReference)Reference.Invoke("read"));
+
         private static IDF WrapAsIDF(object obj) => new IDF((JvmObjectReference)obj);
     }
 }

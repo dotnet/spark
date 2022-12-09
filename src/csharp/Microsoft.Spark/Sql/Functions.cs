@@ -273,6 +273,7 @@ namespace Microsoft.Spark.Sql
 
         /// <summary>
         /// Returns the number of distinct items in a group.
+        /// An alias of `Count_Distinct`, and it is encouraged to use `Count_Distinct` directly.
         /// </summary>
         /// <param name="column">Column to apply</param>
         /// <param name="columns">Additional columns to apply</param>
@@ -291,6 +292,18 @@ namespace Microsoft.Spark.Sql
         public static Column CountDistinct(string columnName, params string[] columnNames)
         {
             return ApplyFunction("countDistinct", columnName, columnNames);
+        }
+
+        /// <summary>
+        /// Returns the number of distinct items in a group.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="columns">Additional columns to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Count_Distinct(Column column, params Column[] columns)
+        {
+            return ApplyFunction("count_distinct", column, columns);
         }
 
         /// <summary>
@@ -556,6 +569,17 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Returns the product of all numerical elements in a group.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Product(Column column)
+        {
+            return ApplyFunction("product", column);
+        }
+
+        /// <summary>
         /// Returns the skewness of the values in a group.
         /// </summary>
         /// <param name="column">Column to apply</param>
@@ -660,6 +684,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="column">Column to apply</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_2_0)]
         public static Column SumDistinct(Column column)
         {
             return ApplyFunction("sumDistinct", column);
@@ -670,9 +695,21 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="columnName">Column name</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_2_0)]
         public static Column SumDistinct(string columnName)
         {
             return ApplyFunction("sumDistinct", columnName);
+        }
+
+        /// <summary>
+        /// Returns the sum of distinct values in the expression.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Sum_Distinct(Column column)
+        {
+            return ApplyFunction("sum_distinct", column);
         }
 
         /// <summary>
@@ -841,6 +878,25 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Window function: returns the value that is 'offset' rows before the current row,
+        /// and null if there is less than 'offset' rows before the current row.
+        /// 'ignoreNulls' determines whether null values of row are included in or eliminated from the 
+        /// calculation.
+        /// For example, an 'offset' of one will return the previous row at any given point
+        /// in the window partition.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="offset">Offset from the current row</param>
+        /// <param name="defaultValue">Default value when the offset row doesn't exist</param>
+        /// <param name="ignoreNulls">Boolean to determine whether null values are included or not</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Lag(Column column, int offset, object defaultValue, bool ignoreNulls)
+        {
+            return ApplyFunction("lag", column, offset, defaultValue, ignoreNulls);
+        }
+
+        /// <summary>
         /// Window function: returns the value that is 'offset' rows after the current row,
         /// and null if there is less than 'offset' rows after the current row.
         /// For example, an 'offset' of one will return the next row at any given point
@@ -874,6 +930,25 @@ namespace Microsoft.Spark.Sql
             return (defaultValue != null) ?
                 ApplyFunction("lead", columnName, offset, defaultValue) :
                 ApplyFunction("lead", columnName, offset);
+        }
+
+        /// <summary>
+        /// Window function: returns the value that is 'offset' rows after the current row,
+        /// and null if there is less than 'offset' rows after the current row.
+        /// 'ignoreNulls' determines whether null values of row are included in or eliminated from the 
+        /// calculation.
+        /// For example, an 'offset' of one will return the next row at any given point
+        /// in the window partition.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="offset">Offset from the current row</param>
+        /// <param name="defaultValue">Default value when the offset row doesn't exist</param>
+        /// <param name="ignoreNulls">Boolean to determine whether null values are included or not</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Lead(Column column, int offset, object defaultValue, bool ignoreNulls)
+        {
+            return ApplyFunction("lead", column, offset, defaultValue, ignoreNulls);
         }
 
         /// <summary>
@@ -1218,9 +1293,21 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="column">Column to apply</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_2_0)]
         public static Column BitwiseNOT(Column column)
         {
             return ApplyFunction("bitwiseNOT", column);
+        }
+
+        /// <summary>
+        /// Computes bitwise NOT of a number.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Bitwise_Not(Column column)
+        {
+            return ApplyFunction("bitwise_not", column);
         }
 
         /// <summary>
@@ -2062,9 +2149,22 @@ namespace Microsoft.Spark.Sql
         /// <param name="column">Column to apply</param>
         /// <param name="numBits">Number of bits to shift</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_2_0)]
         public static Column ShiftLeft(Column column, int numBits)
         {
             return ApplyFunction("shiftLeft", column, numBits);
+        }
+
+        /// <summary>
+        /// Shift the given value `numBits` left.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="numBits">Number of bits to shift</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Shiftleft(Column column, int numBits)
+        {
+            return ApplyFunction("shiftleft", column, numBits);
         }
 
         /// <summary>
@@ -2073,9 +2173,22 @@ namespace Microsoft.Spark.Sql
         /// <param name="column">Column to apply</param>
         /// <param name="numBits">Number of bits to shift</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_2_0)]
         public static Column ShiftRight(Column column, int numBits)
         {
             return ApplyFunction("shiftRight", column, numBits);
+        }
+
+        /// <summary>
+        /// (Signed) shift the given value `numBits` right.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="numBits">Number of bits to shift</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Shiftright(Column column, int numBits)
+        {
+            return ApplyFunction("shiftright", column, numBits);
         }
 
         /// <summary>
@@ -2084,9 +2197,22 @@ namespace Microsoft.Spark.Sql
         /// <param name="column">Column to apply</param>
         /// <param name="numBits">Number of bits to shift</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_2_0)]
         public static Column ShiftRightUnsigned(Column column, int numBits)
         {
             return ApplyFunction("shiftRightUnsigned", column, numBits);
+        }
+
+        /// <summary>
+        /// Unsigned shift the given value `numBits` right.
+        /// </summary>
+        /// <param name="column">Column to apply</param>
+        /// <param name="numBits">Number of bits to shift</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Shiftrightunsigned(Column column, int numBits)
+        {
+            return ApplyFunction("shiftrightunsigned", column, numBits);
         }
 
         /// <summary>
@@ -2755,6 +2881,31 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
+        /// Splits a string into arrays of sentences, where each sentence is an array of words.
+        /// </summary>
+        /// <param name="str">String to split</param>
+        /// <param name="language">Language of the locale</param>
+        /// <param name="country">Country of the locale</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Sentences(Column str, Column language, Column country)
+        {
+            return ApplyFunction("sentences", str, language, country);
+        }
+
+        /// <summary>
+        /// Splits a string into arrays of sentences, where each sentence is an array of words.
+        /// The default locale is used.
+        /// </summary>
+        /// <param name="str">String to split</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Sentences(Column str)
+        {
+            return ApplyFunction("sentences", str);
+        }
+
+        /// <summary>
         /// Translate any characters that match with the given `matchingString` in the column
         /// by the given `replaceString`.
         /// </summary>
@@ -3038,6 +3189,22 @@ namespace Microsoft.Spark.Sql
         /// </param>
         /// <returns>Column object</returns>
         public static Column NextDay(Column date, string dayOfWeek)
+        {
+            return ApplyFunction("next_day", date, dayOfWeek);
+        }
+
+        /// <summary>
+        /// Given a date column, returns the first date which is later than the value of
+        /// the date column that is on the specified day of the week.
+        /// </summary>
+        /// <param name="date">Date column</param>
+        /// <param name="dayOfWeek">
+        /// A column of the day of week. One of the following (case-insensitive):
+        ///   "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun".
+        /// </param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column NextDay(Column date, Column dayOfWeek)
         {
             return ApplyFunction("next_day", date, dayOfWeek);
         }
@@ -3333,6 +3500,35 @@ namespace Microsoft.Spark.Sql
         public static Column Window(Column column, string windowDuration)
         {
             return ApplyFunction("window", column, windowDuration);
+        }
+
+        /// <summary>
+        /// Generates session window given a timestamp specifying column.
+        /// </summary>
+        /// <param name="timeColumn">The column or the expression to use as the timestamp for windowing by 
+        /// time</param>
+        /// <param name="gapDuration">A string specifying the timeout of the session, e.g. '10 minutes',
+        /// '1 second'</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Session_Window(Column timeColumn, string gapDuration)
+        {
+            return ApplyFunction("session_window", timeColumn, gapDuration);
+        }
+
+        /// <summary>
+        /// Generates session window given a timestamp specifying column.
+        /// </summary>
+        /// <param name="timeColumn">The column or the expression to use as the timestamp for windowing by 
+        /// time</param>
+        /// <param name="gapDuration">A column specifying the timeout of the session. It could be static 
+        /// value, e.g. `10 minutes`, `1 second`, or an expression/UDF that specifies gap duration 
+        /// dynamically based on the input row.</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Session_Window(Column timeColumn, Column gapDuration)
+        {
+            return ApplyFunction("session_window", timeColumn, gapDuration);
         }
 
         /// <summary>
@@ -4433,14 +4629,27 @@ namespace Microsoft.Spark.Sql
         }
 
         /// <summary>
-        /// Call an user-defined function registered via SparkSession.Udf().Register().
+        /// Call a user-defined function registered via SparkSession.Udf().Register().
         /// </summary>
         /// <param name="udfName">Name of the registered UDF</param>
         /// <param name="columns">Columns to apply</param>
         /// <returns>Column object</returns>
+        [Deprecated(Versions.V3_2_0)]
         public static Column CallUDF(string udfName, params Column[] columns)
         {
             return ApplyFunction("callUDF", udfName, columns);
+        }
+
+        /// <summary>
+        /// Call a user-defined function registered via SparkSession.Udf().Register().
+        /// </summary>
+        /// <param name="udfName">Name of the registered UDF</param>
+        /// <param name="columns">Columns to apply</param>
+        /// <returns>Column object</returns>
+        [Since(Versions.V3_2_0)]
+        public static Column Call_UDF(string udfName, params Column[] columns)
+        {
+            return ApplyFunction("call_udf", udfName, columns);
         }
 
         private static UserDefinedFunction CreateUdf<TResult>(string name, Delegate execute)

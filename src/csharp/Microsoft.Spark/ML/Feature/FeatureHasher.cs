@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
@@ -11,15 +10,18 @@ using Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.ML.Feature
 {
-    public class FeatureHasher: FeatureBase<FeatureHasher>
+    public class FeatureHasher :
+        JavaTransformer,
+        IJavaMLWritable,
+        IJavaMLReadable<FeatureHasher>
     {
-        private static readonly string s_featureHasherClassName = 
+        private static readonly string s_className =
             "org.apache.spark.ml.feature.FeatureHasher";
-        
+
         /// <summary>
         /// Creates a <see cref="FeatureHasher"/> without any parameters.
         /// </summary>
-        public FeatureHasher() : base(s_featureHasherClassName)
+        public FeatureHasher() : base(s_className)
         {
         }
 
@@ -28,14 +30,14 @@ namespace Microsoft.Spark.ML.Feature
         /// <see cref="FeatureHasher"/> a unique ID.
         /// </summary>
         /// <param name="uid">An immutable unique ID for the object and its derivatives.</param>
-        public FeatureHasher(string uid) : base(s_featureHasherClassName, uid)
+        public FeatureHasher(string uid) : base(s_className, uid)
         {
         }
 
         internal FeatureHasher(JvmObjectReference jvmObject) : base(jvmObject)
         {
         }
-        
+
         /// <summary>
         /// Loads the <see cref="FeatureHasher"/> that was previously saved using Save.
         /// </summary>
@@ -46,25 +48,25 @@ namespace Microsoft.Spark.ML.Feature
         public static FeatureHasher Load(string path) =>
             WrapAsFeatureHasher(
                 SparkEnvironment.JvmBridge.CallStaticJavaMethod(
-                    s_featureHasherClassName,
+                    s_className,
                     "load",
                     path));
-        
+
         /// <summary>
         /// Gets a list of the columns which have been specified as categorical columns.
         /// </summary>
         /// <returns>List of categorical columns, set by SetCategoricalCols</returns>
-        public IEnumerable<string> GetCategoricalCols() => 
+        public IEnumerable<string> GetCategoricalCols() =>
             (string[])Reference.Invoke("getCategoricalCols");
-        
+
         /// <summary>
         /// Marks columns as categorical columns.
         /// </summary>
         /// <param name="value">List of column names to mark as categorical columns</param>
         /// <returns>New <see cref="FeatureHasher"/> object</returns>
-        public FeatureHasher SetCategoricalCols(IEnumerable<string> value) => 
+        public FeatureHasher SetCategoricalCols(IEnumerable<string> value) =>
             WrapAsFeatureHasher(Reference.Invoke("setCategoricalCols", value));
-        
+
         /// <summary>
         /// Gets the columns that the <see cref="FeatureHasher"/> should read from and convert into
         /// hashes. This would have been set by SetInputCol.
@@ -78,9 +80,9 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">The name of the column to as use the source of the hash</param>
         /// <returns>New <see cref="FeatureHasher"/> object</returns>
-        public FeatureHasher SetInputCols(IEnumerable<string> value) => 
+        public FeatureHasher SetInputCols(IEnumerable<string> value) =>
             WrapAsFeatureHasher(Reference.Invoke("setInputCols", value));
-        
+
         /// <summary>
         /// Gets the number of features that should be used. Since a simple modulo is used to
         /// transform the hash function to a column index, it is advisable to use a power of two
@@ -98,9 +100,9 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">int value of number of features</param>
         /// <returns>New <see cref="FeatureHasher"/> object</returns>
-        public FeatureHasher SetNumFeatures(int value) => 
+        public FeatureHasher SetNumFeatures(int value) =>
             WrapAsFeatureHasher(Reference.Invoke("setNumFeatures", value));
-        
+
         /// <summary>
         /// Gets the name of the column the output data will be written to. This is set by
         /// SetInputCol.
@@ -113,18 +115,18 @@ namespace Microsoft.Spark.ML.Feature
         /// </summary>
         /// <param name="value">The name of the new column which will contain the hash</param>
         /// <returns>New <see cref="FeatureHasher"/> object</returns>
-        public FeatureHasher SetOutputCol(string value) => 
+        public FeatureHasher SetOutputCol(string value) =>
             WrapAsFeatureHasher(Reference.Invoke("setOutputCol", value));
-        
+
         /// <summary>
         /// Transforms the input <see cref="DataFrame"/>. It is recommended that you validate that
         /// the transform will succeed by calling TransformSchema.
         /// </summary>
         /// <param name="value">Input <see cref="DataFrame"/> to transform</param>
         /// <returns>Transformed <see cref="DataFrame"/></returns>
-        public DataFrame Transform(DataFrame value) => 
+        public override DataFrame Transform(DataFrame value) =>
             new DataFrame((JvmObjectReference)Reference.Invoke("transform", value));
-        
+
         /// <summary>
         /// Check transform validity and derive the output schema from the input schema.
         /// 
@@ -141,13 +143,34 @@ namespace Microsoft.Spark.ML.Feature
         /// The <see cref="StructType"/> of the output schema that would have been derived from the
         /// input schema, if Transform had been called.
         /// </returns>
-        public StructType TransformSchema(StructType value) => 
+        public override StructType TransformSchema(StructType value) =>
             new StructType(
                 (JvmObjectReference)Reference.Invoke(
-                    "transformSchema", 
+                    "transformSchema",
                     DataType.FromJson(Reference.Jvm, value.Json)));
 
-        private static FeatureHasher WrapAsFeatureHasher(object obj) => 
+        /// <summary>
+        /// Saves the object so that it can be loaded later using Load. Note that these objects
+        /// can be shared with Scala by Loading or Saving in Scala.
+        /// </summary>
+        /// <param name="path">The path to save the object to</param>
+        public void Save(string path) => Reference.Invoke("save", path);
+
+        /// <summary>
+        /// Get the corresponding JavaMLWriter instance.
+        /// </summary>
+        /// <returns>a <see cref="JavaMLWriter"/> instance for this ML instance.</returns>
+        public JavaMLWriter Write() =>
+            new JavaMLWriter((JvmObjectReference)Reference.Invoke("write"));
+
+        /// <summary>
+        /// Get the corresponding JavaMLReader instance.
+        /// </summary>
+        /// <returns>an <see cref="JavaMLReader&lt;FeatureHasher&gt;"/> instance for this ML instance.</returns>
+        public JavaMLReader<FeatureHasher> Read() =>
+            new JavaMLReader<FeatureHasher>((JvmObjectReference)Reference.Invoke("read"));
+
+        private static FeatureHasher WrapAsFeatureHasher(object obj) =>
             new FeatureHasher((JvmObjectReference)obj);
     }
 }

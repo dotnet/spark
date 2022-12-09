@@ -23,6 +23,7 @@
 - [Contributing](#contributing)
 - [Inspiration and Special Thanks](#inspiration-and-special-thanks)
 - [How to Engage, Contribute and Provide Feedback](#how-to-engage-contribute-and-provide-feedback)
+- [Support](#support)
 - [.NET Foundation](#net-foundation)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
@@ -39,13 +40,16 @@
     <tbody align="center">
         <tr>
             <td>2.4*</td>
-            <td rowspan=3><a href="https://github.com/dotnet/spark/releases/tag/v2.0.0">v2.0.0</a></td>
+            <td rowspan=4><a href="https://github.com/dotnet/spark/releases/tag/v2.1.1">v2.1.1</a></td>
         </tr>
         <tr>
             <td>3.0</td>
         </tr>
         <tr>
             <td>3.1</td>
+        </tr>
+        <tr>
+            <td>3.2</td>
         </tr>
     </tbody>
 </table>
@@ -163,6 +167,11 @@ This project would not have been possible without the outstanding work from the 
 ## How to Engage, Contribute and Provide Feedback
 
 The .NET for Apache Spark team encourages [contributions](docs/contributing.md), both issues and PRs. The first step is finding an [existing issue](https://github.com/dotnet/spark/issues) you want to contribute to or if you cannot find any, [open an issue](https://github.com/dotnet/spark/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+).
+
+## Support
+
+[.NET for Apache Spark](https://github.com/dotnet/spark) is an open source project under the [.NET Foundation](https://dotnetfoundation.org/) and 
+does not come with Microsoft Support unless otherwise noted by the specific product. For issues with or questions about .NET for Apache Spark, please [create an issue](https://github.com/dotnet/spark/issues). The community is active and is monitoring submissions.
 
 ## .NET Foundation
 
