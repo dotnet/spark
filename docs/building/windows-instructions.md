@@ -8,7 +8,7 @@ Building Spark .NET on Windows
   - [Building Spark .NET Scala Extensions Layer](#building-spark-net-scala-extensions-layer)
   - [Building .NET Samples Application](#building-net-samples-application)
     - [Using Visual Studio for .NET Framework](#using-visual-studio-for-net-framework)
-    - [Using .NET 6 CLI for .NET 6](#using-net-core-cli-for-net-core)
+    - [Using .NET 6 CLI for .NET 6](#using-net-6-cli-for-net-6)
 - [Run Samples](#run-samples)
 
 # Open Issues:
