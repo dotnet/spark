@@ -46,11 +46,11 @@ stages:
               {
                   sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1
 
-                  if ($LASTEXITCODE -eq 0) { Break }
+                  if ($LASTEXITCODE -ne 0) { Break }
                   
-                  echo 'Waiting for release of /var/lib/dpkg/lock-frontend'
                   sleep 1
-                  $numRetry++     
+                  $numRetry++
+                  echo 'Waited $numRetry s for release of /var/lib/dpkg/lock-frontend'
               }
               
               sudo apt update
