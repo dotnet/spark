@@ -39,7 +39,7 @@ stages:
             pwsh: true
             targetType: inline
             script: |
-              $(Build.SourcesDirectory)/eng/waitForDpkg.sh
+              & "$(Build.SourcesDirectory)/eng/waitForDpkg.sh"
               sudo apt update
               sudo apt -y install maven
               mvn -version
