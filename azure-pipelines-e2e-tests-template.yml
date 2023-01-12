@@ -44,9 +44,11 @@ stages:
 
               while($numRetry -le $maxRetry)
               {
-                  sudo fuser /var/{lib/{dpkg,apt/lists},cache/apt/archives}/lock >/dev/null 2>&1
+                  sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1
+
                   if ($LASTEXITCODE -eq 0) { Break }
-                  echo 'Waiting for release of dpkg locks'
+                  
+                  echo 'Waiting for release of /var/lib/dpkg/lock-frontend'
                   sleep 1
                   $numRetry++     
               }
