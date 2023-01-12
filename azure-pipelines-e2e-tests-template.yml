@@ -39,7 +39,18 @@ stages:
             pwsh: true
             targetType: inline
             script: |
-              bash "$(Build.SourcesDirectory)/eng/waitForDpkg.sh"
+              $numRetry = 0
+              $maxRetry = 60*5
+
+              while($numRetry -le $maxRetry)
+              {
+                  sudo fuser /var/{lib/{dpkg,apt/lists},cache/apt/archives}/lock >/dev/null 2>&1
+                  if ($LASTEXITCODE -eq 0) { Break }
+                  echo 'Waiting for release of dpkg locks'
+                  sleep 1
+                  $numRetry++     
+              }
+              
               sudo apt update
               sudo apt -y install maven
               mvn -version
