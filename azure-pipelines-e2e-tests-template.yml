@@ -44,7 +44,7 @@ stages:
 
               while($numRetry -le $maxRetry)
               {
-                  sudo fuser -v --% var/{lib/{dpkg,apt/lists},cache/apt/archives}/lock 2>&1
+                  sudo fuser -v /var/lib/dpkg/lock-frontend 2>&1
 
                   if ($LASTEXITCODE -ne 0) { Break }
                   
