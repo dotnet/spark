@@ -44,13 +44,13 @@ stages:
 
               while($numRetry -le $maxRetry)
               {
-                  sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1
+                  sudo fuser /var/lib/dpkg/lock-frontend 2>&1
 
                   if ($LASTEXITCODE -ne 0) { Break }
                   
                   sleep 1
                   $numRetry++
-                  echo 'Waited $numRetry s for release of /var/lib/dpkg/lock-frontend'
+                  echo "Waited $numRetry s for release of /var/lib/dpkg/lock-frontend"
               }
               
               sudo apt update
