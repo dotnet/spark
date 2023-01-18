@@ -40,7 +40,7 @@ stages:
             targetType: inline
             script: |
               $numRetry = 0
-              $maxRetry = 60*5
+              $maxRetry = 60*10
 
               while($numRetry -le $maxRetry)
               {
