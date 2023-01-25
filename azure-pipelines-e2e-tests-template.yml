@@ -24,7 +24,7 @@ stages:
         ${{ else }}:
           pool:
             ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-              name: NetCore1ESPool-Public
+              name: NetCore-Public
               demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
             ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
               name: NetCore1ESPool-Internal
@@ -39,6 +39,20 @@ stages:
             pwsh: true
             targetType: inline
             script: |
+              $numRetry = 0
+              $maxRetry = 60*10
+
+              while($numRetry -le $maxRetry)
+              {
+                  sudo fuser -v /var/lib/dpkg/lock-frontend 2>&1
+
+                  if ($LASTEXITCODE -ne 0) { Break }
+                  
+                  sleep 1
+                  $numRetry++
+                  echo "Waited $numRetry s for release of dpkg locks"
+              }
+              
               sudo apt update
               sudo apt -y install maven
               mvn -version
