@@ -150,6 +150,7 @@ namespace Microsoft.Spark.UnitTest
         }
 
 #pragma warning disable SYSLIB0011 // Type or member is obsolete
+        // TODO: Replace BinaryFormatter with a new, secure serializer.
         private byte[] Serialize(Delegate udf)
         {
             UdfSerDe.UdfData udfData = UdfSerDe.Serialize(udf);
