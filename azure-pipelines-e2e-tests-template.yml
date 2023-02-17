@@ -20,7 +20,7 @@ stages:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
-            vmImage: 'windows-2019'
+            vmImage: 'windows-2022'
         ${{ else }}:
           pool:
             ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
@@ -58,10 +58,10 @@ stages:
               mvn -version
 
         - task: UseDotNet@2
-          displayName: 'Use .NET Core sdk'
+          displayName: 'Use .NET 6 sdk'
           inputs:
             packageType: sdk
-            version: 3.1.x
+            version: 6.x
             installationPath: $(Agent.ToolsDirectory)/dotnet
 
         - task: DownloadBuildArtifacts@0
@@ -71,7 +71,7 @@ stages:
             downloadPath: $(Build.ArtifactStagingDirectory)
 
         - pwsh: |
-            $framework = "netcoreapp3.1"
+            $framework = "net6.0"
 
             if ($env:AGENT_OS -eq 'Windows_NT') {
               $runtimeIdentifier = "win-x64"
