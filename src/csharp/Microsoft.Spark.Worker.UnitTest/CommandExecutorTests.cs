@@ -1060,6 +1060,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             {
                 memoryStream.Position = 0;
 #pragma warning disable SYSLIB0011 // Type or member is obsolete
+                // TODO: Replace BinaryFormatter with a new, secure serializer.
                 formatter.Serialize(memoryStream, input);
 #pragma warning restore SYSLIB0011 // Type or member is obsolete
                 values.Add(memoryStream.ToArray());
@@ -1092,6 +1093,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             {
                 Assert.True(SerDe.ReadInt32(outputStream) > 0);
 #pragma warning disable SYSLIB0011 // Type or member is obsolete
+                // TODO: Replace BinaryFormatter with a new, secure serializer.
                 Assert.Equal(
                     mapUdf(i),
                     formatter.Deserialize(outputStream));
