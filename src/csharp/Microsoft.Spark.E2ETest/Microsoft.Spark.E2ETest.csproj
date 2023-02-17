@@ -20,4 +20,10 @@
     <Compile Include="..\Microsoft.Spark.UnitTest\TestUtils\ArrowTestUtils.cs" />
     <Compile Include="..\Microsoft.Spark.UnitTest\TestUtils\TemporaryDirectory.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="coverlet.msbuild" Version="3.2.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 </Project>

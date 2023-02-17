@@ -3,7 +3,7 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.10.0" />
+    <PackageReference Include="Moq" Version="4.18.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Spark.Worker\Microsoft.Spark.Worker.csproj" />
@@ -13,5 +13,11 @@
     <Compile Include="..\Microsoft.Spark.UnitTest\SparkFixture.cs" />
     <Compile Include="..\Microsoft.Spark.UnitTest\TestUtils\ArrowTestUtils.cs" />
     <Compile Include="..\Microsoft.Spark.UnitTest\TestUtils\TemporaryDirectory.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="coverlet.msbuild" Version="3.2.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>

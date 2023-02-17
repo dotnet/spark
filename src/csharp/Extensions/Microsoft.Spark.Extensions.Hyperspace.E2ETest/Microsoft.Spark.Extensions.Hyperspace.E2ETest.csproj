@@ -7,4 +7,10 @@
     <ProjectReference Include="..\..\Microsoft.Spark\Microsoft.Spark.csproj" />
     <ProjectReference Include="..\Microsoft.Spark.Extensions.Hyperspace\Microsoft.Spark.Extensions.Hyperspace.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="coverlet.msbuild" Version="3.2.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 </Project>
