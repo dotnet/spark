@@ -113,6 +113,7 @@ namespace Microsoft.Spark.Worker.Command
                 case CommandSerDe.SerializedMode.Byte:
                     BinaryFormatter formatter = s_binaryFormatter ??= new BinaryFormatter();
 #pragma warning disable SYSLIB0011 // Type or member is obsolete
+                    // TODO: Replace BinaryFormatter with a new, secure serializer.
                     formatter.Serialize(stream, message);
 #pragma warning restore SYSLIB0011 // Type or member is obsolete
                     break;
