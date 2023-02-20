@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Net;
+
 namespace Microsoft.Spark.Interop.Ipc
 {
     internal class JvmBridgeFactory : IJvmBridgeFactory
@@ -9,6 +11,11 @@ namespace Microsoft.Spark.Interop.Ipc
         public IJvmBridge Create(int portNumber)
         {
             return new JvmBridge(portNumber);
+        }
+
+        public IJvmBridge Create(IPAddress ipAddress, int portNumber)
+        {
+            return new JvmBridge(ipAddress, portNumber);
         }
     }
 }
