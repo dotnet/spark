@@ -9,7 +9,7 @@ namespace Microsoft.Spark.Services
     /// <summary>
     /// Defines a logger what be used in service
     /// </summary>
-    internal interface ILoggerService
+    public interface ILoggerService
     {
         /// <summary>
         /// Gets a value indicating whether logging is enabled for the Debug level.
