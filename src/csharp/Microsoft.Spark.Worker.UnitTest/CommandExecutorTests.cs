@@ -1059,7 +1059,10 @@ namespace Microsoft.Spark.Worker.UnitTest
             foreach (int input in inputs)
             {
                 memoryStream.Position = 0;
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+                // TODO: Replace BinaryFormatter with a new, secure serializer.
                 formatter.Serialize(memoryStream, input);
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
                 values.Add(memoryStream.ToArray());
             }
 
@@ -1089,9 +1092,12 @@ namespace Microsoft.Spark.Worker.UnitTest
             for (int i = 0; i < inputs.Length; ++i)
             {
                 Assert.True(SerDe.ReadInt32(outputStream) > 0);
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+                // TODO: Replace BinaryFormatter with a new, secure serializer.
                 Assert.Equal(
                     mapUdf(i),
                     formatter.Deserialize(outputStream));
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
             }
 
             // Validate all the data on the stream is read.

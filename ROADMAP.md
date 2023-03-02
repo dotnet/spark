@@ -12,7 +12,7 @@ The goal of the .NET for Apache Spark project is to provide an easy to use, .NET
 ### Performance Optimizations
 * Improvements to C# Pickling Library
 * Improvements to Arrow .NET Library
-* Exploiting .NET Core 3.0 Vectorization (*)
+* Exploiting .NET Vectorization (*)
 * Micro-benchmarking framework for Interop
 
 ### Benchmarks
