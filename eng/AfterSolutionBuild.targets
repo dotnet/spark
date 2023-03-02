@@ -6,9 +6,9 @@
 
   <ItemGroup>
     <_PublishTarget Include="FullFramework" Framework="net461" RuntimeId="win-x64" />
-    <_PublishTarget Include="WindowsCore" Framework="netcoreapp3.1" RuntimeId="win-x64" />
-    <_PublishTarget Include="LinuxCore" Framework="netcoreapp3.1" RuntimeId="linux-x64" />
-    <_PublishTarget Include="MacOSCore" Framework="netcoreapp3.1" RuntimeId="osx-x64" />
+    <_PublishTarget Include="WindowsCore" Framework="net6.0" RuntimeId="win-x64" />
+    <_PublishTarget Include="LinuxCore" Framework="net6.0" RuntimeId="linux-x64" />
+    <_PublishTarget Include="MacOSCore" Framework="net6.0" RuntimeId="osx-x64" />
   </ItemGroup>
 
   <Target Name="PublishSparkWorker"
@@ -22,6 +22,7 @@
                    -c $(Configuration) ^
                    -f %(_PublishTarget.Framework) ^
                    -r %(_PublishTarget.RuntimeId) ^
+                   --self-contained ^
                    -o &quot;$(SparkWorkerPublishDir)\%(_PublishTarget.Framework)\%(_PublishTarget.RuntimeId)&quot; ^
                    /p:OfficialBuildId=$(OfficialBuildId)" />
 
