@@ -125,19 +125,6 @@ jobs:
     workspace: ${{ parameters.workspace }}
 
   steps:
-  - ${{ if eq(parameters.enableTelemetry, 'true') }}:
-    # Telemetry tasks are built from https://github.com/dotnet/arcade-extensions
-    - task: sendStartTelemetry@0
-      displayName: 'Send Helix Start Telemetry'
-      inputs:
-        helixRepo: ${{ parameters.helixRepo }}
-        ${{ if ne(parameters.helixType, '') }}:
-          helixType: ${{ parameters.helixType }}
-        buildConfig: $(_BuildConfig)
-        runAsPublic: ${{ parameters.runAsPublic }}
-      continueOnError: ${{ parameters.continueOnError }}
-      condition: always()
-
   - ${{ if eq(parameters.enableMicrobuild, 'true') }}:
     - ${{ if and(eq(parameters.runAsPublic, 'false'), ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
       - task: MicroBuildSigningPlugin@2
@@ -165,13 +152,6 @@ jobs:
         continueOnError: ${{ parameters.continueOnError }}
         env:
           TeamName: $(_TeamName)
-
-  - ${{ if eq(parameters.enableTelemetry, 'true') }}:
-    # Telemetry tasks are built from https://github.com/dotnet/arcade-extensions
-    - task: sendEndTelemetry@0
-      displayName: 'Send Helix End Telemetry'
-      continueOnError: ${{ parameters.continueOnError }}
-      condition: always()
 
   - ${{ if eq(parameters.enablePublishBuildArtifacts, 'true') }}:
     - task: PublishBuildArtifacts@1
