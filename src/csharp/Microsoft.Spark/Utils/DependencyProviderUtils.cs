@@ -74,13 +74,13 @@ namespace Microsoft.Spark.Utils
             internal static Metadata Deserialize(string path)
             {
                 using FileStream fileStream = File.OpenRead(path);
-                return (Metadata)MessagePackSerializer.Typeless.Deserialize(fileStream);
+                return MessagePackSerializer.Deserialize<Metadata>(fileStream, MessagePack.Resolvers.ContractlessStandardResolverAllowPrivate.Options);
             }
 
             internal void Serialize(string path)
             {
                 using FileStream fileStream = File.OpenWrite(path);
-                MessagePackSerializer.Typeless.Serialize(fileStream, this);
+                MessagePackSerializer.Serialize(fileStream, this, MessagePack.Resolvers.ContractlessStandardResolverAllowPrivate.Options);
             }
 
             private bool Equals(Metadata other)
