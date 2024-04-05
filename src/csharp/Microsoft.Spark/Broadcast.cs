@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
+using MessagePack;
 
 namespace Microsoft.Spark
 {
@@ -223,8 +223,7 @@ namespace Microsoft.Spark
         /// <param name="stream">Stream to which the object is serialized</param>
         private void Dump(object value, Stream stream)
         {
-            var formatter = new BinaryFormatter();
-            formatter.Serialize(stream, value);
+            MessagePackSerializer.Typeless.Serialize(stream, value);
         }
     }
 
