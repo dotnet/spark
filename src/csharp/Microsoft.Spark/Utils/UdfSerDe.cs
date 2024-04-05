@@ -21,7 +21,6 @@ namespace Microsoft.Spark.Utils
         private static readonly ConcurrentDictionary<TypeData, Type> s_typeCache =
             new ConcurrentDictionary<TypeData, Type>();
 
-        [Serializable]
         internal sealed class TypeData : IEquatable<TypeData>
         {
             public string Name { get; set; }
@@ -50,7 +49,6 @@ namespace Microsoft.Spark.Utils
             }
         }
 
-        [Serializable]
         internal sealed class UdfData
         {
             public TypeData TypeData { get; set; }
@@ -77,7 +75,6 @@ namespace Microsoft.Spark.Utils
             }
         }
 
-        [Serializable]
         internal sealed class TargetData
         {
             public TypeData TypeData { get; set; }
@@ -112,7 +109,6 @@ namespace Microsoft.Spark.Utils
             }
         }
 
-        [Serializable]
         internal sealed class FieldData
         {
             public TypeData TypeData { get; set; }

@@ -20,7 +20,6 @@ namespace Microsoft.Spark
     /// also attempts to distribute broadcast variables using efficient broadcast algorithms to
     /// reduce communication cost.
     /// </summary>
-    [Serializable]
     public sealed class Broadcast<T> : IJvmObjectReferenceProvider
     {
         [NonSerialized]

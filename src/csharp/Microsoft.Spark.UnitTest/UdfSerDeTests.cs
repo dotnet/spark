@@ -14,7 +14,6 @@ namespace Microsoft.Spark.UnitTest
     [Collection("Spark Unit Tests")]
     public class UdfSerDeTests
     {
-        [Serializable]
         private class TestClass
         {
             private readonly string _str;

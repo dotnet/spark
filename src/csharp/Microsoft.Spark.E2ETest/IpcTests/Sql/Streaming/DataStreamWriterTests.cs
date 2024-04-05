@@ -298,7 +298,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        [Serializable]
         private class TestForeachWriter : IForeachWriter
         {
             [NonSerialized]
@@ -354,7 +353,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        [Serializable]
         private class TestForeachWriterOpenFailure : TestForeachWriter
         {
             public override bool Open(long partitionId, long epochId)
@@ -364,7 +362,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
-        [Serializable]
         private class TestForeachWriterProcessFailure : TestForeachWriter
         {
             public override void Process(Row value)

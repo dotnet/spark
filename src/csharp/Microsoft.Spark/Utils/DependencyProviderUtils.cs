@@ -26,7 +26,6 @@ namespace Microsoft.Spark.Utils
         internal static string CreateFileName(long number) =>
             s_filePattern.Replace("*", $"{number:D19}");
 
-        [Serializable]
         internal class NuGetMetadata
         {
             public string FileName { get; set; }
@@ -53,7 +52,6 @@ namespace Microsoft.Spark.Utils
             }
         }
 
-        [Serializable]
         internal class Metadata
         {
             public string[] AssemblyProbingPaths { get; set; }

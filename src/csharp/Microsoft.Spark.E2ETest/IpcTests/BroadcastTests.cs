@@ -6,7 +6,6 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
-    [Serializable]
     public class TestBroadcastVariable
     {
         public int IntValue { get; private set; }

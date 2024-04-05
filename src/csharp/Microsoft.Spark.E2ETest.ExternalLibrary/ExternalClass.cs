@@ -6,7 +6,6 @@ using System;
 
 namespace Microsoft.Spark.E2ETest.ExternalLibrary
 {
-    [Serializable]
     public class ExternalClass
     {
         private string _s;
