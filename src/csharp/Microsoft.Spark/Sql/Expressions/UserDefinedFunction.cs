@@ -2,8 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Services;
 using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.Utils;
 
@@ -15,12 +17,17 @@ namespace Microsoft.Spark.Sql.Expressions
     /// </summary>
     internal sealed class UserDefinedFunction : IJvmObjectReferenceProvider
     {
+        private static readonly ILoggerService s_logger =
+         LoggerServiceFactory.GetLogger(typeof(Functions));
+        
         internal static UserDefinedFunction Create(
             string name,
             byte[] command,
             UdfUtils.PythonEvalType evalType,
             string returnType)
         {
+            Console.WriteLine($"coming here UDF : {name}");
+            s_logger.LogInfo($"coming here UDF 4: {name}");
             return Create(SparkEnvironment.JvmBridge, name, command, evalType, returnType);
         }
 

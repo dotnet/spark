@@ -21,8 +21,7 @@ import org.apache.spark.api.dotnet.DotnetBackend
 import org.apache.spark.deploy.{PythonRunner, SparkHadoopUtil}
 import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config.dotnet.Dotnet.{
-  DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK,
-  ERROR_BUFFER_SIZE, ERROR_REDIRECITON_ENABLED
+  DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK
 }
 import org.apache.spark.util.dotnet.{Utils => DotnetUtils}
 import org.apache.spark.util.{CircularBuffer, RedirectThread, Utils}
@@ -37,10 +36,10 @@ import scala.util.Try
  * It executes .NET application as a subprocess and then has it connect back to
  * the JVM to access system properties etc.
  */
-object DotnetRunner extends Logging {
+object FVRunner extends Logging {
   private val DEBUG_PORT = 5567
-  private val supportedSparkMajorMinorVersionPrefix = "3.2"
-  private val supportedSparkVersions = Set[String]("3.2.0", "3.2.1", "3.2.2", "3.2.3")
+  private val supportedSparkMajorMinorVersionPrefix = "3.3"
+  private val supportedSparkVersions = Set[String]("3.3.0", "3.3.1", "3.3.2", "3.3.3")
 
   val SPARK_VERSION = DotnetUtils.normalizeSparkVersion(spark.SPARK_VERSION)
 
@@ -128,13 +127,13 @@ object DotnetRunner extends Logging {
         var process: Process = null
         val enableLogRedirection: Boolean = sys.props
           .getOrElse(
-            ERROR_REDIRECITON_ENABLED.key,
-            ERROR_REDIRECITON_ENABLED.defaultValue.get.toString).toBoolean
+            "spark.nonjvm.error.forwarding.enabled",
+            "false").toBoolean
         val stderrBuffer: Option[CircularBuffer] = Option(enableLogRedirection).collect {
           case true => new CircularBuffer(
             sys.props.getOrElse(
-              ERROR_BUFFER_SIZE.key,
-              ERROR_BUFFER_SIZE.defaultValue.get.toString).toInt)
+              "spark.nonjvm.error.buffer.size",
+              "10240").toInt)
         }
 
         try {

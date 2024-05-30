@@ -17,6 +17,8 @@ namespace Microsoft.Spark.Worker.Processor
     /// </summary>
     internal class PayloadProcessor
     {
+        private static readonly ILoggerService s_logger =
+    LoggerServiceFactory.GetLogger(typeof(PayloadProcessor));
         private readonly Version _version;
 
         internal PayloadProcessor(Version version)
@@ -34,32 +36,38 @@ namespace Microsoft.Spark.Worker.Processor
         /// </returns>
         internal Payload Process(Stream stream)
         {
+            s_logger.LogInfo($"Coming here 4");
             var payload = new Payload();
 
             byte[] splitIndexBytes;
             try
             {
+                s_logger.LogInfo($"Coming here 5");
                 splitIndexBytes = SerDe.ReadBytes(stream, sizeof(int));
                 // For socket stream, read on the stream returns 0, which
                 // SerDe.ReadBytes() returns as null to denote the stream is closed.
                 if (splitIndexBytes == null)
                 {
+                    s_logger.LogInfo($"Coming here 6");
                     return null;
                 }
             }
             catch (ObjectDisposedException)
             {
+                s_logger.LogInfo($"Coming here 7");
                 // For stream implementation such as MemoryStream will throw
                 // ObjectDisposedException if the stream is already closed.
                 return null;
             }
 
+            s_logger.LogInfo($"Coming here 8");
             payload.SplitIndex = BinaryPrimitives.ReadInt32BigEndian(splitIndexBytes);
             payload.Version = SerDe.ReadString(stream);
 
+            s_logger.LogInfo($"Coming here 9");
             payload.TaskContext = new TaskContextProcessor(_version).Process(stream);
             TaskContextHolder.Set(payload.TaskContext);
-
+            s_logger.LogInfo($"Coming here 10");
             payload.SparkFilesDir = SerDe.ReadString(stream);
             SparkFiles.SetRootDirectory(payload.SparkFilesDir);
 
@@ -68,7 +76,7 @@ namespace Microsoft.Spark.Worker.Processor
             // deserialize objects from assemblies that are not currently loaded within
             // our current context.
             AssemblyLoaderHelper.RegisterAssemblyHandler();
-
+            s_logger.LogInfo($"Coming here 11");
             if (ConfigurationService.IsDatabricks)
             {
                 SerDe.ReadString(stream);
@@ -82,6 +90,7 @@ namespace Microsoft.Spark.Worker.Processor
 
             payload.Command = new CommandProcessor(_version).Process(stream);
 
+            s_logger.LogInfo($"Coming here 12");
             return payload;
         }
 

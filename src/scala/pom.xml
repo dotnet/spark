@@ -7,14 +7,14 @@
   <version>${microsoft-spark.version}</version>
   <properties>
     <encoding>UTF-8</encoding>
-    <microsoft-spark.version>2.1.1</microsoft-spark.version>
+    <microsoft-spark.version>3.0.0</microsoft-spark.version>
   </properties>
 
   <modules>
     <module>microsoft-spark-2-4</module>
     <module>microsoft-spark-3-0</module>
     <module>microsoft-spark-3-1</module>
-    <module>microsoft-spark-3-2</module>
+    <module>microsoft-spark-3-3</module>
   </modules>
 
   <pluginRepositories>

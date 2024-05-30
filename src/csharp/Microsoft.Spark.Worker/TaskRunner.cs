@@ -61,14 +61,16 @@ namespace Microsoft.Spark.Worker
 
             try
             {
+                s_logger.LogInfo($"Coming here 1");
                 while (_isRunning)
                 {
+                    s_logger.LogInfo($"Coming here 2");
                     Payload payload = ProcessStream(
                         inputStream,
                         outputStream,
                         _version,
                         out bool readComplete);
-
+                    s_logger.LogInfo($"Coming here 19");
                     if (payload != null)
                     {
                         outputStream.Flush();
@@ -78,6 +80,7 @@ namespace Microsoft.Spark.Worker
                         // If the socket is not read through completely, then it cannot be reused.
                         if (!readComplete)
                         {
+                            s_logger.LogInfo($"Coming here 20");
                             _isRunning = false;
 
                             // Wait for server to complete to avoid 'connection reset' exception.
@@ -86,6 +89,7 @@ namespace Microsoft.Spark.Worker
                         }
                         else if (!_reuseSocket)
                         {
+                            s_logger.LogInfo($"Coming here 21");
                             _isRunning = false;
 
                             // Use SerDe.ReadBytes() to detect Java side has closed socket
@@ -139,14 +143,18 @@ namespace Microsoft.Spark.Worker
 
             try
             {
+                s_logger.LogInfo($"Coming here 3");
                 DateTime bootTime = DateTime.UtcNow;
 
                 Payload payload = new PayloadProcessor(version).Process(inputStream);
+                s_logger.LogInfo($"Coming here 13");
                 if (payload is null)
                 {
+                    s_logger.LogInfo($"Coming here 14");
                     return null;
                 }
 
+                s_logger.LogInfo($"Coming here 15");
                 ValidateVersion(payload.Version);
 
                 DateTime initTime = DateTime.UtcNow;
@@ -156,6 +164,7 @@ namespace Microsoft.Spark.Worker
                     outputStream,
                     payload.SplitIndex,
                     payload.Command);
+                s_logger.LogInfo($"Coming here 16");
 
                 DateTime finishTime = DateTime.UtcNow;
 
@@ -166,6 +175,7 @@ namespace Microsoft.Spark.Worker
 
                 // TODO: Extend the following to write accumulator values here.
                 SerDe.Write(outputStream, 0);
+                s_logger.LogInfo($"Coming here 17");
 
                 // Check the end of stream.
                 int endOfStream = SerDe.ReadInt32(inputStream);
@@ -188,7 +198,7 @@ namespace Microsoft.Spark.Worker
                 }
 
                 LogStat(commandExecutorStat, readComplete);
-
+                s_logger.LogInfo($"Coming here 18");
                 return payload;
             }
             catch (Exception e)

@@ -33,6 +33,7 @@ namespace Microsoft.Spark.Worker
         {
             try
             {
+                s_logger.LogInfo($"Coming inside worker code: spark version : {_version}");
                 string secret = Utils.SettingUtils.GetWorkerFactorySecret();
 
                 s_logger.LogInfo($"RunSimpleWorker() is starting with port = {port}.");
@@ -42,6 +43,7 @@ namespace Microsoft.Spark.Worker
 
                 if ((_version.Major == 3 && _version.Minor >= 2) || _version.Major > 3)
                 {
+                    s_logger.LogInfo($"Coming here : {_version.Major} + {_version.Minor}");
                     int pid = Process.GetCurrentProcess().Id;
                     SerDe.Write(socket.OutputStream, pid);
                     socket.OutputStream.Flush();

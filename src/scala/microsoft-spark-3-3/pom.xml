@@ -6,13 +6,13 @@
     <artifactId>microsoft-spark</artifactId>
     <version>${microsoft-spark.version}</version>
   </parent>
-  <artifactId>microsoft-spark-3-2_2.12</artifactId>
+  <artifactId>microsoft-spark-3-3_2.12</artifactId>
   <inceptionYear>2019</inceptionYear>
   <properties>
     <encoding>UTF-8</encoding>
-    <scala.version>2.12.10</scala.version>
+    <scala.version>2.12.15</scala.version>
     <scala.binary.version>2.12</scala.binary.version>
-    <spark.version>3.2.0</spark.version>
+    <spark.version>3.3.0</spark.version>
   </properties>
 
   <dependencies>

@@ -331,5 +331,3 @@ class DotnetBackendHandler(server: DotnetBackend, objectsTracker: JVMObjectTrack
 
   def logError(id: String, e: Exception): Unit = {}
 }
-
-
