@@ -71,6 +71,9 @@ namespace Microsoft.Spark.Worker.Processor
             Console.Error.WriteLine("coming here new3");
             // Currently, resources are not supported.
             int numResources = SerDe.ReadInt32(stream);
+            numResources = 0;
+            SerDe.ReadString(stream); // key
+            SerDe.ReadString(stream); // value
             Console.Error.WriteLine("coming here new3.1 numResources: " + numResources.ToString());
             for (int i = 0; i < numResources; ++i)
             {
