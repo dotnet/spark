@@ -20,6 +20,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                 new object[] { Versions.V3_0_0 },
                 new object[] { Versions.V3_2_0 },
                 new object[] { Versions.V3_3_0 },
+                new object[] { Versions.V3_5_1 },
             };
 
         internal static Payload GetDefaultPayload()
