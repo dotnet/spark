@@ -8,7 +8,7 @@ package org.apache.spark.sql.api.dotnet
 
 import java.util.{List => JList, Map => JMap}
 
-import org.apache.spark.api.python.{PythonAccumulatorV2, PythonBroadcast, PythonFunction}
+import org.apache.spark.api.python.{PythonAccumulatorV2, PythonBroadcast, PythonFunction, SimplePythonFunction}
 import org.apache.spark.broadcast.Broadcast
 
 object SQLUtils {
@@ -24,8 +24,8 @@ object SQLUtils {
       pythonVersion: String,
       broadcastVars: JList[Broadcast[PythonBroadcast]],
       accumulator: PythonAccumulatorV2): PythonFunction = {
-
-    PythonFunction(
+    // From 3.4.0 use SimplePythonFunction. https://github.com/apache/spark/commit/18ff15729268def5ee1bdf5dfcb766bd1d699684
+    SimplePythonFunction(
       command,
       envVars,
       pythonIncludes,

@@ -112,6 +112,41 @@ namespace Microsoft.Spark.Worker.UnitTest
         }
     }
 
+    internal sealed class TaskContextWriterV3_5_X : ITaskContextWriter
+    {
+        public void Write(Stream stream, TaskContext taskContext)
+        {
+            SerDe.Write(stream, taskContext.IsBarrier);
+            SerDe.Write(stream, taskContext.Port);
+            SerDe.Write(stream, taskContext.Secret);
+
+            SerDe.Write(stream, taskContext.StageId);
+            SerDe.Write(stream, taskContext.PartitionId);
+            SerDe.Write(stream, taskContext.AttemptNumber);
+            SerDe.Write(stream, taskContext.AttemptId);
+            SerDe.Write(stream, taskContext.CPUs);
+
+            SerDe.Write(stream, taskContext.Resources.Count());
+            foreach (TaskContext.Resource resource in taskContext.Resources)
+            {
+                SerDe.Write(stream, resource.Key);
+                SerDe.Write(stream, resource.Value);
+                SerDe.Write(stream, resource.Addresses.Count());
+                foreach (string address in resource.Addresses)
+                {
+                    SerDe.Write(stream, address);
+                }
+            }
+
+            SerDe.Write(stream, taskContext.LocalProperties.Count);
+            foreach (KeyValuePair<string, string> kv in taskContext.LocalProperties)
+            {
+                SerDe.Write(stream, kv.Key);
+                SerDe.Write(stream, kv.Value);
+            }
+        }
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // BroadcastVariable writer for different Spark versions.
     ///////////////////////////////////////////////////////////////////////////
@@ -309,6 +344,12 @@ namespace Microsoft.Spark.Worker.UnitTest
                     return new PayloadWriter(
                         version,
                         new TaskContextWriterV3_0_X(),
+                        new BroadcastVariableWriterV2_4_X(),
+                        new CommandWriterV2_4_X());
+                case Versions.V3_5_1:
+                    return new PayloadWriter(
+                        version,
+                        new TaskContextWriterV3_5_X(),
                         new BroadcastVariableWriterV2_4_X(),
                         new CommandWriterV2_4_X());
                 default:
