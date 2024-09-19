@@ -70,7 +70,6 @@ namespace Microsoft.Spark.Interop
         {
             get
             {
-                s_logger.LogInfo($"Coming here : 5");
                 return s_jvmBridge ??=
                     JvmBridgeFactory.Create(ConfigurationService.GetBackendPortNumber());
             }

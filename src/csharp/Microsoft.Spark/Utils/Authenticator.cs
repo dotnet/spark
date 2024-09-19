@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.IO;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
@@ -26,7 +25,6 @@ namespace Microsoft.Spark.Utils
         /// <returns>True if authentication succeeds.</returns>
         public static bool AuthenticateAsClient(Stream stream, string secret)
         {
-            Console.Error.WriteLine("coming inside authenticate");
             SerDe.Write(stream, secret);
             stream.Flush();
 

@@ -72,7 +72,6 @@ namespace Microsoft.Spark.Network
         /// <param name="secret">Secret string to use for connection</param>
         public void Connect(IPAddress remoteaddr, int port, string secret)
         {
-            Console.Error.WriteLine("Coming here inside connect");
             _innerSocket.Connect(new IPEndPoint(remoteaddr, port));
 
             if (!string.IsNullOrWhiteSpace(secret))
@@ -82,7 +81,6 @@ namespace Microsoft.Spark.Network
                 {
                     throw new Exception($"Failed to authenticate for port: {port}.");
                 }
-                Console.Error.WriteLine("Authenticated!!!!");
             }
         }
 

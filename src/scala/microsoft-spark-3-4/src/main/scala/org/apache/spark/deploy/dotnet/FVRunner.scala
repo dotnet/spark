@@ -38,8 +38,8 @@ import scala.util.Try
  */
 object FVRunner extends Logging {
   private val DEBUG_PORT = 5567
-  private val supportedSparkMajorMinorVersionPrefix = "3.3"
-  private val supportedSparkVersions = Set[String]("3.3.0", "3.3.1", "3.3.2", "3.3.3")
+  private val supportedSparkMajorMinorVersionPrefix = "3.4"
+  private val supportedSparkVersions = Set[String]("3.4.0", "3.4.1", "3.4.2", "3.4.3")
 
   val SPARK_VERSION = DotnetUtils.normalizeSparkVersion(spark.SPARK_VERSION)
 

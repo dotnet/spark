@@ -64,7 +64,6 @@ namespace Microsoft.Spark.Services
                 }
 
                 var version = new Version(AssemblyInfoProvider.MicrosoftSparkAssemblyInfo().AssemblyVersion);
-                _logger.LogInfo($"Microsoft assembly version: {version}");
                 var versionComponents = new int[] { version.Major, version.Minor, version.Build };
                 for (int i = versionComponents.Length; i > 0; --i)
                 {
@@ -75,13 +74,11 @@ namespace Microsoft.Spark.Services
                     if (!string.IsNullOrWhiteSpace(GetEnvironmentVariable(verEnvVarName)))
                     {
                         _workerDirEnvVarName = verEnvVarName;
-                        _logger.LogInfo($"Using worker directory environment variable name: {_workerDirEnvVarName}");
                         return _workerDirEnvVarName;
                     }
                 }
 
                 _workerDirEnvVarName = DefaultWorkerDirEnvVarName;
-                _logger.LogInfo($"Using default worker directory environment variable name: {_workerDirEnvVarName}");
                 return _workerDirEnvVarName;
             }
         }
@@ -159,7 +156,6 @@ namespace Microsoft.Spark.Services
             }
 
             // Otherwise, the worker executable name is returned meaning it should be PATH.
-            _logger.LogInfo($"Worker directory environment variable is not set. Using PATH to find {ProcFileName}.");
             _workerPath = ProcFileName;
             return _workerPath;
         }

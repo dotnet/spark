@@ -10,7 +10,6 @@ using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Expressions;
 using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.Utils;
-using Microsoft.Spark.Services;
 
 namespace Microsoft.Spark.Sql
 {
@@ -21,9 +20,6 @@ namespace Microsoft.Spark.Sql
     {
         private static IJvmBridge Jvm { get; } = SparkEnvironment.JvmBridge;
         private static readonly string s_functionsClassName = "org.apache.spark.sql.functions";
-
-        private static readonly ILoggerService s_logger =
-         LoggerServiceFactory.GetLogger(typeof(Functions));
 
         /// <summary>
         /// Returns a Column based on the given column name.
@@ -4469,8 +4465,6 @@ namespace Microsoft.Spark.Sql
         /// </returns>
         public static Func<Column, Column> Udf<T>(Func<T, Row> udf, StructType returnType)
         {
-            Console.WriteLine($"coming here UDF : {udf.Method.ToString()}");
-            s_logger.LogInfo($"coming here UDF : {udf.Method.ToString()}");
             return CreateUdf(udf.Method.ToString(), UdfUtils.CreateUdfWrapper(udf), returnType).Apply1;
         }
 
@@ -4665,7 +4659,6 @@ namespace Microsoft.Spark.Sql
 
         private static UserDefinedFunction CreateUdf(string name, Delegate execute, StructType returnType)
         {
-            s_logger.LogInfo($"coming here UDF 2: {name}");
             return CreateUdf(name, execute, UdfUtils.PythonEvalType.SQL_BATCHED_UDF, returnType);
         }
 
@@ -4693,7 +4686,6 @@ namespace Microsoft.Spark.Sql
             UdfUtils.PythonEvalType evalType,
             string returnType)
         {
-            s_logger.LogInfo($"coming here UDF 3: {name}");
             return UserDefinedFunction.Create(
                 name,
                 CommandSerDe.Serialize(
