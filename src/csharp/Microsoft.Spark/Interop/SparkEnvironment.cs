@@ -19,7 +19,7 @@ namespace Microsoft.Spark.Interop
         private static Version GetSparkVersion()
         {
             var sparkVersion = new Version((string)JvmBridge.CallStaticJavaMethod(
-                "org.apache.spark.deploy.dotnet.DotnetRunner",
+                "org.apache.spark.deploy.dotnet.FVRunner",
                 "SPARK_VERSION"));
 
             string sparkVersionOverride =
