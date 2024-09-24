@@ -59,6 +59,7 @@ namespace Microsoft.Spark.Worker.Processor
 
             payload.TaskContext = new TaskContextProcessor(_version).Process(stream);
             TaskContextHolder.Set(payload.TaskContext);
+
             payload.SparkFilesDir = SerDe.ReadString(stream);
             SparkFiles.SetRootDirectory(payload.SparkFilesDir);
 
@@ -67,6 +68,7 @@ namespace Microsoft.Spark.Worker.Processor
             // deserialize objects from assemblies that are not currently loaded within
             // our current context.
             AssemblyLoaderHelper.RegisterAssemblyHandler();
+
             if (ConfigurationService.IsDatabricks)
             {
                 SerDe.ReadString(stream);

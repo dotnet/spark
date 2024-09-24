@@ -14,7 +14,7 @@ namespace Microsoft.Spark.Sql.Expressions
     /// Use Functions.Udf to create this object indirectly.
     /// </summary>
     internal sealed class UserDefinedFunction : IJvmObjectReferenceProvider
-    {        
+    {
         internal static UserDefinedFunction Create(
             string name,
             byte[] command,

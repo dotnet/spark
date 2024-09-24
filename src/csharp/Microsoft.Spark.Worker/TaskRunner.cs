@@ -68,6 +68,7 @@ namespace Microsoft.Spark.Worker
                         outputStream,
                         _version,
                         out bool readComplete);
+
                     if (payload != null)
                     {
                         outputStream.Flush();
@@ -187,6 +188,7 @@ namespace Microsoft.Spark.Worker
                 }
 
                 LogStat(commandExecutorStat, readComplete);
+
                 return payload;
             }
             catch (Exception e)

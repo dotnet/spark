@@ -71,7 +71,6 @@ namespace Microsoft.Spark.Worker.Processor
         {
             // Currently, resources are not supported.
             int numResources = SerDe.ReadInt32(stream);
-            SerDe.ReadInt32(stream);
             for (int i = 0; i < numResources; ++i)
             {
                 SerDe.ReadString(stream); // key
