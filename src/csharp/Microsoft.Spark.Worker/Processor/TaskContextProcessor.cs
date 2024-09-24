@@ -42,7 +42,6 @@ namespace Microsoft.Spark.Worker.Processor
         };
 
         // Needed for 3.3.4+, 3.4.x, 3.5.x
-        // https://github.com/apache/spark/commit/f6e6d1157ac988d7c5809fcb08b577631bdea8eb
         private static TaskContext ReadTaskContext_3_5(Stream stream)
         => new()
         {
@@ -72,6 +71,7 @@ namespace Microsoft.Spark.Worker.Processor
         {
             // Currently, resources are not supported.
             int numResources = SerDe.ReadInt32(stream);
+            SerDe.ReadInt32(stream);
             for (int i = 0; i < numResources; ++i)
             {
                 SerDe.ReadString(stream); // key
@@ -112,6 +112,7 @@ namespace Microsoft.Spark.Worker.Processor
             internal static TaskContext Process(Stream stream)
             {
                 TaskContext taskContext = ReadTaskContext_3_5(stream);
+                SerDe.ReadInt32(stream);
                 ReadTaskContextResources(stream);
                 ReadTaskContextProperties(stream, taskContext);
 
