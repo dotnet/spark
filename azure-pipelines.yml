@@ -80,6 +80,12 @@ extends:
       displayName: Build Sources
       jobs:
       - job: Build
+        templateContext:
+          outputs:
+            - output: pipelineArtifact
+              artifactName: Microsoft.Spark.Binaries
+              targetPath: $(Build.ArtifactStagingDirectory)
+              displayName: '[PUBLISH] Microsoft.Spark.Binaries'
 
         variables:
           ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
@@ -134,13 +140,14 @@ extends:
               sourceFolder: $(Build.SourcesDirectory)/artifacts/log
               targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/log
 
-        - task: PublishBuildArtifacts@1
-          inputs:
-            pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-            artifactName:  Microsoft.Spark.Binaries
-
       - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
         - job: Sign
+          templateContext:
+            outputs:
+              - output: pipelineArtifact
+                artifactName: Microsoft.Spark.Binaries
+                targetPath: $(Build.ArtifactStagingDirectory)
+                displayName: '[PUBLISH] Microsoft.Spark.Binaries'
           dependsOn:
             - Build
           displayName: Sign Artifacts
@@ -171,15 +178,16 @@ extends:
                         /p:SparkPackagesDir=$(ArtifactPath)\BuildArtifacts\artifacts\packages
                         /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
 
-          - task: PublishBuildArtifacts@1
-            inputs:
-              pathtoPublish: '$(ArtifactPath)'
-              artifactName:  Microsoft.Spark.Binaries
-
       # The "Publish" stage is separated out from the "Sign" stage because we need to install powershell module
       # to zip files correctly for macOS; installing the module is not allowed in NetCoreInternal-Pool.
       - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
         - job: Publish
+          templateContext:
+            outputs:
+              - output: pipelineArtifact
+                artifactName: Microsoft.Spark.Binaries
+                targetPath: $(Build.ArtifactStagingDirectory)
+                displayName: '[PUBLISH] Microsoft.Spark.Binaries'
           dependsOn:
             - Sign
           displayName: Publish Artifacts
@@ -211,11 +219,6 @@ extends:
                         $(_OfficialBuildIdArgs)
                         /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
                         /p:SparkWorkerPackageOutputDir=$(ArtifactPath)
-
-          - task: PublishBuildArtifacts@1
-            inputs:
-              pathtoPublish: '$(ArtifactPath)'
-              artifactName:  Microsoft.Spark.Binaries
 
     - template: azure-pipelines-e2e-tests-template.yml
       parameters:
