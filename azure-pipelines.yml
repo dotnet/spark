@@ -122,7 +122,7 @@ stages:
         - Build
       displayName: Sign Artifacts
       pool:
-        name: NetCore1ESPool-Internal
+        name: Azure-Pipelines-1ESPT-ExDShared
         demands: ImageOverride -equals build.windows.10.amd64.vs2019
 
       variables:
