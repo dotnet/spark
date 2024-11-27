@@ -49,6 +49,11 @@ resources:
     endpoint: public
     name: dotnet/spark
     ref: refs/tags/v$(forwardCompatibleRelease)
+  
+  - repository: CustomPipelineTemplates
+    type: git
+    name: Engineering Fundamentals/WebXT.Pipeline.Templates
+    ref: refs/heads/main
 
 extends:
   template: v1/WebXT.Official.EntryPoint.yml@CustomPipelineTemplates
