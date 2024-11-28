@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using Microsoft.Spark.Network;
@@ -184,7 +185,7 @@ namespace Microsoft.Spark.Interop.Ipc
             ISocketWrapper socket = null;
 
             try
-            {                
+            {
                 // Limit the number of connections to the JVM backend. Netty is configured
                 // to use a set number of threads to process incoming connections. Each
                 // new connection is delegated to these threads in a round robin fashion.
@@ -299,6 +300,13 @@ namespace Microsoft.Spark.Interop.Ipc
                 }
                 else
                 {
+                    if (e.InnerException is SocketException)
+                    {
+                        _logger.LogError(
+                            "Scala worker abandoned the connection, likely fatal crash on Java side. \n" +
+                            "Ensure Spark runs with sufficient memory.");
+                    }
+
                     // In rare cases we may hit the Netty connection thread deadlock.
                     // If max backend threads is 10 and we are currently using 10 active
                     // connections (0 in the _sockets queue). When we hit this exception,
