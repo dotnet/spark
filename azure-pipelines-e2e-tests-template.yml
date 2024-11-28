@@ -65,10 +65,10 @@ stages:
               mvn -version
 
         - task: UseDotNet@2
-          displayName: 'Use .NET 6 sdk'
+          displayName: 'Use .NET 8 sdk'
           inputs:
             packageType: sdk
-            version: 6.x
+            version: 8.x
             installationPath: $(Agent.ToolsDirectory)/dotnet
 
         - task: DownloadPipelineArtifact@2
@@ -78,7 +78,7 @@ stages:
             artifactName: Microsoft.Spark.Binaries
 
         - pwsh: |
-            $framework = "net6.0"
+            $framework = "net8.0"
 
             if ($env:AGENT_OS -eq 'Windows_NT') {
               $runtimeIdentifier = "win-x64"

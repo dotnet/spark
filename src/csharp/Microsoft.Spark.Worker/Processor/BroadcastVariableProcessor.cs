@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -46,8 +45,9 @@ namespace Microsoft.Spark.Worker.Processor
                         broadcastVars.Secret);
                 }
             }
-
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
             var formatter = new BinaryFormatter();
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
             for (int i = 0; i < broadcastVars.Count; ++i)
             {
                 long bid = SerDe.ReadInt64(stream);

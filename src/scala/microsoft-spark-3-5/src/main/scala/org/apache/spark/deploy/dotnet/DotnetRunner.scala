@@ -40,7 +40,7 @@ import scala.util.Try
 object DotnetRunner extends Logging {
   private val DEBUG_PORT = 5567
   private val supportedSparkMajorMinorVersionPrefix = "3.5"
-  private val supportedSparkVersions = Set[String]("3.5.0", "3.5.1")
+  private val supportedSparkVersions = Set[String]("3.5.0", "3.5.1", "3.5.2", "3.5.3")
 
   val SPARK_VERSION = DotnetUtils.normalizeSparkVersion(spark.SPARK_VERSION)
 

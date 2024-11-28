@@ -52,6 +52,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
                 Assert.IsType<string>(catalog.CurrentDatabase());
                 Assert.IsType<bool>(catalog.DatabaseExists("default"));
+                
+                _spark.Sql(@"CREATE FUNCTION my_func1 AS 'test.org.apache.spark.sql.MyDoubleAvg'");
+                Assert.IsType<Function>(catalog.GetFunction("my_func1"));
+                Assert.IsType<Function>(catalog.GetFunction("default.my_func1"));
+                Assert.IsType<Function>(catalog.GetFunction("spark_catalog.default.my_func1"));
+                Assert.IsType<Function>(catalog.GetFunction("default", "my_func1"));
 
                 Assert.IsType<bool>(catalog.DropGlobalTempView("no-view"));
                 Assert.IsType<bool>(catalog.DropTempView("no-view"));
@@ -59,7 +65,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 Assert.IsType<bool>(catalog.FunctionExists("functionname"));
                 Assert.IsType<Database>(catalog.GetDatabase("default"));
                 Assert.IsType<Function>(catalog.GetFunction("abs"));
-                Assert.IsType<Function>(catalog.GetFunction(null, "abs"));
                 Assert.IsType<Table>(catalog.GetTable("users"));
                 Assert.IsType<Table>(catalog.GetTable("default", "users"));
                 Assert.IsType<bool>(catalog.IsCached("users"));

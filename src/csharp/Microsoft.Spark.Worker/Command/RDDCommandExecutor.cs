@@ -20,7 +20,9 @@ namespace Microsoft.Spark.Worker.Command
         [ThreadStatic]
         private static MemoryStream s_writeOutputStream;
         [ThreadStatic]
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
         private static BinaryFormatter s_binaryFormatter;
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
 
         /// <summary>
         /// Executes the commands on the input data read from input stream
@@ -111,8 +113,8 @@ namespace Microsoft.Spark.Worker.Command
             switch (serializerMode)
             {
                 case CommandSerDe.SerializedMode.Byte:
-                    BinaryFormatter formatter = s_binaryFormatter ??= new BinaryFormatter();
 #pragma warning disable SYSLIB0011 // Type or member is obsolete
+                    BinaryFormatter formatter = s_binaryFormatter ??= new BinaryFormatter();
                     // TODO: Replace BinaryFormatter with a new, secure serializer.
                     formatter.Serialize(stream, message);
 #pragma warning restore SYSLIB0011 // Type or member is obsolete

@@ -5,10 +5,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <_PublishTarget Include="FullFramework" Framework="net461" RuntimeId="win-x64" />
-    <_PublishTarget Include="WindowsCore" Framework="net6.0" RuntimeId="win-x64" />
-    <_PublishTarget Include="LinuxCore" Framework="net6.0" RuntimeId="linux-x64" />
-    <_PublishTarget Include="MacOSCore" Framework="net6.0" RuntimeId="osx-x64" />
+    <_PublishTarget Include="FullFramework" Framework="net48" RuntimeId="win-x64" />
+    <_PublishTarget Include="WindowsCore" Framework="net8.0" RuntimeId="win-x64" />
+    <_PublishTarget Include="LinuxCore" Framework="net8.0" RuntimeId="linux-x64" />
+    <_PublishTarget Include="MacOSCore" Framework="net8.0" RuntimeId="osx-x64" />
   </ItemGroup>
 
   <Target Name="PublishSparkWorker"

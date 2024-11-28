@@ -373,3 +373,7 @@ hs_err_pid*
 
 # Mac dev
 .DS_Store
+
+# Scala intermideate build files
+**/.bloop/
+**/.metals/
