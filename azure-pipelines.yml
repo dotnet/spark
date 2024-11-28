@@ -197,8 +197,8 @@ extends:
                         -ci
                         $(_OfficialBuildIdArgs)
                         /p:DotNetSignType=$(_SignType)
-                        /p:SparkPackagesDir=$(ArtifactPath)\BuildArtifacts\artifacts\packages
-                        /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
+                        /p:SparkPackagesDir=$(Build.ArtifactStagingDirectory)\BuildArtifacts\artifacts\packages
+                        /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
 
 
       # The "Publish" stage is separated out from the "Sign" stage because we need to install powershell module
