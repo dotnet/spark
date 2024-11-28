@@ -151,7 +151,7 @@ extends:
             outputs:
               - output: pipelineArtifact
                 artifactName: Microsoft.Spark.Binaries
-                targetPath: $(Build.ArtifactStagingDirectory)
+                targetPath: '$(PUBLISH_DIR)\Microsoft.Spark.Binaries'
                 displayName: '[PUBLISH] Microsoft.Spark.Binaries'
           dependsOn:
             - Build
@@ -162,11 +162,21 @@ extends:
               _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
 
           steps:
-          - task: DownloadBuildArtifacts@0
+          - task: DownloadBuildArtifacts@1
             displayName: Download Build Artifacts
             inputs:
               artifactName: Microsoft.Spark.Binaries
-              downloadPath: $(Build.ArtifactStagingDirectory)
+              downloadPath: $(System.ArtifactsDirectory)
+          
+          - script: |
+              cd D:\a\_work\1\a
+              dir /B /S
+            displayName: '[TEMP] Print ArtifactStagingDirectory Structure'
+
+          - script: |
+              cd $(System.ArtifactsDirectory)
+              dir /B /S
+            displayName: '[TEMP] Print ArtifactStagingDirectory Structure'
 
           - script: |
               cd $(Build.ArtifactStagingDirectory)
