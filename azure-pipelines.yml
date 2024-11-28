@@ -139,6 +139,11 @@ extends:
             inputs:
               sourceFolder: $(Build.SourcesDirectory)/artifacts/log
               targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/log
+          
+          - script: |
+              cd $(Build.ArtifactStagingDirectory)
+              dir /B /S
+            displayName: '[TEMP] Print Microsoft.Spark.Binaries'
 
       - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
         - job: Sign
@@ -166,7 +171,7 @@ extends:
               downloadPath: $(Build.ArtifactStagingDirectory)
 
           - script: |
-              cd $(ArtifactPath)
+              cd $(Build.ArtifactStagingDirectory)
               dir /B /S
             displayName: '[TEMP] Print Microsoft.Spark.Binaries'
 
@@ -179,8 +184,8 @@ extends:
                         -ci
                         $(_OfficialBuildIdArgs)
                         /p:DotNetSignType=$(_SignType)
-                        /p:SparkPackagesDir=$(ArtifactPath)\BuildArtifacts\artifacts\packages
-                        /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
+                        /p:SparkPackagesDir=$(Build.ArtifactStagingDirectory)\BuildArtifacts\artifacts\packages
+                        /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
 
       # The "Publish" stage is separated out from the "Sign" stage because we need to install powershell module
       # to zip files correctly for macOS; installing the module is not allowed in NetCoreInternal-Pool.
@@ -219,8 +224,8 @@ extends:
                         -c $(buildConfiguration)
                         -ci
                         $(_OfficialBuildIdArgs)
-                        /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
-                        /p:SparkWorkerPackageOutputDir=$(ArtifactPath)
+                        /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
+                        /p:SparkWorkerPackageOutputDir=$(Build.ArtifactStagingDirectory)
 
     - template: azure-pipelines-e2e-tests-template.yml
       parameters:
