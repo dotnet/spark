@@ -248,20 +248,22 @@ namespace Microsoft.Spark.Sql.Catalog
             new Database((JvmObjectReference)Reference.Invoke("getDatabase", dbName));
 
         /// <summary>
-        /// Get the function with the specified name. If you are trying to get an in-built
-        /// function then use the unqualified name.
+        ///  Get the function with the specified name. This function can be a temporary function
+        ///  or a function.
         /// </summary>
         /// <param name="functionName">Is either a qualified or unqualified name that designates a
-        /// function. If no database identifier is provided, it refers to a temporary function or
-        /// a function in the current database.</param>
+        /// function. It follows the same resolution rule with SQL: search for built-in/temp
+        /// functions first then functions in the current database(namespace).</param>
         /// <returns>`Function` object which includes the class name, database, description,
         /// whether it is temporary and the name of the function.</returns>
         public Function GetFunction(string functionName) =>
             new Function((JvmObjectReference)Reference.Invoke("getFunction", functionName));
 
         /// <summary>
-        /// Get the function with the specified name. If you are trying to get an in-built function
-        /// then pass null as the dbName.
+        /// Get the function with the specified name in the specified database under the Hive
+        /// Metastore.
+        /// To get built-in functions, or functions in other catalogs, please use `getFunction(functionName)` with
+        /// qualified function name instead.
         /// </summary>
         /// <param name="dbName">Is a name that designates a database. Built-in functions will be
         /// in database null rather than default.</param>

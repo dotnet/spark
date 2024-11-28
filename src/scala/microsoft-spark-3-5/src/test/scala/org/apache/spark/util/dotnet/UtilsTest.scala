@@ -49,7 +49,9 @@ class UtilsTest {
     assertEquals(
       s"Unsupported spark version used: '$sparkVersion'. " +
         s"Normalized spark version used: '$normalizedSparkVersion'. " +
-        s"Supported versions: '${supportedSparkVersions.toSeq.sorted.mkString(", ")}'.",
+        s"Supported versions: '${supportedSparkVersions.toSeq.sorted.mkString(", ")}'." +
+        "Patch version can be ignored, use setting 'spark.dotnet.ignoreSparkPatchVersionCheck'",
+
       exception.getMessage)
   }
 

@@ -243,7 +243,7 @@ object DotnetRunner extends Logging {
 
     if (!localFile.exists()) { // May already exist if running multiple workers on one node
       logInfo(s"Copying user file $filePath to $driverDir")
-      Utils.fetchFile(
+      DotnetUtils.fetchFileWithbackwardCompatibility(
         hdfsFilePath,
         new File(driverDir),
         sparkConf,

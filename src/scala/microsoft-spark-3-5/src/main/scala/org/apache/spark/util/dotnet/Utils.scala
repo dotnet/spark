@@ -11,7 +11,13 @@ import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermission._
 import java.nio.file.{FileSystems, Files}
 import java.util.{Timer, TimerTask}
-
+import org.apache.spark.SparkConf
+import org.apache.spark.SecurityManager
+import org.apache.hadoop.conf.Configuration
+import org.apache.spark.util.Utils
+import java.io.File
+import java.lang.NoSuchMethodException
+import java.lang.reflect.InvocationTargetException
 import org.apache.commons.compress.archivers.zip.{ZipArchiveEntry, ZipArchiveOutputStream, ZipFile}
 import org.apache.commons.io.{FileUtils, IOUtils}
 import org.apache.spark.SparkConf
@@ -38,6 +44,94 @@ object Utils extends Logging {
 
   val supportPosix: Boolean =
     FileSystems.getDefault.supportedFileAttributeViews().contains("posix")
+
+    /**
+     * Provides a backward-compatible implementation of the `fetchFile` method 
+     * from Apache Spark's `org.apache.spark.util.Utils` class.
+     * 
+     * This method handles differences in method signatures between Spark versions,
+     * specifically the inclusion or absence of a `SecurityManager` parameter. It uses
+     * reflection to dynamically resolve and invoke the correct version of `fetchFile`.
+     *
+     * @param url The source URL of the file to be fetched.
+     * @param targetDir The directory where the fetched file will be saved.
+     * @param conf The Spark configuration object used to determine runtime settings.
+     * @param hadoopConf Hadoop configuration settings for file access.
+     * @param timestamp A timestamp indicating the cache validity of the fetched file.
+     * @param useCache Whether to use Spark's caching mechanism to reuse previously downloaded files.
+     * @param shouldUntar Whether to untar the downloaded file if it is a tarball. Defaults to `true`.
+     * 
+     * @return A `File` object pointing to the fetched and stored file.
+     * 
+     * @throws IllegalArgumentException If neither method signature is found.
+     * @throws Throwable If an error occurs during reflection or method invocation.
+     *
+     * Note:
+     * - This method was introduced as a fix for DataBricks-specific file copying issues 
+     *   and was referenced in PR #1048.
+     * - Reflection is used to ensure compatibility across Spark environments.
+     */
+    def fetchFileWithbackwardCompatibility(
+                                      url: String,
+                                      targetDir: File,
+                                      conf: SparkConf,
+                                      hadoopConf: Configuration,
+                                      timestamp: Long,
+                                      useCache: Boolean,
+                                      shouldUntar: Boolean = true): File = {
+
+        val signatureWithSecurityManager = Array(
+            classOf[String],
+            classOf[File],
+            classOf[SparkConf],
+            classOf[SecurityManager],
+            classOf[Configuration],
+            java.lang.Long.TYPE,
+            java.lang.Boolean.TYPE,
+            java.lang.Boolean.TYPE
+        )
+
+        val signatureWithoutSecurityManager = Array(
+            classOf[String],
+            classOf[File],
+            classOf[SparkConf],
+            classOf[Configuration],
+            classOf[Long],
+            classOf[Boolean],
+            classOf[Boolean]
+        )
+
+        val utilsClass = Class.forName("org.apache.spark.util.Utils$")
+        val utilsObject = utilsClass.getField("MODULE$").get(null)
+
+        val (needSecurityManagerArg, method) = {
+            try {
+                (true, utilsClass.getMethod("fetchFile", signatureWithSecurityManager: _*))
+            } catch {
+                case _: NoSuchMethodException =>
+                    (false, utilsClass.getMethod("fetchFile", signatureWithoutSecurityManager: _*))
+            }
+        }
+
+        val args: Seq[Any] =
+            Seq(
+                url,
+                targetDir,
+                conf
+            ) ++ (if (needSecurityManagerArg) Seq(null) else Nil) ++ Seq(
+                hadoopConf,
+                timestamp,
+                useCache,
+                shouldUntar)
+
+        // Unwrap InvocationTargetException to preserve exception in case of errors:
+        try {
+            method.invoke(utilsObject, args.map(_.asInstanceOf[Object]): _*).asInstanceOf[File]
+        } catch {
+            case e: InvocationTargetException =>
+                throw e.getCause()
+        }
+    }
 
   /**
    * Compress all files under given directory into one zip file and drop it to the target directory
@@ -225,7 +319,8 @@ object Utils extends Logging {
       throw new IllegalArgumentException(
         s"Unsupported spark version used: '$sparkVersion'. " +
           s"Normalized spark version used: '$normalizedSparkVersion'. " +
-          s"Supported versions: '$supportedVersions'.")
+          s"Supported versions: '$supportedVersions'." +
+          "Patch version can be ignored, use setting 'spark.dotnet.ignoreSparkPatchVersionCheck'"  )
     }
   }
 
