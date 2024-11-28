@@ -165,6 +165,11 @@ extends:
               artifactName: Microsoft.Spark.Binaries
               downloadPath: $(Build.ArtifactStagingDirectory)
 
+          - script: |
+              dir D:\a\_work\1\a\Microsoft.Spark.Binaries\BuildArtifacts\artifacts\packages
+              dir D:\a\_work\1\a\Microsoft.Spark.Binaries\Microsoft.Spark.Worker
+            displayName: '[TEMP] Print Microsoft.Spark.Binaries'
+
           - task: PowerShell@2
             displayName: Sign artifacts
             inputs:
@@ -190,8 +195,6 @@ extends:
           dependsOn:
             - Sign
           displayName: Publish Artifacts
-          pool: 
-            vmImage: 'windows-2022'
 
           variables:
             ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
