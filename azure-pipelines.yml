@@ -156,9 +156,6 @@ extends:
           dependsOn:
             - Build
           displayName: Sign Artifacts
-          pool:
-            name: Azure-Pipelines-1ESPT-ExDShared
-            demands: ImageOverride -equals build.windows.10.amd64.vs2019
 
           variables:
             ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
@@ -207,8 +204,6 @@ extends:
           dependsOn:
             - Sign
           displayName: Publish Artifacts
-          pool: 
-            vmImage: 'windows-2022'
 
           variables:
             ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
