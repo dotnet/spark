@@ -20,15 +20,15 @@ stages:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
-            vmImage: 'windows-2022'
+            name: Azure-Pipelines-1ESPT-ExDShared
+            image: windows-latest
+            os: windows
         ${{ else }}:
           pool:
             ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-              name: NetCore-Public
-              demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
+              name: Azure-Pipelines-1ESPT-ExDShared
             ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
               name: Azure-Pipelines-1ESPT-ExDShared
-              demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
 
         steps:
         - task: PowerShell@2
