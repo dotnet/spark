@@ -49,414 +49,367 @@ resources:
     endpoint: public
     name: dotnet/spark
     ref: refs/tags/v$(forwardCompatibleRelease)
-  
-  - repository: CustomPipelineTemplates
-    type: git
-    name: Engineering Fundamentals/WebXT.Pipeline.Templates
-    ref: refs/heads/main
 
-extends:
-  template: v1/WebXT.Official.EntryPoint.yml@CustomPipelineTemplates
+stages:
+- stage: Build
+  displayName: Build Sources
+  jobs:
+  - job: Build
+    pool: 
+      vmImage: 'windows-2022'
+
+    variables:
+      ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+        _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+
+    steps:
+    - task: Maven@3
+      displayName: 'Maven build src'
+      inputs:
+        mavenPomFile: src/scala/pom.xml
+
+    - task: Maven@3
+      displayName: 'Maven build benchmark'
+      inputs:
+        mavenPomFile: benchmark/scala/pom.xml
+
+    - script: build.cmd -pack
+                -c $(buildConfiguration)
+                -ci
+                $(_OfficialBuildIdArgs)
+                /p:PublishSparkWorker=true
+                /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
+      displayName: '.NET build'
+
+    - task: DotNetCoreCLI@2
+      displayName: '.NET unit tests'
+      inputs:
+        command: test
+        projects: '**/*UnitTest/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+
+    - task: CopyFiles@2
+      displayName: Stage Maven build jars
+      inputs:
+        sourceFolder: $(Build.SourcesDirectory)/src/scala
+        contents: '**/*.jar'
+        targetFolder: $(Build.ArtifactStagingDirectory)/Jars
+
+    - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+      - task: CopyFiles@2
+        displayName: Stage .NET artifacts
+        inputs:
+          sourceFolder: $(Build.SourcesDirectory)/artifacts/packages/$(buildConfiguration)/Shipping
+          contents: |
+            **/*.nupkg
+            **/*.snupkg
+          targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/packages/$(buildConfiguration)/Shipping
+
+      - task: CopyFiles@2
+        displayName: Stage build logs
+        inputs:
+          sourceFolder: $(Build.SourcesDirectory)/artifacts/log
+          targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/log
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        artifactName:  Microsoft.Spark.Binaries
+
+  - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+    - job: Sign
+      dependsOn:
+        - Build
+      displayName: Sign Artifacts
+      pool:
+        name: NetCore1ESPool-Internal
+        demands: ImageOverride -equals build.windows.10.amd64.vs2019
+
+      variables:
+        ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+          _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+
+      steps:
+      - task: DownloadBuildArtifacts@0
+        displayName: Download Build Artifacts
+        inputs:
+          artifactName: Microsoft.Spark.Binaries
+          downloadPath: $(Build.ArtifactStagingDirectory)
+
+      - task: MicroBuildSigningPlugin@2
+        displayName: Install MicroBuild plugin
+        inputs:
+          signType: $(_SignType)
+          zipSources: false
+          feedSource: https://dnceng.pkgs.visualstudio.com/_packaging/MicroBuildToolset/nuget/v3/index.json
+        env:
+          TeamName: $(_TeamName)
+        condition: and(succeeded(), in(variables['_SignType'], 'real', 'test'), eq(variables['Agent.Os'], 'Windows_NT'))
+
+      - task: PowerShell@2
+        displayName: Sign artifacts
+        inputs:
+          filePath: eng\common\build.ps1
+          arguments: -restore -sign
+                     -c $(buildConfiguration)
+                     -ci
+                     $(_OfficialBuildIdArgs)
+                     /p:DotNetSignType=$(_SignType)
+                     /p:SparkPackagesDir=$(ArtifactPath)\BuildArtifacts\artifacts\packages
+                     /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathtoPublish: '$(ArtifactPath)'
+          artifactName:  Microsoft.Spark.Binaries
+
+  # The "Publish" stage is separated out from the "Sign" stage because we need to install powershell module
+  # to zip files correctly for macOS; installing the module is not allowed in NetCoreInternal-Pool.
+  - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+    - job: Publish
+      dependsOn:
+        - Sign
+      displayName: Publish Artifacts
+      pool: 
+        vmImage: 'windows-2022'
+
+      variables:
+        ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+          _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+
+      steps:
+      # The following module needs to be installed to zip files correctly for macOS.
+      - powershell: Install-Module -Name Microsoft.PowerShell.Archive -Scope CurrentUser -Force -AllowClobber -Verbose -MinimumVersion 1.2.5
+        displayName: Install Microsoft.PowerShell.Archive
+
+      - task: DownloadBuildArtifacts@0
+        displayName: Download Signed Artifacts
+        inputs:
+          artifactName: Microsoft.Spark.Binaries
+          downloadPath: $(Build.ArtifactStagingDirectory)
+
+      - task: PowerShell@2
+        displayName: Package Microsoft.Spark.Worker
+        inputs:
+          filePath: eng\common\build.ps1
+          arguments: -restore -publish
+                     -c $(buildConfiguration)
+                     -ci
+                     $(_OfficialBuildIdArgs)
+                     /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
+                     /p:SparkWorkerPackageOutputDir=$(ArtifactPath)
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathtoPublish: '$(ArtifactPath)'
+          artifactName:  Microsoft.Spark.Binaries
+
+- template: azure-pipelines-e2e-tests-template.yml
   parameters:
-    sdl:
-      spotBugs:
-        enabled: false
-      PSScriptAnalyzer:
-        enabled: false
-      credscan:
-        enabled: false
-      sourceRepositoriesToScan:
-        exclude:
-          - repository: forwardCompatibleRelease
-    pool:
-      name: Azure-Pipelines-1ESPT-ExDShared
-      image: windows-latest
-      os: windows
-    customBuildTags:
-      - ES365AIMigrationTooling
-          
-    stages:
-    - stage: Build
-      displayName: Build Sources
-      jobs:
-      - job: Build
-        templateContext:
-          outputs:
-            - output: pipelineArtifact
-              artifactName: Microsoft.Spark.Binaries
-              targetPath: $(Build.ArtifactStagingDirectory)
-              displayName: '[PUBLISH] Microsoft.Spark.Binaries'
-
-        variables:
-          ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-            _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-
-        steps:
-        - task: Maven@3
-          displayName: 'Maven build src'
-          inputs:
-            mavenPomFile: src/scala/pom.xml
-
-        - task: Maven@3
-          displayName: 'Maven build benchmark'
-          inputs:
-            mavenPomFile: benchmark/scala/pom.xml
-
-        - script: build.cmd -pack
-                    -c $(buildConfiguration)
-                    -ci
-                    $(_OfficialBuildIdArgs)
-                    /p:PublishSparkWorker=true
-                    /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
-          displayName: '.NET build'
-
-        - task: DotNetCoreCLI@2
-          displayName: '.NET unit tests'
-          inputs:
-            command: test
-            projects: '**/*UnitTest/*.csproj'
-            arguments: '--configuration $(buildConfiguration)'
-
-        - task: CopyFiles@2
-          displayName: Stage Maven build jars
-          inputs:
-            sourceFolder: $(Build.SourcesDirectory)/src/scala
-            contents: '**/*.jar'
-            targetFolder: $(Build.ArtifactStagingDirectory)/Jars
-
-        - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-          - task: CopyFiles@2
-            displayName: Stage .NET artifacts
-            inputs:
-              sourceFolder: $(Build.SourcesDirectory)/artifacts/packages/$(buildConfiguration)/Shipping
-              contents: |
-                **/*.nupkg
-                **/*.snupkg
-              targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/packages/$(buildConfiguration)/Shipping
-
-          - task: CopyFiles@2
-            displayName: Stage build logs
-            inputs:
-              sourceFolder: $(Build.SourcesDirectory)/artifacts/log
-              targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/log
-
-          - script: |
-              cd $(Build.ArtifactStagingDirectory)
-              dir /B /S
-            displayName: '[TEMP] Print ArtifactStagingDirectory Structure'
-
-      - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-        - job: Sign
-          templateContext:
-            outputs:
-              - output: pipelineArtifact
-                artifactName: Microsoft.Spark.Binaries
-                targetPath: '$(PUBLISH_DIR)\Microsoft.Spark.Binaries'
-                displayName: '[PUBLISH] Microsoft.Spark.Binaries'
-          dependsOn:
-            - Build
-          displayName: Sign Artifacts
-
-          variables:
-            ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-              _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-
-          steps:
-          - task: DownloadBuildArtifacts@1
-            displayName: Download Build Artifacts
-            inputs:
-              artifactName: Microsoft.Spark.Binaries
-              downloadPath: $(System.ArtifactsDirectory)
-          
-          - script: |
-              cd D:\a\_work\1\a
-              dir /B /S
-            displayName: '[TEMP] Print ArtifactStagingDirectory Structure'
-
-          - script: |
-              cd $(System.ArtifactsDirectory)
-              dir /B /S
-            displayName: '[TEMP] Print ArtifactStagingDirectory Structure'
-
-          - script: |
-              cd $(Build.ArtifactStagingDirectory)
-              dir /B /S
-            displayName: '[TEMP] Print ArtifactStagingDirectory Structure'
-
-          - script: |
-              cd $(ArtifactPath)
-              dir /B /S
-            displayName: '[TEMP] Print Artifact Structure'
-
-          - task: MicroBuildSigningPlugin@2
-            displayName: Install MicroBuild plugin
-            inputs:
-              signType: $(_SignType)
-              zipSources: false
-              feedSource: https://dnceng.pkgs.visualstudio.com/_packaging/MicroBuildToolset/nuget/v3/index.json
-            env:
-              TeamName: $(_TeamName)
-            condition: and(succeeded(), in(variables['_SignType'], 'real', 'test'), eq(variables['Agent.Os'], 'Windows_NT'))
-
-          - task: PowerShell@2
-            displayName: Sign artifacts
-            inputs:
-              filePath: eng\common\build.ps1
-              arguments: -restore -sign
-                        -c $(buildConfiguration)
-                        -ci
-                        $(_OfficialBuildIdArgs)
-                        /p:DotNetSignType=$(_SignType)
-                        /p:SparkPackagesDir=$(Build.ArtifactStagingDirectory)\BuildArtifacts\artifacts\packages
-                        /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
-
-
-      # The "Publish" stage is separated out from the "Sign" stage because we need to install powershell module
-      # to zip files correctly for macOS; installing the module is not allowed in NetCoreInternal-Pool.
-      - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-        - job: Publish
-          templateContext:
-            outputs:
-              - output: pipelineArtifact
-                artifactName: Microsoft.Spark.Binaries
-                targetPath: $(Build.ArtifactStagingDirectory)
-                displayName: '[PUBLISH] Microsoft.Spark.Binaries'
-          dependsOn:
-            - Sign
-          displayName: Publish Artifacts
-
-          variables:
-            ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-              _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-
-          steps:
-          # The following module needs to be installed to zip files correctly for macOS.
-          - powershell: Install-Module -Name Microsoft.PowerShell.Archive -Scope CurrentUser -Force -AllowClobber -Verbose -MinimumVersion 1.2.5
-            displayName: Install Microsoft.PowerShell.Archive
-
-          - task: DownloadBuildArtifacts@0
-            displayName: Download Signed Artifacts
-            inputs:
-              artifactName: Microsoft.Spark.Binaries
-              downloadPath: $(Build.ArtifactStagingDirectory)
-
-          - task: PowerShell@2
-            displayName: Package Microsoft.Spark.Worker
-            inputs:
-              filePath: eng\common\build.ps1
-              arguments: -restore -publish
-                        -c $(buildConfiguration)
-                        -ci
-                        $(_OfficialBuildIdArgs)
-                        /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
-                        /p:SparkWorkerPackageOutputDir=$(ArtifactPath)
-
-    - template: azure-pipelines-e2e-tests-template.yml
-      parameters:
-        backwardCompatibleRelease: $(backwardCompatibleRelease)
-        forwardCompatibleRelease: $(forwardCompatibleRelease)
-        tests:
-        - version: '2.4.0'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
-        - version: '2.4.1'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
-        - version: '2.4.3'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
-        - version: '2.4.4'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
-        - version: '2.4.5'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
-        - version: '2.4.6'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
-        - version: '2.4.7'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
-        - version: '2.4.8'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
-        - version: '3.0.0'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_0)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_0)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
-        - version: '3.0.1'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_0)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_0)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
-        - version: '3.0.2'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_0)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_0)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
-        - version: '3.1.1'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_1)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
-        - version: '3.1.2'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_1)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
-        - version: '3.2.0'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_2)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
-        - version: '3.2.1'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_2)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
-        - version: '3.2.2'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_2)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
-        - version: '3.2.3'
-          enableForwardCompatibleTests: false
-          enableBackwardCompatibleTests: false
-          jobOptions:
-          - pool: 'Windows'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_2)
-          - pool: 'Linux'
-            testOptions: ""
-            backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
-            forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
+    backwardCompatibleRelease: $(backwardCompatibleRelease)
+    forwardCompatibleRelease: $(forwardCompatibleRelease)
+    tests:
+    - version: '2.4.0'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '2.4.1'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '2.4.3'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '2.4.4'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '2.4.5'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '2.4.6'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '2.4.7'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '2.4.8'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_2_4)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
+    - version: '3.0.0'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_0)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
+    - version: '3.0.1'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_0)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
+    - version: '3.0.2'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_0)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
+    - version: '3.1.1'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_1)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
+    - version: '3.1.2'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_1)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_1)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
+    - version: '3.2.0'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_2)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
+    - version: '3.2.1'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_2)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
+    - version: '3.2.2'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_2)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
+    - version: '3.2.3'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_2)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
