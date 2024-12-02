@@ -102,39 +102,23 @@ stages:
 
         - checkout: self
           path: s$(PATH_SEPARATOR)dotnet-spark
-
-        - task: DownloadBuildArtifacts@1
-          displayName: Download Build Artifacts
-          inputs:
-            artifactName: Microsoft.Spark.Binaries
-            downloadPath: $(System.ArtifactsDirectory)
-
-        - script: |
-              cd $(Build.SourcesDirectory)
-              dir /B /S
-          displayName: '[TEMP] Print ArtifactStagingDirectory Structure'
-
-        - script: |
-              cd D:\a\_work\1\a
-              dir /B /S
-          displayName: '[TEMP] Print ArtifactStagingDirectory Structure'
          
         - script: |
               cd $(System.ArtifactsDirectory)
               dir /B /S
           displayName: '[TEMP] Print ArtifactStagingDirectory Structure'
 
-        - script: |
-              cd $(ArtifactPath)
-              dir /B /S
-          displayName: '[TEMP] Print ArtifactPath Structure'
-
         - task: CopyFiles@2
           displayName: Copy jars
           inputs:
-            sourceFolder: $(ArtifactPath)$(PATH_SEPARATOR)Jars
+            sourceFolder: $(System.ArtifactsDirectory)$(PATH_SEPARATOR)Jars
             contents: '**$(PATH_SEPARATOR)*.jar'
             targetFolder: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala
+
+        - script: |
+              cd $(Build.SourcesDirectory)
+              dir /B /S
+          displayName: '[TEMP] Print Build.SourcesDirectory Structure'
 
         - task: PowerShell@2
           condition: eq( variables['Agent.OS'], 'Windows_NT' )
