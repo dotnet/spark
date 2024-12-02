@@ -102,6 +102,12 @@ stages:
 
         - checkout: self
           path: s$(PATH_SEPARATOR)dotnet-spark
+
+        - task: DownloadBuildArtifacts@1
+          displayName: Download Build Artifacts
+          inputs:
+            artifactName: Microsoft.Spark.Binaries
+            downloadPath: $(System.ArtifactsDirectory)
          
         - script: |
               cd $(System.ArtifactsDirectory)
