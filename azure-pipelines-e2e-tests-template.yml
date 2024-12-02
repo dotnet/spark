@@ -64,6 +64,11 @@ stages:
             version: 6.x
             installationPath: $(Agent.ToolsDirectory)/dotnet
 
+        - script: |
+              cd $(Build.ArtifactStagingDirectory)
+              dir /B /S
+          displayName: '[TEMP] Print ArtifactStagingDirectory Structure 1'
+
         - task: DownloadBuildArtifacts@0
           displayName: Download Build Artifacts
           inputs:
@@ -73,7 +78,7 @@ stages:
         - script: |
               cd $(Build.ArtifactStagingDirectory)
               dir /B /S
-          displayName: '[TEMP] Print ArtifactStagingDirectory Structure'
+          displayName: '[TEMP] Print ArtifactStagingDirectory Structure 2'
 
         - pwsh: |
             $framework = "net6.0"
@@ -85,7 +90,7 @@ stages:
             }
 
             $pathSeparator = [IO.Path]::DirectorySeparatorChar
-            $artifactPath = "$(Build.ArtifactStagingDirectory)${pathSeparator}Microsoft.Spark.Binaries"
+            $artifactPath = "$(Build.ArtifactStagingDirectory)${pathSeparator}"
             echo "##vso[task.setvariable variable=PATH_SEPARATOR]$pathSeparator"
             echo "##vso[task.setvariable variable=ArtifactPath]$artifactPath"
 
