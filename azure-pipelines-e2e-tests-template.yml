@@ -119,12 +119,12 @@ stages:
               dir /B /S
           displayName: '[TEMP] Print ArtifactStagingDirectory Structure'
 
-        - task: CopyFiles@2
-          displayName: Copy jars
-          inputs:
-            sourceFolder: $(System.ArtifactsDirectory)$(PATH_SEPARATOR)Jars
-            contents: '**$(PATH_SEPARATOR)*.jar'
-            targetFolder: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala
+        #- task: CopyFiles@2
+        #  displayName: Copy jars
+        #  inputs:
+        #    sourceFolder: $(System.ArtifactsDirectory)$(PATH_SEPARATOR)Jars
+        #    contents: '**$(PATH_SEPARATOR)*.jar'
+        #    targetFolder: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala
 
         - script: |
               cd $(Build.SourcesDirectory)
