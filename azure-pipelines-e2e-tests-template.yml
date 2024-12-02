@@ -26,11 +26,9 @@ stages:
         ${{ else }}:
           pool:
             ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-              name: NetCore1ESPool-Public
-              demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
+              name: Azure-Pipelines-1ESPT-ExDShared
             ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-              name: NetCore1ESPool-Internal
-              demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
+              name: Azure-Pipelines-1ESPT-ExDShared
 
         steps:
         - task: PowerShell@2
