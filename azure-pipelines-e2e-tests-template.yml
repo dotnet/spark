@@ -21,14 +21,16 @@ stages:
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
             name: Azure-Pipelines-1ESPT-ExDShared
-            image: windows-latest
+            image: windows-2019
             os: windows
         ${{ else }}:
           pool:
             ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-              name: Azure-Pipelines-1ESPT-ExDShared
+              name: NetCore1ESPool-Public
+              demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
             ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-              name: Azure-Pipelines-1ESPT-ExDShared
+              name: NetCore1ESPool-Internal
+              demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
 
         steps:
         - task: PowerShell@2
@@ -69,11 +71,11 @@ stages:
               dir /B /S
           displayName: '[TEMP] Print ArtifactStagingDirectory Structure 1'
 
-        - task: DownloadBuildArtifacts@0
+        - task: DownloadPipelineArtifact@2
           displayName: Download Build Artifacts
           inputs:
+            targetPath: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries
             artifactName: Microsoft.Spark.Binaries
-            downloadPath: $(Build.ArtifactStagingDirectory)
 
         - script: |
               cd $(Build.ArtifactStagingDirectory)
@@ -90,7 +92,7 @@ stages:
             }
 
             $pathSeparator = [IO.Path]::DirectorySeparatorChar
-            $artifactPath = "$(Build.ArtifactStagingDirectory)${pathSeparator}"
+            $artifactPath = "$(Build.ArtifactStagingDirectory)${pathSeparator}Microsoft.Spark.Binaries"
             echo "##vso[task.setvariable variable=PATH_SEPARATOR]$pathSeparator"
             echo "##vso[task.setvariable variable=ArtifactPath]$artifactPath"
 
@@ -119,12 +121,12 @@ stages:
               dir /B /S
           displayName: '[TEMP] Print ArtifactStagingDirectory Structure'
 
-        #- task: CopyFiles@2
-        #  displayName: Copy jars
-        #  inputs:
-        #    sourceFolder: $(System.ArtifactsDirectory)$(PATH_SEPARATOR)Jars
-        #    contents: '**$(PATH_SEPARATOR)*.jar'
-        #    targetFolder: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala
+        - task: CopyFiles@2
+          displayName: Copy jars
+          inputs:
+            sourceFolder: $(ArtifactPath)$(PATH_SEPARATOR)Jars
+            contents: '**$(PATH_SEPARATOR)*.jar'
+            targetFolder: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala
 
         - script: |
               cd $(Build.SourcesDirectory)
