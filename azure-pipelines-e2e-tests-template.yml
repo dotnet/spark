@@ -21,7 +21,7 @@ stages:
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
             name: Azure-Pipelines-1ESPT-ExDShared
-            image: windows-2022
+            image: windows-2019
             os: windows
         ${{ else }}:
           pool:
@@ -63,21 +63,11 @@ stages:
             version: 6.x
             installationPath: $(Agent.ToolsDirectory)/dotnet
 
-        - script: |
-              cd $(Build.ArtifactStagingDirectory)
-              dir /B /S
-          displayName: '[TEMP] Print ArtifactStagingDirectory Structure 1'
-
         - task: DownloadPipelineArtifact@2
           displayName: Download Build Artifacts
           inputs:
             targetPath: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries
             artifactName: Microsoft.Spark.Binaries
-
-        - script: |
-              cd $(Build.ArtifactStagingDirectory)
-              dir /B /S
-          displayName: '[TEMP] Print ArtifactStagingDirectory Structure 2'
 
         - pwsh: |
             $framework = "net6.0"
@@ -112,11 +102,6 @@ stages:
           inputs:
             artifactName: Microsoft.Spark.Binaries
             downloadPath: $(System.ArtifactsDirectory)
-         
-        - script: |
-              cd $(System.ArtifactsDirectory)
-              dir /B /S
-          displayName: '[TEMP] Print ArtifactStagingDirectory Structure'
 
         - task: CopyFiles@2
           displayName: Copy jars
@@ -124,11 +109,6 @@ stages:
             sourceFolder: $(ArtifactPath)$(PATH_SEPARATOR)Jars
             contents: '**$(PATH_SEPARATOR)*.jar'
             targetFolder: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala
-
-        - script: |
-              cd $(Build.SourcesDirectory)
-              dir /B /S
-          displayName: '[TEMP] Print Build.SourcesDirectory Structure'
 
         - task: PowerShell@2
           condition: eq( variables['Agent.OS'], 'Windows_NT' )
