@@ -30,6 +30,14 @@ stages:
             os: linux
 
         steps:
+        - task: JavaToolInstaller@0
+          condition: eq( variables['Agent.OS'], 'Linux')
+          displayName: '[ENV] Install JDK 8'
+          inputs:
+            versionSpec: '8'
+            jdkArchitectureOption: 'x64'
+            jdkSourceOption: 'PreInstalled'
+
         - task: PowerShell@2
           condition: eq( variables['Agent.OS'], 'Linux')
           displayName: Install Maven for Linux agent
