@@ -21,14 +21,13 @@ stages:
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
             name: Azure-Pipelines-1ESPT-ExDShared
-            image: windows-2019
+            image: windows-2022
             os: windows
         ${{ else }}:
           pool:
-            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-              name: Azure-Pipelines-1ESPT-ExDShared
-            ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-              name: Azure-Pipelines-1ESPT-ExDShared
+            name: Azure-Pipelines-1ESPT-ExDShared
+            image: ubuntu-latest
+            os: linux
 
         steps:
         - task: PowerShell@2
