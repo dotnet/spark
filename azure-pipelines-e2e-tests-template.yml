@@ -20,17 +20,24 @@ stages:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
-            vmImage: 'windows-2022'
+            name: Azure-Pipelines-1ESPT-ExDShared
+            image: windows-2019
+            os: windows
         ${{ else }}:
           pool:
-            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-              name: NetCore-Public
-              demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
-            ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-              name: NetCore1ESPool-Internal
-              demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
+            name: Azure-Pipelines-1ESPT-ExDShared
+            image: ubuntu-latest
+            os: linux
 
         steps:
+        - task: JavaToolInstaller@0
+          condition: eq( variables['Agent.OS'], 'Linux')
+          displayName: '[ENV] Install JDK 8'
+          inputs:
+            versionSpec: '8'
+            jdkArchitectureOption: 'x64'
+            jdkSourceOption: 'PreInstalled'
+
         - task: PowerShell@2
           condition: eq( variables['Agent.OS'], 'Linux')
           displayName: Install Maven for Linux agent
@@ -64,11 +71,11 @@ stages:
             version: 6.x
             installationPath: $(Agent.ToolsDirectory)/dotnet
 
-        - task: DownloadBuildArtifacts@0
+        - task: DownloadPipelineArtifact@2
           displayName: Download Build Artifacts
           inputs:
+            targetPath: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries
             artifactName: Microsoft.Spark.Binaries
-            downloadPath: $(Build.ArtifactStagingDirectory)
 
         - pwsh: |
             $framework = "net6.0"
@@ -97,6 +104,12 @@ stages:
 
         - checkout: self
           path: s$(PATH_SEPARATOR)dotnet-spark
+
+        - task: DownloadBuildArtifacts@1
+          displayName: Download Build Artifacts
+          inputs:
+            artifactName: Microsoft.Spark.Binaries
+            downloadPath: $(System.ArtifactsDirectory)
 
         - task: CopyFiles@2
           displayName: Copy jars
