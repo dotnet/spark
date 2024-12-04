@@ -203,7 +203,7 @@ stages:
         inputs:
           pathtoPublish: '$(ArtifactPath)'
           artifactName:  Microsoft.Spark.Binaries
- 
+
 - template: azure-pipelines-e2e-tests-template.yml
   parameters:
     backwardCompatibleRelease: $(backwardCompatibleRelease)
