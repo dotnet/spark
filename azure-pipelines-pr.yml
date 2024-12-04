@@ -141,11 +141,6 @@ extends:
               sourceFolder: $(Build.SourcesDirectory)/artifacts/log
               targetFolder: $(Build.ArtifactStagingDirectory)/BuildArtifacts/artifacts/log
 
-          - script: |
-              cd $(Build.ArtifactStagingDirectory)
-              dir /B /S
-            displayName: '[TEMP] Print ArtifactStagingDirectory Structure'
-
     - template: azure-pipelines-e2e-tests-template.yml
       parameters:
         backwardCompatibleRelease: $(backwardCompatibleRelease)
