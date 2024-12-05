@@ -34,11 +34,10 @@ stages:
           condition: eq( variables['Agent.OS'], 'Linux')
           displayName: 'Install Maven and JDK1.8 For Linux'
           inputs:
-            workingDirectory: $(Build.BinariesDirectory)
             targetType: 'inline'
             script: |
-              sudo yum install maven
-              sudo yum install java-1.8.0-openjdk
+              sudo yum -y install maven
+              sudo yum -y install java-1.8.0-openjdk
         
         - task: JavaToolInstaller@0
           condition: eq( variables['Agent.OS'], 'Linux')
@@ -48,6 +47,13 @@ stages:
             jdkArchitectureOption: 'x64'
             jdkSourceOption: 'PreInstalled'
 
+        - script: |
+            icacls "%TMP%"
+            icacls "%TMP%" /grant "%USERNAME%:(OI)(CI)F"
+            icacls "%TMP%"
+          displayName: '[TEMP] Grant full access to the temp folder'
+          condition: eq( variables['Agent.OS'], 'Windows')
+          
         - task: UseDotNet@2
           displayName: 'Use .NET 6 sdk'
           inputs:
