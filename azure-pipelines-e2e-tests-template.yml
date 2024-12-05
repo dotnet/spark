@@ -21,7 +21,7 @@ stages:
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
             name: Cosmos2MT-AzureDevOps-AgentPool
-            image: 1es-pt-windows-2019
+            image: 1es-pt-windows-2022
             os: windows
         ${{ else }}:
           pool:
@@ -32,12 +32,21 @@ stages:
         steps:
         - task: Bash@3
           condition: eq( variables['Agent.OS'], 'Linux')
-          displayName: 'Install Maven For Linux'
+          displayName: 'Install Maven and JDK1.8 For Linux'
           inputs:
             workingDirectory: $(Build.BinariesDirectory)
             targetType: 'inline'
             script: |
               sudo yum install maven
+              sudo yum install java-1.8.0-openjdk
+        
+        - task: JavaToolInstaller@0
+          condition: eq( variables['Agent.OS'], 'Linux')
+          displayName: "Install Java"
+          inputs:
+            versionSpec: '8'
+            jdkArchitectureOption: 'x64'
+            jdkSourceOption: 'PreInstalled'
 
         - task: UseDotNet@2
           displayName: 'Use .NET 6 sdk'
