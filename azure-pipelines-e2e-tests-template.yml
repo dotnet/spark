@@ -42,9 +42,12 @@ stages:
               export PATH=$JAVA_HOME/bin:$PATH
 
         - script: |
-            icacls "%TMP%"
-            icacls "%TMP%" /grant "%USERNAME%:(OI)(CI)F"
-            icacls "%TMP%"
+            icacls "%TEMP%"
+            icacls "%TEMP%" /grant "%USERNAME%:(OI)(CI)F"
+            icacls "%TEMP%"
+            icacls C:\Users\cloudtest\AppData\Local\Temp
+            icacls C:\Users\cloudtest\AppData\Local\Temp /grant "%USERNAME%:(OI)(CI)F"
+            icacls C:\Users\cloudtest\AppData\Local\Temp
           displayName: '[TEMP] Grant access to the temp folder'
           condition: eq( variables['Agent.OS'], 'Windows_NT')
           
