@@ -20,49 +20,24 @@ stages:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
-            name: Azure-Pipelines-1ESPT-ExDShared
-            image: windows-2019
+            name: Cosmos2MT-AzureDevOps-AgentPool
+            image: 1es-pt-windows-2019
             os: windows
         ${{ else }}:
           pool:
-            name: Azure-Pipelines-1ESPT-ExDShared
-            image: ubuntu-latest
+            name: Cosmos2MT-AzureDevOps-AgentPool
+            image: 1es-pt-mariner-2.0-gen2
             os: linux
 
         steps:
-        - task: JavaToolInstaller@0
+        - task: Bash@3
           condition: eq( variables['Agent.OS'], 'Linux')
-          displayName: '[ENV] Install JDK 8'
-          inputs:
-            versionSpec: '8'
-            jdkArchitectureOption: 'x64'
-            jdkSourceOption: 'PreInstalled'
-
-        - task: PowerShell@2
-          condition: eq( variables['Agent.OS'], 'Linux')
-          displayName: Install Maven for Linux agent
+          displayName: 'Install Maven For Linux'
           inputs:
             workingDirectory: $(Build.BinariesDirectory)
-            pwsh: true
-            targetType: inline
+            targetType: 'inline'
             script: |
-              $numRetry = 0
-              $maxRetry = 60*10
-
-              while($numRetry -le $maxRetry)
-              {
-                  sudo fuser -v /var/lib/dpkg/lock-frontend 2>&1
-
-                  if ($LASTEXITCODE -ne 0) { Break }
-                  
-                  sleep 1
-                  $numRetry++
-                  echo "Waited $numRetry s for release of dpkg locks"
-              }
-              
-              sudo apt update
-              sudo apt -y install maven
-              mvn -version
+              sudo yum install maven
 
         - task: UseDotNet@2
           displayName: 'Use .NET 6 sdk'
