@@ -38,14 +38,8 @@ stages:
             script: |
               sudo yum -y install maven
               sudo yum -y install java-1.8.0-openjdk
-        
-        - task: JavaToolInstaller@0
-          condition: eq( variables['Agent.OS'], 'Linux')
-          displayName: '[ENV] Install JDK 8'
-          inputs:
-            versionSpec: '8'
-            jdkArchitectureOption: 'x64'
-            jdkSourceOption: 'PreInstalled'
+              export JAVA_HOME=/usr/lib/jvm/temurin-8-jdk
+              export PATH=$JAVA_HOME/bin:$PATH
 
         - script: |
             icacls "%TMP%"
