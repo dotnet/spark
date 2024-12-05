@@ -51,10 +51,10 @@ resources:
     name: dotnet/spark
     ref: refs/tags/v$(forwardCompatibleRelease)
   
-  - repository: CustomPipelineTemplates
+  - repository: 1ESPipelineTemplates
     type: git
-    name: Engineering Fundamentals/WebXT.Pipeline.Templates
-    ref: refs/heads/main
+    name: 1ESPipelineTemplates/1ESPipelineTemplates
+    ref: refs/tags/release
 
 extends:
   template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
