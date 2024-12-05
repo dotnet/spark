@@ -20,13 +20,13 @@ stages:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
-            name: Azure-Pipelines-1ESPT-ExDShared
-            image: windows-2019
+            name: Cosmos2MT-AzureDevOps-AgentPool
+            image: 1es-pt-windows-2022
             os: windows
         ${{ else }}:
           pool:
-            name: Azure-Pipelines-1ESPT-ExDShared
-            image: ubuntu-latest
+            name: Cosmos2MT-AzureDevOps-AgentPool
+            image: 1es-pt-mariner-2.0-gen2
             os: linux
 
         steps:
