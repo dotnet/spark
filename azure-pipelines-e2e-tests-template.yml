@@ -26,20 +26,43 @@ stages:
         ${{ else }}:
           pool:
             name: Cosmos2MT-AzureDevOps-AgentPool
-            image: 1es-pt-mariner-2.0-gen2
+            image: 1es-pt-ubuntu-22
             os: linux
 
         steps:
-        - task: Bash@3
+        - task: JavaToolInstaller@0
           condition: eq( variables['Agent.OS'], 'Linux')
-          displayName: 'Install Maven and JDK1.8 For Linux'
+          displayName: '[ENV] Install JDK 8'
           inputs:
-            targetType: 'inline'
+            versionSpec: '8'
+            jdkArchitectureOption: 'x64'
+            jdkSourceOption: 'PreInstalled'
+
+        - task: PowerShell@2
+          condition: eq( variables['Agent.OS'], 'Linux')
+          displayName: Install Maven for Linux agent
+          inputs:
+            workingDirectory: $(Build.BinariesDirectory)
+            pwsh: true
+            targetType: inline
             script: |
-              sudo yum -y install maven
-              sudo yum -y install java-1.8.0-openjdk
-              export JAVA_HOME=/usr/lib/jvm/temurin-8-jdk
-              export PATH=$JAVA_HOME/bin:$PATH
+              $numRetry = 0
+              $maxRetry = 60*10
+
+              while($numRetry -le $maxRetry)
+              {
+                  sudo fuser -v /var/lib/dpkg/lock-frontend 2>&1
+
+                  if ($LASTEXITCODE -ne 0) { Break }
+                  
+                  sleep 1
+                  $numRetry++
+                  echo "Waited $numRetry s for release of dpkg locks"
+              }
+              
+              sudo apt update
+              sudo apt -y install maven
+              mvn -version
           
         - task: UseDotNet@2
           displayName: 'Use .NET 6 sdk'
