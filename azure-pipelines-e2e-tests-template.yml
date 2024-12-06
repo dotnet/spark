@@ -21,7 +21,7 @@ stages:
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
             name: Cosmos2MT-AzureDevOps-AgentPool
-            image: 1es-pt-windows-2022
+            image: 1es-pt-windows-2019
             os: windows
         ${{ else }}:
           pool:
@@ -40,16 +40,6 @@ stages:
               sudo yum -y install java-1.8.0-openjdk
               export JAVA_HOME=/usr/lib/jvm/temurin-8-jdk
               export PATH=$JAVA_HOME/bin:$PATH
-
-        - script: |
-            icacls "%TEMP%"
-            icacls "%TEMP%" /grant "%USERNAME%:(OI)(CI)F"
-            icacls "%TEMP%"
-            icacls C:\Users\cloudtest\AppData\Local\Temp
-            icacls C:\Users\cloudtest\AppData\Local\Temp /grant "%USERNAME%:(OI)(CI)F"
-            icacls C:\Users\cloudtest\AppData\Local\Temp
-          displayName: '[TEMP] Grant access to the temp folder'
-          condition: eq( variables['Agent.OS'], 'Windows_NT')
           
         - task: UseDotNet@2
           displayName: 'Use .NET 6 sdk'

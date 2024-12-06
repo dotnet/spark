@@ -71,7 +71,7 @@ extends:
           - repository: forwardCompatibleRelease
     pool:
       name: Cosmos2MT-AzureDevOps-AgentPool
-      image: 1es-pt-windows-2022
+      image: 1es-pt-windows-2019
       os: windows
     customBuildTags:
       - ES365AIMigrationTooling
