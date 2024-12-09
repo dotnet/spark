@@ -88,10 +88,6 @@ extends:
               targetPath: $(Build.ArtifactStagingDirectory)
               displayName: '[PUBLISH] Microsoft.Spark.Binaries'
 
-        variables:
-          ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-            _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-
         steps:
         - task: Maven@3
           displayName: 'Maven build src'
