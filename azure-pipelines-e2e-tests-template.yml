@@ -63,7 +63,7 @@ stages:
               sudo apt update
               sudo apt -y install maven
               mvn -version
-          
+
         - task: UseDotNet@2
           displayName: 'Use .NET 6 sdk'
           inputs:
