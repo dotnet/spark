@@ -40,12 +40,29 @@ stages:
 
         - task: PowerShell@2
           condition: eq( variables['Agent.OS'], 'Linux')
-          displayName: 'Install Maven For Linux'
+          displayName: Install Maven for Linux agent
           inputs:
             workingDirectory: $(Build.BinariesDirectory)
-            targetType: 'inline'
+            pwsh: true
+            targetType: inline
             script: |
-              sudo yum install maven
+              $numRetry = 0
+              $maxRetry = 60*10
+
+              while($numRetry -le $maxRetry)
+              {
+                  sudo fuser -v /var/lib/dpkg/lock-frontend 2>&1
+
+                  if ($LASTEXITCODE -ne 0) { Break }
+                  
+                  sleep 1
+                  $numRetry++
+                  echo "Waited $numRetry s for release of dpkg locks"
+              }
+              
+              sudo apt update
+              sudo apt -y install maven
+              mvn -version
 
         - task: UseDotNet@2
           displayName: 'Use .NET 6 sdk'
@@ -87,12 +104,6 @@ stages:
 
         - checkout: self
           path: s$(PATH_SEPARATOR)dotnet-spark
-
-        - task: DownloadBuildArtifacts@1
-          displayName: Download Build Artifacts
-          inputs:
-            artifactName: Microsoft.Spark.Binaries
-            downloadPath: $(System.ArtifactsDirectory)
 
         - task: CopyFiles@2
           displayName: Copy jars
