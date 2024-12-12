@@ -87,7 +87,7 @@ extends:
   template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
   parameters:
     settings:
-      skipSDLSourcesWhenCheckoutIsNoneForAllJobs: true
+      skipBuildTagsForGitHubPullRequests: true
     sdl:
       spotBugs:
         enabled: false
