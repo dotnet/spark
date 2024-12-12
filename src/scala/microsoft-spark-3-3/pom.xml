@@ -7,12 +7,12 @@
     <version>${microsoft-spark.version}</version>
   </parent>
   <artifactId>microsoft-spark-3-3_2.12</artifactId>
-  <inceptionYear>2024</inceptionYear>
+  <inceptionYear>2019</inceptionYear>
   <properties>
     <encoding>UTF-8</encoding>
     <scala.version>2.12.10</scala.version>
     <scala.binary.version>2.12</scala.binary.version>
-    <spark.version>3.3.3</spark.version>
+    <spark.version>3.3.0</spark.version>
   </properties>
 
   <dependencies>
@@ -46,26 +46,10 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest</artifactId>
-      <version>3.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.specs</groupId>
       <artifactId>specs</artifactId>
       <version>1.2.5</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-    <groupId>org.apache.commons</groupId>
-      <artifactId>commons-text</artifactId>
-      <version>${org.apache.commons.commons-text.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avro</groupId>
-      <artifactId>avro</artifactId>
-      <version>${org.apache.avro.version}</version>
     </dependency>
   </dependencies>
 
