@@ -121,14 +121,31 @@ stages:
             targetType: inline
             script: |
               echo "Download Hadoop utils for Windows."
-              curl -k -L -o hadoop.zip https://github.com/steveloughran/winutils/releases/download/tag_2017-08-29-hadoop-2.8.1-native/hadoop-2.8.1.zip
+              $hadoopBinaryUrl = "https://github.com/steveloughran/winutils/releases/download/tag_2017-08-29-hadoop-2.8.1-native/hadoop-2.8.1.zip"
+              if ("3.3.3" -contains "${{ test.version }}") {
+                $hadoopBinaryUrl = "https://github.com/SparkSnail/winutils/releases/download/hadoop-3.3.0/hadoop-3.3.0.zip"
+              }
+              curl -k -L -o hadoop.zip $hadoopBinaryUrl
               Expand-Archive -Path hadoop.zip -Destination .
               New-Item -ItemType Directory -Force -Path hadoop\bin
-              cp hadoop-2.8.1\winutils.exe hadoop\bin
+              if ("3.3.3" -contains "${{ test.version }}") {
+                cp hadoop-3.3.0\bin\winutils.exe hadoop\bin
+              } else {
+                cp hadoop-2.8.1\winutils.exe hadoop\bin
+              }
 
         - pwsh: |
             echo "Downloading Spark ${{ test.version }}"
-            curl -k -L -o spark-${{ test.version }}.tgz https://archive.apache.org/dist/spark/spark-${{ test.version }}/spark-${{ test.version }}-bin-hadoop2.7.tgz
+            $sparkBinaryName = "spark-${{ test.version }}-bin-hadoop2.7.tgz"
+            # In spark 3.3.0, 3.3.1, 3.3.2, 3.3.4, the binary name with hadoop2 has changed to spark-${{ test.version }}-bin-hadoop2.tgz
+            if ("3.3.0", "3.3.1", "3.3.2", "3.3.4" -contains "${{ test.version }}") {
+                $sparkBinaryName = "spark-${{ test.version }}-bin-hadoop2.tgz"
+            }
+            # In spark 3.3.3, the binary don't provide hadoop2 version, so we use hadoop3 version
+            if ("3.3.3" -contains "${{ test.version }}") {
+                $sparkBinaryName = "spark-${{ test.version }}-bin-hadoop3.tgz"
+            }
+            curl -k -L -o spark-${{ test.version }}.tgz https://archive.apache.org/dist/spark/spark-${{ test.version }}/${sparkBinaryName}
             tar xzvf spark-${{ test.version }}.tgz
           displayName: 'Download Spark Distro ${{ test.version }}'
           workingDirectory: $(Build.BinariesDirectory)
