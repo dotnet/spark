@@ -187,5 +187,3 @@ For more information, see the [.NET Foundation Code of Conduct](https://dotnetfo
 ## License
 
 .NET for Apache Spark is licensed under the [MIT license](LICENSE).
-
-
