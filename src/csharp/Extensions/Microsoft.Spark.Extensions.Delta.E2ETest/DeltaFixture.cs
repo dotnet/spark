@@ -22,7 +22,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
                 (3, 0) => "delta-core_2.12:0.8.0",
                 (3, 1) => "delta-core_2.12:1.0.0",
                 (3, 2) => "delta-core_2.12:1.1.0",
-                (3, 3) => "delta-core_2.12:3.2.0",
+                (3, 3) => "delta-core_2.12:2.1.0",
                 _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
             };
 
