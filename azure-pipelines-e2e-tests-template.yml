@@ -131,6 +131,7 @@ stages:
               New-Item -ItemType Directory -Force -Path hadoop\bin
               if ("3.3.3" -contains "${{ test.version }}") {
                 cp hadoop-3.3.0\winutils.exe hadoop\bin
+                cp hadoop-3.3.0\hadoop.dll hadoop\bin
               } else {
                 cp hadoop-2.8.1\winutils.exe hadoop\bin
               }
