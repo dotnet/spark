@@ -1,0 +1,63 @@
+{
+  "properties": {
+    "helpUri": "https://eng.ms/docs/microsoft-security/security/azure-security/cloudai-security-fundamentals-engineering/security-integration/guardian-wiki/microsoft-guardian/general/baselines"
+  },
+  "version": "1.0.0",
+  "baselines": {
+    "default": {
+      "name": "default",
+      "createdDate": "2024-12-12 02:08:03Z",
+      "lastUpdatedDate": "2024-12-12 02:08:03Z"
+    }
+  },
+  "results": {
+    "31128318971be3d77cbd3aaf7b6a06d65b1874334a143ee500c7fccb5aa89427": {
+      "signature": "31128318971be3d77cbd3aaf7b6a06d65b1874334a143ee500c7fccb5aa89427",
+      "alternativeSignatures": [
+        "9106dc3b9a335702dc4feeeed54285f07d8a06494f38fc23167f6158793928dc"
+      ],
+      "target": "eng/common/SetupNugetSources.ps1",
+      "line": 38,
+      "memberOf": [
+        "default"
+      ],
+      "tool": "psscriptanalyzer",
+      "ruleId": "PSAvoidUsingUsernameAndPasswordParams",
+      "createdDate": "2024-12-12 02:08:03Z",
+      "expirationDate": "2025-05-31 03:13:03Z",
+      "justification": "This error is baselined with an expiration date of 180 days from 2024-12-12 03:13:03Z"
+    },
+    "992b26983b997813a410dfc25048f3b218c6fc02fc14a5c2ad431ec8e022ac79": {
+      "signature": "992b26983b997813a410dfc25048f3b218c6fc02fc14a5c2ad431ec8e022ac79",
+      "alternativeSignatures": [
+        "23e97da32b7142c282727c96d07fd5ce6aefd6ef26f02e91cb471eb7863542f8"
+      ],
+      "target": "eng/common/SetupNugetSources.ps1",
+      "line": 56,
+      "memberOf": [
+        "default"
+      ],
+      "tool": "psscriptanalyzer",
+      "ruleId": "PSAvoidUsingUsernameAndPasswordParams",
+      "createdDate": "2024-12-12 02:08:03Z",
+      "expirationDate": "2025-05-31 03:13:03Z",
+      "justification": "This error is baselined with an expiration date of 180 days from 2024-12-12 03:13:03Z"
+    },
+    "53b10a5fb6059b0b229ad32c6278123a5603386f65d9e1c5684a2333f2e1dc62": {
+      "signature": "53b10a5fb6059b0b229ad32c6278123a5603386f65d9e1c5684a2333f2e1dc62",
+      "alternativeSignatures": [
+        "cd7b0b0937cfa32a98962a528bd99ede0181ae41a609df430f35fd30763166c4"
+      ],
+      "target": "eng/common/SetupNugetSources.ps1",
+      "line": 88,
+      "memberOf": [
+        "default"
+      ],
+      "tool": "psscriptanalyzer",
+      "ruleId": "PSAvoidUsingUsernameAndPasswordParams",
+      "createdDate": "2024-12-12 02:08:03Z",
+      "expirationDate": "2025-05-31 03:13:03Z",
+      "justification": "This error is baselined with an expiration date of 180 days from 2024-12-12 03:13:03Z"
+    }
+  }
+}
