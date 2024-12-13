@@ -124,14 +124,14 @@ stages:
               $hadoopBinaryUrl = "https://github.com/steveloughran/winutils/releases/download/tag_2017-08-29-hadoop-2.8.1-native/hadoop-2.8.1.zip"
               # Spark 3.3.3 version binary use Hadoop3 dependency
               if ("3.3.3" -contains "${{ test.version }}") {
-                $hadoopBinaryUrl = "https://github.com/SparkSnail/winutils/releases/download/hadoop-3.3.0/hadoop-3.3.0.zip"
+                $hadoopBinaryUrl = "https://github.com/SparkSnail/winutils/releases/download/hadoop-3.3.5/hadoop-3.3.5.zip"
               }
               curl -k -L -o hadoop.zip $hadoopBinaryUrl
               Expand-Archive -Path hadoop.zip -Destination .
               New-Item -ItemType Directory -Force -Path hadoop\bin
               if ("3.3.3" -contains "${{ test.version }}") {
-                cp hadoop-3.3.0\winutils.exe hadoop\bin
-                cp hadoop-3.3.0\hadoop.dll hadoop\bin
+                cp hadoop-3.3.5\winutils.exe hadoop\bin
+                cp hadoop-3.3.5\hadoop.dll hadoop\bin
               } else {
                 cp hadoop-2.8.1\winutils.exe hadoop\bin
               }
