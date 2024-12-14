@@ -329,7 +329,7 @@ namespace Microsoft.Spark.Worker.Command
                 // When no input batches were received, return an empty RecordBatch
                 // in order to create and write back the result schema.
 
-                int columnCount = reader.Schema.Fields.Count;
+                int columnCount = reader.Schema.FieldsList.Count;
                 var arrays = new IArrowArray[columnCount];
                 for (int i = 0; i < columnCount; ++i)
                 {
@@ -511,7 +511,7 @@ namespace Microsoft.Spark.Worker.Command
                 {
                     // When no input batches were received, return empty IArrowArrays
                     // in order to create and write back the result schema.
-                    columnCount = reader.Schema.Fields.Count;
+                    columnCount = reader.Schema.FieldsList.Count;
                     arrays = ArrayPool<IArrowArray>.Shared.Rent(columnCount);
 
                     for (int i = 0; i < columnCount; ++i)
@@ -739,8 +739,8 @@ namespace Microsoft.Spark.Worker.Command
         {
             if (_version >= new Version(Versions.V3_0_0))
             {
-                var fields = new Field[batch.Schema.Fields.Count];
-                for (int i = 0; i < batch.Schema.Fields.Count; ++i)
+                var fields = new Field[batch.Schema.FieldsList.Count];
+                for (int i = 0; i < batch.Schema.FieldsList.Count; ++i)
                 {
                     fields[i] = batch.Schema.GetFieldByIndex(i);
                 }

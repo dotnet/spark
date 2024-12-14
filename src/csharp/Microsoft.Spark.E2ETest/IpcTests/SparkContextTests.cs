@@ -57,16 +57,22 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
         /// <summary>
         /// Test signatures for APIs introduced in Spark 3.1.*.
+        /// In Spark 3.5 Spark throws an exception when trying to delete
+        /// archive.zip from temp folder, and causes failures of other tests
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V3_1_0)]
+        [SkipIfSparkVersionIsNotInRange(Versions.V3_1_0, Versions.V3_3_0)]
         public void TestSignaturesV3_1_X()
         {
             SparkContext sc = SparkContext.GetOrCreate(new SparkConf());
 
             string archivePath = $"{TestEnvironment.ResourceDirectory}archive.zip";
+
             sc.AddArchive(archivePath);
 
-            Assert.IsType<string[]>(sc.ListArchives().ToArray());
+            var archives = sc.ListArchives().ToArray();
+
+            Assert.IsType<string[]>(archives);
+            Assert.NotEmpty(archives.Where(a => a.EndsWith("archive.zip")));
         }
     }
 }

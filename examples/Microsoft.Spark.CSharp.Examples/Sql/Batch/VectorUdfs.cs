@@ -7,6 +7,7 @@ using Apache.Arrow;
 using Apache.Arrow.Types;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
+using IntegerType = Microsoft.Spark.Sql.Types.IntegerType;
 using StructType = Microsoft.Spark.Sql.Types.StructType;
 
 namespace Microsoft.Spark.Examples.Sql.Batch
