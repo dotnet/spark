@@ -132,6 +132,8 @@ stages:
               if ("3.3.3" -contains "${{ test.version }}") {
                 cp hadoop-3.3.5\winutils.exe hadoop\bin
                 cp hadoop-3.3.5\hadoop.dll hadoop\bin
+                cp hadoop-3.3.5\hadoop.dll C:\Windows\System32
+                [System.Environment]::SetEnvironmentVariable("PATH", $Env:Path + ";$(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop", [System.EnvironmentVariableTarget]::Machine)
               } else {
                 cp hadoop-2.8.1\winutils.exe hadoop\bin
               }
