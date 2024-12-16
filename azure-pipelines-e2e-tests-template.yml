@@ -131,6 +131,7 @@ stages:
               New-Item -ItemType Directory -Force -Path hadoop\bin
               if ("3.3.3" -contains "${{ test.version }}") {
                 cp hadoop-3.3.5\winutils.exe hadoop\bin
+                # Hadoop 3.3 need to add hadoop.dll to environment varibles to avoid UnsatisfiedLinkError
                 cp hadoop-3.3.5\hadoop.dll hadoop\bin
                 cp hadoop-3.3.5\hadoop.dll C:\Windows\System32
                 [System.Environment]::SetEnvironmentVariable("PATH", $Env:Path + ";$(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop", [System.EnvironmentVariableTarget]::Machine)
