@@ -15,6 +15,7 @@
     <module>microsoft-spark-3-0</module>
     <module>microsoft-spark-3-1</module>
     <module>microsoft-spark-3-2</module>
+    <module>microsoft-spark-3-3</module>
   </modules>
 
   <pluginRepositories>
