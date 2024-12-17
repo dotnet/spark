@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Services;
 using Microsoft.Spark.Utils;
 
@@ -24,12 +25,12 @@ namespace Microsoft.Spark.Network
         /// Default constructor that creates a new instance of DefaultSocket class which represents
         /// a traditional socket (System.Net.Socket.Socket).
         /// 
-        /// This socket is bound to Loopback with port 0.
+        /// This socket is bound to provided IP address with port 0.
         /// </summary>
-        public DefaultSocketWrapper() :
-            this(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+        public DefaultSocketWrapper(IPAddress ipAddress) :
+            this(new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
         {
-            _innerSocket.Bind(new IPEndPoint(IPAddress.Loopback, 0));
+            _innerSocket.Bind(new IPEndPoint(ipAddress, 0));
         }
 
         /// <summary>
