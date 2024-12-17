@@ -127,6 +127,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             SerDe.Write(stream, taskContext.PartitionId);
             SerDe.Write(stream, taskContext.AttemptNumber);
             SerDe.Write(stream, taskContext.AttemptId);
+            // Add CPUs field for spark 3.3.x
             SerDe.Write(stream, taskContext.CPUs);
 
             SerDe.Write(stream, taskContext.Resources.Count());
