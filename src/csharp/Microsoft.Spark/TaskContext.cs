@@ -21,6 +21,8 @@ namespace Microsoft.Spark
 
         internal long AttemptId { get; set; }
 
+        internal int CPUs { get; set; }
+
         internal bool IsBarrier { get; set; }
 
         internal int Port { get; set; }
