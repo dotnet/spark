@@ -1,0 +1,89 @@
+@startuml Spark-dotnet-sequence-diagram-simple
+
+title "Sequence Diagram for Processing Simple Pipeline with Spark .NET\nWithout UDFs or Data Retrieval"
+
+skinparam dpi 300
+skinparam BoxPadding 10
+
+actor "User" as user
+
+box "Master Node"
+participant "Spark: Master" as spark_master
+participant "JVM<->.NET Bridge" as bridge
+participant "MyProgram.exe:\nUser .NET App" as dotnet_master
+participant "Microsoft.Spark\n(NuGet Package)" as dotnet_nuget
+end box
+
+box "Worker Node\n(One of Many)"
+participant "Spark: Worker" as spark_worker
+participant "Microsoft.Spark.Worker" as dotnet_worker
+end box
+
+user -> spark_master: Executes\n**spark-submit** microsoft-spark-xx.jar\n--files MyUdfs.dll MyProgram.zip
+activate spark_master
+
+spark_master -> bridge: Load and start executing JAR
+activate bridge
+bridge -> dotnet_master: Start MyProgram
+deactivate bridge
+
+activate dotnet_master
+dotnet_master -> dotnet_nuget: Build SparkSession
+deactivate dotnet_master
+activate dotnet_nuget
+
+dotnet_nuget -> bridge: Connect to socket,\nRequest Spark Session creation
+activate bridge
+return Reference to JVM object SparkSession
+note over dotnet_nuget
+    Each .NET Spark-related object has a JvmObjectReference.
+    Whenever a method/property call on these objects is requested,
+    it is broadcasted over the socket to the bridge,
+    where actual execution occurs.
+end note
+return Session
+activate dotnet_master
+
+note over dotnet_master
+    Pipeline execution:
+    ""_spark""
+    ""    .Read()""
+    ""    .Parquet($"C:\data.parquet")""
+    ""    .GroupBy(Col("Faculty"))""
+    ""    .Agg(Avg(Col("Grage")))""
+    ""    .Write()""
+    ""    .Parquet(@"C:\averageGrades.parquet");""
+end note
+
+dotnet_master -> dotnet_nuget: Invocations on objects in Microsoft.Spark
+deactivate dotnet_master
+activate dotnet_nuget
+dotnet_nuget -> bridge: In binary, smth similar to: \n ""{ref:123, m: "GroupBy", args:[arg1, arg2]}"" \n \t\t\t\t\t•••••••• \n ""{ref:125, m: "Parquet", args:["path"]}""
+deactivate dotnet_nuget
+activate bridge
+
+bridge -> spark_master: Invocations on actual\nSpark objects
+deactivate bridge
+
+spark_master -> spark_master: Load data,\nGenerate execution graph,\nCreate RDD
+
+spark_master -> spark_worker: Create tasks for processing partitions of RDD in a distributed manner
+activate spark_worker
+return Processed result
+spark_master -> spark_master: Aggregate results from workers\nWrite to Parquet
+spark_master --> bridge
+activate bridge
+bridge --> dotnet_nuget
+deactivate bridge
+activate dotnet_nuget
+dotnet_nuget --> dotnet_master
+deactivate dotnet_nuget
+
+activate dotnet_master
+dotnet_master --> bridge: Execution complete
+deactivate dotnet_master
+activate bridge
+bridge --> spark_master: Execution complete
+deactivate bridge
+return Execution complete
+@enduml

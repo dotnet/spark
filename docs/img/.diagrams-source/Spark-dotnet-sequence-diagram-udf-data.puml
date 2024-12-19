@@ -1,0 +1,156 @@
+@startuml Spark-dotnet-sequence-diagram-udf-data
+title "Sequence Diagram for Processing Pipeline with Spark .NET: UDF & Data retrieval"
+
+skinparam dpi 200
+skinparam BoxPadding 10
+
+actor "User" as user
+
+box "Master Node"
+participant "Spark: Master" as spark_master
+participant "JVM<->.NET Bridge" as bridge
+participant "MyProgram.exe:\nUser .NET App" as dotnet_master
+participant "Microsoft.Spark\n(NuGet Package)" as dotnet_nuget
+end box
+
+box "Worker Node\n(One of Many)"
+participant "Spark: Worker" as spark_worker
+participant "Microsoft.Spark.Worker" as dotnet_worker
+end box
+
+user -> spark_master: Executes \n**spark-submit** microsoft-spark-xx.jar\n--files MyUdfs.dll MyProgram.zip
+activate spark_master
+
+spark_master -> bridge: Load and start executing jar
+activate bridge
+bridge -> dotnet_master: Start MyProgram
+deactivate bridge
+
+activate dotnet_master
+dotnet_master -> dotnet_nuget: Build SparkSession
+deactivate dotnet_master
+activate dotnet_nuget
+
+dotnet_nuget -> bridge: Connect to socket,\nRequest Spark Session creation
+activate bridge
+bridge -> spark_master: Request Spark Session creation
+return Reference to JVM object SparkSession
+return Session
+activate dotnet_master
+
+group "Register UDF"
+    note over dotnet_master
+        ""var df = LoadDataFromSomeWhere();"" // This part is ommitted
+        ""Func<Column, Column> udfArray =""
+            ""Udf<string, string[]>(str => [str, $"{str}-{str.Length}"]);""
+    end note
+
+    dotnet_master -> dotnet_nuget: Func<> object
+    deactivate dotnet_master
+    activate dotnet_nuget
+    dotnet_nuget -> dotnet_nuget: Serialize Func using binary serializer
+    dotnet_nuget -> bridge: Invoke UDF creation,\nPass serialized UDF as a parameter
+    deactivate dotnet_nuget
+    activate bridge
+    bridge -> spark_master: Register UDF as a PythonFunction,\nSpecify Microsoft.Spark.Worker.exe instead of Python.exe\nDeclare serialized UDF as an argument
+    deactivate bridge
+
+    spark_master -> spark_master: Register a Python UDF
+
+    spark_master --> bridge
+    activate bridge
+    bridge --> dotnet_nuget: UDF JVM reference
+    deactivate bridge
+
+    activate dotnet_nuget
+    dotnet_nuget --> dotnet_master
+    deactivate dotnet_nuget
+    activate dotnet_master
+end
+
+group "Invoke UDF"
+    note over dotnet_master
+        // Cache() needed for immediate invocation,
+        // otherwise df invoked lazily when needed
+        ""var arrayDF =""
+            ""df.Select(Explode(udfArray(df["value"])))""
+            "".Cache();""
+    end note
+
+
+    dotnet_master -> dotnet_nuget
+    deactivate dotnet_master
+    activate dotnet_nuget
+
+    dotnet_nuget -> bridge: Pass calls to bridge
+    deactivate dotnet_nuget
+    activate bridge
+    bridge -> spark_master: Load data,\nGenerate execution graph,\nCreate RDD
+    deactivate bridge
+
+    spark_master -> spark_worker: Create tasks for processing partitions of RDD
+    activate spark_worker
+    spark_worker -> dotnet_worker: Start process,\nInitiate socket connection,\nPass task content and serialized UDF
+    activate dotnet_worker
+
+    dotnet_worker -> dotnet_worker: Deserialize Func and execute it\nPass arguments received from Spark worker
+    return UDF execution result
+    return
+
+    spark_master -> spark_master: Aggregate results from workers
+    spark_master --> bridge
+    activate bridge
+    bridge --> dotnet_nuget
+    deactivate bridge
+    activate dotnet_nuget
+    dotnet_nuget --> dotnet_master
+    deactivate dotnet_nuget
+    activate dotnet_master
+end
+
+group "Fetch Dataset in .NET Memory"
+    note over dotnet_master
+        ""var result =""
+            ""arrayDF.Collect().ToList();""
+    end note
+
+    dotnet_master -> dotnet_nuget: Collect dataset
+    deactivate dotnet_master
+    activate dotnet_nuget
+    dotnet_nuget -> bridge: Request dataset collection
+    deactivate dotnet_nuget
+
+    activate bridge
+    bridge -> spark_master: .Collect() request
+
+    deactivate bridge
+
+    spark_master --> bridge: Collected data
+    activate bridge
+
+    bridge --> dotnet_nuget: Collected data
+    deactivate bridge
+    activate dotnet_nuget
+    dotnet_nuget -> bridge: Initiate broadcast of all rows via socket
+    deactivate dotnet_nuget
+    activate bridge
+
+    bridge -> dotnet_nuget: Entire dataset serialized in Python Pickle format\n**Expensive operation**
+
+    deactivate bridge
+
+    activate dotnet_nuget
+    dotnet_nuget --> dotnet_master: Deserialized row collection
+    deactivate dotnet_nuget
+    activate dotnet_master
+
+end
+
+activate dotnet_master
+dotnet_master --> bridge: Execution complete
+deactivate dotnet_master
+activate bridge
+bridge --> spark_master: Execution complete1
+deactivate bridge
+return Execution complete.
+@enduml

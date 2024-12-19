@@ -1,0 +1,62 @@
+
+@startuml Spark-dotnet-integration-component-diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+HIDE_STEREOTYPE()
+skinparam legend {
+    FontColor #Black
+}
+skinparam dpi 300
+
+
+title: Microsoft Spark Component Diagram
+
+AddComponentTag("ApacheSpark", $sprite="img:./spark-logo.png{scale=0.25}", $legendText="Apache Spark components")
+AddComponentTag("dotnet", $sprite="img:./dotnet-logo.png{scale=0.25}")
+AddComponentTag("package", $sprite="img:./nuget-logo.png{scale=0.1}", $bgColor="#c09fe0")
+AddComponentTag("scala", $sprite="img:./scala-logo.png{scale=0.2}", $bgColor="#c09fe0")
+AddComponentTag("inThisRepo", $bgColor="#c09fe0", $legendText="Components that are defined in this repository")
+
+System(SparkDriver, "Spark Driver", "Entire system. Entrypoint, driver spark process, cluster manager...", $tags="ApacheSpark")
+
+Boundary(SparkWorkerContainer, "Spark Worker", "Single instance of worker"){
+    Component(SparkWorker, "Spark Worker Process", "Java process", "Apache Spark worker process, responsible for handling requests from the driver.", $tags="ApacheSpark")
+    Component(DotnetWorker, "Microsoft.Spark.Worker.exe", ".NET process", ".NET executable present on worker nodes. Started with the first request from the worker, and continuously processes tasks. .NET **UDFs** are executed here.", $tags="inThisRepo+dotnet")
+}
+
+Container(SparkMoreWorkers, "Additional Spark Workers", "Multiple instances of Spark Worker", $tags="ApacheSpark")
+
+Rel_D(SparkDriver, SparkWorker, "Manages instance, sends tasks", "")
+Rel_D(SparkDriver, SparkMoreWorkers, "Sends tasks to additional workers", "","","", "#blue")
+BiRel_D(SparkWorker, DotnetWorker, "Creates instance and sends tasks", "Binary over socket")
+
+note right on link
+    From Spark's perspective, it communicates with the PySpark worker.
+    Instead of the path to the Python binary, the path to the .NET worker is provided.
+    This allows the same API interaction as with PySpark,
+    missing yet APIs can be added by contributors.
+end note
+
+SparkWorker -[dotted,#blue]right- SparkMoreWorkers: Multiple worker instances
+Lay_R(SparkWorker, SparkMoreWorkers)
+
+Boundary(UserApp, "User Application"){
+    Component(MainApp, "User .NET Application", ".NET executable dll", "Application intended to work with Spark. Contains all user-defined code for Spark: pipeline definition, UDFs, ML, streaming, etc.", $tags="dotnet")
+    Component(DotnetSparkPackage, "Microsoft.Spark", "Nuget package", "Communicates with the Microsoft Spark bridge. Contains wrappers over Spark Java objects and API definitions.", $tags="package+inThisRepo")
+    Rel(MainApp, DotnetSparkPackage, "Depends on")
+}
+
+Component(MicrosoftScalaBridge, "Spark <-> .NET Bridge", "microsoft-spark-xxx.jar", "Entry point for the user app. Started by Spark when spark-submit is invoked. Starts the .NET user app and bridges all API calls to Spark.", $tags="scala+inThisRepo")
+
+Rel_L(MicrosoftScalaBridge, SparkDriver, "Creates Spark objects and controls their lifecycle", "jar loaded to Spark context")
+BiRel_L(MicrosoftScalaBridge, UserApp, "Handles all Spark API calls and results retrieval", "Binary over sockets")
+
+Person(user, "User")
+Rel_R(user, SparkDriver, "Executes 'spark-submit microsoft-spark-xxx.jar'")
+
+
+legend right
+<#GhostWhite,#black>|        |=__Legend__|
+|<#c09fe0>   | Components that are defined within this repository |
+endlegend
+
+@enduml
