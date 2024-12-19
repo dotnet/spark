@@ -6,11 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
 using static Microsoft.Spark.Utils.CommandSerDe;
+using MessagePack;
 
 namespace Microsoft.Spark.RDD
 {
@@ -66,15 +66,13 @@ namespace Microsoft.Spark.RDD
         }
 
         /// <summary>
-        /// Deserializer using the BinaryFormatter.
+        /// Deserializer using MessagePack.
         /// </summary>
         private sealed class BinaryDeserializer : IDeserializer
         {
-            private readonly BinaryFormatter _formater = new BinaryFormatter();
-
             public object Deserialize(Stream stream, int length)
             {
-                return _formater.Deserialize(stream);
+                return MessagePackSerializer.Typeless.Deserialize(stream);
             }
         }
 

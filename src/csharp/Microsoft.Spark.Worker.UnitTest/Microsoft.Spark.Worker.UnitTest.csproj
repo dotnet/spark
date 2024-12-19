@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.10.0" />
+    <PackageReference Include="MessagePack" Version="2.5.140" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Spark.Worker\Microsoft.Spark.Worker.csproj" />

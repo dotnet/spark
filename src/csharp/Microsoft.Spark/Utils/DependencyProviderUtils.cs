@@ -4,7 +4,7 @@
 
 using System;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+using MessagePack;
 
 namespace Microsoft.Spark.Utils
 {
@@ -26,7 +26,6 @@ namespace Microsoft.Spark.Utils
         internal static string CreateFileName(long number) =>
             s_filePattern.Replace("*", $"{number:D19}");
 
-        [Serializable]
         internal class NuGetMetadata
         {
             public string FileName { get; set; }
@@ -53,7 +52,6 @@ namespace Microsoft.Spark.Utils
             }
         }
 
-        [Serializable]
         internal class Metadata
         {
             public string[] AssemblyProbingPaths { get; set; }
@@ -74,15 +72,13 @@ namespace Microsoft.Spark.Utils
             internal static Metadata Deserialize(string path)
             {
                 using FileStream fileStream = File.OpenRead(path);
-                var formatter = new BinaryFormatter();
-                return (Metadata)formatter.Deserialize(fileStream);
+                return MessagePackSerializer.Deserialize<Metadata>(fileStream, MessagePack.Resolvers.ContractlessStandardResolverAllowPrivate.Options);
             }
 
             internal void Serialize(string path)
             {
                 using FileStream fileStream = File.OpenWrite(path);
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(fileStream, this);
+                MessagePackSerializer.Serialize(fileStream, this, MessagePack.Resolvers.ContractlessStandardResolverAllowPrivate.Options);
             }
 
             private bool Equals(Metadata other)
