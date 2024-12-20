@@ -11,7 +11,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.DotNet.DependencyManager" Version="10.10.0-beta.20254.4" />
-    <PackageReference Include="System.Memory" Version="4.5.3" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="MessagePack" Version="2.5.140" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Spark\Microsoft.Spark.csproj" />

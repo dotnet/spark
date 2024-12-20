@@ -8,10 +8,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using MessagePack;
 
 namespace Microsoft.Spark.Utils
 {
@@ -46,7 +46,6 @@ namespace Microsoft.Spark.Utils
         ///         * <see cref="RDD{T}.MapPartitionsUdfWrapper{I, O}"/>
         ///         * <see cref="RDD.WorkerFunction.WorkerFuncChainHelper"/>
         /// </summary>
-        [Serializable]
         private sealed class UdfWrapperNode
         {
             /// <summary>
@@ -86,7 +85,6 @@ namespace Microsoft.Spark.Utils
         ///    [ UDF#1, UDF#2, UDF#3 ]
         /// 
         /// </summary>
-        [Serializable]
         private sealed class UdfWrapperData
         {
             /// <summary>
@@ -159,10 +157,9 @@ namespace Microsoft.Spark.Utils
                 Udfs = udfs.ToArray()
             };
 
-            var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
-                formatter.Serialize(stream, udfWrapperData);
+                MessagePackSerializer.Typeless.Serialize(stream, udfWrapperData);
 
                 byte[] udfBytes = stream.ToArray();
                 byte[] udfBytesLengthAsBytes = BitConverter.GetBytes(udfBytes.Length);
@@ -291,10 +288,9 @@ namespace Microsoft.Spark.Utils
 
             byte[] serializedCommand = SerDe.ReadBytes(stream);
 
-            var bf = new BinaryFormatter();
             var ms = new MemoryStream(serializedCommand, false);
 
-            return (UdfWrapperData)bf.Deserialize(ms);
+            return (UdfWrapperData)MessagePackSerializer.Typeless.Deserialize(ms);
         }
 
         internal static T Deserialize<T>(
