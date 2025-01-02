@@ -33,6 +33,11 @@ namespace Microsoft.Spark.Utils
             {
                 return ConvertToDictionary(hashtable, toType);
             }
+            // Fails to convert int to long otherwise
+            else if (toType.IsPrimitive)
+            {
+                return System.Convert.ChangeType(obj, toType);
+            }
 
             return obj;
         }
