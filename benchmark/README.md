@@ -60,7 +60,7 @@ TPCH timing results is written to stdout in the following form: `TPCH_Result,<la
     <true for sql tests, false for functional tests>
     ```
 
-    **Note**: Ensure that you build the worker and application with .NET 6 in order to run hardware acceleration queries.
+    **Note**: Ensure that you build the worker and application with .NET 8 in order to run hardware acceleration queries.
 
 ## Python
 1. Upload [run_python_benchmark.sh](run_python_benchmark.sh) and all [python tpch benchmark](python/) files to the cluster.

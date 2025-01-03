@@ -1,10 +1,10 @@
 # Getting Started with Spark .NET on MacOS
 
-These instructions will show you how to run a .NET for Apache Spark app using .NET 6 on MacOSX.
+These instructions will show you how to run a .NET for Apache Spark app using .NET 8 on MacOSX.
 
 ## Pre-requisites
 
-- Download and install **[.NET 6 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)** 
+- Download and install **[.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)** 
 - Install **[Java 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)** 
      - Select the appropriate version for your operating system e.g., `jdk-8u231-macosx-x64.dmg`.
      - Install using the installer and verify you are able to run `java` from your command-line

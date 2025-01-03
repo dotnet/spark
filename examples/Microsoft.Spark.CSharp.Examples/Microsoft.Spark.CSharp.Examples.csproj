@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net461;net6.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">net6.0</TargetFrameworks>
+    <TargetFrameworks>net48;net8.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">net8.0</TargetFrameworks>
     <RootNamespace>Microsoft.Spark.Examples</RootNamespace>
     <AssemblyName>Microsoft.Spark.CSharp.Examples</AssemblyName>
   </PropertyGroup>
@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ML" Version="1.3.1" />
+    <PackageReference Include="Microsoft.ML" Version="3.0.1" />
   </ItemGroup>
 
 </Project>

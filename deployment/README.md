@@ -63,7 +63,7 @@ Microsoft.Spark.Worker is a backend component that lives on the individual worke
 ## Azure HDInsight Spark
 [Azure HDInsight Spark](https://docs.microsoft.com/en-us/azure/hdinsight/spark/apache-spark-overview) is the Microsoft implementation of Apache Spark in the cloud that allows users to launch and configure Spark clusters in Azure. You can use HDInsight Spark clusters to process your data stored in Azure (e.g., [Azure Storage](https://azure.microsoft.com/en-us/services/storage/) and [Azure Data Lake Storage](https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-introduction)).
 
-> **Note:** Azure HDInsight Spark is Linux-based. Therefore, if you are interested in deploying your app to Azure HDInsight Spark, make sure your app is .NET Standard compatible and that you use [.NET 6 compiler](https://dotnet.microsoft.com/download) to compile your app.
+> **Note:** Azure HDInsight Spark is Linux-based. Therefore, if you are interested in deploying your app to Azure HDInsight Spark, make sure your app is .NET Standard compatible and that you use [.NET 8 compiler](https://dotnet.microsoft.com/download) to compile your app.
 
 ### Deploy Microsoft.Spark.Worker
 *Note that this step is required only once*
@@ -115,7 +115,7 @@ EOF
 ## Amazon EMR Spark
 [Amazon EMR](https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-what-is-emr.html) is a managed cluster platform that simplifies running big data frameworks on AWS.
 
-> **Note:** AWS EMR Spark is Linux-based. Therefore, if you are interested in deploying your app to AWS EMR Spark, make sure your app is .NET Standard compatible and that you use [.NET 6 compiler](https://dotnet.microsoft.com/download) to compile your app.
+> **Note:** AWS EMR Spark is Linux-based. Therefore, if you are interested in deploying your app to AWS EMR Spark, make sure your app is .NET Standard compatible and that you use [.NET 8 compiler](https://dotnet.microsoft.com/download) to compile your app.
 
 ### Deploy Microsoft.Spark.Worker
 *Note that this step is only required at cluster creation*
@@ -160,7 +160,7 @@ foo@bar:~$ aws emr add-steps \
 ## Databricks
 [Databricks](http://databricks.com) is a platform that provides cloud-based big data processing using Apache Spark.
 
-> **Note:** [Azure](https://azure.microsoft.com/en-us/services/databricks/) and [AWS](https://databricks.com/aws) Databricks is Linux-based. Therefore, if you are interested in deploying your app to Databricks, make sure your app is .NET Standard compatible and that you use [.NET 6 compiler](https://dotnet.microsoft.com/download) to compile your app.
+> **Note:** [Azure](https://azure.microsoft.com/en-us/services/databricks/) and [AWS](https://databricks.com/aws) Databricks is Linux-based. Therefore, if you are interested in deploying your app to Databricks, make sure your app is .NET Standard compatible and that you use [.NET 8 compiler](https://dotnet.microsoft.com/download) to compile your app.
 
 Databricks allows you to submit Spark .NET apps to an existing active cluster or create a new cluster everytime you launch a job. This requires the **Microsoft.Spark.Worker** to be installed **first** before you submit a Spark .NET app.
 

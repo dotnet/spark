@@ -674,7 +674,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             var arrowReader = new ArrowStreamReader(outputStream);
             RecordBatch outputBatch = arrowReader.ReadNextRecordBatch();
 
-            Assert.Equal(1, outputBatch.Schema.Fields.Count);
+            Assert.Equal(1, outputBatch.Schema.FieldsList.Count);
             Assert.IsType<StringType>(outputBatch.Schema.GetFieldByIndex(0).DataType);
 
             Assert.Equal(0, outputBatch.Length);
@@ -759,7 +759,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             var arrowReader = new ArrowStreamReader(outputStream);
             RecordBatch outputBatch = arrowReader.ReadNextRecordBatch();
 
-            Assert.Equal(1, outputBatch.Schema.Fields.Count);
+            Assert.Equal(1, outputBatch.Schema.FieldsList.Count);
             Assert.IsType<StringType>(outputBatch.Schema.GetFieldByIndex(0).DataType);
 
             Assert.Equal(0, outputBatch.Length);
@@ -1049,8 +1049,10 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
             // Write test data to the input stream.
             var formatter = new BinaryFormatter();
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
             var memoryStream = new MemoryStream();
 
             var inputs = new int[] { 0, 1, 2, 3, 4 };
