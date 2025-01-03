@@ -185,6 +185,7 @@ PublishScripts/
 *.snupkg
 # The packages folder can be ignored because of Package Restore
 **/[Pp]ackages/*
+.packages/*
 # except build/, which is used as an MSBuild target.
 !**/[Pp]ackages/build/
 # Uncomment if necessary however generally it will be regenerated when needed
@@ -373,3 +374,8 @@ hs_err_pid*
 
 # Mac dev
 .DS_Store
+
+# Scala intermideate build files
+**/.bloop/
+**/.metals/
+**/.bsp/**
