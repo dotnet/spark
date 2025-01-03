@@ -16,12 +16,18 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         public DeltaFixture()
         {
             Version sparkVersion = SparkSettings.Version;
-            string deltaVersion = (sparkVersion.Major, sparkVersion.Minor) switch
+            string deltaVersion = (sparkVersion.Major, sparkVersion.Minor, sparkVersion.Build) switch
             {
-                (2, _) => "delta-core_2.11:0.6.1",
-                (3, 0) => "delta-core_2.12:0.8.0",
-                (3, 1) => "delta-core_2.12:1.0.0",
-                (3, 2) => "delta-core_2.12:1.1.0",
+                (2, _, _) => "delta-core_2.11:0.6.1",
+                (3, 0, _) => "delta-core_2.12:0.8.0",
+                (3, 1, _) => "delta-core_2.12:1.0.0",
+                (3, 2, _) => "delta-core_2.12:1.1.0",
+                (3, 3, 0) => "delta-core_2.12:2.1.0",
+                (3, 3, 1) => "delta-core_2.12:2.1.0",
+                (3, 3, 2) => "delta-core_2.12:2.3.0",
+                (3, 3, 3) => "delta-core_2.12:2.3.0",
+                (3, 3, 4) => "delta-core_2.12:2.3.0",
+                (3, 5, _) => "delta-spark_2.12:3.2.0",
                 _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
             };
 
