@@ -31,30 +31,31 @@ namespace Microsoft.Spark.Worker.Processor
         private static TaskContext ReadTaskContext_2_x(Stream stream)
         => new()
         {
+            IsBarrier = SerDe.ReadBool(stream),
+            Port = SerDe.ReadInt32(stream),
+            Secret = SerDe.ReadString(stream),
+
             StageId = SerDe.ReadInt32(stream),
             PartitionId = SerDe.ReadInt32(stream),
             AttemptNumber = SerDe.ReadInt32(stream),
             AttemptId = SerDe.ReadInt64(stream),
         };
 
+        // Needed for 3.3.0+
+        // https://issues.apache.org/jira/browse/SPARK-36173
         private static TaskContext ReadTaskContext_3_3(Stream stream)
         => new()
         {
+            IsBarrier = SerDe.ReadBool(stream),
+            Port = SerDe.ReadInt32(stream),
+            Secret = SerDe.ReadString(stream),
+
             StageId = SerDe.ReadInt32(stream),
             PartitionId = SerDe.ReadInt32(stream),
             AttemptNumber = SerDe.ReadInt32(stream),
             AttemptId = SerDe.ReadInt64(stream),
-            // CPUs field is added into TaskContext from 3.3.0 https://issues.apache.org/jira/browse/SPARK-36173
             CPUs = SerDe.ReadInt32(stream)
         };
-
-        private static void ReadBarrierInfo(Stream stream)
-        {
-            // Read barrier-related payload. Note that barrier is currently not supported.
-            SerDe.ReadBool(stream); // IsBarrier
-            SerDe.ReadInt32(stream); // BoundPort
-            SerDe.ReadString(stream); // Secret
-        }
 
         private static void ReadTaskContextProperties(Stream stream, TaskContext taskContext)
         {
@@ -87,7 +88,6 @@ namespace Microsoft.Spark.Worker.Processor
         {
             internal static TaskContext Process(Stream stream)
             {
-                ReadBarrierInfo(stream);
                 TaskContext taskContext = ReadTaskContext_2_x(stream);
                 ReadTaskContextProperties(stream, taskContext);
 
@@ -99,7 +99,6 @@ namespace Microsoft.Spark.Worker.Processor
         {
             internal static TaskContext Process(Stream stream)
             {
-                ReadBarrierInfo(stream);
                 TaskContext taskContext = ReadTaskContext_2_x(stream);
                 ReadTaskContextResources(stream);
                 ReadTaskContextProperties(stream, taskContext);
@@ -112,7 +111,6 @@ namespace Microsoft.Spark.Worker.Processor
         {
             internal static TaskContext Process(Stream stream)
             {
-                ReadBarrierInfo(stream);
                 TaskContext taskContext = ReadTaskContext_3_3(stream);
                 ReadTaskContextResources(stream);
                 ReadTaskContextProperties(stream, taskContext);
