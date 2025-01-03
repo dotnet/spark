@@ -10,6 +10,7 @@
     <Description>.NET for Apache Spark</Description>
     <PackageReleaseNotes>https://github.com/dotnet/spark/tree/master/docs/release-notes</PackageReleaseNotes>
     <PackageTags>spark;dotnet;csharp</PackageTags>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,12 +29,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Apache.Arrow" Version="2.0.0" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
-    <PackageReference Include="Microsoft.Data.Analysis" Version="0.18.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Razorvine.Pyrolite" Version="4.26.0" />
-    <PackageReference Include="System.Memory" Version="4.5.3" />
+    <PackageReference Include="Apache.Arrow" Version="14.0.2" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Data.Analysis" Version="0.21.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Razorvine.Pickle" Version="1.5.0" />
+    <PackageReference Include="Razorvine.Pyrolite" Version="5.1.0" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
   </ItemGroup>
 
   <ItemGroup>
