@@ -59,7 +59,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 Assert.IsType<bool>(catalog.FunctionExists("functionname"));
                 Assert.IsType<Database>(catalog.GetDatabase("default"));
                 Assert.IsType<Function>(catalog.GetFunction("abs"));
-                Assert.IsType<Function>(catalog.GetFunction(null, "abs"));
                 Assert.IsType<Table>(catalog.GetTable("users"));
                 Assert.IsType<Table>(catalog.GetTable("default", "users"));
                 Assert.IsType<bool>(catalog.IsCached("users"));

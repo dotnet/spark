@@ -122,14 +122,14 @@ stages:
             script: |
               echo "Download Hadoop utils for Windows."
               $hadoopBinaryUrl = "https://github.com/steveloughran/winutils/releases/download/tag_2017-08-29-hadoop-2.8.1-native/hadoop-2.8.1.zip"
-              # Spark 3.3.3 version binary use Hadoop3 dependency
-              if ("3.3.3" -contains "${{ test.version }}") {
+              # Spark 3.3.0+ version binary uses Hadoop3 dependency
+              if ([version]"3.3.0" -le [version]"${{ test.version }}") {
                 $hadoopBinaryUrl = "https://github.com/SparkSnail/winutils/releases/download/hadoop-3.3.5/hadoop-3.3.5.zip"
               }
               curl -k -L -o hadoop.zip $hadoopBinaryUrl
               Expand-Archive -Path hadoop.zip -Destination .
               New-Item -ItemType Directory -Force -Path hadoop\bin
-              if ("3.3.3" -contains "${{ test.version }}") {
+              if ([version]"3.3.0" -le [version]"${{ test.version }}") {
                 cp hadoop-3.3.5\winutils.exe hadoop\bin
                 # Hadoop 3.3 need to add hadoop.dll to environment varibles to avoid UnsatisfiedLinkError
                 cp hadoop-3.3.5\hadoop.dll hadoop\bin
@@ -142,12 +142,8 @@ stages:
         - pwsh: |
             echo "Downloading Spark ${{ test.version }}"
             $sparkBinaryName = "spark-${{ test.version }}-bin-hadoop2.7"
-            # In spark 3.3.0, 3.3.1, 3.3.2, 3.3.4, the binary name with hadoop2 dependency has changed to spark-${{ test.version }}-bin-hadoop2.tgz
-            if ("3.3.0", "3.3.1", "3.3.2", "3.3.4" -contains "${{ test.version }}") {
-                $sparkBinaryName = "spark-${{ test.version }}-bin-hadoop2"
-            }
-            # In spark 3.3.3, the binary don't provide hadoop2 version, so we use hadoop3 version
-            if ("3.3.3" -contains "${{ test.version }}") {
+            # Spark 3.3.0+ uses Hadoop3
+            if ([version]"3.3.0" -le [version]"${{ test.version }}") {
                 $sparkBinaryName = "spark-${{ test.version }}-bin-hadoop3"
             }
             curl -k -L -o spark-${{ test.version }}.tgz https://archive.apache.org/dist/spark/spark-${{ test.version }}/${sparkBinaryName}.tgz
