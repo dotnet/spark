@@ -2,11 +2,13 @@ Building Spark .NET on Ubuntu 18.04
 ==========================
 
 # Table of Contents
-- [Open Issues](#open-issues)
-- [Pre-requisites](#pre-requisites)
+- [Building Spark .NET on Ubuntu 18.04](#building-spark-net-on-ubuntu-1804)
+- [Table of Contents](#table-of-contents)
+- [Open Issues:](#open-issues)
+- [Pre-requisites:](#pre-requisites)
 - [Building](#building)
   - [Building Spark .NET Scala Extensions Layer](#building-spark-net-scala-extensions-layer)
-  - [Building .NET Sample Applications using .NET Core CLI](#building-net-sample-applications-using-net-core-cli)
+  - [Building .NET Sample Applications using .NET 8 CLI](#building-net-sample-applications-using-net-8-cli)
 - [Run Samples](#run-samples)
 
 # Open Issues:
@@ -16,7 +18,7 @@ Building Spark .NET on Ubuntu 18.04
 
 If you already have all the pre-requisites, skip to the [build](ubuntu-instructions.md#building) steps below.
 
-  1. Download and install **[.NET 6 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)** - installing the SDK will add the `dotnet` toolchain to your path.
+  1. Download and install **[.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)** - installing the SDK will add the `dotnet` toolchain to your path.
   2. Install **[OpenJDK 8](https://openjdk.java.net/install/)** 
      - You can use the following command:
        ```bash
@@ -40,7 +42,7 @@ If you already have all the pre-requisites, skip to the [build](ubuntu-instructi
        ```bash
        mkdir -p ~/bin/maven
        cd ~/bin/maven
-       wget https://dlcdn.apache.org/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+       wget https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
        tar -xvzf apache-maven-3.6.3-bin.tar.gz
        ln -s apache-maven-3.6.3 current
        export M2_HOME=~/bin/maven/current
@@ -110,33 +112,34 @@ Let us now build the Spark .NET Scala extension layer. This is easy to do:
 
 ```
 cd src/scala
-mvn clean package 
+mvn clean package
 ```
 You should see JARs created for the supported Spark versions:
 * `microsoft-spark-2-3/target/microsoft-spark-2-3_2.11-<version>.jar`
 * `microsoft-spark-2-4/target/microsoft-spark-2-4_2.11-<version>.jar`
 * `microsoft-spark-3-0/target/microsoft-spark-3-0_2.12-<version>.jar`
+* `microsoft-spark-3-0/target/microsoft-spark-3-5_2.12-<version>.jar`
 
-## Building .NET Sample Applications using .NET 6 CLI
+## Building .NET Sample Applications using .NET 8 CLI
 
   1. Build the Worker
       ```bash
       cd ~/dotnet.spark/src/csharp/Microsoft.Spark.Worker/
-      dotnet publish -f net6.0 -r linux-x64
+      dotnet publish -f net8.0 -r linux-x64
       ```
       <details>
       <summary>&#x1F4D9; Click to see sample console output</summary>
 
       ```bash
-      user@machine:/home/user/dotnet.spark/src/csharp/Microsoft.Spark.Worker$ dotnet publish -f net6.0 -r linux-x64
+      user@machine:/home/user/dotnet.spark/src/csharp/Microsoft.Spark.Worker$ dotnet publish -f net8.0 -r linux-x64
       Microsoft (R) Build Engine version 16.0.462+g62fb89029d for .NET Core
       Copyright (C) Microsoft Corporation. All rights reserved.
       
         Restore completed in 36.03 ms for /home/user/dotnet.spark/src/csharp/Microsoft.Spark.Worker/Microsoft.Spark.Worker.csproj.
         Restore completed in 35.94 ms for /home/user/dotnet.spark/src/csharp/Microsoft.Spark/Microsoft.Spark.csproj.
         Microsoft.Spark -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark/Debug/netstandard2.0/Microsoft.Spark.dll
-        Microsoft.Spark.Worker -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/net6.0/linux-x64/Microsoft.Spark.Worker.dll
-        Microsoft.Spark.Worker -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/net6.0/linux-x64/publish/
+        Microsoft.Spark.Worker -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/net8.0/linux-x64/Microsoft.Spark.Worker.dll
+        Microsoft.Spark.Worker -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/net8.0/linux-x64/publish/
       ```
 
       </details>
@@ -144,31 +147,31 @@ You should see JARs created for the supported Spark versions:
   2. Build the Samples
       ```bash
       cd ~/dotnet.spark/examples/Microsoft.Spark.CSharp.Examples/
-      dotnet publish -f net6.0 -r linux-x64
+      dotnet publish -f net8.0 -r linux-x64
       ```
       <details>
       <summary>&#x1F4D9; Click to see sample console output</summary>
 
       ```bash
-      user@machine:/home/user/dotnet.spark/examples/Microsoft.Spark.CSharp.Examples$ dotnet publish -f net6.0 -r linux-x64
+      user@machine:/home/user/dotnet.spark/examples/Microsoft.Spark.CSharp.Examples$ dotnet publish -f net8.0 -r linux-x64
       Microsoft (R) Build Engine version 16.0.462+g62fb89029d for .NET Core
       Copyright (C) Microsoft Corporation. All rights reserved.
 
         Restore completed in 37.11 ms for /home/user/dotnet.spark/src/csharp/Microsoft.Spark/Microsoft.Spark.csproj.
         Restore completed in 281.63 ms for /home/user/dotnet.spark/examples/Microsoft.Spark.CSharp.Examples/Microsoft.Spark.CSharp.Examples.csproj.
         Microsoft.Spark -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark/Debug/netstandard2.0/Microsoft.Spark.dll
-        Microsoft.Spark.CSharp.Examples -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/net6.0/linux-x64/Microsoft.Spark.CSharp.Examples.dll
-        Microsoft.Spark.CSharp.Examples -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/net6.0/linux-x64/publish/
+        Microsoft.Spark.CSharp.Examples -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/net8.0/linux-x64/Microsoft.Spark.CSharp.Examples.dll
+        Microsoft.Spark.CSharp.Examples -> /home/user/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/net8.0/linux-x64/publish/
       ```
 
      </details>
 
 # Run Samples
 
-Once you build the samples, you can use `spark-submit` to submit your .NET 6 apps. Make sure you have followed the [pre-requisites](#pre-requisites) section and installed Apache Spark.
+Once you build the samples, you can use `spark-submit` to submit your .NET 8 apps. Make sure you have followed the [pre-requisites](#pre-requisites) section and installed Apache Spark.
 
-  1. Set the `DOTNET_WORKER_DIR` or `PATH` environment variable to include the path where the `Microsoft.Spark.Worker` binary has been generated (e.g., `~/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/net6.0/linux-x64/publish`)
-  2. Open a terminal and go to the directory where your app binary has been generated (e.g., `~/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/net6.0/linux-x64/publish`)
+  1. Set the `DOTNET_WORKER_DIR` or `PATH` environment variable to include the path where the `Microsoft.Spark.Worker` binary has been generated (e.g., `~/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/net8.0/linux-x64/publish`)
+  2. Open a terminal and go to the directory where your app binary has been generated (e.g., `~/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/net8.0/linux-x64/publish`)
   3. Running your app follows the basic structure:
      ```bash
      spark-submit \
