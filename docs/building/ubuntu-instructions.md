@@ -42,7 +42,7 @@ If you already have all the pre-requisites, skip to the [build](ubuntu-instructi
        ```bash
        mkdir -p ~/bin/maven
        cd ~/bin/maven
-       wget https://dlcdn.apache.org/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+       wget https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
        tar -xvzf apache-maven-3.6.3-bin.tar.gz
        ln -s apache-maven-3.6.3 current
        export M2_HOME=~/bin/maven/current
