@@ -1,9 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" TreatAsLocalProperty="ExcludeRestorePackageImports">
+<Project>
   <PropertyGroup>
     <IsUnitTestProject Condition="$(MSBuildProjectName.EndsWith('Test'))">true</IsUnitTestProject>
   </PropertyGroup>
-  
+
   <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
   <PropertyGroup>
@@ -16,14 +15,20 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
     <Product>.NET for Apache Spark</Product>
-
+    <Copyright>$(CopyrightNetFoundation)</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/dotnet/spark</PackageProjectUrl>
 
     <PrivateRepositoryUrl>https://github.com/dotnet/spark</PrivateRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DebugType>embedded</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <LangVersion>Latest</LangVersion>
+
+    <!--
+      Tools and packages produced by this repository support infrastructure and are not shipping on NuGet or via any other official channel.
+    -->
+    <IsShipping>false</IsShipping>
   </PropertyGroup>
 
   <ItemGroup>

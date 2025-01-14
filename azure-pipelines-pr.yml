@@ -151,7 +151,6 @@ extends:
         - script: build.cmd -pack
                     -c $(buildConfiguration)
                     -ci
-                    $(_OfficialBuildIdArgs)
                     /p:PublishSparkWorker=true
                     /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
           displayName: '.NET build'
