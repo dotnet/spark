@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net461;net6.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">net6.0</TargetFrameworks>
+    <TargetFrameworks>net48;net8.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">net8.0</TargetFrameworks>
     <RootNamespace>Tpch</RootNamespace>
     <AssemblyName>Tpch</AssemblyName>
   </PropertyGroup>
@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <Choose>
-    <When Condition="'$(TargetFramework)' == 'net6.0'">
+    <When Condition="'$(TargetFramework)' == 'net8.0'">
       <PropertyGroup>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
       </PropertyGroup>
