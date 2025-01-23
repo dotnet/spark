@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
@@ -46,6 +47,8 @@ namespace Microsoft.Spark.Worker
 
         private readonly Version _version;
 
+        private readonly TaskCompletionSource<bool> _listenerReadyTcs = new TaskCompletionSource<bool>();
+
         internal DaemonWorker(Version version)
         {
             _version = version;
@@ -73,6 +76,7 @@ namespace Microsoft.Spark.Worker
             try
             {
                 listener.Listen();
+                _listenerReadyTcs.TrySetResult(true);
 
                 // Communicate the server port back to the Spark using standard output.
                 Stream outputStream = Console.OpenStandardOutput();
@@ -98,6 +102,11 @@ namespace Microsoft.Spark.Worker
             {
                 _waitingTaskRunners.Dispose();
             }
+        }
+
+        internal Task WaitForListenerReadyAsync()
+        {
+            return _listenerReadyTcs.Task;
         }
 
         /// <summary>

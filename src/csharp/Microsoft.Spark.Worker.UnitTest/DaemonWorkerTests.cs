@@ -25,22 +25,23 @@ namespace Microsoft.Spark.Worker.UnitTest
 
         [Theory]
         [MemberData(nameof(TestData.VersionData), MemberType = typeof(TestData))]
-        public void TestsDaemonWorkerTaskRunners(string version)
+        public async void TestsDaemonWorkerTaskRunners(string version)
         {
             ISocketWrapper daemonSocket = SocketFactory.CreateSocket();
-            
+
             int taskRunnerNumber = 2;
             var typedVersion = new Version(version);
             var daemonWorker = new DaemonWorker(typedVersion);
-            
-            Task.Run(() => daemonWorker.Run(daemonSocket));
+
+            var _dummyTask = Task.Run(() => daemonWorker.Run(daemonSocket));
+            await daemonWorker.WaitForListenerReadyAsync();
 
             var clientSockets = new List<ISocketWrapper>();
             for (int i = 0; i < taskRunnerNumber; ++i)
             {
                 CreateAndVerifyConnection(daemonSocket, clientSockets, typedVersion);
             }
-            
+
             Assert.Equal(taskRunnerNumber, daemonWorker.CurrentNumTaskRunners);
         }
 
