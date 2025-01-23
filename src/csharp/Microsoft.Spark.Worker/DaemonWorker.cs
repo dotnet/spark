@@ -48,7 +48,6 @@ namespace Microsoft.Spark.Worker
         private readonly Version _version;
 
         private readonly TaskCompletionSource<bool> _listenerReadyTcs = new TaskCompletionSource<bool>();
-        private bool _listenerReady;
 
         internal DaemonWorker(Version version)
         {
@@ -77,7 +76,6 @@ namespace Microsoft.Spark.Worker
             try
             {
                 listener.Listen();
-                _listenerReady = true;
                 _listenerReadyTcs.TrySetResult(true);
 
                 // Communicate the server port back to the Spark using standard output.
@@ -108,7 +106,7 @@ namespace Microsoft.Spark.Worker
 
         internal Task WaitForListenerReadyAsync()
         {
-            return _listenerReady ? Task.CompletedTask : _listenerReadyTcs.Task;
+            return _listenerReadyTcs.Task;
         }
 
         /// <summary>
