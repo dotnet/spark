@@ -4,10 +4,10 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Hadoop.Conf;
 using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Utils;
 using static Microsoft.Spark.Utils.CommandSerDe;
 
 namespace Microsoft.Spark
@@ -225,13 +225,12 @@ namespace Microsoft.Spark
         /// <returns>RDD representing distributed collection</returns>
         internal RDD<T> Parallelize<T>(IEnumerable<T> seq, int? numSlices = null)
         {
-            var formatter = new BinaryFormatter();
             using var memoryStream = new MemoryStream();
 
             var values = new List<byte[]>();
             foreach (T obj in seq)
             {
-                formatter.Serialize(memoryStream, obj);
+                BinarySerDe.Serialize(memoryStream, obj);
                 values.Add(memoryStream.ToArray());
                 memoryStream.SetLength(0);
             }

@@ -3,13 +3,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using MessagePack;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Network;
 using Microsoft.Spark.Services;
+using Microsoft.Spark.Utils;
 
 namespace Microsoft.Spark
 {
@@ -21,7 +21,9 @@ namespace Microsoft.Spark
     /// reduce communication cost.
     /// </summary>
     [Serializable]
-    public sealed class Broadcast<T> : IJvmObjectReferenceProvider
+    public sealed class Broadcast<T>
+        : IMessagePackSerializationCallbackReceiver,
+            IJvmObjectReferenceProvider
     {
         [NonSerialized]
         private readonly string _path;
@@ -35,6 +37,11 @@ namespace Microsoft.Spark
             _path = CreateTempFilePath(sc.GetConf());
             _jvmObject = CreateBroadcast(sc, value);
             _bid = (long)_jvmObject.Invoke("id");
+        }
+
+        // Default constructor, needed for deserialization
+        internal Broadcast()
+        {
         }
 
         public JvmObjectReference Reference => _jvmObject;
@@ -77,17 +84,6 @@ namespace Microsoft.Spark
         {
             _jvmObject.Invoke("destroy");
             File.Delete(_path);
-        }
-
-        /// <summary>
-        /// Serialization callback function that adds to the JvmBroadcastRegistry when the
-        /// Broadcast variable object is being serialized.
-        /// </summary>
-        /// <param name="context">The current StreaminContext being used</param>
-        [OnSerialized]
-        internal void OnSerialized(StreamingContext context)
-        {
-            JvmBroadcastRegistry.Add(_jvmObject);
         }
 
         /// <summary>
@@ -221,10 +217,23 @@ namespace Microsoft.Spark
         /// </summary>
         /// <param name="value">Serializable object</param>
         /// <param name="stream">Stream to which the object is serialized</param>
-        private void Dump(object value, Stream stream)
+        private void Dump(object value, Stream stream) =>
+            BinarySerDe.Serialize(stream, value);
+
+        /// <summary>
+        /// Serialization callback function that adds to the JvmBroadcastRegistry when the
+        /// Broadcast variable object is being serialized.
+        /// </summary>
+        public void OnBeforeSerialize()
         {
-            var formatter = new BinaryFormatter();
-            formatter.Serialize(stream, value);
+            JvmBroadcastRegistry.Add(_jvmObject);
+        }
+
+        /// <summary>
+        /// Deserialization callback function
+        /// </summary>
+        public void OnAfterDeserialize()
+        {
         }
     }
 

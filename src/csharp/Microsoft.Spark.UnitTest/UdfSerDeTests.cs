@@ -5,7 +5,6 @@
 using System;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Utils;
 using Xunit;
 
@@ -17,21 +16,21 @@ namespace Microsoft.Spark.UnitTest
         [Serializable]
         private class TestClass
         {
-            private readonly string _str;
+            private readonly string str;
 
-            public TestClass(string s)
+            public TestClass(string str)
             {
-                _str = s;
+                this.str = str;
             }
 
             public string Concat(string s)
             {
-                if (_str == null)
+                if (str == null)
                 {
                     return s + s;
                 }
 
-                return _str + s;
+                return str + s;
             }
 
             public override bool Equals(object obj)
@@ -43,7 +42,7 @@ namespace Microsoft.Spark.UnitTest
                     return false;
                 }
 
-                return _str == that._str;
+                return str == that.str;
             }
 
             public override int GetHashCode()
@@ -149,16 +148,13 @@ namespace Microsoft.Spark.UnitTest
             return Deserialize(Serialize(udf));
         }
 
-#pragma warning disable SYSLIB0011 // Type or member is obsolete
-        // TODO: Replace BinaryFormatter with a new, secure serializer.
         private byte[] Serialize(Delegate udf)
         {
             UdfSerDe.UdfData udfData = UdfSerDe.Serialize(udf);
 
             using (var ms = new MemoryStream())
             {
-                var bf = new BinaryFormatter();
-                bf.Serialize(ms, udfData);
+                BinarySerDe.Serialize(ms, udfData);
                 return ms.ToArray();
             }
         }
@@ -167,11 +163,9 @@ namespace Microsoft.Spark.UnitTest
         {
             using (var ms = new MemoryStream(serializedUdf, false))
             {
-                var bf = new BinaryFormatter();
-                UdfSerDe.UdfData udfData = (UdfSerDe.UdfData)bf.Deserialize(ms);
+                var udfData = BinarySerDe.Deserialize<UdfSerDe.UdfData>(ms);
                 return UdfSerDe.Deserialize(udfData);
             }
         }
-#pragma warning restore
     }
 }
