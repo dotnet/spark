@@ -9,11 +9,11 @@ namespace Microsoft.Spark.E2ETest.ExternalLibrary
     [Serializable]
     public class ExternalClass
     {
-        private string _s;
+        private string s;
 
         public ExternalClass(string s)
         {
-            _s = s;
+            this.s = s;
         }
 
         public static string HelloWorld()
@@ -23,7 +23,7 @@ namespace Microsoft.Spark.E2ETest.ExternalLibrary
 
         public string Concat(string s)
         {
-            return _s + s;
+            return this.s + s;
         }
     }
 }

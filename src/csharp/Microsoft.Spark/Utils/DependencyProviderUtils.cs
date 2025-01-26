@@ -4,7 +4,6 @@
 
 using System;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Microsoft.Spark.Utils
 {
@@ -74,15 +73,13 @@ namespace Microsoft.Spark.Utils
             internal static Metadata Deserialize(string path)
             {
                 using FileStream fileStream = File.OpenRead(path);
-                var formatter = new BinaryFormatter();
-                return (Metadata)formatter.Deserialize(fileStream);
+                return BinarySerDe.Deserialize<Metadata>(fileStream);
             }
 
             internal void Serialize(string path)
             {
                 using FileStream fileStream = File.OpenWrite(path);
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(fileStream, this);
+                BinarySerDe.Serialize(fileStream, this);
             }
 
             private bool Equals(Metadata other)

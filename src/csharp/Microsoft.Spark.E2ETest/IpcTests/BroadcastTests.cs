@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using MessagePack;
 using Microsoft.Spark.Sql;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
@@ -12,10 +13,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         public int IntValue { get; private set; }
         public string StringValue { get; private set; }
 
-        public TestBroadcastVariable(int intVal, string stringVal)
+        [SerializationConstructor]
+        public TestBroadcastVariable(int intValue, string stringValue)
         {
-            IntValue = intVal;
-            StringValue = stringVal;
+            IntValue = intValue;
+            StringValue = stringValue;
         }
     }
 

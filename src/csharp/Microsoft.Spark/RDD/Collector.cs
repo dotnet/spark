@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
@@ -70,12 +69,8 @@ namespace Microsoft.Spark.RDD
         /// </summary>
         private sealed class BinaryDeserializer : IDeserializer
         {
-            private readonly BinaryFormatter _formater = new BinaryFormatter();
-
-            public object Deserialize(Stream stream, int length)
-            {
-                return _formater.Deserialize(stream);
-            }
+            public object Deserialize(Stream stream, int length) =>
+                BinarySerDe.Deserialize(stream, length);
         }
 
         /// <summary>
