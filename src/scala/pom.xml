@@ -18,18 +18,4 @@
     <module>microsoft-spark-3-3</module>
     <module>microsoft-spark-3-5</module>
   </modules>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>scala</id>
-      <name>Scala Tools</name>
-      <url>http://scala-tools.org/repo-releases/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
 </project>
