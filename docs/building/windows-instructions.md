@@ -8,7 +8,7 @@ Building Spark .NET on Windows
   - [Building Spark .NET Scala Extensions Layer](#building-spark-net-scala-extensions-layer)
   - [Building .NET Samples Application](#building-net-samples-application)
     - [Using Visual Studio for .NET Framework](#using-visual-studio-for-net-framework)
-    - [Using .NET CLI for .NET 6](#using-net-cli-for-net-6)
+    - [Using .NET CLI for .NET 8](#using-net-cli-for-net-8)
 - [Run Samples](#run-samples)
 
 # Open Issues:
@@ -20,12 +20,12 @@ Building Spark .NET on Windows
 
 If you already have all the pre-requisites, skip to the [build](windows-instructions.md#building) steps below.
 
-  1. Download and install the **[.NET 6 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)** - installing the SDK will add the `dotnet` toolchain to your path.
+  1. Download and install the **[.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)** - installing the SDK will add the `dotnet` toolchain to your path.
   2. Install **[Visual Studio 2019](https://www.visualstudio.com/downloads/)** (Version 16.4 or later). The Community version is completely free. When configuring your installation, include these components at minimum:
      * .NET desktop development
        * All Required Components
-         * .NET Framework 4.6.1 Development Tools
-     * .NET 6 cross-platform development	
+         * .NET Framework 4.8 Development Tools
+     * .NET 8 cross-platform development	
        * All Required Components
   3. Install **[Java 1.8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)** 
      - Select the appropriate version for your operating system e.g., jdk-8u201-windows-x64.exe for Win x64 machine.
@@ -90,7 +90,7 @@ git clone https://github.com/dotnet/spark.git c:\github\dotnet-spark
 
 When you submit a .NET application, Spark .NET has the necessary logic written in Scala that inform Apache Spark how to handle your requests (e.g., request to create a new Spark Session, request to transfer data from .NET side to JVM side etc.). This logic can be found in the [Spark .NET Scala Source Code](../../src/scala).
 
-Regardless of whether you are using .NET Framework or .NET 6, you will need to build the Spark .NET Scala extension layer. This is easy to do:
+Regardless of whether you are using .NET Framework or .NET 8, you will need to build the Spark .NET Scala extension layer. This is easy to do:
 
 ```powershell
 cd src\scala
@@ -100,6 +100,7 @@ You should see JARs created for the supported Spark versions:
 * `microsoft-spark-2-3\target\microsoft-spark-2-3_2.11-<version>.jar`
 * `microsoft-spark-2-4\target\microsoft-spark-2-4_2.11-<version>.jar`
 * `microsoft-spark-3-0\target\microsoft-spark-3-0_2.12-<version>.jar`
+* `microsoft-spark-3-0\target\microsoft-spark-3-5_2.12-<version>.jar`
 
 ## Building .NET Samples Application
 
@@ -148,59 +149,59 @@ You should see JARs created for the supported Spark versions:
 
       </details>
 
-### Using .NET CLI for .NET 6
+### Using .NET CLI for .NET 8
 
-> Note: We are currently working on automating .NET 6 builds for Spark .NET. Until then, we appreciate your patience in performing some of the steps manually.
+> Note: We are currently working on automating .NET 8 builds for Spark .NET. Until then, we appreciate your patience in performing some of the steps manually.
 
   1. Build the Worker
       ```powershell
       cd C:\github\dotnet-spark\src\csharp\Microsoft.Spark.Worker\
-      dotnet publish -f net6.0 -r win-x64
+      dotnet publish -f net8.0 -r win-x64
       ```
       <details>
       <summary>&#x1F4D9; Click to see sample console output</summary>
 
       ```powershell
-      PS C:\github\dotnet-spark\src\csharp\Microsoft.Spark.Worker> dotnet publish -f net6.0 -r win-x64
+      PS C:\github\dotnet-spark\src\csharp\Microsoft.Spark.Worker> dotnet publish -f net8.0 -r win-x64
       Microsoft (R) Build Engine version 16.0.462+g62fb89029d for .NET Core
       Copyright (C) Microsoft Corporation. All rights reserved.
 
         Restore completed in 299.95 ms for C:\github\dotnet-spark\src\csharp\Microsoft.Spark\Microsoft.Spark.csproj.
         Restore completed in 306.62 ms for C:\github\dotnet-spark\src\csharp\Microsoft.Spark.Worker\Microsoft.Spark.Worker.csproj.
         Microsoft.Spark -> C:\github\dotnet-spark\artifacts\bin\Microsoft.Spark\Debug\netstandard2.0\Microsoft.Spark.dll
-        Microsoft.Spark.Worker -> C:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.Worker\Debug\net6.0\win-x64\Microsoft.Spark.Worker.dll
-        Microsoft.Spark.Worker -> C:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.Worker\Debug\net6.0\win-x64\publish\
+        Microsoft.Spark.Worker -> C:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.Worker\Debug\net8.0\win-x64\Microsoft.Spark.Worker.dll
+        Microsoft.Spark.Worker -> C:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.Worker\Debug\net8.0\win-x64\publish\
       ```
 
       </details>
   2. Build the Samples
       ```powershell
       cd C:\github\dotnet-spark\examples\Microsoft.Spark.CSharp.Examples\
-      dotnet publish -f net6.0 -r win-x64
+      dotnet publish -f net8.0 -r win-x64
       ```
       <details>
       <summary>&#x1F4D9; Click to see sample console output</summary>
 
       ```powershell
-      PS C:\github\dotnet-spark\examples\Microsoft.Spark.CSharp.Examples> dotnet publish -f net6.0 -r win10-x64
+      PS C:\github\dotnet-spark\examples\Microsoft.Spark.CSharp.Examples> dotnet publish -f net8.0 -r win10-x64
       Microsoft (R) Build Engine version 16.0.462+g62fb89029d for .NET Core
       Copyright (C) Microsoft Corporation. All rights reserved.
 
         Restore completed in 44.22 ms for C:\github\dotnet-spark\src\csharp\Microsoft.Spark\Microsoft.Spark.csproj.
         Restore completed in 336.94 ms for C:\github\dotnet-spark\examples\Microsoft.Spark.CSharp.Examples\Microsoft.Spark.CSharp.Examples.csproj.
         Microsoft.Spark -> C:\github\dotnet-spark\artifacts\bin\Microsoft.Spark\Debug\netstandard2.0\Microsoft.Spark.dll
-        Microsoft.Spark.CSharp.Examples -> C:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.CSharp.Examples\Debug\net6.0\win-x64\Microsoft.Spark.CSharp.Examples.dll
-        Microsoft.Spark.CSharp.Examples -> C:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.CSharp.Examples\Debug\net6.0\win-x64\publish\
+        Microsoft.Spark.CSharp.Examples -> C:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.CSharp.Examples\Debug\net8.0\win-x64\Microsoft.Spark.CSharp.Examples.dll
+        Microsoft.Spark.CSharp.Examples -> C:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.CSharp.Examples\Debug\net8.0\win-x64\publish\
       ```
 
       </details>
 
 # Run Samples
 
-Once you build the samples, running them will be through `spark-submit` regardless of whether you are targeting .NET Framework or .NET 6 apps. Make sure you have followed the [pre-requisites](#pre-requisites) section and installed Apache Spark.
+Once you build the samples, running them will be through `spark-submit` regardless of whether you are targeting .NET Framework or .NET 8 apps. Make sure you have followed the [pre-requisites](#pre-requisites) section and installed Apache Spark.
 
-  1. Set the `DOTNET_WORKER_DIR` or `PATH` environment variable to include the path where the `Microsoft.Spark.Worker` binary has been generated (e.g., `c:\github\dotnet\spark\artifacts\bin\Microsoft.Spark.Worker\Debug\net461` for .NET Framework, `c:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.Worker\Debug\net6.0\win-x64\publish` for .NET 6)
-  2. Open Powershell and go to the directory where your app binary has been generated (e.g., `c:\github\dotnet\spark\artifacts\bin\Microsoft.Spark.CSharp.Examples\Debug\net461` for .NET Framework, `c:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.CSharp.Examples\Debug\net6.0\win1-x64\publish` for .NET 6)
+  1. Set the `DOTNET_WORKER_DIR` or `PATH` environment variable to include the path where the `Microsoft.Spark.Worker` binary has been generated (e.g., `c:\github\dotnet\spark\artifacts\bin\Microsoft.Spark.Worker\Debug\net48` for .NET Framework, `c:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.Worker\Debug\net8.0\win-x64\publish` for .NET 8)
+  2. Open Powershell and go to the directory where your app binary has been generated (e.g., `c:\github\dotnet\spark\artifacts\bin\Microsoft.Spark.CSharp.Examples\Debug\net48` for .NET Framework, `c:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.CSharp.Examples\Debug\net8.0\win1-x64\publish` for .NET 8)
   3. Running your app follows the basic structure:
      ```powershell
      spark-submit.cmd `

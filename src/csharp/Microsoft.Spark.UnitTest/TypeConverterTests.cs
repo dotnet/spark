@@ -20,6 +20,7 @@ namespace Microsoft.Spark.UnitTest
             Assert.Equal((short)1, TypeConverter.ConvertTo<short>((short)1));
             Assert.Equal((ushort)1, TypeConverter.ConvertTo<ushort>((ushort)1));
             Assert.Equal(1, TypeConverter.ConvertTo<int>(1));
+            Assert.Equal(1L, TypeConverter.ConvertTo<long>(1));
             Assert.Equal(1u, TypeConverter.ConvertTo<uint>(1u));
             Assert.Equal(1L, TypeConverter.ConvertTo<long>(1L));
             Assert.Equal(1ul, TypeConverter.ConvertTo<ulong>(1ul));

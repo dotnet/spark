@@ -22,8 +22,8 @@ namespace Microsoft.Spark.Worker.Processor
             return (_version.Major, _version.Minor) switch
             {
                 (2, 4) => TaskContextProcessorV2_4_X.Process(stream),
-                (3, _) t when t.Minor < 4 => TaskContextProcessorV3_0_X.Process(stream),
-                (3, _) => TaskContextProcessorV3_5_X.Process(stream),
+                (3, _) t when t.Minor < 3 => TaskContextProcessorV3_0_X.Process(stream),
+                (3, _) => TaskContextProcessorV3_3_X.Process(stream),
                 _ => throw new NotSupportedException($"Spark {_version} not supported.")
             };
         }
@@ -41,8 +41,9 @@ namespace Microsoft.Spark.Worker.Processor
             AttemptId = SerDe.ReadInt64(stream),
         };
 
-        // Needed for 3.3.4+, 3.4.x, 3.5.x
-        private static TaskContext ReadTaskContext_3_5(Stream stream)
+        // Needed for 3.3.0+
+        // https://issues.apache.org/jira/browse/SPARK-36173
+        private static TaskContext ReadTaskContext_3_3(Stream stream)
         => new()
         {
             IsBarrier = SerDe.ReadBool(stream),
@@ -106,11 +107,11 @@ namespace Microsoft.Spark.Worker.Processor
             }
         }
 
-        private static class TaskContextProcessorV3_5_X
+        private static class TaskContextProcessorV3_3_X
         {
             internal static TaskContext Process(Stream stream)
             {
-                TaskContext taskContext = ReadTaskContext_3_5(stream);
+                TaskContext taskContext = ReadTaskContext_3_3(stream);
                 SerDe.ReadInt32(stream);
                 ReadTaskContextResources(stream);
                 ReadTaskContextProperties(stream, taskContext);

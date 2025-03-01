@@ -31,11 +31,16 @@ variables:
   backwardCompatibleTestOptions_Linux_3_1: ""
   forwardCompatibleTestOptions_Linux_3_1: ""
 
-  # Skip all forward/backward compatibility tests since Spark 3.2 is not supported before this release.
+  # Skip all forward/backward compatibility tests since Spark 3.2 and 3.5 are not supported before this release.
   backwardCompatibleTestOptions_Windows_3_2: "--filter FullyQualifiedName=NONE"
   forwardCompatibleTestOptions_Windows_3_2: $(backwardCompatibleTestOptions_Windows_3_2)
   backwardCompatibleTestOptions_Linux_3_2: $(backwardCompatibleTestOptions_Windows_3_2)
   forwardCompatibleTestOptions_Linux_3_2: $(backwardCompatibleTestOptions_Windows_3_2)
+
+  backwardCompatibleTestOptions_Windows_3_5: "--filter FullyQualifiedName=NONE"
+  forwardCompatibleTestOptions_Windows_3_5: $(backwardCompatibleTestOptions_Windows_3_5)
+  backwardCompatibleTestOptions_Linux_3_5: $(backwardCompatibleTestOptions_Windows_3_5)
+  forwardCompatibleTestOptions_Linux_3_5: $(backwardCompatibleTestOptions_Windows_3_5)
 
   # Azure DevOps variables are transformed into environment variables, with these variables we
   # avoid the first time experience and telemetry to speed up the build.
@@ -128,6 +133,8 @@ stages:
       variables:
         ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
           _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+        ${{ else }}: 
+          _OfficialBuildIdArgs: ''
 
       steps:
       - task: DownloadBuildArtifacts@0
@@ -413,3 +420,51 @@ stages:
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
+    - version: '3.5.0'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_5)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_5)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_5)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_5)
+    - version: '3.5.1'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_5)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_5)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_5)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_5)
+    - version: '3.5.2'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_5)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_5)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_5)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_5)
+    - version: '3.5.3'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_3_5)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_3_5)
+      - pool: 'Linux'
+        testOptions: ""
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_5)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_5)

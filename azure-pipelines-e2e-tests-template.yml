@@ -20,17 +20,24 @@ stages:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
-            vmImage: 'windows-2022'
+            name: Cosmos2MT-AzureDevOps-AgentPool
+            image: 1es-pt-windows-2019
+            os: windows
         ${{ else }}:
           pool:
-            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-              name: NetCore-Public
-              demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
-            ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-              name: NetCore1ESPool-Internal
-              demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
+            name: Cosmos2MT-AzureDevOps-AgentPool
+            image: 1es-pt-ubuntu-22
+            os: linux
 
         steps:
+        - task: JavaToolInstaller@0
+          condition: eq( variables['Agent.OS'], 'Linux')
+          displayName: '[ENV] Install JDK 8'
+          inputs:
+            versionSpec: '8'
+            jdkArchitectureOption: 'x64'
+            jdkSourceOption: 'PreInstalled'
+
         - task: PowerShell@2
           condition: eq( variables['Agent.OS'], 'Linux')
           displayName: Install Maven for Linux agent
@@ -58,20 +65,20 @@ stages:
               mvn -version
 
         - task: UseDotNet@2
-          displayName: 'Use .NET 6 sdk'
+          displayName: 'Use .NET 8 sdk'
           inputs:
             packageType: sdk
-            version: 6.x
+            version: 8.x
             installationPath: $(Agent.ToolsDirectory)/dotnet
 
-        - task: DownloadBuildArtifacts@0
+        - task: DownloadPipelineArtifact@2
           displayName: Download Build Artifacts
           inputs:
+            targetPath: $(Build.ArtifactStagingDirectory)/Microsoft.Spark.Binaries
             artifactName: Microsoft.Spark.Binaries
-            downloadPath: $(Build.ArtifactStagingDirectory)
 
         - pwsh: |
-            $framework = "net6.0"
+            $framework = "net8.0"
 
             if ($env:AGENT_OS -eq 'Windows_NT') {
               $runtimeIdentifier = "win-x64"
@@ -114,15 +121,34 @@ stages:
             targetType: inline
             script: |
               echo "Download Hadoop utils for Windows."
-              curl -k -L -o hadoop.zip https://github.com/steveloughran/winutils/releases/download/tag_2017-08-29-hadoop-2.8.1-native/hadoop-2.8.1.zip
+              $hadoopBinaryUrl = "https://github.com/steveloughran/winutils/releases/download/tag_2017-08-29-hadoop-2.8.1-native/hadoop-2.8.1.zip"
+              # Spark 3.3.0+ version binary uses Hadoop3 dependency
+              if ([version]"3.3.0" -le [version]"${{ test.version }}") {
+                $hadoopBinaryUrl = "https://github.com/SparkSnail/winutils/releases/download/hadoop-3.3.5/hadoop-3.3.5.zip"
+              }
+              curl -k -L -o hadoop.zip $hadoopBinaryUrl
               Expand-Archive -Path hadoop.zip -Destination .
               New-Item -ItemType Directory -Force -Path hadoop\bin
-              cp hadoop-2.8.1\winutils.exe hadoop\bin
+              if ([version]"3.3.0" -le [version]"${{ test.version }}") {
+                cp hadoop-3.3.5\winutils.exe hadoop\bin
+                # Hadoop 3.3 need to add hadoop.dll to environment varibles to avoid UnsatisfiedLinkError
+                cp hadoop-3.3.5\hadoop.dll hadoop\bin
+                cp hadoop-3.3.5\hadoop.dll C:\Windows\System32
+                [System.Environment]::SetEnvironmentVariable("PATH", $Env:Path + ";$(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop", [System.EnvironmentVariableTarget]::Machine)
+              } else {
+                cp hadoop-2.8.1\winutils.exe hadoop\bin
+              }
 
         - pwsh: |
             echo "Downloading Spark ${{ test.version }}"
-            curl -k -L -o spark-${{ test.version }}.tgz https://archive.apache.org/dist/spark/spark-${{ test.version }}/spark-${{ test.version }}-bin-hadoop2.7.tgz
+            $sparkBinaryName = "spark-${{ test.version }}-bin-hadoop2.7"
+            # Spark 3.3.0+ uses Hadoop3
+            if ([version]"3.3.0" -le [version]"${{ test.version }}") {
+                $sparkBinaryName = "spark-${{ test.version }}-bin-hadoop3"
+            }
+            curl -k -L -o spark-${{ test.version }}.tgz https://archive.apache.org/dist/spark/spark-${{ test.version }}/${sparkBinaryName}.tgz
             tar xzvf spark-${{ test.version }}.tgz
+            move $sparkBinaryName spark-${{ test.version }}-bin-hadoop
           displayName: 'Download Spark Distro ${{ test.version }}'
           workingDirectory: $(Build.BinariesDirectory)
 
@@ -135,7 +161,7 @@ stages:
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
-            SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
+            SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop
             DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
 
         - pwsh: |
@@ -160,7 +186,7 @@ stages:
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
-            SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
+            SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop
             DOTNET_WORKER_DIR: $(BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR)
 
         - checkout: forwardCompatibleRelease
@@ -182,5 +208,5 @@ stages:
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark-${{ parameters.forwardCompatibleRelease }}
           env:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
-            SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop2.7
+            SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop
             DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
