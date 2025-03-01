@@ -6,14 +6,6 @@
     <RootNamespace>Microsoft.Spark.Worker</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-  <PropertyGroup>
-    <RuntimeIdentifier>ubuntu.18.04-x64</RuntimeIdentifier>
-  </PropertyGroup>
-
-  <Target Condition="'$(RuntimeIdentifier)' == 'ubuntu.18.04-x64'" Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Message Importance="High" Text="---------- Publishing the project to $(OutDir)publish ----------" />
-    <Exec Command="dotnet publish --runtime ubuntu.18.04-x64 --configuration $(ConfigurationName) --self-contained --no-build --output $(OutDir)publish" />
-  </Target>
   <ItemGroup>
     <InternalsVisibleTo Include="Microsoft.Spark.Worker.UnitTest" />
   </ItemGroup>
