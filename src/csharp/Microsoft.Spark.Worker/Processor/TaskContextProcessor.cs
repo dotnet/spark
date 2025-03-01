@@ -112,6 +112,7 @@ namespace Microsoft.Spark.Worker.Processor
             internal static TaskContext Process(Stream stream)
             {
                 TaskContext taskContext = ReadTaskContext_3_3(stream);
+                SerDe.ReadInt32(stream);
                 ReadTaskContextResources(stream);
                 ReadTaskContextProperties(stream, taskContext);
 
