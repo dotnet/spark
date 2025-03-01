@@ -19,7 +19,7 @@ namespace Microsoft.Spark.Interop
         private static Version GetSparkVersion()
         {
             var sparkVersion = new Version((string)JvmBridge.CallStaticJavaMethod(
-                "org.apache.spark.deploy.dotnet.Runner", // renaming toRunner as dotnetRunner name seems used by Synpase runtime to determine if dotnet code is running and thus throwing exception. As they have announced eol for dotnet in SYnapse. But with this change we are able to execute dotnet code in synpase using custom spark worker.
+                "org.apache.spark.deploy.dotnet.Runner", // renaming to Runner as dotnetRunner name seems used by Synpase runtime to determine if dotnet code is running and thus throwing exception. As they have announced eol for dotnet in SYnapse. But with this change we are able to execute dotnet code in synpase using custom spark worker.
                 "SPARK_VERSION"));
 
             string sparkVersionOverride =
