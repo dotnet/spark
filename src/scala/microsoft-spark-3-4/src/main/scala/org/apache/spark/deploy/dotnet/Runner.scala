@@ -36,7 +36,7 @@ import scala.util.Try
  * It executes .NET application as a subprocess and then has it connect back to
  * the JVM to access system properties etc.
  */
-object FVRunner extends Logging {
+object Runner extends Logging {
   private val DEBUG_PORT = 5567
   private val supportedSparkMajorMinorVersionPrefix = "3.4"
   private val supportedSparkVersions = Set[String]("3.4.0", "3.4.1", "3.4.2", "3.4.3")
