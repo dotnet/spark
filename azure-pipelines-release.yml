@@ -65,7 +65,7 @@ extends:
           outputs:
             - output: pipelineArtifact
               artifactName: Microsoft.Spark.Binaries
-              targetPath: $(Build.ArtifactStagingDirectory)
+              targetPath: $(Build.ArtifactPath)
               displayName: '[PUBLISH] Microsoft.Spark.Binaries'
 
         steps:
@@ -82,23 +82,16 @@ extends:
         - script: build.cmd -pack
                     -c $(buildConfiguration)
                     -ci
+                    /p:Version=$(NugetVersion)
                     /p:PublishSparkWorker=true
-                    /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
+                    /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
+                    /p:SparkWorkerPackageOutputDir=$(ArtifactPath)
           displayName: '.NET build'
-
-        - task: DotNetCoreCLI@2
-          displayName: '.NET unit tests'
-          inputs:
-            command: test
-            projects: '**/*UnitTest/*.csproj'
-            arguments: '--configuration $(buildConfiguration)'
-
-        - task: CopyFiles@2
-          displayName: Stage Maven build jars
-          inputs:
-            sourceFolder: $(Build.SourcesDirectory)/src/scala
-            contents: '**/*.jar'
-            targetFolder: $(Build.ArtifactStagingDirectory)/Jars
+        
+        - script: |
+            cd $(ArtifactPath)
+            dir /B /S
+          displayName: '[TEMP] Print ArtifactPath'
         
         - task: EsrpCodeSigning@5
           inputs:
@@ -109,7 +102,7 @@ extends:
             UseMSIAuthentication: true
             AuthAKVName: $(AuthAKVName)
             AuthSignCertName: $(AuthSignCertName)
-            FolderPath: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker'
+            FolderPath: '$(Build.ArtifactPath)\Microsoft.Spark.Worker'
             Pattern: '*.dll,*.exe'
             OpusName: 'Microsoft'
             OpusInfo: 'http://www.microsoft.com'
