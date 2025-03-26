@@ -99,3 +99,21 @@ extends:
             sourceFolder: $(Build.SourcesDirectory)/src/scala
             contents: '**/*.jar'
             targetFolder: $(Build.ArtifactStagingDirectory)/Jars
+        
+        - task: EsrpCodeSigning@5
+          inputs:
+            ConnectedServiceName: $(ConnectedServiceName)
+            AppRegistrationClientId: $(AppRegistrationClientId)
+            AppRegistrationTenantId: $(AppRegistrationTenantId)
+            EsrpClientId: $(EsrpClientId)
+            UseMSIAuthentication: true
+            AuthAKVName: $(AuthAKVName)
+            AuthSignCertName: $(AuthSignCertName)
+            FolderPath: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker'
+            Pattern: '*.dll,*.exe'
+            OpusName: 'Microsoft.Spark'
+            OpusInfo: 'https://github.com/dotnet/spark'
+            SessionTimeout: '60'
+            MaxConcurrency: '50'
+            MaxRetryAttempts: '5'
+            PendingAnalysisWaitTimeoutMinutes: '5'
