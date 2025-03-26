@@ -1,0 +1,101 @@
+# Spark .NET build
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - main
+
+variables:
+  buildConfiguration: 'Release'
+  _SignType: real
+  _TeamName: DotNetSpark
+  MSBUILDSINGLELOADCONTEXT: 1
+  ArtifactPath: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries'
+
+  backwardCompatibleRelease: '2.0.0'
+  forwardCompatibleRelease: '2.0.0'
+
+  # Azure DevOps variables are transformed into environment variables, with these variables we
+  # avoid the first time experience and telemetry to speed up the build.
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+
+resources:
+  repositories:
+  - repository: forwardCompatibleRelease
+    type: github
+    endpoint: dotnet.spark
+    name: dotnet/spark
+    ref: refs/tags/v$(forwardCompatibleRelease)
+  
+  - repository: 1ESPipelineTemplates
+    type: git
+    name: 1ESPipelineTemplates/1ESPipelineTemplates
+    ref: refs/tags/release
+
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  parameters:
+    settings:
+      skipBuildTagsForGitHubPullRequests: true
+    sdl:
+      spotBugs:
+        enabled: false
+      PSScriptAnalyzer:
+        enabled: false
+      credscan:
+        enabled: false
+      sourceRepositoriesToScan:
+        exclude:
+          - repository: forwardCompatibleRelease
+    pool:
+      name: Cosmos2MT-AzureDevOps-AgentPool
+      image: 1es-pt-windows-2019
+      os: windows
+    customBuildTags:
+      - ES365AIMigrationTooling
+          
+    stages:
+    - stage: Build
+      displayName: Build Sources
+      jobs:
+      - job: Build
+        templateContext:
+          outputs:
+            - output: pipelineArtifact
+              artifactName: Microsoft.Spark.Binaries
+              targetPath: $(Build.ArtifactStagingDirectory)
+              displayName: '[PUBLISH] Microsoft.Spark.Binaries'
+
+        steps:
+        - task: Maven@3
+          displayName: 'Maven build src'
+          inputs:
+            mavenPomFile: src/scala/pom.xml
+
+        - task: Maven@3
+          displayName: 'Maven build benchmark'
+          inputs:
+            mavenPomFile: benchmark/scala/pom.xml
+
+        - script: build.cmd -pack
+                    -c $(buildConfiguration)
+                    -ci
+                    /p:PublishSparkWorker=true
+                    /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
+          displayName: '.NET build'
+
+        - task: DotNetCoreCLI@2
+          displayName: '.NET unit tests'
+          inputs:
+            command: test
+            projects: '**/*UnitTest/*.csproj'
+            arguments: '--configuration $(buildConfiguration)'
+
+        - task: CopyFiles@2
+          displayName: Stage Maven build jars
+          inputs:
+            sourceFolder: $(Build.SourcesDirectory)/src/scala
+            contents: '**/*.jar'
+            targetFolder: $(Build.ArtifactStagingDirectory)/Jars
