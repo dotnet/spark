@@ -99,7 +99,7 @@ extends:
           displayName: '[TEMP] Print Build.ArtifactStagingDirectory'
 
         - task: EsrpCodeSigning@5
-          condition: eq($(CodeSign), 'true')
+          condition: eq(variables.CodeSign, 'true')
           inputs:
             ConnectedServiceName: $(ConnectedServiceName)
             AppRegistrationClientId: $(AppRegistrationClientId)
