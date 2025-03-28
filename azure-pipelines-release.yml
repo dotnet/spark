@@ -84,16 +84,22 @@ extends:
                     -ci
                     /p:Version=$(NugetVersion)
                     /p:PublishSparkWorker=true
-                    /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
-                    /p:SparkWorkerPackageOutputDir=$(ArtifactPath)
+                    /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
+                    /p:SparkWorkerPackageOutputDir=$(Build.ArtifactStagingDirectory)
           displayName: '.NET build'
         
         - script: |
             cd $(ArtifactPath)
             dir /B /S
           displayName: '[TEMP] Print ArtifactPath'
-        
+
+        - script: |
+            cd $(Build.ArtifactStagingDirectory)
+            dir /B /S
+          displayName: '[TEMP] Print Build.ArtifactStagingDirectory'
+
         - task: EsrpCodeSigning@5
+          condition: eq($(CodeSign), 'true')
           inputs:
             ConnectedServiceName: $(ConnectedServiceName)
             AppRegistrationClientId: $(AppRegistrationClientId)
