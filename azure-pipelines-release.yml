@@ -11,7 +11,7 @@ variables:
   _SignType: real
   _TeamName: DotNetSpark
   MSBUILDSINGLELOADCONTEXT: 1
-  ArtifactPath: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries'
+  ArtifactPath: '$(Build.ArtifactStagingDirectory)\Binaries'
   CodeSign: $(CodeSign)
 
   backwardCompatibleRelease: '2.0.0'
@@ -94,21 +94,10 @@ extends:
         #             /property:Platform=x64
         #   displayName: '.NET build'
 
-        - task: PowerShell@2
-          displayName: "Set build parameter for package version"
-          inputs:
-            targetType: "inline"
-            script: |
-              $packageVersionArg = "$(_OfficialBuildIdArgs)"
-              if (-not [string]::IsNullOrEmpty("$(NugetVersion)")) {
-                $packageVersionArg = "/p:Version=$(NugetVersion)"
-              }
-              Write-Host "##vso[task.setvariable variable=PackageVersionArg]$packageVersionArg"
-
         - script: build.cmd -pack
                   -c $(buildConfiguration)
                   -ci
-                  $(PackageVersionArg)
+                  /p:Version=$(DotnetPackageVersion)
                   /p:PublishSparkWorker=true
                   /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
                   /p:SparkWorkerPackageOutputDir=$(ArtifactPath)
@@ -180,9 +169,9 @@ extends:
               Compress-Archive -Path $binaryFolder48\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile48_zip
               $binaryFolder8 = "$(ArtifactPath)\Microsoft.Spark.Worker\net8.0"
               # Generate .zip format file for .net8
-              Rename-Item -Path "$binaryFolder8\win-x64" -NewName "Microsoft.Spark.Worker-$(DotnetPackageShortVersion)"
+              Rename-Item -Path "$binaryFolder8\win-x64" -NewName "Microsoft.Spark.Worker-$(DotnetPackageVersion)"
               $archiveFile8_zip = "$binaryFolder8\Microsoft.Spark.Worker.net8.0.win-x64-$(DotnetPackageVersion).zip"
-              Compress-Archive -Path $binaryFolder8\Microsoft.Spark.Worker-$(DotnetPackageShortVersion) -DestinationPath $archiveFile8_zip
+              Compress-Archive -Path $binaryFolder8\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile8_zip
 
         - task: CopyFiles@2
           displayName: '[COPY] Spark.Net .net48 worker archive -> $(ArtifactPath)/Output'
