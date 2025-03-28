@@ -12,6 +12,7 @@ variables:
   _TeamName: DotNetSpark
   MSBUILDSINGLELOADCONTEXT: 1
   ArtifactPath: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries'
+  CodeSign: $(CodeSign)
 
   backwardCompatibleRelease: '2.0.0'
   forwardCompatibleRelease: '2.0.0'
@@ -65,7 +66,7 @@ extends:
           outputs:
             - output: pipelineArtifact
               artifactName: Microsoft.Spark.Binaries
-              targetPath: $(Build.ArtifactPath)
+              targetPath: $(Build.ArtifactStagingDirectory)
               displayName: '[PUBLISH] Microsoft.Spark.Binaries'
 
         steps:
@@ -108,7 +109,7 @@ extends:
             UseMSIAuthentication: true
             AuthAKVName: $(AuthAKVName)
             AuthSignCertName: $(AuthSignCertName)
-            FolderPath: '$(Build.ArtifactPath)\Microsoft.Spark.Worker'
+            FolderPath: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker'
             Pattern: '*.dll,*.exe'
             OpusName: 'Microsoft'
             OpusInfo: 'http://www.microsoft.com'
