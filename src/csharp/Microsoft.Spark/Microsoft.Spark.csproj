@@ -5,6 +5,7 @@
     <RootNamespace>Microsoft.Spark</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LinkerFlags>/ALIGN:4096</LinkerFlags>
     <IsPackable>true</IsPackable>
     <!-- Disable warning NU5104
       NU5104: A stable release of a package should not have a prerelease dependency.
