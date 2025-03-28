@@ -65,9 +65,13 @@ extends:
         templateContext:
           outputs:
             - output: pipelineArtifact
-              artifactName: Microsoft.Spark.Binaries
-              targetPath: $(Build.ArtifactStagingDirectory)
-              displayName: '[PUBLISH] Microsoft.Spark.Binaries'
+              artifactName: DotnetSpark
+              targetPath: $(ArtifactPath)\Output
+              displayName: '[PUBLISH] Spark.Net Artifact'
+
+        variables:
+              ? ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}
+              : _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
 
         steps:
         - task: Maven@3
@@ -80,15 +84,37 @@ extends:
           inputs:
             mavenPomFile: benchmark/scala/pom.xml
 
+        # - script: build.cmd -pack
+        #             -c $(buildConfiguration)
+        #             -ci
+        #             /p:Version=$(NugetVersion)
+        #             /p:PublishSparkWorker=true
+        #             /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
+        #             /p:SparkWorkerPackageOutputDir=$(Build.ArtifactStagingDirectory)
+        #             /property:Platform=x64
+        #   displayName: '.NET build'
+
+        - task: PowerShell@2
+          displayName: "Set build parameter for package version"
+          inputs:
+            targetType: "inline"
+            script: |
+              $packageVersionArg = "$(_OfficialBuildIdArgs)"
+              if (-not [string]::IsNullOrEmpty("$(NugetVersion)")) {
+                $packageVersionArg = "/p:Version=$(NugetVersion)"
+              }
+              Write-Host "##vso[task.setvariable variable=PackageVersionArg]$packageVersionArg"
+
         - script: build.cmd -pack
-                    -c $(buildConfiguration)
-                    -ci
-                    /p:Version=$(NugetVersion)
-                    /p:PublishSparkWorker=true
-                    /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
-                    /p:SparkWorkerPackageOutputDir=$(Build.ArtifactStagingDirectory)
-                    /property:Platform=x64
-          displayName: '.NET build'
+                  -c $(buildConfiguration)
+                  -ci
+                  $(PackageVersionArg)
+                  /p:PublishSparkWorker=true
+                  /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
+                  /p:SparkWorkerPackageOutputDir=$(ArtifactPath)
+                  /p:MicrosoftDiaSymReaderPdb2PdbVersion=1.1.0-beta1-62506-02
+                  /property:Platform=x64
+          displayName: "[BUILD] .NET Build"
         
         - script: |
             cd $(ArtifactPath)
@@ -141,3 +167,43 @@ extends:
                   "Parameters": {}
                 }
               ]
+          
+        - task: PowerShell@2
+          displayName: "Pack Spark Worker Zip"
+          inputs:
+            targetType: "inline"
+            script: |
+              $binaryFolder48 = "$(ArtifactPath)\Microsoft.Spark.Worker\net48"
+              # Generate .zip format file for .net48
+              Rename-Item -Path "$binaryFolder48\win-x64" -NewName "Microsoft.Spark.Worker-$(DotnetPackageVersion)"
+              $archiveFile48_zip = "$binaryFolder48\Microsoft.Spark.Worker.net48.win-x64-$(DotnetPackageVersion).zip"
+              Compress-Archive -Path $binaryFolder48\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile48_zip
+              $binaryFolder8 = "$(ArtifactPath)\Microsoft.Spark.Worker\net8.0"
+              # Generate .zip format file for .net8
+              Rename-Item -Path "$binaryFolder8\win-x64" -NewName "Microsoft.Spark.Worker-$(DotnetPackageShortVersion)"
+              $archiveFile8_zip = "$binaryFolder8\Microsoft.Spark.Worker.net8.0.win-x64-$(DotnetPackageVersion).zip"
+              Compress-Archive -Path $binaryFolder8\Microsoft.Spark.Worker-$(DotnetPackageShortVersion) -DestinationPath $archiveFile8_zip
+
+        - task: CopyFiles@2
+          displayName: '[COPY] Spark.Net .net48 worker archive -> $(ArtifactPath)/Output'
+          inputs:
+            SourceFolder: '$(ArtifactPath)\Microsoft.Spark.Worker\net48'
+            Contents: '*.zip'
+            TargetFolder: '$(ArtifactPath)\Output'
+
+        - task: CopyFiles@2
+          displayName: '[COPY] Spark.Net .net8 worker archive -> $(ArtifactPath)/Output'
+          inputs:
+            SourceFolder: '$(ArtifactPath)\Microsoft.Spark.Worker\net8.0'
+            Contents: '*.zip'
+            TargetFolder: '$(ArtifactPath)\Output'
+
+        - script: |
+            cd $(ArtifactPath)
+            dir /B /S
+          displayName: '[TEMP] Print ArtifactPath'
+
+        - script: |
+            cd $(Build.SourcesDirectory)
+            dir /B /S
+          displayName: '[TEMP] Print SourcesDirectory'
