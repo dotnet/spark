@@ -87,6 +87,7 @@ extends:
                     /p:PublishSparkWorker=true
                     /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
                     /p:SparkWorkerPackageOutputDir=$(Build.ArtifactStagingDirectory)
+                    /property:Platform=x64
           displayName: '.NET build'
         
         - script: |
