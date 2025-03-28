@@ -6,7 +6,11 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
-
+    <!-- Disable warning NU5104
+      NU5104: A stable release of a package should not have a prerelease dependency.
+      This warning is disabled because we have a dependency on a prerelease version of MessagePack.
+      -->
+    <NoWarn>$(NoWarn);NU5104</NoWarn>
     <Description>.NET for Apache Spark</Description>
     <PackageReleaseNotes>https://github.com/dotnet/spark/tree/master/docs/release-notes</PackageReleaseNotes>
     <PackageTags>spark;dotnet;csharp</PackageTags>
