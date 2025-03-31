@@ -127,8 +127,14 @@ extends:
             AuthSignCertName: $(AuthSignCertName)
             FolderPath: '$(ArtifactPath)/Microsoft.Spark.Worker'
             Pattern: |
-              **/Microsoft.Spark.*.dll
-              **/Microsoft.Spark.*.exe
+              net48/win-x64/Microsoft.Spark.dll
+              net48/win-x64/Microsoft.Spark.Worker.exe
+              net8.0/win-x64/Microsoft.Spark.dll
+              net8.0/win-x64/Microsoft.Spark.Worker.exe
+              net8.0/linux-x64/Microsoft.Spark.dll
+              net8.0/linux-x64/Microsoft.Spark.Worker.exe
+              net8.0/osx-x64/Microsoft.Spark.dll
+              net8.0/osx-x64/Microsoft.Spark.Worker.exe
             OpusName: 'Microsoft'
             OpusInfo: 'http://www.microsoft.com'
             SessionTimeout: '60'
