@@ -12,7 +12,7 @@ variables:
   _TeamName: DotNetSpark
   MSBUILDSINGLELOADCONTEXT: 1
   ArtifactPath: '$(Build.ArtifactStagingDirectory)\Binaries'
-  CodeSign: $(CodeSign)
+  CodeSign: '$(CodeSign)'
 
   backwardCompatibleRelease: '2.0.0'
   forwardCompatibleRelease: '2.0.0'
@@ -116,7 +116,7 @@ extends:
           displayName: '[TEMP] Print Build.ArtifactStagingDirectory'
 
         - task: EsrpCodeSigning@5
-          condition: eq(variables.CodeSign, 'true')
+          condition: eq(variables['CodeSign'], 'true')
           inputs:
             ConnectedServiceName: $(ConnectedServiceName)
             AppRegistrationClientId: $(AppRegistrationClientId)
@@ -175,19 +175,12 @@ extends:
               Get-ChildItem -Path "$binaryFolder\$OSType" -Recurse | Move-Item -Destination "$binaryFolder\win-x64-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion)"
               $archiveFile_zip = "$binaryFolder\win-x64-archive\Microsoft.Spark.Worker.net48.win-x64-$(DotnetPackageVersion).zip"
               Compress-Archive -Path $binaryFolder\win-x64-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile_zip
-    
-        - task: CopyFiles@2
-          displayName: '[COPY] Spark.Net .net48 worker archive -> $(ArtifactPath)/Output'
-          inputs:
-            SourceFolder: '$(ArtifactPath)\Microsoft.Spark.Worker\net48'
-            Contents: '*.zip'
-            TargetFolder: '$(ArtifactPath)\Output'
 
         - task: CopyFiles@2
-          displayName: '[COPY] Spark.Net .net8 worker archive -> $(ArtifactPath)/Output'
+          displayName: '[COPY] Spark.Net worker archive -> $(ArtifactPath)/Output'
           inputs:
-            SourceFolder: '$(ArtifactPath)\Microsoft.Spark.Worker\net8.0'
-            Contents: '*.zip'
+            SourceFolder: '$(ArtifactPath)\Microsoft.Spark.Worker\*'
+            Contents: '*\*.zip'
             TargetFolder: '$(ArtifactPath)\Output'
 
         - script: |
