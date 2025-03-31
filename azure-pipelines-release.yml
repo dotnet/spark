@@ -166,13 +166,13 @@ extends:
               foreach ($OSType in $OSTypes) {
                   $binaryFolder = "$(ArtifactPath)\Microsoft.Spark.Worker\net8.0"
                   New-Item -Path "$binaryFolder\$OSType-archive" -ItemType Directory -Force
-                  Move-Item -Path "$binaryFolder\$OSType" -Destination "$binaryFolder\$OSType-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion)" -Recurse
+                  Get-ChildItem -Path "$binaryFolder\$OSType" -Recurse | Move-Item -Destination "$binaryFolder\$OSType-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion)"
                   $archiveFile_zip = "$binaryFolder\$OSType-archive\Microsoft.Spark.Worker.net8.0.$OSType-$(DotnetPackageVersion).zip"
                   Compress-Archive -Path $binaryFolder\$OSType-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile_zip
               }
               $binaryFolder = "$(ArtifactPath)\Microsoft.Spark.Worker\net48"
               New-Item -Path "$binaryFolder\win-x64-archive" -ItemType Directory -Force
-              Move-Item -Path "$binaryFolder\win-x64" -Destination "$binaryFolder\win-x64-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion)" -Recurse
+              Get-ChildItem -Path "$binaryFolder\$OSType" -Recurse | Move-Item -Destination "$binaryFolder\win-x64-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion)"
               $archiveFile_zip = "$binaryFolder\win-x64-archive\Microsoft.Spark.Worker.net48.win-x64-$(DotnetPackageVersion).zip"
               Compress-Archive -Path $binaryFolder\win-x64-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile_zip
     
