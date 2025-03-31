@@ -125,7 +125,7 @@ extends:
             UseMSIAuthentication: true
             AuthAKVName: $(AuthAKVName)
             AuthSignCertName: $(AuthSignCertName)
-            FolderPath: '$(ArtifactPath)Microsoft.Spark.Worker'
+            FolderPath: '$(ArtifactPath)/Microsoft.Spark.Worker'
             Pattern: |
               **/Microsoft.Spark.*.dll
               **/Microsoft.Spark.*.exe
