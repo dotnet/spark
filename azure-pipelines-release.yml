@@ -165,14 +165,16 @@ extends:
               $OSTypes = "osx-x64", "linux-x64", "win-x64"
               foreach ($OSType in $OSTypes) {
                   $binaryFolder = "$(ArtifactPath)\Microsoft.Spark.Worker\net8.0"
-                  Rename-Item -Path "$binaryFolder\$OSType" -NewName "Microsoft.Spark.Worker-$(DotnetPackageVersion)"
-                  $archiveFile_zip = "$binaryFolder\Microsoft.Spark.Worker.net8.0.$OSType-$(DotnetPackageVersion).zip"
-                  Compress-Archive -Path $binaryFolder\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile_zip
+                  New-Item -Path "$binaryFolder\$OSType-archive" -ItemType Directory -Force
+                  Rename-Item -Path "$binaryFolder\$OSType" -NewName "$binaryFolder\$OSType-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion)"
+                  $archiveFile_zip = "$binaryFolder\$OSType-archive\Microsoft.Spark.Worker.net8.0.$OSType-$(DotnetPackageVersion).zip"
+                  Compress-Archive -Path $binaryFolder\$OSType-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile_zip
               }
               $binaryFolder = "$(ArtifactPath)\Microsoft.Spark.Worker\net48"
-              Rename-Item -Path "$binaryFolder\win-x64" -NewName "Microsoft.Spark.Worker-$(DotnetPackageVersion)"
-              $archiveFile_zip = "$binaryFolder\Microsoft.Spark.Worker.net48.win-x64-$(DotnetPackageVersion).zip"
-              Compress-Archive -Path $binaryFolder\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile_zip
+              New-Item -Path "$binaryFolder\win-x64-archive" -ItemType Directory -Force
+              Rename-Item -Path "$binaryFolder\win-x64" -NewName "$binaryFolder\win-x64-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion)"
+              $archiveFile_zip = "$binaryFolder\$OSType-archive\Microsoft.Spark.Worker.net48.win-x64-$(DotnetPackageVersion).zip"
+              Compress-Archive -Path $binaryFolder\win-x64-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile_zip
     
         - task: CopyFiles@2
           displayName: '[COPY] Spark.Net .net48 worker archive -> $(ArtifactPath)/Output'
