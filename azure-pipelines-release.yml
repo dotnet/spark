@@ -125,8 +125,8 @@ extends:
             UseMSIAuthentication: true
             AuthAKVName: $(AuthAKVName)
             AuthSignCertName: $(AuthSignCertName)
-            FolderPath: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker'
-            Pattern: '*.dll,*.exe'
+            FolderPath: '$(ArtifactPath)\Microsoft.Spark.Worker'
+            Pattern: '*\*.dll,*\*.exe'
             OpusName: 'Microsoft'
             OpusInfo: 'http://www.microsoft.com'
             SessionTimeout: '60'
