@@ -30,7 +30,7 @@ class UtilsTest {
 
   @Test
   def shouldThrowForUnsupportedVersion(): Unit = {
-    val sparkVersion = "3.4.0"
+    val sparkVersion = "3.4.1"
     val normalizedSparkVersion = Utils.normalizeSparkVersion(sparkVersion)
     val sparkMajorMinorVersionPrefix = "3.4"
     val supportedSparkVersions = Set[String]("3.4.0")
