@@ -11,7 +11,7 @@ variables:
   _SignType: real
   _TeamName: DotNetSpark
   MSBUILDSINGLELOADCONTEXT: 1
-  ArtifactPath: '$(Build.ArtifactStagingDirectory)\Binaries'
+  ArtifactPath: '$(Build.ArtifactStagingDirectory)/Binaries'
   CodeSign: 'true'
 
   backwardCompatibleRelease: '2.0.0'
@@ -125,7 +125,7 @@ extends:
             UseMSIAuthentication: true
             AuthAKVName: $(AuthAKVName)
             AuthSignCertName: $(AuthSignCertName)
-            FolderPath: '$(ArtifactPath)\Microsoft.Spark.Worker'
+            FolderPath: '$(ArtifactPath)Microsoft.Spark.Worker'
             Pattern: |
               **/Microsoft.Spark.*.dll
               **/Microsoft.Spark.*.exe
