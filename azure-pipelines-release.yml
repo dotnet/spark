@@ -126,7 +126,7 @@ extends:
             AuthAKVName: $(AuthAKVName)
             AuthSignCertName: $(AuthSignCertName)
             FolderPath: '$(ArtifactPath)\Microsoft.Spark.Worker'
-            Pattern: '*\*\*.dll,*\*\*.exe'
+            Pattern: '**\**\*.dll,**\**\*.exe'
             OpusName: 'Microsoft'
             OpusInfo: 'http://www.microsoft.com'
             SessionTimeout: '60'
