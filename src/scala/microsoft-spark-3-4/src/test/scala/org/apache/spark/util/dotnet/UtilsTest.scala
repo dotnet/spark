@@ -16,9 +16,9 @@ class UtilsTest {
 
   @Test
   def shouldIgnorePatchVersion(): Unit = {
-    val sparkVersion = "3.5.1"
-    val sparkMajorMinorVersionPrefix = "3.5"
-    val supportedSparkVersions = Set[String]("3.5.0")
+    val sparkVersion = "3.4.0"
+    val sparkMajorMinorVersionPrefix = "3.4"
+    val supportedSparkVersions = Set[String]("3.4.0")
 
     Utils.validateSparkVersions(
       true,
@@ -30,10 +30,10 @@ class UtilsTest {
 
   @Test
   def shouldThrowForUnsupportedVersion(): Unit = {
-    val sparkVersion = "3.5.1"
+    val sparkVersion = "3.4.0"
     val normalizedSparkVersion = Utils.normalizeSparkVersion(sparkVersion)
-    val sparkMajorMinorVersionPrefix = "3.5"
-    val supportedSparkVersions = Set[String]("3.5.0")
+    val sparkMajorMinorVersionPrefix = "3.4"
+    val supportedSparkVersions = Set[String]("3.4.0")
 
     val exception = assertThrows(
       classOf[IllegalArgumentException],
@@ -59,8 +59,8 @@ class UtilsTest {
   def shouldThrowForUnsupportedMajorMinorVersion(): Unit = {
     val sparkVersion = "3.3.0"
     val normalizedSparkVersion = Utils.normalizeSparkVersion(sparkVersion)
-    val sparkMajorMinorVersionPrefix = "3.5"
-    val supportedSparkVersions = Set[String]("3.5.0")
+    val sparkMajorMinorVersionPrefix = "3.4"
+    val supportedSparkVersions = Set[String]("3.4.0")
 
     val exception = assertThrows(
       classOf[IllegalArgumentException],
