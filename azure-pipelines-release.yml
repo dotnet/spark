@@ -194,7 +194,7 @@ extends:
           displayName: '[COPY] Nupkg files -> $(ArtifactPath)/Output'
           inputs:
             SourceFolder: '$(Build.SourcesDirectory)\artifacts\packages\Release\NonShipping'
-            Contents: '*\*.nupkg'
+            Contents: '*.nupkg'
             TargetFolder: '$(ArtifactPath)\Output'
 
         - task: EsrpCodeSigning@5
