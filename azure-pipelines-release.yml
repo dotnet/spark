@@ -134,8 +134,8 @@ extends:
             AuthSignCertName: $(AuthSignCertName)
             FolderPath: '$(ArtifactPath)/Microsoft.Spark.Worker'
             Pattern: |
-              **/Microsoft.Spark.*.dll
-              **/Microsoft.Spark.*.exe
+              **/Microsoft.Spark*.dll
+              **/Microsoft.Spark*.exe
             UseMinimatch: true
             OpusName: 'Microsoft'
             OpusInfo: 'http://www.microsoft.com'
