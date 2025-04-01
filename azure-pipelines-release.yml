@@ -9,10 +9,10 @@ trigger:
 variables:
   buildConfiguration: 'Release'
   _SignType: real
+  CodeSignNuget: false
   _TeamName: DotNetSpark
   MSBUILDSINGLELOADCONTEXT: 1
   ArtifactPath: '$(Build.ArtifactStagingDirectory)/Binaries'
-  CodeSign: 'true'
 
   backwardCompatibleRelease: '2.0.0'
   forwardCompatibleRelease: '2.0.0'
@@ -116,7 +116,6 @@ extends:
           displayName: '[TEMP] Print Build.ArtifactStagingDirectory'
 
         - task: EsrpCodeSigning@5
-          condition: eq(variables['CodeSign'], 'true')
           inputs:
             ConnectedServiceName: $(ConnectedServiceName)
             AppRegistrationClientId: $(AppRegistrationClientId)
@@ -196,9 +195,22 @@ extends:
             SourceFolder: '$(Build.SourcesDirectory)\artifacts\packages\Release\NonShipping'
             Contents: '*.nupkg'
             TargetFolder: '$(ArtifactPath)\Output'
+        
+        - task: NuGetCommand@2
+          displayName: 'Verify NuGet Package'
+          inputs:
+            command: 'custom'
+            arguments: 'verify -All $(ArtifactPath)/Output/Microsoft.Spark.2.3.0.nupkg'
+      
+        - task: NuGetCommand@2
+          displayName: 'Install NuGet Package'
+          inputs:
+            command: 'install'
+            packagesToInstall: '$(ArtifactPath)/Output/Microsoft.Spark.2.3.0.nupkg'
+            feedsToUse: 'select'
 
         - task: EsrpCodeSigning@5
-          condition: eq(variables['CodeSign'], 'true')
+          condition: eq(variables['CodeSignNuget'], 'true')
           inputs:
             ConnectedServiceName: $(ConnectedServiceName)
             AppRegistrationClientId: $(AppRegistrationClientId)
