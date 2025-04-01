@@ -231,7 +231,7 @@ extends:
             AuthSignCertName: $(AuthSignCertName)
             FolderPath: '$(ArtifactPath)/Output'
             Pattern: |
-              **/Microsoft.Spark*.nupkg
+              Microsoft.Spark*.nupkg
             UseMinimatch: true
             inlineOperation: |
               [
