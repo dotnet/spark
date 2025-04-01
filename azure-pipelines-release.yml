@@ -209,12 +209,6 @@ extends:
             AuthSignCertName: $(AuthSignCertName)
             FolderPath: '$(ArtifactPath)/Output'
             Pattern: 'Microsoft.Spark.*.nupkg'
-            OpusName: 'Microsoft'
-            OpusInfo: 'http://www.microsoft.com'
-            SessionTimeout: '60'
-            MaxConcurrency: '50'
-            MaxRetryAttempts: '5'
-            PendingAnalysisWaitTimeoutMinutes: '5'
             inlineOperation: |
               [
                {
