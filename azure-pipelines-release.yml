@@ -6,10 +6,18 @@ trigger:
     include:
     - main
 
+parameters:
+- name: nugetCodeSign
+  displayName: CodeSign nupkg file
+  type: boolean
+  default: true
+  values:
+  - false
+  - true
+
 variables:
   buildConfiguration: 'Release'
   _SignType: real
-  CodeSignNuget: true
   _TeamName: DotNetSpark
   MSBUILDSINGLELOADCONTEXT: 1
   ArtifactPath: '$(Build.ArtifactStagingDirectory)/Binaries'
@@ -200,18 +208,11 @@ extends:
           displayName: 'Verify NuGet Package'
           inputs:
             command: 'custom'
-            arguments: 'verify -All $(ArtifactPath)/Output/Microsoft.Spark.2.3.0.nupkg'
-          continueOnError: true
-      
-        - task: NuGetCommand@2
-          displayName: 'Install NuGet Package'
-          inputs:
-            command: 'install'
-            packagesToInstall: '$(ArtifactPath)/Output/Microsoft.Spark.2.3.0.nupkg'
+            arguments: 'verify $(ArtifactPath)/Output/Microsoft.Spark.2.3.0.nupkg'
           continueOnError: true
 
         - task: EsrpCodeSigning@5
-          condition: eq(variables['CodeSignNuget'], 'true')
+          condition: eq(${{ parameters['nugetCodeSign'] }}, true)
           inputs:
             ConnectedServiceName: $(ConnectedServiceName)
             AppRegistrationClientId: $(AppRegistrationClientId)
