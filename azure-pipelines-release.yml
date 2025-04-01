@@ -205,10 +205,10 @@ extends:
             TargetFolder: '$(ArtifactPath)\Output'
         
         - task: NuGetCommand@2
-          displayName: 'Verify NuGet Package'
+          displayName: 'Verify NuGet Packages'
           inputs:
             command: 'custom'
-            arguments: 'verify $(ArtifactPath)/Output/Microsoft.Spark.2.3.0.nupkg'
+            arguments: 'search -Source $(ArtifactPath)/Output'
           continueOnError: true
 
         - task: EsrpCodeSigning@5
