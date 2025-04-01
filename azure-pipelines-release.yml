@@ -207,6 +207,11 @@ extends:
             Contents: '*.nupkg'
             TargetFolder: '$(ArtifactPath)\Output'
         
+        - script: |
+            cd $(ArtifactPath)/Output
+            dir /B /S
+          displayName: '[TEMP] Print $(ArtifactPath)/Output'
+
         - task: NuGetCommand@2
           displayName: 'Verify NuGet Packages'
           inputs:
@@ -225,7 +230,9 @@ extends:
             AuthAKVName: $(AuthAKVName)
             AuthSignCertName: $(AuthSignCertName)
             FolderPath: '$(ArtifactPath)/Output'
-            Pattern: 'Microsoft.Spark.2.3.0.nupkg'
+            Pattern: |
+              **/Microsoft.Spark*.nupkg
+            UseMinimatch: true
             inlineOperation: |
               [
                {
