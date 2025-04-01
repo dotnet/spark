@@ -190,6 +190,49 @@ extends:
             Contents: '*\*.zip'
             TargetFolder: '$(ArtifactPath)\Output'
 
+        - task: CopyFiles@2
+          displayName: '[COPY] Nupkg files -> $(ArtifactPath)/Output'
+          inputs:
+            SourceFolder: '$(Build.SourcesDirectory)\artifacts\packages\Release\NonShipping'
+            Contents: '*\*.nupkg'
+            TargetFolder: '$(ArtifactPath)\Output'
+
+        - task: EsrpCodeSigning@5
+          condition: eq(variables['CodeSign'], 'true')
+          inputs:
+            ConnectedServiceName: $(ConnectedServiceName)
+            AppRegistrationClientId: $(AppRegistrationClientId)
+            AppRegistrationTenantId: $(AppRegistrationTenantId)
+            EsrpClientId: $(EsrpClientId)
+            UseMSIAuthentication: true
+            AuthAKVName: $(AuthAKVName)
+            AuthSignCertName: $(AuthSignCertName)
+            FolderPath: '$(ArtifactPath)/Output'
+            Pattern: 'Microsoft.Spark.*.nupkg'
+            OpusName: 'Microsoft'
+            OpusInfo: 'http://www.microsoft.com'
+            SessionTimeout: '60'
+            MaxConcurrency: '50'
+            MaxRetryAttempts: '5'
+            PendingAnalysisWaitTimeoutMinutes: '5'
+            inlineOperation: |
+              [
+               {
+                      "KeyCode" : "CP-401405",
+                      "OperationCode" : "NuGetSign",
+                      "Parameters" : {},
+                      "ToolName" : "sign",
+                      "ToolVersion" : "1.0"
+                  },
+                  {
+                      "KeyCode" : "CP-401405",
+                      "OperationCode" : "NuGetVerify",
+                      "Parameters" : {},
+                      "ToolName" : "sign",
+                      "ToolVersion" : "1.0"
+                  }
+              ]
+
         - script: |
             cd $(ArtifactPath)
             dir /B /S
