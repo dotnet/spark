@@ -174,13 +174,6 @@ extends:
             script: |
               $OSTypes = "osx-x64", "linux-x64", "win-x64"
               foreach ($OSType in $OSTypes) {
-                  if ($OSType -eq "linux-x64") {
-                      $binaryFolder = "$(ArtifactPath)\Microsoft.Spark.Worker\net8.0"
-                      New-Item -Path "$binaryFolder\$OSType-archive-tar" -ItemType Directory -Force
-                      Get-ChildItem -Path "$binaryFolder\$OSType" -Recurse | Move-Item -Destination "$binaryFolder\$OSType-archive-tar\Microsoft.Spark.Worker-$(DotnetPackageVersion)"
-                      $archiveFile_tar = "$binaryFolder\$OSType-archive-tar\Microsoft.Spark.Worker.net8.0.$OSType-$(DotnetPackageVersion).tar.gz"
-                      tar -cvzf $archiveFile_tar -C "$binaryFolder\$OSType-archive-tar" Microsoft.Spark.Worker-$(DotnetPackageVersion)
-                  }
                   $binaryFolder = "$(ArtifactPath)\Microsoft.Spark.Worker\net8.0"
                   New-Item -Path "$binaryFolder\$OSType-archive" -ItemType Directory -Force
                   Get-ChildItem -Path "$binaryFolder\$OSType" -Recurse | Move-Item -Destination "$binaryFolder\$OSType-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion)"
