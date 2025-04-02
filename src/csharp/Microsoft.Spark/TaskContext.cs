@@ -25,8 +25,6 @@ namespace Microsoft.Spark
 
         internal bool IsBarrier { get; set; }
 
-        internal int CPUs { get; set; }
-
         internal int Port { get; set; }
 
         internal string Secret { get; set; }
