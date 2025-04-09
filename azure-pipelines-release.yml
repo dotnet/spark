@@ -8,14 +8,14 @@ trigger:
 
 parameters:
 - name: dllSNIAuthentication
-  displayName: CodeSign nupkg file
+  displayName: CodeSign dll files SNI authentication
   type: boolean
   default: false
   values:
   - false
   - true
 - name: dllMIAuthentication
-  displayName: CodeSign nupkg file
+  displayName: CodeSign dll files MI authentication
   type: boolean
   default: false
   values:
