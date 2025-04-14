@@ -162,7 +162,7 @@ extends:
             inlineOperation: |
               [
                 {
-                  "KeyCode": "CP-231522",
+                  "KeyCode": "CP-230012",
                   "OperationCode": "SigntoolSign",
                   "ToolName": "sign",
                   "ToolVersion": "1.0",
@@ -175,7 +175,7 @@ extends:
                   }
                 },
                 {
-                  "KeyCode": "CP-231522",
+                  "KeyCode": "CP-230012",
                   "OperationCode": "SigntoolVerify",
                   "ToolName": "sign",
                   "ToolVersion": "1.0",
@@ -207,7 +207,7 @@ extends:
             inlineOperation: |
               [
                 {
-                  "KeyCode": "CP-231522",
+                  "KeyCode": "CP-230012",
                   "OperationCode": "SigntoolSign",
                   "ToolName": "sign",
                   "ToolVersion": "1.0",
@@ -220,7 +220,7 @@ extends:
                   }
                 },
                 {
-                  "KeyCode": "CP-231522",
+                  "KeyCode": "CP-230012",
                   "OperationCode": "SigntoolVerify",
                   "ToolName": "sign",
                   "ToolVersion": "1.0",
