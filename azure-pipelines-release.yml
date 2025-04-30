@@ -7,20 +7,6 @@ trigger:
     - main
 
 parameters:
-- name: dllSNIAuthentication
-  displayName: CodeSign dll files SNI authentication
-  type: boolean
-  default: false
-  values:
-  - false
-  - true
-- name: dllMIAuthentication
-  displayName: CodeSign dll files MI authentication
-  type: boolean
-  default: false
-  values:
-  - false
-  - true
 - name: nugetCodeSign
   displayName: CodeSign nupkg file
   type: boolean
@@ -106,16 +92,6 @@ extends:
           inputs:
             mavenPomFile: benchmark/scala/pom.xml
 
-        # - script: build.cmd -pack
-        #             -c $(buildConfiguration)
-        #             -ci
-        #             /p:Version=$(NugetVersion)
-        #             /p:PublishSparkWorker=true
-        #             /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
-        #             /p:SparkWorkerPackageOutputDir=$(Build.ArtifactStagingDirectory)
-        #             /property:Platform=x64
-        #   displayName: '.NET build'
-
         - script: build.cmd -pack
                   -c $(buildConfiguration)
                   -ci
@@ -139,7 +115,6 @@ extends:
 
         - task: EsrpCodeSigning@5
           displayName: 'ESRP CodeSigning MI based authentication'
-          condition: eq(${{ parameters['dllMIAuthentication'] }}, true)
           inputs:
             ConnectedServiceName: $(ConnectedServiceName)
             AppRegistrationClientId: $(AppRegistrationClientId)
@@ -147,51 +122,6 @@ extends:
             EsrpClientId: $(EsrpClientId)
             UseMSIAuthentication: true
             AuthAKVName: $(AuthAKVName)
-            AuthSignCertName: $(AuthSignCertName)
-            FolderPath: '$(ArtifactPath)/Microsoft.Spark.Worker'
-            Pattern: |
-              **/Microsoft.Spark*.dll
-              **/Microsoft.Spark*.exe
-            UseMinimatch: true
-            OpusName: 'Microsoft'
-            OpusInfo: 'http://www.microsoft.com'
-            SessionTimeout: '60'
-            MaxConcurrency: '50'
-            MaxRetryAttempts: '5'
-            PendingAnalysisWaitTimeoutMinutes: '5'
-            inlineOperation: |
-              [
-                {
-                  "KeyCode": "CP-230012",
-                  "OperationCode": "SigntoolSign",
-                  "ToolName": "sign",
-                  "ToolVersion": "1.0",
-                  "Parameters": {
-                  "OpusName": "Microsoft",
-                  "OpusInfo": "https://www.microsoft.com",
-                  "FileDigest": "/fd SHA256",
-                  "PageHash": "/NPH",
-                  "TimeStamp": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
-                  }
-                },
-                {
-                  "KeyCode": "CP-230012",
-                  "OperationCode": "SigntoolVerify",
-                  "ToolName": "sign",
-                  "ToolVersion": "1.0",
-                  "Parameters": {}
-                }
-              ]
-      
-        - task: EsrpCodeSigning@5
-          displayName: 'ESRP CodeSigning SNI based authentication'
-          condition: eq(${{ parameters['dllSNIAuthentication'] }}, true)
-          inputs:
-            ConnectedServiceName: $(ConnectedServiceName)
-            AppRegistrationClientId: $(AppRegistrationClientIdSNI)
-            AppRegistrationTenantId: $(AppRegistrationTenantIdSNI)
-            AuthAKVName: $(AuthAKVName)
-            AuthCertName: $(AuthCertName)
             AuthSignCertName: $(AuthSignCertName)
             FolderPath: '$(ArtifactPath)/Microsoft.Spark.Worker'
             Pattern: |
