@@ -134,7 +134,8 @@ extends:
             MaxConcurrency: '50'
             MaxRetryAttempts: '5'
             PendingAnalysisWaitTimeoutMinutes: '5'
-            inlineOperation: |
+            signConfigType: inlineSignParams
+            inlineOperation: >-
               [
                 {
                   "KeyCode": "CP-230012",
@@ -157,6 +158,29 @@ extends:
                   "Parameters": {}
                 }
               ]
+            # inlineOperation: |
+            #   [
+            #     {
+            #       "KeyCode": "CP-230012",
+            #       "OperationCode": "SigntoolSign",
+            #       "ToolName": "sign",
+            #       "ToolVersion": "1.0",
+            #       "Parameters": {
+            #       "OpusName": "Microsoft",
+            #       "OpusInfo": "https://www.microsoft.com",
+            #       "FileDigest": "/fd SHA256",
+            #       "PageHash": "/NPH",
+            #       "TimeStamp": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+            #       }
+            #     },
+            #     {
+            #       "KeyCode": "CP-230012",
+            #       "OperationCode": "SigntoolVerify",
+            #       "ToolName": "sign",
+            #       "ToolVersion": "1.0",
+            #       "Parameters": {}
+            #     }
+            #   ]
           
         - task: PowerShell@2
           displayName: "Pack Spark Worker Zip"
