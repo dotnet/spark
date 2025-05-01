@@ -224,14 +224,22 @@ extends:
             Pattern: |
               Microsoft.Spark*.nupkg
             UseMinimatch: true
-            inlineOperation: |
+            signConfigType: inlineSignParams
+            inlineOperation: >-
               [
-               {
-                      "KeyCode" : "CP-401405",
-                      "OperationCode" : "NuGetSign",
-                      "Parameters" : {},
-                      "ToolName" : "sign",
-                      "ToolVersion" : "1.0"
+                {
+                  "keyCode": "CP-401405",
+                  "operationSetCode": "NuGetSign",
+                  "parameters": [],
+                  "toolName": "sign",
+                  "toolVersion": "1.0"
+                },
+                {
+                  "keyCode": "CP-401405",
+                  "operationSetCode": "NuGetVerify",
+                  "parameters": [],
+                  "toolName": "sign",
+                  "toolVersion": "1.0"
                 }
               ]
 
