@@ -323,15 +323,6 @@ namespace Microsoft.Spark.Interop.Ipc
                 case TypeCode.Double:
                     return s_doubleTypeId;
                 case TypeCode.Object:
-                    if (typeof(IJvmObjectReferenceProvider).IsAssignableFrom(type))
-                    {
-                        return s_jvmObjectTypeId;
-                    }
-
-                    if (type == typeof(byte[]))
-                    {
-                        return s_byteArrayTypeId;
-                    }
 
                     if (type == typeof(int[]) ||
                         type == typeof(long[]) ||
@@ -343,36 +334,17 @@ namespace Microsoft.Spark.Interop.Ipc
                         return s_arrayTypeId;
                     }
 
-                    if (IsDictionary(type))
+                    return type switch
                     {
-                        return s_dictionaryTypeId;
-                    }
-
-                    if (typeof(IEnumerable<IJvmObjectReferenceProvider>).IsAssignableFrom(type))
-                    {
-                        return s_arrayTypeId;
-                    }
-
-                    if (typeof(IEnumerable<GenericRow>).IsAssignableFrom(type))
-                    {
-                        return s_rowArrTypeId;
-                    }
-
-                    if (typeof(IEnumerable<object>).IsAssignableFrom(type))
-                    {
-                        return s_objectArrTypeId;
-                    }
-
-                    if (typeof(Date).IsAssignableFrom(type))
-                    {
-                        return s_dateTypeId;
-                    }
-
-                    if (typeof(Timestamp).IsAssignableFrom(type))
-                    {
-                        return s_timestampTypeId;
-                    }
-                    break;
+                        _ when typeof(IJvmObjectReferenceProvider).IsAssignableFrom(type) => s_jvmObjectTypeId,
+                        _ when type == typeof(byte[]) => s_byteArrayTypeId,
+                        _ when IsDictionary(type) => s_dictionaryTypeId,
+                        _ when typeof(IEnumerable<IJvmObjectReferenceProvider>).IsAssignableFrom(type) => s_arrayTypeId,
+                        _ when typeof(IEnumerable<GenericRow>).IsAssignableFrom(type) =>  s_rowArrTypeId,
+                        _ when typeof(IEnumerable<object>).IsAssignableFrom(type) => s_objectArrTypeId,
+                        _ when typeof(Date).IsAssignableFrom(type) => s_dateTypeId,
+                        _ when typeof(Timestamp).IsAssignableFrom(type) => s_timestampTypeId,
+                    };
             }
 
             // TODO: Support other types.
