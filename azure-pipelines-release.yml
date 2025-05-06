@@ -195,13 +195,6 @@ extends:
             dir /B /S
           displayName: '[TEMP] Print $(ArtifactPath)/Output'
 
-        - task: NuGetCommand@2
-          displayName: 'Verify NuGet Packages'
-          inputs:
-            command: 'custom'
-            arguments: 'search -Source $(ArtifactPath)/Output'
-          continueOnError: true
-
         - task: PowerShell@2
           displayName: "Extract Microsoft.Spark.dll from NuGet packages"
           inputs:
@@ -340,6 +333,13 @@ extends:
                   "toolVersion": "1.0"
                 }
               ]
+
+        - task: NuGetCommand@2
+          displayName: 'Verify NuGet Packages'
+          inputs:
+            command: 'custom'
+            arguments: 'search -Source $(ArtifactPath)/Output'
+          continueOnError: true
 
         - script: |
             cd $(ArtifactPath)
