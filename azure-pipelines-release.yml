@@ -215,20 +215,19 @@ extends:
                 Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
                 Remove-Item -Path $zipPath -Force
                 
-                # Copy Microsoft.Spark.dll files to a temp location for signing while preserving the lib folder structure
+                # Copy all Microsoft.Spark.*.dll files to a temp location for signing while preserving the lib folder structure
                 Get-ChildItem -Path $extractPath\lib -Directory | ForEach-Object {
                   $frameworkDir = $_.Name
-                  $dllPath = Join-Path $_.FullName "Microsoft.Spark.dll"
-                  if (Test-Path $dllPath) {
+                  Get-ChildItem -Path $_.FullName -Filter "Microsoft.Spark*.dll" | ForEach-Object {
                     $targetPath = Join-Path $workingDir "ToSign\$frameworkDir"
                     New-Item -Path $targetPath -ItemType Directory -Force
-                    Copy-Item $dllPath -Destination $targetPath
+                    Copy-Item $_.FullName -Destination $targetPath
                   }
                 }
               }
 
         - task: EsrpCodeSigning@5
-          displayName: 'Sign Microsoft.Spark.dll files'
+          displayName: 'Sign Microsoft.Spark.*.dll files'
           inputs:
             ConnectedServiceName: $(ConnectedServiceName)
             AppRegistrationClientId: $(AppRegistrationClientId)
@@ -238,7 +237,7 @@ extends:
             AuthAKVName: $(AuthAKVName)
             AuthSignCertName: $(AuthSignCertName)
             FolderPath: '$(ArtifactPath)\NuGetExtract\ToSign'
-            Pattern: '**\Microsoft.Spark.dll'
+            Pattern: '**\Microsoft.Spark.*.dll'
             UseMinimatch: true
             OpusName: 'Microsoft'
             OpusInfo: 'http://www.microsoft.com'
@@ -268,7 +267,7 @@ extends:
               ]
 
         - task: PowerShell@2
-          displayName: "Repackage signed Microsoft.Spark.dll into NuGet packages"
+          displayName: "Repackage signed Microsoft.Spark.*.dll into NuGet packages"
           inputs:
             targetType: "inline"
             script: |
@@ -279,13 +278,15 @@ extends:
                 $packageDir = $package.FullName
                 $packageName = $package.Name
                 
-                # Replace Microsoft.Spark.dll files with their signed versions for each framework
+                # Replace Microsoft.Spark.*.dll files with their signed versions for each framework
                 $frameworks = Get-ChildItem -Path (Join-Path $packageDir "lib") -Directory
                 foreach ($framework in $frameworks) {
-                  $dllPath = Join-Path $framework.FullName "Microsoft.Spark.dll"
-                  $signedDllPath = Join-Path $workingDir "ToSign\$($framework.Name)\Microsoft.Spark.dll"
-                  if ((Test-Path $dllPath) -and (Test-Path $signedDllPath)) {
-                    Copy-Item -Path $signedDllPath -Destination $dllPath -Force
+                  $dllFiles = Get-ChildItem -Path $framework.FullName -Filter "Microsoft.Spark*.dll"
+                  foreach ($dll in $dllFiles) {
+                    $signedDllPath = Join-Path $workingDir "ToSign\$($framework.Name)\$($dll.Name)"
+                    if (Test-Path $signedDllPath) {
+                      Copy-Item -Path $signedDllPath -Destination $dll.FullName -Force
+                    }
                   }
                 }
                 
