@@ -12,7 +12,7 @@ namespace Microsoft.Spark.Services
 {
     /// <summary>
     /// Implementation of configuration service that helps getting config settings
-    /// to be used in .NET backend.
+    /// to be used in .NET back end.
     /// </summary>
     internal sealed class ConfigurationService : IConfigurationService
     {
