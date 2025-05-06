@@ -158,29 +158,6 @@ extends:
                   "Parameters": {}
                 }
               ]
-            # inlineOperation: |
-            #   [
-            #     {
-            #       "KeyCode": "CP-230012",
-            #       "OperationCode": "SigntoolSign",
-            #       "ToolName": "sign",
-            #       "ToolVersion": "1.0",
-            #       "Parameters": {
-            #       "OpusName": "Microsoft",
-            #       "OpusInfo": "https://www.microsoft.com",
-            #       "FileDigest": "/fd SHA256",
-            #       "PageHash": "/NPH",
-            #       "TimeStamp": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
-            #       }
-            #     },
-            #     {
-            #       "KeyCode": "CP-230012",
-            #       "OperationCode": "SigntoolVerify",
-            #       "ToolName": "sign",
-            #       "ToolVersion": "1.0",
-            #       "Parameters": {}
-            #     }
-            #   ]
           
         - task: PowerShell@2
           displayName: "Pack Spark Worker Zip"
@@ -233,6 +210,101 @@ extends:
             command: 'custom'
             arguments: 'search -Source $(ArtifactPath)/Output'
           continueOnError: true
+
+        - task: PowerShell@2
+          displayName: "Extract Microsoft.Spark.dll from NuGet packages"
+          inputs:
+            targetType: "inline"
+            script: |
+              $workingDir = "$(ArtifactPath)\NuGetExtract"
+              New-Item -Path $workingDir -ItemType Directory -Force
+              
+              Get-ChildItem -Path "$(ArtifactPath)\Output\Microsoft.Spark*.nupkg" | ForEach-Object {
+                $nupkgPath = $_.FullName
+                $extractPath = Join-Path $workingDir $_.BaseName
+                
+                # Extract nupkg (it's just a zip file)
+                Expand-Archive -Path $nupkgPath -DestinationPath $extractPath -Force
+                
+                # Copy Microsoft.Spark.dll files to a temp location for signing while preserving the lib folder structure
+                Get-ChildItem -Path $extractPath\lib -Directory | ForEach-Object {
+                  $frameworkDir = $_.Name
+                  $dllPath = Join-Path $_.FullName "Microsoft.Spark.dll"
+                  if (Test-Path $dllPath) {
+                    $targetPath = Join-Path $workingDir "ToSign\$frameworkDir"
+                    New-Item -Path $targetPath -ItemType Directory -Force
+                    Copy-Item $dllPath -Destination $targetPath
+                  }
+                }
+              }
+
+        - task: EsrpCodeSigning@5
+          displayName: 'Sign Microsoft.Spark.dll files'
+          inputs:
+            ConnectedServiceName: $(ConnectedServiceName)
+            AppRegistrationClientId: $(AppRegistrationClientId)
+            AppRegistrationTenantId: $(AppRegistrationTenantId)
+            EsrpClientId: $(EsrpClientId)
+            UseMSIAuthentication: true
+            AuthAKVName: $(AuthAKVName)
+            AuthSignCertName: $(AuthSignCertName)
+            FolderPath: '$(ArtifactPath)\NuGetExtract\ToSign'
+            Pattern: '**\Microsoft.Spark.dll'
+            UseMinimatch: true
+            OpusName: 'Microsoft'
+            OpusInfo: 'http://www.microsoft.com'
+            signConfigType: inlineSignParams
+            inlineOperation: >-
+              [
+                {
+                  "KeyCode": "CP-230012",
+                  "OperationCode": "SigntoolSign",
+                  "ToolName": "sign",
+                  "ToolVersion": "1.0",
+                  "Parameters": {
+                    "OpusName": "Microsoft",
+                    "OpusInfo": "https://www.microsoft.com",
+                    "FileDigest": "/fd SHA256",
+                    "PageHash": "/NPH",
+                    "TimeStamp": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+                  }
+                },
+                {
+                  "KeyCode": "CP-230012",
+                  "OperationCode": "SigntoolVerify",
+                  "ToolName": "sign",
+                  "ToolVersion": "1.0",
+                  "Parameters": {}
+                }
+              ]
+
+        - task: PowerShell@2
+          displayName: "Repackage signed Microsoft.Spark.dll into NuGet packages"
+          inputs:
+            targetType: "inline"
+            script: |
+              $workingDir = "$(ArtifactPath)\NuGetExtract"
+              
+              Get-ChildItem -Path "$workingDir\*" -Directory | Where-Object { $_.Name -notlike "ToSign" } | ForEach-Object {
+                $packageDir = $_.FullName
+                $packageName = $_.Name
+                
+                # Replace Microsoft.Spark.dll files with their signed versions for each framework
+                Get-ChildItem -Path "$packageDir\lib" -Directory | ForEach-Object {
+                  $frameworkDir = $_.Name
+                  $dllPath = Join-Path $_.FullName "Microsoft.Spark.dll"
+                  $signedDllPath = Join-Path $workingDir "ToSign\$frameworkDir\Microsoft.Spark.dll"
+                  if (Test-Path $dllPath -and Test-Path $signedDllPath) {
+                    Copy-Item -Path $signedDllPath -Destination $dllPath -Force
+                  }
+                }
+                
+                # Create new nupkg file
+                $nupkgPath = Join-Path "$(ArtifactPath)\Output" "$packageName.nupkg"
+                Remove-Item -Path $nupkgPath -Force
+                Compress-Archive -Path "$packageDir\*" -DestinationPath $nupkgPath -Force
+              }
+        
 
         - task: EsrpCodeSigning@5
           condition: eq(${{ parameters['nugetCodeSign'] }}, true)
