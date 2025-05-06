@@ -281,16 +281,17 @@ extends:
             script: |
               $workingDir = "$(ArtifactPath)\NuGetExtract"
               
-              Get-ChildItem -Path "$workingDir\*" -Directory | Where-Object { $_.Name -notlike "ToSign" } | ForEach-Object {
-                $packageDir = $_.FullName
-                $packageName = $_.Name
+              $packages = Get-ChildItem -Path "$workingDir" -Directory | Where-Object { $_.Name -ne "ToSign" }
+              foreach ($package in $packages) {
+                $packageDir = $package.FullName
+                $packageName = $package.Name
                 
                 # Replace Microsoft.Spark.dll files with their signed versions for each framework
-                Get-ChildItem -Path "$packageDir\lib" -Directory | ForEach-Object {
-                  $frameworkDir = $_.Name
-                  $dllPath = Join-Path $_.FullName "Microsoft.Spark.dll"
-                  $signedDllPath = Join-Path $workingDir "ToSign\$frameworkDir\Microsoft.Spark.dll"
-                  if (Test-Path $dllPath -and Test-Path $signedDllPath) {
+                $frameworks = Get-ChildItem -Path (Join-Path $packageDir "lib") -Directory
+                foreach ($framework in $frameworks) {
+                  $dllPath = Join-Path $framework.FullName "Microsoft.Spark.dll"
+                  $signedDllPath = Join-Path $workingDir "ToSign\$($framework.Name)\Microsoft.Spark.dll"
+                  if ((Test-Path $dllPath) -and (Test-Path $signedDllPath)) {
                     Copy-Item -Path $signedDllPath -Destination $dllPath -Force
                   }
                 }
@@ -302,7 +303,7 @@ extends:
                 Remove-Item -Path $zipPath -Force -ErrorAction SilentlyContinue
                 
                 # Create zip with package contents
-                Compress-Archive -Path "$packageDir\*" -DestinationPath $zipPath -Force
+                Compress-Archive -Path (Join-Path $packageDir "*") -DestinationPath $zipPath -Force
                 
                 # Rename zip to nupkg
                 Move-Item -Path $zipPath -Destination $nupkgPath -Force
