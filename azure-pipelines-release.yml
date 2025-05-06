@@ -6,15 +6,6 @@ trigger:
     include:
     - main
 
-parameters:
-- name: nugetCodeSign
-  displayName: CodeSign nupkg file
-  type: boolean
-  default: true
-  values:
-  - false
-  - true
-
 variables:
   buildConfiguration: 'Release'
   _SignType: real
@@ -223,8 +214,13 @@ extends:
                 $nupkgPath = $_.FullName
                 $extractPath = Join-Path $workingDir $_.BaseName
                 
-                # Extract nupkg (it's just a zip file)
-                Expand-Archive -Path $nupkgPath -DestinationPath $extractPath -Force
+                # Convert nupkg to zip for extraction
+                $zipPath = $nupkgPath -replace '\.nupkg$', '.zip'
+                Copy-Item -Path $nupkgPath -Destination $zipPath -Force
+                
+                # Extract the zip file
+                Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+                Remove-Item -Path $zipPath -Force
                 
                 # Copy Microsoft.Spark.dll files to a temp location for signing while preserving the lib folder structure
                 Get-ChildItem -Path $extractPath\lib -Directory | ForEach-Object {
@@ -299,15 +295,20 @@ extends:
                   }
                 }
                 
-                # Create new nupkg file
+                # Create temp zip file first
+                $zipPath = Join-Path "$(ArtifactPath)\Output" "$packageName.zip"
                 $nupkgPath = Join-Path "$(ArtifactPath)\Output" "$packageName.nupkg"
-                Remove-Item -Path $nupkgPath -Force
-                Compress-Archive -Path "$packageDir\*" -DestinationPath $nupkgPath -Force
+                Remove-Item -Path $nupkgPath -Force -ErrorAction SilentlyContinue
+                Remove-Item -Path $zipPath -Force -ErrorAction SilentlyContinue
+                
+                # Create zip with package contents
+                Compress-Archive -Path "$packageDir\*" -DestinationPath $zipPath -Force
+                
+                # Rename zip to nupkg
+                Move-Item -Path $zipPath -Destination $nupkgPath -Force
               }
-        
 
         - task: EsrpCodeSigning@5
-          condition: eq(${{ parameters['nugetCodeSign'] }}, true)
           inputs:
             ConnectedServiceName: $(ConnectedServiceName)
             AppRegistrationClientId: $(AppRegistrationClientId)
