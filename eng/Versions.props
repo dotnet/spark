@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <!-- This repo version -->
-    <VersionPrefix>2.1.1</VersionPrefix>
+    <VersionPrefix>2.3.0</VersionPrefix>
     <PreReleaseVersionLabel>prerelease</PreReleaseVersionLabel>
   </PropertyGroup>
 </Project>
