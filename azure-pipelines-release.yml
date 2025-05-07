@@ -1,0 +1,354 @@
+# Spark .NET build
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - main
+
+variables:
+  buildConfiguration: 'Release'
+  _SignType: real
+  _TeamName: DotNetSpark
+  MSBUILDSINGLELOADCONTEXT: 1
+  ArtifactPath: '$(Build.ArtifactStagingDirectory)/Binaries'
+
+  forwardCompatibleRelease: '2.0.0'
+
+  # Azure DevOps variables are transformed into environment variables, with these variables we
+  # avoid the first time experience and telemetry to speed up the build.
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+
+resources:
+  repositories:
+  - repository: forwardCompatibleRelease
+    type: github
+    endpoint: dotnet.spark
+    name: dotnet/spark
+    ref: refs/tags/v$(forwardCompatibleRelease)
+  
+  - repository: 1ESPipelineTemplates
+    type: git
+    name: 1ESPipelineTemplates/1ESPipelineTemplates
+    ref: refs/tags/release
+
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  parameters:
+    settings:
+      skipBuildTagsForGitHubPullRequests: true
+    sdl:
+      spotBugs:
+        enabled: false
+      suppression:
+        suppressionFile: $(Build.SourcesDirectory)\.config\guardian\.gdnsuppress
+      PSScriptAnalyzer:
+        enabled: false
+      credscan:
+        enabled: false
+      sourceRepositoriesToScan:
+        exclude:
+          - repository: forwardCompatibleRelease
+    pool:
+      name: Cosmos2MT-AzureDevOps-AgentPool
+      image: 1es-pt-windows-2019
+      os: windows
+    customBuildTags:
+      - ES365AIMigrationTooling
+          
+    stages:
+    - stage: Build
+      displayName: Build Sources
+      jobs:
+      - job: Build
+        templateContext:
+          outputs:
+            - output: pipelineArtifact
+              artifactName: DotnetSpark
+              targetPath: $(ArtifactPath)\Output
+              displayName: '[PUBLISH] Spark.Net Artifact'
+
+        variables:
+              ? ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}
+              : _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+
+        steps:
+        - task: Maven@3
+          displayName: 'Maven build src'
+          inputs:
+            mavenPomFile: src/scala/pom.xml
+
+        - task: Maven@3
+          displayName: 'Maven build benchmark'
+          inputs:
+            mavenPomFile: benchmark/scala/pom.xml
+
+        - script: build.cmd -pack
+                  -c $(buildConfiguration)
+                  -ci
+                  /p:Version=$(DotnetPackageVersion)
+                  /p:PublishSparkWorker=true
+                  /p:SparkWorkerPublishDir=$(ArtifactPath)\Microsoft.Spark.Worker
+                  /p:SparkWorkerPackageOutputDir=$(ArtifactPath)
+                  /p:MicrosoftDiaSymReaderPdb2PdbVersion=1.1.0-beta1-62506-02
+                  /property:Platform=x64
+          displayName: "[BUILD] .NET Build"
+        
+        - script: |
+            cd $(ArtifactPath)
+            dir /B /S
+          displayName: '[TEMP] Print ArtifactPath'
+
+        - script: |
+            cd $(Build.ArtifactStagingDirectory)
+            dir /B /S
+          displayName: '[TEMP] Print Build.ArtifactStagingDirectory'
+
+        - task: EsrpCodeSigning@5
+          displayName: 'ESRP CodeSigning MI based authentication'
+          inputs:
+            ConnectedServiceName: $(ConnectedServiceName)
+            AppRegistrationClientId: $(AppRegistrationClientId)
+            AppRegistrationTenantId: $(AppRegistrationTenantId)
+            EsrpClientId: $(EsrpClientId)
+            UseMSIAuthentication: true
+            AuthAKVName: $(AuthAKVName)
+            AuthSignCertName: $(AuthSignCertName)
+            FolderPath: '$(ArtifactPath)/Microsoft.Spark.Worker'
+            Pattern: |
+              **/Microsoft.Spark*.dll
+              **/Microsoft.Spark*.exe
+            UseMinimatch: true
+            OpusName: 'Microsoft'
+            OpusInfo: 'http://www.microsoft.com'
+            SessionTimeout: '60'
+            MaxConcurrency: '50'
+            MaxRetryAttempts: '5'
+            PendingAnalysisWaitTimeoutMinutes: '5'
+            signConfigType: inlineSignParams
+            inlineOperation: >-
+              [
+                {
+                  "KeyCode": "CP-230012",
+                  "OperationCode": "SigntoolSign",
+                  "ToolName": "sign",
+                  "ToolVersion": "1.0",
+                  "Parameters": {
+                  "OpusName": "Microsoft",
+                  "OpusInfo": "https://www.microsoft.com",
+                  "FileDigest": "/fd SHA256",
+                  "PageHash": "/NPH",
+                  "TimeStamp": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+                  }
+                },
+                {
+                  "KeyCode": "CP-230012",
+                  "OperationCode": "SigntoolVerify",
+                  "ToolName": "sign",
+                  "ToolVersion": "1.0",
+                  "Parameters": {}
+                }
+              ]
+          
+        - task: PowerShell@2
+          displayName: "Pack Spark Worker Zip"
+          inputs:
+            targetType: "inline"
+            script: |
+              $OSTypes = "osx-x64", "linux-x64", "win-x64"
+              foreach ($OSType in $OSTypes) {
+                  $binaryFolder = "$(ArtifactPath)\Microsoft.Spark.Worker\net8.0"
+                  New-Item -Path "$binaryFolder\$OSType-archive" -ItemType Directory -Force
+                  Get-ChildItem -Path "$binaryFolder\$OSType" -Recurse | Move-Item -Destination "$binaryFolder\$OSType-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion)"
+                  $archiveFile_zip = "$binaryFolder\$OSType-archive\Microsoft.Spark.Worker.net8.0.$OSType-$(DotnetPackageVersion).zip"
+                  Compress-Archive -Path $binaryFolder\$OSType-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile_zip
+              }
+              $binaryFolder = "$(ArtifactPath)\Microsoft.Spark.Worker\net48"
+              New-Item -Path "$binaryFolder\win-x64-archive" -ItemType Directory -Force
+              Get-ChildItem -Path "$binaryFolder\$OSType" -Recurse | Move-Item -Destination "$binaryFolder\win-x64-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion)"
+              $archiveFile_zip = "$binaryFolder\win-x64-archive\Microsoft.Spark.Worker.net48.win-x64-$(DotnetPackageVersion).zip"
+              Compress-Archive -Path $binaryFolder\win-x64-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile_zip
+
+        - task: CopyFiles@2
+          displayName: '[COPY] Spark.Net .net8.0 worker archive -> $(ArtifactPath)/Output'
+          inputs:
+            SourceFolder: '$(ArtifactPath)\Microsoft.Spark.Worker\net8.0'
+            Contents: '*\*.zip'
+            TargetFolder: '$(ArtifactPath)\Output'
+        
+        - task: CopyFiles@2
+          displayName: '[COPY] Spark.Net .net48 worker archive -> $(ArtifactPath)/Output'
+          inputs:
+            SourceFolder: '$(ArtifactPath)\Microsoft.Spark.Worker\net48'
+            Contents: '*\*.zip'
+            TargetFolder: '$(ArtifactPath)\Output'
+
+        - task: CopyFiles@2
+          displayName: '[COPY] Nupkg files -> $(ArtifactPath)/Output'
+          inputs:
+            SourceFolder: '$(Build.SourcesDirectory)\artifacts\packages\Release\NonShipping'
+            Contents: '*.nupkg'
+            TargetFolder: '$(ArtifactPath)\Output'
+        
+        - script: |
+            cd $(ArtifactPath)/Output
+            dir /B /S
+          displayName: '[TEMP] Print $(ArtifactPath)/Output'
+
+        - task: PowerShell@2
+          displayName: "Extract Microsoft.Spark.dll from NuGet packages"
+          inputs:
+            targetType: "inline"
+            script: |
+              $workingDir = "$(ArtifactPath)\NuGetExtract"
+              New-Item -Path $workingDir -ItemType Directory -Force
+              
+              Get-ChildItem -Path "$(ArtifactPath)\Output\Microsoft.Spark*.nupkg" | ForEach-Object {
+                $nupkgPath = $_.FullName
+                $extractPath = Join-Path $workingDir $_.BaseName
+                
+                # Convert nupkg to zip for extraction
+                $zipPath = $nupkgPath -replace '\.nupkg$', '.zip'
+                Copy-Item -Path $nupkgPath -Destination $zipPath -Force
+                
+                # Extract the zip file
+                Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+                Remove-Item -Path $zipPath -Force
+                
+                # Copy all Microsoft.Spark.*.dll files to a temp location for signing while preserving the lib folder structure
+                Get-ChildItem -Path $extractPath\lib -Directory | ForEach-Object {
+                  $frameworkDir = $_.Name
+                  Get-ChildItem -Path $_.FullName -Filter "Microsoft.Spark*.dll" | ForEach-Object {
+                    $targetPath = Join-Path $workingDir "ToSign\$frameworkDir"
+                    New-Item -Path $targetPath -ItemType Directory -Force
+                    Copy-Item $_.FullName -Destination $targetPath
+                  }
+                }
+              }
+
+        - task: EsrpCodeSigning@5
+          displayName: 'Sign Microsoft.Spark.*.dll files'
+          inputs:
+            ConnectedServiceName: $(ConnectedServiceName)
+            AppRegistrationClientId: $(AppRegistrationClientId)
+            AppRegistrationTenantId: $(AppRegistrationTenantId)
+            EsrpClientId: $(EsrpClientId)
+            UseMSIAuthentication: true
+            AuthAKVName: $(AuthAKVName)
+            AuthSignCertName: $(AuthSignCertName)
+            FolderPath: '$(ArtifactPath)\NuGetExtract\ToSign'
+            Pattern: '**\Microsoft.Spark.*.dll'
+            UseMinimatch: true
+            OpusName: 'Microsoft'
+            OpusInfo: 'http://www.microsoft.com'
+            signConfigType: inlineSignParams
+            inlineOperation: >-
+              [
+                {
+                  "KeyCode": "CP-230012",
+                  "OperationCode": "SigntoolSign",
+                  "ToolName": "sign",
+                  "ToolVersion": "1.0",
+                  "Parameters": {
+                    "OpusName": "Microsoft",
+                    "OpusInfo": "https://www.microsoft.com",
+                    "FileDigest": "/fd SHA256",
+                    "PageHash": "/NPH",
+                    "TimeStamp": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+                  }
+                },
+                {
+                  "KeyCode": "CP-230012",
+                  "OperationCode": "SigntoolVerify",
+                  "ToolName": "sign",
+                  "ToolVersion": "1.0",
+                  "Parameters": {}
+                }
+              ]
+
+        - task: PowerShell@2
+          displayName: "Repackage signed Microsoft.Spark.*.dll into NuGet packages"
+          inputs:
+            targetType: "inline"
+            script: |
+              $workingDir = "$(ArtifactPath)\NuGetExtract"
+              
+              $packages = Get-ChildItem -Path "$workingDir" -Directory | Where-Object { $_.Name -ne "ToSign" }
+              foreach ($package in $packages) {
+                $packageDir = $package.FullName
+                $packageName = $package.Name
+                
+                # Replace Microsoft.Spark.*.dll files with their signed versions for each framework
+                $frameworks = Get-ChildItem -Path (Join-Path $packageDir "lib") -Directory
+                foreach ($framework in $frameworks) {
+                  $dllFiles = Get-ChildItem -Path $framework.FullName -Filter "Microsoft.Spark*.dll"
+                  foreach ($dll in $dllFiles) {
+                    $signedDllPath = Join-Path $workingDir "ToSign\$($framework.Name)\$($dll.Name)"
+                    if (Test-Path $signedDllPath) {
+                      Copy-Item -Path $signedDllPath -Destination $dll.FullName -Force
+                    }
+                  }
+                }
+                
+                # Create temp zip file first
+                $zipPath = Join-Path "$(ArtifactPath)\Output" "$packageName.zip"
+                $nupkgPath = Join-Path "$(ArtifactPath)\Output" "$packageName.nupkg"
+                Remove-Item -Path $nupkgPath -Force -ErrorAction SilentlyContinue
+                Remove-Item -Path $zipPath -Force -ErrorAction SilentlyContinue
+                
+                # Create zip with package contents
+                Compress-Archive -Path (Join-Path $packageDir "*") -DestinationPath $zipPath -Force
+                
+                # Rename zip to nupkg
+                Move-Item -Path $zipPath -Destination $nupkgPath -Force
+              }
+
+        - task: EsrpCodeSigning@5
+          inputs:
+            ConnectedServiceName: $(ConnectedServiceName)
+            AppRegistrationClientId: $(AppRegistrationClientId)
+            AppRegistrationTenantId: $(AppRegistrationTenantId)
+            EsrpClientId: $(EsrpClientId)
+            UseMSIAuthentication: true
+            AuthAKVName: $(AuthAKVName)
+            AuthSignCertName: $(AuthSignCertName)
+            FolderPath: '$(ArtifactPath)/Output'
+            Pattern: |
+              Microsoft.Spark*.nupkg
+            UseMinimatch: true
+            signConfigType: inlineSignParams
+            inlineOperation: >-
+              [
+                {
+                  "keyCode": "CP-401405",
+                  "operationSetCode": "NuGetSign",
+                  "parameters": [],
+                  "toolName": "sign",
+                  "toolVersion": "1.0"
+                },
+                {
+                  "keyCode": "CP-401405",
+                  "operationSetCode": "NuGetVerify",
+                  "parameters": [],
+                  "toolName": "sign",
+                  "toolVersion": "1.0"
+                }
+              ]
+
+        - task: NuGetCommand@2
+          displayName: 'Verify NuGet Packages'
+          inputs:
+            command: 'custom'
+            arguments: 'search -Source $(ArtifactPath)/Output'
+          continueOnError: true
+
+        - script: |
+            cd $(ArtifactPath)
+            dir /B /S
+          displayName: '[TEMP] Print ArtifactPath'
+
+        - script: |
+            cd $(Build.SourcesDirectory)
+            dir /B /S
+          displayName: '[TEMP] Print SourcesDirectory'

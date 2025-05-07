@@ -1,0 +1,2330 @@
+{
+  "hydrated": true,
+  "properties": {
+    "helpUri": "https://eng.ms/docs/microsoft-security/security/azure-security/cloudai-security-fundamentals-engineering/security-integration/guardian-wiki/microsoft-guardian/general/suppressions"
+  },
+  "version": "1.0.0",
+  "suppressionSets": {
+    "default": {
+      "name": "default",
+      "createdDate": "2025-05-07 05:03:01Z",
+      "lastUpdatedDate": "2025-05-07 05:03:01Z"
+    }
+  },
+  "results": {
+    "3a9d8b93be4aaede23fd6e8850760627074db643413ab72e8b086f4dc9eca0b4": {
+      "signature": "3a9d8b93be4aaede23fd6e8850760627074db643413ab72e8b086f4dc9eca0b4",
+      "alternativeSignatures": [
+        "7792be0b7e9208c5174948cd9e152d56d8256f78b5efe956a8139be81a37147c"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/Microsoft.CSharp.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "15f695372b457823a470b283d54e49e9093cafb20714981eea9dcf5576b8e7b2": {
+      "signature": "15f695372b457823a470b283d54e49e9093cafb20714981eea9dcf5576b8e7b2",
+      "alternativeSignatures": [
+        "80968f70b091ad1062645bd64272ae797d9a3edccc478f7ea37e13de685a5539"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/Microsoft.VisualBasic.Core.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "e2b2f0338e2d36698c16f2066ef0f63a03ffa874a7ce4d9d8a21a2f63b47d2b5": {
+      "signature": "e2b2f0338e2d36698c16f2066ef0f63a03ffa874a7ce4d9d8a21a2f63b47d2b5",
+      "alternativeSignatures": [
+        "803a3f7ed4a20f1b438308a5c4a857a4b4d2d7594241153f8255658c25e6166a"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/Microsoft.Win32.Registry.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "30e6e91191355bc5edb8b965ea05f967ae89269d9b24cdac6d1279411cdada03": {
+      "signature": "30e6e91191355bc5edb8b965ea05f967ae89269d9b24cdac6d1279411cdada03",
+      "alternativeSignatures": [
+        "0e273e21dda5ef11d40689aefc50596df67378368ba0e3713711682d9ea5ef5f"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Collections.Concurrent.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "2c01eb254f3324b56c3b652efada5a30ee0cfad0a6be931c5ccd360774be7b7b": {
+      "signature": "2c01eb254f3324b56c3b652efada5a30ee0cfad0a6be931c5ccd360774be7b7b",
+      "alternativeSignatures": [
+        "f4d72c0796b34b0824140b38cfe466f45b9a1af2f22a55a449b215c43d788fef"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Collections.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "30e4a9f8bb2c39142102dd8aa3448bf0a65880b4a2bc9cbf261d278f0f1afb5d": {
+      "signature": "30e4a9f8bb2c39142102dd8aa3448bf0a65880b4a2bc9cbf261d278f0f1afb5d",
+      "alternativeSignatures": [
+        "09a7151dcb644ee288362cd796a4512394b5c1155171387e9630d1760051c606"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Collections.Immutable.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "e6e8718aa59473929301adfb157c7ca799ef2ae405945eba03c9cc4778892a10": {
+      "signature": "e6e8718aa59473929301adfb157c7ca799ef2ae405945eba03c9cc4778892a10",
+      "alternativeSignatures": [
+        "909ec32f7cd26cc13499be6c64c19397bfdddcec8db349ae46900247057876b2"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Collections.NonGeneric.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "d34e784b62d8a2ec12cca99a5bc212be66e7834be126fdfab309c1367efb6db4": {
+      "signature": "d34e784b62d8a2ec12cca99a5bc212be66e7834be126fdfab309c1367efb6db4",
+      "alternativeSignatures": [
+        "d160bf4fcb8883610e691fc77b0035749c713dd21106fdf48240e41a18f5bad1"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Collections.Specialized.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "4268949a3176275c22e13db8eaf45f79dfc7df2268eb00a839ec4ba11c81e57e": {
+      "signature": "4268949a3176275c22e13db8eaf45f79dfc7df2268eb00a839ec4ba11c81e57e",
+      "alternativeSignatures": [
+        "f0e9084990d227687e9d63a40d813d33a897cb99ba57835cb5a6e62eb415f721"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.ComponentModel.Annotations.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "785335e1c868149af12c5acaf76c6847745374137caac0e633d4197c41058a50": {
+      "signature": "785335e1c868149af12c5acaf76c6847745374137caac0e633d4197c41058a50",
+      "alternativeSignatures": [
+        "30c2f1eff3c20d372639b26f1f2d56b9ea1ca7100d948b86ee4508cf58198652"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.ComponentModel.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "0b0d72568a95baef4260826823e051b8d59865b63b50e0221f2ab03628ee9d45": {
+      "signature": "0b0d72568a95baef4260826823e051b8d59865b63b50e0221f2ab03628ee9d45",
+      "alternativeSignatures": [
+        "e6c3e95b726decba33809441b7e44dd60a605b5912eaed69623a02c02e239459"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.ComponentModel.EventBasedAsync.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "6f6b3d32d550f0d0bb6d51981cf4095c805aa8d365c7977696eecb80fe19edf4": {
+      "signature": "6f6b3d32d550f0d0bb6d51981cf4095c805aa8d365c7977696eecb80fe19edf4",
+      "alternativeSignatures": [
+        "7ac9e373c330d462d450265bb240459ad348fe4b8a433d496c1039360d2feccc"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.ComponentModel.Primitives.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "acf71cf8fbaa744898f846fecdf4e10f7d24cc9be9f35595da92c93593a29b52": {
+      "signature": "acf71cf8fbaa744898f846fecdf4e10f7d24cc9be9f35595da92c93593a29b52",
+      "alternativeSignatures": [
+        "b4faaeb0711b4f277eebbe32aaea93510c5069e18db9b5df7293c15c09ddb959"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.ComponentModel.TypeConverter.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "46f50e6eb2bc90075ac3d68c3237c6d5a5afe225300ffced212a4c36d4ea82ab": {
+      "signature": "46f50e6eb2bc90075ac3d68c3237c6d5a5afe225300ffced212a4c36d4ea82ab",
+      "alternativeSignatures": [
+        "c1e3ba009235afd16cc0cd56aeb364e75f4a6de3a85f99a3828df5bf80f18ddb"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Console.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "3a5bad5e5c43d15c4f8354c4a3f419085712f6bf86c90fe015bd6afae36edaae": {
+      "signature": "3a5bad5e5c43d15c4f8354c4a3f419085712f6bf86c90fe015bd6afae36edaae",
+      "alternativeSignatures": [
+        "2dde75ed571abeb388c09df6210bae5a30a74dd06646b5ea73c9f44056c5ceef"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Data.Common.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "3f40887eb623acf5242b07873e00c3243f8dcb9c657df98b9cf5ee74c35143f3": {
+      "signature": "3f40887eb623acf5242b07873e00c3243f8dcb9c657df98b9cf5ee74c35143f3",
+      "alternativeSignatures": [
+        "0d5688f154c8b92b712d91b06135c87f3652bd5b7824befd6ace082ebcae8c78"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Diagnostics.DiagnosticSource.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "9b33e5476a2f6719461989902483c401bda1120d21f9d991daaded03efc1ad6b": {
+      "signature": "9b33e5476a2f6719461989902483c401bda1120d21f9d991daaded03efc1ad6b",
+      "alternativeSignatures": [
+        "bb95a1c539099df8e63612041117c917cce523e986838189759c92e1c6ac49cb"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Diagnostics.FileVersionInfo.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "c07b4806a42d76ac7bee28338070c5a4eddc1834107ab4874f1df6375252cebe": {
+      "signature": "c07b4806a42d76ac7bee28338070c5a4eddc1834107ab4874f1df6375252cebe",
+      "alternativeSignatures": [
+        "a5db2d8d7e334cc249a14d9f7de229fd439bcafe4436b008cfe5b141aed1be80"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Diagnostics.Process.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "dd019dd2b8981b72152521475eebbe196424eff289abc7fcadd313e3304f7c1e": {
+      "signature": "dd019dd2b8981b72152521475eebbe196424eff289abc7fcadd313e3304f7c1e",
+      "alternativeSignatures": [
+        "29d504fcf24fbbdaa917b469463664148864814ed45d968b49d88a3a5633952a"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Diagnostics.StackTrace.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "aa3e7b7f0303f20ca7c1469f4d294e6b0c10f12d62cb7005e68cf9e128a2c882": {
+      "signature": "aa3e7b7f0303f20ca7c1469f4d294e6b0c10f12d62cb7005e68cf9e128a2c882",
+      "alternativeSignatures": [
+        "d685bca4c7841c2f9ea90d90cdead51e1e0ca3d73be093f1008bf3c85e010350"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Diagnostics.TextWriterTraceListener.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "eecf354a5704e0c4ecb6ae7a3388294780b6192cafdd3754e0f36fde7f5911c4": {
+      "signature": "eecf354a5704e0c4ecb6ae7a3388294780b6192cafdd3754e0f36fde7f5911c4",
+      "alternativeSignatures": [
+        "40b779d6d930392d0ba6124b3f4626f40da33fb4d8d69d2db617ed9051ce8723"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Diagnostics.TraceSource.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "a13b5c860eeb05c57939139b939796350bef9e9d0d58e6889ae8b64966b9b207": {
+      "signature": "a13b5c860eeb05c57939139b939796350bef9e9d0d58e6889ae8b64966b9b207",
+      "alternativeSignatures": [
+        "3b9b9a1dd9fb9b27f8a592423c4263fa334689d39ad27afdfac54196fcac445d"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Drawing.Primitives.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "063973b767a680a5444179e380791136ea8dc25b5cad419ceae121e9faef8956": {
+      "signature": "063973b767a680a5444179e380791136ea8dc25b5cad419ceae121e9faef8956",
+      "alternativeSignatures": [
+        "df6ab81abdb49cc1b50c692c836b375f8cc27a244709c322b68648f05a5c4752"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Formats.Asn1.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "62d2edecbe3a267f59af6f4a43d5939b19f8d811c054553334762827dbf881bf": {
+      "signature": "62d2edecbe3a267f59af6f4a43d5939b19f8d811c054553334762827dbf881bf",
+      "alternativeSignatures": [
+        "40c32d42ba11ffe1a5dad5165feff04ffd18abc06ab9e4d2ccdf0b0353a16a51"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Formats.Tar.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "c311c870382aacf61d36a236bf358d15f8f928f745f65c4ce142ab70d793d7ec": {
+      "signature": "c311c870382aacf61d36a236bf358d15f8f928f745f65c4ce142ab70d793d7ec",
+      "alternativeSignatures": [
+        "bdd65800f04bc2821c672411eb535eb02ba06cc073713ffa62bb93e0fddda2b4"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.IO.Compression.Brotli.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "10e0c14a143af543f8db33ef2ee5f8c6e785934963e2c8fecf5fc0fc62a21f1d": {
+      "signature": "10e0c14a143af543f8db33ef2ee5f8c6e785934963e2c8fecf5fc0fc62a21f1d",
+      "alternativeSignatures": [
+        "4d283dbe40b759dd86e74c61738cc10bc30d28722b8144e985040cd8e03eb5eb"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.IO.Compression.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "cfce701977466a4afedee396c5fa847e3f89e2e8a0ff8e7eb24b39774ad53019": {
+      "signature": "cfce701977466a4afedee396c5fa847e3f89e2e8a0ff8e7eb24b39774ad53019",
+      "alternativeSignatures": [
+        "d5e4bfa837f0d9369ece3660a4c095a1d6310a8c762508829b06d364d953a415"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.IO.Compression.ZipFile.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "ce124054c849526ca558968f5bac4b0758ad80b117bc446ab0de6fb6a4eb978a": {
+      "signature": "ce124054c849526ca558968f5bac4b0758ad80b117bc446ab0de6fb6a4eb978a",
+      "alternativeSignatures": [
+        "32ed4e045e2dc992e2141295f1c194a41749f860dd6f56faa1abc58af9266cfd"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.IO.FileSystem.AccessControl.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "2f36416718025fedfdfdf0f28502547076f6e39790c9a1ca2c22fc89cc8731c3": {
+      "signature": "2f36416718025fedfdfdf0f28502547076f6e39790c9a1ca2c22fc89cc8731c3",
+      "alternativeSignatures": [
+        "9d0eb970506e6cda6ea2d1a4fcd59b0935ed3a75e591d162bd3cd77a8526d23e"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.IO.FileSystem.DriveInfo.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "0ebce811ee99e7ce0e8ac379fcbb2e64ba5ef1bb7d17f2d09222d206c39bc07b": {
+      "signature": "0ebce811ee99e7ce0e8ac379fcbb2e64ba5ef1bb7d17f2d09222d206c39bc07b",
+      "alternativeSignatures": [
+        "f57a616ff19f5d6dfff62807b54777cb0d456f9bd9ba727c15930442c65c5a71"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.IO.FileSystem.Watcher.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "4c055d73eff3d5017fa6379ddcfbfcda517a771f837d269d1abd5f530b1c2031": {
+      "signature": "4c055d73eff3d5017fa6379ddcfbfcda517a771f837d269d1abd5f530b1c2031",
+      "alternativeSignatures": [
+        "f3c8f0f44c1f13008ff5d9ba57727c8669b2b29163aba3263c6cf895731bdea0"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.IO.IsolatedStorage.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "0bdd8cea14a04d75ed4a0e36d9d9f80746d66f3ba4285db1e706e3f2417fda99": {
+      "signature": "0bdd8cea14a04d75ed4a0e36d9d9f80746d66f3ba4285db1e706e3f2417fda99",
+      "alternativeSignatures": [
+        "7b7552f2f79bd6b081ff1fd8f6b5625be9dd94fd49bb17e96445522eb426290d"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.IO.MemoryMappedFiles.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "766849c319f9916ca5c9cc495cccf305384c763fb307213e114b9681f6c11fa3": {
+      "signature": "766849c319f9916ca5c9cc495cccf305384c763fb307213e114b9681f6c11fa3",
+      "alternativeSignatures": [
+        "8523f8aff33c75e60ef8b6ae6db71095589275e0ce38d43dc444091cfcba95b8"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.IO.Pipes.AccessControl.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "68ad88d1511e9ef025bc5aac199a6b5e699eee617da4b1ec27247b30261a01a2": {
+      "signature": "68ad88d1511e9ef025bc5aac199a6b5e699eee617da4b1ec27247b30261a01a2",
+      "alternativeSignatures": [
+        "6e5be30804c47c8b5a53a9a24efdab00b9395c06d4298c2bd1fe91feb6921cc0"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.IO.Pipes.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "991e2a65aaa1aaedcd75b9e7a9b1dd55483e201e4cc564d295e0787865cf5e13": {
+      "signature": "991e2a65aaa1aaedcd75b9e7a9b1dd55483e201e4cc564d295e0787865cf5e13",
+      "alternativeSignatures": [
+        "9541c57a806071de151f238d9b453b5bb753660b109cb0051704b1b665b34720"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Linq.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "7ed4eec4323d1b54bfbf3bf8878ca49846ad6f167d69855149386ef22e4505b4": {
+      "signature": "7ed4eec4323d1b54bfbf3bf8878ca49846ad6f167d69855149386ef22e4505b4",
+      "alternativeSignatures": [
+        "0453a0fc101e59392c3616e51606d78766f025520125c24cfc8dc0f5d152b815"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Linq.Expressions.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "df2759dcb6722aa6af7ed8fda1a89313e4c82b9cc22c9419b08b9239885d6655": {
+      "signature": "df2759dcb6722aa6af7ed8fda1a89313e4c82b9cc22c9419b08b9239885d6655",
+      "alternativeSignatures": [
+        "d67b95b9fc34debb6613e809717e2730f63c6d0147e2456e1ec386636efe0774"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Linq.Parallel.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "c0d1d8c6d4dc0705b636d0fe4b59b8a3b50e5741d3bc1966f9622ffec6323357": {
+      "signature": "c0d1d8c6d4dc0705b636d0fe4b59b8a3b50e5741d3bc1966f9622ffec6323357",
+      "alternativeSignatures": [
+        "fc71c8ca1a0ae74cf06acd16acf13073adfe2b3807cb47bb8ba208032da0509a"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Linq.Queryable.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "9e02aebe6a744c08efa37a8db778cc60b73054554d7e4553478f69a0074022fb": {
+      "signature": "9e02aebe6a744c08efa37a8db778cc60b73054554d7e4553478f69a0074022fb",
+      "alternativeSignatures": [
+        "512918368c3a97e347743ee3dd982285cc6c7b1c40b3d24fdc8a7016b011ee4f"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Memory.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "5598f06837eb703b59885776720f88946036b297da998ed1dad83363ed197edb": {
+      "signature": "5598f06837eb703b59885776720f88946036b297da998ed1dad83363ed197edb",
+      "alternativeSignatures": [
+        "5d2c191637bbc542c7ef553f328842c44b605624b6b777afa22571a6baffa07e"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.Http.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "0b41ed37adc8e3abff1280d77efa7ddeff2e8b5216a3d895827ea8f7fe7e5b94": {
+      "signature": "0b41ed37adc8e3abff1280d77efa7ddeff2e8b5216a3d895827ea8f7fe7e5b94",
+      "alternativeSignatures": [
+        "cf2e85bcda66542006ff8c68ee732b0c982512fcfb40d8a86945127f1487b3c4"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.Http.Json.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "08f3c27d74aa5c68eb9b0355b2da42efa9f6cf884b669657c8d336053b508140": {
+      "signature": "08f3c27d74aa5c68eb9b0355b2da42efa9f6cf884b669657c8d336053b508140",
+      "alternativeSignatures": [
+        "230ed86f820e89a44fec7e6e9fd3d01516c3accb213b9541b78b7ce41a816a76"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.HttpListener.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "048c4e808495db92c237803ae9537876c678e67ea0a8edb12171bc375b658485": {
+      "signature": "048c4e808495db92c237803ae9537876c678e67ea0a8edb12171bc375b658485",
+      "alternativeSignatures": [
+        "f172398f35d97cd2fe3f7ec1c7f2571d87d08f050774f3fb7dba800d6c24ad58"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.Mail.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "06b30c373a45659a956826789c0d88137a6424dced4cb7b508893485be9e70fd": {
+      "signature": "06b30c373a45659a956826789c0d88137a6424dced4cb7b508893485be9e70fd",
+      "alternativeSignatures": [
+        "14a62080569d3eacb79332c9b3f524aa0fbd603f6421fc010260fcb8162d1b13"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.NameResolution.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "bbae58c2e12d43d66d498606f5cb1dc3b6c7ac95f2671f7c7f1b9b76387c6d4a": {
+      "signature": "bbae58c2e12d43d66d498606f5cb1dc3b6c7ac95f2671f7c7f1b9b76387c6d4a",
+      "alternativeSignatures": [
+        "67d2d042353c58fb4da3c338c66bad6a5bf6e85b79570911d0514d4fee88f7fd"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.NetworkInformation.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "c20466d9864fde1f2b449e1a8aa33c7fb0e4e82344aaf05c0295b4ca3c501d29": {
+      "signature": "c20466d9864fde1f2b449e1a8aa33c7fb0e4e82344aaf05c0295b4ca3c501d29",
+      "alternativeSignatures": [
+        "97c6a1d4dc64f8a85abaade8d6a91d9f94c8567f71a9066586ea3a000338fcf9"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.Ping.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "c1b4e3dc6468150ff0b1f5d4f246db7e5726f7d7c6e504f8dbf65cd73d8dca9f": {
+      "signature": "c1b4e3dc6468150ff0b1f5d4f246db7e5726f7d7c6e504f8dbf65cd73d8dca9f",
+      "alternativeSignatures": [
+        "fdcd12244636ceb51ece6ec2a4b7d9ea86f0a2bb6094d3b6e86c84dea2928ac3"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.Primitives.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "fd83ca7168a215ad775002a53d796958fecfe6e14d4dcf46a42f6b239b76d811": {
+      "signature": "fd83ca7168a215ad775002a53d796958fecfe6e14d4dcf46a42f6b239b76d811",
+      "alternativeSignatures": [
+        "00e296b6d2009c4884bda878d1a9ab6d9469377d77a5909fa7fb8064f63a018c"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.Quic.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "38ceaa532f2c6b103c2ed72787f6cfa1872de585fe96e352876bf3425520fe53": {
+      "signature": "38ceaa532f2c6b103c2ed72787f6cfa1872de585fe96e352876bf3425520fe53",
+      "alternativeSignatures": [
+        "7f69076493fd3bda6a5044406cea3568d8277f5c7df4a0aeb0047a1004584d69"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.Requests.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "708593afb69c1e553709d9b337082ad029639a6956a686f25c0331ca2c29da0f": {
+      "signature": "708593afb69c1e553709d9b337082ad029639a6956a686f25c0331ca2c29da0f",
+      "alternativeSignatures": [
+        "ab34a8a3a7146603852ca03c855538c3921656d8feef2c155367fe3a6a306e33"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.Security.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "cadedee01caed8a550b6e7cddfea7932863e33b257f251ce53ade0505b233844": {
+      "signature": "cadedee01caed8a550b6e7cddfea7932863e33b257f251ce53ade0505b233844",
+      "alternativeSignatures": [
+        "1dba7cfa0703dc73381d1c5c30c8ad6021ad37b2852c3e9634b9e6993cd87c2b"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.ServicePoint.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "33fc7a0c84f9f8aa22ada1f21040b87fc4033f823538a627266f915d2a29d14c": {
+      "signature": "33fc7a0c84f9f8aa22ada1f21040b87fc4033f823538a627266f915d2a29d14c",
+      "alternativeSignatures": [
+        "d45a3e12ce081727df48bf72d03cc096e1b69a27912f7addfa9d93929201b99a"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.Sockets.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "1226e47624528f31a292eb47693ab810c7fb70d00aaefb7ef66447f578d3c1aa": {
+      "signature": "1226e47624528f31a292eb47693ab810c7fb70d00aaefb7ef66447f578d3c1aa",
+      "alternativeSignatures": [
+        "739d27685a077caa23fa90a0ef62b3b3e9a21aa5eafa6c2b5cf47498cefe8f32"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.WebClient.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "d41344db16d2f2352ca973de5cf2e333f4a53bf00d38ec24193811923e48277a": {
+      "signature": "d41344db16d2f2352ca973de5cf2e333f4a53bf00d38ec24193811923e48277a",
+      "alternativeSignatures": [
+        "2028df19d16af9a8476974901b432c361ea5d318a89f7749616cef6bb7bfcc34"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.WebHeaderCollection.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "139eacfabff0aa67e78e8c0e7ed74475990acb4144198d0d488aeff3ce6cd578": {
+      "signature": "139eacfabff0aa67e78e8c0e7ed74475990acb4144198d0d488aeff3ce6cd578",
+      "alternativeSignatures": [
+        "ec881a0cea42eac7b450b3551edfdfbe11bfd79b6f347322bc7d819371130337"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.WebProxy.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "12e5c2a009a4c302ed0186a6558b551c41585f8a91b12235468badcded5d6f0b": {
+      "signature": "12e5c2a009a4c302ed0186a6558b551c41585f8a91b12235468badcded5d6f0b",
+      "alternativeSignatures": [
+        "8958631c9e05dc52f04845664e99c9639d512881f1a91169f97933af2270328c"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.WebSockets.Client.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "fa6660f0a33176635ee6558328a86e2e31a9889e7873fea7fa585b1c31541ac0": {
+      "signature": "fa6660f0a33176635ee6558328a86e2e31a9889e7873fea7fa585b1c31541ac0",
+      "alternativeSignatures": [
+        "84fd5e84d0ec8ac28e190f925665a708e52a72f48c8abeeab61d7ae915a85691"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Net.WebSockets.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "d0a76561d244a333bf7b5e8f59ab1e6460c508670c66b608945e25e66e60233b": {
+      "signature": "d0a76561d244a333bf7b5e8f59ab1e6460c508670c66b608945e25e66e60233b",
+      "alternativeSignatures": [
+        "447a6e2a6ab150aa6f184ef88b46d303f8bfe4a90a7f51db1d21719c94068e00"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.ObjectModel.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "db5bd23827ffe0e0509e16c248c2ee7cc42bb69102b259601b84c174137e3432": {
+      "signature": "db5bd23827ffe0e0509e16c248c2ee7cc42bb69102b259601b84c174137e3432",
+      "alternativeSignatures": [
+        "6a9ace92cb59cbd6dd4081fd87edad4f2febb1595f899ad5bee7e186f9ad37de"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Private.CoreLib.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "9fe5db981dcc4f54a7a7c23902759f740d9ecaaf09f48fe07a8d3d98fab45719": {
+      "signature": "9fe5db981dcc4f54a7a7c23902759f740d9ecaaf09f48fe07a8d3d98fab45719",
+      "alternativeSignatures": [
+        "733d9e96e30045699f1c07514350b8b1fa78cb37d8f1991d178589ef6381559e"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Private.DataContractSerialization.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "a7a141317960478cbf5bb5342f911713cf64694b06d0b6c6e8636587edd1d372": {
+      "signature": "a7a141317960478cbf5bb5342f911713cf64694b06d0b6c6e8636587edd1d372",
+      "alternativeSignatures": [
+        "38052a5ea2ef3030e94dc828415d00da4ad013257ea92d815d2ff3d3ae983e79"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Private.Uri.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "671cededc35e8fbd08ae77851a735a8b85d72fc5e22066189bced95c08601d71": {
+      "signature": "671cededc35e8fbd08ae77851a735a8b85d72fc5e22066189bced95c08601d71",
+      "alternativeSignatures": [
+        "96857b8f663448865da7761bd76cc41322bb5f46671018582da639b69488d0da"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Private.Xml.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "de6efc2cf37672b0dbf402286ee793e2ffea06e685ca5d670fb4cd9ce3d5f7a0": {
+      "signature": "de6efc2cf37672b0dbf402286ee793e2ffea06e685ca5d670fb4cd9ce3d5f7a0",
+      "alternativeSignatures": [
+        "3088861744257a54d3020f3175a3f968b1a1bd7f8ccf9dc050736e13513b1cb5"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Private.Xml.Linq.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "4a9ec8c41e8f38d2e99d9d661dc617a6c98cb699e7238dcb753602e26ff24485": {
+      "signature": "4a9ec8c41e8f38d2e99d9d661dc617a6c98cb699e7238dcb753602e26ff24485",
+      "alternativeSignatures": [
+        "4979d2dc3840b4b8fe7b3b61e5e62bd94ce8be9e44d92cac684937c2efc61267"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Reflection.DispatchProxy.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "9207bcc78e8ee5175e3f6732dc6eeafdcd73754e6e0ccff99aa662eb9197d5ce": {
+      "signature": "9207bcc78e8ee5175e3f6732dc6eeafdcd73754e6e0ccff99aa662eb9197d5ce",
+      "alternativeSignatures": [
+        "63e90c5c88be7ea53a5da29a65492916408a6de4492c9d802a26686936f44f4d"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Reflection.Emit.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "5deace1ca0479c759b9ca6dd88c1f515554f7a830ccbcd37bbbc9507336f72d2": {
+      "signature": "5deace1ca0479c759b9ca6dd88c1f515554f7a830ccbcd37bbbc9507336f72d2",
+      "alternativeSignatures": [
+        "6b9c1055421e9b2dca8df999601049046754f47fa235096d7b0dd9103650c2c8"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Reflection.Metadata.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "2dc29ccc4f9b3b27eaef4cb9a0f76b3229067f1e742104ac28cd81bd49387f5c": {
+      "signature": "2dc29ccc4f9b3b27eaef4cb9a0f76b3229067f1e742104ac28cd81bd49387f5c",
+      "alternativeSignatures": [
+        "7e4de442a4251d921810f6232e5301881c64d8c5a47b706b03b75abaa7567416"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Reflection.TypeExtensions.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "d5efc201f95b00390bb171fb9e677a831b585b82156134ac4923b1213efc6ff9": {
+      "signature": "d5efc201f95b00390bb171fb9e677a831b585b82156134ac4923b1213efc6ff9",
+      "alternativeSignatures": [
+        "befdc9b7ea3528148875971880a6771d803f6592fe27365af40eef6fb6a683fe"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Resources.Writer.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "809dbf573a2bba95cd82ca110524da22999972715d17b8e1d4a68f50834a98b2": {
+      "signature": "809dbf573a2bba95cd82ca110524da22999972715d17b8e1d4a68f50834a98b2",
+      "alternativeSignatures": [
+        "6fb50280eec8e0113725f384f73e58bcb9295f05b584ade6106bf52f44dafc7d"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Runtime.CompilerServices.VisualC.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "dc480104fd3a353faf81cdd260d0588f9e7fafd61eac7921b54fbe9e534c0f73": {
+      "signature": "dc480104fd3a353faf81cdd260d0588f9e7fafd61eac7921b54fbe9e534c0f73",
+      "alternativeSignatures": [
+        "03d7812bc1de24318edf9b1607693850ad17b18590e38ae2a574de179342c37a"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Runtime.InteropServices.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "348e95386feeab438b85378498600868d850a75f1d716380e2daed22352121f3": {
+      "signature": "348e95386feeab438b85378498600868d850a75f1d716380e2daed22352121f3",
+      "alternativeSignatures": [
+        "0f3dd720c727fdd8b0ce3705355f3af12a874577a889ce9532a57516eababad2"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Runtime.InteropServices.JavaScript.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "5aa3ba02493ca2d0dc360a0aff014edd2c041cb8591d42220a585d307888f087": {
+      "signature": "5aa3ba02493ca2d0dc360a0aff014edd2c041cb8591d42220a585d307888f087",
+      "alternativeSignatures": [
+        "57cc3dcc08a3ea0cbbea7764bc8f58772ee40615b2bd51d2ef8504cc01529589"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Runtime.Numerics.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "e7bed6ffa889b0e17b309f39a02b0c458a1e0ab5934a2aa5d6bbe225c1309fc5": {
+      "signature": "e7bed6ffa889b0e17b309f39a02b0c458a1e0ab5934a2aa5d6bbe225c1309fc5",
+      "alternativeSignatures": [
+        "406cefa4ffd4df8ba645a4814065f15cbc53d81cc861ff30afe84045942974eb"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Runtime.Serialization.Formatters.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "9cae0d6d33f2749862f07b727b6d53e9ae1069b50f9cc5bf2cb9ef3fd86a45c7": {
+      "signature": "9cae0d6d33f2749862f07b727b6d53e9ae1069b50f9cc5bf2cb9ef3fd86a45c7",
+      "alternativeSignatures": [
+        "36ce5cb29143cebf3bc37993b9f6e1e728c6bbca4553fc57ef1e4f91047fb388"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Runtime.Serialization.Primitives.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "2359571759b65ff3d13abacaaf16cc7fcaa3b70ffc291a895b2145d513a388a6": {
+      "signature": "2359571759b65ff3d13abacaaf16cc7fcaa3b70ffc291a895b2145d513a388a6",
+      "alternativeSignatures": [
+        "a1c8dff640e5721ba0b261082cd31aaa39effaddef0a302f18b24477b1871766"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Security.AccessControl.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "d3fee812162e1c2082f477a07e4b194c88fa049732462d7951e6a9059aeba071": {
+      "signature": "d3fee812162e1c2082f477a07e4b194c88fa049732462d7951e6a9059aeba071",
+      "alternativeSignatures": [
+        "f1508825da14cc97d205f704f35d3879618c6bd039d200f8f1f34b16a0efd52d"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Security.Claims.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "8e56072e281122ce12e50e6f67557355867d269334f36bb1c7d3bb34d43e0abe": {
+      "signature": "8e56072e281122ce12e50e6f67557355867d269334f36bb1c7d3bb34d43e0abe",
+      "alternativeSignatures": [
+        "cf43a3005e39d90a90d38c2cbe6cb9aa8a00698ac10e92cca2f4a21660ed20f0"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Security.Cryptography.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "43b7c42c0d1f8113349c7e4ec8cf23029ca4093821f45db8f377b58b228eecea": {
+      "signature": "43b7c42c0d1f8113349c7e4ec8cf23029ca4093821f45db8f377b58b228eecea",
+      "alternativeSignatures": [
+        "134713bbd5bc7e81481b20477b10185ffcaa3b9719bfcdc1a6d199737bbbb77e"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Security.Principal.Windows.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "2db5cb7335e44822a489f1c95a1e24eba5b292783b5a3ff07def72a96f27538e": {
+      "signature": "2db5cb7335e44822a489f1c95a1e24eba5b292783b5a3ff07def72a96f27538e",
+      "alternativeSignatures": [
+        "6928fb06ae29eb39bfd340baa03bcc8334dec48e5c8344796587ab9cdf9adc5f"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Text.Encoding.CodePages.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "ce6d8cf4f2ce988b23913d5b407de33fbdef34f9981978b4a036b9fa7301e360": {
+      "signature": "ce6d8cf4f2ce988b23913d5b407de33fbdef34f9981978b4a036b9fa7301e360",
+      "alternativeSignatures": [
+        "b52448d12578d1928745afc2b7ea58aba5cf51623b02110482fae31731b088f6"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Text.Encodings.Web.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "6c8ea998059507ababe9464ee91b212051fa98d6a21b65043783af59c4b649e7": {
+      "signature": "6c8ea998059507ababe9464ee91b212051fa98d6a21b65043783af59c4b649e7",
+      "alternativeSignatures": [
+        "b2503387035f29ce8a35ee735736d98512ac8aaedb702ff3be42ecd4ae005576"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Text.Json.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "efde6749831778729a1fe2a0ff4e0873754704b4ceffd517af64fc16fe1ed191": {
+      "signature": "efde6749831778729a1fe2a0ff4e0873754704b4ceffd517af64fc16fe1ed191",
+      "alternativeSignatures": [
+        "60d350024bb812022312bf6ec94c8450132aa936de812add0fb75e20f9b6dc2e"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Text.RegularExpressions.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "5becc2aab244792e87065e4ab64117a6b1b35f509347c4515331ae7794c6a449": {
+      "signature": "5becc2aab244792e87065e4ab64117a6b1b35f509347c4515331ae7794c6a449",
+      "alternativeSignatures": [
+        "dab9c599ba3f57b7782e6b05be4c5ff10e916f10f2a4b4999f1fc2e89d4d8b91"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Threading.Channels.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "8f0a4eb2aefd269a6f713f24269a6083fffa5ff1520927d280b39a3ed4dc965f": {
+      "signature": "8f0a4eb2aefd269a6f713f24269a6083fffa5ff1520927d280b39a3ed4dc965f",
+      "alternativeSignatures": [
+        "1c713812f900b6a6b6d8008d8847f8687d094bd112d3f3b57cf5100acdd5e6d4"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Threading.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "61e0dfc8a331fe02fdddb56fbf9ec0b1e502fa0e74c8928f56b3bf205ba51a13": {
+      "signature": "61e0dfc8a331fe02fdddb56fbf9ec0b1e502fa0e74c8928f56b3bf205ba51a13",
+      "alternativeSignatures": [
+        "39a3ff91bd1b835c9406fd0d0fcb4244c835b71ee4a4d1ffa99a04644de3e299"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Threading.Tasks.Dataflow.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "3edd562f867c67fef754662b9b125894fc6efd23fc5517a3db55320ed51a4f83": {
+      "signature": "3edd562f867c67fef754662b9b125894fc6efd23fc5517a3db55320ed51a4f83",
+      "alternativeSignatures": [
+        "62c31a2f564ad9024bfa0b4787ba9fd7a60fa8aaea2e90a9f759e2db2de18bbe"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Threading.Tasks.Parallel.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "381e8b42ee4bb4b2e08829605fb253de337b99e094452b7ba5bc59f8d9914578": {
+      "signature": "381e8b42ee4bb4b2e08829605fb253de337b99e094452b7ba5bc59f8d9914578",
+      "alternativeSignatures": [
+        "a2a992a3a5fe62d1a4bf930e0daeab3dec85bc26b88afffbdd0cd40895e7a7e0"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Transactions.Local.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "5be0ce012e5ca89bda5db7fc98931aa0a2997c2a24df0e3bfc46a3471d39d37b": {
+      "signature": "5be0ce012e5ca89bda5db7fc98931aa0a2997c2a24df0e3bfc46a3471d39d37b",
+      "alternativeSignatures": [
+        "a9b2ceba915700536d7e401c5d631dba3b3acee5ec47659527529caa9d119610"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Web.HttpUtility.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "c9e72ab19df132a6643b122505d26d53f292e2dad4541a627b4fe563609e9c58": {
+      "signature": "c9e72ab19df132a6643b122505d26d53f292e2dad4541a627b4fe563609e9c58",
+      "alternativeSignatures": [
+        "2a663946847e490560ca44383a8881f805cbc8a2f7d286057a88138231986be3"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/linux-x64/System.Xml.XPath.XDocument.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "ec3ed89204bc77eb9bfb7d03d3d963a4e0374bf8ba681c832efd41d832a70a3a": {
+      "signature": "ec3ed89204bc77eb9bfb7d03d3d963a4e0374bf8ba681c832efd41d832a70a3a",
+      "alternativeSignatures": [
+        "57992f4e1e0c517c3ae9b3571a95022ef67682a08dddebdf4420eeafe688d1f2"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/Microsoft.CSharp.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "d34438453ef3d0fe306712bac365b7190598f2d8b84c4d757b5c4c877c6aee81": {
+      "signature": "d34438453ef3d0fe306712bac365b7190598f2d8b84c4d757b5c4c877c6aee81",
+      "alternativeSignatures": [
+        "167acfc67d14836615b31a2a1564030dcc3bd676ffc567cec5af0930ec1d8f7a"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/Microsoft.VisualBasic.Core.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "d8bb0a95c01f0fdff001bff07597c43c978beb7b825dee1067b7649ccac84c94": {
+      "signature": "d8bb0a95c01f0fdff001bff07597c43c978beb7b825dee1067b7649ccac84c94",
+      "alternativeSignatures": [
+        "0021e5b18cb709118016c723adf7b9a2ea0239421ab4da2d5276f42e5d0e34bf"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/Microsoft.Win32.Registry.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "50903d978ebf5a6f901c97df8b4b88cd4e8d22ed6606ea4ddc53ed98193c1511": {
+      "signature": "50903d978ebf5a6f901c97df8b4b88cd4e8d22ed6606ea4ddc53ed98193c1511",
+      "alternativeSignatures": [
+        "0580163ce6d90ae98fc5d0a66ceaf5d8bd5d9914e5f612fb1bb75333323bab4f"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Collections.Concurrent.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "982156e4684096db3d6e7015c2ff4d94462d5022d6f1405a9a2bc11937a1ac2b": {
+      "signature": "982156e4684096db3d6e7015c2ff4d94462d5022d6f1405a9a2bc11937a1ac2b",
+      "alternativeSignatures": [
+        "088cee8de05490695a5f3e2e1282033b8b40e30ef1a673184bae1e36f00e4ac1"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Collections.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "59b55c35009961d796d54c3fd3f2a9888d181587f9c148edfdfe5482fee2d8f0": {
+      "signature": "59b55c35009961d796d54c3fd3f2a9888d181587f9c148edfdfe5482fee2d8f0",
+      "alternativeSignatures": [
+        "9be0b1e7e1f51ed737ad67eacea64ebfe23faacad6eb0eda7600614e53e068ef"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Collections.Immutable.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "5a818d5830b85fe8ddd91900706726d7ae0ef8b05a7518f8fbfc0c5c726c3193": {
+      "signature": "5a818d5830b85fe8ddd91900706726d7ae0ef8b05a7518f8fbfc0c5c726c3193",
+      "alternativeSignatures": [
+        "840dce99a3298a4988972f4ce4df007b42dec3ef41ff9a59975cf4894be96d25"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Collections.NonGeneric.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "49ff34d1b2bae8090f94154f2382b917994928d199de3150d1a5dedc4f8c6cd6": {
+      "signature": "49ff34d1b2bae8090f94154f2382b917994928d199de3150d1a5dedc4f8c6cd6",
+      "alternativeSignatures": [
+        "d1eaf3f4b566d03d97fa58f69a1cbf36d22ee1671b2bad6c9b88a826f11106d1"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Collections.Specialized.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "e3ca02ddc360e84d42b0f0a4ef5973e2cdae20ce5e342a18b0125d185fd03562": {
+      "signature": "e3ca02ddc360e84d42b0f0a4ef5973e2cdae20ce5e342a18b0125d185fd03562",
+      "alternativeSignatures": [
+        "b0ee9a9dbf3fc87e962d8671a91195158f88e7867969546c13d6621426b2a087"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.ComponentModel.Annotations.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "99a8a138bc4100a5428dbe56e94d8e6b014a11a6554ccc56841696607158c340": {
+      "signature": "99a8a138bc4100a5428dbe56e94d8e6b014a11a6554ccc56841696607158c340",
+      "alternativeSignatures": [
+        "9cef2ac24e8303a80440acec35b3ea61ad03563fcd7007c7cd4fc46577560517"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.ComponentModel.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "55ba34bde5d0b16b82cc433fe7cb6aceb7f27953085bc1c19518c818e3616cc9": {
+      "signature": "55ba34bde5d0b16b82cc433fe7cb6aceb7f27953085bc1c19518c818e3616cc9",
+      "alternativeSignatures": [
+        "bc2ab1cc24869af4695cca5e8c60810047a37a2faa13bb49b977bddcc00b15f7"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.ComponentModel.EventBasedAsync.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "2f0d468804f779dfe509407d00928fa01ca11cd0007a50e42c2487ce0f1a3f47": {
+      "signature": "2f0d468804f779dfe509407d00928fa01ca11cd0007a50e42c2487ce0f1a3f47",
+      "alternativeSignatures": [
+        "5dcad8dd8e4db8b8f51c815662a322043de2feab2ed267d78d516a59bb1e8234"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.ComponentModel.Primitives.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "b81272af24b9b8bc157e3ce7c0ee57250e7afacab4267338abadfa572ed01542": {
+      "signature": "b81272af24b9b8bc157e3ce7c0ee57250e7afacab4267338abadfa572ed01542",
+      "alternativeSignatures": [
+        "9dca897fd349b980ec3ffe65a3f714a8f1edbd9147c66210535402a31a7767d0"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.ComponentModel.TypeConverter.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "a0d042aa5d8a53840bf0f4b5fca85b1c1c206da01c92182d7da834b35a8b000e": {
+      "signature": "a0d042aa5d8a53840bf0f4b5fca85b1c1c206da01c92182d7da834b35a8b000e",
+      "alternativeSignatures": [
+        "e40b21368d25b74638bf1ef063c257d046767335cff4c91940d2d689947d9d89"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Console.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "37ad6957839538ba8013b195c063506d4bd664a2c67636a4e5d1a1779608ac9b": {
+      "signature": "37ad6957839538ba8013b195c063506d4bd664a2c67636a4e5d1a1779608ac9b",
+      "alternativeSignatures": [
+        "94cd9f5def4dae5b06d8e033d011c1f005babe4dcef85d57287ae375b97fc60b"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Data.Common.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "636e082dbbf7bac0af0d5e8cf3c24bd925e524b2a7dc377f4b6d651630aed2cc": {
+      "signature": "636e082dbbf7bac0af0d5e8cf3c24bd925e524b2a7dc377f4b6d651630aed2cc",
+      "alternativeSignatures": [
+        "c022f38dea2f443ce3cd7f9f411007fbc954013d348eb4b7839db19e1763e98d"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Diagnostics.DiagnosticSource.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "1409b1846375b1d6aa60e2c924281084aa7bacfb39ec53cb8abd40c65fe395d6": {
+      "signature": "1409b1846375b1d6aa60e2c924281084aa7bacfb39ec53cb8abd40c65fe395d6",
+      "alternativeSignatures": [
+        "1de1ae277d7db8c085466a4410f04b093423d83d2d2095b766321bdc001361ee"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Diagnostics.FileVersionInfo.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "efb13355f2ec1b5660013685c01b979b15854ad5684b14ee8c492c4c66e7c712": {
+      "signature": "efb13355f2ec1b5660013685c01b979b15854ad5684b14ee8c492c4c66e7c712",
+      "alternativeSignatures": [
+        "897a93412d1a96385322073c493591e811cb5b1dc001481bc70dc72550c76ea3"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Diagnostics.Process.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "fb3dfc69a520d07e4d83fd92706fd219fd0d6bc67f7f3cef7be077ac370b04f3": {
+      "signature": "fb3dfc69a520d07e4d83fd92706fd219fd0d6bc67f7f3cef7be077ac370b04f3",
+      "alternativeSignatures": [
+        "502e4d7ff408007840ed24df064dcad5427ef21b6f15176366930ad40400e994"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Diagnostics.StackTrace.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "1c3504179ca34cc78a024a44f89e940bd500b6add59a50ed33136030e0741632": {
+      "signature": "1c3504179ca34cc78a024a44f89e940bd500b6add59a50ed33136030e0741632",
+      "alternativeSignatures": [
+        "0c8284a87a6dbe146cc5922c21502bcb0eb5f9675d0c40f9500f31bc2344623f"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Diagnostics.TextWriterTraceListener.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "0eed8ab46aef0334208dd656599fc689255bae4da3f0f10daf3028c59d980532": {
+      "signature": "0eed8ab46aef0334208dd656599fc689255bae4da3f0f10daf3028c59d980532",
+      "alternativeSignatures": [
+        "a36813102466bf4faacf05a46724faaa0f12f0e9f1368a40a92119d87ef5bfd2"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Diagnostics.TraceSource.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "47cff040204ca3bac5ca1e7bc88501c5e0c7b1507a28660459f54de11f1e84b9": {
+      "signature": "47cff040204ca3bac5ca1e7bc88501c5e0c7b1507a28660459f54de11f1e84b9",
+      "alternativeSignatures": [
+        "2b022c8879ed7c7374241c95aae2114e75c8313af664c23ccdfaf09c1e409055"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Drawing.Primitives.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "70ccaa07d464ae71d979cb0104f43e4d42a6516e08ffb4941b9b95fd3f6b1e13": {
+      "signature": "70ccaa07d464ae71d979cb0104f43e4d42a6516e08ffb4941b9b95fd3f6b1e13",
+      "alternativeSignatures": [
+        "8a196a7ee3154d837d7e8bac8f4e2fce3d61922598635fdb9fd5e6523dc1a678"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Formats.Asn1.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "667f6ffb5057daba9327f5f3c1463798f9025c777ea050256d782b00c571c09f": {
+      "signature": "667f6ffb5057daba9327f5f3c1463798f9025c777ea050256d782b00c571c09f",
+      "alternativeSignatures": [
+        "e99bc78448d583e3785f3cc228a289c5c40326d6d31b324a7200ade94c9ff5cd"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Formats.Tar.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "8842eb09a440b869ae7e10dc2f0b12b2022f05a8a8a0dd39ca8bbc449728fe71": {
+      "signature": "8842eb09a440b869ae7e10dc2f0b12b2022f05a8a8a0dd39ca8bbc449728fe71",
+      "alternativeSignatures": [
+        "9434394ab153287b82ab2f8c0c185d54e019a18b5275473227598db588543afc"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.IO.Compression.Brotli.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "63711f96911c1a1357c21d090733df5d5b4a043c2c55b755b02cb490c982970f": {
+      "signature": "63711f96911c1a1357c21d090733df5d5b4a043c2c55b755b02cb490c982970f",
+      "alternativeSignatures": [
+        "35d27eee6a8e0c0fa6292b7d1c6098dcc963133ede75293ee641614e1cf153fe"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.IO.Compression.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "021d57b92e7a01803055f49119f516c4a7b305c8ea001341a4b7e903d101281d": {
+      "signature": "021d57b92e7a01803055f49119f516c4a7b305c8ea001341a4b7e903d101281d",
+      "alternativeSignatures": [
+        "93fbd2e33cb341930dd4144419f398e0093d9ef457a649a2e41496a070bfdddd"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.IO.Compression.ZipFile.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "0dbb5e7c13ccae197ffcf1b692f940b9bc577ba130c6cd6a0e0febb4ca0b474c": {
+      "signature": "0dbb5e7c13ccae197ffcf1b692f940b9bc577ba130c6cd6a0e0febb4ca0b474c",
+      "alternativeSignatures": [
+        "e0b991158d35359a265c6f4d0787dfc02fd3c35d2979ee3572764ee78e852bea"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.IO.FileSystem.AccessControl.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "39028af8a88219db50436215821fcbe98e5e09cb9e5e76f756f0a27a74697213": {
+      "signature": "39028af8a88219db50436215821fcbe98e5e09cb9e5e76f756f0a27a74697213",
+      "alternativeSignatures": [
+        "72c9617dced8ac8352a41aa68b1218212c1f8eb115b67765a2c7bf35eb0c2f13"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.IO.FileSystem.DriveInfo.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "1fa341f43e416bee1ea44dacc77232bf0b55781ea439d6a706ca87a7dcf41765": {
+      "signature": "1fa341f43e416bee1ea44dacc77232bf0b55781ea439d6a706ca87a7dcf41765",
+      "alternativeSignatures": [
+        "a6d25b54cfaa8a0871d74b8d46883d5a85ae46cc006f5216937fca0be9acb4a0"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.IO.FileSystem.Watcher.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "411e89d9a2ffce92daac4c359eb6b783cf70b45cb9beac6dce0ef026bdde8ff9": {
+      "signature": "411e89d9a2ffce92daac4c359eb6b783cf70b45cb9beac6dce0ef026bdde8ff9",
+      "alternativeSignatures": [
+        "1805829d008d80e7485974cdaeb2dae314a8b6e6723ffd7507addfb3414badb1"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.IO.IsolatedStorage.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "b07ee5dc67b4d4bfbc3447ccef427af48687a54d622ae1e6f6f9b4dbe01ca545": {
+      "signature": "b07ee5dc67b4d4bfbc3447ccef427af48687a54d622ae1e6f6f9b4dbe01ca545",
+      "alternativeSignatures": [
+        "a9d947438f7e2626af47d36f74a2c440b8ade938dc59b8968073e8e406898a54"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.IO.MemoryMappedFiles.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "be6d7bf4bc8f7b3999b95780a412285002aee03e61ed1321fbbb18d86a449838": {
+      "signature": "be6d7bf4bc8f7b3999b95780a412285002aee03e61ed1321fbbb18d86a449838",
+      "alternativeSignatures": [
+        "3f0ace9353f78ea69241408f958b3580f980751ea7da5b3fa8a2032db954eb32"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.IO.Pipes.AccessControl.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "4d61931a2be360bc460e7b8a82a60f088ac0660c70e2cb5b7e7633b06885f791": {
+      "signature": "4d61931a2be360bc460e7b8a82a60f088ac0660c70e2cb5b7e7633b06885f791",
+      "alternativeSignatures": [
+        "19feb5deb410d6c64b1051559c367dbfb708727534b6d802286b60e0d0ec1e28"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.IO.Pipes.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "02eb5201fdb58112498b4b3ac1a1b9a7c2cd609fd263e536f0d58121b1102b65": {
+      "signature": "02eb5201fdb58112498b4b3ac1a1b9a7c2cd609fd263e536f0d58121b1102b65",
+      "alternativeSignatures": [
+        "71f5852c983370d061ca4e8e201a1f709c5af947b94bb2652ab6a5f70a930706"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Linq.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "247ebcb209188614bb4667fb9ff93ba4e63ebe3ce74fe2e3c2a7d0c59faab36c": {
+      "signature": "247ebcb209188614bb4667fb9ff93ba4e63ebe3ce74fe2e3c2a7d0c59faab36c",
+      "alternativeSignatures": [
+        "fa29d35bbc4e2177bed93f689c5d21c82a2d0e9ff43086dd390fcc03e2239410"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Linq.Expressions.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "69dc98a38c37e1de232d3390f83e1c5329b7b36ca8463b7825596aca1913cefc": {
+      "signature": "69dc98a38c37e1de232d3390f83e1c5329b7b36ca8463b7825596aca1913cefc",
+      "alternativeSignatures": [
+        "26ef07fed014352039a82a55a1f0f0329dfaa9d74587bac996148fa22f7315c9"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Linq.Parallel.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "d959115d623b335595a0b2eb7e6c1dc6b69d10d2856e6f05609e75e42734fa30": {
+      "signature": "d959115d623b335595a0b2eb7e6c1dc6b69d10d2856e6f05609e75e42734fa30",
+      "alternativeSignatures": [
+        "d37e0698659bd9dba068baf8f44f05633ebedab89f54f5623b97c2906a927688"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Linq.Queryable.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "84dc9445e099b07275799b408a713b2a21763de3cb6ab54a6e759318775ff5de": {
+      "signature": "84dc9445e099b07275799b408a713b2a21763de3cb6ab54a6e759318775ff5de",
+      "alternativeSignatures": [
+        "e85c3e7451fad8992731b89ad4081e75a73e3d7e6ef71cd621f3e5972b242f3f"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Memory.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "a75f90f9a482430438167590d404ad24d1c5e4799d098103bf01498ba98ba770": {
+      "signature": "a75f90f9a482430438167590d404ad24d1c5e4799d098103bf01498ba98ba770",
+      "alternativeSignatures": [
+        "9ebb53bfc0d8c10afb04d6299a46316858c56a355724c75acf4c223a8846bdcc"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.Http.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "809b8e53db96589ba919bce1ec16a29403ff1861768ca2f3814fa9ed09406a05": {
+      "signature": "809b8e53db96589ba919bce1ec16a29403ff1861768ca2f3814fa9ed09406a05",
+      "alternativeSignatures": [
+        "29c49c91e4789b346e687eeef8acdf90363ca25f1e2f85d18723e086e41af05d"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.Http.Json.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "06242c9d689e5f1ab90888419225cef040c98e9bdca45a5abe218cdda83a0e9c": {
+      "signature": "06242c9d689e5f1ab90888419225cef040c98e9bdca45a5abe218cdda83a0e9c",
+      "alternativeSignatures": [
+        "4bc324dc71d52f26f3512d4d3f5e91c6ca9ad57f5a3edcd93570a6e4adbd6329"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.HttpListener.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "49f29ad96e4358989144e5198f9ad73f14448a9bcf56c68a174449fb62156779": {
+      "signature": "49f29ad96e4358989144e5198f9ad73f14448a9bcf56c68a174449fb62156779",
+      "alternativeSignatures": [
+        "61ddaa4f56c77b773ca21ab972a59082519881dacc5cc4132fbae9cf95dca00f"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.Mail.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "fb0fa9429a4094038bf523ca42801519b4b2bea3638768f9753523b858547164": {
+      "signature": "fb0fa9429a4094038bf523ca42801519b4b2bea3638768f9753523b858547164",
+      "alternativeSignatures": [
+        "f2be0fab1d80c617eedbbc5bc6875e1b937ca181425d7585642860188cbbe119"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.NameResolution.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "c4857b3601062175d573d28666c3a307240535fa65b709a3dc18a4ac65953d76": {
+      "signature": "c4857b3601062175d573d28666c3a307240535fa65b709a3dc18a4ac65953d76",
+      "alternativeSignatures": [
+        "321bd2787a1d3a8fc101cfa558c6d139adfe4349148be05e8f60fc88377e8189"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.NetworkInformation.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "903a94b29529b9a2cdd2e610ccfa637b4a744d0a3a45d1fc0a881b555e0cc407": {
+      "signature": "903a94b29529b9a2cdd2e610ccfa637b4a744d0a3a45d1fc0a881b555e0cc407",
+      "alternativeSignatures": [
+        "82260a9217c5a454811d65a1521dcb51ef120c6010e547ec7658cba2a04f8a3d"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.Ping.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "57ef2c327f3be79f0123e908d25be338289b60fda4e26767b1eb0ef2b3c92f11": {
+      "signature": "57ef2c327f3be79f0123e908d25be338289b60fda4e26767b1eb0ef2b3c92f11",
+      "alternativeSignatures": [
+        "c751affb01fa1534f90ac4a59eccee14ff87a14f9902f4b918f343cd253526b4"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.Primitives.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "b4d9ec9f6c0a6c436ab161e78df38c214cf043c6118718ddb82240e2cc1ce9af": {
+      "signature": "b4d9ec9f6c0a6c436ab161e78df38c214cf043c6118718ddb82240e2cc1ce9af",
+      "alternativeSignatures": [
+        "09ee86049c7664218c728139e609dcb4e1466ef990cafb0cb38553dd603c70d4"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.Quic.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "828d8e63af1eaf2c87c9e814ea471de2c7cc621270a3624863e07208508af2b6": {
+      "signature": "828d8e63af1eaf2c87c9e814ea471de2c7cc621270a3624863e07208508af2b6",
+      "alternativeSignatures": [
+        "0e9691fe4d0266c08d38ba2eba9bbacffcdd546d4d9c96e8fe2d48902e2f449c"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.Requests.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "00171f033df705578d21ab09850864dbfa2bdab49f6d7c711b20c9cf1fbaac38": {
+      "signature": "00171f033df705578d21ab09850864dbfa2bdab49f6d7c711b20c9cf1fbaac38",
+      "alternativeSignatures": [
+        "df969be0df3011fc2322c77471e09c9f0bdf0d0083bac5ca8b61a40e91fd76a3"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.Security.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "4161b4864cbe301aced5775ebfc6984282538b82115f1f4e57941e99d74442d2": {
+      "signature": "4161b4864cbe301aced5775ebfc6984282538b82115f1f4e57941e99d74442d2",
+      "alternativeSignatures": [
+        "c69fe1c18ea3ccef7ae994f43222c6380567966a67423e4e1ef203c2b89e8a2e"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.ServicePoint.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "6702d0c18d734ce1ccc618da3dc28509bd431e0dff1a26af01faabbc12987c63": {
+      "signature": "6702d0c18d734ce1ccc618da3dc28509bd431e0dff1a26af01faabbc12987c63",
+      "alternativeSignatures": [
+        "5e6b6b8aa1d7d6facfd981e0c92136b87489ff5c6eec8bc19e82b7368fa9e44c"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.Sockets.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "28370a1ac50b17f364572ab0befd9e2eff863be0e0109f7d695e793ff4692c47": {
+      "signature": "28370a1ac50b17f364572ab0befd9e2eff863be0e0109f7d695e793ff4692c47",
+      "alternativeSignatures": [
+        "a23f9e322acfc847895d5fa85aec4a028786f45f3be745c0ae09d116ba90b98e"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.WebClient.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "58dd42bfe9253572ec8061ee11345bf69b510b636173650301db90fa013d6f9a": {
+      "signature": "58dd42bfe9253572ec8061ee11345bf69b510b636173650301db90fa013d6f9a",
+      "alternativeSignatures": [
+        "f967a3c2ac24fac5cb977fcf8bb93756c44b4ca490454957e22da1d3f41d01c7"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.WebHeaderCollection.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "2e341b1a05c49db76f27f6c48b33de7b65d8c6306358950002658a93148d6005": {
+      "signature": "2e341b1a05c49db76f27f6c48b33de7b65d8c6306358950002658a93148d6005",
+      "alternativeSignatures": [
+        "eed17871076dc6a7e8d7d0fd2cb379d2f09bf16ea7f3301ed3ce58e1c4b51b1f"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.WebProxy.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "19cba7f010dc1fd224be67af15d0a8fbea4b565074f1953e1e206e7ba317760f": {
+      "signature": "19cba7f010dc1fd224be67af15d0a8fbea4b565074f1953e1e206e7ba317760f",
+      "alternativeSignatures": [
+        "f1229111ddd635852974070dcf01324ec2fc2b9dab787956da61649e9bdd9fd4"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.WebSockets.Client.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "a47372285102ac68976493096b913a856d988f7f0141a9c6f0cecbf3eca36bf3": {
+      "signature": "a47372285102ac68976493096b913a856d988f7f0141a9c6f0cecbf3eca36bf3",
+      "alternativeSignatures": [
+        "27fb9cd3691f7cc088a63ad054b02d9b67935d67cdc3882a427e9e5c3ce8720d"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Net.WebSockets.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "056dd507696a79142ba0f914e1e134686eca90c5556e6fe92dc54aae0e6fb79e": {
+      "signature": "056dd507696a79142ba0f914e1e134686eca90c5556e6fe92dc54aae0e6fb79e",
+      "alternativeSignatures": [
+        "b53cf3468d60cd26503ecd2b395b8068a54cdb212534cc25e2478fbe4ba267e3"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.ObjectModel.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "8ca17bdf4ae6ad3227c5fa955288d1a10af9eae42391aca8f07e5a5a998cdaf5": {
+      "signature": "8ca17bdf4ae6ad3227c5fa955288d1a10af9eae42391aca8f07e5a5a998cdaf5",
+      "alternativeSignatures": [
+        "28416b47ed1f53aa07915dbd4411bc7f4cd8a9667f15b34571b4c382f563570d"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Private.CoreLib.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "f67c908309ce2cbb828e6a2e55f3c04fd83b8f82dab879752b5da3d222bc9547": {
+      "signature": "f67c908309ce2cbb828e6a2e55f3c04fd83b8f82dab879752b5da3d222bc9547",
+      "alternativeSignatures": [
+        "7b2289fbad1e9f93b6e91c0c14610fc20ac859e9b69c89bc38d608e3212f5f92"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Private.DataContractSerialization.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "d1a4bf9d8c7bdd8c5ad40898df4213d9cf2dbf75c772873a31a55deef6798df6": {
+      "signature": "d1a4bf9d8c7bdd8c5ad40898df4213d9cf2dbf75c772873a31a55deef6798df6",
+      "alternativeSignatures": [
+        "0f066561aa08cb4010b4f9b364729d53f41b87fd14708c85890c5c397104a9b2"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Private.Uri.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "29e1855481a0b8cfddfc0132d93f4cfd5f0e0d64833506488c5b9ee735f0993a": {
+      "signature": "29e1855481a0b8cfddfc0132d93f4cfd5f0e0d64833506488c5b9ee735f0993a",
+      "alternativeSignatures": [
+        "18d5d79f671eedaa05cb2defd4f21d4f68e39e2f3bf3c6aed335ab75b28fb9ad"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Private.Xml.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "19b9807d76f4059c1bf675c9824cd7cda89230afd963ac06008b3da7e226959a": {
+      "signature": "19b9807d76f4059c1bf675c9824cd7cda89230afd963ac06008b3da7e226959a",
+      "alternativeSignatures": [
+        "f56bd59637ca9b60898f024a2092919e038eb3eb01986c58a983c6fee0458266"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Private.Xml.Linq.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "2b3b88c75fba134a420a61e0fb90f485a4700ad22ad80f6d2932851ca0112749": {
+      "signature": "2b3b88c75fba134a420a61e0fb90f485a4700ad22ad80f6d2932851ca0112749",
+      "alternativeSignatures": [
+        "93f8ae1a5b951cb35e5132d126ce0e68f1824b07f7adbd10cc9e17ea6297a835"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Reflection.DispatchProxy.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "bc771e8960a36ec2c72d027768d015f80dbd36c93d7608c1da8ffd5171381b8e": {
+      "signature": "bc771e8960a36ec2c72d027768d015f80dbd36c93d7608c1da8ffd5171381b8e",
+      "alternativeSignatures": [
+        "873fd0f17d6aa4f1df8694b1764452a292d5a42c2aa4845bae048ef8857dade7"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Reflection.Emit.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "7dd47d68df52c39c2f689f1b431a4d37a603918527697b923e4b384800557015": {
+      "signature": "7dd47d68df52c39c2f689f1b431a4d37a603918527697b923e4b384800557015",
+      "alternativeSignatures": [
+        "e47f4894a221621ac09bf86e33d05af138643df92a5ad9ff3b99d6e1aefc4b2c"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Reflection.Metadata.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "16eb25916663e79757272b4a557d9661f9cdf3af626c6b9a7edcc0438af18b0b": {
+      "signature": "16eb25916663e79757272b4a557d9661f9cdf3af626c6b9a7edcc0438af18b0b",
+      "alternativeSignatures": [
+        "83ffdd8bdb9d71fc8d0baeee6f33eb8c38425a9db91a71f4307042d40c6a5ee1"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Reflection.TypeExtensions.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "84ae45446777ad835a700ee8c398e50698b58d6bd4bc2c1367145230acc9b7ac": {
+      "signature": "84ae45446777ad835a700ee8c398e50698b58d6bd4bc2c1367145230acc9b7ac",
+      "alternativeSignatures": [
+        "5be520c71659f62a96f5f975b69310a073b1560834d8a457757b374bec3f61d8"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Resources.Writer.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "3abe43efe5d9918f2dd3001dc8d7091de54285ebfb600d852f6f08b52c499596": {
+      "signature": "3abe43efe5d9918f2dd3001dc8d7091de54285ebfb600d852f6f08b52c499596",
+      "alternativeSignatures": [
+        "a7a481457c1375b7b90139423230a5d4ebf08f66a3c065f1f8634c16577ee5ca"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Runtime.CompilerServices.VisualC.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "bedecae645e7f218ba665739d7ff40b153a89d3f1da6bca1770f804c75ae4eb2": {
+      "signature": "bedecae645e7f218ba665739d7ff40b153a89d3f1da6bca1770f804c75ae4eb2",
+      "alternativeSignatures": [
+        "33737534e6dc0650bff83f77b60478d1cb4dcde80657008e0cbdf6035f4082eb"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Runtime.InteropServices.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "0d09e9ef10e0374b98be7646c51b7345939f264185b65e17d0b21edee8a61c1b": {
+      "signature": "0d09e9ef10e0374b98be7646c51b7345939f264185b65e17d0b21edee8a61c1b",
+      "alternativeSignatures": [
+        "c36861af442c33ddb24b174bb25deaf17658c6488b560fb66a9e18fcf053136f"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Runtime.InteropServices.JavaScript.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "992791d7ce3272f0194a09cc16c20d9205d903f0104995be2edab3aeff1c4ba3": {
+      "signature": "992791d7ce3272f0194a09cc16c20d9205d903f0104995be2edab3aeff1c4ba3",
+      "alternativeSignatures": [
+        "6c7ecc6ed70e479487f7f20f769361e0e32f4408233f844f3894e5ae538e0c55"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Runtime.Numerics.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "64af820b69cf3476496156e167874a82fb04ab576ba64756427a5a721978f0e5": {
+      "signature": "64af820b69cf3476496156e167874a82fb04ab576ba64756427a5a721978f0e5",
+      "alternativeSignatures": [
+        "869967d7b181e40dbd77bfc050c5d3fdbcb51d7c53af840fe9b622cb3bb81687"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Runtime.Serialization.Formatters.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "834aa7ed88113356f1811f7fcd8575559420d825cf9bb8b3f084695ccfb6ef52": {
+      "signature": "834aa7ed88113356f1811f7fcd8575559420d825cf9bb8b3f084695ccfb6ef52",
+      "alternativeSignatures": [
+        "95aad6c446af0d8046b805f471a673a4bfc5712c4ba0fbc8b629b5210deb3abe"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Runtime.Serialization.Primitives.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "e4afff427cf74edac20a9100b4950d6b597fe32eb8f1d104b2533fb0b654bee2": {
+      "signature": "e4afff427cf74edac20a9100b4950d6b597fe32eb8f1d104b2533fb0b654bee2",
+      "alternativeSignatures": [
+        "e93e85c25966e3878523d4f0a5ca6c46e758546731ab4aa7c313d67569f7cc40"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Security.AccessControl.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "d0ca69de46c582b5734651303a9d775898bc808099bb4e6ba7c877f02c910fcf": {
+      "signature": "d0ca69de46c582b5734651303a9d775898bc808099bb4e6ba7c877f02c910fcf",
+      "alternativeSignatures": [
+        "651cfe36955a38a5dd9ac8a90d89f7efbb02b561a0f921133b5c4154cdbf10f4"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Security.Claims.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "ab8a2c8644ff309797fd2f0871746240cbafd0631ae6f723f84a2d054baee519": {
+      "signature": "ab8a2c8644ff309797fd2f0871746240cbafd0631ae6f723f84a2d054baee519",
+      "alternativeSignatures": [
+        "f7e1cfd2906092a786afa755028edc3b0f2e9f949bd34243dc63378eecaa7275"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Security.Cryptography.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "4f7da0913cd09f66e5402f186b1fd487234e947593938ae98faad409ef5e92ce": {
+      "signature": "4f7da0913cd09f66e5402f186b1fd487234e947593938ae98faad409ef5e92ce",
+      "alternativeSignatures": [
+        "ca716a0e2a07b785cb519684c4451c56149fe5d5b26ef98b78ffa04f24ccaa07"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Security.Principal.Windows.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "1942cf619d9dea15ffc2523f4bf149bb6f4694894588736b13e4d3fe5fb46ab2": {
+      "signature": "1942cf619d9dea15ffc2523f4bf149bb6f4694894588736b13e4d3fe5fb46ab2",
+      "alternativeSignatures": [
+        "a4c7f53f5daad5c18d3b13a3532d69334a824dad742ecb5c754a5f737004b7e2"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Text.Encoding.CodePages.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "1a73d208774991bc5b5c865e6a2799910c67b52c108e3c4b6655a4008c7f3051": {
+      "signature": "1a73d208774991bc5b5c865e6a2799910c67b52c108e3c4b6655a4008c7f3051",
+      "alternativeSignatures": [
+        "407436073ebd250d709bb48a0d9b8976c71616a21d65250c9e47362498381f5a"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Text.Encodings.Web.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "0096cb1e80517d78890926eb74fe3b07f009da5718b2f35616c759dd74034654": {
+      "signature": "0096cb1e80517d78890926eb74fe3b07f009da5718b2f35616c759dd74034654",
+      "alternativeSignatures": [
+        "9f584f7c50a4d65ecfa7af8bc2a0890c944e1cc058bde15736d0331224653891"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Text.Json.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "e1107fc67a9e29952bed47c50a390c6821ff8f47feb2a6f4dd5169b5f16cd44c": {
+      "signature": "e1107fc67a9e29952bed47c50a390c6821ff8f47feb2a6f4dd5169b5f16cd44c",
+      "alternativeSignatures": [
+        "e258736e826ad83453839cc7dd6acf4ee5b8b87bc5cc6a01c59dbecda1f526ae"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Text.RegularExpressions.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "ac472ed518f235e5bf30d1c01686a32c8ebb81d653fc0100e0264749da8a9fd7": {
+      "signature": "ac472ed518f235e5bf30d1c01686a32c8ebb81d653fc0100e0264749da8a9fd7",
+      "alternativeSignatures": [
+        "ddd9282e106fd2548ca4caff002d4fc549c67d936a5877548d32dd39ab93ba72"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Threading.Channels.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "0767f8af82793f8ccc0c40bf054ae432ee18e93f44d02775f353ff7f8e867ed3": {
+      "signature": "0767f8af82793f8ccc0c40bf054ae432ee18e93f44d02775f353ff7f8e867ed3",
+      "alternativeSignatures": [
+        "0410172c0e0e02a687aa16f062df346d5a8ea51a966c54225a8adda1906657d7"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Threading.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "db71f488c9db5e7c1c2e6b8b1080ba9c0f8919abf5b71dcd4bbae66e1a8cfa3d": {
+      "signature": "db71f488c9db5e7c1c2e6b8b1080ba9c0f8919abf5b71dcd4bbae66e1a8cfa3d",
+      "alternativeSignatures": [
+        "daf52db6923b59afaeb845e2bca67a8b4d98844f49f0e42dcbe87263bb20b431"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Threading.Tasks.Dataflow.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "18bc66e8cac43ed6fe3521f1c4b61fad1c3071f239af799959f02adf44d8669f": {
+      "signature": "18bc66e8cac43ed6fe3521f1c4b61fad1c3071f239af799959f02adf44d8669f",
+      "alternativeSignatures": [
+        "e7958c1b84b4151441b563fe598eadc8c7c4eed7fdd281283bd1eaa3dd9441fa"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Threading.Tasks.Parallel.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "ca3fb289d3812b72732381ca97850ed8eed21e018fd8df38acf8740df5904746": {
+      "signature": "ca3fb289d3812b72732381ca97850ed8eed21e018fd8df38acf8740df5904746",
+      "alternativeSignatures": [
+        "26538e9485553921f4cf1371c1f2e3d5e68222db2cebaf023cf50fcd7d6a1608"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Transactions.Local.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "658cfcd59e47ee36bf66907844c1c2e63aebfa5fa7301dc155de9d341c09804b": {
+      "signature": "658cfcd59e47ee36bf66907844c1c2e63aebfa5fa7301dc155de9d341c09804b",
+      "alternativeSignatures": [
+        "8593b42f4bc22f5dc9cc213c45c36d44012873c52436009c3d6096872cf91875"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Web.HttpUtility.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    },
+    "37fa60e5887872fc27353463790beedd5ec74f6d5ec5ee7eefc081407550417e": {
+      "signature": "37fa60e5887872fc27353463790beedd5ec74f6d5ec5ee7eefc081407550417e",
+      "alternativeSignatures": [
+        "00cbd804e017d47234ee377e91b83ec36033c697011c7b353aa28db3fab7f90e"
+      ],
+      "target": "Microsoft.Spark.Worker/net8.0/osx-x64/System.Xml.XPath.XDocument.dll",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2021",
+      "createdDate": "2025-05-07 05:03:01Z"
+    }
+  }
+}
