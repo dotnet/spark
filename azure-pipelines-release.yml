@@ -216,7 +216,7 @@ extends:
                 Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
                 Remove-Item -Path $zipPath -Force
                 
-                # Copy all Microsoft.Spark.*.dll files to a temp location for signing while preserving the lib folder structure
+                # Copy all Microsoft.Spark*.dll files to a temp location for signing while preserving the lib folder structure
                 Get-ChildItem -Path $extractPath\lib -Directory | ForEach-Object {
                   $frameworkDir = $_.Name
                   Get-ChildItem -Path $_.FullName -Filter "Microsoft.Spark*.dll" | ForEach-Object {
@@ -228,7 +228,7 @@ extends:
               }
 
         - task: EsrpCodeSigning@5
-          displayName: 'Sign Microsoft.Spark.*.dll files'
+          displayName: 'Sign Microsoft.Spark*.dll files'
           inputs:
             ConnectedServiceName: $(ConnectedServiceName)
             AppRegistrationClientId: $(AppRegistrationClientId)
@@ -238,7 +238,7 @@ extends:
             AuthAKVName: $(AuthAKVName)
             AuthSignCertName: $(AuthSignCertName)
             FolderPath: '$(ArtifactPath)\NuGetExtract\ToSign'
-            Pattern: '**\Microsoft.Spark.*.dll'
+            Pattern: '**\Microsoft.Spark*.dll'
             UseMinimatch: true
             OpusName: 'Microsoft'
             OpusInfo: 'http://www.microsoft.com'
@@ -279,7 +279,7 @@ extends:
                 $packageDir = $package.FullName
                 $packageName = $package.Name
                 
-                # Replace Microsoft.Spark.*.dll files with their signed versions for each framework
+                # Replace Microsoft.Spark*.dll files with their signed versions for each framework
                 $frameworks = Get-ChildItem -Path (Join-Path $packageDir "lib") -Directory
                 foreach ($framework in $frameworks) {
                   $dllFiles = Get-ChildItem -Path $framework.FullName -Filter "Microsoft.Spark*.dll"
