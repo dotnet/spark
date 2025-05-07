@@ -152,7 +152,7 @@ extends:
               ]
           
         - task: PowerShell@2
-          displayName: "Pack Spark Worker Zip"
+          displayName: "Pack Spark Worker Archives"
           inputs:
             targetType: "inline"
             script: |
@@ -163,6 +163,12 @@ extends:
                   Get-ChildItem -Path "$binaryFolder\$OSType" -Recurse | Move-Item -Destination "$binaryFolder\$OSType-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion)"
                   $archiveFile_zip = "$binaryFolder\$OSType-archive\Microsoft.Spark.Worker.net8.0.$OSType-$(DotnetPackageVersion).zip"
                   Compress-Archive -Path $binaryFolder\$OSType-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile_zip
+                 
+                  # Create tar.gz for linux-x64
+                  if ($OSType -eq "linux-x64") {
+                     $archiveFile_targz = "$binaryFolder\$OSType-archive\Microsoft.Spark.Worker.net8.0.$OSType-$(DotnetPackageVersion).tar.gz"
+                     tar -czf $archiveFile_targz -C "$binaryFolder\$OSType-archive" Microsoft.Spark.Worker-$(DotnetPackageVersion)
+                  }
               }
               $binaryFolder = "$(ArtifactPath)\Microsoft.Spark.Worker\net48"
               New-Item -Path "$binaryFolder\win-x64-archive" -ItemType Directory -Force
@@ -171,10 +177,12 @@ extends:
               Compress-Archive -Path $binaryFolder\win-x64-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile_zip
 
         - task: CopyFiles@2
-          displayName: '[COPY] Spark.Net .net8.0 worker archive -> $(ArtifactPath)/Output'
+          displayName: '[COPY] Spark.Net .net8.0 worker archives -> $(ArtifactPath)/Output'
           inputs:
             SourceFolder: '$(ArtifactPath)\Microsoft.Spark.Worker\net8.0'
-            Contents: '*\*.zip'
+            Contents: |
+              *\*.zip
+              *\*.tar.gz
             TargetFolder: '$(ArtifactPath)\Output'
         
         - task: CopyFiles@2

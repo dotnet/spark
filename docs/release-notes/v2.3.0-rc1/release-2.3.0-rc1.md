@@ -2,14 +2,14 @@
 
 ### New Features/Improvements
 
-* Spark 3.3 support ([#1185](https://github.com/dotnet/spark/pull/1185))
+* Spark 3.3 support ([#1185](https://github.com/dotnet/spark/pull/1194))
 * Spark 3.4 support ([#1205](https://github.com/dotnet/spark/pull/1205))
 * Spark 3.5 support ([#1178](https://github.com/dotnet/spark/pull/1178))
 * Migrated to MessagePack instead of BinaryFormatter ([#1202](https://github.com/dotnet/spark/pull/1202))
 
 ### Bug Fixes
 
-* None
+* Remove scala-tools.org from pom.xml due to shutdown of scala-tools.org repository ([#1201](https://github.com/dotnet/spark/pull/1201))
 
 ### Infrastructure / Documentation / Etc.
 
