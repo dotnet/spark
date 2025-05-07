@@ -13,7 +13,6 @@ variables:
   MSBUILDSINGLELOADCONTEXT: 1
   ArtifactPath: '$(Build.ArtifactStagingDirectory)/Binaries'
 
-  backwardCompatibleRelease: '2.0.0'
   forwardCompatibleRelease: '2.0.0'
 
   # Azure DevOps variables are transformed into environment variables, with these variables we
