@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Net;
 
 namespace Microsoft.Spark.Services
 {
@@ -17,14 +18,19 @@ namespace Microsoft.Spark.Services
         TimeSpan JvmThreadGCInterval { get; }
 
         /// <summary>
-        /// The port number used for communicating with the .NET backend process.
-        /// </summary>
-        int GetBackendPortNumber();
-
-        /// <summary>
         /// Returns the max number of threads for socket communication between JVM and CLR.
         /// </summary>
         int GetNumBackendThreads();
+
+        /// <summary>
+        /// The IP Endpoint used for communicating with the .NET backend process.
+        /// </summary>
+        IPEndPoint GetBackendIPEndpoint();
+
+        /// <summary>
+        /// The IP address used for communicating with CallBack server.
+        /// </summary>
+        IPAddress GetCallbackServerIPAddress();
 
         /// <summary>
         /// The full path to the .NET worker executable.
