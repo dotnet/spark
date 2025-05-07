@@ -220,7 +220,8 @@ extends:
                 Get-ChildItem -Path $extractPath\lib -Directory | ForEach-Object {
                   $frameworkDir = $_.Name
                   Get-ChildItem -Path $_.FullName -Filter "Microsoft.Spark*.dll" | ForEach-Object {
-                    $targetPath = Join-Path $workingDir "ToSign\$frameworkDir"
+                    $packageName = (Split-Path $extractPath -Leaf)
+                    $targetPath = Join-Path $workingDir "ToSign\$packageName\$frameworkDir"
                     New-Item -Path $targetPath -ItemType Directory -Force
                     Copy-Item $_.FullName -Destination $targetPath
                   }
@@ -284,7 +285,7 @@ extends:
                 foreach ($framework in $frameworks) {
                   $dllFiles = Get-ChildItem -Path $framework.FullName -Filter "Microsoft.Spark*.dll"
                   foreach ($dll in $dllFiles) {
-                    $signedDllPath = Join-Path $workingDir "ToSign\$($framework.Name)\$($dll.Name)"
+                    $signedDllPath = Join-Path $workingDir "ToSign\$packageName\$($framework.Name)\$($dll.Name)"
                     if (Test-Path $signedDllPath) {
                       Copy-Item -Path $signedDllPath -Destination $dll.FullName -Force
                     }
