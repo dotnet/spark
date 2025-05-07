@@ -180,7 +180,17 @@ namespace Microsoft.Spark.E2ETest
             string jarPrefix = GetJarPrefix();
             string scalaDir = Path.Combine(curDir, "..", "..", "..", "..", "..", "src", "scala");
             string jarDir = Path.Combine(scalaDir, jarPrefix, "target");
-            string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+            var assembly = Assembly.GetExecutingAssembly();
+            string assemblyVersion = assembly.GetName().Version.ToString(3);
+
+            // Check for any version suffix in the informational version, like "-rc1"
+            var infoVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            if (infoVersion?.InformationalVersion is string fullVersion &&
+                fullVersion.StartsWith(assemblyVersion) &&
+                fullVersion.Length > assemblyVersion.Length)
+            {
+                assemblyVersion = fullVersion;
+            }
             string scalaVersion = (SparkSettings.Version.Major == 3) ? "2.12" : "2.11";
             string jar = Path.Combine(jarDir, $"{jarPrefix}_{scalaVersion}-{assemblyVersion}.jar");
 
