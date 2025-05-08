@@ -116,6 +116,8 @@ extends:
     sdl:
       spotBugs:
         enabled: false
+      suppression:
+        suppressionFile: $(Build.SourcesDirectory)\.config\guardian\.gdnsuppress
       PSScriptAnalyzer:
         enabled: false
       credscan:
