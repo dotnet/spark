@@ -178,26 +178,42 @@ namespace Microsoft.Spark.E2ETest
             string classArg = "--class org.apache.spark.deploy.dotnet.DotnetRunner";
             string curDir = AppDomain.CurrentDomain.BaseDirectory;
             string jarPrefix = GetJarPrefix();
+            Console.WriteLine($"[DEBUG] Spark Version: {SparkSettings.Version}");
             string scalaDir = Path.Combine(curDir, "..", "..", "..", "..", "..", "src", "scala");
             string jarDir = Path.Combine(scalaDir, jarPrefix, "target");
             var assembly = Assembly.GetExecutingAssembly();
             string assemblyVersion = assembly.GetName().Version.ToString(3);
+            Console.WriteLine($"[DEBUG] Assembly Version: {assemblyVersion}");
 
             // Check for any version suffix in the informational version, like "-rc1"
             var infoVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            Console.WriteLine($"[DEBUG] Informational Version Attribute: {infoVersion?.InformationalVersion ?? "null"}");
+
             if (infoVersion?.InformationalVersion is string fullVersion &&
                 fullVersion.StartsWith(assemblyVersion) &&
                 fullVersion.Length > assemblyVersion.Length)
             {
                 assemblyVersion = fullVersion;
+                Console.WriteLine($"[DEBUG] Using full version: {assemblyVersion}");
             }
             string scalaVersion = (SparkSettings.Version.Major == 3) ? "2.12" : "2.11";
             string jar = Path.Combine(jarDir, $"{jarPrefix}_{scalaVersion}-{assemblyVersion}.jar");
+            Console.WriteLine($"[DEBUG] Looking for jar at: {jar}");
+            Console.WriteLine($"[DEBUG] Jar directory exists: {Directory.Exists(jarDir)}");
+            if (Directory.Exists(jarDir))
+            {
+                Console.WriteLine($"[DEBUG] Files in jar directory:");
+                foreach (var file in Directory.GetFiles(jarDir))
+                {
+                    Console.WriteLine($"[DEBUG]   {Path.GetFileName(file)}");
+                }
+            }
 
             if (!File.Exists(jar))
             {
                 throw new FileNotFoundException($"{jar} does not exist.");
             }
+            Console.WriteLine($"[DEBUG] Found jar file: {jar}");
 
             string warehouseUri = new Uri(
                 Path.Combine(_tempDirectory.Path, "spark-warehouse")).AbsoluteUri;

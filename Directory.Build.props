@@ -1,0 +1,8 @@
+<Project>
+  <Import Project="eng/Versions.props" />
+  
+  <PropertyGroup>
+    <!-- Ensure VersionSuffix is included in the InformationalVersion -->
+    <InformationalVersion>$(Version)</InformationalVersion>
+  </PropertyGroup>
+</Project>
