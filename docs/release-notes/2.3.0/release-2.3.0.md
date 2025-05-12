@@ -8,7 +8,6 @@
 * Spark 3.3 support ([#1194](https://github.com/dotnet/spark/pull/1194))
 * Spark 3.4 support ([#1205](https://github.com/dotnet/spark/pull/1205))
 * Spark 3.5 support ([#1178](https://github.com/dotnet/spark/pull/1178))
-* Migrated to MessagePack instead of BinaryFormatter ([#1202](https://github.com/dotnet/spark/pull/1202))
 
 ### Bug Fixes
 
@@ -24,6 +23,7 @@
 * Updated Dotnet and Arcade ([#1112](https://github.com/dotnet/spark/pull/1112), [#1197](https://github.com/dotnet/spark/pull/1197))
   > Updated .netcoreapp3.1 -> .net8  
   > Updated .net461 -> .net48
+* Migrated to MessagePack instead of BinaryFormatter ([#1202](https://github.com/dotnet/spark/pull/1202))
 
 ### Known Issues
 
