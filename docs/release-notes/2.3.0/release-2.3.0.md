@@ -1,5 +1,12 @@
 # .NET for Apache Spark 2.3.0 Release Notes
 
+### Breaking Changes
+
+* Updated Dotnet and Arcade ([#1112](https://github.com/dotnet/spark/pull/1112), [#1197](https://github.com/dotnet/spark/pull/1197))
+  > Updated .netcoreapp3.1 -> .net8  
+  > Updated .net461 -> .net48
+* Migrated to MessagePack instead of BinaryFormatter ([#1202](https://github.com/dotnet/spark/pull/1202))
+
 ### New Features/Improvements
 
 * Capture dotnet application error stack trace ([#1047](https://github.com/dotnet/spark/pull/1047))
@@ -17,13 +24,6 @@
 ### Infrastructure / Documentation / Etc.
 
 * Components overview and pipeline sequence ([#1189](https://github.com/dotnet/spark/pull/1189))
-
-### Breaking Changes
-
-* Updated Dotnet and Arcade ([#1112](https://github.com/dotnet/spark/pull/1112), [#1197](https://github.com/dotnet/spark/pull/1197))
-  > Updated .netcoreapp3.1 -> .net8  
-  > Updated .net461 -> .net48
-* Migrated to MessagePack instead of BinaryFormatter ([#1202](https://github.com/dotnet/spark/pull/1202))
 
 ### Known Issues
 
