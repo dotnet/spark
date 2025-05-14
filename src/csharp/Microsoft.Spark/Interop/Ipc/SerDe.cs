@@ -323,6 +323,13 @@ namespace Microsoft.Spark.Interop.Ipc
             Write(s, BitConverter.DoubleToInt64Bits(value));
 
         /// <summary>
+        /// Writes a decimal to a stream as a string.
+        /// </summary>
+        /// <param name="s">The stream to write</param>
+        /// <param name="value">The decimal to write</param>
+        public static void Write(Stream s, decimal value) => Write(s, value.ToString());
+        
+        /// <summary>
         /// Writes a string to a stream.
         /// </summary>
         /// <param name="s">The stream to write</param>
