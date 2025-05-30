@@ -16,7 +16,7 @@
     <WarningLevel>4</WarningLevel>
     <Product>.NET for Apache Spark</Product>
     <Copyright>$(CopyrightNetFoundation)</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseExpression>APACHE-2.0</PackageLicenseExpression>
     <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/dotnet/spark</PackageProjectUrl>
 
