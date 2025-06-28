@@ -41,12 +41,16 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             {
                 Environment.SetEnvironmentVariable(Constants.RunningREPLEnvVar, "true");
 
-                DirectoryInfo tempDir = CreateTempDirectory();
+                var tempDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
+                tempDir.Create();
 
+                kernel.RegisterForDisposal(() =>
+                {
                 if (!EnvironmentUtils.GetEnvironmentVariableAsBool(PreserveTempDirEnvVar))
                 {
-                    compositeKernel.RegisterForDisposal(new DisposableDirectory(tempDir));
+                        tempDir.Delete(true);
                 }
+                });
 
                 compositeKernel.AddMiddleware(async (command, context, next) =>
                 {
