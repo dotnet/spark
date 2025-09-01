@@ -63,7 +63,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
                     if ((context.HandlingKernel is CSharpKernel kernel) &&
                         (command is SubmitCode) &&
-                            TryGetSparkSession(out SparkSession sparkSession) &&
+                        TryGetSparkSession(out SparkSession sparkSession) &&
                         TryEmitAssembly(kernel, tempDir.FullName, out string assemblyPath))
                     {
                         sparkSession.SparkContext.AddFile(assemblyPath);
@@ -128,7 +128,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
             try
             {
                 sparkSession = SparkSession.GetActiveSession() ?? SparkSession.GetDefaultSession();
-                return true;
+                return sparkSession != null;
             }
             catch (Exception ex) when (ex.InnerException is JvmException)
             {

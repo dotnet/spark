@@ -60,6 +60,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
             string actualMetadataPath = actualFiles[1];
             string actualMetadataFilename = Path.GetFileName(actualMetadataPath);
 
+            Assert.Equal(2, actualFiles.Length);
             Assert.Equal(nugetFile.FullName, actualNugetPath);
             Assert.StartsWith(tempDir.Path, actualMetadataPath);
             Assert.Matches("dependencyProviderMetadata_[a-f\\d]{8}00000000001", actualMetadataFilename);
