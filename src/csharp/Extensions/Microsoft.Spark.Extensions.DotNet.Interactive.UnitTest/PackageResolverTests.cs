@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
             };
             var probingPaths = new string[] { packageRootPath };
 
-            var mockSupportNugetWrapper = new Mock<SupportNugetWrapper>();
+            var mockSupportNugetWrapper = new Mock<ReferencedPackagesExtractor>(null);
             mockSupportNugetWrapper
                 .SetupGet(m => m.ResolvedPackageReferences)
                 .Returns(new ResolvedPackageReference[]
@@ -54,20 +55,19 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
                 });
 
             var packageResolver = new PackageResolver(mockSupportNugetWrapper.Object);
-            IEnumerable<string> actualFiles = packageResolver.GetFiles(tempDir.Path);
+            string[] actualFiles = packageResolver.GetFiles(tempDir.Path).ToArray();
+            string actualNugetPath = actualFiles[0];
+            string actualMetadataPath = actualFiles[1];
+            string actualMetadataFilename = Path.GetFileName(actualMetadataPath);
 
-            string metadataFilePath =
-                Path.Combine(tempDir.Path, DependencyProviderUtils.CreateFileName(1));
-            var expectedFiles = new string[]
-            {
-                nugetFile.FullName,
-                metadataFilePath
-            };
-            Assert.True(expectedFiles.SequenceEqual(actualFiles));
-            Assert.True(File.Exists(metadataFilePath));
+            Assert.Equal(2, actualFiles.Length);
+            Assert.Equal(nugetFile.FullName, actualNugetPath);
+            Assert.StartsWith(tempDir.Path, actualMetadataPath);
+            Assert.Matches("dependencyProviderMetadata_[a-f\\d]{8}00000000001", actualMetadataFilename);
+            Assert.True(File.Exists(actualMetadataPath));
 
             DependencyProviderUtils.Metadata actualMetadata =
-                DependencyProviderUtils.Metadata.Deserialize(metadataFilePath);
+                DependencyProviderUtils.Metadata.Deserialize(actualMetadataPath);
             var expectedMetadata = new DependencyProviderUtils.Metadata
             {
                 AssemblyProbingPaths = new string[]
@@ -89,7 +89,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
                     }
                 }
             };
-            Assert.True(expectedMetadata.Equals(actualMetadata));
+            Assert.Equal(expectedMetadata, actualMetadata);
         }
     }
 }
