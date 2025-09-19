@@ -18,6 +18,7 @@ stages:
     jobs:
     - ${{ each option in test.jobOptions }}:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
+        timeoutInMinutes: 120
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
             name: Cosmos2MT-AzureDevOps-AgentPool
