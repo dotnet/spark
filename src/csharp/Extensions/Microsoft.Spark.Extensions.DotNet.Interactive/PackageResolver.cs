@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -13,13 +14,14 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 {
     internal class PackageResolver
     {
-        private readonly SupportNugetWrapper _supportNugetWrapper;
+        private readonly ReferencedPackagesExtractor _referencedPackagesExtractor;
         private readonly ConcurrentDictionary<string, byte> _filesCopied;
         private long _metadataCounter;
+        private Guid _runId = Guid.NewGuid();
 
-        internal PackageResolver(SupportNugetWrapper supportNugetWrapper)
+        internal PackageResolver(ReferencedPackagesExtractor referencedPackagesExtractor)
         {
-            _supportNugetWrapper = supportNugetWrapper;
+            _referencedPackagesExtractor = referencedPackagesExtractor;
             _filesCopied = new ConcurrentDictionary<string, byte>();
             _metadataCounter = 0;
         }
@@ -92,6 +94,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                     Path.Combine(
                         writePath,
                         DependencyProviderUtils.CreateFileName(
+                            _runId,
                             Interlocked.Increment(ref _metadataCounter)));
                 new DependencyProviderUtils.Metadata
                 {
@@ -111,9 +114,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
         /// <returns>The delta of the list of packages.</returns>
         private IEnumerable<ResolvedNuGetPackage> GetNewPackages()
         {
-            IEnumerable<ResolvedPackageReference> packages =
-                _supportNugetWrapper.ResolvedPackageReferences;
-            foreach (ResolvedPackageReference package in packages)
+            foreach (var package in _referencedPackagesExtractor.ResolvedPackageReferences)
             {
                 var packageRootDirectory = new DirectoryInfo(package.PackageRoot);
                 IEnumerable<FileInfo> files =

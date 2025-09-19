@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.IO;
 using System.IO.Compression;
 using Microsoft.Spark.UnitTest.TestUtils;
@@ -47,12 +48,12 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             using var unpackDir = new TemporaryDirectory();
             string metadataFilePath =
-                Path.Combine(nupkgDir.Path, DependencyProviderUtils.CreateFileName(1));
+                Path.Combine(nupkgDir.Path, DependencyProviderUtils.CreateFileName(Guid.NewGuid(), 1));
             metadata.Serialize(metadataFilePath);
 
             // Files located in nupkgDir
             // nuget: package.name.1.0.0.nupkg
-            // metadata file: dependencyProviderMetadata_00000000000000000001
+            // metadata file: dependencyProviderMetadata_f1a2b3c400000000001
             var dependencyProvider =
                 new DependencyProvider(metadataFilePath, nupkgDir.Path, unpackDir.Path);
             string expectedPackagePath =

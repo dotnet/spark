@@ -49,7 +49,7 @@ namespace Microsoft.Spark.Worker.Utils
         /// These files include:
         /// - "{packagename}.{version}.nupkg"
         ///   The nuget packages
-        /// - <see cref="DependencyProviderUtils.CreateFileName(long)"/>
+        /// - <see cref="DependencyProviderUtils.CreateFileName(Guid, long)"/>
         ///   Serialized <see cref="DependencyProviderUtils.Metadata"/> object.
         ///
         /// On the Worker, in order to resolve the nuget dependencies referenced by
