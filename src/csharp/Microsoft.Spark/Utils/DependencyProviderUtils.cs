@@ -14,16 +14,16 @@ namespace Microsoft.Spark.Utils
         internal static string[] GetMetadataFiles(string path) =>
             Directory.GetFiles(path, s_filePattern);
 
-        // Create the dependency provider metadata filename based on the number passed into the
-        // function.
+        // Create the dependency provider metadata filename based on the number and
+        // the first 8 characters of guid passed into the function.
         // 
         // number => filename
-        // 0      => dependencyProviderMetadata_0000000000000000000
-        // 1      => dependencyProviderMetadata_0000000000000000001
+        // 0      => dependencyProviderMetadata_f1a2b3c400000000000
+        // 1      => dependencyProviderMetadata_f1a2b3c400000000001
         // ...
-        // 20     => dependencyProviderMetadata_0000000000000000020
-        internal static string CreateFileName(long number) =>
-            s_filePattern.Replace("*", $"{number:D19}");
+        // 20     => dependencyProviderMetadata_f1a2b3c400000000020
+        internal static string CreateFileName(Guid runId, long number) =>
+            s_filePattern.Replace("*", $"{runId.ToString("N").Substring(0, 8)}{number:D11}");
 
         [Serializable]
         internal class NuGetMetadata
