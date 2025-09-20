@@ -1,3 +1,4 @@
+﻿using System;
 ﻿using System.IO;
 using System.Linq;
 using Microsoft.Spark.UnitTest.TestUtils;
@@ -130,19 +131,20 @@ namespace Microsoft.Spark.UnitTest
         [Fact]
         public void TestFileNames()
         {
+            Guid runId = Guid.NewGuid();
             using var tempDir = new TemporaryDirectory();
             foreach (long num in Enumerable.Range(0, 3).Select(x => System.Math.Pow(10, x)))
             {
                 string filePath =
-                    Path.Combine(tempDir.Path, DependencyProviderUtils.CreateFileName(num));
+                    Path.Combine(tempDir.Path, DependencyProviderUtils.CreateFileName(runId, num));
                 File.Create(filePath).Dispose();
             }
 
             var expectedFiles = new string[] 
             {
-                "dependencyProviderMetadata_0000000000000000001",
-                "dependencyProviderMetadata_0000000000000000010",
-                "dependencyProviderMetadata_0000000000000000100",
+                $"dependencyProviderMetadata_{runId.ToString("N").Substring(0, 8)}00000000001",
+                $"dependencyProviderMetadata_{runId.ToString("N").Substring(0, 8)}00000000010",
+                $"dependencyProviderMetadata_{runId.ToString("N").Substring(0, 8)}00000000100",
             };
             IOrderedEnumerable<string> actualFiles = DependencyProviderUtils
                 .GetMetadataFiles(tempDir.Path)
