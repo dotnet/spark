@@ -34,11 +34,11 @@
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)..\..\LICENSE"
              Pack="true"
-             PackagePath=""
+             PackagePath="/"
              Visible="false" />
     <Content Include="$(MSBuildThisFileDirectory)..\..\THIRD-PARTY-NOTICES.TXT"
              Pack="true"
-             PackagePath="\"
+             PackagePath="/"
              Visible="false" />
   </ItemGroup>
 </Project>
