@@ -361,3 +361,108 @@ extends:
             cd $(Build.SourcesDirectory)
             dir /B /S
           displayName: '[TEMP] Print SourcesDirectory'
+
+    - stage: TestLinuxPackage
+      displayName: Test Package on Linux
+      dependsOn: Build
+      pool:
+        name: Cosmos2MT-AzureDevOps-AgentPool
+        image: 1es-pt-mariner-2.0-gen2
+        os: linux
+      jobs:
+      - job: TestNuGetPackage
+        displayName: Test NuGet Package Installation
+        steps:
+        - download: current
+          artifact: DotnetSpark
+          displayName: 'Download Build Artifacts'
+
+        - task: UseDotNet@2
+          displayName: 'Install .NET SDK'
+          inputs:
+            packageType: 'sdk'
+            version: '8.x'
+
+        - script: |
+            echo "=== Testing NuGet Package Installation on Linux ==="
+
+            # Create a test directory
+            TEST_DIR=$(Agent.TempDirectory)/nuget-test
+            mkdir -p $TEST_DIR
+            cd $TEST_DIR
+
+            # Find the Microsoft.Spark nupkg file
+            NUPKG_PATH=$(find $(Pipeline.Workspace)/DotnetSpark -name "Microsoft.Spark.*.nupkg" ! -name "*Extensions*" | head -1)
+            echo "Found NuGet package: $NUPKG_PATH"
+
+            if [ -z "$NUPKG_PATH" ]; then
+              echo "ERROR: Microsoft.Spark NuGet package not found!"
+              exit 1
+            fi
+
+            # Extract the package version from the filename
+            PACKAGE_VERSION=$(basename "$NUPKG_PATH" | sed 's/Microsoft\.Spark\.\(.*\)\.nupkg/\1/')
+            echo "Package version: $PACKAGE_VERSION"
+
+            # Create a local NuGet source
+            mkdir -p local-nuget
+            cp "$NUPKG_PATH" local-nuget/
+
+            # Create a test console app
+            dotnet new console -n TestApp
+            cd TestApp
+
+            # Add local NuGet source and install the package
+            dotnet nuget add source ../local-nuget --name LocalTest
+            dotnet add package Microsoft.Spark --version "$PACKAGE_VERSION" --source LocalTest
+
+            # Verify the package was installed correctly
+            echo "=== Checking installed package structure ==="
+            PACKAGE_DIR=~/.nuget/packages/microsoft.spark/$PACKAGE_VERSION
+
+            if [ ! -d "$PACKAGE_DIR" ]; then
+              echo "ERROR: Package directory not found at $PACKAGE_DIR"
+              exit 1
+            fi
+
+            echo "Package directory contents:"
+            find "$PACKAGE_DIR" -type f | head -50
+
+            # Check for files with backslashes in their names (the bug we're fixing)
+            echo "=== Checking for files with backslashes in names ==="
+            BAD_FILES=$(find "$PACKAGE_DIR" -name '*\\*' 2>/dev/null || true)
+
+            if [ -n "$BAD_FILES" ]; then
+              echo "ERROR: Found files with backslashes in their names:"
+              echo "$BAD_FILES"
+              exit 1
+            fi
+
+            echo "SUCCESS: No files with backslashes found!"
+
+            # Verify expected directories exist
+            echo "=== Verifying package structure ==="
+
+            if [ ! -d "$PACKAGE_DIR/lib/netstandard2.0" ]; then
+              echo "ERROR: lib/netstandard2.0 directory not found!"
+              exit 1
+            fi
+
+            if [ ! -d "$PACKAGE_DIR/lib/netstandard2.1" ]; then
+              echo "ERROR: lib/netstandard2.1 directory not found!"
+              exit 1
+            fi
+
+            if [ ! -f "$PACKAGE_DIR/lib/netstandard2.0/Microsoft.Spark.dll" ]; then
+              echo "ERROR: Microsoft.Spark.dll not found in lib/netstandard2.0!"
+              exit 1
+            fi
+
+            echo "=== All package structure checks passed ==="
+
+            # Build the test app to verify the package works
+            echo "=== Building test application ==="
+            dotnet build
+
+            echo "=== Linux NuGet Package Test PASSED ==="
+          displayName: 'Test NuGet Package Installation'
