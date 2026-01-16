@@ -38,5 +38,34 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             Assert.True(clientTask.Wait(5000));
         }
+
+        [Theory]
+        [InlineData("0", false)]
+        [InlineData("1", true)]
+        [InlineData(null, false)]
+        [InlineData("", false)]
+        [InlineData("true", false)]
+        public void TestSparkReuseWorkerEnvironmentVariable(string envValue, bool expectedReuseWorker)
+        {
+            // Arrange
+            string originalValue = Environment.GetEnvironmentVariable("SPARK_REUSE_WORKER");
+
+            try
+            {
+                Environment.SetEnvironmentVariable("SPARK_REUSE_WORKER", envValue);
+
+                // Act
+                bool reuseWorker = "1".Equals(
+                    Environment.GetEnvironmentVariable("SPARK_REUSE_WORKER"));
+
+                // Assert
+                Assert.Equal(expectedReuseWorker, reuseWorker);
+            }
+            finally
+            {
+                // Cleanup - restore original value
+                Environment.SetEnvironmentVariable("SPARK_REUSE_WORKER", originalValue);
+            }
+        }
     }
 }
