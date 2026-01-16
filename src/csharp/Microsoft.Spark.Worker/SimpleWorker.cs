@@ -33,6 +33,9 @@ namespace Microsoft.Spark.Worker
         {
             try
             {
+                bool reuseWorker =
+                    "1".Equals(Environment.GetEnvironmentVariable("SPARK_REUSE_WORKER"));
+
                 string secret = Utils.SettingUtils.GetWorkerFactorySecret();
 
                 s_logger.LogInfo($"RunSimpleWorker() is starting with port = {port}.");
@@ -47,7 +50,7 @@ namespace Microsoft.Spark.Worker
                     socket.OutputStream.Flush();
                 }
 
-                new TaskRunner(0, socket, false, _version).Run();
+                new TaskRunner(0, socket, reuseWorker, _version).Run();
             }
             catch (Exception e)
             {
