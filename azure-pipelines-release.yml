@@ -427,7 +427,7 @@ extends:
             dotnet add package Microsoft.Spark --version "$PACKAGE_VERSION" --source LocalPackages
 
             # Create a simple test program that references Microsoft.Spark
-            cat > Program.cs << 'CSHARP'
+            cat << 'CSHARP' | sed 's/^            //' > Program.cs
             using System;
             using System.Reflection;
 
@@ -652,6 +652,8 @@ extends:
 
               Console.WriteLine("VALIDATION PASSED: Package installed and loaded successfully on Windows");
               '@
+              # Strip leading 14 spaces from each line (the YAML indentation)
+              $programCs = $programCs -replace '(?m)^              ', ''
               Set-Content -Path "Program.cs" -Value $programCs
 
               # Build and run the test
