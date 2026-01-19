@@ -459,6 +459,68 @@ extends:
             echo "=== Linux validation completed successfully ==="
           displayName: Validate NuGet Package Installation
 
+        - bash: |
+            set -e
+            echo "=== Validating code signatures on Linux ==="
+
+            ARTIFACT_DIR="$(Pipeline.Workspace)/DotnetSpark"
+            EXTRACT_DIR="$(Pipeline.Workspace)/signature-check"
+            mkdir -p "$EXTRACT_DIR"
+
+            # Verify NuGet package signatures
+            echo ""
+            echo "--- Verifying NuGet package signatures ---"
+            for nupkg in $ARTIFACT_DIR/Microsoft.Spark*.nupkg; do
+              if [ -f "$nupkg" ]; then
+                PACKAGE_NAME=$(basename "$nupkg")
+                echo ""
+                echo "Verifying signature of $PACKAGE_NAME..."
+                dotnet nuget verify "$nupkg" --all --verbosity detailed || {
+                  echo "WARNING: Package $PACKAGE_NAME signature verification failed or package is not signed"
+                }
+              fi
+            done
+
+            # Extract and list DLLs from NuGet packages
+            echo ""
+            echo "--- Extracting and listing DLLs from NuGet packages ---"
+            for nupkg in $ARTIFACT_DIR/Microsoft.Spark*.nupkg; do
+              if [ -f "$nupkg" ] && [[ ! "$nupkg" == *"Worker"* ]]; then
+                PACKAGE_NAME=$(basename "$nupkg" .nupkg)
+                PACKAGE_DIR="$EXTRACT_DIR/$PACKAGE_NAME"
+                mkdir -p "$PACKAGE_DIR"
+                unzip -q "$nupkg" -d "$PACKAGE_DIR"
+                echo ""
+                echo "DLLs in $PACKAGE_NAME:"
+                find "$PACKAGE_DIR" -name "*.dll" -type f | while read dll; do
+                  RELATIVE_PATH="${dll#$PACKAGE_DIR/}"
+                  echo "  $RELATIVE_PATH"
+                done
+              fi
+            done
+
+            # Extract and list files from Worker archives (Linux tar.gz)
+            echo ""
+            echo "--- Extracting and listing files from Worker archives ---"
+            for targz in $ARTIFACT_DIR/*Worker*linux*.tar.gz; do
+              if [ -f "$targz" ]; then
+                ARCHIVE_NAME=$(basename "$targz" .tar.gz)
+                WORKER_DIR="$EXTRACT_DIR/$ARCHIVE_NAME"
+                mkdir -p "$WORKER_DIR"
+                tar -xzf "$targz" -C "$WORKER_DIR"
+                echo ""
+                echo "Files in $ARCHIVE_NAME:"
+                find "$WORKER_DIR" -type f \( -name "*.dll" -o -name "*.exe" \) | while read file; do
+                  RELATIVE_PATH="${file#$WORKER_DIR/}"
+                  echo "  $RELATIVE_PATH"
+                done
+              fi
+            done
+
+            echo ""
+            echo "=== Linux signature validation completed ==="
+          displayName: Validate Code Signatures
+
     - stage: ValidateWindows
       displayName: Validate Packages on Windows
       dependsOn: Build
@@ -548,3 +610,110 @@ extends:
 
               Write-Host ""
               Write-Host "=== Windows validation completed successfully ==="
+
+        - task: PowerShell@2
+          displayName: Validate Code Signatures
+          inputs:
+            targetType: "inline"
+            script: |
+              $ErrorActionPreference = "Stop"
+              Write-Host "=== Validating code signatures on Windows ==="
+
+              $artifactDir = "$(Pipeline.Workspace)/DotnetSpark"
+              $validationFailed = $false
+
+              # Verify NuGet package signatures
+              Write-Host ""
+              Write-Host "--- Verifying NuGet package signatures ---"
+              Get-ChildItem "$artifactDir/Microsoft.Spark*.nupkg" | ForEach-Object {
+                $nupkg = $_.FullName
+                $packageName = $_.Name
+                Write-Host ""
+                Write-Host "Verifying signature of $packageName..."
+                $result = dotnet nuget verify $nupkg --all --verbosity detailed 2>&1
+                Write-Host $result
+                if ($LASTEXITCODE -eq 0) {
+                  Write-Host "OK: $packageName is properly signed"
+                } else {
+                  Write-Host "WARNING: $packageName signature verification failed or package is not signed"
+                }
+              }
+
+              # Verify Authenticode signatures on DLLs inside NuGet packages
+              Write-Host ""
+              Write-Host "--- Verifying Authenticode signatures on DLLs ---"
+              $extractDir = Join-Path $artifactDir "signature-check"
+              New-Item -Path $extractDir -ItemType Directory -Force | Out-Null
+
+              Get-ChildItem "$artifactDir/Microsoft.Spark*.nupkg" | Where-Object { $_.Name -notlike "*Worker*" } | ForEach-Object {
+                $nupkg = $_.FullName
+                $packageName = $_.BaseName
+                $packageExtractDir = Join-Path $extractDir $packageName
+
+                # Extract package
+                Add-Type -AssemblyName System.IO.Compression.FileSystem
+                [System.IO.Compression.ZipFile]::ExtractToDirectory($nupkg, $packageExtractDir)
+
+                Write-Host ""
+                Write-Host "Checking signatures in $packageName`:"
+
+                # Check DLL signatures with detailed info
+                Get-ChildItem -Path $packageExtractDir -Recurse -Filter "Microsoft.Spark*.dll" | ForEach-Object {
+                  $dll = $_.FullName
+                  $relativePath = $_.FullName.Substring($packageExtractDir.Length + 1)
+                  $sig = Get-AuthenticodeSignature $dll
+
+                  Write-Host ""
+                  Write-Host "  File: $relativePath"
+                  Write-Host "  Status: $($sig.Status)"
+                  if ($sig.SignerCertificate) {
+                    Write-Host "  Subject: $($sig.SignerCertificate.Subject)"
+                    Write-Host "  Issuer: $($sig.SignerCertificate.Issuer)"
+                    Write-Host "  Thumbprint: $($sig.SignerCertificate.Thumbprint)"
+                    Write-Host "  Valid From: $($sig.SignerCertificate.NotBefore)"
+                    Write-Host "  Valid To: $($sig.SignerCertificate.NotAfter)"
+                  }
+                  if ($sig.TimeStamperCertificate) {
+                    Write-Host "  Timestamper: $($sig.TimeStamperCertificate.Subject)"
+                  }
+                }
+              }
+
+              # Verify Authenticode signatures on Worker executables
+              Write-Host ""
+              Write-Host "--- Verifying Authenticode signatures on Worker archives ---"
+              Get-ChildItem "$artifactDir/*.zip" | Where-Object { $_.Name -like "*Worker*" -and $_.Name -like "*win*" } | ForEach-Object {
+                $zipPath = $_.FullName
+                $zipName = $_.BaseName
+                $workerExtractDir = Join-Path $extractDir $zipName
+
+                # Extract worker archive
+                Expand-Archive -Path $zipPath -DestinationPath $workerExtractDir -Force
+
+                Write-Host ""
+                Write-Host "Checking signatures in $zipName`:"
+
+                # Check exe and dll signatures with detailed info
+                Get-ChildItem -Path $workerExtractDir -Recurse -Include "*.exe","*.dll" | Where-Object { $_.Name -like "Microsoft.Spark*" } | ForEach-Object {
+                  $file = $_.FullName
+                  $relativePath = $_.FullName.Substring($workerExtractDir.Length + 1)
+                  $sig = Get-AuthenticodeSignature $file
+
+                  Write-Host ""
+                  Write-Host "  File: $relativePath"
+                  Write-Host "  Status: $($sig.Status)"
+                  if ($sig.SignerCertificate) {
+                    Write-Host "  Subject: $($sig.SignerCertificate.Subject)"
+                    Write-Host "  Issuer: $($sig.SignerCertificate.Issuer)"
+                    Write-Host "  Thumbprint: $($sig.SignerCertificate.Thumbprint)"
+                    Write-Host "  Valid From: $($sig.SignerCertificate.NotBefore)"
+                    Write-Host "  Valid To: $($sig.SignerCertificate.NotAfter)"
+                  }
+                  if ($sig.TimeStamperCertificate) {
+                    Write-Host "  Timestamper: $($sig.TimeStamperCertificate.Subject)"
+                  }
+                }
+              }
+
+              Write-Host ""
+              Write-Host "=== Windows signature validation completed ==="
