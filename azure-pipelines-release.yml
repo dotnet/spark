@@ -467,6 +467,12 @@ extends:
             EXTRACT_DIR="$(Pipeline.Workspace)/signature-check"
             mkdir -p "$EXTRACT_DIR"
 
+            # Install osslsigncode for Authenticode signature verification
+            echo "Installing osslsigncode..."
+            sudo tdnf install -y osslsigncode 2>/dev/null || sudo yum install -y osslsigncode 2>/dev/null || sudo apt-get install -y osslsigncode 2>/dev/null || {
+              echo "WARNING: Could not install osslsigncode, will skip Authenticode verification"
+            }
+
             # Verify NuGet package signatures
             echo ""
             echo "--- Verifying NuGet package signatures ---"
@@ -481,38 +487,82 @@ extends:
               fi
             done
 
-            # Extract and list DLLs from NuGet packages
+            # Function to verify Authenticode signature and display details
+            verify_authenticode() {
+              local file="$1"
+              local relative_path="$2"
+
+              echo ""
+              echo "  File: $relative_path"
+
+              if command -v osslsigncode &> /dev/null; then
+                # Extract signature info using osslsigncode
+                local sig_output=$(osslsigncode verify -in "$file" 2>&1)
+                local sig_status=$?
+
+                if [ $sig_status -eq 0 ]; then
+                  echo "  Status: Valid"
+                else
+                  echo "  Status: NotSigned or Invalid"
+                fi
+
+                # Extract certificate details
+                local subject=$(echo "$sig_output" | grep -i "Subject:" | head -1 | sed 's/.*Subject: //')
+                local issuer=$(echo "$sig_output" | grep -i "Issuer:" | head -1 | sed 's/.*Issuer: //')
+                local serial=$(echo "$sig_output" | grep -i "Serial:" | head -1 | sed 's/.*Serial: //')
+                local not_before=$(echo "$sig_output" | grep -i "notBefore:" | head -1 | sed 's/.*notBefore: //')
+                local not_after=$(echo "$sig_output" | grep -i "notAfter:" | head -1 | sed 's/.*notAfter: //')
+
+                [ -n "$subject" ] && echo "  Subject: $subject"
+                [ -n "$issuer" ] && echo "  Issuer: $issuer"
+                [ -n "$serial" ] && echo "  Serial: $serial"
+                [ -n "$not_before" ] && echo "  Valid From: $not_before"
+                [ -n "$not_after" ] && echo "  Valid To: $not_after"
+
+                # Check for timestamp
+                if echo "$sig_output" | grep -qi "timestamp"; then
+                  local ts_info=$(echo "$sig_output" | grep -i "Timestamp" | head -1)
+                  [ -n "$ts_info" ] && echo "  Timestamper: $ts_info"
+                fi
+              else
+                echo "  Status: (osslsigncode not available for verification)"
+              fi
+            }
+
+            # Verify Authenticode signatures on DLLs inside NuGet packages
             echo ""
-            echo "--- Extracting and listing DLLs from NuGet packages ---"
+            echo "--- Verifying Authenticode signatures on DLLs ---"
             for nupkg in $ARTIFACT_DIR/Microsoft.Spark*.nupkg; do
               if [ -f "$nupkg" ] && [[ ! "$nupkg" == *"Worker"* ]]; then
                 PACKAGE_NAME=$(basename "$nupkg" .nupkg)
                 PACKAGE_DIR="$EXTRACT_DIR/$PACKAGE_NAME"
                 mkdir -p "$PACKAGE_DIR"
                 unzip -q "$nupkg" -d "$PACKAGE_DIR"
+
                 echo ""
-                echo "DLLs in $PACKAGE_NAME:"
-                find "$PACKAGE_DIR" -name "*.dll" -type f | while read dll; do
+                echo "Checking signatures in $PACKAGE_NAME:"
+                find "$PACKAGE_DIR" -name "Microsoft.Spark*.dll" -type f | while read dll; do
                   RELATIVE_PATH="${dll#$PACKAGE_DIR/}"
-                  echo "  $RELATIVE_PATH"
+                  verify_authenticode "$dll" "$RELATIVE_PATH"
                 done
               fi
             done
 
-            # Extract and list files from Worker archives (Linux tar.gz)
+            # Verify signatures on Worker archives (Linux tar.gz)
             echo ""
-            echo "--- Extracting and listing files from Worker archives ---"
+            echo "--- Verifying Authenticode signatures on Worker executables ---"
             for targz in $ARTIFACT_DIR/*Worker*linux*.tar.gz; do
               if [ -f "$targz" ]; then
                 ARCHIVE_NAME=$(basename "$targz" .tar.gz)
                 WORKER_DIR="$EXTRACT_DIR/$ARCHIVE_NAME"
                 mkdir -p "$WORKER_DIR"
                 tar -xzf "$targz" -C "$WORKER_DIR"
+
                 echo ""
-                echo "Files in $ARCHIVE_NAME:"
-                find "$WORKER_DIR" -type f \( -name "*.dll" -o -name "*.exe" \) | while read file; do
+                echo "Checking signatures in $ARCHIVE_NAME:"
+                find "$WORKER_DIR" -type f \( -name "Microsoft.Spark*.dll" -o -name "Microsoft.Spark*.exe" \) | while read file; do
                   RELATIVE_PATH="${file#$WORKER_DIR/}"
-                  echo "  $RELATIVE_PATH"
+                  verify_authenticode "$file" "$RELATIVE_PATH"
                 done
               fi
             done
