@@ -286,6 +286,10 @@ extends:
           inputs:
             targetType: "inline"
             script: |
+              # Load required assemblies for ZIP operations
+              Add-Type -AssemblyName System.IO.Compression
+              Add-Type -AssemblyName System.IO.Compression.FileSystem
+
               $workingDir = "$(ArtifactPath)\NuGetExtract"
 
               $packages = Get-ChildItem -Path "$workingDir" -Directory | Where-Object { $_.Name -ne "ToSign" }
@@ -310,7 +314,6 @@ extends:
 
                 # Create nupkg with forward-slash paths for cross-platform compatibility
                 # Using .NET ZipFile API to ensure forward slashes in archive entry names
-                Add-Type -AssemblyName System.IO.Compression.FileSystem
                 $zip = [System.IO.Compression.ZipFile]::Open($nupkgPath, [System.IO.Compression.ZipArchiveMode]::Create)
                 try {
                   Get-ChildItem -Path $packageDir -Recurse -File | ForEach-Object {
