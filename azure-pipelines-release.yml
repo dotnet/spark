@@ -382,7 +382,7 @@ extends:
         os: linux
       jobs:
       - job: ValidateNuGetPackages
-        displayName: Validate NuGet Package Paths
+        displayName: Validate NuGet Package Installation
         steps:
         - task: DownloadPipelineArtifact@2
           displayName: Download DotnetSpark Artifacts
@@ -390,55 +390,74 @@ extends:
             artifact: DotnetSpark
             path: $(Pipeline.Workspace)/DotnetSpark
 
+        - task: UseDotNet@2
+          displayName: Install .NET SDK
+          inputs:
+            packageType: 'sdk'
+            version: '8.x'
+
         - bash: |
-            echo "Validating NuGet package paths for Linux/Mac compatibility..."
-            cd $(Pipeline.Workspace)/DotnetSpark
-            ls -la
+            set -e
+            echo "=== Validating NuGet packages on Linux ==="
 
-            VALIDATION_FAILED=false
+            ARTIFACT_DIR="$(Pipeline.Workspace)/DotnetSpark"
+            TEST_DIR="$(Pipeline.Workspace)/validate-test"
 
-            for nupkg in Microsoft.Spark*.nupkg; do
-              if [ -f "$nupkg" ]; then
-                echo ""
-                echo "=== Validating $nupkg ==="
+            # Get the package version from the nupkg filename
+            NUPKG_FILE=$(ls $ARTIFACT_DIR/Microsoft.Spark.*.nupkg | grep -v Worker | head -1)
+            PACKAGE_VERSION=$(basename "$NUPKG_FILE" | sed 's/Microsoft.Spark\.\(.*\)\.nupkg/\1/')
+            echo "Package version: $PACKAGE_VERSION"
 
-                # Check for backslash paths in the archive
-                if unzip -l "$nupkg" | grep -q '\\'; then
-                  echo "ERROR: Found backslash paths in $nupkg:"
-                  unzip -l "$nupkg" | grep '\\'
-                  VALIDATION_FAILED=true
-                else
-                  echo "OK: No backslash paths found in $nupkg"
-                fi
+            # Create a test project
+            mkdir -p "$TEST_DIR"
+            cd "$TEST_DIR"
 
-                # Extract and verify the package structure
-                EXTRACT_DIR="extract_$(basename $nupkg .nupkg)"
-                mkdir -p "$EXTRACT_DIR"
-                unzip -q "$nupkg" -d "$EXTRACT_DIR"
+            echo "Creating test console project..."
+            dotnet new console -n SparkValidation --framework net8.0
+            cd SparkValidation
 
-                # Check that lib folder structure is correct
-                if [ -d "$EXTRACT_DIR/lib" ]; then
-                  echo "OK: lib folder exists"
-                  find "$EXTRACT_DIR/lib" -type f -name "*.dll" | head -5
-                else
-                  echo "ERROR: lib folder not found in package"
-                  VALIDATION_FAILED=true
-                fi
+            # Add local NuGet source pointing to artifact directory
+            dotnet nuget add source "$ARTIFACT_DIR" --name LocalPackages
 
-                # Cleanup
-                rm -rf "$EXTRACT_DIR"
-              fi
-            done
+            # Add the Microsoft.Spark package reference
+            echo "Adding Microsoft.Spark package reference..."
+            dotnet add package Microsoft.Spark --version "$PACKAGE_VERSION" --source LocalPackages
 
-            if [ "$VALIDATION_FAILED" = true ]; then
-              echo ""
-              echo "VALIDATION FAILED: Some packages have incorrect path separators"
-              exit 1
+            # Create a simple test program that references Microsoft.Spark
+            cat > Program.cs << 'CSHARP'
+            using System;
+            using System.Reflection;
+
+            // Try to load Microsoft.Spark assembly
+            var sparkAssembly = Assembly.Load("Microsoft.Spark");
+            Console.WriteLine($"Successfully loaded: {sparkAssembly.FullName}");
+            Console.WriteLine($"Location: {sparkAssembly.Location}");
+
+            // Verify key types exist
+            var sparkSessionType = sparkAssembly.GetType("Microsoft.Spark.Sql.SparkSession");
+            if (sparkSessionType != null)
+            {
+                Console.WriteLine($"Found type: {sparkSessionType.FullName}");
+            }
             else
-              echo ""
-              echo "VALIDATION PASSED: All packages have correct forward-slash paths"
-            fi
-          displayName: Validate NuGet Package Paths
+            {
+                Console.WriteLine("ERROR: Could not find SparkSession type");
+                Environment.Exit(1);
+            }
+
+            Console.WriteLine("VALIDATION PASSED: Package installed and loaded successfully on Linux");
+            CSHARP
+
+            # Build and run the test
+            echo "Building test project..."
+            dotnet build
+
+            echo "Running validation test..."
+            dotnet run
+
+            echo ""
+            echo "=== Linux validation completed successfully ==="
+          displayName: Validate NuGet Package Installation
 
     - stage: ValidateWindows
       displayName: Validate Packages on Windows
@@ -449,7 +468,7 @@ extends:
         os: windows
       jobs:
       - job: ValidateNuGetPackages
-        displayName: Validate NuGet Package Paths
+        displayName: Validate NuGet Package Installation
         steps:
         - task: DownloadPipelineArtifact@2
           displayName: Download DotnetSpark Artifacts
@@ -457,55 +476,75 @@ extends:
             artifact: DotnetSpark
             path: $(Pipeline.Workspace)/DotnetSpark
 
+        - task: UseDotNet@2
+          displayName: Install .NET SDK
+          inputs:
+            packageType: 'sdk'
+            version: '8.x'
+
         - task: PowerShell@2
-          displayName: Validate NuGet Package Paths
+          displayName: Validate NuGet Package Installation
           inputs:
             targetType: "inline"
             script: |
-              Write-Host "Validating NuGet package paths on Windows..."
-              Set-Location "$(Pipeline.Workspace)/DotnetSpark"
-              Get-ChildItem
+              $ErrorActionPreference = "Stop"
+              Write-Host "=== Validating NuGet packages on Windows ==="
 
-              $validationFailed = $false
+              $artifactDir = "$(Pipeline.Workspace)/DotnetSpark"
+              $testDir = "$(Pipeline.Workspace)/validate-test"
 
-              Get-ChildItem -Filter "Microsoft.Spark*.nupkg" | ForEach-Object {
-                $nupkg = $_.FullName
-                $packageName = $_.Name
-                Write-Host ""
-                Write-Host "=== Validating $packageName ==="
+              # Get the package version from the nupkg filename
+              $nupkgFile = Get-ChildItem "$artifactDir/Microsoft.Spark.*.nupkg" | Where-Object { $_.Name -notlike "*Worker*" } | Select-Object -First 1
+              $packageVersion = $nupkgFile.BaseName -replace "Microsoft\.Spark\.", ""
+              Write-Host "Package version: $packageVersion"
 
-                # Load the zip and check entry names
-                Add-Type -AssemblyName System.IO.Compression.FileSystem
-                $zip = [System.IO.Compression.ZipFile]::OpenRead($nupkg)
-                try {
-                  $backslashEntries = $zip.Entries | Where-Object { $_.FullName -match '\\' }
-                  if ($backslashEntries.Count -gt 0) {
-                    Write-Host "ERROR: Found backslash paths in $packageName`:"
-                    $backslashEntries | ForEach-Object { Write-Host "  $_($_.FullName)" }
-                    $validationFailed = $true
-                  } else {
-                    Write-Host "OK: No backslash paths found in $packageName"
-                  }
+              # Create a test project
+              New-Item -Path $testDir -ItemType Directory -Force | Out-Null
+              Set-Location $testDir
 
-                  # Check for lib folder
-                  $libEntries = $zip.Entries | Where-Object { $_.FullName -like "lib/*" }
-                  if ($libEntries.Count -gt 0) {
-                    Write-Host "OK: lib folder exists with $($libEntries.Count) entries"
-                    $libEntries | Select-Object -First 5 | ForEach-Object { Write-Host "  $($_.FullName)" }
-                  } else {
-                    Write-Host "ERROR: lib folder not found in package"
-                    $validationFailed = $true
-                  }
-                } finally {
-                  $zip.Dispose()
-                }
+              Write-Host "Creating test console project..."
+              dotnet new console -n SparkValidation --framework net8.0
+              Set-Location SparkValidation
+
+              # Add local NuGet source pointing to artifact directory
+              dotnet nuget add source $artifactDir --name LocalPackages
+
+              # Add the Microsoft.Spark package reference
+              Write-Host "Adding Microsoft.Spark package reference..."
+              dotnet add package Microsoft.Spark --version $packageVersion --source LocalPackages
+
+              # Create a simple test program that references Microsoft.Spark
+              $programCs = @'
+              using System;
+              using System.Reflection;
+
+              // Try to load Microsoft.Spark assembly
+              var sparkAssembly = Assembly.Load("Microsoft.Spark");
+              Console.WriteLine($"Successfully loaded: {sparkAssembly.FullName}");
+              Console.WriteLine($"Location: {sparkAssembly.Location}");
+
+              // Verify key types exist
+              var sparkSessionType = sparkAssembly.GetType("Microsoft.Spark.Sql.SparkSession");
+              if (sparkSessionType != null)
+              {
+                  Console.WriteLine($"Found type: {sparkSessionType.FullName}");
+              }
+              else
+              {
+                  Console.WriteLine("ERROR: Could not find SparkSession type");
+                  Environment.Exit(1);
               }
 
-              if ($validationFailed) {
-                Write-Host ""
-                Write-Host "VALIDATION FAILED: Some packages have incorrect path separators"
-                exit 1
-              } else {
-                Write-Host ""
-                Write-Host "VALIDATION PASSED: All packages have correct forward-slash paths"
-              }
+              Console.WriteLine("VALIDATION PASSED: Package installed and loaded successfully on Windows");
+              '@
+              Set-Content -Path "Program.cs" -Value $programCs
+
+              # Build and run the test
+              Write-Host "Building test project..."
+              dotnet build
+
+              Write-Host "Running validation test..."
+              dotnet run
+
+              Write-Host ""
+              Write-Host "=== Windows validation completed successfully ==="
