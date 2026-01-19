@@ -50,6 +50,11 @@ extends:
       sourceRepositoriesToScan:
         exclude:
           - repository: forwardCompatibleRelease
+      # Specify Windows pool for SDL source analysis stage
+      sourceAnalysisPool:
+        name: Cosmos2MT-AzureDevOps-AgentPool
+        image: 1es-pt-windows-2022
+        os: windows
     pool:
       name: Cosmos2MT-AzureDevOps-AgentPool
       image: 1es-pt-windows-2019
@@ -282,12 +287,12 @@ extends:
             targetType: "inline"
             script: |
               $workingDir = "$(ArtifactPath)\NuGetExtract"
-              
+
               $packages = Get-ChildItem -Path "$workingDir" -Directory | Where-Object { $_.Name -ne "ToSign" }
               foreach ($package in $packages) {
                 $packageDir = $package.FullName
                 $packageName = $package.Name
-                
+
                 # Replace Microsoft.Spark*.dll files with their signed versions for each framework
                 $frameworks = Get-ChildItem -Path (Join-Path $packageDir "lib") -Directory
                 foreach ($framework in $frameworks) {
@@ -299,18 +304,24 @@ extends:
                     }
                   }
                 }
-                
-                # Create temp zip file first
-                $zipPath = Join-Path "$(ArtifactPath)\Output" "$packageName.zip"
+
                 $nupkgPath = Join-Path "$(ArtifactPath)\Output" "$packageName.nupkg"
                 Remove-Item -Path $nupkgPath -Force -ErrorAction SilentlyContinue
-                Remove-Item -Path $zipPath -Force -ErrorAction SilentlyContinue
-                
-                # Create zip with package contents
-                Compress-Archive -Path (Join-Path $packageDir "*") -DestinationPath $zipPath -Force
-                
-                # Rename zip to nupkg
-                Move-Item -Path $zipPath -Destination $nupkgPath -Force
+
+                # Create nupkg with forward-slash paths for cross-platform compatibility
+                # Using .NET ZipFile API to ensure forward slashes in archive entry names
+                Add-Type -AssemblyName System.IO.Compression.FileSystem
+                $zip = [System.IO.Compression.ZipFile]::Open($nupkgPath, [System.IO.Compression.ZipArchiveMode]::Create)
+                try {
+                  Get-ChildItem -Path $packageDir -Recurse -File | ForEach-Object {
+                    $relativePath = $_.FullName.Substring($packageDir.Length + 1)
+                    # Normalize path separators to forward slashes for cross-platform compatibility
+                    $entryName = $relativePath.Replace('\', '/')
+                    [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $_.FullName, $entryName) | Out-Null
+                  }
+                } finally {
+                  $zip.Dispose()
+                }
               }
 
         - task: EsrpCodeSigning@5
@@ -361,3 +372,70 @@ extends:
             cd $(Build.SourcesDirectory)
             dir /B /S
           displayName: '[TEMP] Print SourcesDirectory'
+
+    - stage: ValidateLinux
+      displayName: Validate Packages on Linux
+      dependsOn: Build
+      pool:
+        name: Cosmos2MT-AzureDevOps-AgentPool
+        image: 1es-pt-mariner-2.0-gen2
+        os: linux
+      jobs:
+      - job: ValidateNuGetPackages
+        displayName: Validate NuGet Package Paths
+        steps:
+        - task: DownloadPipelineArtifact@2
+          displayName: Download DotnetSpark Artifacts
+          inputs:
+            artifact: DotnetSpark
+            path: $(Pipeline.Workspace)/DotnetSpark
+
+        - bash: |
+            echo "Validating NuGet package paths for Linux/Mac compatibility..."
+            cd $(Pipeline.Workspace)/DotnetSpark
+            ls -la
+
+            VALIDATION_FAILED=false
+
+            for nupkg in Microsoft.Spark*.nupkg; do
+              if [ -f "$nupkg" ]; then
+                echo ""
+                echo "=== Validating $nupkg ==="
+
+                # Check for backslash paths in the archive
+                if unzip -l "$nupkg" | grep -q '\\'; then
+                  echo "ERROR: Found backslash paths in $nupkg:"
+                  unzip -l "$nupkg" | grep '\\'
+                  VALIDATION_FAILED=true
+                else
+                  echo "OK: No backslash paths found in $nupkg"
+                fi
+
+                # Extract and verify the package structure
+                EXTRACT_DIR="extract_$(basename $nupkg .nupkg)"
+                mkdir -p "$EXTRACT_DIR"
+                unzip -q "$nupkg" -d "$EXTRACT_DIR"
+
+                # Check that lib folder structure is correct
+                if [ -d "$EXTRACT_DIR/lib" ]; then
+                  echo "OK: lib folder exists"
+                  find "$EXTRACT_DIR/lib" -type f -name "*.dll" | head -5
+                else
+                  echo "ERROR: lib folder not found in package"
+                  VALIDATION_FAILED=true
+                fi
+
+                # Cleanup
+                rm -rf "$EXTRACT_DIR"
+              fi
+            done
+
+            if [ "$VALIDATION_FAILED" = true ]; then
+              echo ""
+              echo "VALIDATION FAILED: Some packages have incorrect path separators"
+              exit 1
+            else
+              echo ""
+              echo "VALIDATION PASSED: All packages have correct forward-slash paths"
+            fi
+          displayName: Validate NuGet Package Paths
