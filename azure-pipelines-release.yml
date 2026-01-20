@@ -419,12 +419,20 @@ extends:
             dotnet new console -n SparkValidation --framework net8.0
             cd SparkValidation
 
-            # Add local NuGet source pointing to artifact directory
-            dotnet nuget add source "$ARTIFACT_DIR" --name LocalPackages
+            # Create nuget.config with local package source (using printf to avoid heredoc indentation issues)
+            printf '%s\n' \
+              '<?xml version="1.0" encoding="utf-8"?>' \
+              '<configuration>' \
+              '  <packageSources>' \
+              '    <clear />' \
+              '    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />' \
+              "    <add key=\"LocalPackages\" value=\"$ARTIFACT_DIR\" />" \
+              '  </packageSources>' \
+              '</configuration>' > nuget.config
 
             # Add the Microsoft.Spark package reference
             echo "Adding Microsoft.Spark package reference..."
-            dotnet add package Microsoft.Spark --version "$PACKAGE_VERSION" --source LocalPackages
+            dotnet add package Microsoft.Spark --version "$PACKAGE_VERSION"
 
             # Create a simple test program that references Microsoft.Spark
             cat << 'CSHARP' | sed 's/^            //' > Program.cs
@@ -621,12 +629,20 @@ extends:
               dotnet new console -n SparkValidation --framework net8.0
               Set-Location SparkValidation
 
-              # Add local NuGet source pointing to artifact directory
-              dotnet nuget add source $artifactDir --name LocalPackages
+              # Create nuget.config with local package source
+              $nugetConfig = '<?xml version="1.0" encoding="utf-8"?>' + "`n"
+              $nugetConfig += '<configuration>' + "`n"
+              $nugetConfig += '  <packageSources>' + "`n"
+              $nugetConfig += '    <clear />' + "`n"
+              $nugetConfig += '    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />' + "`n"
+              $nugetConfig += "    <add key=`"LocalPackages`" value=`"$artifactDir`" />" + "`n"
+              $nugetConfig += '  </packageSources>' + "`n"
+              $nugetConfig += '</configuration>'
+              Set-Content -Path "nuget.config" -Value $nugetConfig
 
               # Add the Microsoft.Spark package reference
               Write-Host "Adding Microsoft.Spark package reference..."
-              dotnet add package Microsoft.Spark --version $packageVersion --source LocalPackages
+              dotnet add package Microsoft.Spark --version $packageVersion
 
               # Create a simple test program that references Microsoft.Spark
               $programCs = @'
