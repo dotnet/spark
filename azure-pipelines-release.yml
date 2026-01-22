@@ -228,13 +228,24 @@ extends:
                 # Extract the zip file
                 Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
                 Remove-Item -Path $zipPath -Force
-                
+
                 # Copy all Microsoft.Spark*.dll files to a temp location for signing while preserving the lib folder structure
                 Get-ChildItem -Path $extractPath\lib -Directory | ForEach-Object {
                   $frameworkDir = $_.Name
                   Get-ChildItem -Path $_.FullName -Filter "Microsoft.Spark*.dll" | ForEach-Object {
                     $packageName = (Split-Path $extractPath -Leaf)
                     $targetPath = Join-Path $workingDir "ToSign\$packageName\$frameworkDir"
+                    New-Item -Path $targetPath -ItemType Directory -Force
+                    Copy-Item $_.FullName -Destination $targetPath
+                  }
+                }
+
+                # Also copy DLLs from interactive-extensions/dotnet (used by DotNet.Interactive package)
+                $interactiveExtPath = Join-Path $extractPath "interactive-extensions\dotnet"
+                if (Test-Path $interactiveExtPath) {
+                  Get-ChildItem -Path $interactiveExtPath -Filter "Microsoft.Spark*.dll" | ForEach-Object {
+                    $packageName = (Split-Path $extractPath -Leaf)
+                    $targetPath = Join-Path $workingDir "ToSign\$packageName\interactive-extensions-dotnet"
                     New-Item -Path $targetPath -ItemType Directory -Force
                     Copy-Item $_.FullName -Destination $targetPath
                   }
@@ -303,6 +314,18 @@ extends:
                   $dllFiles = Get-ChildItem -Path $framework.FullName -Filter "Microsoft.Spark*.dll"
                   foreach ($dll in $dllFiles) {
                     $signedDllPath = Join-Path $workingDir "ToSign\$packageName\$($framework.Name)\$($dll.Name)"
+                    if (Test-Path $signedDllPath) {
+                      Copy-Item -Path $signedDllPath -Destination $dll.FullName -Force
+                    }
+                  }
+                }
+
+                # Also replace DLLs in interactive-extensions/dotnet with signed versions
+                $interactiveExtPath = Join-Path $packageDir "interactive-extensions\dotnet"
+                if (Test-Path $interactiveExtPath) {
+                  $dllFiles = Get-ChildItem -Path $interactiveExtPath -Filter "Microsoft.Spark*.dll"
+                  foreach ($dll in $dllFiles) {
+                    $signedDllPath = Join-Path $workingDir "ToSign\$packageName\interactive-extensions-dotnet\$($dll.Name)"
                     if (Test-Path $signedDllPath) {
                       Copy-Item -Path $signedDllPath -Destination $dll.FullName -Force
                     }
@@ -517,16 +540,18 @@ extends:
                 # The package is signed if we see certificate/signature info, even if trust verification fails
                 if echo "$VERIFY_OUTPUT" | grep -qE "Signature type:|Certificate chain:|Signer certificate|Successfully verified"; then
                   echo "OK: $PACKAGE_NAME is signed"
-                  # Extract signer info if available
-                  SIGNER=$(echo "$VERIFY_OUTPUT" | grep -i "Subject:" | head -1 | sed 's/.*Subject: //' | sed 's/,.*//' || echo "Microsoft")
-                  echo "NUGET|$PACKAGE_NAME|Valid|${SIGNER:-NuGet Signed}" >> "$RESULTS_FILE"
+                  # Extract full subject for display
+                  FULL_SUBJECT=$(echo "$VERIFY_OUTPUT" | grep -i "Subject:" | head -1 | sed 's/.*Subject: //' || echo "N/A")
+                  # Extract CN for short display
+                  SIGNER=$(echo "$FULL_SUBJECT" | grep -oP 'CN=\K[^,]+' || echo "$FULL_SUBJECT" | sed 's/,.*//')
+                  echo "NUGET|$PACKAGE_NAME|Valid|${SIGNER:-NuGet Signed}|${FULL_SUBJECT:-N/A}" >> "$RESULTS_FILE"
                 elif echo "$VERIFY_OUTPUT" | grep -q "NU3004\|no signature"; then
                   echo "WARNING: Package $PACKAGE_NAME is not signed"
-                  echo "NUGET|$PACKAGE_NAME|NotSigned|N/A" >> "$RESULTS_FILE"
+                  echo "NUGET|$PACKAGE_NAME|NotSigned|N/A|N/A" >> "$RESULTS_FILE"
                 else
                   # Signature exists but may have trust issues - still mark as signed
                   echo "INFO: Package $PACKAGE_NAME has signature (trust chain may not be fully verified)"
-                  echo "NUGET|$PACKAGE_NAME|Valid|NuGet Signed" >> "$RESULTS_FILE"
+                  echo "NUGET|$PACKAGE_NAME|Valid|NuGet Signed|N/A" >> "$RESULTS_FILE"
                 fi
               fi
             done
@@ -542,13 +567,16 @@ extends:
                 local sig_status=$?
 
                 if [ $sig_status -eq 0 ]; then
-                  local subject=$(echo "$sig_output" | grep -i "Subject:" | head -1 | sed 's/.*Subject: //' | sed 's/,.*//')
-                  echo "DLL|$relative_path|Valid|${subject:-Microsoft}" >> "$RESULTS_FILE"
+                  # Extract full subject for display
+                  local full_subject=$(echo "$sig_output" | grep -i "Subject:" | head -1 | sed 's/.*Subject: //')
+                  # Extract CN for short display
+                  local cn=$(echo "$full_subject" | grep -oP 'CN=\K[^,]+' || echo "$full_subject" | sed 's/,.*//')
+                  echo "DLL|$relative_path|Valid|${cn:-Microsoft}|${full_subject:-N/A}" >> "$RESULTS_FILE"
                 else
-                  echo "DLL|$relative_path|NotSigned|N/A" >> "$RESULTS_FILE"
+                  echo "DLL|$relative_path|NotSigned|N/A|N/A" >> "$RESULTS_FILE"
                 fi
               else
-                echo "DLL|$relative_path|Unknown|osslsigncode not available" >> "$RESULTS_FILE"
+                echo "DLL|$relative_path|Unknown|osslsigncode not available|N/A" >> "$RESULTS_FILE"
               fi
             }
 
@@ -591,18 +619,22 @@ extends:
             # Print summary table
             echo ""
             echo ""
-            echo "============================================================"
-            echo "                 SIGNATURE VALIDATION SUMMARY"
-            echo "============================================================"
+            echo "========================================================================================================"
+            echo "                                    SIGNATURE VALIDATION SUMMARY"
+            echo "========================================================================================================"
             echo ""
-            printf "%-8s | %-50s | %-10s | %s\n" "Type" "File" "Status" "Signer"
-            echo "---------|-------------------------------------------------------|------------|------------------"
-            while IFS='|' read -r type file status signer; do
+            printf "%-8s | %-40s | %-10s | %-25s | %s\n" "Type" "File" "Status" "Signer (CN)" "Subject"
+            echo "---------|------------------------------------------|------------|---------------------------|------------------"
+            while IFS='|' read -r type file status signer subject; do
               # Truncate file name if too long
-              if [ ${#file} -gt 50 ]; then
-                file="...${file: -47}"
+              if [ ${#file} -gt 40 ]; then
+                file="...${file: -37}"
               fi
-              printf "%-8s | %-50s | %-10s | %s\n" "$type" "$file" "$status" "$signer"
+              # Truncate signer if too long
+              if [ ${#signer} -gt 25 ]; then
+                signer="${signer:0:22}..."
+              fi
+              printf "%-8s | %-40s | %-10s | %-25s | %s\n" "$type" "$file" "$status" "$signer" "$subject"
             done < "$RESULTS_FILE"
             echo ""
 
@@ -618,6 +650,13 @@ extends:
             echo "  Unknown: $UNKNOWN"
             echo ""
             echo "=== Linux signature validation completed ==="
+
+            # Fail the task if any files are not signed
+            if [ "$NOT_SIGNED" -gt 0 ]; then
+              echo "##vso[task.logissue type=error]VALIDATION FAILED: $NOT_SIGNED file(s) are not signed!"
+              echo "##vso[task.complete result=Failed;]Unsigned files detected"
+              exit 1
+            fi
           displayName: Validate Code Signatures
 
     - stage: ValidateWindows
@@ -761,16 +800,23 @@ extends:
                 # The package is signed if we see certificate/signature info, even if trust verification fails
                 if ($result -match "Signature type:|Certificate chain:|Signer certificate|Successfully verified") {
                   Write-Host "OK: $packageName is signed"
-                  # Extract signer info if available
+                  # Extract full subject for display
+                  $fullSubject = "N/A"
                   $signer = "NuGet Signed"
                   if ($result -match "Subject:\s*(.+?)[\r\n]") {
-                    $signer = $Matches[1] -replace ",.*", ""
+                    $fullSubject = $Matches[1].Trim()
+                    if ($fullSubject -match 'CN=([^,]+)') {
+                      $signer = $Matches[1]
+                    } else {
+                      $signer = $fullSubject -replace ",.*", ""
+                    }
                   }
                   $signatureResults += [PSCustomObject]@{
                     Type = "NuGet"
                     File = $packageName
                     Status = "Valid"
                     Signer = $signer
+                    Subject = $fullSubject
                   }
                 } elseif ($result -match "NU3004|no signature") {
                   Write-Host "WARNING: $packageName is not signed"
@@ -779,6 +825,7 @@ extends:
                     File = $packageName
                     Status = "NotSigned"
                     Signer = "N/A"
+                    Subject = "N/A"
                   }
                 } else {
                   # Signature exists but may have trust issues - still mark as signed
@@ -788,6 +835,7 @@ extends:
                     File = $packageName
                     Status = "Valid"
                     Signer = "NuGet Signed"
+                    Subject = "N/A"
                   }
                 }
               }
@@ -816,7 +864,9 @@ extends:
                   $sig = Get-AuthenticodeSignature $dll
 
                   $signer = "N/A"
+                  $fullSubject = "N/A"
                   if ($sig.SignerCertificate) {
+                    $fullSubject = $sig.SignerCertificate.Subject
                     # Extract CN from Subject
                     if ($sig.SignerCertificate.Subject -match 'CN=([^,]+)') {
                       $signer = $Matches[1]
@@ -830,6 +880,7 @@ extends:
                     File = $relativePath
                     Status = $sig.Status.ToString()
                     Signer = $signer
+                    Subject = $fullSubject
                   }
                 }
               }
@@ -854,7 +905,9 @@ extends:
                   $sig = Get-AuthenticodeSignature $file
 
                   $signer = "N/A"
+                  $fullSubject = "N/A"
                   if ($sig.SignerCertificate) {
+                    $fullSubject = $sig.SignerCertificate.Subject
                     if ($sig.SignerCertificate.Subject -match 'CN=([^,]+)') {
                       $signer = $Matches[1]
                     } else {
@@ -867,6 +920,7 @@ extends:
                     File = $relativePath
                     Status = $sig.Status.ToString()
                     Signer = $signer
+                    Subject = $fullSubject
                   }
                 }
               }
@@ -874,19 +928,23 @@ extends:
               # Print summary table
               Write-Host ""
               Write-Host ""
-              Write-Host "============================================================"
-              Write-Host "                 SIGNATURE VALIDATION SUMMARY"
-              Write-Host "============================================================"
+              Write-Host "========================================================================================================"
+              Write-Host "                                    SIGNATURE VALIDATION SUMMARY"
+              Write-Host "========================================================================================================"
               Write-Host ""
-              Write-Host ("{0,-8} | {1,-50} | {2,-10} | {3}" -f "Type", "File", "Status", "Signer")
-              Write-Host "---------|-------------------------------------------------------|------------|------------------"
+              Write-Host ("{0,-8} | {1,-40} | {2,-10} | {3,-25} | {4}" -f "Type", "File", "Status", "Signer (CN)", "Subject")
+              Write-Host "---------|------------------------------------------|------------|---------------------------|------------------"
 
               foreach ($result in $signatureResults) {
                 $file = $result.File
-                if ($file.Length -gt 50) {
-                  $file = "..." + $file.Substring($file.Length - 47)
+                if ($file.Length -gt 40) {
+                  $file = "..." + $file.Substring($file.Length - 37)
                 }
-                Write-Host ("{0,-8} | {1,-50} | {2,-10} | {3}" -f $result.Type, $file, $result.Status, $result.Signer)
+                $signer = $result.Signer
+                if ($signer.Length -gt 25) {
+                  $signer = $signer.Substring(0, 22) + "..."
+                }
+                Write-Host ("{0,-8} | {1,-40} | {2,-10} | {3,-25} | {4}" -f $result.Type, $file, $result.Status, $signer, $result.Subject)
               }
 
               Write-Host ""
@@ -904,3 +962,10 @@ extends:
 
               Write-Host ""
               Write-Host "=== Windows signature validation completed ==="
+
+              # Fail the task if any files are not signed
+              if ($notSigned -gt 0) {
+                Write-Host "##vso[task.logissue type=error]VALIDATION FAILED: $notSigned file(s) are not signed!"
+                Write-Host "##vso[task.complete result=Failed;]Unsigned files detected"
+                exit 1
+              }
