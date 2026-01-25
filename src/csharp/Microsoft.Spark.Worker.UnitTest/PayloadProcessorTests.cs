@@ -71,11 +71,11 @@ namespace Microsoft.Spark.Worker.UnitTest
             PayloadWriter payloadWriter = new PayloadWriterFactory().Create();
             Payload payload = TestData.GetDefaultPayload();
 
-            using var serverListener = new DefaultSocketWrapper();
+            using var serverListener = new DefaultSocketWrapper(IPAddress.Loopback);
             serverListener.Listen();
 
             var port = (serverListener.LocalEndPoint as IPEndPoint).Port;
-            using var clientSocket = new DefaultSocketWrapper();
+            using var clientSocket = new DefaultSocketWrapper(IPAddress.Loopback);
             clientSocket.Connect(IPAddress.Loopback, port, null);
 
             using (ISocketWrapper serverSocket = serverListener.Accept())

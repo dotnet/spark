@@ -849,7 +849,8 @@ namespace Microsoft.Spark.Sql
                     Reference.Invoke("toPythonIterator", prefetchPartitions),
                     true);
             using ISocketWrapper socket = SocketFactory.CreateSocket();
-            socket.Connect(IPAddress.Loopback, port, secret);
+            IPEndPoint dotnetBackendIPEndpoint = SparkEnvironment.ConfigurationService.GetBackendIPEndpoint();
+            socket.Connect(dotnetBackendIPEndpoint.Address, port, secret);
             foreach (Row row in new RowCollector().Collect(socket, server))
             {
                 yield return row;
@@ -1077,15 +1078,18 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="funcName">String name of function to call</param>
         /// <param name="args">Arguments to the function</param>
-        /// <returns>IEnumerable of Rows from Spark</returns>
+        /// <returns></returns>
         private IEnumerable<Row> GetRows(string funcName, params object[] args)
         {
             (int port, string secret, _) = GetConnectionInfo(funcName, args);
-            using ISocketWrapper socket = SocketFactory.CreateSocket();
-            socket.Connect(IPAddress.Loopback, port, secret);
-            foreach (Row row in new RowCollector().Collect(socket))
+            IPEndPoint dotnetBackendIPEndpoint = SparkEnvironment.ConfigurationService.GetBackendIPEndpoint();
+            using (ISocketWrapper socket = SocketFactory.CreateSocket())
             {
-                yield return row;
+                socket.Connect(dotnetBackendIPEndpoint.Address, port, secret);
+                foreach (Row row in new RowCollector().Collect(socket))
+                {
+                    yield return row;
+                }
             }
         }
 
