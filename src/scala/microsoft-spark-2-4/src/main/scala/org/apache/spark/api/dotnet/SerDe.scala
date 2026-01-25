@@ -19,6 +19,7 @@ import scala.collection.JavaConverters._
  * This implementation of methods is mostly identical to the SerDe implementation in R.
  */
 class SerDe(val tracker: JVMObjectTracker) {
+
   def readObjectType(dis: DataInputStream): Char = {
     dis.readByte().toChar
   }
@@ -35,6 +36,7 @@ class SerDe(val tracker: JVMObjectTracker) {
       case 'g' => new java.lang.Long(readLong(dis))
       case 'd' => new java.lang.Double(readDouble(dis))
       case 'b' => new java.lang.Boolean(readBoolean(dis))
+      case 'm' => readDecimal(dis)
       case 'c' => readString(dis)
       case 'e' => readMap(dis)
       case 'r' => readBytes(dis)
@@ -57,6 +59,10 @@ class SerDe(val tracker: JVMObjectTracker) {
 
   def readInt(in: DataInputStream): Int = {
     in.readInt()
+  }
+
+  private def readDecimal(in: DataInputStream): BigDecimal = {
+      BigDecimal(readString(in))
   }
 
   private def readLong(in: DataInputStream): Long = {
@@ -110,6 +116,11 @@ class SerDe(val tracker: JVMObjectTracker) {
     (0 until len).map(_ => readInt(in)).toArray
   }
 
+  private def readDecimalArr(in: DataInputStream): Array[BigDecimal] = {
+    val len = readInt(in)
+    (0 until len).map(_ => readDecimal(in)).toArray
+  }
+
   private def readLongArr(in: DataInputStream): Array[Long] = {
     val len = readInt(in)
     (0 until len).map(_ => readLong(in)).toArray
@@ -156,6 +167,7 @@ class SerDe(val tracker: JVMObjectTracker) {
       case 'b' => readBooleanArr(dis)
       case 'j' => readStringArr(dis).map(x => tracker.getObject(x))
       case 'r' => readBytesArr(dis)
+      case 'm' => readDecimalArr(dis)
       case _ => throw new IllegalArgumentException(s"Invalid array type $arrType")
     }
   }
@@ -206,6 +218,7 @@ class SerDe(val tracker: JVMObjectTracker) {
       case "long" => dos.writeByte('g')
       case "integer" => dos.writeByte('i')
       case "logical" => dos.writeByte('b')
+      case "bigdecimal" => dos.writeByte('m')
       case "date" => dos.writeByte('D')
       case "time" => dos.writeByte('t')
       case "raw" => dos.writeByte('r')
@@ -238,6 +251,9 @@ class SerDe(val tracker: JVMObjectTracker) {
         case "boolean" | "java.lang.Boolean" =>
           writeType(dos, "logical")
           writeBoolean(dos, value.asInstanceOf[Boolean])
+        case "BigDecimal" | "java.math.BigDecimal" =>
+          writeType(dos, "bigdecimal")
+          writeString(dos, value.toString)
         case "java.sql.Date" =>
           writeType(dos, "date")
           writeDate(dos, value.asInstanceOf[Date])
