@@ -16,7 +16,7 @@ spark-submit \
   <path-to-microsoft-spark-jar> \
   debug
 ```
-and you will see the followng output:
+and you will see the following output:
 ```
 ***********************************************************************
 * .NET Backend running debug mode. Press enter to exit *

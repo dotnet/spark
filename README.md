@@ -159,7 +159,7 @@ We welcome contributions! Please review our [contribution guide](CONTRIBUTING.md
 
 This project would not have been possible without the outstanding work from the following communities:
 
-- [Apache Spark](https://spark.apache.org/): Unified Analytics Engine for Big Data, the underlying backend execution engine for .NET for Apache Spark
+- [Apache Spark](https://spark.apache.org/): Unified Analytics Engine for Big Data, the underlying back-end execution engine for .NET for Apache Spark
 - [Mobius](https://github.com/Microsoft/Mobius): C# and F# language binding and extensions to Apache Spark, a pre-cursor project to .NET for Apache Spark from the same Microsoft group.
 - [PySpark](https://spark.apache.org/docs/latest/api/python/index.html): Python bindings for Apache Spark, one of the implementations .NET for Apache Spark derives inspiration from. 
 - [sparkR](https://spark.apache.org/docs/latest/sparkr.html): one of the implementations .NET for Apache Spark derives inspiration from.

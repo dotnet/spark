@@ -17,7 +17,7 @@ namespace Microsoft.Spark.Services
         TimeSpan JvmThreadGCInterval { get; }
 
         /// <summary>
-        /// The port number used for communicating with the .NET backend process.
+        /// The port number used for communicating with the .NET back-end process.
         /// </summary>
         int GetBackendPortNumber();
 
