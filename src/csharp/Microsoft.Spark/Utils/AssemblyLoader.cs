@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -65,6 +66,19 @@ namespace Microsoft.Spark.Utils
 
             searchPaths.Add(Directory.GetCurrentDirectory());
             searchPaths.Add(AppDomain.CurrentDomain.BaseDirectory);
+
+            FileInfo[] archives = new DirectoryInfo(Directory.GetCurrentDirectory())
+                .GetFiles("*.zip");
+            foreach (var archive in archives)
+            {
+                string extractedPath = Path.Combine(archive.DirectoryName,
+                    Path.GetFileNameWithoutExtension(archive.FullName));
+                if (!File.Exists(extractedPath))
+                {
+                    ZipFile.ExtractToDirectory(archive.FullName, extractedPath);
+                    searchPaths.Add(extractedPath);
+                }
+            }
 
             return searchPaths.ToArray();
         }
