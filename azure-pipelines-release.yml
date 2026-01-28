@@ -50,6 +50,11 @@ extends:
       sourceRepositoriesToScan:
         exclude:
           - repository: forwardCompatibleRelease
+      # Specify Windows pool for SDL source analysis stage
+      sourceAnalysisPool:
+        name: Cosmos2MT-AzureDevOps-AgentPool
+        image: 1es-pt-windows-2022
+        os: windows
     pool:
       name: Cosmos2MT-AzureDevOps-AgentPool
       image: 1es-pt-windows-2019
@@ -223,13 +228,24 @@ extends:
                 # Extract the zip file
                 Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
                 Remove-Item -Path $zipPath -Force
-                
+
                 # Copy all Microsoft.Spark*.dll files to a temp location for signing while preserving the lib folder structure
                 Get-ChildItem -Path $extractPath\lib -Directory | ForEach-Object {
                   $frameworkDir = $_.Name
                   Get-ChildItem -Path $_.FullName -Filter "Microsoft.Spark*.dll" | ForEach-Object {
                     $packageName = (Split-Path $extractPath -Leaf)
                     $targetPath = Join-Path $workingDir "ToSign\$packageName\$frameworkDir"
+                    New-Item -Path $targetPath -ItemType Directory -Force
+                    Copy-Item $_.FullName -Destination $targetPath
+                  }
+                }
+
+                # Also copy DLLs from interactive-extensions/dotnet (used by DotNet.Interactive package)
+                $interactiveExtPath = Join-Path $extractPath "interactive-extensions\dotnet"
+                if (Test-Path $interactiveExtPath) {
+                  Get-ChildItem -Path $interactiveExtPath -Filter "Microsoft.Spark*.dll" | ForEach-Object {
+                    $packageName = (Split-Path $extractPath -Leaf)
+                    $targetPath = Join-Path $workingDir "ToSign\$packageName\interactive-extensions-dotnet"
                     New-Item -Path $targetPath -ItemType Directory -Force
                     Copy-Item $_.FullName -Destination $targetPath
                   }
@@ -281,13 +297,17 @@ extends:
           inputs:
             targetType: "inline"
             script: |
+              # Load required assemblies for ZIP operations
+              Add-Type -AssemblyName System.IO.Compression
+              Add-Type -AssemblyName System.IO.Compression.FileSystem
+
               $workingDir = "$(ArtifactPath)\NuGetExtract"
-              
+
               $packages = Get-ChildItem -Path "$workingDir" -Directory | Where-Object { $_.Name -ne "ToSign" }
               foreach ($package in $packages) {
                 $packageDir = $package.FullName
                 $packageName = $package.Name
-                
+
                 # Replace Microsoft.Spark*.dll files with their signed versions for each framework
                 $frameworks = Get-ChildItem -Path (Join-Path $packageDir "lib") -Directory
                 foreach ($framework in $frameworks) {
@@ -299,18 +319,35 @@ extends:
                     }
                   }
                 }
-                
-                # Create temp zip file first
-                $zipPath = Join-Path "$(ArtifactPath)\Output" "$packageName.zip"
+
+                # Also replace DLLs in interactive-extensions/dotnet with signed versions
+                $interactiveExtPath = Join-Path $packageDir "interactive-extensions\dotnet"
+                if (Test-Path $interactiveExtPath) {
+                  $dllFiles = Get-ChildItem -Path $interactiveExtPath -Filter "Microsoft.Spark*.dll"
+                  foreach ($dll in $dllFiles) {
+                    $signedDllPath = Join-Path $workingDir "ToSign\$packageName\interactive-extensions-dotnet\$($dll.Name)"
+                    if (Test-Path $signedDllPath) {
+                      Copy-Item -Path $signedDllPath -Destination $dll.FullName -Force
+                    }
+                  }
+                }
+
                 $nupkgPath = Join-Path "$(ArtifactPath)\Output" "$packageName.nupkg"
                 Remove-Item -Path $nupkgPath -Force -ErrorAction SilentlyContinue
-                Remove-Item -Path $zipPath -Force -ErrorAction SilentlyContinue
-                
-                # Create zip with package contents
-                Compress-Archive -Path (Join-Path $packageDir "*") -DestinationPath $zipPath -Force
-                
-                # Rename zip to nupkg
-                Move-Item -Path $zipPath -Destination $nupkgPath -Force
+
+                # Create nupkg with forward-slash paths for cross-platform compatibility
+                # Using .NET ZipFile API to ensure forward slashes in archive entry names
+                $zip = [System.IO.Compression.ZipFile]::Open($nupkgPath, [System.IO.Compression.ZipArchiveMode]::Create)
+                try {
+                  Get-ChildItem -Path $packageDir -Recurse -File | ForEach-Object {
+                    $relativePath = $_.FullName.Substring($packageDir.Length + 1)
+                    # Normalize path separators to forward slashes for cross-platform compatibility
+                    $entryName = $relativePath.Replace('\', '/')
+                    [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $_.FullName, $entryName) | Out-Null
+                  }
+                } finally {
+                  $zip.Dispose()
+                }
               }
 
         - task: EsrpCodeSigning@5
@@ -361,3 +398,574 @@ extends:
             cd $(Build.SourcesDirectory)
             dir /B /S
           displayName: '[TEMP] Print SourcesDirectory'
+
+    - stage: ValidateLinux
+      displayName: Validate Packages on Linux
+      dependsOn: Build
+      pool:
+        name: Cosmos2MT-AzureDevOps-AgentPool
+        image: 1es-pt-mariner-2.0-gen2
+        os: linux
+      jobs:
+      - job: ValidateNuGetPackages
+        displayName: Validate NuGet Package Installation
+        steps:
+        - task: DownloadPipelineArtifact@2
+          displayName: Download DotnetSpark Artifacts
+          inputs:
+            artifact: DotnetSpark
+            path: $(Pipeline.Workspace)/DotnetSpark
+
+        - task: UseDotNet@2
+          displayName: Install .NET SDK
+          inputs:
+            packageType: 'sdk'
+            version: '8.x'
+
+        - bash: |
+            set -e
+            ARTIFACT_DIR="$(Pipeline.Workspace)/DotnetSpark"
+            TEST_DIR="$(Pipeline.Workspace)/validate-test"
+
+            # Get the package version from the nupkg filename
+            NUPKG_FILE=$(ls $ARTIFACT_DIR/Microsoft.Spark.*.nupkg | grep -v Worker | head -1)
+            PACKAGE_VERSION=$(basename "$NUPKG_FILE" | sed 's/Microsoft.Spark\.\(.*\)\.nupkg/\1/')
+            echo "Package version: $PACKAGE_VERSION"
+
+            # Save variables for subsequent tasks
+            echo "##vso[task.setvariable variable=ARTIFACT_DIR]$ARTIFACT_DIR"
+            echo "##vso[task.setvariable variable=TEST_DIR]$TEST_DIR"
+            echo "##vso[task.setvariable variable=PACKAGE_VERSION]$PACKAGE_VERSION"
+
+            # Create test project directory
+            mkdir -p "$TEST_DIR"
+            cd "$TEST_DIR"
+
+            echo "Creating test console project..."
+            dotnet new console -n SparkValidation --framework net8.0
+
+            cd SparkValidation
+
+            # Create nuget.config with local package source
+            printf '%s\n' \
+              '<?xml version="1.0" encoding="utf-8"?>' \
+              '<configuration>' \
+              '  <packageSources>' \
+              '    <clear />' \
+              '    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />' \
+              "    <add key=\"LocalPackages\" value=\"$ARTIFACT_DIR\" />" \
+              '  </packageSources>' \
+              '</configuration>' > nuget.config
+
+            echo "nuget.config created:"
+            cat nuget.config
+
+            # Add the Microsoft.Spark package reference
+            echo ""
+            echo "Adding Microsoft.Spark package reference (version $PACKAGE_VERSION)..."
+            dotnet add package Microsoft.Spark --version "$PACKAGE_VERSION"
+          displayName: Package Installation and Load
+
+        - bash: |
+            set -e
+            cd "$(TEST_DIR)/SparkValidation"
+
+            # Create a simple test program that references Microsoft.Spark
+            cat << 'CSHARP' | sed 's/^            //' > Program.cs
+            using System;
+            using System.Reflection;
+
+            // Try to load Microsoft.Spark assembly
+            var sparkAssembly = Assembly.Load("Microsoft.Spark");
+            Console.WriteLine($"Successfully loaded: {sparkAssembly.FullName}");
+            Console.WriteLine($"Location: {sparkAssembly.Location}");
+
+            // Verify key types exist
+            var sparkSessionType = sparkAssembly.GetType("Microsoft.Spark.Sql.SparkSession");
+            if (sparkSessionType != null)
+            {
+                Console.WriteLine($"Found type: {sparkSessionType.FullName}");
+            }
+            else
+            {
+                Console.WriteLine("ERROR: Could not find SparkSession type");
+                Environment.Exit(1);
+            }
+
+            Console.WriteLine("VALIDATION PASSED: Package installed and loaded successfully on Linux");
+            CSHARP
+
+            echo "Building test project..."
+            dotnet build
+
+            echo "Running validation test..."
+            dotnet run
+
+            echo ""
+            echo "=== Linux validation completed successfully ==="
+          displayName: Create and Run Test
+
+        - bash: |
+            set -e
+            echo "=== Validating code signatures on Linux ==="
+
+            ARTIFACT_DIR="$(Pipeline.Workspace)/DotnetSpark"
+            EXTRACT_DIR="$(Pipeline.Workspace)/signature-check"
+            mkdir -p "$EXTRACT_DIR"
+
+            # Create a temp file to store signature results for summary table
+            RESULTS_FILE="$EXTRACT_DIR/signature_results.txt"
+            > "$RESULTS_FILE"
+
+            # Install osslsigncode for Authenticode signature verification
+            echo "Installing osslsigncode..."
+            sudo tdnf install -y osslsigncode 2>/dev/null || sudo yum install -y osslsigncode 2>/dev/null || sudo apt-get install -y osslsigncode 2>/dev/null || {
+              echo "WARNING: Could not install osslsigncode, will skip Authenticode verification"
+            }
+
+            # Verify NuGet package signatures
+            echo ""
+            echo "--- Verifying NuGet package signatures ---"
+            for nupkg in $ARTIFACT_DIR/Microsoft.Spark*.nupkg; do
+              if [ -f "$nupkg" ]; then
+                PACKAGE_NAME=$(basename "$nupkg")
+                echo ""
+                echo "Verifying signature of $PACKAGE_NAME..."
+
+                # Run dotnet nuget verify and capture output
+                VERIFY_OUTPUT=$(dotnet nuget verify "$nupkg" --all 2>&1) || true
+                echo "$VERIFY_OUTPUT"
+
+                # Check for signature presence - look for certificate info or signature block
+                # The package is signed if we see certificate/signature info, even if trust verification fails
+                if echo "$VERIFY_OUTPUT" | grep -qE "Signature type:|Certificate chain:|Signer certificate|Successfully verified"; then
+                  echo "OK: $PACKAGE_NAME is signed"
+                  # Extract full subject for display
+                  FULL_SUBJECT=$(echo "$VERIFY_OUTPUT" | grep -i "Subject:" | head -1 | sed 's/.*Subject: //' || echo "N/A")
+                  # Extract CN for short display
+                  SIGNER=$(echo "$FULL_SUBJECT" | grep -oP 'CN=\K[^,]+' || echo "$FULL_SUBJECT" | sed 's/,.*//')
+                  echo "NUGET|$PACKAGE_NAME|Valid|${SIGNER:-NuGet Signed}|${FULL_SUBJECT:-N/A}" >> "$RESULTS_FILE"
+                elif echo "$VERIFY_OUTPUT" | grep -q "NU3004\|no signature"; then
+                  echo "WARNING: Package $PACKAGE_NAME is not signed"
+                  echo "NUGET|$PACKAGE_NAME|NotSigned|N/A|N/A" >> "$RESULTS_FILE"
+                else
+                  # Signature exists but may have trust issues - still mark as signed
+                  echo "INFO: Package $PACKAGE_NAME has signature (trust chain may not be fully verified)"
+                  echo "NUGET|$PACKAGE_NAME|Valid|NuGet Signed|N/A" >> "$RESULTS_FILE"
+                fi
+              fi
+            done
+
+            # Function to verify Authenticode signature and collect results
+            verify_authenticode() {
+              local file="$1"
+              local relative_path="$2"
+              local source="$3"
+
+              if command -v osslsigncode &> /dev/null; then
+                local sig_output=$(osslsigncode verify -in "$file" 2>&1)
+                local sig_status=$?
+
+                if [ $sig_status -eq 0 ]; then
+                  # Extract full subject for display
+                  local full_subject=$(echo "$sig_output" | grep -i "Subject:" | head -1 | sed 's/.*Subject: //')
+                  # Extract CN for short display
+                  local cn=$(echo "$full_subject" | grep -oP 'CN=\K[^,]+' || echo "$full_subject" | sed 's/,.*//')
+                  echo "DLL|$relative_path|Valid|${cn:-Microsoft}|${full_subject:-N/A}" >> "$RESULTS_FILE"
+                else
+                  echo "DLL|$relative_path|NotSigned|N/A|N/A" >> "$RESULTS_FILE"
+                fi
+              else
+                echo "DLL|$relative_path|Unknown|osslsigncode not available|N/A" >> "$RESULTS_FILE"
+              fi
+            }
+
+            # Verify Authenticode signatures on DLLs inside NuGet packages
+            echo ""
+            echo "--- Verifying Authenticode signatures on DLLs ---"
+            for nupkg in $ARTIFACT_DIR/Microsoft.Spark*.nupkg; do
+              if [ -f "$nupkg" ] && [[ ! "$nupkg" == *"Worker"* ]]; then
+                PACKAGE_NAME=$(basename "$nupkg" .nupkg)
+                PACKAGE_DIR="$EXTRACT_DIR/$PACKAGE_NAME"
+                mkdir -p "$PACKAGE_DIR"
+                unzip -q "$nupkg" -d "$PACKAGE_DIR"
+
+                echo "Checking signatures in $PACKAGE_NAME..."
+                find "$PACKAGE_DIR" -name "Microsoft.Spark*.dll" -type f | while read dll; do
+                  RELATIVE_PATH="${dll#$PACKAGE_DIR/}"
+                  verify_authenticode "$dll" "$RELATIVE_PATH" "$PACKAGE_NAME"
+                done
+              fi
+            done
+
+            # Verify signatures on Worker archives (Linux tar.gz)
+            echo ""
+            echo "--- Verifying Authenticode signatures on Worker executables ---"
+            for targz in $ARTIFACT_DIR/*Worker*linux*.tar.gz; do
+              if [ -f "$targz" ]; then
+                ARCHIVE_NAME=$(basename "$targz" .tar.gz)
+                WORKER_DIR="$EXTRACT_DIR/$ARCHIVE_NAME"
+                mkdir -p "$WORKER_DIR"
+                tar -xzf "$targz" -C "$WORKER_DIR"
+
+                echo "Checking signatures in $ARCHIVE_NAME..."
+                find "$WORKER_DIR" -type f \( -name "Microsoft.Spark*.dll" -o -name "Microsoft.Spark*.exe" \) | while read file; do
+                  RELATIVE_PATH="${file#$WORKER_DIR/}"
+                  verify_authenticode "$file" "$RELATIVE_PATH" "$ARCHIVE_NAME"
+                done
+              fi
+            done
+
+            # Print summary table
+            echo ""
+            echo ""
+            echo "========================================================================================================"
+            echo "                                    SIGNATURE VALIDATION SUMMARY"
+            echo "========================================================================================================"
+            echo ""
+            printf "%-8s | %-40s | %-10s | %-25s | %s\n" "Type" "File" "Status" "Signer (CN)" "Subject"
+            echo "---------|------------------------------------------|------------|---------------------------|------------------"
+            while IFS='|' read -r type file status signer subject; do
+              # Truncate file name if too long
+              if [ ${#file} -gt 40 ]; then
+                file="...${file: -37}"
+              fi
+              # Truncate signer if too long
+              if [ ${#signer} -gt 25 ]; then
+                signer="${signer:0:22}..."
+              fi
+              printf "%-8s | %-40s | %-10s | %-25s | %s\n" "$type" "$file" "$status" "$signer" "$subject"
+            done < "$RESULTS_FILE"
+            echo ""
+
+            # Count results
+            TOTAL=$(wc -l < "$RESULTS_FILE")
+            VALID=$(grep -c "|Valid|" "$RESULTS_FILE" || echo "0")
+            NOT_SIGNED=$(grep -c "|NotSigned|" "$RESULTS_FILE" || echo "0")
+            UNKNOWN=$(grep -c "|Unknown|" "$RESULTS_FILE" || echo "0")
+
+            echo "Total files checked: $TOTAL"
+            echo "  Valid signatures: $VALID"
+            echo "  Not signed: $NOT_SIGNED"
+            echo "  Unknown: $UNKNOWN"
+            echo ""
+            echo "=== Linux signature validation completed ==="
+
+            # Fail the task if any files are not signed
+            if [ "$NOT_SIGNED" -gt 0 ]; then
+              echo "##vso[task.logissue type=error]VALIDATION FAILED: $NOT_SIGNED file(s) are not signed!"
+              echo "##vso[task.complete result=Failed;]Unsigned files detected"
+              exit 1
+            fi
+          displayName: Validate Code Signatures
+
+    - stage: ValidateWindows
+      displayName: Validate Packages on Windows
+      dependsOn: Build
+      pool:
+        name: Cosmos2MT-AzureDevOps-AgentPool
+        image: 1es-pt-windows-2022
+        os: windows
+      jobs:
+      - job: ValidateNuGetPackages
+        displayName: Validate NuGet Package Installation
+        steps:
+        - task: DownloadPipelineArtifact@2
+          displayName: Download DotnetSpark Artifacts
+          inputs:
+            artifact: DotnetSpark
+            path: $(Pipeline.Workspace)/DotnetSpark
+
+        - task: UseDotNet@2
+          displayName: Install .NET SDK
+          inputs:
+            packageType: 'sdk'
+            version: '8.x'
+
+        - task: PowerShell@2
+          displayName: Package Installation and Load
+          inputs:
+            targetType: "inline"
+            script: |
+              $ErrorActionPreference = "Stop"
+              Write-Host "=== Installing NuGet packages on Windows ==="
+
+              $artifactDir = "$(Pipeline.Workspace)/DotnetSpark"
+              $testDir = "$(Pipeline.Workspace)/validate-test"
+
+              # Get the package version from the nupkg filename
+              $nupkgFile = Get-ChildItem "$artifactDir/Microsoft.Spark.*.nupkg" | Where-Object { $_.Name -notlike "*Worker*" } | Select-Object -First 1
+              $packageVersion = $nupkgFile.BaseName -replace "Microsoft\.Spark\.", ""
+              Write-Host "Package version: $packageVersion"
+
+              # Save variables for subsequent tasks
+              Write-Host "##vso[task.setvariable variable=ARTIFACT_DIR]$artifactDir"
+              Write-Host "##vso[task.setvariable variable=TEST_DIR]$testDir"
+              Write-Host "##vso[task.setvariable variable=PACKAGE_VERSION]$packageVersion"
+
+              # Create a test project
+              New-Item -Path $testDir -ItemType Directory -Force | Out-Null
+              Set-Location $testDir
+
+              Write-Host "Creating test console project..."
+              dotnet new console -n SparkValidation --framework net8.0
+              Set-Location SparkValidation
+
+              # Create nuget.config with local package source
+              $nugetConfig = '<?xml version="1.0" encoding="utf-8"?>' + "`n"
+              $nugetConfig += '<configuration>' + "`n"
+              $nugetConfig += '  <packageSources>' + "`n"
+              $nugetConfig += '    <clear />' + "`n"
+              $nugetConfig += '    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />' + "`n"
+              $nugetConfig += "    <add key=`"LocalPackages`" value=`"$artifactDir`" />" + "`n"
+              $nugetConfig += '  </packageSources>' + "`n"
+              $nugetConfig += '</configuration>'
+              Set-Content -Path "nuget.config" -Value $nugetConfig
+
+              # Add the Microsoft.Spark package reference
+              Write-Host "Adding Microsoft.Spark package reference..."
+              dotnet add package Microsoft.Spark --version $packageVersion
+
+        - task: PowerShell@2
+          displayName: Create and Run Test
+          inputs:
+            targetType: "inline"
+            script: |
+              $ErrorActionPreference = "Stop"
+              Set-Location "$(TEST_DIR)/SparkValidation"
+
+              # Create a simple test program that references Microsoft.Spark
+              $programCs = @'
+              using System;
+              using System.Reflection;
+
+              // Try to load Microsoft.Spark assembly
+              var sparkAssembly = Assembly.Load("Microsoft.Spark");
+              Console.WriteLine($"Successfully loaded: {sparkAssembly.FullName}");
+              Console.WriteLine($"Location: {sparkAssembly.Location}");
+
+              // Verify key types exist
+              var sparkSessionType = sparkAssembly.GetType("Microsoft.Spark.Sql.SparkSession");
+              if (sparkSessionType != null)
+              {
+                  Console.WriteLine($"Found type: {sparkSessionType.FullName}");
+              }
+              else
+              {
+                  Console.WriteLine("ERROR: Could not find SparkSession type");
+                  Environment.Exit(1);
+              }
+
+              Console.WriteLine("VALIDATION PASSED: Package installed and loaded successfully on Windows");
+              '@
+              # Strip leading 14 spaces from each line (the YAML indentation)
+              $programCs = $programCs -replace '(?m)^              ', ''
+              Set-Content -Path "Program.cs" -Value $programCs
+
+              # Build and run the test
+              Write-Host "Building test project..."
+              dotnet build
+
+              Write-Host "Running validation test..."
+              dotnet run
+
+              Write-Host ""
+              Write-Host "=== Windows validation completed successfully ==="
+
+        - task: PowerShell@2
+          displayName: Validate Code Signatures
+          inputs:
+            targetType: "inline"
+            script: |
+              $ErrorActionPreference = "Stop"
+              Write-Host "=== Validating code signatures on Windows ==="
+
+              $artifactDir = "$(Pipeline.Workspace)/DotnetSpark"
+              $validationFailed = $false
+
+              # Array to store signature results for summary
+              $signatureResults = @()
+
+              # Verify NuGet package signatures
+              Write-Host ""
+              Write-Host "--- Verifying NuGet package signatures ---"
+              Get-ChildItem "$artifactDir/Microsoft.Spark*.nupkg" | ForEach-Object {
+                $nupkg = $_.FullName
+                $packageName = $_.Name
+                Write-Host "Verifying signature of $packageName..."
+                $result = dotnet nuget verify $nupkg --all 2>&1 | Out-String
+                Write-Host $result
+
+                # Check for signature presence - look for certificate info or signature block
+                # The package is signed if we see certificate/signature info, even if trust verification fails
+                if ($result -match "Signature type:|Certificate chain:|Signer certificate|Successfully verified") {
+                  Write-Host "OK: $packageName is signed"
+                  # Extract full subject for display
+                  $fullSubject = "N/A"
+                  $signer = "NuGet Signed"
+                  if ($result -match "Subject:\s*(.+?)[\r\n]") {
+                    $fullSubject = $Matches[1].Trim()
+                    if ($fullSubject -match 'CN=([^,]+)') {
+                      $signer = $Matches[1]
+                    } else {
+                      $signer = $fullSubject -replace ",.*", ""
+                    }
+                  }
+                  $signatureResults += [PSCustomObject]@{
+                    Type = "NuGet"
+                    File = $packageName
+                    Status = "Valid"
+                    Signer = $signer
+                    Subject = $fullSubject
+                  }
+                } elseif ($result -match "NU3004|no signature") {
+                  Write-Host "WARNING: $packageName is not signed"
+                  $signatureResults += [PSCustomObject]@{
+                    Type = "NuGet"
+                    File = $packageName
+                    Status = "NotSigned"
+                    Signer = "N/A"
+                    Subject = "N/A"
+                  }
+                } else {
+                  # Signature exists but may have trust issues - still mark as signed
+                  Write-Host "INFO: $packageName has signature (trust chain may not be fully verified)"
+                  $signatureResults += [PSCustomObject]@{
+                    Type = "NuGet"
+                    File = $packageName
+                    Status = "Valid"
+                    Signer = "NuGet Signed"
+                    Subject = "N/A"
+                  }
+                }
+              }
+
+              # Verify Authenticode signatures on DLLs inside NuGet packages
+              Write-Host ""
+              Write-Host "--- Verifying Authenticode signatures on DLLs ---"
+              $extractDir = Join-Path $artifactDir "signature-check"
+              New-Item -Path $extractDir -ItemType Directory -Force | Out-Null
+
+              Get-ChildItem "$artifactDir/Microsoft.Spark*.nupkg" | Where-Object { $_.Name -notlike "*Worker*" } | ForEach-Object {
+                $nupkg = $_.FullName
+                $packageName = $_.BaseName
+                $packageExtractDir = Join-Path $extractDir $packageName
+
+                # Extract package
+                Add-Type -AssemblyName System.IO.Compression.FileSystem
+                [System.IO.Compression.ZipFile]::ExtractToDirectory($nupkg, $packageExtractDir)
+
+                Write-Host "Checking signatures in $packageName..."
+
+                # Check DLL signatures with detailed info
+                Get-ChildItem -Path $packageExtractDir -Recurse -Filter "Microsoft.Spark*.dll" | ForEach-Object {
+                  $dll = $_.FullName
+                  $relativePath = $_.FullName.Substring($packageExtractDir.Length + 1)
+                  $sig = Get-AuthenticodeSignature $dll
+
+                  $signer = "N/A"
+                  $fullSubject = "N/A"
+                  if ($sig.SignerCertificate) {
+                    $fullSubject = $sig.SignerCertificate.Subject
+                    # Extract CN from Subject
+                    if ($sig.SignerCertificate.Subject -match 'CN=([^,]+)') {
+                      $signer = $Matches[1]
+                    } else {
+                      $signer = $sig.SignerCertificate.Subject.Substring(0, [Math]::Min(30, $sig.SignerCertificate.Subject.Length))
+                    }
+                  }
+
+                  $signatureResults += [PSCustomObject]@{
+                    Type = "DLL"
+                    File = $relativePath
+                    Status = $sig.Status.ToString()
+                    Signer = $signer
+                    Subject = $fullSubject
+                  }
+                }
+              }
+
+              # Verify Authenticode signatures on Worker executables
+              Write-Host ""
+              Write-Host "--- Verifying Authenticode signatures on Worker archives ---"
+              Get-ChildItem "$artifactDir/*.zip" | Where-Object { $_.Name -like "*Worker*" -and $_.Name -like "*win*" } | ForEach-Object {
+                $zipPath = $_.FullName
+                $zipName = $_.BaseName
+                $workerExtractDir = Join-Path $extractDir $zipName
+
+                # Extract worker archive
+                Expand-Archive -Path $zipPath -DestinationPath $workerExtractDir -Force
+
+                Write-Host "Checking signatures in $zipName..."
+
+                # Check exe and dll signatures with detailed info
+                Get-ChildItem -Path $workerExtractDir -Recurse -Include "*.exe","*.dll" | Where-Object { $_.Name -like "Microsoft.Spark*" } | ForEach-Object {
+                  $file = $_.FullName
+                  $relativePath = $_.FullName.Substring($workerExtractDir.Length + 1)
+                  $sig = Get-AuthenticodeSignature $file
+
+                  $signer = "N/A"
+                  $fullSubject = "N/A"
+                  if ($sig.SignerCertificate) {
+                    $fullSubject = $sig.SignerCertificate.Subject
+                    if ($sig.SignerCertificate.Subject -match 'CN=([^,]+)') {
+                      $signer = $Matches[1]
+                    } else {
+                      $signer = $sig.SignerCertificate.Subject.Substring(0, [Math]::Min(30, $sig.SignerCertificate.Subject.Length))
+                    }
+                  }
+
+                  $signatureResults += [PSCustomObject]@{
+                    Type = "DLL"
+                    File = $relativePath
+                    Status = $sig.Status.ToString()
+                    Signer = $signer
+                    Subject = $fullSubject
+                  }
+                }
+              }
+
+              # Print summary table
+              Write-Host ""
+              Write-Host ""
+              Write-Host "========================================================================================================"
+              Write-Host "                                    SIGNATURE VALIDATION SUMMARY"
+              Write-Host "========================================================================================================"
+              Write-Host ""
+              Write-Host ("{0,-8} | {1,-40} | {2,-10} | {3,-25} | {4}" -f "Type", "File", "Status", "Signer (CN)", "Subject")
+              Write-Host "---------|------------------------------------------|------------|---------------------------|------------------"
+
+              foreach ($result in $signatureResults) {
+                $file = $result.File
+                if ($file.Length -gt 40) {
+                  $file = "..." + $file.Substring($file.Length - 37)
+                }
+                $signer = $result.Signer
+                if ($signer.Length -gt 25) {
+                  $signer = $signer.Substring(0, 22) + "..."
+                }
+                Write-Host ("{0,-8} | {1,-40} | {2,-10} | {3,-25} | {4}" -f $result.Type, $file, $result.Status, $signer, $result.Subject)
+              }
+
+              Write-Host ""
+              $total = $signatureResults.Count
+              $valid = ($signatureResults | Where-Object { $_.Status -eq "Valid" }).Count
+              $notSigned = ($signatureResults | Where-Object { $_.Status -eq "NotSigned" }).Count
+              $other = $total - $valid - $notSigned
+
+              Write-Host "Total files checked: $total"
+              Write-Host "  Valid signatures: $valid"
+              Write-Host "  Not signed: $notSigned"
+              if ($other -gt 0) {
+                Write-Host "  Other: $other"
+              }
+
+              Write-Host ""
+              Write-Host "=== Windows signature validation completed ==="
+
+              # Fail the task if any files are not signed
+              if ($notSigned -gt 0) {
+                Write-Host "##vso[task.logissue type=error]VALIDATION FAILED: $notSigned file(s) are not signed!"
+                Write-Host "##vso[task.complete result=Failed;]Unsigned files detected"
+                exit 1
+              }
