@@ -36,7 +36,7 @@ namespace Microsoft.Spark.Worker.Processor
 
             if (evalType == PythonEvalType.NON_UDF)
             {
-                commandPayload.Commands = new[] { ReadRDDCommand(stream) };
+                commandPayload.Commands = new[] { ReadNonUdfCommand(stream) };
             }
             else
             {
@@ -47,11 +47,12 @@ namespace Microsoft.Spark.Worker.Processor
         }
 
         /// <summary>
-        /// Read one RDDCommand from the stream.
+        /// Read one a non-UDF command from the stream.
+        /// Supports both RDD commands and Raw commands.
         /// </summary>
         /// <param name="stream">Stream to read from</param>
-        /// <returns>RDDCommand object</returns>
-        private static RDDCommand ReadRDDCommand(Stream stream)
+        /// <returns>CommandBase object (either RDDCommand or RawCommand)</returns>
+        private static CommandBase ReadNonUdfCommand(Stream stream)
         {
             int commandBytesCount = SerDe.ReadInt32(stream);
             if (commandBytesCount <= 0)
@@ -60,20 +61,35 @@ namespace Microsoft.Spark.Worker.Processor
                     $"Invalid command size: {commandBytesCount}");
             }
 
-            var rddCommand = new RDDCommand
+            object obj = CommandSerDe.DeserializeNonUdf(
+                stream,
+                out CommandSerDe.SerializedMode serializerMode,
+                out CommandSerDe.SerializedMode deserializerMode,
+                out var runMode);
+
+            CommandBase command;
+
+            if (obj is RDD.WorkerFunction.ExecuteDelegate rddWorkerFunctionDelegate)
             {
-                WorkerFunction = new RDD.WorkerFunction(
-                    CommandSerDe.Deserialize<RDD.WorkerFunction.ExecuteDelegate>(
-                    stream,
-                    out CommandSerDe.SerializedMode serializerMode,
-                    out CommandSerDe.SerializedMode deserializerMode,
-                    out var runMode))
-            };
+                command = new RDDCommand
+                {
+                    WorkerFunction = new RDD.WorkerFunction(rddWorkerFunctionDelegate)
+                };
+            }
+            else
+            {
+                // Raw UDF - provides direct stream access for high-performance scenarios
+                command = new RawCommand
+                {
+                    WorkerFunction = new RawWorkerFunction(
+                        (RawWorkerFunction.ExecuteDelegate)obj)
+                };
+            }
 
-            rddCommand.SerializerMode = serializerMode;
-            rddCommand.DeserializerMode = deserializerMode;
+            command.SerializerMode = serializerMode;
+            command.DeserializerMode = deserializerMode;
 
-            return rddCommand;
+            return command;
         }
 
         /// <summary>

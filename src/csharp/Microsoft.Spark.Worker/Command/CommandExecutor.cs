@@ -55,11 +55,26 @@ namespace Microsoft.Spark.Worker.Command
                         "Invalid number of commands for RDD: {commandPayload.Commands.Length}");
                 }
 
-                return new RDDCommandExecutor().Execute(
-                    inputStream,
-                    outputStream,
-                    splitIndex,
-                    (RDDCommand)commandPayload.Commands[0]);
+                var command = commandPayload.Commands[0];
+
+                // Handle both RDD commands and Raw commands for NON_UDF eval type.
+                // Raw commands provide direct stream access for high-performance scenarios.
+                if (command is RDDCommand rddCommand)
+                {
+                    return new RDDCommandExecutor().Execute(
+                        inputStream,
+                        outputStream,
+                        splitIndex,
+                        rddCommand);
+                }
+                else
+                {
+                    return new RawCommandExecutor().Execute(
+                        inputStream,
+                        outputStream,
+                        splitIndex,
+                        (RawCommand)command);
+                }
             }
 
             return SqlCommandExecutor.Execute(

@@ -381,3 +381,7 @@ hs_err_pid*
 **/.bloop/
 **/.metals/
 **/.bsp/**
+
+# Claude Code
+CLAUDE.md
+.claude/
