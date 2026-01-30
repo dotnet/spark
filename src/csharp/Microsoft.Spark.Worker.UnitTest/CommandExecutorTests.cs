@@ -1097,6 +1097,108 @@ namespace Microsoft.Spark.Worker.UnitTest
             Assert.Equal(outputStream.Length, outputStream.Position);
         }
 
+        /// <summary>
+        /// Tests the RawCommandExecutor which provides direct stream access for high-performance
+        /// scenarios where standard row-by-row processing is not efficient enough.
+        /// </summary>
+        [Theory]
+        [MemberData(nameof(CommandExecutorData.Data), MemberType = typeof(CommandExecutorData))]
+        public void TestRawCommandExecutor(Version sparkVersion, IpcOptions ipcOptions)
+        {
+            _ = ipcOptions;
+
+            // Create a raw UDF that reads integers from input stream, doubles them,
+            // and writes to output stream.
+            int RawUdf(
+                int splitId,
+                Stream inputStream,
+                Stream outputStream,
+                CommandSerDe.SerializedMode serializerMode,
+                CommandSerDe.SerializedMode deserializerMode)
+            {
+                int count = 0;
+                int length;
+
+                // Read until END_OF_DATA_SECTION
+                while ((length = SerDe.ReadInt32(inputStream)) !=
+                       (int)SpecialLengths.END_OF_DATA_SECTION)
+                {
+                    if (length > 0)
+                    {
+                        int value = BinarySerDe.Deserialize<int>(inputStream);
+                        int result = value * 2;
+
+                        // Write result back
+                        var memoryStream = new MemoryStream();
+                        BinarySerDe.Serialize(memoryStream, result);
+                        byte[] resultBytes = memoryStream.ToArray();
+                        SerDe.Write(outputStream, resultBytes.Length);
+                        SerDe.Write(outputStream, resultBytes);
+
+                        count++;
+                    }
+                }
+
+                return count;
+            }
+
+            var command = new RawCommand()
+            {
+                WorkerFunction = new RawWorkerFunction(RawUdf),
+                SerializerMode = CommandSerDe.SerializedMode.Byte,
+                DeserializerMode = CommandSerDe.SerializedMode.Byte
+            };
+
+            var commandPayload = new Worker.CommandPayload()
+            {
+                EvalType = UdfUtils.PythonEvalType.NON_UDF,
+                Commands = new[] { command }
+            };
+
+            using var inputStream = new MemoryStream();
+            using var outputStream = new MemoryStream();
+
+            // Write test data to the input stream.
+            var inputs = new int[] { 1, 2, 3, 4, 5 };
+
+            foreach (int input in inputs)
+            {
+                var memoryStream = new MemoryStream();
+                BinarySerDe.Serialize(memoryStream, input);
+                byte[] value = memoryStream.ToArray();
+                SerDe.Write(inputStream, value.Length);
+                SerDe.Write(inputStream, value);
+            }
+
+            SerDe.Write(inputStream, (int)SpecialLengths.END_OF_DATA_SECTION);
+            inputStream.Seek(0, SeekOrigin.Begin);
+
+            // Execute the command.
+            CommandExecutorStat stat = new CommandExecutor(sparkVersion).Execute(
+                inputStream,
+                outputStream,
+                0,
+                commandPayload);
+
+            // Validate all the data on the stream is read.
+            Assert.Equal(inputStream.Length, inputStream.Position);
+            Assert.Equal(5, stat.NumEntriesProcessed);
+
+            // Validate the output stream.
+            outputStream.Seek(0, SeekOrigin.Begin);
+
+            for (int i = 0; i < inputs.Length; ++i)
+            {
+                Assert.True(SerDe.ReadInt32(outputStream) > 0);
+                Assert.Equal(
+                    inputs[i] * 2,
+                    BinarySerDe.Deserialize<object>(outputStream));
+            }
+
+            // Validate all the data on the stream is read.
+            Assert.Equal(outputStream.Length, outputStream.Position);
+        }
+
         private void CheckEOS(Stream stream, IpcOptions ipcOptions)
         {
             if (!ipcOptions.WriteLegacyIpcFormat)

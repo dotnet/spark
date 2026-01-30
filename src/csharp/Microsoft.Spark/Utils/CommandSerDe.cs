@@ -316,6 +316,57 @@ namespace Microsoft.Spark.Utils
             return udf;
         }
 
+        /// <summary>
+        /// Deserializes a non-UDF command from the stream.
+        /// This method handles both RDD commands and Raw commands, detecting the type
+        /// from the serialized wrapper information.
+        ///
+        /// Raw UDFs provide direct access to input/output streams for high-performance
+        /// scenarios where standard row-by-row processing is not efficient enough.
+        /// </summary>
+        /// <param name="stream">Stream to read from</param>
+        /// <param name="serializerMode">Output serialization mode</param>
+        /// <param name="deserializerMode">Output deserialization mode</param>
+        /// <param name="runMode">Output run mode</param>
+        /// <returns>Either RDD.WorkerFunction.ExecuteDelegate or RawWorkerFunction.ExecuteDelegate</returns>
+        internal static object DeserializeNonUdf(
+            Stream stream,
+            out SerializedMode serializerMode,
+            out SerializedMode deserializerMode,
+            out string runMode)
+        {
+            UdfWrapperData udfWrapperData = GetUdfWrapperDataFromStream(
+                stream,
+                out serializerMode,
+                out deserializerMode,
+                out runMode);
+            int nodeIndex = 0;
+            int udfIndex = 0;
+            UdfWrapperNode node = udfWrapperData.UdfWrapperNodes[nodeIndex];
+            Type nodeType = Type.GetType(node.TypeName);
+            Delegate udf;
+            if (nodeType == typeof(RawUdfWrapper))
+            {
+                udf = DeserializeUdfs<RawWorkerFunction.ExecuteDelegate>(
+                    udfWrapperData,
+                    ref nodeIndex,
+                    ref udfIndex);
+            }
+            else
+            {
+                udf = DeserializeUdfs<RDD.WorkerFunction.ExecuteDelegate>(
+                    udfWrapperData,
+                    ref nodeIndex,
+                    ref udfIndex);
+            }
+
+            // Check all the data is consumed.
+            Debug.Assert(nodeIndex == udfWrapperData.UdfWrapperNodes.Length);
+            Debug.Assert(udfIndex == udfWrapperData.Udfs.Length);
+
+            return udf;
+        }
+
         private static Delegate DeserializeUdfs<T>(
             UdfWrapperData data,
             ref int nodeIndex,

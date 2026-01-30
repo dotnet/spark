@@ -74,6 +74,16 @@ namespace Microsoft.Spark.Worker
     }
 
     /// <summary>
+    /// RawCommand stores information for raw UDF execution that operates directly on streams.
+    /// Raw UDFs provide direct access to input/output streams for high-performance scenarios
+    /// where standard row-by-row processing is not efficient enough.
+    /// </summary>
+    internal sealed class RawCommand : CommandBase
+    {
+        internal RawWorkerFunction WorkerFunction { get; set; }
+    }
+
+    /// <summary>
     /// CommandPayload stores information on multiple commands.
     /// </summary>
     internal class CommandPayload
