@@ -103,7 +103,7 @@ The following table outlines the supported Spark versions along with the microso
         <tr>
             <td>3.0.1</td>
         </tr>
-		<tr>
+        <tr>
             <td>3.0.2</td>
         </tr>
         <tr>
@@ -185,7 +185,7 @@ The following table outlines the supported Delta versions along with the Microso
     <tbody align="center">
         <tr>
             <td>0.1.0</td>
-            <td rowspan=11>2.3.1-rc1</td>
+            <td rowspan=15>2.3.1-rc1</td>
         </tr>
         <tr>
             <td>0.2.0</td>
@@ -208,13 +208,13 @@ The following table outlines the supported Delta versions along with the Microso
         <tr>
             <td>0.7.0</td>
         </tr>
-		<tr>
+        <tr>
             <td>0.8.0</td>
         </tr>
         <tr>
             <td>1.0.0</td>
         </tr>
-		<tr>
+        <tr>
             <td>1.1.0</td>
         </tr>
         <tr>
@@ -251,10 +251,10 @@ The following table outlines the supported Hyperspace versions along with the Mi
         <tr>
             <td>0.2.0</td>
         </tr>
-		<tr>
+        <tr>
             <td>0.3.0</td>
         </tr>
-		<tr>
+        <tr>
             <td>0.4.0</td>
         </tr>
     </tbody>
