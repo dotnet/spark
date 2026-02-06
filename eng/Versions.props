@@ -1,7 +1,6 @@
 <Project>
   <PropertyGroup>
     <!-- This repo version -->
-    <VersionPrefix>2.3.1</VersionPrefix>
-    <VersionSuffix>rc1</VersionSuffix>
+    <VersionPrefix>2.3.1-rc1</VersionPrefix>
   </PropertyGroup>
 </Project>
