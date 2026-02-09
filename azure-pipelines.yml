@@ -301,6 +301,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.8'
+      packageVersion: '2.4.8-fixed'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
