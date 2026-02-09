@@ -148,10 +148,7 @@ stages:
             feedsToUse: 'internal'
             vstsFeed: 'ManagedOSS/Compute'
             vstsFeedPackage: 'spark-distro'
-            ${{ if test.packageVersion }}:
-              vstsPackageVersion: '${{ test.packageVersion }}'
-            ${{ else }}:
-              vstsPackageVersion: '${{ test.version }}'
+            vstsPackageVersion: '${{ coalesce(test.packageVersion, test.version) }}'
 
         - pwsh: |
             Write-Host "=== Listing $(Build.BinariesDirectory) ==="
