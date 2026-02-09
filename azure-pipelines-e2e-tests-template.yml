@@ -151,12 +151,22 @@ stages:
             vstsPackageVersion: '${{ test.version }}'
 
         - pwsh: |
+            Write-Host "=== Listing $(Build.BinariesDirectory) ==="
+            Get-ChildItem -Recurse "$(Build.BinariesDirectory)" | Select-Object FullName, Length | Format-Table -AutoSize
             $sparkBinaryName = "spark-${{ test.version }}-bin-hadoop2.7"
             # Spark 3.3.0+ uses Hadoop3
             if ([version]"3.3.0" -le [version]"${{ test.version }}") {
                 $sparkBinaryName = "spark-${{ test.version }}-bin-hadoop3"
             }
-            tar xzvf "$sparkBinaryName.tgz"
+            $tgzFile = "$sparkBinaryName.tgz"
+            Write-Host "Looking for: $tgzFile"
+            Write-Host "Exists directly: $(Test-Path $tgzFile)"
+            # Check if file exists in spark-distro subdirectory (UniversalPackages may create this)
+            if (-not (Test-Path $tgzFile) -and (Test-Path "spark-distro/$tgzFile")) {
+                Write-Host "Found in spark-distro/ subfolder, moving up"
+                Move-Item "spark-distro/$tgzFile" .
+            }
+            tar xzvf "$tgzFile"
             move $sparkBinaryName spark-${{ test.version }}-bin-hadoop
           displayName: 'Extract Spark Distro ${{ test.version }}'
           workingDirectory: $(Build.BinariesDirectory)
