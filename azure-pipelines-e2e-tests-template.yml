@@ -140,17 +140,25 @@ stages:
                 cp hadoop-2.8.1\winutils.exe hadoop\bin
               }
 
+        - task: UniversalPackages@0
+          displayName: 'Download Spark Distro ${{ test.version }}'
+          inputs:
+            command: 'download'
+            downloadDirectory: '$(Build.BinariesDirectory)'
+            feedsToUse: 'internal'
+            vstsFeed: 'ManagedOSS/Compute'
+            vstsFeedPackage: 'spark-distro'
+            vstsPackageVersion: '${{ test.version }}'
+
         - pwsh: |
-            echo "Downloading Spark ${{ test.version }}"
             $sparkBinaryName = "spark-${{ test.version }}-bin-hadoop2.7"
             # Spark 3.3.0+ uses Hadoop3
             if ([version]"3.3.0" -le [version]"${{ test.version }}") {
                 $sparkBinaryName = "spark-${{ test.version }}-bin-hadoop3"
             }
-            curl -k -L -o spark-${{ test.version }}.tgz https://archive.apache.org/dist/spark/spark-${{ test.version }}/${sparkBinaryName}.tgz
-            tar xzvf spark-${{ test.version }}.tgz
+            tar xzvf ${sparkBinaryName}.tgz
             move $sparkBinaryName spark-${{ test.version }}-bin-hadoop
-          displayName: 'Download Spark Distro ${{ test.version }}'
+          displayName: 'Extract Spark Distro ${{ test.version }}'
           workingDirectory: $(Build.BinariesDirectory)
 
         - task: DotNetCoreCLI@2
