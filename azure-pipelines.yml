@@ -217,7 +217,6 @@ stages:
     forwardCompatibleRelease: $(forwardCompatibleRelease)
     tests:
     - version: '2.4.0'
-
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -230,7 +229,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.1'
-
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
