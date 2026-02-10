@@ -217,8 +217,7 @@ stages:
     forwardCompatibleRelease: $(forwardCompatibleRelease)
     tests:
     - version: '2.4.0'
-      packageName: 'spark-distro'
-      packageVersion: '2.4.0'
+
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -231,8 +230,7 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.1'
-      packageName: 'spark-distro'
-      packageVersion: '2.4.1'
+
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -245,8 +243,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.3'
-      packageName: 'spark-distro'
-      packageVersion: '2.4.3'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -259,8 +255,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.4'
-      packageName: 'spark-distro'
-      packageVersion: '2.4.4'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -273,8 +267,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.5'
-      packageName: 'spark-distro'
-      packageVersion: '2.4.5'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -287,8 +279,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.6'
-      packageName: 'spark-distro'
-      packageVersion: '2.4.6'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -301,8 +291,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.7'
-      packageName: 'spark-distro'
-      packageVersion: '2.4.7'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -315,8 +303,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '2.4.8'
-      packageName: 'spark-distro-248'
-      packageVersion: '2.4.8'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -329,8 +315,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_2_4)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_2_4)
     - version: '3.0.0'
-      packageName: 'spark-distro'
-      packageVersion: '3.0.0'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -343,8 +327,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
     - version: '3.0.1'
-      packageName: 'spark-distro'
-      packageVersion: '3.0.1'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -357,8 +339,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
     - version: '3.0.2'
-      packageName: 'spark-distro'
-      packageVersion: '3.0.2'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -371,8 +351,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_0)
     - version: '3.1.1'
-      packageName: 'spark-distro'
-      packageVersion: '3.1.1'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -385,8 +363,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
     - version: '3.1.2'
-      packageName: 'spark-distro'
-      packageVersion: '3.1.2'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -399,8 +375,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_1)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_1)
     - version: '3.2.0'
-      packageName: 'spark-distro'
-      packageVersion: '3.2.0'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -413,8 +387,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
     - version: '3.2.1'
-      packageName: 'spark-distro'
-      packageVersion: '3.2.1'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -427,8 +399,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
     - version: '3.2.2'
-      packageName: 'spark-distro'
-      packageVersion: '3.2.2'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -441,8 +411,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
     - version: '3.2.3'
-      packageName: 'spark-distro'
-      packageVersion: '3.2.3'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -455,8 +423,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_2)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_2)
     - version: '3.5.0'
-      packageName: 'spark-distro'
-      packageVersion: '3.5.0'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -469,8 +435,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_5)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_5)
     - version: '3.5.1'
-      packageName: 'spark-distro'
-      packageVersion: '3.5.1'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -483,8 +447,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_5)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_5)
     - version: '3.5.2'
-      packageName: 'spark-distro'
-      packageVersion: '3.5.2'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
@@ -497,8 +459,6 @@ stages:
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_5)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_5)
     - version: '3.5.3'
-      packageName: 'spark-distro'
-      packageVersion: '3.5.3'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false
       jobOptions:
