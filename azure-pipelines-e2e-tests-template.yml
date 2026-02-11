@@ -140,17 +140,50 @@ stages:
                 cp hadoop-2.8.1\winutils.exe hadoop\bin
               }
 
+        # Spark 2.4.8 uses a separate package 'spark-distro-248' because the original
+        # 'spark-distro' version 2.4.8 was uploaded with a corrupted .tgz file (truncated gzip).
+        # After deleting the corrupted version, ADO Artifacts permanently blocks republishing
+        # the same version to the same package name, so we published to a new package instead.
+        - ${{ if eq(test.version, '2.4.8') }}:
+          - task: UniversalPackages@0
+            displayName: 'Download Spark Distro ${{ test.version }}'
+            inputs:
+              command: 'download'
+              downloadDirectory: '$(Build.BinariesDirectory)'
+              feedsToUse: 'internal'
+              vstsFeed: 'ManagedOSS/Compute'
+              vstsFeedPackage: 'spark-distro-248'
+              vstsPackageVersion: '${{ test.version }}'
+        - ${{ else }}:
+          - task: UniversalPackages@0
+            displayName: 'Download Spark Distro ${{ test.version }}'
+            inputs:
+              command: 'download'
+              downloadDirectory: '$(Build.BinariesDirectory)'
+              feedsToUse: 'internal'
+              vstsFeed: 'ManagedOSS/Compute'
+              vstsFeedPackage: 'spark-distro'
+              vstsPackageVersion: '${{ test.version }}'
+
         - pwsh: |
-            echo "Downloading Spark ${{ test.version }}"
+            Write-Host "=== Listing $(Build.BinariesDirectory) ==="
+            Get-ChildItem -Recurse "$(Build.BinariesDirectory)" | Select-Object FullName, Length | Format-Table -AutoSize
             $sparkBinaryName = "spark-${{ test.version }}-bin-hadoop2.7"
             # Spark 3.3.0+ uses Hadoop3
             if ([version]"3.3.0" -le [version]"${{ test.version }}") {
                 $sparkBinaryName = "spark-${{ test.version }}-bin-hadoop3"
             }
-            curl -k -L -o spark-${{ test.version }}.tgz https://archive.apache.org/dist/spark/spark-${{ test.version }}/${sparkBinaryName}.tgz
-            tar xzvf spark-${{ test.version }}.tgz
+            $tgzFile = $sparkBinaryName + ".tgz"
+            Write-Host "Looking for: $tgzFile"
+            Write-Host "Exists directly: $(Test-Path $tgzFile)"
+            # Check if file exists in spark-distro subdirectory (UniversalPackages may create this)
+            if (-not (Test-Path $tgzFile) -and (Test-Path "spark-distro/$tgzFile")) {
+                Write-Host "Found in spark-distro/ subfolder, moving up"
+                Move-Item "spark-distro/$tgzFile" .
+            }
+            tar xzvf $tgzFile
             move $sparkBinaryName spark-${{ test.version }}-bin-hadoop
-          displayName: 'Download Spark Distro ${{ test.version }}'
+          displayName: 'Extract Spark Distro ${{ test.version }}'
           workingDirectory: $(Build.BinariesDirectory)
 
         - task: DotNetCoreCLI@2

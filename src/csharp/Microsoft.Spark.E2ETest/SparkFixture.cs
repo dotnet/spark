@@ -5,7 +5,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Spark.Interop.Ipc;
@@ -180,13 +179,23 @@ namespace Microsoft.Spark.E2ETest
             string jarPrefix = GetJarPrefix();
             string scalaDir = Path.Combine(curDir, "..", "..", "..", "..", "..", "src", "scala");
             string jarDir = Path.Combine(scalaDir, jarPrefix, "target");
-            string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
             string scalaVersion = (SparkSettings.Version.Major == 3) ? "2.12" : "2.11";
-            string jar = Path.Combine(jarDir, $"{jarPrefix}_{scalaVersion}-{assemblyVersion}.jar");
+            string jarPattern = $"{jarPrefix}_{scalaVersion}-*.jar";
+            string jar = null;
 
-            if (!File.Exists(jar))
+            if (Directory.Exists(jarDir))
             {
-                throw new FileNotFoundException($"{jar} does not exist.");
+                string[] matchingJars = Directory.GetFiles(jarDir, jarPattern);
+                if (matchingJars.Length > 0)
+                {
+                    jar = matchingJars[0];
+                }
+            }
+
+            if (jar == null || !File.Exists(jar))
+            {
+                throw new FileNotFoundException(
+                    $"No JAR matching '{jarPattern}' found in '{jarDir}'.");
             }
 
             string warehouseUri = new Uri(
