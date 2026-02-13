@@ -40,7 +40,7 @@
     <tbody align="center">
         <tr>
             <td>2.4*</td>
-            <td rowspan=5><a href="https://github.com/dotnet/spark/releases/tag/v2.3.0">v2.3.0</a></td>
+            <td rowspan=5><a href="https://github.com/dotnet/spark/releases/tag/v2.3.1">v2.3.1</a></td>
         </tr>
         <tr>
             <td>3.0</td>
