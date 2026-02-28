@@ -28,13 +28,13 @@ resources:
     name: dotnet/spark
     ref: refs/tags/v$(forwardCompatibleRelease)
   
-  - repository: 1ESPipelineTemplates
+  - repository: "WebXT.Pipeline.Templates"
     type: git
-    name: 1ESPipelineTemplates/1ESPipelineTemplates
-    ref: refs/tags/release
+    name: Engineering Fundamentals/WebXT.Pipeline.Templates
+    ref: refs/heads/main
 
 extends:
-  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  template: v1/WebXT.Official.EntryPoint.yml@WebXT.Pipeline.Templates
   parameters:
     settings:
       skipBuildTagsForGitHubPullRequests: true
