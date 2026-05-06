@@ -79,15 +79,22 @@ extends:
               : _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
 
         steps:
+        - task: MavenAuthenticate@0
+          displayName: '[ENV] Maven Authenticate'
+          inputs:
+            artifactsFeeds: central,Compute,MultiTenancy-Test3
+
         - task: Maven@3
           displayName: 'Maven build src'
           inputs:
             mavenPomFile: src/scala/pom.xml
+            options: '-Dmaven.resolver.transport=wagon'
 
         - task: Maven@3
           displayName: 'Maven build benchmark'
           inputs:
             mavenPomFile: benchmark/scala/pom.xml
+            options: '-Dmaven.resolver.transport=wagon'
 
         - script: build.cmd -pack
                   -c $(buildConfiguration)
