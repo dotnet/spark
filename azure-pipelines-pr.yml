@@ -152,7 +152,7 @@ extends:
         - task: MavenAuthenticate@0
           displayName: '[ENV] Maven Authenticate'
           inputs:
-            artifactsFeeds: central,Compute,MultiTenancy-Test3
+            artifactsFeeds: central
 
         - task: Maven@3
           displayName: 'Maven build src'
