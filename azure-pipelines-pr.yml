@@ -125,9 +125,13 @@ extends:
       sourceRepositoriesToScan:
         exclude:
           - repository: forwardCompatibleRelease
+      sourceAnalysisPool:
+        name: Cosmos2MT-AzureDevOps-AgentPool
+        image: 1es-pt-windows-2022
+        os: windows
     pool:
       name: Cosmos2MT-AzureDevOps-AgentPool
-      image: 1es-pt-windows-2019
+      image: 1es-pt-windows-2022
       os: windows
     customBuildTags:
       - ES365AIMigrationTooling
