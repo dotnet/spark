@@ -22,7 +22,7 @@ stages:
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
             name: Cosmos2MT-AzureDevOps-AgentPool
-            image: 1es-pt-windows-2019
+            image: 1es-pt-windows-2022
             os: windows
         ${{ else }}:
           pool:
