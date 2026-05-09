@@ -57,7 +57,7 @@ extends:
         os: windows
     pool:
       name: Cosmos2MT-AzureDevOps-AgentPool
-      image: 1es-pt-windows-2019
+      image: 1es-pt-windows-2022
       os: windows
     customBuildTags:
       - ES365AIMigrationTooling
@@ -79,15 +79,22 @@ extends:
               : _OfficialBuildIdArgs: /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
 
         steps:
+        - task: MavenAuthenticate@0
+          displayName: '[ENV] Maven Authenticate'
+          inputs:
+            artifactsFeeds: central
+
         - task: Maven@3
           displayName: 'Maven build src'
           inputs:
             mavenPomFile: src/scala/pom.xml
+            options: '-Dmaven.resolver.transport=wagon'
 
         - task: Maven@3
           displayName: 'Maven build benchmark'
           inputs:
             mavenPomFile: benchmark/scala/pom.xml
+            options: '-Dmaven.resolver.transport=wagon'
 
         - script: build.cmd -pack
                   -c $(buildConfiguration)
