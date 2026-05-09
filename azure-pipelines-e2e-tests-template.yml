@@ -115,6 +115,30 @@ stages:
 
         - task: PowerShell@2
           condition: eq( variables['Agent.OS'], 'Windows_NT' )
+          continueOnError: true
+          displayName: Install VC++ Redistributables
+          inputs:
+            workingDirectory: $(Build.BinariesDirectory)
+            pwsh: true
+            targetType: inline
+            script: |
+              $sys32 = Join-Path $env:SystemRoot 'System32'
+              foreach ($dll in @('VCRUNTIME140.dll', 'VCRUNTIME140_1.dll', 'MSVCP140.dll', 'MSVCR120.dll', 'MSVCP120.dll', 'MSVCR100.dll')) {
+                $p = Join-Path $sys32 $dll
+                Write-Host "$(if (Test-Path $p) { 'PRESENT' } else { 'MISSING' }): $dll"
+              }
+              # winutils.exe and hadoop.dll require MSVCR100.dll (VC++ 2010 runtime)
+              if (-not (Test-Path (Join-Path $sys32 'MSVCR100.dll'))) {
+                Write-Host "Downloading VC++ 2010 x64 redistributable (required by winutils.exe)..."
+                curl -k -L -o vc_redist_2010_x64.exe "https://download.microsoft.com/download/1/6/5/165255E7-1014-4D0A-B094-B6A430A6BFFC/vcredist_x64.exe"
+                if ($LASTEXITCODE -eq 0) {
+                  Start-Process -FilePath .\vc_redist_2010_x64.exe -ArgumentList '/q', '/norestart' -Wait
+                  Write-Host "VC++ 2010 installation complete."
+                } else { Write-Host "##[warning]VC++ 2010 download failed." }
+              } else { Write-Host "MSVCR100.dll already present — skipping VC++ 2010 install." }
+
+        - task: PowerShell@2
+          condition: eq( variables['Agent.OS'], 'Windows_NT' )
           displayName: Download Winutils.exe
           inputs:
             workingDirectory: $(Build.BinariesDirectory)
