@@ -13,4 +13,13 @@
     <ProjectReference Include="..\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
 
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'net472'">
+      <ItemGroup>
+        <!-- System.Runtime.Loader.AssemblyLoadContext is .NET Core only -->
+        <Compile Remove="AssemblyLoaderTests.cs" />
+      </ItemGroup>
+    </When>
+  </Choose>
+
 </Project>
