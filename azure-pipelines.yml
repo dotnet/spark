@@ -91,7 +91,7 @@ stages:
       inputs:
         command: test
         projects: '**/*UnitTest/*.csproj'
-        arguments: '--configuration $(buildConfiguration)'
+        arguments: '--configuration $(buildConfiguration) --blame-hang-timeout 2m'
 
     - task: CopyFiles@2
       displayName: Stage Maven build jars
