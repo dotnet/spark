@@ -89,7 +89,7 @@ namespace Microsoft.Spark.Worker
                 s_logger.LogInfo($"Started .NET DaemonServer with port {serverPort}.");
 
                 // Start accepting connections from JVM.
-                new Thread(() => { StartServer(listener); }).Start();
+                new Thread(() => { StartServer(listener); }) { IsBackground = true }.Start();
 
                 WaitForSignal();
             }
@@ -168,7 +168,7 @@ namespace Microsoft.Spark.Worker
                             // Note that in the current implementation of RunWorkerThread() does
                             // not return. If more graceful exit is required, RunWorkerThread() can
                             // be updated to return upon receiving a signal from this main thread.
-                            new Thread(RunWorkerThread).Start();
+                            new Thread(RunWorkerThread) { IsBackground = true }.Start();
                             ++numWorkerThreads;
                         }
 
