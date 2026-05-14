@@ -1,6 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net472;net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.20.70" />
@@ -14,14 +14,4 @@
     <Compile Include="..\Microsoft.Spark.UnitTest\TestUtils\ArrowTestUtils.cs" />
     <Compile Include="..\Microsoft.Spark.UnitTest\TestUtils\TemporaryDirectory.cs" />
   </ItemGroup>
-  <Choose>
-    <When Condition="'$(TargetFramework)' == 'net472'">
-      <ItemGroup>
-        <!-- DaemonWorker.Run() reads stdin via WaitForSignal(); VSTest redirects
-             stdin, causing either an indefinite block or Environment.Exit(-1).
-             The async void test method also cannot be properly awaited on .NET Framework. -->
-        <Compile Remove="DaemonWorkerTests.cs" />
-      </ItemGroup>
-    </When>
-  </Choose>
 </Project>

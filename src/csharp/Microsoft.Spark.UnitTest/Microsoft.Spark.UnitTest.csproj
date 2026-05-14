@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Microsoft.Spark.UnitTest</RootNamespace>
   </PropertyGroup>
 
@@ -12,14 +12,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
-
-  <Choose>
-    <When Condition="'$(TargetFramework)' == 'net472'">
-      <ItemGroup>
-        <!-- System.Runtime.Loader.AssemblyLoadContext is .NET Core only -->
-        <Compile Remove="AssemblyLoaderTests.cs" />
-      </ItemGroup>
-    </When>
-  </Choose>
 
 </Project>
