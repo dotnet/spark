@@ -5,6 +5,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <_PublishTarget Include="FullFramework" Framework="net472" RuntimeId="win-x64" />
     <_PublishTarget Include="FullFramework" Framework="net48" RuntimeId="win-x64" />
     <_PublishTarget Include="WindowsCore" Framework="net8.0" RuntimeId="win-x64" />
     <_PublishTarget Include="LinuxCore" Framework="net8.0" RuntimeId="linux-x64" />
