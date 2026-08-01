@@ -12,6 +12,8 @@ variables:
   _TeamName: DotNetSpark
   MSBUILDSINGLELOADCONTEXT: 1
   ArtifactPath: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries'
+  managedOSSMavenFeed: ManagedOSS_PublicPackages
+  managedOSSMavenFeedUrl: https://pkgs.dev.azure.com/msasg/ManagedOSS/_packaging/ManagedOSS_PublicPackages/maven/v1
 
   backwardCompatibleRelease: '2.0.0'
   forwardCompatibleRelease: '2.0.0'
@@ -152,7 +154,13 @@ extends:
         - task: MavenAuthenticate@0
           displayName: '[ENV] Maven Authenticate'
           inputs:
-            artifactsFeeds: central
+            artifactsFeeds: $(managedOSSMavenFeed)
+
+        - pwsh: |
+            ./eng/Configure-PackageSources.ps1 `
+              -FeedName "$(managedOSSMavenFeed)" `
+              -FeedUrl "$(managedOSSMavenFeedUrl)"
+          displayName: '[ENV] Configure Maven mirror'
 
         - task: Maven@3
           displayName: 'Maven build src'
@@ -191,6 +199,8 @@ extends:
       parameters:
         backwardCompatibleRelease: $(backwardCompatibleRelease)
         forwardCompatibleRelease: $(forwardCompatibleRelease)
+        managedOSSMavenFeed: $(managedOSSMavenFeed)
+        managedOSSMavenFeedUrl: $(managedOSSMavenFeedUrl)
         tests:
         - ${{ each version in parameters.listOfE2ETestsSparkVersions }} :
           - version: ${{ version }}
