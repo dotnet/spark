@@ -136,7 +136,7 @@ namespace Microsoft.Spark.UnitTest
             foreach (KeyValuePair<int, Dictionary<int, int>> kvp in expected)
             {
                 var innerHashtable = new Hashtable();
-                foreach(KeyValuePair<int, int> innerKvp in kvp.Value)
+                foreach (KeyValuePair<int, int> innerKvp in kvp.Value)
                 {
                     innerHashtable[innerKvp.Key] = innerKvp.Value;
                 }
@@ -180,7 +180,7 @@ namespace Microsoft.Spark.UnitTest
                     .Range(0, 10)
                     .Select(i => Enumerable.Range(i, 10).ToDictionary(j => j, j => j * j))
                     .ToArray();
-                
+
                 var arrayList = new ArrayList();
                 for (int i = 0; i < expected.Length; ++i)
                 {
