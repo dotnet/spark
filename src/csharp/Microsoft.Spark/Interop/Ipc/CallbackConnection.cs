@@ -173,7 +173,8 @@ namespace Microsoft.Spark.Interop.Ipc
                 // - CallbackFlags.CLOSE
                 // - CallbackFlags.CALLBACK
                 int requestFlag = BinaryPrimitives.ReadInt32BigEndian(requestFlagBytes);
-                if (requestFlag == (int)CallbackFlags.CLOSE) {
+                if (requestFlag == (int)CallbackFlags.CLOSE)
+                {
                     return ConnectionStatus.REQUEST_CLOSE;
                 }
                 else if (requestFlag != (int)CallbackFlags.CALLBACK)

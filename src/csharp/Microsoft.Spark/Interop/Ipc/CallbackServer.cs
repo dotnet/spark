@@ -64,7 +64,7 @@ namespace Microsoft.Spark.Interop.Ipc
         private bool _isRunning = false;
 
         private ISocketWrapper _listener;
-        
+
         private JvmObjectReference _jvmCallbackClient;
 
         internal int CurrentNumConnections => _connections.Count;
