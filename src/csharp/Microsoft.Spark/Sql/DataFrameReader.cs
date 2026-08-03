@@ -33,7 +33,7 @@ namespace Microsoft.Spark.Sql
             Reference.Invoke("format", source);
             return this;
         }
-        
+
         /// <summary>
         /// Specifies the schema by using <see cref="StructType"/>.
         /// </summary>
@@ -49,7 +49,7 @@ namespace Microsoft.Spark.Sql
             Reference.Invoke("schema", DataType.FromJson(Reference.Jvm, schema.Json));
             return this;
         }
-        
+
         /// <summary>
         /// Specifies the schema by using the given DDL-formatted string.
         /// </summary>
@@ -253,7 +253,7 @@ namespace Microsoft.Spark.Sql
         /// <param name="paths">Input paths</param>
         /// <returns>DataFrame object</returns>
         public DataFrame Orc(params string[] paths) => LoadSource("orc", paths);
-        
+
         /// <summary>
         /// Returns the specified table as a DataFrame.
         /// </summary>
