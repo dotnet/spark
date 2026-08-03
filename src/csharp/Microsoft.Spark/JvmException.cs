@@ -11,7 +11,7 @@ namespace Microsoft.Spark
     /// </summary>
     public class JvmException : Exception
     {
-        public JvmException(string message) 
+        public JvmException(string message)
             : base(message)
         {
         }
