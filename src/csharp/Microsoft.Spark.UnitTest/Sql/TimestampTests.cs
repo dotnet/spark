@@ -17,7 +17,7 @@ namespace Microsoft.Spark.UnitTest
                 var testDate =
                     new DateTime(2020, 1, 1, 8, 30, 30, DateTimeKind.Utc).AddTicks(1230);
                 var timestamp = new Timestamp(testDate);
-                
+
                 // Validate values.
                 Assert.Equal(2020, timestamp.Year);
                 Assert.Equal(1, timestamp.Month);

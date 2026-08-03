@@ -72,7 +72,7 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Equal(expected, actual.ToArray());
             }
         }
-        
+
         [Fact]
         public void TestMapType()
         {
@@ -119,7 +119,7 @@ namespace Microsoft.Spark.UnitTest
                 Assert.Equal(expected, actual);
             }
         }
-        
+
         [Fact]
         public void TestStructTypeAndStructFieldTypes()
         {
