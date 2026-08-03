@@ -5,8 +5,8 @@
 using System.IO;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.UnitTest.TestUtils;
 using Microsoft.Spark.Sql.Types;
+using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
@@ -37,12 +37,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Pipeline pipeline = new Pipeline()
                 .SetStages(stages);
             JavaPipelineStage[] returnStages = pipeline.GetStages();
-            
+
             Assert.Equal(stages[0].Uid(), returnStages[0].Uid());
             Assert.Equal(stages[0].ToString(), returnStages[0].ToString());
             Assert.Equal(stages[1].Uid(), returnStages[1].Uid());
             Assert.Equal(stages[1].ToString(), returnStages[1].ToString());
-            
+
             using (var tempDirectory = new TemporaryDirectory())
             {
                 string savePath = Path.Join(tempDirectory.Path, "pipeline");
@@ -51,7 +51,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 Pipeline loadedPipeline = Pipeline.Load(savePath);
                 Assert.Equal(pipeline.Uid(), loadedPipeline.Uid());
             }
-            
+
             TestFeatureBase(pipeline, "stages", stages);
         }
 
@@ -70,7 +70,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             const double minDf = 1;
             const double minTf = 10;
             const int vocabSize = 10000;
-            
+
             CountVectorizer countVectorizer = new CountVectorizer()
                 .SetInputCol(inputColumn)
                 .SetOutputCol(outputColumn)
@@ -84,12 +84,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             Pipeline pipeline = new Pipeline().SetStages(stages);
             PipelineModel pipelineModel = pipeline.Fit(input);
-            
+
             DataFrame output = pipelineModel.Transform(input);
 
             Assert.IsType<StructType>(pipelineModel.TransformSchema(input.Schema()));
             Assert.IsType<DataFrame>(output);
-            
+
             using (var tempDirectory = new TemporaryDirectory())
             {
                 string savePath = Path.Join(tempDirectory.Path, "pipeline");
@@ -104,7 +104,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 Pipeline loadedPipelineWithRead = pipeline.Read().Load(writePath);
                 Assert.Equal(pipeline.Uid(), loadedPipelineWithRead.Uid());
             }
-            
+
             TestFeatureBase(pipeline, "stages", stages);
         }
     }

@@ -38,16 +38,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             const double minTf = 10;
             const int vocabSize = 10000;
             const bool binary = false;
-            
+
             var countVectorizer = new CountVectorizer();
-            
+
             countVectorizer
                 .SetInputCol(inputColumn)
                 .SetOutputCol(outputColumn)
                 .SetMinDF(minDf)
                 .SetMinTF(minTf)
                 .SetVocabSize(vocabSize);
-                
+
             Assert.IsType<CountVectorizerModel>(countVectorizer.Fit(input));
             Assert.Equal(inputColumn, countVectorizer.GetInputCol());
             Assert.Equal(outputColumn, countVectorizer.GetOutputCol());
@@ -60,17 +60,17 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             {
                 string savePath = Path.Join(tempDirectory.Path, "countVectorizer");
                 countVectorizer.Save(savePath);
-                
+
                 CountVectorizer loadedVectorizer = CountVectorizer.Load(savePath);
                 Assert.Equal(countVectorizer.Uid(), loadedVectorizer.Uid());
             }
-            
+
             Assert.NotEmpty(countVectorizer.ExplainParams());
             Assert.NotEmpty(countVectorizer.ToString());
-            
+
             TestFeatureBase(countVectorizer, "minDF", 0.4);
         }
-        
+
         /// <summary>
         /// Test signatures for APIs introduced in Spark 2.4.*.
         /// </summary>

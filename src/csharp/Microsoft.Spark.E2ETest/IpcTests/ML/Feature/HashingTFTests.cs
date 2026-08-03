@@ -28,7 +28,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             int expectedFeatures = 10;
 
             Assert.IsType<HashingTF>(new HashingTF());
-            
+
             HashingTF hashingTf = new HashingTF("my-unique-id")
                 .SetNumFeatures(expectedFeatures)
                 .SetInputCol(expectedInputCol)
@@ -43,21 +43,21 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             DataFrame output = hashingTf.Transform(input);
             DataFrame outputVector = output.Select(expectedOutputCol);
-            
+
             Assert.Contains(expectedOutputCol, outputVector.Columns());
-       
+
             using (var tempDirectory = new TemporaryDirectory())
             {
                 string savePath = Path.Join(tempDirectory.Path, "hashingTF");
                 hashingTf.Save(savePath);
-                
+
                 HashingTF loadedHashingTf = HashingTF.Load(savePath);
                 Assert.Equal(hashingTf.Uid(), loadedHashingTf.Uid());
             }
 
             hashingTf.SetBinary(true);
             Assert.True(hashingTf.GetBinary());
-            
+
             TestFeatureBase(hashingTf, "numFeatures", 1000);
         }
     }
