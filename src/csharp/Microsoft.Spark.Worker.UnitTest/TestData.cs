@@ -73,7 +73,7 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             var command2 = new Command()
             {
-                ChainedUdfs = new PicklingWorkerFunction.ExecuteDelegate[] {udfWrapper3.Execute },
+                ChainedUdfs = new PicklingWorkerFunction.ExecuteDelegate[] { udfWrapper3.Execute },
                 ArgOffsets = new[] { 1, 2 },
                 SerializerMode = CommandSerDe.SerializedMode.Row,
                 DeserializerMode = CommandSerDe.SerializedMode.Row
