@@ -5,8 +5,8 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using static System.Environment;
 using Microsoft.Spark.Utils;
+using static System.Environment;
 
 namespace Microsoft.Spark.Services
 {
