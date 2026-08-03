@@ -36,7 +36,7 @@ namespace Microsoft.Spark.Sql.Avro
         /// <param name="jsonFormatSchema">The avro schema in JSON string format.</param>
         /// <returns>Column object</returns>
         [Since(Versions.V2_4_0)]
-        public static Column FromAvro(Column data, string jsonFormatSchema) => 
+        public static Column FromAvro(Column data, string jsonFormatSchema) =>
             new Column(
                 (JvmObjectReference)Jvm.CallStaticJavaMethod(
                     s_avroClassName.Value,
@@ -58,7 +58,7 @@ namespace Microsoft.Spark.Sql.Avro
         public static Column FromAvro(
             Column data,
             string jsonFormatSchema,
-            Dictionary<string, string> options) => 
+            Dictionary<string, string> options) =>
             new Column(
                 (JvmObjectReference)Jvm.CallStaticJavaMethod(
                     s_avroClassName.Value,
@@ -73,7 +73,7 @@ namespace Microsoft.Spark.Sql.Avro
         /// <param name="data">The data column.</param>
         /// <returns>Column object</returns>
         [Since(Versions.V2_4_0)]
-        public static Column ToAvro(Column data) => 
+        public static Column ToAvro(Column data) =>
             new Column((JvmObjectReference)Jvm.CallStaticJavaMethod(s_avroClassName.Value, "to_avro", data));
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Microsoft.Spark.Sql.Avro
         /// <param name="jsonFormatSchema">User-specified output avro schema in JSON string format.</param>
         /// <returns>Column object</returns>
         [Since(Versions.V3_0_0)]
-        public static Column ToAvro(Column data, string jsonFormatSchema) => 
+        public static Column ToAvro(Column data, string jsonFormatSchema) =>
             new Column(
                 (JvmObjectReference)Jvm.CallStaticJavaMethod(
                     s_avroClassName.Value,
