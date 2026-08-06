@@ -160,5 +160,33 @@ namespace Microsoft.Spark.UnitTest
             Assert.Equal("abc", row.GetAs<string>(1));
             Assert.ThrowsAny<Exception>(() => row.GetAs<int>(1));
         }
+
+        /// <summary>
+        /// Verifies that Row correctly handles the case where Pickler serializes a long
+        /// value as int (because it fits in int). The schema says LongType, but the
+        /// unpickled value is a boxed int. Row.Convert() should coerce it to long.
+        /// </summary>
+        [Fact]
+        public void RowGetAsLongFromPickledIntTest()
+        {
+            var schema = new StructType(new List<StructField>()
+            {
+                new StructField("id", new LongType()),
+            });
+
+            // Simulate what Pickler does: serialize a long that fits in int as an int.
+            // This is the exact scenario described in issue #27.
+            int pickledAsInt = 42;
+            var row = new Row(new object[] { pickledAsInt }, schema);
+
+            // GetAs<long> should work — the schema says LongType, so Row.Convert()
+            // should have coerced the boxed int to long.
+            Assert.Equal(42L, row.GetAs<long>(0));
+            Assert.Equal(42L, row.GetAs<long>("id"));
+
+            // Direct unbox to long should also work now.
+            Assert.IsType<long>(row.Get(0));
+            Assert.Equal(42L, (long)row.Get(0));
+        }
     }
 }

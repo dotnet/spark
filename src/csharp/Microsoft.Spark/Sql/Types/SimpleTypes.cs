@@ -145,6 +145,27 @@ namespace Microsoft.Spark.Sql.Types
     /// </summary>
     public sealed class IntegerType : IntegralType
     {
+        internal override bool NeedConversion() => true;
+
+        /// <summary>
+        /// Converts the internal object to a .NET int. The Pickler may serialize a short
+        /// or byte value as its native type, so we need to ensure the value is an int
+        /// to match the schema.
+        /// </summary>
+        internal override object FromInternal(object obj)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+
+            if (obj is int i)
+            {
+                return i;
+            }
+
+            return Convert.ToInt32(obj);
+        }
     }
 
     /// <summary>
@@ -152,6 +173,28 @@ namespace Microsoft.Spark.Sql.Types
     /// </summary>
     public sealed class LongType : IntegralType
     {
+        internal override bool NeedConversion() => true;
+
+        /// <summary>
+        /// Converts the internal object to a .NET long. If the original type is "long" and
+        /// its value can fit into "int", the Pickler will serialize the value as int. Since
+        /// the value is boxed, a direct unbox to long would fail. This method ensures the
+        /// value is always returned as a long regardless of how the Pickler serialized it.
+        /// </summary>
+        internal override object FromInternal(object obj)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+
+            if (obj is long l)
+            {
+                return l;
+            }
+
+            return Convert.ToInt64(obj);
+        }
     }
 
     /// <summary>
@@ -159,6 +202,25 @@ namespace Microsoft.Spark.Sql.Types
     /// </summary>
     public sealed class ShortType : IntegralType
     {
+        internal override bool NeedConversion() => true;
+
+        /// <summary>
+        /// Converts the internal object to a .NET short.
+        /// </summary>
+        internal override object FromInternal(object obj)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+
+            if (obj is short s)
+            {
+                return s;
+            }
+
+            return Convert.ToInt16(obj);
+        }
     }
 
     /// <summary>
