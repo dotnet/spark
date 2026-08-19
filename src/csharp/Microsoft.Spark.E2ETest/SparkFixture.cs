@@ -33,16 +33,6 @@ namespace Microsoft.Spark.E2ETest
                 "DOTNET_SPARKFIXTURE_EXTRA_SPARK_SUBMIT_ARGS";
 
             /// <summary>
-            /// This environment variable specifies a custom Ivy settings file for packages.
-            /// </summary>
-            public const string IvySettings = "DOTNET_SPARKFIXTURE_IVY_SETTINGS";
-
-            /// <summary>
-            /// This environment variable overrides repositories passed to spark-submit.
-            /// </summary>
-            public const string Repositories = "DOTNET_SPARKFIXTURE_REPOSITORIES";
-
-            /// <summary>
             /// This environment variable specifies the path where the DotNet worker is installed.
             /// </summary>
             public const string WorkerDir = Services.ConfigurationService.DefaultWorkerDirEnvVarName;
@@ -50,8 +40,6 @@ namespace Microsoft.Spark.E2ETest
 
         private readonly Process _process = new Process();
         private readonly TemporaryDirectory _tempDirectory = new TemporaryDirectory();
-
-        private const string DefaultRepository = "https://repos.spark-packages.org/";
         
         public const string DefaultLogLevel = "ERROR";
 
@@ -156,28 +144,6 @@ namespace Microsoft.Spark.E2ETest
             return $"org.apache.spark:{avroVersion}";
         }
 
-        internal static string GetPackageResolutionOptions(
-            string ivySettings,
-            string repositories)
-        {
-            bool hasIvySettings = !string.IsNullOrWhiteSpace(ivySettings);
-            bool hasRepositories = !string.IsNullOrWhiteSpace(repositories);
-
-            if (hasIvySettings != hasRepositories)
-            {
-                throw new InvalidOperationException(
-                    $"Environment variables '{EnvironmentVariableNames.IvySettings}' and " +
-                    $"'{EnvironmentVariableNames.Repositories}' must be configured together.");
-            }
-
-            if (!hasIvySettings)
-            {
-                return $"--repositories {DefaultRepository}";
-            }
-
-            return $"--conf spark.jars.ivySettings={ivySettings} --repositories {repositories}";
-        }
-
         public void Dispose()
         {
             Spark.Dispose();
@@ -237,12 +203,10 @@ namespace Microsoft.Spark.E2ETest
             string warehouseDir = $"--conf spark.sql.warehouse.dir={warehouseUri}";
 
             // Spark24 < 2.4.8, Spark30 < 3.0.3 and Spark31 < 3.1.2 use bintray as the repository
-            // service for spark-packages. As of May 1st, 2021 bintray has been sunset and is no
-            // longer available. Community builds keep using spark-packages by default, while CI
-            // can atomically supply a custom Ivy settings file and repository.
-            string packageResolutionOptions = GetPackageResolutionOptions(
-                Environment.GetEnvironmentVariable(EnvironmentVariableNames.IvySettings),
-                Environment.GetEnvironmentVariable(EnvironmentVariableNames.Repositories));
+            // service for spark-packages. As of  May 1st, 2021 bintray has been sunset and is no
+            // longer available. Specify additional remote repositories to search for the maven
+            // coordinates given with --packages.
+            string repositories = "--repositories https://repos.spark-packages.org/";
 
             string extraArgs = Environment.GetEnvironmentVariable(
                 EnvironmentVariableNames.ExtraSparkSubmitArgs) ?? "";
@@ -257,8 +221,7 @@ namespace Microsoft.Spark.E2ETest
             string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
 
-            args = $"{logOption} {warehouseDir} {AddPackages(extraArgs)} " +
-                $"{packageResolutionOptions} {classArg} " +
+            args = $"{logOption} {warehouseDir} {AddPackages(extraArgs)} {repositories} {classArg} " +
                 $"--master local {jar} debug";
         }
 
