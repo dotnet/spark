@@ -42,6 +42,11 @@ variables:
   backwardCompatibleTestOptions_Linux_3_5: $(backwardCompatibleTestOptions_Windows_3_5)
   forwardCompatibleTestOptions_Linux_3_5: $(backwardCompatibleTestOptions_Windows_3_5)
 
+  backwardCompatibleTestOptions_Windows_4_0: "--filter FullyQualifiedName=NONE"
+  forwardCompatibleTestOptions_Windows_4_0: $(backwardCompatibleTestOptions_Windows_4_0)
+  backwardCompatibleTestOptions_Linux_4_0: $(backwardCompatibleTestOptions_Windows_4_0)
+  forwardCompatibleTestOptions_Linux_4_0: $(backwardCompatibleTestOptions_Windows_4_0)
+
   # Azure DevOps variables are transformed into environment variables, with these variables we
   # avoid the first time experience and telemetry to speed up the build.
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
@@ -72,6 +77,15 @@ stages:
       displayName: 'Maven build src'
       inputs:
         mavenPomFile: src/scala/pom.xml
+
+    - task: Maven@3
+      displayName: 'Maven build Spark 4.0 bridge (JDK 17)'
+      inputs:
+        mavenPomFile: src/scala/microsoft-spark-4-0/pom.xml
+        goals: 'clean package'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.17'
+        jdkArchitectureOption: 'x64'
 
     - task: Maven@3
       displayName: 'Maven build benchmark'
@@ -468,3 +482,15 @@ stages:
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_5)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_5)
+    - version: '4.0.4'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: "--filter Category=Spark40Compatibility"
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_4_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_4_0)
+      - pool: 'Linux'
+        testOptions: "--filter Category=Spark40Compatibility"
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_4_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_4_0)
