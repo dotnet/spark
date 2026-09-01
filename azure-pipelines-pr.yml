@@ -94,6 +94,10 @@ parameters:
   - '3.5.1'
   - '3.5.2'
   - '3.5.3'
+  - '4.0.0'
+  - '4.0.1'
+  - '4.0.2'
+  - '4.0.3'
   - '4.0.4'
 
 # List of OS types to run E2E tests, run each test in both 'Windows' and 'Linux' environments
@@ -227,7 +231,7 @@ extends:
             jobOptions:
             - ${{ each pool in parameters.listOfE2ETestsPoolTypes }}:
               - pool: ${{ pool }}
-                ${{ if eq(version, '4.0.4') }}:
+                ${{ if startsWith(version, '4.0.') }}:
                   testOptions: "--filter Category=Spark40Compatibility"
                 ${{ else }}:
                   testOptions: ""

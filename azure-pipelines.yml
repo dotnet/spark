@@ -482,6 +482,54 @@ stages:
         testOptions: ""
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_3_5)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_3_5)
+    - version: '4.0.0'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: "--filter Category=Spark40Compatibility"
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_4_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_4_0)
+      - pool: 'Linux'
+        testOptions: "--filter Category=Spark40Compatibility"
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_4_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_4_0)
+    - version: '4.0.1'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: "--filter Category=Spark40Compatibility"
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_4_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_4_0)
+      - pool: 'Linux'
+        testOptions: "--filter Category=Spark40Compatibility"
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_4_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_4_0)
+    - version: '4.0.2'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: "--filter Category=Spark40Compatibility"
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_4_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_4_0)
+      - pool: 'Linux'
+        testOptions: "--filter Category=Spark40Compatibility"
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_4_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_4_0)
+    - version: '4.0.3'
+      enableForwardCompatibleTests: false
+      enableBackwardCompatibleTests: false
+      jobOptions:
+      - pool: 'Windows'
+        testOptions: "--filter Category=Spark40Compatibility"
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_4_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_4_0)
+      - pool: 'Linux'
+        testOptions: "--filter Category=Spark40Compatibility"
+        backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_4_0)
+        forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_4_0)
     - version: '4.0.4'
       enableForwardCompatibleTests: false
       enableBackwardCompatibleTests: false

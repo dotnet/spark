@@ -21,7 +21,7 @@ namespace Microsoft.Spark.E2ETest
             _fixture = fixture;
         }
 
-        [SkipIfSparkVersionIsNotInRange(Versions.V4_0_4, "4.0.5")]
+        [SkipIfSparkVersionIsNotInRange(Versions.V4_0_0, Versions.V4_1_0)]
         [Trait("Category", "Spark40Compatibility")]
         public void DriverBridgeUsesExpectedSparkRuntime()
         {
@@ -34,7 +34,7 @@ namespace Microsoft.Spark.E2ETest
             Assert.Equal(new long[] { 0, 1, 2, 3 }, values);
         }
 
-        [SkipIfSparkVersionIsNotInRange(Versions.V4_0_4, "4.0.5")]
+        [SkipIfSparkVersionIsNotInRange(Versions.V4_0_0, Versions.V4_1_0)]
         [Trait("Category", "Spark40Compatibility")]
         public void ScalarUdfExecutesInDotnetWorker()
         {
