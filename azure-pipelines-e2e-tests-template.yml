@@ -291,6 +291,7 @@ stages:
             DOTNET_SPARKFIXTURE_EXPECTED_SPARK_VERSION: ${{ test.version }}
             ${{ if eq(split(test.version, '.')[0], '4') }}:
               DOTNET_SPARKFIXTURE_EXTRA_SPARK_SUBMIT_ARGS: '--conf spark.python.use.daemon=false'
+              DOTNET_ASSEMBLY_SEARCH_PATHS: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark$(PATH_SEPARATOR)artifacts$(PATH_SEPARATOR)bin$(PATH_SEPARATOR)Microsoft.Spark.E2ETest$(PATH_SEPARATOR)$(buildConfiguration)$(PATH_SEPARATOR)net8.0
             ${{ if and(ne(parameters.managedOSSMavenFeed, ''), ne(parameters.managedOSSMavenFeedUrl, '')) }}:
               DOTNET_SPARKFIXTURE_IVY_SETTINGS: $(SPARK_IVY_SETTINGS)
               DOTNET_SPARKFIXTURE_REPOSITORIES: ${{ parameters.managedOSSMavenFeedUrl }}
