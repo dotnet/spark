@@ -48,5 +48,21 @@ namespace Microsoft.Spark.E2ETest
 
             Assert.Equal(new long[] { 1, 2, 3, 4 }, values);
         }
+
+        [SkipIfSparkVersionIsNotInRange(Versions.V4_0_0, Versions.V4_1_0)]
+        [Trait("Category", "Spark40Compatibility")]
+        public void ChainedScalarUdfsExecuteInDotnetWorker()
+        {
+            DataFrame range = _fixture.Spark.Range(4);
+            Func<Column, Column> increment = Udf<long, long>(value => value + 1);
+            Func<Column, Column> multiplyByTwo = Udf<long, long>(value => value * 2);
+
+            long[] values = range.Select(multiplyByTwo(increment(range["id"])))
+                .Collect()
+                .Select(row => row.GetAs<long>(0))
+                .ToArray();
+
+            Assert.Equal(new long[] { 2, 4, 6, 8 }, values);
+        }
     }
 }
