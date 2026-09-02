@@ -145,27 +145,6 @@ namespace Microsoft.Spark.Sql.Types
     /// </summary>
     public sealed class IntegerType : IntegralType
     {
-        internal override bool NeedConversion() => true;
-
-        /// <summary>
-        /// Converts the internal object to a .NET int. The Pickler may serialize a short
-        /// or byte value as its native type, so we need to ensure the value is an int
-        /// to match the schema.
-        /// </summary>
-        internal override object FromInternal(object obj)
-        {
-            if (obj == null)
-            {
-                return null;
-            }
-
-            if (obj is int i)
-            {
-                return i;
-            }
-
-            return Convert.ToInt32(obj);
-        }
     }
 
     /// <summary>
@@ -202,25 +181,6 @@ namespace Microsoft.Spark.Sql.Types
     /// </summary>
     public sealed class ShortType : IntegralType
     {
-        internal override bool NeedConversion() => true;
-
-        /// <summary>
-        /// Converts the internal object to a .NET short.
-        /// </summary>
-        internal override object FromInternal(object obj)
-        {
-            if (obj == null)
-            {
-                return null;
-            }
-
-            if (obj is short s)
-            {
-                return s;
-            }
-
-            return Convert.ToInt16(obj);
-        }
     }
 
     /// <summary>
