@@ -258,6 +258,20 @@ stages:
           displayName: 'Extract Spark Distro ${{ test.version }}'
           workingDirectory: $(Build.BinariesDirectory)
 
+        - ${{ if eq(split(test.version, '.')[0], '4') }}:
+          - pwsh: |
+              $sparkHome = Join-Path "$(Build.BinariesDirectory)" "spark-${{ test.version }}-bin-hadoop"
+              $releasePath = Join-Path $sparkHome "RELEASE"
+              $releaseLine = Get-Content -LiteralPath $releasePath -First 1
+              if ($releaseLine -notmatch '^Spark\s+(?<version>\d+\.\d+\.\d+)(?:[-\s]|$)') {
+                throw "Cannot parse Spark version from '$releasePath': $releaseLine"
+              }
+              if ($Matches.version -ne '${{ test.version }}') {
+                throw "Spark package version '$($Matches.version)' does not match E2E lane '${{ test.version }}'."
+              }
+              Write-Host "Verified Spark package version $($Matches.version)."
+            displayName: '[ENV] Verify Spark package version'
+
         - task: DotNetCoreCLI@2
           displayName: 'E2E tests'
           inputs:
@@ -265,7 +279,7 @@ stages:
             # Spark 4 currently covers the core bridge and positional scalar UDF path. Keep
             # extension projects out of this lane until their Spark 4 compatibility is implemented.
             ${{ if eq(split(test.version, '.')[0], '4') }}:
-              projects: 'src/csharp/Microsoft.Spark.E2ETest/Microsoft.Spark.E2ETest.csproj'
+              projects: '**/Microsoft.Spark.E2ETest/Microsoft.Spark.E2ETest.csproj'
             ${{ else }}:
               projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
             arguments: '--configuration $(buildConfiguration) ${{ option.testOptions }}'
