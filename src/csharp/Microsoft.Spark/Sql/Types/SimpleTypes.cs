@@ -152,6 +152,28 @@ namespace Microsoft.Spark.Sql.Types
     /// </summary>
     public sealed class LongType : IntegralType
     {
+        internal override bool NeedConversion() => true;
+
+        /// <summary>
+        /// Converts the internal object to a .NET long. If the original type is "long" and
+        /// its value can fit into "int", the Pickler will serialize the value as int. Since
+        /// the value is boxed, a direct unbox to long would fail. This method ensures the
+        /// value is always returned as a long regardless of how the Pickler serialized it.
+        /// </summary>
+        internal override object FromInternal(object obj)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+
+            if (obj is long l)
+            {
+                return l;
+            }
+
+            return Convert.ToInt64(obj);
+        }
     }
 
     /// <summary>
