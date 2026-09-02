@@ -37,13 +37,30 @@ stages:
             os: linux
 
         steps:
-        - task: JavaToolInstaller@0
-          condition: eq( variables['Agent.OS'], 'Linux')
-          displayName: '[ENV] Install JDK 8'
-          inputs:
-            versionSpec: '8'
-            jdkArchitectureOption: 'x64'
-            jdkSourceOption: 'PreInstalled'
+        - ${{ if eq(split(test.version, '.')[0], '4') }}:
+          - task: JavaToolInstaller@0
+            displayName: '[ENV] Install JDK 17'
+            inputs:
+              versionSpec: '17'
+              jdkArchitectureOption: 'x64'
+              jdkSourceOption: 'PreInstalled'
+
+          - pwsh: |
+              $javaSettings = & java -XshowSettings:properties -version 2>&1 | Out-String
+              Write-Host $javaSettings
+              if ($javaSettings -notmatch 'java\.specification\.version\s*=\s*17') {
+                throw "Spark ${{ test.version }} E2E requires Java 17."
+              }
+            displayName: '[ENV] Verify JDK 17'
+
+        - ${{ else }}:
+          - task: JavaToolInstaller@0
+            condition: eq( variables['Agent.OS'], 'Linux')
+            displayName: '[ENV] Install JDK 8'
+            inputs:
+              versionSpec: '8'
+              jdkArchitectureOption: 'x64'
+              jdkSourceOption: 'PreInstalled'
 
         - task: PowerShell@2
           condition: eq( variables['Agent.OS'], 'Linux')
@@ -241,17 +258,40 @@ stages:
           displayName: 'Extract Spark Distro ${{ test.version }}'
           workingDirectory: $(Build.BinariesDirectory)
 
+        - ${{ if eq(split(test.version, '.')[0], '4') }}:
+          - pwsh: |
+              $sparkHome = Join-Path "$(Build.BinariesDirectory)" "spark-${{ test.version }}-bin-hadoop"
+              $releasePath = Join-Path $sparkHome "RELEASE"
+              $releaseLine = Get-Content -LiteralPath $releasePath -First 1
+              if ($releaseLine -notmatch '^Spark\s+(?<version>\d+\.\d+\.\d+)(?:[-\s]|$)') {
+                throw "Cannot parse Spark version from '$releasePath': $releaseLine"
+              }
+              if ($Matches.version -ne '${{ test.version }}') {
+                throw "Spark package version '$($Matches.version)' does not match E2E lane '${{ test.version }}'."
+              }
+              Write-Host "Verified Spark package version $($Matches.version)."
+            displayName: '[ENV] Verify Spark package version'
+
         - task: DotNetCoreCLI@2
           displayName: 'E2E tests'
           inputs:
             command: test
-            projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+            # Spark 4 currently covers the core bridge and positional scalar UDF path. Keep
+            # extension projects out of this lane until their Spark 4 compatibility is implemented.
+            ${{ if eq(split(test.version, '.')[0], '4') }}:
+              projects: '**/Microsoft.Spark.E2ETest/Microsoft.Spark.E2ETest.csproj'
+            ${{ else }}:
+              projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
             arguments: '--configuration $(buildConfiguration) ${{ option.testOptions }}'
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
             SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop
             DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
+            DOTNET_SPARKFIXTURE_EXPECTED_SPARK_VERSION: ${{ test.version }}
+            ${{ if eq(split(test.version, '.')[0], '4') }}:
+              DOTNET_SPARKFIXTURE_EXTRA_SPARK_SUBMIT_ARGS: '--conf spark.python.use.daemon=false'
+              DOTNET_ASSEMBLY_SEARCH_PATHS: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark$(PATH_SEPARATOR)artifacts$(PATH_SEPARATOR)bin$(PATH_SEPARATOR)Microsoft.Spark.E2ETest$(PATH_SEPARATOR)$(buildConfiguration)$(PATH_SEPARATOR)net8.0
             ${{ if and(ne(parameters.managedOSSMavenFeed, ''), ne(parameters.managedOSSMavenFeedUrl, '')) }}:
               DOTNET_SPARKFIXTURE_IVY_SETTINGS: $(SPARK_IVY_SETTINGS)
               DOTNET_SPARKFIXTURE_REPOSITORIES: ${{ parameters.managedOSSMavenFeedUrl }}
@@ -280,6 +320,7 @@ stages:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
             SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop
             DOTNET_WORKER_DIR: $(BACKWARD_COMPATIBLE_DOTNET_WORKER_DIR)
+            DOTNET_SPARKFIXTURE_EXPECTED_SPARK_VERSION: ${{ test.version }}
             ${{ if and(ne(parameters.managedOSSMavenFeed, ''), ne(parameters.managedOSSMavenFeedUrl, '')) }}:
               DOTNET_SPARKFIXTURE_IVY_SETTINGS: $(SPARK_IVY_SETTINGS)
               DOTNET_SPARKFIXTURE_REPOSITORIES: ${{ parameters.managedOSSMavenFeedUrl }}
@@ -306,3 +347,4 @@ stages:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
             SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop
             DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
+            DOTNET_SPARKFIXTURE_EXPECTED_SPARK_VERSION: ${{ test.version }}

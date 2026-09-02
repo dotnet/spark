@@ -14,5 +14,8 @@ namespace Microsoft.Spark
         internal const string V3_2_0 = "3.2.0";
         internal const string V3_3_0 = "3.3.0";
         internal const string V3_5_1 = "3.5.1";
+        internal const string V4_0_0 = "4.0.0";
+        internal const string V4_0_4 = "4.0.4";
+        internal const string V4_1_0 = "4.1.0";
     }
 }
