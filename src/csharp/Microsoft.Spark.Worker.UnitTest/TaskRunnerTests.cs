@@ -16,11 +16,11 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Fact]
         public void TestTaskRunner()
         {
-            using var serverListener = new DefaultSocketWrapper();
+            using var serverListener = new DefaultSocketWrapper(IPAddress.Loopback);
             serverListener.Listen();
 
             var port = (serverListener.LocalEndPoint as IPEndPoint).Port;
-            var clientSocket = new DefaultSocketWrapper();
+            var clientSocket = new DefaultSocketWrapper(IPAddress.Loopback);
             clientSocket.Connect(IPAddress.Loopback, port, null);
 
             PayloadWriter payloadWriter = new PayloadWriterFactory().Create();

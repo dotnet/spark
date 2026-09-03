@@ -4,6 +4,7 @@
 
 using System;
 using System.IO;
+using System.Net;
 using System.Runtime.InteropServices;
 using static System.Environment;
 using Microsoft.Spark.Utils;
@@ -24,6 +25,8 @@ namespace Microsoft.Spark.Services
         internal const string WorkerVerDirEnvVarNameFormat = "DOTNET_WORKER_{0}_DIR";
 
         private const string DotnetBackendPortEnvVarName = "DOTNETBACKEND_PORT";
+        private const string DotnetBackendIPAddressEnvVarName = "DOTNET_SPARK_BACKEND_IP_ADDRESS";
+        private const string DotnetCallbackServerIPAddressEnvVarName = "DOTNET_SPARK_CALLBACK_SERVER_IP_ADDRESS";
         private const int DotnetBackendDebugPort = 5567;
 
         private const string DotnetNumBackendThreadsEnvVarName = "DOTNET_SPARK_NUM_BACKEND_THREADS";
@@ -99,21 +102,26 @@ namespace Microsoft.Spark.Services
             !string.IsNullOrEmpty(GetEnvironmentVariable("DATABRICKS_RUNTIME_VERSION"));
 
         /// <summary>
-        /// Returns the port number for socket communication between JVM and CLR.
+        /// Returns the IP Endpoint for socket communication between JVM and CLR.
         /// </summary>
-        public int GetBackendPortNumber()
+        public IPEndPoint GetBackendIPEndpoint()
         {
             if (!int.TryParse(
-                GetEnvironmentVariable(DotnetBackendPortEnvVarName),
+                Environment.GetEnvironmentVariable(DotnetBackendPortEnvVarName),
                 out int portNumber))
             {
                 _logger.LogInfo($"'{DotnetBackendPortEnvVarName}' environment variable is not set.");
                 portNumber = DotnetBackendDebugPort;
             }
-
-            _logger.LogInfo($"Using port {portNumber} for connection.");
-
-            return portNumber;
+            string ipAddress = Environment.GetEnvironmentVariable(DotnetBackendIPAddressEnvVarName);
+            if (ipAddress == null)
+            {
+                _logger.LogInfo($"'{DotnetBackendIPAddressEnvVarName}' environment variable is not set.");
+                ipAddress = "127.0.0.1";
+            }
+            _logger.LogInfo($"Using IP address {ipAddress} and port {portNumber} for connection.");
+            
+            return new IPEndPoint(IPAddress.Parse(ipAddress), portNumber);
         }
 
         /// <summary>
@@ -129,6 +137,22 @@ namespace Microsoft.Spark.Services
             }
 
             return numThreads;
+        }
+
+        /// <summary>
+        /// Returns the IP address for socket communication between JVM and CallBack Server.
+        /// </summary>
+        public IPAddress GetCallbackServerIPAddress()
+        {
+            string ipAddress = Environment.GetEnvironmentVariable(DotnetCallbackServerIPAddressEnvVarName);
+            if (ipAddress == null)
+            {
+                _logger.LogInfo($"'{DotnetCallbackServerIPAddressEnvVarName}' environment variable is not set.");
+                ipAddress = "127.0.0.1";
+            }
+            _logger.LogInfo($"Using IP address {ipAddress} for connection with Callback Server.");
+
+            return IPAddress.Parse(ipAddress);
         }
 
         /// <summary>

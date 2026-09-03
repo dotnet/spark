@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Net;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Moq;
@@ -27,7 +28,7 @@ namespace Microsoft.Spark.UnitTest
 
             var mockJvmBridgeFactory = new Mock<IJvmBridgeFactory>();
             mockJvmBridgeFactory
-                .Setup(m => m.Create(It.IsAny<int>()))
+                .Setup(m => m.Create(It.IsAny<IPAddress>(), It.IsAny<int>()))
                 .Returns(MockJvm.Object);
 
             SparkEnvironment.JvmBridgeFactory = mockJvmBridgeFactory.Object;

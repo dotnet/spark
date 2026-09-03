@@ -67,6 +67,7 @@ object DotnetRunner extends Logging {
     // In debug mode this runner will not launch a .NET process.
     val runInDebugMode = settings._1
     @volatile var dotnetBackendPortNumber = settings._2
+    val dotnetBackendIPAddress = sys.env.getOrElse("DOTNET_SPARK_BACKEND_IP_ADDRESS", "127.0.0.1")
     var dotnetExecutable = ""
     var otherArgs: Array[String] = null
 
@@ -114,8 +115,9 @@ object DotnetRunner extends Logging {
       override def run() {
         // need to get back dotnetBackendPortNumber because if the value passed to init is 0
         // the port number is dynamically assigned in the backend
-        dotnetBackendPortNumber = dotnetBackend.init(dotnetBackendPortNumber)
-        logInfo(s"Port number used by DotnetBackend is $dotnetBackendPortNumber")
+        dotnetBackendPortNumber = dotnetBackend.init(dotnetBackendIPAddress, dotnetBackendPortNumber)
+        logInfo(s"IP address used by DotnetBackend is $dotnetBackendIPAddress and " +
+          s"Port number used is $dotnetBackendPortNumber")
         initialized.release()
         dotnetBackend.run()
       }

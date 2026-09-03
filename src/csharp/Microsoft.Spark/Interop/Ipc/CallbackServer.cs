@@ -155,7 +155,8 @@ namespace Microsoft.Spark.Interop.Ipc
         /// </summary>
         private void Run()
         {
-            Run(SocketFactory.CreateSocket());
+            IPAddress dotnetCallbackServerIpAddress = SparkEnvironment.ConfigurationService.GetCallbackServerIPAddress();
+            Run(SocketFactory.CreateSocket(dotnetCallbackServerIpAddress));
         }
 
         /// <summary>
