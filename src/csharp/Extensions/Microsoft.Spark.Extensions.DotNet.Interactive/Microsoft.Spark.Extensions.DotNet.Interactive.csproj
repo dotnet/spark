@@ -29,8 +29,8 @@
     <ProjectReference Include="..\..\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="$(OutputPath)/Microsoft.Spark.Extensions.DotNet.Interactive.dll"
+  <ItemGroup Condition="'$(IsCrossTargetingBuild)' != 'true'">
+    <None Include="$(TargetPath)"
       Pack="true"
       PackagePath="interactive-extensions/dotnet" />
   </ItemGroup>
