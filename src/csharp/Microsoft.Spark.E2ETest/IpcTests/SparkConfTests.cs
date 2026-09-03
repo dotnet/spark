@@ -39,7 +39,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.Equal(100, sparkConf.GetInt("key_int", 0));
 
             // Validate GetAll().
-            Dictionary<string, string> actualAllConfigs = 
+            Dictionary<string, string> actualAllConfigs =
                 sparkConf.GetAll().ToDictionary(x => x.Key, x => x.Value);
 
             Assert.Equal(expectedConfigs, actualAllConfigs);

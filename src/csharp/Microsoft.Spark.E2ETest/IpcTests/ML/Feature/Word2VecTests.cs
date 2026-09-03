@@ -24,7 +24,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         public void TestWord2Vec()
         {
             DataFrame documentDataFrame = _spark.Sql("SELECT split('Spark dotnet is cool', ' ')");
-            
+
             const string expectedInputCol = "text";
             const string expectedOutputCol = "result";
             const int expectedMinCount = 0;
@@ -35,7 +35,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             const double expectedStepSize = 1.9;
             const int expectedVectorSize = 20;
             const int expectedWindowSize = 200;
-            
+
             Word2Vec word2vec = new Word2Vec()
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
@@ -47,7 +47,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .SetStepSize(expectedStepSize)
                 .SetVectorSize(expectedVectorSize)
                 .SetWindowSize(expectedWindowSize);
-            
+
             Assert.Equal(expectedInputCol, word2vec.GetInputCol());
             Assert.Equal(expectedOutputCol, word2vec.GetOutputCol());
             Assert.Equal(expectedMinCount, word2vec.GetMinCount());
@@ -58,7 +58,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Equal(expectedStepSize, word2vec.GetStepSize());
             Assert.Equal(expectedVectorSize, word2vec.GetVectorSize());
             Assert.Equal(expectedWindowSize, word2vec.GetWindowSize());
-            
+
             using (var tempDirectory = new TemporaryDirectory())
             {
                 string savePath = Path.Join(tempDirectory.Path, "word2vec");
@@ -67,7 +67,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 Word2Vec loadedWord2Vec = Word2Vec.Load(savePath);
                 Assert.Equal(word2vec.Uid(), loadedWord2Vec.Uid());
             }
-            
+
             TestFeatureBase(word2vec, "maxIter", 2);
         }
     }

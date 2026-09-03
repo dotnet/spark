@@ -185,7 +185,7 @@ namespace Microsoft.Spark.Sql
         /// A string that represents the version of Spark on which this application is running.
         /// </returns>
         public string Version() => (string)Reference.Invoke("version");
-        
+
         /// <summary>
         /// Returns the specified table/view as a DataFrame.
         /// </summary>

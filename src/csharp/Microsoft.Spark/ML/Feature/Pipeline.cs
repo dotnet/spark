@@ -3,11 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Utils;
-using System.Collections.Generic;
 
 namespace Microsoft.Spark.ML.Feature
 {
@@ -83,7 +83,7 @@ namespace Microsoft.Spark.ML.Feature
                     out JavaPipelineStage instance))
                 {
                     result[i] = instance;
-                }                   
+                }
             }
 
             return result;

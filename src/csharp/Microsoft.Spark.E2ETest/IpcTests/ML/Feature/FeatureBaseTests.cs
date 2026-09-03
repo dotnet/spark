@@ -17,7 +17,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         {
             _spark = fixture.Spark;
         }
-        
+
         /// <summary>
         /// Tests the common functionality across all ML.Feature classes.
         /// </summary>
@@ -25,12 +25,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         /// <param name="paramName">The name of a parameter that can be set on this object</param>
         /// <param name="paramValue">A parameter value that can be set on this object</param>
         public void TestFeatureBase(
-            Params testObject, 
-            string paramName, 
+            Params testObject,
+            string paramName,
             object paramValue)
         {
             Assert.NotEmpty(testObject.ExplainParams());
-            
+
             Param param = testObject.GetParam(paramName);
             Assert.NotEmpty(param.Doc);
             Assert.NotEmpty(param.Name);

@@ -65,7 +65,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Catalog>(_spark.Catalog);
 
             Assert.NotNull(_spark.Version());
-        
+
             Assert.IsType<SparkSession>(SparkSession.Active());
         }
 

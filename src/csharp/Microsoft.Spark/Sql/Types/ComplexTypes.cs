@@ -77,7 +77,7 @@ namespace Microsoft.Spark.Sql.Types
             {
                 return obj;
             }
-            
+
             var arrayList = (ArrayList)obj;
             for (int i = 0; i < arrayList.Count; ++i)
             {

@@ -14,7 +14,7 @@ namespace Microsoft.Spark.Sql.Streaming
     public sealed class Trigger : IJvmObjectReferenceProvider
     {
         private static IJvmBridge Jvm { get; } = SparkEnvironment.JvmBridge;
-        private static readonly string s_triggerClassName = 
+        private static readonly string s_triggerClassName =
             "org.apache.spark.sql.streaming.Trigger";
 
         internal Trigger(JvmObjectReference jvmObject) => Reference = jvmObject;

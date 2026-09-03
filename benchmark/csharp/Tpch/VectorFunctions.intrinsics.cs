@@ -71,7 +71,7 @@ namespace Tpch
             fixed (double* pBuffer = buffer)
             {
                 Vector256<double> ones = Vector256.Create(1.0);
-                
+
                 int i = 0;
                 for (; i < vectorizationLength; i += 4)
                 {

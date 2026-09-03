@@ -54,7 +54,7 @@ namespace Microsoft.Spark.Examples.Sql.Streaming
                 .WriteStream()
                 .Format("console")
                 .Start();
-                
+
             query.AwaitTermination();
         }
     }

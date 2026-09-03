@@ -19,9 +19,9 @@ namespace Microsoft.Spark.Sql
         /// <param name="values">Column values for a row</param>        
         public GenericRow(object[] values)
         {
-            Values = values;           
+            Values = values;
         }
-       
+
         /// <summary>
         /// Values representing this row.
         /// </summary>
@@ -57,7 +57,7 @@ namespace Microsoft.Spark.Sql
             }
 
             return Values[index];
-        }        
+        }
 
         /// <summary>
         /// Returns the string version of this row.

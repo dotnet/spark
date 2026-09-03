@@ -26,14 +26,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             int expectedDocFrequency = 1980;
             string expectedInputCol = "rawFeatures";
             string expectedOutputCol = "features";
-            
+
             DataFrame sentenceData =
                 _spark.Sql("SELECT 0.0 as label, 'Hi I heard about Spark' as sentence");
-            
+
             Tokenizer tokenizer = new Tokenizer()
                 .SetInputCol("sentence")
                 .SetOutputCol("words");
-            
+
             DataFrame wordsData = tokenizer.Transform(sentenceData);
 
             HashingTF hashingTF = new HashingTF()
@@ -42,21 +42,21 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 .SetNumFeatures(20);
 
             DataFrame featurizedData = hashingTF.Transform(wordsData);
-    
+
             IDF idf = new IDF()
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
                 .SetMinDocFreq(expectedDocFrequency);
-            
+
             IDFModel idfModel = idf.Fit(featurizedData);
 
             DataFrame rescaledData = idfModel.Transform(featurizedData);
             Assert.Contains(expectedOutputCol, rescaledData.Columns());
-            
+
             Assert.Equal(expectedInputCol, idfModel.GetInputCol());
             Assert.Equal(expectedOutputCol, idfModel.GetOutputCol());
             Assert.Equal(expectedDocFrequency, idfModel.GetMinDocFreq());
-            
+
             using (var tempDirectory = new TemporaryDirectory())
             {
                 string modelPath = Path.Join(tempDirectory.Path, "idfModel");
@@ -65,7 +65,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 IDFModel loadedModel = IDFModel.Load(modelPath);
                 Assert.Equal(idfModel.Uid(), loadedModel.Uid());
             }
-            
+
             TestFeatureBase(idfModel, "minDocFreq", 1000);
         }
     }

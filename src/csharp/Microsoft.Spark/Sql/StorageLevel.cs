@@ -223,7 +223,7 @@ namespace Microsoft.Spark.Sql
             {
                 return false;
             }
-            
+
             return (UseDisk == that.UseDisk) && (UseMemory == that.UseMemory) &&
                 (UseOffHeap == that.UseOffHeap) && (Deserialized == that.Deserialized) &&
                 (Replication == that.Replication);

@@ -23,16 +23,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         [Fact]
         public void TestWord2VecModel()
         {
-            DataFrame documentDataFrame = 
+            DataFrame documentDataFrame =
                 _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as text");
 
             Word2Vec word2vec = new Word2Vec()
                 .SetInputCol("text")
                 .SetOutputCol("result")
                 .SetMinCount(1);
-            
+
             Word2VecModel model = word2vec.Fit(documentDataFrame);
-            
+
             const int expectedSynonyms = 2;
             DataFrame synonyms = model.FindSynonyms("Hi", expectedSynonyms);
 
@@ -47,7 +47,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 Word2VecModel loadedModel = Word2VecModel.Load(savePath);
                 Assert.Equal(model.Uid(), loadedModel.Uid());
             }
-            
+
             TestFeatureBase(model, "maxIter", 2);
         }
     }

@@ -1,0 +1,24 @@
+name: Check formatting
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          global-json-file: global.json
+
+      - name: Verify code formatting
+        run: |
+          dotnet format src/csharp/Microsoft.Spark.sln --verify-no-changes
+          dotnet format examples/Microsoft.Spark.Examples.sln --verify-no-changes
+          dotnet format benchmark/csharp/Microsoft.Spark.Benchmark.sln --verify-no-changes

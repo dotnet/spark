@@ -26,25 +26,25 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             string expectedInputCol = "rawFeatures";
             string expectedOutputCol = "features";
             int expectedDocFrequency = 100;
-            
+
             IDF idf = new IDF()
                 .SetInputCol(expectedInputCol)
                 .SetOutputCol(expectedOutputCol)
                 .SetMinDocFreq(expectedDocFrequency);
-            
+
             Assert.Equal(expectedInputCol, idf.GetInputCol());
             Assert.Equal(expectedOutputCol, idf.GetOutputCol());
             Assert.Equal(expectedDocFrequency, idf.GetMinDocFreq());
-            
+
             using (var tempDirectory = new TemporaryDirectory())
             {
                 string savePath = Path.Join(tempDirectory.Path, "IDF");
                 idf.Save(savePath);
-                
+
                 IDF loadedIdf = IDF.Load(savePath);
                 Assert.Equal(idf.Uid(), loadedIdf.Uid());
             }
-            
+
             TestFeatureBase(idf, "minDocFreq", 1000);
         }
     }

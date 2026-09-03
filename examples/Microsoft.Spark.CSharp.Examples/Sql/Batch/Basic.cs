@@ -108,7 +108,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
 
             DataFrame joinedDf3 = df.Join(df, df["name"] == df["name"], "outer");
             joinedDf3.Show();
-            
+
             // Union of two data frames
             DataFrame unionDf = df.Union(df);
             unionDf.Show();

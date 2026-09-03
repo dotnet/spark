@@ -89,7 +89,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="pivotColumn">Name of the column to pivot</param>
         /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
-        public RelationalGroupedDataset Pivot(string pivotColumn) => 
+        public RelationalGroupedDataset Pivot(string pivotColumn) =>
             new RelationalGroupedDataset(
                 (JvmObjectReference)Reference.Invoke("pivot", pivotColumn), _dataFrame);
 
@@ -109,7 +109,7 @@ namespace Microsoft.Spark.Sql
         /// </summary>
         /// <param name="pivotColumn">The column to pivot</param>
         /// <returns>New RelationalGroupedDataset object with pivot applied</returns>
-        public RelationalGroupedDataset Pivot(Column pivotColumn) => 
+        public RelationalGroupedDataset Pivot(Column pivotColumn) =>
             new RelationalGroupedDataset(
                 (JvmObjectReference)Reference.Invoke("pivot", pivotColumn), _dataFrame);
 
