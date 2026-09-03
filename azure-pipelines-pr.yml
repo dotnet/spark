@@ -12,6 +12,8 @@ variables:
   _TeamName: DotNetSpark
   MSBUILDSINGLELOADCONTEXT: 1
   ArtifactPath: '$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Binaries'
+  managedOSSMavenFeed: ManagedOSS_PublicPackages
+  managedOSSMavenFeedUrl: https://pkgs.dev.azure.com/msasg/ManagedOSS/_packaging/ManagedOSS_PublicPackages/maven/v1
 
   backwardCompatibleRelease: '2.0.0'
   forwardCompatibleRelease: '2.0.0'
@@ -46,6 +48,11 @@ variables:
   forwardCompatibleTestOptions_Windows_3_5: $(backwardCompatibleTestOptions_Windows_3_5)
   backwardCompatibleTestOptions_Linux_3_5: $(backwardCompatibleTestOptions_Windows_3_5)
   forwardCompatibleTestOptions_Linux_3_5: $(backwardCompatibleTestOptions_Windows_3_5)
+
+  backwardCompatibleTestOptions_Windows_4_0: "--filter FullyQualifiedName=NONE"
+  forwardCompatibleTestOptions_Windows_4_0: $(backwardCompatibleTestOptions_Windows_4_0)
+  backwardCompatibleTestOptions_Linux_4_0: $(backwardCompatibleTestOptions_Windows_4_0)
+  forwardCompatibleTestOptions_Linux_4_0: $(backwardCompatibleTestOptions_Windows_4_0)
 
   # Azure DevOps variables are transformed into environment variables, with these variables we
   # avoid the first time experience and telemetry to speed up the build.
@@ -87,6 +94,11 @@ parameters:
   - '3.5.1'
   - '3.5.2'
   - '3.5.3'
+  - '4.0.0'
+  - '4.0.1'
+  - '4.0.2'
+  - '4.0.3'
+  - '4.0.4'
 
 # List of OS types to run E2E tests, run each test in both 'Windows' and 'Linux' environments
 - name: listOfE2ETestsPoolTypes
@@ -152,13 +164,29 @@ extends:
         - task: MavenAuthenticate@0
           displayName: '[ENV] Maven Authenticate'
           inputs:
-            artifactsFeeds: central
+            artifactsFeeds: $(managedOSSMavenFeed)
+
+        - pwsh: |
+            ./eng/Configure-PackageSources.ps1 `
+              -FeedName "$(managedOSSMavenFeed)" `
+              -FeedUrl "$(managedOSSMavenFeedUrl)"
+          displayName: '[ENV] Configure Maven mirror'
 
         - task: Maven@3
           displayName: 'Maven build src'
           inputs:
             mavenPomFile: src/scala/pom.xml
             options: '-Dmaven.resolver.transport=wagon'
+
+        - task: Maven@3
+          displayName: 'Maven build Spark 4.0 bridge (JDK 17)'
+          inputs:
+            mavenPomFile: src/scala/microsoft-spark-4-0/pom.xml
+            goals: 'clean package'
+            options: '-Dmaven.resolver.transport=wagon'
+            javaHomeOption: 'JDKVersion'
+            jdkVersionOption: '1.17'
+            jdkArchitectureOption: 'x64'
 
         - task: Maven@3
           displayName: 'Maven build benchmark'
@@ -191,6 +219,8 @@ extends:
       parameters:
         backwardCompatibleRelease: $(backwardCompatibleRelease)
         forwardCompatibleRelease: $(forwardCompatibleRelease)
+        managedOSSMavenFeed: $(managedOSSMavenFeed)
+        managedOSSMavenFeedUrl: $(managedOSSMavenFeedUrl)
         tests:
         - ${{ each version in parameters.listOfE2ETestsSparkVersions }} :
           - version: ${{ version }}
@@ -201,5 +231,9 @@ extends:
             jobOptions:
             - ${{ each pool in parameters.listOfE2ETestsPoolTypes }}:
               - pool: ${{ pool }}
+                ${{ if startsWith(version, '4.0.') }}:
+                  testOptions: "--filter Category=Spark40Compatibility"
+                ${{ else }}:
+                  testOptions: ""
                 backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_${{ pool }}_${{ split(version, '.')[0] }}_${{ split(version, '.')[1] }})
                 forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_${{ pool }}_${{ split(version, '.')[0] }}_${{ split(version, '.')[1] }})
