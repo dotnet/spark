@@ -13,20 +13,21 @@ namespace Microsoft.Spark.Worker.UnitTest
 {
     public class CommandProcessorTests
     {
-        [Fact]
-        public void Spark40EvalTypeGateAllowsOnlySqlBatchedUdf()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(100)]
+        public void Spark40EvalTypeGateAllowsSupportedTypes(int rawEvalType)
         {
-            using MemoryStream stream = CreateEvalTypeStream(100);
+            using MemoryStream stream = CreateEvalTypeStream(rawEvalType);
 
             UdfUtils.PythonEvalType evalType =
                 new CommandProcessor(new Version("4.0.4")).ReadEvalType(stream);
 
-            Assert.Equal(UdfUtils.PythonEvalType.SQL_BATCHED_UDF, evalType);
+            Assert.Equal(rawEvalType, (int)evalType);
             Assert.Equal(sizeof(int), stream.Position);
         }
 
         [Theory]
-        [InlineData(0)]
         [InlineData(101)]
         [InlineData(200)]
         [InlineData(201)]

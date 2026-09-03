@@ -19,6 +19,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         [Fact]
+        [Trait("Category", "Spark40Compatibility")]
         public void TestCollect()
         {
             RDD<Tuple<string, int>> rdd = _sc.Parallelize(new[] {
