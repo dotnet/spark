@@ -64,5 +64,46 @@ namespace Microsoft.Spark.E2ETest
 
             Assert.Equal(new long[] { 2, 4, 6, 8 }, values);
         }
+
+        [SkipIfSparkVersionIsNotInRange(Versions.V4_0_0, Versions.V4_1_0)]
+        [Trait("Category", "Spark40Compatibility")]
+        public void RddNonUdfPipelineExecutesAcrossPartitions()
+        {
+            RDD<int> result = _fixture.Spark.SparkContext
+                .Parallelize(Enumerable.Range(0, 12), 3)
+                .Map(value => value + 1)
+                .Filter(value => (value % 2) == 0)
+                .MapPartitions(values => values.Select(value => value * 10));
+
+            Assert.Equal(3, result.GetNumPartitions());
+            Assert.Equal(new[] { 20, 40, 60, 80, 100, 120 }, result.Collect());
+        }
+
+        [SkipIfSparkVersionIsNotInRange(Versions.V4_0_0, Versions.V4_1_0)]
+        [Trait("Category", "Spark40Compatibility")]
+        public void RddNonUdfPipelineHandlesEmptyInput()
+        {
+            RDD<int> result = _fixture.Spark.SparkContext
+                .Parallelize(System.Array.Empty<int>(), 2)
+                .Map(value => value + 1)
+                .Filter(value => value > 0)
+                .MapPartitions(values => values.Select(value => value * 10));
+
+            Assert.Equal(2, result.GetNumPartitions());
+            Assert.Empty(result.Collect());
+        }
+
+        [SkipIfSparkVersionIsNotInRange(Versions.V4_0_0, Versions.V4_1_0)]
+        [Trait("Category", "Spark40Compatibility")]
+        public void RddNonUdfWorkerFailurePropagates()
+        {
+            const string expectedMessage = "Spark 4 RDD worker delegate failure.";
+            RDD<int> result = _fixture.Spark.SparkContext
+                .Parallelize(new[] { 1 }, 1)
+                .Map<int>(value => throw new InvalidOperationException(expectedMessage));
+
+            Exception exception = Assert.ThrowsAny<Exception>(() => result.Collect().ToArray());
+            Assert.Contains(expectedMessage, exception.ToString());
+        }
     }
 }
