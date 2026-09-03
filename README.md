@@ -63,6 +63,14 @@
 
 .NET for Apache Spark releases are available [here](https://github.com/dotnet/spark/releases) and NuGet packages are available [here](https://www.nuget.org/packages/Microsoft.Spark).
 
+### First-Party Extensions
+Some extended features are available via extension NuGet packages:
+* [Microsoft.Spark.Extensions.Delta](https://www.nuget.org/packages/Microsoft.Spark.Extensions.Delta/)
+* [Microsoft.Spark.Extensions.DotNet.Interactive](https://www.nuget.org/packages/Microsoft.Spark.Extensions.DotNet.Interactive/)
+* [Microsoft.Spark.Extensions.Hyperspace](https://www.nuget.org/packages/Microsoft.Spark.Extensions.Hyperspace/)
+
+A list of third-party extensions is available [here](src/csharp/Extensions/README.md).
+
 ## Get Started
 These instructions will show you how to run a .NET for Apache Spark app using .NET 8.
 - [Windows Instructions](docs/getting-started/windows-instructions.md)
