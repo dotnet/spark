@@ -1098,16 +1098,29 @@ namespace Microsoft.Spark.Sql
             string funcName,
             params object[] args)
         {
-            object result = Reference.Invoke(funcName, args);
             Version version = SparkEnvironment.SparkVersion;
-            return (version.Major, version.Minor) switch
+            ValidateRowCollectionOperation(version, funcName);
+            object result = Reference.Invoke(funcName, args);
+            return ParseConnectionInfo(result, false);
+        }
+
+        internal static void ValidateRowCollectionOperation(
+            Version version,
+            string funcName)
+        {
+            bool isSupported = (version.Major, version.Minor) switch
             {
-                // PythonFunction.serveIterator() returns a pair where the first is a port
-                // number and the second is the secret string to use for the authentication.
-                (2, 4) => ParseConnectionInfo(result, false),
-                (3, _) => ParseConnectionInfo(result, false),
-                _ => throw new NotSupportedException($"Spark {version} not supported.")
+                (2, 4) => true,
+                (3, _) => true,
+                (4, 0) => funcName == "collectToPython",
+                _ => false
             };
+
+            if (!isSupported)
+            {
+                throw new NotSupportedException(
+                    $"Spark {version} does not support {funcName}.");
+            }
         }
 
         private (int, string, JvmObjectReference) ParseConnectionInfo(

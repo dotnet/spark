@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Buffers.Binary;
 using System.IO;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
@@ -13,6 +14,15 @@ namespace Microsoft.Spark.Worker.Processor
 {
     internal sealed class CommandProcessor
     {
+        private const int MaxSpark40Udfs = 1024;
+        private const int MaxSpark40ArgumentsPerUdf = 10;
+        private const int MaxSpark40Arguments = 10240;
+        private const int MaxSpark40ChainedFunctionsPerUdf = 64;
+        private const int MaxSpark40ChainedFunctions = 4096;
+        private const int MaxSpark40CommandBytes = 16 * 1024 * 1024;
+        private const int MaxSpark40TotalCommandBytes = 64 * 1024 * 1024;
+        private const int MaxSpark40NameBytes = 4096;
+
         private readonly Version _version;
 
         internal CommandProcessor(Version version)
@@ -27,7 +37,7 @@ namespace Microsoft.Spark.Worker.Processor
         /// <returns>CommandPayload object</returns>
         internal CommandPayload Process(Stream stream)
         {
-            var evalType = (PythonEvalType)SerDe.ReadInt32(stream);
+            PythonEvalType evalType = ReadEvalType(stream);
 
             var commandPayload = new CommandPayload()
             {
@@ -44,6 +54,51 @@ namespace Microsoft.Spark.Worker.Processor
             }
 
             return commandPayload;
+        }
+
+        internal PythonEvalType ReadEvalType(Stream stream)
+        {
+            if ((_version.Major, _version.Minor) != (4, 0))
+            {
+                return (PythonEvalType)SerDe.ReadInt32(stream);
+            }
+
+            byte[] buffer = new byte[sizeof(int)];
+            int totalBytesRead = 0;
+            while (totalBytesRead < buffer.Length)
+            {
+                int bytesRead = stream.Read(
+                    buffer,
+                    totalBytesRead,
+                    buffer.Length - totalBytesRead);
+                if (bytesRead == 0)
+                {
+                    throw new EndOfStreamException(
+                        "Incomplete Spark 4 evaluation type.");
+                }
+
+                totalBytesRead += bytesRead;
+            }
+
+            int rawEvalType = BinaryPrimitives.ReadInt32BigEndian(buffer);
+            if (rawEvalType == (int)PythonEvalType.SQL_BATCHED_UDF)
+            {
+                return PythonEvalType.SQL_BATCHED_UDF;
+            }
+
+            bool isKnownUnsupported = rawEvalType == 0 ||
+                rawEvalType == 101 ||
+                (rawEvalType >= 200 && rawEvalType <= 212) ||
+                rawEvalType == 300 ||
+                rawEvalType == 301;
+            if (isKnownUnsupported)
+            {
+                throw new NotSupportedException(
+                    $"Spark 4 evaluation type {rawEvalType} is not supported.");
+            }
+
+            throw new InvalidDataException(
+                $"Unknown Spark 4 evaluation type: {rawEvalType}.");
         }
 
         /// <summary>
@@ -115,8 +170,246 @@ namespace Microsoft.Spark.Worker.Processor
             {
                 (2, 4) => SqlCommandProcessorV2_4_X.Process(evalType, stream),
                 (3, _) => SqlCommandProcessorV2_4_X.Process(evalType, stream),
+                (4, 0) => ReadSpark40SqlCommands(evalType, stream),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
+        }
+
+        private static SqlCommand[] ReadSpark40SqlCommands(
+            PythonEvalType evalType,
+            Stream stream)
+        {
+            if (evalType != PythonEvalType.SQL_BATCHED_UDF)
+            {
+                throw new NotSupportedException(
+                    $"Spark 4 evaluation type {evalType} is not supported.");
+            }
+
+            var reader = new ProtocolReader(stream);
+            bool isProfiling = reader.ReadBoolean("Spark 4 profiling flag");
+            if (isProfiling)
+            {
+                string profilerName = reader.ReadUtf8(
+                    "Spark 4 profiler name",
+                    minimumLength: 4,
+                    maximumLength: 6);
+                if (profilerName != "perf" && profilerName != "memory")
+                {
+                    throw new InvalidDataException("Invalid Spark 4 profiler name.");
+                }
+            }
+
+            int numUdfs = reader.ReadInt32("Spark 4 UDF count");
+            ValidateRange(numUdfs, 1, MaxSpark40Udfs, "Spark 4 UDF count");
+
+            var frames = new Spark40UdfFrame[numUdfs];
+            bool hasNamedArguments = false;
+            int totalArguments = 0;
+            int totalChainedFunctions = 0;
+            int totalCommandBytes = 0;
+            int nextOffset = 0;
+
+            for (int udfIndex = 0; udfIndex < numUdfs; ++udfIndex)
+            {
+                int numArguments = reader.ReadInt32("Spark 4 UDF argument count");
+                ValidateRange(
+                    numArguments,
+                    0,
+                    MaxSpark40ArgumentsPerUdf,
+                    "Spark 4 UDF argument count");
+                totalArguments = AddWithLimit(
+                    totalArguments,
+                    numArguments,
+                    MaxSpark40Arguments,
+                    "Spark 4 total argument count");
+
+                var argOffsets = new int[numArguments];
+                for (int argIndex = 0; argIndex < numArguments; ++argIndex)
+                {
+                    int offset = reader.ReadInt32("Spark 4 UDF argument offset");
+                    if (offset < 0 || offset > nextOffset)
+                    {
+                        throw new InvalidDataException(
+                            "Invalid Spark 4 UDF argument offset.");
+                    }
+
+                    if (offset == nextOffset)
+                    {
+                        ++nextOffset;
+                    }
+
+                    argOffsets[argIndex] = offset;
+
+                    bool hasName = reader.ReadBoolean(
+                        "Spark 4 named argument flag");
+                    if (hasName)
+                    {
+                        _ = reader.ReadUtf8(
+                            "Spark 4 argument name",
+                            minimumLength: 1,
+                            maximumLength: MaxSpark40NameBytes);
+                        hasNamedArguments = true;
+                    }
+                }
+
+                int numChainedFunctions = reader.ReadInt32(
+                    "Spark 4 chained function count");
+                ValidateRange(
+                    numChainedFunctions,
+                    1,
+                    MaxSpark40ChainedFunctionsPerUdf,
+                    "Spark 4 chained function count");
+                totalChainedFunctions = AddWithLimit(
+                    totalChainedFunctions,
+                    numChainedFunctions,
+                    MaxSpark40ChainedFunctions,
+                    "Spark 4 total chained function count");
+
+                var commandBytes = new byte[numChainedFunctions][];
+                for (int functionIndex = 0;
+                    functionIndex < numChainedFunctions;
+                    ++functionIndex)
+                {
+                    int length = reader.ReadInt32("Spark 4 command length");
+                    ValidateRange(
+                        length,
+                        1,
+                        MaxSpark40CommandBytes,
+                        "Spark 4 command length");
+                    totalCommandBytes = AddWithLimit(
+                        totalCommandBytes,
+                        length,
+                        MaxSpark40TotalCommandBytes,
+                        "Spark 4 total command bytes");
+                    commandBytes[functionIndex] = reader.ReadBytes(
+                        length,
+                        "Spark 4 command");
+                }
+
+                if (isProfiling)
+                {
+                    _ = reader.ReadInt64("Spark 4 profiler result ID");
+                }
+
+                frames[udfIndex] = new Spark40UdfFrame(
+                    argOffsets,
+                    commandBytes);
+            }
+
+            if (isProfiling)
+            {
+                throw new NotSupportedException(
+                    "Spark 4 UDF profiling is not supported.");
+            }
+
+            if (hasNamedArguments)
+            {
+                throw new NotSupportedException(
+                    "Spark 4 named UDF arguments are not supported.");
+            }
+
+            foreach (Spark40UdfFrame frame in frames)
+            {
+                for (int functionIndex = 0;
+                    functionIndex < frame.CommandBytes.Length;
+                    ++functionIndex)
+                {
+                    int expectedArity = functionIndex == 0 ?
+                        frame.ArgOffsets.Length :
+                        1;
+                    CommandSerDe.PreflightSpark40(
+                        frame.CommandBytes[functionIndex],
+                        expectedArity);
+                }
+            }
+
+            var commands = new SqlCommand[frames.Length];
+            for (int udfIndex = 0; udfIndex < frames.Length; ++udfIndex)
+            {
+                Spark40UdfFrame frame = frames[udfIndex];
+                var command = new SqlCommand
+                {
+                    ArgOffsets = frame.ArgOffsets,
+                    NumChainedFunctions = frame.CommandBytes.Length
+                };
+
+                for (int functionIndex = 0;
+                    functionIndex < frame.CommandBytes.Length;
+                    ++functionIndex)
+                {
+                    int expectedArity = functionIndex == 0 ?
+                        frame.ArgOffsets.Length :
+                        1;
+                    var currentWorkerFunction = new PicklingWorkerFunction(
+                        CommandSerDe.DeserializeSpark40<
+                            PicklingWorkerFunction.ExecuteDelegate>(
+                            frame.CommandBytes[functionIndex],
+                            expectedArity,
+                            out CommandSerDe.SerializedMode serializerMode,
+                            out CommandSerDe.SerializedMode deserializerMode));
+
+                    command.WorkerFunction = command.WorkerFunction == null ?
+                        currentWorkerFunction :
+                        PicklingWorkerFunction.Chain(
+                            (PicklingWorkerFunction)command.WorkerFunction,
+                            currentWorkerFunction);
+                    command.SerializerMode = serializerMode;
+                    command.DeserializerMode = deserializerMode;
+                }
+
+                commands[udfIndex] = command;
+            }
+
+            return commands;
+        }
+
+        private static void ValidateRange(
+            int value,
+            int minimum,
+            int maximum,
+            string fieldName)
+        {
+            if (value < minimum || value > maximum)
+            {
+                throw new InvalidDataException($"Invalid {fieldName}.");
+            }
+        }
+
+        private static int AddWithLimit(
+            int current,
+            int value,
+            int maximum,
+            string fieldName)
+        {
+            int total;
+            try
+            {
+                total = checked(current + value);
+            }
+            catch (OverflowException ex)
+            {
+                throw new InvalidDataException($"Invalid {fieldName}.", ex);
+            }
+
+            if (total > maximum)
+            {
+                throw new InvalidDataException($"Invalid {fieldName}.");
+            }
+
+            return total;
+        }
+
+        private sealed class Spark40UdfFrame
+        {
+            internal Spark40UdfFrame(int[] argOffsets, byte[][] commandBytes)
+            {
+                ArgOffsets = argOffsets;
+                CommandBytes = commandBytes;
+            }
+
+            internal int[] ArgOffsets { get; }
+
+            internal byte[][] CommandBytes { get; }
         }
 
         /// <summary>

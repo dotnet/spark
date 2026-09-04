@@ -58,7 +58,7 @@ namespace Microsoft.Spark.Worker.Command
             SqlCommandExecutor executor;
             if (evalType == UdfUtils.PythonEvalType.SQL_BATCHED_UDF)
             {
-                executor = new PicklingSqlCommandExecutor();
+                executor = new PicklingSqlCommandExecutor(version);
             }
             else if (evalType == UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF)
             {
@@ -88,11 +88,18 @@ namespace Microsoft.Spark.Worker.Command
     /// </summary>
     internal class PicklingSqlCommandExecutor : SqlCommandExecutor
     {
+        private readonly bool _validateRowWidth;
+
         [ThreadStatic]
         private static Pickler s_pickler;
 
         [ThreadStatic]
         private static byte[] s_outputBuffer;
+
+        internal PicklingSqlCommandExecutor(Version version)
+        {
+            _validateRowWidth = (version.Major, version.Minor) == (4, 0);
+        }
 
         protected internal override CommandExecutorStat ExecuteCore(
             Stream inputStream,
@@ -101,6 +108,8 @@ namespace Microsoft.Spark.Worker.Command
         {
             var stat = new CommandExecutorStat();
             ICommandRunner commandRunner = CreateCommandRunner(commands);
+            int expectedRowWidth = _validateRowWidth ? GetExpectedRowWidth(commands) : -1;
+            int batchIndex = 0;
 
             // On the Spark side, each object in the following List<> is considered as a row.
             // See the ICommandRunner comments above for the types for a row.
@@ -137,6 +146,17 @@ namespace Microsoft.Spark.Worker.Command
                     object[] inputRows =
                         PythonSerDe.GetUnpickledObjects(inputStream, messageLength);
 
+                    if (_validateRowWidth)
+                    {
+                        if (inputRows is null)
+                        {
+                            throw new InvalidDataException(
+                                $"Invalid Spark 4 pickle batch at batch {batchIndex}.");
+                        }
+
+                        ValidateAndNormalizeRows(inputRows, expectedRowWidth, batchIndex);
+                    }
+
                     for (int i = 0; i < inputRows.Length; ++i)
                     {
                         object row = inputRows[i];
@@ -158,10 +178,77 @@ namespace Microsoft.Spark.Worker.Command
                     WriteOutput(outputStream, outputRows, messageLength);
                     stat.NumEntriesProcessed += inputRows.Length;
                     outputRows.Clear();
+                    batchIndex++;
                 }
             }
 
             return stat;
+        }
+
+        private static int GetExpectedRowWidth(SqlCommand[] commands)
+        {
+            int expectedRowWidth = 0;
+            foreach (SqlCommand command in commands)
+            {
+                if (command.ArgOffsets is null)
+                {
+                    throw new InvalidDataException("Spark 4 argument offsets are missing.");
+                }
+
+                foreach (int offset in command.ArgOffsets)
+                {
+                    if (offset < 0 || offset > expectedRowWidth)
+                    {
+                        throw new InvalidDataException(
+                            $"Invalid Spark 4 argument offset: {offset}.");
+                    }
+
+                    if (offset == expectedRowWidth)
+                    {
+                        if (expectedRowWidth == int.MaxValue)
+                        {
+                            throw new InvalidDataException(
+                                "Spark 4 expected row width is too large.");
+                        }
+
+                        expectedRowWidth++;
+                    }
+                }
+            }
+
+            return expectedRowWidth;
+        }
+
+        private static void ValidateAndNormalizeRows(
+            object[] inputRows,
+            int expectedRowWidth,
+            int batchIndex)
+        {
+            for (int rowIndex = 0; rowIndex < inputRows.Length; ++rowIndex)
+            {
+                object row = inputRows[rowIndex];
+                if (row is Row wrappedRow)
+                {
+                    row = wrappedRow.Values;
+                }
+
+                if (!(row is object[] values))
+                {
+                    string actualShape = row is null ? "null" : "non-array";
+                    throw new InvalidDataException(
+                        $"Invalid Spark 4 row shape at batch {batchIndex}, row {rowIndex}: " +
+                        $"expected array[{expectedRowWidth}], actual {actualShape}.");
+                }
+
+                if (values.Length != expectedRowWidth)
+                {
+                    throw new InvalidDataException(
+                        $"Invalid Spark 4 row shape at batch {batchIndex}, row {rowIndex}: " +
+                        $"expected array[{expectedRowWidth}], actual array[{values.Length}].");
+                }
+
+                inputRows[rowIndex] = values;
+            }
         }
 
         /// <summary>
