@@ -25,6 +25,17 @@ namespace Microsoft.Spark.Worker.UnitTest
 {
     public class CommandExecutorTests
     {
+        public static IEnumerable<object[]> InvalidSpark40Rows
+        {
+            get
+            {
+                yield return new object[] { null };
+                yield return new object[] { "scalar" };
+                yield return new object[] { System.Array.Empty<object>() };
+                yield return new object[] { new object[] { "value", "extra" } };
+            }
+        }
+
         [Theory]
         [MemberData(nameof(CommandExecutorData.Data), MemberType = typeof(CommandExecutorData))]
         public void TestPicklingSqlCommandExecutorWithSingleCommand(
@@ -232,6 +243,146 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             // Validate the output stream.
             Assert.Equal(0, outputStream.Length);
+        }
+
+        [Fact]
+        public void TestSpark40PicklingSqlCommandExecutorWithValidRows()
+        {
+            TestPicklingSqlCommandExecutorWithSingleCommand(
+                new Version(Versions.V4_0_4),
+                new IpcOptions { WriteLegacyIpcFormat = false });
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidSpark40Rows))]
+        public void TestSpark40ValidatesWholePickleBatchBeforeDelegate(object invalidRow)
+        {
+            int delegateInvocations = 0;
+            var udfWrapper = new Sql.PicklingUdfWrapper<object, object>(value =>
+            {
+                Interlocked.Increment(ref delegateInvocations);
+                return value;
+            });
+            var command = new SqlCommand
+            {
+                ArgOffsets = new[] { 0 },
+                NumChainedFunctions = 1,
+                WorkerFunction = new Sql.PicklingWorkerFunction(udfWrapper.Execute),
+                SerializerMode = CommandSerDe.SerializedMode.Row,
+                DeserializerMode = CommandSerDe.SerializedMode.Row
+            };
+            var commandPayload = new Worker.CommandPayload
+            {
+                EvalType = UdfUtils.PythonEvalType.SQL_BATCHED_UDF,
+                Commands = new[] { command }
+            };
+
+            using var inputStream = new MemoryStream();
+            using var outputStream = new MemoryStream();
+            byte[] pickled = new Pickler().dumps(
+                new object[] { new object[] { "valid" }, invalidRow });
+            SerDe.Write(inputStream, pickled.Length);
+            SerDe.Write(inputStream, pickled);
+            SerDe.Write(inputStream, (int)SpecialLengths.END_OF_DATA_SECTION);
+            inputStream.Position = 0;
+
+            Assert.Throws<InvalidDataException>(() =>
+                new CommandExecutor(new Version(Versions.V4_0_4)).Execute(
+                    inputStream,
+                    outputStream,
+                    0,
+                    commandPayload));
+
+            Assert.Equal(0, delegateInvocations);
+            Assert.Equal(0, outputStream.Length);
+        }
+
+        [Fact]
+        public void TestSpark40RejectsNonArrayPickleBatchBeforeDelegate()
+        {
+            int delegateInvocations = 0;
+            var udfWrapper = new Sql.PicklingUdfWrapper<object, object>(value =>
+            {
+                Interlocked.Increment(ref delegateInvocations);
+                return value;
+            });
+            var commandPayload = new Worker.CommandPayload
+            {
+                EvalType = UdfUtils.PythonEvalType.SQL_BATCHED_UDF,
+                Commands = new[]
+                {
+                    new SqlCommand
+                    {
+                        ArgOffsets = new[] { 0 },
+                        NumChainedFunctions = 1,
+                        WorkerFunction = new Sql.PicklingWorkerFunction(udfWrapper.Execute),
+                        SerializerMode = CommandSerDe.SerializedMode.Row,
+                        DeserializerMode = CommandSerDe.SerializedMode.Row
+                    }
+                }
+            };
+
+            using var inputStream = new MemoryStream();
+            using var outputStream = new MemoryStream();
+            byte[] pickled = new Pickler().dumps("not-a-batch");
+            SerDe.Write(inputStream, pickled.Length);
+            SerDe.Write(inputStream, pickled);
+            SerDe.Write(inputStream, (int)SpecialLengths.END_OF_DATA_SECTION);
+            inputStream.Position = 0;
+
+            Assert.Throws<InvalidDataException>(() =>
+                new CommandExecutor(new Version(Versions.V4_0_4)).Execute(
+                    inputStream,
+                    outputStream,
+                    0,
+                    commandPayload));
+
+            Assert.Equal(0, delegateInvocations);
+            Assert.Equal(0, outputStream.Length);
+        }
+
+        [Fact]
+        public void TestSpark3DoesNotApplySpark40RowWidthValidation()
+        {
+            int delegateInvocations = 0;
+            var udfWrapper = new Sql.PicklingUdfWrapper<object, object>(value =>
+            {
+                Interlocked.Increment(ref delegateInvocations);
+                return value;
+            });
+            var command = new SqlCommand
+            {
+                ArgOffsets = new[] { 0 },
+                NumChainedFunctions = 1,
+                WorkerFunction = new Sql.PicklingWorkerFunction(udfWrapper.Execute),
+                SerializerMode = CommandSerDe.SerializedMode.Row,
+                DeserializerMode = CommandSerDe.SerializedMode.Row
+            };
+            var commandPayload = new Worker.CommandPayload
+            {
+                EvalType = UdfUtils.PythonEvalType.SQL_BATCHED_UDF,
+                Commands = new[] { command }
+            };
+
+            using var inputStream = new MemoryStream();
+            using var outputStream = new MemoryStream();
+            byte[] pickled = new Pickler().dumps(
+                new object[] { new object[] { "value", "extra" } });
+            SerDe.Write(inputStream, pickled.Length);
+            SerDe.Write(inputStream, pickled);
+            SerDe.Write(inputStream, (int)SpecialLengths.END_OF_DATA_SECTION);
+            inputStream.Position = 0;
+
+            CommandExecutorStat stat =
+                new CommandExecutor(new Version(Versions.V3_0_0)).Execute(
+                    inputStream,
+                    outputStream,
+                    0,
+                    commandPayload);
+
+            Assert.Equal(1, delegateInvocations);
+            Assert.Equal(1, stat.NumEntriesProcessed);
+            Assert.NotEqual(0, outputStream.Length);
         }
 
         [Theory]

@@ -43,6 +43,12 @@ namespace Microsoft.Spark.E2ETest
             public const string Repositories = "DOTNET_SPARKFIXTURE_REPOSITORIES";
 
             /// <summary>
+            /// This environment variable specifies the Spark version expected by the E2E lane.
+            /// </summary>
+            public const string ExpectedSparkVersion =
+                "DOTNET_SPARKFIXTURE_EXPECTED_SPARK_VERSION";
+
+            /// <summary>
             /// This environment variable specifies the path where the DotNet worker is installed.
             /// </summary>
             public const string WorkerDir = Services.ConfigurationService.DefaultWorkerDirEnvVarName;
@@ -68,6 +74,11 @@ namespace Microsoft.Spark.E2ETest
                 throw new Exception(
                     $"Environment variable '{EnvironmentVariableNames.WorkerDir}' must be set.");
             }
+
+            ValidateExpectedSparkVersion(
+                SparkSettings.Version,
+                Environment.GetEnvironmentVariable(
+                    EnvironmentVariableNames.ExpectedSparkVersion));
 
             BuildSparkCmd(out var filename, out var args);
 
@@ -129,12 +140,21 @@ namespace Microsoft.Spark.E2ETest
 
         public string AddPackages(string args)
         {
+            return AddPackages(args, GetAvroPackage());
+        }
+
+        internal static string AddPackages(string args, string avroPackage)
+        {
             string packagesOption = "--packages ";
             string[] splits = args.Split(packagesOption, 2);
 
-            StringBuilder newArgs = new StringBuilder(splits[0])
-                .Append(packagesOption)
-                .Append(GetAvroPackage());
+            StringBuilder newArgs = new StringBuilder(splits[0]);
+            if (newArgs.Length > 0 && !char.IsWhiteSpace(newArgs[newArgs.Length - 1]))
+            {
+                newArgs.Append(' ');
+            }
+
+            newArgs.Append(packagesOption).Append(avroPackage);
             if (splits.Length > 1)
             {
                 newArgs.Append(",").Append(splits[1]);
@@ -145,11 +165,16 @@ namespace Microsoft.Spark.E2ETest
 
         public string GetAvroPackage()
         {
-            Version sparkVersion = SparkSettings.Version;
-            string avroVersion = sparkVersion.Major switch
+            return GetAvroPackage(SparkSettings.Version);
+        }
+
+        internal static string GetAvroPackage(Version sparkVersion)
+        {
+            string avroVersion = (sparkVersion.Major, sparkVersion.Minor) switch
             {
-                2 => $"spark-avro_2.11:{sparkVersion}",
-                3 => $"spark-avro_2.12:{sparkVersion}",
+                (2, _) => $"spark-avro_2.11:{sparkVersion}",
+                (3, _) => $"spark-avro_2.12:{sparkVersion}",
+                (4, 0) => $"spark-avro_2.13:{sparkVersion}",
                 _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
             };
 
@@ -176,6 +201,57 @@ namespace Microsoft.Spark.E2ETest
             }
 
             return $"--conf spark.jars.ivySettings={ivySettings} --repositories {repositories}";
+        }
+
+        internal static string GetScalaBinaryVersion(Version sparkVersion)
+        {
+            return (sparkVersion.Major, sparkVersion.Minor) switch
+            {
+                (2, _) => "2.11",
+                (3, _) => "2.12",
+                (4, 0) => "2.13",
+                _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
+            };
+        }
+
+        internal static string GetSingleJar(string jarDir, string jarPattern)
+        {
+            string[] matchingJars = Directory.Exists(jarDir)
+                ? Directory.GetFiles(jarDir, jarPattern)
+                : Array.Empty<string>();
+
+            return matchingJars.Length switch
+            {
+                1 => matchingJars[0],
+                0 => throw new FileNotFoundException(
+                    $"No JAR matching '{jarPattern}' found in '{jarDir}'."),
+                _ => throw new InvalidOperationException(
+                    $"Multiple JARs matching '{jarPattern}' found in '{jarDir}': " +
+                    string.Join(", ", matchingJars))
+            };
+        }
+
+        internal static void ValidateExpectedSparkVersion(
+            Version actualVersion,
+            string expectedVersion)
+        {
+            if (string.IsNullOrWhiteSpace(expectedVersion))
+            {
+                return;
+            }
+
+            if (!Version.TryParse(expectedVersion, out Version expected))
+            {
+                throw new InvalidOperationException(
+                    $"Invalid expected Spark version '{expectedVersion}'.");
+            }
+
+            if (actualVersion != expected)
+            {
+                throw new InvalidOperationException(
+                    $"Spark runtime version '{actualVersion}' does not match " +
+                    $"the E2E lane version '{expected}'.");
+            }
         }
 
         public void Dispose()
@@ -213,24 +289,9 @@ namespace Microsoft.Spark.E2ETest
             string jarPrefix = GetJarPrefix();
             string scalaDir = Path.Combine(curDir, "..", "..", "..", "..", "..", "src", "scala");
             string jarDir = Path.Combine(scalaDir, jarPrefix, "target");
-            string scalaVersion = (SparkSettings.Version.Major == 3) ? "2.12" : "2.11";
+            string scalaVersion = GetScalaBinaryVersion(SparkSettings.Version);
             string jarPattern = $"{jarPrefix}_{scalaVersion}-*.jar";
-            string jar = null;
-
-            if (Directory.Exists(jarDir))
-            {
-                string[] matchingJars = Directory.GetFiles(jarDir, jarPattern);
-                if (matchingJars.Length > 0)
-                {
-                    jar = matchingJars[0];
-                }
-            }
-
-            if (jar == null || !File.Exists(jar))
-            {
-                throw new FileNotFoundException(
-                    $"No JAR matching '{jarPattern}' found in '{jarDir}'.");
-            }
+            string jar = GetSingleJar(jarDir, jarPattern);
 
             string warehouseUri = new Uri(
                 Path.Combine(_tempDirectory.Path, "spark-warehouse")).AbsoluteUri;
