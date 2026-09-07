@@ -415,6 +415,213 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             }
         }
 
+        [Theory]
+        [InlineData(10)]
+        [InlineData(150)]
+        public void TestGroupByApplyStringDataFrameColumn(int minimumProductId)
+        {
+            DataFrame input = _spark.CreateDataFrame(
+                new[]
+                {
+                    new GenericRow(new object[] { 10, 2, 5.0, "this is description one" }),
+                    new GenericRow(new object[] { 150, 10, 1.0, "this is description two" }),
+                    new GenericRow(new object[] { 150, 3, 1.0, "this is description three" })
+                },
+                new StructType(new[]
+                {
+                    new StructField("ProductId", new IntegerType()),
+                    new StructField("Quantity", new IntegerType()),
+                    new StructField("Price", new DoubleType()),
+                    new StructField("Description", new StringType())
+                }));
+            var returnType = new StructType(new[]
+            {
+                new StructField("Description", new StringType())
+            });
+
+            DataFrame output = input.GroupBy("ProductId").Apply(
+                returnType,
+                (FxDataFrame group) => DescribeProducts(group, minimumProductId));
+
+            Assert.Equal(returnType, output.Schema());
+            string[] descriptions = output.Collect()
+                .Select(row => row.GetAs<string>("Description"))
+                .OrderBy(value => value, StringComparer.Ordinal)
+                .ToArray();
+            string[] expected = minimumProductId == 10
+                ? new[] { "this is description three150", "this is description two150" }
+                : System.Array.Empty<string>();
+            Assert.Equal(expected, descriptions);
+        }
+
+        [Fact]
+        public void TestGroupByApplyStringDataFrameColumnMixedTypes()
+        {
+            var returnType = new StructType(new[]
+            {
+                new StructField("RowId", new IntegerType()),
+                new StructField("Description", new StringType()),
+                new StructField("ArrowDescription", new StringType()),
+                new StructField("Flag", new BooleanType()),
+                new StructField("Int8", new ByteType()),
+                new StructField("Int16", new ShortType()),
+                new StructField("Int32", new IntegerType()),
+                new StructField("Int64", new LongType()),
+                new StructField("Float32", new FloatType()),
+                new StructField("Float64", new DoubleType())
+            });
+            DataFrame output = _spark.Range(1).GroupBy("id").Apply(
+                returnType,
+                (FxDataFrame group) => CreateMixedStringResult());
+
+            Assert.Equal(returnType, output.Schema());
+            Row[] rows = output.Collect().OrderBy(row => row.GetAs<int>("RowId")).ToArray();
+            Assert.Equal(9, rows.Length);
+            string[] expectedStrings = { "alpha", "", null, "中文", "🙂", "five", "six", "seven", "last" };
+            string[] expectedArrowStrings = { "一", null, "", "🚀", "four", "five", "six", "seven", "九" };
+            bool?[] expectedFlags = { true, true, null, true, false, false, true, false, true };
+            for (int i = 0; i < rows.Length; ++i)
+            {
+                Row row = rows[i];
+                Assert.Equal(i, row.GetAs<int>("RowId"));
+                Assert.Equal(expectedStrings[i], row.GetAs<string>("Description"));
+                Assert.Equal(expectedArrowStrings[i], row.GetAs<string>("ArrowDescription"));
+                Assert.Equal(expectedFlags[i], row.GetAs<bool?>("Flag"));
+                if (i == 2)
+                {
+                    foreach (string name in new[] { "Int8", "Int16", "Int32", "Int64", "Float32", "Float64" })
+                    {
+                        Assert.Null(row.Get(name));
+                    }
+                }
+                else
+                {
+                    Assert.Equal((sbyte)(i - 4), row.GetAs<sbyte>("Int8"));
+                    Assert.Equal((short)(i - 1000), row.GetAs<short>("Int16"));
+                    Assert.Equal(i - 100000, row.GetAs<int>("Int32"));
+                    Assert.Equal(5000000000L + i, row.GetAs<long>("Int64"));
+                    Assert.Equal(i + 0.25f, row.GetAs<float>("Float32"));
+                    Assert.Equal(i - 0.5, row.GetAs<double>("Float64"));
+                }
+            }
+        }
+
+        [Fact]
+        public void TestGroupByApplyStringDataFrameColumnNullAndEmpty()
+        {
+            var returnType = new StructType(new[]
+            {
+                new StructField("Description", new StringType()),
+                new StructField("ArrowDescription", new StringType())
+            });
+            DataFrame output = _spark.Range(1).GroupBy("id").Apply(
+                returnType,
+                (FxDataFrame group) => new FxDataFrame(
+                    new StringDataFrameColumn("Description", new string[] { null, "" }),
+                    CreateArrowStringColumn("ArrowDescription", new string[] { "", null })));
+
+            Assert.Equal(returnType, output.Schema());
+            Row[] rows = output.Collect().ToArray();
+            Assert.Equal(2, rows.Length);
+            Assert.Equal("", rows.Single(row => row.Get("Description") == null)
+                .GetAs<string>("ArrowDescription"));
+            Assert.Null(rows.Single(row => row.GetAs<string>("Description") == "")
+                .Get("ArrowDescription"));
+        }
+
+        [Fact]
+        public void TestArrowOutputExceptionPreservesGroupedUdfError()
+        {
+            var returnType = new StructType(new[]
+            {
+                new StructField("Description", new StringType())
+            });
+            DataFrame output = _spark.Range(1).GroupBy("id").Apply(
+                returnType,
+                (FxDataFrame group) => ThrowGroupedUdfError(group));
+
+            Exception error = Assert.ThrowsAny<Exception>(() => output.Collect().ToArray());
+            Assert.Contains("System.InvalidOperationException", error.ToString());
+            Assert.Contains("issue1231-original-grouped-udf-error", error.ToString());
+            Assert.DoesNotContain("java.nio.ByteBuffer.allocate", error.ToString());
+        }
+
+        private static FxDataFrame DescribeProducts(FxDataFrame group, int minimumProductId)
+        {
+            var descriptions = new StringDataFrameColumn("Description");
+            var productIds = (Int32DataFrameColumn)group.Columns["ProductId"];
+            var sourceDescriptions = (ArrowStringDataFrameColumn)group.Columns["Description"];
+            for (long i = 0; i < group.Rows.Count; ++i)
+            {
+                if (productIds[i] > minimumProductId)
+                {
+                    descriptions.Append(sourceDescriptions[i] + productIds[i]);
+                }
+            }
+
+            return new FxDataFrame(descriptions);
+        }
+
+        private static FxDataFrame CreateMixedStringResult()
+        {
+            return new FxDataFrame(
+                new Int32DataFrameColumn("RowId", new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 }),
+                new StringDataFrameColumn("Description", new[]
+                {
+                    "alpha", "", null, "中文", "🙂", "five", "six", "seven", "last"
+                }),
+                CreateArrowStringColumn("ArrowDescription", new[]
+                {
+                    "一", null, "", "🚀", "four", "five", "six", "seven", "九"
+                }),
+                new BooleanDataFrameColumn("Flag", new bool?[]
+                {
+                    true, true, null, true, false, false, true, false, true
+                }),
+                new SByteDataFrameColumn("Int8", new sbyte?[]
+                {
+                    -4, -3, null, -1, 0, 1, 2, 3, 4
+                }),
+                new Int16DataFrameColumn("Int16", new short?[]
+                {
+                    -1000, -999, null, -997, -996, -995, -994, -993, -992
+                }),
+                new Int32DataFrameColumn("Int32", new int?[]
+                {
+                    -100000, -99999, null, -99997, -99996, -99995, -99994, -99993, -99992
+                }),
+                new Int64DataFrameColumn("Int64", new long?[]
+                {
+                    5000000000L, 5000000001L, null, 5000000003L, 5000000004L,
+                    5000000005L, 5000000006L, 5000000007L, 5000000008L
+                }),
+                new SingleDataFrameColumn("Float32", new float?[]
+                {
+                    0.25f, 1.25f, null, 3.25f, 4.25f, 5.25f, 6.25f, 7.25f, 8.25f
+                }),
+                new DoubleDataFrameColumn("Float64", new double?[]
+                {
+                    -0.5, 0.5, null, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5
+                }));
+        }
+
+        private static FxDataFrame ThrowGroupedUdfError(FxDataFrame group)
+        {
+            throw new InvalidOperationException("issue1231-original-grouped-udf-error");
+        }
+
+        private static ArrowStringDataFrameColumn CreateArrowStringColumn(string name, string[] values)
+        {
+            using StringArray array = new StringArray.Builder().AppendRange(values).Build();
+            return new ArrowStringDataFrameColumn(
+                name,
+                array.ValueBuffer.Memory.ToArray(),
+                array.ValueOffsetsBuffer.Memory.ToArray(),
+                array.NullBitmapBuffer.Memory.ToArray(),
+                array.Length,
+                array.NullCount);
+        }
+
         private static FxDataFrame CountCharacters(FxDataFrame dataFrame)
         {
             int characterCount = 0;

@@ -40,12 +40,14 @@ namespace Microsoft.Spark.Worker.Command
         /// <param name="outputStream">Output stream to write results to</param>
         /// <param name="splitIndex">Split index for this task</param>
         /// <param name="commandPayload">Contains the commands to execute</param>
+        /// <param name="outputContext">Output framing for the current task</param>
         /// <returns>Statistics captured during the Execute() run</returns>
         internal CommandExecutorStat Execute(
             Stream inputStream,
             Stream outputStream,
             int splitIndex,
-            CommandPayload commandPayload)
+            CommandPayload commandPayload,
+            ArrowOutputContext outputContext = null)
         {
             if (commandPayload.EvalType == Spark.Utils.UdfUtils.PythonEvalType.NON_UDF)
             {
@@ -82,7 +84,8 @@ namespace Microsoft.Spark.Worker.Command
                 inputStream,
                 outputStream,
                 commandPayload.EvalType,
-                commandPayload.Commands.Cast<SqlCommand>().ToArray());
+                commandPayload.Commands.Cast<SqlCommand>().ToArray(),
+                outputContext ?? new ArrowOutputContext());
         }
     }
 }

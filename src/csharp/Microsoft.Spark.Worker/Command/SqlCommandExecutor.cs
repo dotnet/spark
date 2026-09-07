@@ -35,13 +35,15 @@ namespace Microsoft.Spark.Worker.Command
         /// <param name="outputStream">Output stream to write results to</param>
         /// <param name="evalType">Evaluation type for the current commands</param>
         /// <param name="commands">Contains the commands to execute</param>
+        /// <param name="outputContext">Output framing for the current task</param>
         /// <returns>Statistics captured during the Execute() run</returns>
         internal static CommandExecutorStat Execute(
             Version version,
             Stream inputStream,
             Stream outputStream,
             UdfUtils.PythonEvalType evalType,
-            SqlCommand[] commands)
+            SqlCommand[] commands,
+            ArrowOutputContext outputContext = null)
         {
             if (commands.Length <= 0)
             {
@@ -62,11 +64,11 @@ namespace Microsoft.Spark.Worker.Command
             }
             else if (evalType == UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF)
             {
-                executor = new ArrowOrDataFrameSqlCommandExecutor(version);
+                executor = new ArrowOrDataFrameSqlCommandExecutor(version, outputContext);
             }
             else if (evalType == UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF)
             {
-                executor = new ArrowOrDataFrameGroupedMapCommandExecutor(version);
+                executor = new ArrowOrDataFrameGroupedMapCommandExecutor(version, outputContext);
             }
             else
             {
@@ -387,7 +389,14 @@ namespace Microsoft.Spark.Worker.Command
 
     internal abstract class ArrowBasedCommandExecutor : SqlCommandExecutor
     {
-        protected Version _version;
+        protected readonly Version _version;
+        protected readonly ArrowOutputContext _outputContext;
+
+        protected ArrowBasedCommandExecutor(Version version, ArrowOutputContext outputContext)
+        {
+            _version = version;
+            _outputContext = outputContext ?? new ArrowOutputContext();
+        }
 
         protected IpcOptions ArrowIpcOptions() =>
             new IpcOptions
@@ -428,22 +437,15 @@ namespace Microsoft.Spark.Worker.Command
             }
         }
 
-        protected void WriteEnd(Stream stream, IpcOptions ipcOptions)
-        {
-            if (!ipcOptions.WriteLegacyIpcFormat)
-            {
-                SerDe.Write(stream, -1);
-            }
-
-            SerDe.Write(stream, 0);
-        }
     }
 
     internal class ArrowOrDataFrameSqlCommandExecutor : ArrowBasedCommandExecutor
     {
-        internal ArrowOrDataFrameSqlCommandExecutor(Version version)
+        internal ArrowOrDataFrameSqlCommandExecutor(
+            Version version,
+            ArrowOutputContext outputContext = null)
+            : base(version, outputContext)
         {
-            _version = version;
         }
 
         protected internal override CommandExecutorStat ExecuteCore(
@@ -485,35 +487,25 @@ namespace Microsoft.Spark.Worker.Command
             var stat = new CommandExecutorStat();
             ICommandRunner commandRunner = CreateCommandRunner(commands);
 
-            SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
-
-            IpcOptions ipcOptions = ArrowIpcOptions();
-            ArrowStreamWriter writer = null;
-            Schema resultSchema = null;
-            foreach (ReadOnlyMemory<IArrowArray> input in GetArrowInputIterator(inputStream))
+            IEnumerable<PreparedArrowBatch> PrepareResults()
             {
-                IArrowArray[] results = commandRunner.Run(input);
-
-                // Assumes all columns have the same length, so uses 0th for num entries.
-                int numEntries = results[0].Length;
-                stat.NumEntriesProcessed += numEntries;
-
-                if (writer == null)
+                Schema resultSchema = null;
+                foreach (ReadOnlyMemory<IArrowArray> input in GetArrowInputIterator(inputStream))
                 {
-                    Debug.Assert(resultSchema == null);
-                    resultSchema = BuildSchema(results);
+                    IArrowArray[] results = commandRunner.Run(input);
 
-                    writer =
-                        new ArrowStreamWriter(outputStream, resultSchema, leaveOpen: true, ipcOptions);
+                    // The scalar UDF contract requires equal column lengths.
+                    int numEntries = results[0].Length;
+                    stat.NumEntriesProcessed += numEntries;
+                    resultSchema ??= BuildSchema(results);
+
+                    yield return PreparedArrowBatch.Borrow(
+                        new RecordBatch(resultSchema, results, numEntries));
                 }
-
-                var recordBatch = new RecordBatch(resultSchema, results, numEntries);
-
-                writer.WriteRecordBatch(recordBatch);
             }
 
-            WriteEnd(outputStream, ipcOptions);
-            writer?.Dispose();
+            new ArrowOutputSession(outputStream, ArrowIpcOptions(), _outputContext)
+                .Write(PrepareResults());
 
             return stat;
         }
@@ -526,40 +518,29 @@ namespace Microsoft.Spark.Worker.Command
             var stat = new CommandExecutorStat();
             ICommandRunner commandRunner = CreateCommandRunner(commands);
 
-            SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
-
-            IpcOptions ipcOptions = ArrowIpcOptions();
-            ArrowStreamWriter writer = null;
-            foreach (RecordBatch input in GetInputIterator(inputStream))
+            IEnumerable<PreparedArrowBatch> PrepareResults()
             {
-                FxDataFrame dataFrame = FxDataFrame.FromArrowRecordBatch(input);
-                var inputColumns = new DataFrameColumn[input.ColumnCount];
-                for (int i = 0; i < dataFrame.Columns.Count; ++i)
+                foreach (RecordBatch input in GetInputIterator(inputStream))
                 {
-                    inputColumns[i] = dataFrame.Columns[i];
-                }
-
-                DataFrameColumn[] results = commandRunner.Run(inputColumns);
-
-                var resultDataFrame = new FxDataFrame(results);
-                IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToArrowRecordBatches();
-
-                foreach (RecordBatch result in recordBatches)
-                {
-                    stat.NumEntriesProcessed += result.Length;
-
-                    if (writer == null)
+                    FxDataFrame dataFrame = FxDataFrame.FromArrowRecordBatch(input);
+                    var inputColumns = new DataFrameColumn[input.ColumnCount];
+                    for (int i = 0; i < dataFrame.Columns.Count; ++i)
                     {
-                        writer =
-                            new ArrowStreamWriter(outputStream, result.Schema, leaveOpen: true, ipcOptions);
+                        inputColumns[i] = dataFrame.Columns[i];
                     }
 
-                    writer.WriteRecordBatch(result);
+                    DataFrameColumn[] results = commandRunner.Run(inputColumns);
+                    var resultDataFrame = new FxDataFrame(results);
+                    foreach (RecordBatch result in resultDataFrame.ToArrowRecordBatches())
+                    {
+                        stat.NumEntriesProcessed += result.Length;
+                        yield return PreparedArrowBatch.Own(result);
+                    }
                 }
             }
 
-            WriteEnd(outputStream, ipcOptions);
-            writer?.Dispose();
+            new ArrowOutputSession(outputStream, ArrowIpcOptions(), _outputContext)
+                .Write(PrepareResults());
 
             return stat;
         }
@@ -784,8 +765,10 @@ namespace Microsoft.Spark.Worker.Command
 
     internal class ArrowOrDataFrameGroupedMapCommandExecutor : ArrowOrDataFrameSqlCommandExecutor
     {
-        internal ArrowOrDataFrameGroupedMapCommandExecutor(Version version)
-            : base(version)
+        internal ArrowOrDataFrameGroupedMapCommandExecutor(
+            Version version,
+            ArrowOutputContext outputContext = null)
+            : base(version, outputContext)
         {
         }
 
@@ -856,29 +839,20 @@ namespace Microsoft.Spark.Worker.Command
             var stat = new CommandExecutorStat();
             var worker = (ArrowGroupedMapWorkerFunction)commands[0].WorkerFunction;
 
-            SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
-
-            IpcOptions ipcOptions = ArrowIpcOptions();
-            ArrowStreamWriter writer = null;
-            foreach (RecordBatch input in GetInputIterator(inputStream))
+            IEnumerable<PreparedArrowBatch> PrepareResults()
             {
-                RecordBatch batch = worker.Func(input);
-
-                RecordBatch final = WrapColumnsInStructIfApplicable(batch);
-                int numEntries = final.Length;
-                stat.NumEntriesProcessed += numEntries;
-
-                if (writer == null)
+                foreach (RecordBatch input in GetInputIterator(inputStream))
                 {
-                    writer =
-                        new ArrowStreamWriter(outputStream, final.Schema, leaveOpen: true, ipcOptions);
-                }
+                    RecordBatch batch = worker.Func(input);
+                    RecordBatch final = WrapColumnsInStructIfApplicable(batch);
+                    stat.NumEntriesProcessed += final.Length;
 
-                writer.WriteRecordBatch(final);
+                    yield return PreparedArrowBatch.Borrow(final);
+                }
             }
 
-            WriteEnd(outputStream, ipcOptions);
-            writer?.Dispose();
+            new ArrowOutputSession(outputStream, ArrowIpcOptions(), _outputContext)
+                .Write(PrepareResults());
 
             return stat;
         }
@@ -894,34 +868,41 @@ namespace Microsoft.Spark.Worker.Command
             var stat = new CommandExecutorStat();
             var worker = (DataFrameGroupedMapWorkerFunction)commands[0].WorkerFunction;
 
-            SerDe.Write(outputStream, (int)SpecialLengths.START_ARROW_STREAM);
-
-            IpcOptions ipcOptions = ArrowIpcOptions();
-            ArrowStreamWriter writer = null;
-            foreach (RecordBatch input in GetInputIterator(inputStream))
+            IEnumerable<PreparedArrowBatch> PrepareResults()
             {
-                FxDataFrame dataFrame = FxDataFrame.FromArrowRecordBatch(input);
-                FxDataFrame resultDataFrame = worker.Func(dataFrame);
-
-                IEnumerable<RecordBatch> recordBatches = resultDataFrame.ToArrowRecordBatches();
-
-                foreach (RecordBatch batch in recordBatches)
+                foreach (RecordBatch input in GetInputIterator(inputStream))
                 {
-                    RecordBatch final = WrapColumnsInStructIfApplicable(batch);
-                    stat.NumEntriesProcessed += final.Length;
+                    FxDataFrame dataFrame = FxDataFrame.FromArrowRecordBatch(input);
+                    FxDataFrame resultDataFrame = worker.Func(dataFrame);
 
-                    if (writer == null)
+                    foreach (PreparedArrowBatch prepared in
+                        DataFrameArrowBatchAdapter.Convert(resultDataFrame))
                     {
-                        writer =
-                            new ArrowStreamWriter(outputStream, final.Schema, leaveOpen: true, ipcOptions);
-                    }
+                        try
+                        {
+                            RecordBatch batch = prepared.Batch;
+                            // MDA infers physical nullability from each group's values. A stable
+                            // nullable field allows later groups to contain nulls or no rows.
+                            Field[] fields = batch.Schema.FieldsList.Select(field =>
+                                new Field(field.Name, field.DataType, true, field.Metadata)).ToArray();
+                            var normalized = new RecordBatch(
+                                new Schema(fields, batch.Schema.Metadata), batch.Arrays, batch.Length);
+                            prepared.ReplaceBatch(WrapColumnsInStructIfApplicable(normalized));
+                        }
+                        catch
+                        {
+                            prepared.DisposeAfterFailure();
+                            throw;
+                        }
 
-                    writer.WriteRecordBatch(final);
+                        stat.NumEntriesProcessed += prepared.Batch.Length;
+                        yield return prepared;
+                    }
                 }
             }
 
-            WriteEnd(outputStream, ipcOptions);
-            writer?.Dispose();
+            new ArrowOutputSession(outputStream, ArrowIpcOptions(), _outputContext)
+                .Write(PrepareResults());
 
             return stat;
         }

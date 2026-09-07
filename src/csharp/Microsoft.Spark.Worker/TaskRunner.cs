@@ -136,6 +136,7 @@ namespace Microsoft.Spark.Worker
             out bool readComplete)
         {
             readComplete = false;
+            var outputContext = new ArrowOutputContext();
 
             try
             {
@@ -155,10 +156,14 @@ namespace Microsoft.Spark.Worker
                     inputStream,
                     outputStream,
                     payload.SplitIndex,
-                    payload.Command);
+                    payload.Command,
+                    outputContext);
 
                 DateTime finishTime = DateTime.UtcNow;
 
+                // After any success-trailer byte, the peer is reading that trailer's payload,
+                // not another outer exception marker. This remains true during the handshake.
+                outputContext.BeginSuccessTail();
                 WriteDiagnosticsInfo(outputStream, bootTime, initTime, finishTime);
 
                 // Mark the beginning of the accumulators section of the output
@@ -193,24 +198,39 @@ namespace Microsoft.Spark.Worker
             }
             catch (Exception e)
             {
-                s_logger.LogError($"[{TaskId}] ProcessStream() failed with exception: {e}");
+                LogException(
+                    $"ProcessStream() failed at ArrowPhase={outputContext.Phase}, " +
+                    $"SuccessTailStarted={outputContext.SuccessTailStarted}", e);
 
-                try
+                if (outputContext.CanWriteException)
                 {
-                    SerDe.Write(outputStream, (int)SpecialLengths.PYTHON_EXCEPTION_THROWN);
-                    SerDe.Write(outputStream, e.ToString());
-                }
-                catch (IOException)
-                {
-                    // JVM closed the socket.
-                }
-                catch (Exception ex)
-                {
-                    s_logger.LogError(
-                        $"[{TaskId}] Writing exception to stream failed with exception: {ex}");
+                    try
+                    {
+                        SerDe.Write(outputStream, (int)SpecialLengths.PYTHON_EXCEPTION_THROWN);
+                        SerDe.Write(outputStream, e.ToString());
+                        outputStream.Flush();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Reporting is best effort; preserve the original task failure.
+                        LogException("Writing exception to stream failed with exception", ex);
+                    }
                 }
 
                 throw;
+            }
+        }
+
+        private void LogException(string message, Exception error)
+        {
+            try
+            {
+                s_logger.LogError($"[{TaskId}] {message}: {error}");
+            }
+            catch (Exception)
+            {
+                // A failed diagnostic sink must not hide the task failure or prevent its
+                // permitted best-effort report to the JVM.
             }
         }
 
