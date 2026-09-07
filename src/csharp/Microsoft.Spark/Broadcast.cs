@@ -290,7 +290,7 @@ namespace Microsoft.Spark
     /// </summary>
     internal static class JvmBroadcastRegistry
     {
-        private static ThreadLocal<List<JvmObjectReference>> s_jvmBroadcastVariables = 
+        private static ThreadLocal<List<JvmObjectReference>> s_jvmBroadcastVariables =
             new ThreadLocal<List<JvmObjectReference>>(() => new List<JvmObjectReference>());
 
         /// <summary>
