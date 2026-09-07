@@ -310,73 +310,30 @@ namespace Microsoft.Spark.Interop.Ipc
 
         internal static byte[] GetTypeId(Type type)
         {
-            switch (Type.GetTypeCode(type))
+            return Type.GetTypeCode(type) switch
             {
-                case TypeCode.Int32:
-                    return s_int32TypeId;
-                case TypeCode.Int64:
-                    return s_int64TypeId;
-                case TypeCode.String:
-                    return s_stringTypeId;
-                case TypeCode.Boolean:
-                    return s_boolTypeId;
-                case TypeCode.Double:
-                    return s_doubleTypeId;
-                case TypeCode.Object:
-                    if (typeof(IJvmObjectReferenceProvider).IsAssignableFrom(type))
-                    {
-                        return s_jvmObjectTypeId;
-                    }
-
-                    if (type == typeof(byte[]))
-                    {
-                        return s_byteArrayTypeId;
-                    }
-
-                    if (type == typeof(int[]) ||
-                        type == typeof(long[]) ||
-                        type == typeof(double[]) ||
-                        type == typeof(double[][]) ||
-                        typeof(IEnumerable<byte[]>).IsAssignableFrom(type) ||
-                        typeof(IEnumerable<string>).IsAssignableFrom(type))
-                    {
-                        return s_arrayTypeId;
-                    }
-
-                    if (IsDictionary(type))
-                    {
-                        return s_dictionaryTypeId;
-                    }
-
-                    if (typeof(IEnumerable<IJvmObjectReferenceProvider>).IsAssignableFrom(type))
-                    {
-                        return s_arrayTypeId;
-                    }
-
-                    if (typeof(IEnumerable<GenericRow>).IsAssignableFrom(type))
-                    {
-                        return s_rowArrTypeId;
-                    }
-
-                    if (typeof(IEnumerable<object>).IsAssignableFrom(type))
-                    {
-                        return s_objectArrTypeId;
-                    }
-
-                    if (typeof(Date).IsAssignableFrom(type))
-                    {
-                        return s_dateTypeId;
-                    }
-
-                    if (typeof(Timestamp).IsAssignableFrom(type))
-                    {
-                        return s_timestampTypeId;
-                    }
-                    break;
-            }
-
-            // TODO: Support other types.
-            throw new NotSupportedException(string.Format("Type {0} not supported yet", type));
+                TypeCode.Int32 => s_int32TypeId,
+                TypeCode.Int64 => s_int64TypeId,
+                TypeCode.String => s_stringTypeId,
+                TypeCode.Boolean => s_boolTypeId,
+                TypeCode.Double => s_doubleTypeId,
+                TypeCode.Object when typeof(IJvmObjectReferenceProvider).IsAssignableFrom(type) => s_jvmObjectTypeId,
+                TypeCode.Object when type == typeof(byte[]) => s_byteArrayTypeId,
+                TypeCode.Object when type == typeof(int[]) ||
+                                    type == typeof(long[]) ||
+                                    type == typeof(double[]) ||
+                                    type == typeof(double[][]) ||
+                                    typeof(IEnumerable<byte[]>).IsAssignableFrom(type) ||
+                                    typeof(IEnumerable<string>).IsAssignableFrom(type) ||
+                                    typeof(IEnumerable<IJvmObjectReferenceProvider>).IsAssignableFrom(type)
+                                    => s_arrayTypeId,
+                TypeCode.Object when IsDictionary(type) => s_dictionaryTypeId,
+                TypeCode.Object when typeof(IEnumerable<GenericRow>).IsAssignableFrom(type) => s_rowArrTypeId,
+                TypeCode.Object when typeof(IEnumerable<object>).IsAssignableFrom(type) => s_objectArrTypeId,
+                TypeCode.Object when typeof(Date).IsAssignableFrom(type) => s_dateTypeId,
+                TypeCode.Object when typeof(Timestamp).IsAssignableFrom(type) => s_timestampTypeId,
+                _ => throw new NotSupportedException(string.Format("Type {0} not supported yet", type))
+            };
         }
 
         private static bool IsDictionary(Type type)

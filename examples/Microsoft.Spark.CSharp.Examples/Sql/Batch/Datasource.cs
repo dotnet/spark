@@ -20,7 +20,7 @@ namespace Microsoft.Spark.Examples.Sql.Batch
             {
                 Console.Error.WriteLine(
                     "Usage: Datasource <path to SPARK_HOME/examples/src/main/resources/>");
-                
+
                 Environment.Exit(1);
             }
 
@@ -92,11 +92,11 @@ namespace Microsoft.Spark.Examples.Sql.Batch
         private void RunParquetExample(SparkSession spark, string json)
         {
             DataFrame peopleDf = spark.Read().Json(json);
-        
+
             peopleDf.Write().Mode(SaveMode.Overwrite).Parquet("people.parquet");
 
             DataFrame parquetFile = spark.Read().Parquet("people.parquet");
-            
+
             parquetFile.CreateTempView("parquet");
 
             DataFrame teenagers = spark.Sql(
