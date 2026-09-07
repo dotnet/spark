@@ -17,7 +17,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             bool timingDataReceived = false;
             bool exceptionThrown = false;
             var rowsReceived = new List<object[]>();
-            
+
             while (true)
             {
                 int length = SerDe.ReadInt32(inputStream);
@@ -29,7 +29,7 @@ namespace Microsoft.Spark.Worker.UnitTest
                     var rows = unpickler.loads(pickledBytes) as ArrayList;
                     foreach (object row in rows)
                     {
-                        rowsReceived.Add((object[]) row);
+                        rowsReceived.Add((object[])row);
                     }
                 }
                 else if (length == (int)SpecialLengths.TIMING_DATA)
@@ -54,10 +54,10 @@ namespace Microsoft.Spark.Worker.UnitTest
                     break;
                 }
             }
-            
+
             Assert.True(timingDataReceived);
             Assert.False(exceptionThrown);
-            
+
             return rowsReceived;
         }
     }

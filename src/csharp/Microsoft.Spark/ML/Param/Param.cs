@@ -19,7 +19,7 @@ namespace Microsoft.Spark.ML.Feature.Param
     /// </summary>
     public class Param : IJvmObjectReferenceProvider
     {
-        private static readonly string s_ParamClassName = 
+        private static readonly string s_ParamClassName =
             "org.apache.spark.ml.param.Param";
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Microsoft.Spark.ML.Feature.Param
                 s_ParamClassName, parent.Uid(), name, doc))
         {
         }
-        
+
         /// <summary>
         /// Creates a new instance of a <see cref="Param"/> which will be attached to the parent 
         /// with the UID specified. The most likely use case for a <see cref="Param"/> is being 
@@ -61,7 +61,7 @@ namespace Microsoft.Spark.ML.Feature.Param
         /// </summary>
         /// <returns>A description of how the <see cref="Param"/> works</returns>
         public string Doc => (string)Reference.Invoke("doc");
-        
+
         /// <summary>
         /// The name of the <see cref="Param"/>
         /// </summary>

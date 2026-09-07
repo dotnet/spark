@@ -33,7 +33,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
             using (File.Create(nugetFile.FullName))
             {
             }
-            
+
             var assemblyPaths = new string[]
             {
                 Path.Combine(packageFrameworkPath, "1.dll"),
@@ -51,7 +51,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest
                         packageVersion,
                         assemblyPaths,
                         packageRootPath,
-                        probingPaths) 
+                        probingPaths)
                 });
 
             var packageResolver = new PackageResolver(mockSupportNugetWrapper.Object);
