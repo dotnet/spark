@@ -1,5 +1,5 @@
 // Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
+// The .NET Foundation licenses this file to you under the MIT License.
 // See the LICENSE file in the project root for more information.
 
 using System;
@@ -63,6 +63,7 @@ namespace Microsoft.Spark.UnitTest
             Assert.Equal(1, row.Get(0));
             Assert.Equal("abc", row.Get(1));
             Assert.Equal(1, row.GetAs<int>(0));
+            Assert.Equal("abc", row.GetAs<string>(1));
             Assert.ThrowsAny<Exception>(() => row.GetAs<string>(0));
             Assert.Equal("abc", row.GetAs<string>(1));
             Assert.ThrowsAny<Exception>(() => row.GetAs<int>(1));
@@ -71,6 +72,7 @@ namespace Microsoft.Spark.UnitTest
             Assert.Equal(1, row.Get("col1"));
             Assert.Equal("abc", row.Get("col2"));
             Assert.Equal(1, row.GetAs<int>("col1"));
+            Assert.Equal("abc", row.GetAs<string>("col2"));
             Assert.ThrowsAny<Exception>(() => row.GetAs<string>("col1"));
             Assert.Equal("abc", row.GetAs<string>("col2"));
             Assert.ThrowsAny<Exception>(() => row.GetAs<int>("col2"));
@@ -82,11 +84,12 @@ namespace Microsoft.Spark.UnitTest
             Pickler pickler = CreatePickler();
 
             var schema = (StructType)DataType.ParseDataType(_testJsonSchema);
+
             var row1 = new Row(new object[] { 10, "name1" }, schema);
             var row2 = new Row(new object[] { 15, "name2" }, schema);
             byte[] pickledBytes = pickler.dumps(new[] { row1, row2 });
 
-            // Note that the following will invoke RowConstructor.construct().
+            // Note that the following will invoke RowConstructor.ctor().
             object[] unpickledData = PythonSerDe.GetUnpickledObjects(
                 new MemoryStream(pickledBytes),
                 pickledBytes.Length);
@@ -117,7 +120,7 @@ namespace Microsoft.Spark.UnitTest
             SerDe.Write(stream, batch2.Length);
             SerDe.Write(stream, batch2);
 
-            // Rewind the memory stream so that the row collect can read from beginning.
+            // Rewind the memory stream so that the row collector can read from beginning.
             stream.Seek(0, SeekOrigin.Begin);
 
             // Set up the mock to return memory stream to which pickled data is written.
@@ -157,6 +160,7 @@ namespace Microsoft.Spark.UnitTest
             Assert.Equal(1, row.Get(0));
             Assert.Equal("abc", row.Get(1));
             Assert.Equal(1, row.GetAs<int>(0));
+            Assert.Equal("abc", row.GetAs<string>(1));
             Assert.ThrowsAny<Exception>(() => row.GetAs<string>(0));
             Assert.Equal("abc", row.GetAs<string>(1));
             Assert.ThrowsAny<Exception>(() => row.GetAs<int>(1));
@@ -188,6 +192,11 @@ namespace Microsoft.Spark.UnitTest
             // Direct unbox to long should also work now.
             Assert.IsType<long>(row.Get(0));
             Assert.Equal(42L, (long)row.Get(0));
+
+            // Verify that an already boxed long is returned as-is (no re-boxing).
+            long boxedLong = 100L;
+            var rowWithBoxedLong = new Row(new object[] { boxedLong }, schema);
+            Assert.Same(boxedLong, rowWithBoxedLong.Get(0));
         }
 
         /// <summary>
