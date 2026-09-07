@@ -21,6 +21,26 @@ namespace Microsoft.Spark.Worker
                 $"Args:[{string.Join(" ", args)}] " +
                 $"SparkVersion:[{sparkVersion}]");
 
+#if NET8_0_OR_GREATER
+            if (sparkVersion.Major == 4 && sparkVersion.Minor == 0 &&
+                args.Length >= 2 && args[0] == "-m")
+            {
+                if (args[1] == "pyspark.daemon" &&
+                    (args.Length == 2 || (args.Length == 3 && args[2] == "pyspark.worker")))
+                {
+                    new Spark40DaemonWorker().Run();
+                    return;
+                }
+
+                if (args.Length == 2 && args[1] == Spark40DaemonWorker.ChildModule)
+                {
+                    Spark40DaemonWorker.WatchParent();
+                    new SimpleWorker(sparkVersion).Run();
+                    return;
+                }
+            }
+#endif
+
             if (args.Length != 2)
             {
                 Console.Error.WriteLine($"Invalid number of args: {args.Length}");
