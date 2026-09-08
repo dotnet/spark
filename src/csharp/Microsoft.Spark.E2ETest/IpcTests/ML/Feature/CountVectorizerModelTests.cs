@@ -31,12 +31,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         {
             DataFrame input = _spark.Sql("SELECT array('hello', 'I', 'AM', 'a', 'string', 'TO', " +
                 "'TOKENIZE') as input from range(100)");
-            
+
             const string inputColumn = "input";
             const string outputColumn = "output";
             const double minTf = 10.0;
             const bool binary = false;
-            
+
             var vocabulary = new List<string>()
             {
                 "hello",
@@ -45,17 +45,17 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                 "TO",
                 "TOKENIZE"
             };
-            
+
             var countVectorizerModel = new CountVectorizerModel(vocabulary);
-            
+
             Assert.IsType<CountVectorizerModel>(new CountVectorizerModel("my-uid", vocabulary));
-            
+
             countVectorizerModel = countVectorizerModel
                 .SetInputCol(inputColumn)
                 .SetOutputCol(outputColumn)
                 .SetMinTF(minTf)
                 .SetBinary(binary);
-            
+
             Assert.Equal(inputColumn, countVectorizerModel.GetInputCol());
             Assert.Equal(outputColumn, countVectorizerModel.GetOutputCol());
             Assert.Equal(minTf, countVectorizerModel.GetMinTF());
@@ -64,7 +64,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             {
                 string savePath = Path.Join(tempDirectory.Path, "countVectorizerModel");
                 countVectorizerModel.Save(savePath);
-                
+
                 CountVectorizerModel loadedModel = CountVectorizerModel.Load(savePath);
                 Assert.Equal(countVectorizerModel.Uid(), loadedModel.Uid());
             }
@@ -75,8 +75,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             Assert.IsType<StructType>(countVectorizerModel.TransformSchema(input.Schema()));
             Assert.IsType<DataFrame>(countVectorizerModel.Transform(input));
-            
+
             TestFeatureBase(countVectorizerModel, "minDF", 100);
-        } 
+        }
     }
 }
