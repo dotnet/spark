@@ -81,13 +81,13 @@ namespace Microsoft.Spark.Worker.Processor
             }
 
             int rawEvalType = BinaryPrimitives.ReadInt32BigEndian(buffer);
-            if (rawEvalType == (int)PythonEvalType.SQL_BATCHED_UDF)
+            if (rawEvalType == (int)PythonEvalType.NON_UDF ||
+                rawEvalType == (int)PythonEvalType.SQL_BATCHED_UDF)
             {
-                return PythonEvalType.SQL_BATCHED_UDF;
+                return (PythonEvalType)rawEvalType;
             }
 
-            bool isKnownUnsupported = rawEvalType == 0 ||
-                rawEvalType == 101 ||
+            bool isKnownUnsupported = rawEvalType == 101 ||
                 (rawEvalType >= 200 && rawEvalType <= 212) ||
                 rawEvalType == 300 ||
                 rawEvalType == 301;

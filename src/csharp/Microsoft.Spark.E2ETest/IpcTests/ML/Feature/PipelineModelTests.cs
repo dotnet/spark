@@ -5,8 +5,8 @@
 using System.IO;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.UnitTest.TestUtils;
 using Microsoft.Spark.Sql.Types;
+using Microsoft.Spark.UnitTest.TestUtils;
 using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
@@ -59,7 +59,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             Assert.IsType<StructType>(pipelineModel.TransformSchema(input.Schema()));
             Assert.IsType<DataFrame>(output);
-            
+
             using (var tempDirectory = new TemporaryDirectory())
             {
                 string savePath = Path.Join(tempDirectory.Path, "pipelineModel");

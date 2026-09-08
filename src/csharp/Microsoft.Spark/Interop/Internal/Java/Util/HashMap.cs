@@ -28,7 +28,7 @@ namespace Microsoft.Spark.Interop.Internal.Java.Util
         /// <param name="value">value to be associated with the specified key</param>
         internal void Put(object key, object value) =>
             Reference.Invoke("put", key, value);
-        
+
         /// <summary>
         /// Returns the value to which the specified key is mapped, 
         /// or null if this map contains no mapping for the key.
