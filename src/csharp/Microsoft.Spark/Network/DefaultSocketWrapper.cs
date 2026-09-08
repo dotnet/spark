@@ -17,6 +17,7 @@ namespace Microsoft.Spark.Network
     internal sealed class DefaultSocketWrapper : ISocketWrapper
     {
         private readonly Socket _innerSocket;
+        private readonly bool _useBufferedStreams = true;
         private Stream _inputStream;
         private Stream _outputStream;
 
@@ -27,8 +28,18 @@ namespace Microsoft.Spark.Network
         /// This socket is bound to Loopback with port 0.
         /// </summary>
         public DefaultSocketWrapper() :
+            this(useBufferedStreams: true)
+        {
+        }
+
+        /// <summary>
+        /// Creates a loopback socket with optional stream buffering.
+        /// </summary>
+        /// <param name="useBufferedStreams">Whether to apply configured stream buffers</param>
+        public DefaultSocketWrapper(bool useBufferedStreams) :
             this(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
         {
+            _useBufferedStreams = useBufferedStreams;
             _innerSocket.Bind(new IPEndPoint(IPAddress.Loopback, 0));
         }
 
@@ -122,7 +133,8 @@ namespace Microsoft.Spark.Network
             }
 
             Stream ns = CreateNetworkStream();
-            return (writeBufferSize > 0) ? new BufferedStream(ns, writeBufferSize) : ns;
+            return (_useBufferedStreams && writeBufferSize > 0) ?
+                new BufferedStream(ns, writeBufferSize) : ns;
         }
 
         /// <summary>

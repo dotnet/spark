@@ -108,19 +108,21 @@ namespace Microsoft.Spark
         /// </summary>
         /// <param name="sc">SparkContext object of type <see cref="SparkContext"/></param>
         /// <param name="value">Broadcast value of type object</param>
+        /// <param name="version">Spark version; defaults to the running Spark environment</param>
         /// <returns>Returns broadcast variable of type <see cref="JvmObjectReference"/></returns>
-        private JvmObjectReference CreateBroadcast(SparkContext sc, T value)
+        internal JvmObjectReference CreateBroadcast(SparkContext sc, T value, Version version = null)
         {
             var javaSparkContext = (JvmObjectReference)sc.Reference.Jvm.CallStaticJavaMethod(
                 "org.apache.spark.api.java.JavaSparkContext",
                 "fromSparkContext",
                 sc);
 
-            Version version = SparkEnvironment.SparkVersion;
+            version ??= SparkEnvironment.SparkVersion;
             return (version.Major, version.Minor) switch
             {
                 (2, 4) => CreateBroadcast_V2_4_X(javaSparkContext, sc, value),
                 (3, _) => CreateBroadcast_V2_4_X(javaSparkContext, sc, value),
+                (4, 0) => CreateBroadcast_V2_4_X(javaSparkContext, sc, value),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
         }
@@ -196,7 +198,8 @@ namespace Microsoft.Spark
         {
             using var ms = new MemoryStream();
             Dump(value, ms);
-            SerDe.Write(stream, ms.Length);
+            // Spark's DechunkedInputStream reads a big-endian Int32 chunk length.
+            SerDe.Write(stream, checked((int)ms.Length));
             ms.WriteTo(stream);
             // -1 length indicates to the receiving end that we're done.
             SerDe.Write(stream, -1);

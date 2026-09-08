@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using MessagePack;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Xunit;
+using Xunit.Abstractions;
 using static Microsoft.Spark.Sql.Functions;
 
 namespace Microsoft.Spark.E2ETest.IpcTests
@@ -22,26 +25,26 @@ namespace Microsoft.Spark.E2ETest.IpcTests
     }
 
     [Collection("Spark E2E Tests")]
+    [Trait("Category", "Broadcast")]
     public class BroadcastTests
     {
         private readonly SparkSession _spark;
         private readonly DataFrame _df;
+        private readonly ITestOutputHelper _output;
 
-        public BroadcastTests(SparkFixture fixture)
+        public BroadcastTests(SparkFixture fixture, ITestOutputHelper output)
         {
             _spark = fixture.Spark;
             _df = _spark.CreateDataFrame(new[] { "hello", "world" });
+            _output = output;
         }
 
         /// <summary>
         /// Test Broadcast support by using multiple broadcast variables in a UDF.
         /// </summary>
-        [Theory]
-        [InlineData("true")]
-        [InlineData("false")]
-        public void TestMultipleBroadcast(string isEncryptionEnabled)
+        [Fact]
+        public void TestMultipleBroadcast()
         {
-            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
             var obj1 = new TestBroadcastVariable(1, "first");
             var obj2 = new TestBroadcastVariable(2, "second");
             Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
@@ -62,17 +65,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// Test Broadcast.Destroy() that destroys all data and metadata related to the broadcast
         /// variable and makes it inaccessible from workers.
         /// </summary>
-        [Theory]
-        [InlineData("true")]
-        [InlineData("false")]
-        public void TestDestroy(string isEncryptionEnabled)
+        [Fact]
+        public void TestDestroy()
         {
-            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
             var obj1 = new TestBroadcastVariable(5, "destroy");
             Broadcast<TestBroadcastVariable> bc1 = _spark.SparkContext.Broadcast(obj1);
 
-            Func<Column, Column> udf = Udf<string, string>(
-                str => $"{str} {bc1.Value().StringValue}, {bc1.Value().IntValue}");
+            Func<Column, Column> udf = CreateBroadcastUdf(bc1);
 
             var expected = new string[] { "hello destroy, 5", "world destroy, 5" };
 
@@ -81,25 +80,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             bc1.Destroy();
 
-            // Throws the following exception:
-            // ERROR Utils: Exception encountered
-            //  org.apache.spark.SparkException: Attempted to use Broadcast(0) after it was destroyed(destroy at NativeMethodAccessorImpl.java:0)
-            //  at org.apache.spark.broadcast.Broadcast.assertValid(Broadcast.scala:144)
-            //  at org.apache.spark.broadcast.TorrentBroadcast$$anonfun$writeObject$1.apply$mcV$sp(TorrentBroadcast.scala:203)
-            //  at org.apache.spark.broadcast.TorrentBroadcast$$anonfun$writeObject$1.apply(TorrentBroadcast.scala:202)
-            //  at org.apache.spark.broadcast.TorrentBroadcast$$anonfun$writeObject$1.apply(TorrentBroadcast.scala:202)
-            //  at org.apache.spark.util.Utils$.tryOrIOException(Utils.scala:1326)
-            //  at org.apache.spark.broadcast.TorrentBroadcast.writeObject(TorrentBroadcast.scala:202)
-            //  at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-            try
-            {
-                _df.Select(udf(_df["_1"])).Collect().ToArray();
-                Assert.True(false);
-            }
-            catch (Exception e)
-            {
-                Assert.NotNull(e);
-            }
+            Exception exception = Assert.ThrowsAny<Exception>(() =>
+                _df.Select(udf(_df["_1"])).Collect().ToArray());
+            Assert.Contains("destroyed", exception.ToString());
         }
 
         /// <summary>
@@ -107,11 +90,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// the broadcast is used after unpersist is called, it is re-sent to the executors.
         /// </summary>
         [Theory]
-        [InlineData("true")]
-        [InlineData("false")]
-        public void TestUnpersist(string isEncryptionEnabled)
+        [InlineData(true)]
+        [InlineData(false)]
+        public void TestUnpersist(bool blocking)
         {
-            _spark.SparkContext.GetConf().Set("spark.io.encryption.enabled", isEncryptionEnabled);
             var obj = new TestBroadcastVariable(1, "unpersist");
             Broadcast<TestBroadcastVariable> bc = _spark.SparkContext.Broadcast(obj);
 
@@ -126,11 +108,112 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // This deletes the copies of the broadcast on the executors. We then use the Broadcast
             // variable again in the UDF and validate that it is re-sent to all executors.
-            bc.Unpersist();
+            if (blocking)
+            {
+                bc.Unpersist(true);
+            }
+            else
+            {
+                bc.Unpersist();
+            }
 
             string[] actualUnpersisted = ToStringArray(_df.Select(udf(_df["_1"])));
             Assert.Equal(expected, actualUnpersisted);
+            bc.Destroy();
         }
+
+        [Fact]
+        public void EncryptionConfigurationMatchesRunningSparkEnvironment()
+        {
+            // Encryption must be set at spark-submit startup, not on GetConf()'s copy.
+            bool configured = bool.Parse(
+                _spark.SparkContext.GetConf().Get("spark.io.encryption.enabled", "false"));
+            var sparkEnv = (JvmObjectReference)_spark.Reference.Jvm.CallStaticJavaMethod(
+                "org.apache.spark.SparkEnv", "get");
+            var serializer = (JvmObjectReference)sparkEnv.Invoke("serializerManager");
+            bool actual = (bool)serializer.Invoke("encryptionEnabled");
+            Assert.Equal(configured, actual);
+            string expected = Environment.GetEnvironmentVariable(
+                "DOTNET_SPARKFIXTURE_EXPECTED_IO_ENCRYPTION");
+            if (expected != null)
+            {
+                Assert.Equal(bool.Parse(expected), actual);
+            }
+            _output.WriteLine($"Spark IO encryption: {actual}");
+        }
+
+        [Fact]
+        public void RddBroadcastSetsChangeAcrossSuccessiveTasks()
+        {
+            Broadcast<int> first = _spark.SparkContext.Broadcast(10);
+            Broadcast<int> second = _spark.SparkContext.Broadcast(100);
+            try
+            {
+                RDD<int> input = _spark.SparkContext.Parallelize(new[] { 1, 2, 3, 4 }, 2);
+                string[] firstRun = RunBroadcastJob(input, first);
+                string[] secondRun = RunBroadcastJob(input, second);
+                // This task removes all broadcasts from a reused worker.
+                Assert.Equal(new[] { 1, 2, 3, 4 }, input.Map(value => value).Collect());
+                string[] readded = RunBroadcastJob(input, first);
+                Assert.Equal(new[] { 11, 12, 13, 14 }, BroadcastValues(firstRun));
+                Assert.Equal(new[] { 101, 102, 103, 104 }, BroadcastValues(secondRun));
+                Assert.Equal(new[] { 11, 12, 13, 14 }, BroadcastValues(readded));
+                int[] pids = firstRun.Concat(secondRun).Concat(readded)
+                    .Select(value => int.Parse(value.Split(':')[0])).ToArray();
+                Assert.DoesNotContain(Environment.ProcessId, pids);
+                _output.WriteLine($"Broadcast task PIDs: {string.Join(", ", pids)}");
+                SparkConf conf = _spark.SparkContext.GetConf();
+                if (SparkSettings.Version.Major == 4 &&
+                    !RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+                    bool.Parse(conf.Get("spark.python.use.daemon", "true")) &&
+                    bool.Parse(conf.Get("spark.python.worker.reuse", "true")))
+                {
+                    // The fixture uses one local task slot: prove actual process reuse.
+                    Assert.Single(pids.Distinct());
+                }
+            }
+            finally
+            {
+                first.Destroy();
+                second.Destroy();
+            }
+        }
+
+        [Fact]
+        public void BroadcastWorkerFailureAllowsSubsequentTask()
+        {
+            Broadcast<int> broadcast = _spark.SparkContext.Broadcast(123);
+            try
+            {
+                RDD<int> input = _spark.SparkContext.Parallelize(new[] { 1, 2 }, 2);
+                RDD<int> failing = CreateFailingBroadcastRdd(input, broadcast);
+                Exception exception = Assert.ThrowsAny<Exception>(() => failing.Collect().ToArray());
+                Assert.Contains("broadcast-failure-123", exception.ToString());
+                Assert.Equal(new[] { 124, 125 }, BroadcastValues(RunBroadcastJob(input, broadcast)));
+            }
+            finally
+            {
+                broadcast.Destroy();
+            }
+        }
+
+        // Build worker delegates separately from assertion lambdas so their compiler-generated
+        // closures contain only broadcasts, not the test instance or driver-side DataFrames/RDDs.
+        private static Func<Column, Column> CreateBroadcastUdf(
+            Broadcast<TestBroadcastVariable> broadcast) =>
+            Udf<string, string>(str =>
+                $"{str} {broadcast.Value().StringValue}, {broadcast.Value().IntValue}");
+
+        private static RDD<int> CreateFailingBroadcastRdd(RDD<int> input, Broadcast<int> broadcast) =>
+            input.Map<int>(value =>
+                throw new InvalidOperationException($"broadcast-failure-{broadcast.Value()}"));
+
+        private static string[] RunBroadcastJob(RDD<int> input, Broadcast<int> broadcast) =>
+            input.Map(value => $"{Environment.ProcessId}:{value + broadcast.Value()}")
+                .Collect().ToArray();
+
+        private static int[] BroadcastValues(string[] rows) =>
+            rows.Select(value => int.Parse(value.Split(':')[1])).ToArray();
 
         private string[] ToStringArray(DataFrame df)
         {
