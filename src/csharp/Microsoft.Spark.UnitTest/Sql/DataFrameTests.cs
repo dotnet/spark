@@ -17,6 +17,11 @@ namespace Microsoft.Spark.UnitTest
         [InlineData("3.5.1", "collectToPython")]
         [InlineData("3.5.1", "toPythonIterator")]
         [InlineData("4.0.4", "collectToPython")]
+        [InlineData("4.0.0", "tailToPython")]
+        [InlineData("4.0.1", "tailToPython")]
+        [InlineData("4.0.2", "tailToPython")]
+        [InlineData("4.0.3", "tailToPython")]
+        [InlineData("4.0.4", "tailToPython")]
         public void ValidateRowCollectionOperationAllowsSupportedOperations(
             string version,
             string funcName)
@@ -25,9 +30,9 @@ namespace Microsoft.Spark.UnitTest
         }
 
         [Theory]
-        [InlineData("4.0.4", "tailToPython")]
         [InlineData("4.0.4", "toPythonIterator")]
         [InlineData("4.1.0", "collectToPython")]
+        [InlineData("4.1.0", "tailToPython")]
         public void ValidateRowCollectionOperationRejectsUnsupportedOperations(
             string version,
             string funcName)

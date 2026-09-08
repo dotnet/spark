@@ -276,7 +276,7 @@ stages:
           displayName: 'E2E tests'
           inputs:
             command: test
-            # Spark 4 covers the core bridge, scalar UDF, RDD and Worker lifecycle paths. Keep
+            # Spark 4 covers the core bridge, row retrieval, UDF, RDD and Worker lifecycle. Keep
             # extension projects out of this lane until their Spark 4 compatibility is implemented.
             ${{ if eq(split(test.version, '.')[0], '4') }}:
               projects: '**/Microsoft.Spark.E2ETest/Microsoft.Spark.E2ETest.csproj'
