@@ -3,10 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Spark.Interop.Ipc;
-using System.Collections.Generic;
 
 namespace Microsoft.Spark.Utils
 {
