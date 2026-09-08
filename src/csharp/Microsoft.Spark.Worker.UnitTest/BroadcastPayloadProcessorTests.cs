@@ -4,6 +4,7 @@
 
 using System;
 using System.IO;
+using System.Reflection;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
@@ -16,6 +17,35 @@ namespace Microsoft.Spark.Worker.UnitTest
     [Collection("Spark Unit Tests")]
     public class BroadcastPayloadProcessorTests
     {
+        private static readonly FieldInfo s_rootDirectoryField = typeof(SparkFiles).GetField(
+            "s_rootDirectory", BindingFlags.NonPublic | BindingFlags.Static);
+        private static readonly FieldInfo s_isRunningOnWorkerField = typeof(SparkFiles).GetField(
+            "s_isRunningOnWorker", BindingFlags.NonPublic | BindingFlags.Static);
+
+        [Theory]
+        [InlineData(false, null)]
+        [InlineData(true, "existing-worker-directory")]
+        public void Spark40OuterFrameRestoresSparkFilesState(bool isRunningOnWorker, string rootDirectory)
+        {
+            object previousRootDirectory = s_rootDirectoryField.GetValue(null);
+            object previousIsRunningOnWorker = s_isRunningOnWorkerField.GetValue(null);
+            try
+            {
+                s_rootDirectoryField.SetValue(null, rootDirectory);
+                s_isRunningOnWorkerField.SetValue(null, isRunningOnWorker);
+
+                Spark40OuterFramePreservesMultipleBroadcastsAndCommandAlignment();
+
+                Assert.Equal(rootDirectory, s_rootDirectoryField.GetValue(null));
+                Assert.Equal(isRunningOnWorker, s_isRunningOnWorkerField.GetValue(null));
+            }
+            finally
+            {
+                s_rootDirectoryField.SetValue(null, previousRootDirectory);
+                s_isRunningOnWorkerField.SetValue(null, previousIsRunningOnWorker);
+            }
+        }
+
         [Fact]
         public void Spark40OuterFramePreservesMultipleBroadcastsAndCommandAlignment()
         {
@@ -23,7 +53,10 @@ namespace Microsoft.Spark.Worker.UnitTest
                 (BitConverter.ToInt64(Guid.NewGuid().ToByteArray(), 0) & (long.MaxValue >> 1)) + 1;
             long secondId = firstId + 1;
             TaskContext previousTaskContext = TaskContextHolder.Get();
-            string previousSparkFilesDir = SparkFiles.GetRootDirectory();
+            // The public getter can call the JVM before Worker setup. Preserve both
+            // thread-static fields so cleanup also restores the original execution mode.
+            object previousSparkFilesDir = s_rootDirectoryField.GetValue(null);
+            object previousIsRunningOnWorker = s_isRunningOnWorkerField.GetValue(null);
             using var directory = new TemporaryDirectory();
 
             try
@@ -155,7 +188,8 @@ namespace Microsoft.Spark.Worker.UnitTest
                 BroadcastRegistry.Remove(firstId);
                 BroadcastRegistry.Remove(secondId);
                 TaskContextHolder.Set(previousTaskContext);
-                SparkFiles.SetRootDirectory(previousSparkFilesDir);
+                s_rootDirectoryField.SetValue(null, previousSparkFilesDir);
+                s_isRunningOnWorkerField.SetValue(null, previousIsRunningOnWorker);
             }
         }
 
