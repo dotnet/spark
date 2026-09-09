@@ -16,6 +16,8 @@ namespace Microsoft.Spark.Worker.UnitTest
         [Theory]
         [InlineData(0)]
         [InlineData(100)]
+        [InlineData(200)]
+        [InlineData(201)]
         public void Spark40EvalTypeGateAllowsSupportedTypes(int rawEvalType)
         {
             using MemoryStream stream = CreateEvalTypeStream(rawEvalType);
@@ -29,8 +31,6 @@ namespace Microsoft.Spark.Worker.UnitTest
 
         [Theory]
         [InlineData(101)]
-        [InlineData(200)]
-        [InlineData(201)]
         [InlineData(202)]
         [InlineData(203)]
         [InlineData(204)]

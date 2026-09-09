@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using Apache.Arrow;
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql.Expressions;
 using Microsoft.Spark.Sql.Types;
@@ -143,18 +144,22 @@ namespace Microsoft.Spark.Sql
         /// <returns>New DataFrame object with the UDF applied.</returns>
         public DataFrame Apply(StructType returnType, Func<FxDataFrame, FxDataFrame> func)
         {
+            Version version = SparkEnvironment.SparkVersion;
+            bool isSpark40 = (version.Major, version.Minor) == (4, 0);
+            string returnTypeJson = returnType.Json;
             DataFrameGroupedMapWorkerFunction.ExecuteDelegate wrapper =
                 new DataFrameGroupedMapUdfWrapper(func).Execute;
 
             var udf = UserDefinedFunction.Create(
                 Reference.Jvm,
                 func.Method.ToString(),
+                isSpark40 ? CommandSerDe.SerializeSpark40GroupedMap(wrapper, returnTypeJson) :
                 CommandSerDe.Serialize(
                     wrapper,
                     CommandSerDe.SerializedMode.Row,
                     CommandSerDe.SerializedMode.Row),
                 UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF,
-                returnType.Json);
+                returnTypeJson);
 
             IReadOnlyList<string> columnNames = _dataFrame.Columns();
             var columns = new Column[columnNames.Count];
@@ -165,9 +170,7 @@ namespace Microsoft.Spark.Sql
 
             Column udfColumn = udf.Apply(columns);
 
-            return new DataFrame((JvmObjectReference)Reference.Invoke(
-                "flatMapGroupsInPandas",
-                udfColumn.Expr()));
+            return ApplyGroupedMap(udfColumn, version);
         }
 
         /// <summary>
@@ -189,18 +192,22 @@ namespace Microsoft.Spark.Sql
         /// <returns>New DataFrame object with the UDF applied.</returns>
         public DataFrame Apply(StructType returnType, Func<RecordBatch, RecordBatch> func)
         {
+            Version version = SparkEnvironment.SparkVersion;
+            bool isSpark40 = (version.Major, version.Minor) == (4, 0);
+            string returnTypeJson = returnType.Json;
             ArrowGroupedMapWorkerFunction.ExecuteDelegate wrapper =
                 new ArrowGroupedMapUdfWrapper(func).Execute;
 
             UserDefinedFunction udf = UserDefinedFunction.Create(
                 Reference.Jvm,
                 func.Method.ToString(),
+                isSpark40 ? CommandSerDe.SerializeSpark40GroupedMap(wrapper, returnTypeJson) :
                 CommandSerDe.Serialize(
                     wrapper,
                     CommandSerDe.SerializedMode.Row,
                     CommandSerDe.SerializedMode.Row),
                 UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF,
-                returnType.Json);
+                returnTypeJson);
 
             IReadOnlyList<string> columnNames = _dataFrame.Columns();
             var columns = new Column[columnNames.Count];
@@ -211,9 +218,14 @@ namespace Microsoft.Spark.Sql
 
             Column udfColumn = udf.Apply(columns);
 
+            return ApplyGroupedMap(udfColumn, version);
+        }
+
+        internal DataFrame ApplyGroupedMap(Column udfColumn, Version version)
+        {
             return new DataFrame((JvmObjectReference)Reference.Invoke(
                 "flatMapGroupsInPandas",
-                udfColumn.Expr()));
+                (version.Major, version.Minor) == (4, 0) ? (object)udfColumn : udfColumn.Expr()));
         }
     }
 }

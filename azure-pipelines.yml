@@ -487,11 +487,11 @@ stages:
       enableBackwardCompatibleTests: false
       jobOptions:
       - pool: 'Windows'
-        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast"'
+        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast|Category=ArrowUdf"'
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_4_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_4_0)
       - pool: 'Linux'
-        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast"'
+        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast|Category=ArrowUdf"'
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_4_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_4_0)
     - version: '4.0.1'
@@ -499,11 +499,11 @@ stages:
       enableBackwardCompatibleTests: false
       jobOptions:
       - pool: 'Windows'
-        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast"'
+        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast|Category=ArrowUdf"'
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_4_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_4_0)
       - pool: 'Linux'
-        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast"'
+        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast|Category=ArrowUdf"'
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_4_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_4_0)
     - version: '4.0.2'
@@ -511,11 +511,11 @@ stages:
       enableBackwardCompatibleTests: false
       jobOptions:
       - pool: 'Windows'
-        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast"'
+        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast|Category=ArrowUdf"'
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_4_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_4_0)
       - pool: 'Linux'
-        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast"'
+        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast|Category=ArrowUdf"'
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_4_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_4_0)
     - version: '4.0.3'
@@ -523,11 +523,11 @@ stages:
       enableBackwardCompatibleTests: false
       jobOptions:
       - pool: 'Windows'
-        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast"'
+        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast|Category=ArrowUdf"'
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_4_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_4_0)
       - pool: 'Linux'
-        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast"'
+        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast|Category=ArrowUdf"'
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_4_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_4_0)
     - version: '4.0.4'
@@ -535,10 +535,10 @@ stages:
       enableBackwardCompatibleTests: false
       jobOptions:
       - pool: 'Windows'
-        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast"'
+        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast|Category=ArrowUdf"'
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Windows_4_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Windows_4_0)
       - pool: 'Linux'
-        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast"'
+        testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast|Category=ArrowUdf"'
         backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_Linux_4_0)
         forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_Linux_4_0)

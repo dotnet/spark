@@ -58,6 +58,12 @@ namespace Microsoft.Spark.Worker
     {
         internal int[] ArgOffsets { get; set; }
 
+        internal int[] GroupingKeyOffsets { get; set; }
+
+        internal Sql.Types.StructType ReturnSchema { get; set; }
+
+        internal IReadOnlyDictionary<string, string> ArrowConfiguration { get; set; }
+
         // Note that WorkerFunction will be chained, and this will
         // be used only for the logging purpose.
         internal int NumChainedFunctions { get; set; }

@@ -195,6 +195,13 @@ namespace Microsoft.Spark.Worker
             {
                 s_logger.LogError($"[{TaskId}] ProcessStream() failed with exception: {e}");
 
+                if (e is ArrowStreamWriteException)
+                {
+                    // A partially written IPC message cannot be followed by a Spark control
+                    // frame. Run() closes this socket and never reuses the failed attempt.
+                    throw;
+                }
+
                 try
                 {
                     SerDe.Write(outputStream, (int)SpecialLengths.PYTHON_EXCEPTION_THROWN);

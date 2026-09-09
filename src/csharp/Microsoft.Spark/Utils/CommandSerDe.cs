@@ -14,6 +14,9 @@ using System.Text;
 using MessagePack;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Spark.Utils
 {
@@ -41,6 +44,7 @@ namespace Microsoft.Spark.Utils
         private const sbyte TypelessExtensionCode = 100;
         private const int MaxSpark40TypeNameBytes = 4096;
         private const int MaxSpark40MessagePackDepth = 500;
+        private const int MaxSpark40SchemaBytes = 1024 * 1024;
 
         private static readonly UTF8Encoding s_strictUtf8 =
             new UTF8Encoding(false, true);
@@ -185,6 +189,54 @@ namespace Microsoft.Spark.Utils
         internal static void PreflightSpark40(byte[] command, int expectedArity)
         {
             ArraySegment<byte> serializedUdf = ParseSpark40Envelope(command);
+            ValidateSpark40WrapperArityName(
+                ReadSpark40WrapperName(serializedUdf), expectedArity);
+        }
+
+        // Only the new Spark 4 grouped-map format carries this private tail. The
+        // inner serialized-UDF length still describes MessagePack bytes alone.
+        internal static byte[] SerializeSpark40GroupedMap(Delegate func, StructType returnType)
+        {
+            if (returnType == null)
+            {
+                throw new ArgumentNullException(nameof(returnType));
+            }
+
+            return SerializeSpark40GroupedMap(func, returnType.Json);
+        }
+
+        internal static byte[] SerializeSpark40GroupedMap(Delegate func, string returnTypeJson)
+        {
+            byte[] command = Serialize(func, SerializedMode.Row, SerializedMode.Row);
+            byte[] schema = s_strictUtf8.GetBytes(returnTypeJson);
+            if (schema.Length == 0 || schema.Length > MaxSpark40SchemaBytes)
+            {
+                throw new InvalidDataException("Invalid Spark 4 grouped-map schema length.");
+            }
+
+            using var stream = new MemoryStream();
+            stream.Write(command, 0, command.Length);
+            SerDe.Write(stream, schema.Length);
+            stream.Write(schema, 0, schema.Length);
+            return stream.ToArray();
+        }
+
+        internal static bool PreflightSpark40Arrow(
+            byte[] command,
+            int expectedArity,
+            bool grouped,
+            out StructType returnSchema,
+            out bool isRepl)
+        {
+            ArraySegment<byte> serializedUdf = ParseSpark40ArrowEnvelope(
+                command, grouped, out returnSchema, out isRepl);
+            return ValidateSpark40ArrowWrapperName(
+                ReadSpark40WrapperName(serializedUdf, singleUdf: true), expectedArity, grouped);
+        }
+
+        private static string ReadSpark40WrapperName(
+            ArraySegment<byte> serializedUdf, bool singleUdf = false)
+        {
             try
             {
                 var reader = new MessagePackReader(
@@ -194,16 +246,15 @@ namespace Microsoft.Spark.Utils
                         serializedUdf.Count));
                 string rootTypeName = ReadSpark40RootTypelessExtension(
                     ref reader,
-                    out string wrapperTypeName);
+                    out string wrapperTypeName,
+                    singleUdf);
                 if (!reader.End || !IsExpectedSpark40RootTypeName(rootTypeName))
                 {
                     throw new InvalidDataException(
                         "Invalid Spark 4 serialized UDF root.");
                 }
 
-                ValidateSpark40WrapperArityName(
-                    wrapperTypeName,
-                    expectedArity);
+                return wrapperTypeName;
             }
             catch (InvalidDataException)
             {
@@ -228,6 +279,38 @@ namespace Microsoft.Spark.Utils
             out SerializedMode deserializerMode) where T : Delegate
         {
             ArraySegment<byte> serializedUdf = ParseSpark40Envelope(command);
+            return DeserializeSpark40Udf<T>(
+                serializedUdf, expectedArity, false, false,
+                out serializerMode, out deserializerMode);
+        }
+
+        internal static T DeserializeSpark40Arrow<T>(
+            byte[] command,
+            int expectedArity,
+            bool grouped,
+            out SerializedMode serializerMode,
+            out SerializedMode deserializerMode) where T : Delegate
+        {
+            ArraySegment<byte> serializedUdf = ParseSpark40ArrowEnvelope(
+                command, grouped, out _, out bool isRepl);
+            if (isRepl)
+            {
+                throw new NotSupportedException("Spark 4 REPL commands are not supported.");
+            }
+
+            return DeserializeSpark40Udf<T>(
+                serializedUdf, expectedArity, true, grouped,
+                out serializerMode, out deserializerMode);
+        }
+
+        private static T DeserializeSpark40Udf<T>(
+            ArraySegment<byte> serializedUdf,
+            int expectedArity,
+            bool arrow,
+            bool grouped,
+            out SerializedMode serializerMode,
+            out SerializedMode deserializerMode) where T : Delegate
+        {
             UdfWrapperData udfWrapperData;
             try
             {
@@ -257,7 +340,23 @@ namespace Microsoft.Spark.Utils
                     ex);
             }
 
-            ValidateSpark40WrapperArity(udfWrapperData, expectedArity);
+            if (arrow)
+            {
+                if (udfWrapperData?.UdfWrapperNodes?.Length != 1 ||
+                    udfWrapperData.Udfs?.Length != 1 ||
+                    udfWrapperData.UdfWrapperNodes[0].NumChildren != 1 ||
+                    !udfWrapperData.UdfWrapperNodes[0].HasUdf)
+                {
+                    throw new InvalidDataException("Invalid Spark 4 Arrow UDF wrapper data.");
+                }
+
+                ValidateSpark40ArrowWrapperName(
+                    udfWrapperData.UdfWrapperNodes[0].TypeName, expectedArity, grouped);
+            }
+            else
+            {
+                ValidateSpark40WrapperArity(udfWrapperData, expectedArity);
+            }
 
             int nodeIndex = 0;
             int udfIndex = 0;
@@ -275,6 +374,133 @@ namespace Microsoft.Spark.Utils
             serializerMode = SerializedMode.Row;
             deserializerMode = SerializedMode.Row;
             return udf;
+        }
+
+        private static ArraySegment<byte> ParseSpark40ArrowEnvelope(
+            byte[] command,
+            bool grouped,
+            out StructType returnSchema,
+            out bool isRepl)
+        {
+            if (command == null)
+            {
+                throw new ArgumentNullException(nameof(command));
+            }
+
+            int offset = 0;
+            ReadExpectedAscii(command, ref offset, "Row", "serializer");
+            ReadExpectedAscii(command, ref offset, "Row", "deserializer");
+            string runMode = ReadSpark40Utf8(command, ref offset, 1, 1, "run mode");
+            isRepl = runMode == "R";
+            if (isRepl)
+            {
+                _ = ReadSpark40Utf8(command, ref offset, 1, 4096, "REPL directory");
+            }
+            else if (runMode != "N")
+            {
+                throw new InvalidDataException("Invalid Spark 4 run mode.");
+            }
+
+            int length = ReadSpark40Int32(command, ref offset);
+            if (length <= 0 || length > command.Length - offset)
+            {
+                throw new InvalidDataException("Invalid Spark 4 serialized UDF length.");
+            }
+
+            var serializedUdf = new ArraySegment<byte>(command, offset, length);
+            offset += length;
+            returnSchema = null;
+            if (grouped)
+            {
+                string json = ReadSpark40Utf8(
+                    command, ref offset, 1, MaxSpark40SchemaBytes, "grouped-map schema");
+                try
+                {
+                    using var jsonReader = new JsonTextReader(new StringReader(json))
+                    {
+                        MaxDepth = 64,
+                        DateParseHandling = DateParseHandling.None
+                    };
+                    JToken token = JToken.ReadFrom(jsonReader, new JsonLoadSettings
+                    {
+                        DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error
+                    });
+                    if (jsonReader.Read() || token.Type != JTokenType.Object ||
+                        (string)token["type"] != "struct")
+                    {
+                        throw new InvalidDataException("Invalid Spark 4 grouped-map schema.");
+                    }
+
+                    // The general DataType parser supports UDT aliases; this new
+                    // Arrow contract deliberately does not enable those aliases.
+                    RejectSpark40UdtSchema(token);
+                    returnSchema = (StructType)DataType.ParseDataType(token);
+                }
+                catch (Exception ex) when (ex is JsonException || ex is ArgumentException ||
+                    ex is TargetInvocationException || ex is InvalidCastException ||
+                    ex is FormatException || ex is OverflowException)
+                {
+                    throw new InvalidDataException("Invalid Spark 4 grouped-map schema.", ex);
+                }
+            }
+
+            if (offset != command.Length)
+            {
+                throw new InvalidDataException("Trailing Spark 4 command data.");
+            }
+
+            return serializedUdf;
+        }
+
+        private static void RejectSpark40UdtSchema(JToken type)
+        {
+            if (!(type is JObject schema))
+            {
+                return;
+            }
+
+            switch ((string)schema["type"])
+            {
+                case "udt":
+                    throw new InvalidDataException("Spark 4 Arrow UDT schemas are not supported.");
+                case "struct":
+                    if (schema["fields"] is JArray fields)
+                    {
+                        foreach (JObject field in fields.OfType<JObject>())
+                        {
+                            RejectSpark40UdtSchema(field["type"]);
+                        }
+                    }
+                    break;
+                case "array":
+                    RejectSpark40UdtSchema(schema["elementType"]);
+                    break;
+                case "map":
+                    RejectSpark40UdtSchema(schema["keyType"]);
+                    RejectSpark40UdtSchema(schema["valueType"]);
+                    break;
+            }
+        }
+
+        private static string ReadSpark40Utf8(
+            byte[] command, ref int offset, int minimum, int maximum, string fieldName)
+        {
+            int length = ReadSpark40Int32(command, ref offset);
+            if (length < minimum || length > maximum || length > command.Length - offset)
+            {
+                throw new InvalidDataException($"Invalid Spark 4 {fieldName} length.");
+            }
+
+            try
+            {
+                string value = s_strictUtf8.GetString(command, offset, length);
+                offset += length;
+                return value;
+            }
+            catch (DecoderFallbackException ex)
+            {
+                throw new InvalidDataException($"Invalid Spark 4 {fieldName} encoding.", ex);
+            }
         }
 
         private static ArraySegment<byte> ParseSpark40Envelope(byte[] command)
@@ -388,7 +614,8 @@ namespace Microsoft.Spark.Utils
 
         private static string ReadSpark40RootTypelessExtension(
             ref MessagePackReader reader,
-            out string wrapperTypeName)
+            out string wrapperTypeName,
+            bool singleUdf = false)
         {
             if (reader.NextMessagePackType != MessagePackType.Extension)
             {
@@ -407,7 +634,8 @@ namespace Microsoft.Spark.Utils
             string typeName = ReadStrictTypeName(ref extensionReader);
             wrapperTypeName = ReadSpark40RootWrapperTypeName(
                 ref extensionReader,
-                depth: 1);
+                depth: 1,
+                singleUdf);
             if (!extensionReader.End)
             {
                 throw new InvalidDataException(
@@ -419,7 +647,8 @@ namespace Microsoft.Spark.Utils
 
         private static string ReadSpark40RootWrapperTypeName(
             ref MessagePackReader reader,
-            int depth)
+            int depth,
+            bool singleUdf)
         {
             if (depth > MaxSpark40MessagePackDepth)
             {
@@ -431,6 +660,7 @@ namespace Microsoft.Spark.Utils
             {
                 int count = reader.ReadMapHeader();
                 string wrapperTypeName = null;
+                bool hasUdf = false;
                 for (int i = 0; i < count; ++i)
                 {
                     string key = ReadStrictMessagePackString(
@@ -447,12 +677,28 @@ namespace Microsoft.Spark.Utils
 
                         wrapperTypeName = ReadFirstSpark40WrapperTypeName(
                             ref reader,
-                            depth + 1);
+                            depth + 1,
+                            singleUdf);
+                    }
+                    else if (singleUdf && key == "Udfs")
+                    {
+                        if (hasUdf)
+                        {
+                            throw new InvalidDataException("Duplicate Spark 4 Arrow UDF data.");
+                        }
+
+                        ReadSingleSpark40Udf(ref reader, depth + 1);
+                        hasUdf = true;
                     }
                     else
                     {
                         ScanMessagePackValue(ref reader, depth + 1);
                     }
+                }
+
+                if (singleUdf && !hasUdf)
+                {
+                    throw new InvalidDataException("Missing Spark 4 Arrow UDF data.");
                 }
 
                 return wrapperTypeName ?? throw new InvalidDataException(
@@ -462,7 +708,7 @@ namespace Microsoft.Spark.Utils
             if (reader.NextMessagePackType == MessagePackType.Array)
             {
                 int count = reader.ReadArrayHeader();
-                if (count < 1)
+                if (count < 1 || (singleUdf && count != 2))
                 {
                     throw new InvalidDataException(
                         "Missing Spark 4 UDF wrapper data.");
@@ -470,10 +716,18 @@ namespace Microsoft.Spark.Utils
 
                 string wrapperTypeName = ReadFirstSpark40WrapperTypeName(
                     ref reader,
-                    depth + 1);
+                    depth + 1,
+                    singleUdf);
                 for (int i = 1; i < count; ++i)
                 {
-                    ScanMessagePackValue(ref reader, depth + 1);
+                    if (singleUdf)
+                    {
+                        ReadSingleSpark40Udf(ref reader, depth + 1);
+                    }
+                    else
+                    {
+                        ScanMessagePackValue(ref reader, depth + 1);
+                    }
                 }
 
                 return wrapperTypeName;
@@ -485,7 +739,8 @@ namespace Microsoft.Spark.Utils
 
         private static string ReadFirstSpark40WrapperTypeName(
             ref MessagePackReader reader,
-            int depth)
+            int depth,
+            bool singleUdf)
         {
             if (depth > MaxSpark40MessagePackDepth ||
                 reader.NextMessagePackType != MessagePackType.Array)
@@ -495,7 +750,7 @@ namespace Microsoft.Spark.Utils
             }
 
             int count = reader.ReadArrayHeader();
-            if (count < 1)
+            if (count < 1 || (singleUdf && count != 1))
             {
                 throw new InvalidDataException(
                     "Missing Spark 4 UDF wrapper.");
@@ -503,7 +758,8 @@ namespace Microsoft.Spark.Utils
 
             string wrapperTypeName = ReadSpark40WrapperNodeTypeName(
                 ref reader,
-                depth + 1);
+                depth + 1,
+                singleUdf);
             for (int i = 1; i < count; ++i)
             {
                 ScanMessagePackValue(ref reader, depth + 1);
@@ -514,7 +770,8 @@ namespace Microsoft.Spark.Utils
 
         private static string ReadSpark40WrapperNodeTypeName(
             ref MessagePackReader reader,
-            int depth)
+            int depth,
+            bool singleUdf)
         {
             if (depth > MaxSpark40MessagePackDepth ||
                 reader.NextMessagePackType != MessagePackType.Map)
@@ -525,6 +782,8 @@ namespace Microsoft.Spark.Utils
 
             int count = reader.ReadMapHeader();
             string typeName = null;
+            bool hasChildCount = false;
+            bool hasUdf = false;
             for (int i = 0; i < count; ++i)
             {
                 string key = ReadStrictMessagePackString(
@@ -544,14 +803,50 @@ namespace Microsoft.Spark.Utils
                         MaxSpark40TypeNameBytes,
                         "Spark 4 UDF wrapper type");
                 }
+                else if (singleUdf && key == "NumChildren")
+                {
+                    if (hasChildCount || reader.NextMessagePackType != MessagePackType.Integer ||
+                        reader.ReadInt32() != 1)
+                    {
+                        throw new InvalidDataException("Invalid Spark 4 Arrow wrapper children.");
+                    }
+
+                    hasChildCount = true;
+                }
+                else if (singleUdf && key == "HasUdf")
+                {
+                    if (hasUdf || reader.NextMessagePackType != MessagePackType.Boolean ||
+                        !reader.ReadBoolean())
+                    {
+                        throw new InvalidDataException("Invalid Spark 4 Arrow wrapper delegate.");
+                    }
+
+                    hasUdf = true;
+                }
                 else
                 {
                     ScanMessagePackValue(ref reader, depth + 1);
                 }
             }
 
+            if (singleUdf && (!hasChildCount || !hasUdf))
+            {
+                throw new InvalidDataException("Missing Spark 4 Arrow wrapper metadata.");
+            }
+
             return typeName ?? throw new InvalidDataException(
                 "Missing Spark 4 UDF wrapper type.");
+        }
+
+        private static void ReadSingleSpark40Udf(ref MessagePackReader reader, int depth)
+        {
+            if (reader.NextMessagePackType != MessagePackType.Array ||
+                reader.ReadArrayHeader() != 1)
+            {
+                throw new InvalidDataException("Invalid Spark 4 Arrow UDF count.");
+            }
+
+            ScanMessagePackValue(ref reader, depth + 1);
         }
 
         private static void ScanMessagePackValue(
@@ -648,18 +943,19 @@ namespace Microsoft.Spark.Utils
 
         private static void ValidateSpark40WrapperArityName(
             string wrapperTypeName,
-            int expectedArity)
+            int expectedArity,
+            string prefix = "Microsoft.Spark.Sql.PicklingUdfWrapper`",
+            int minimumArity = 0)
         {
-            const string Prefix = "Microsoft.Spark.Sql.PicklingUdfWrapper`";
-            if (expectedArity < 0 || expectedArity > 10 ||
+            if (expectedArity < minimumArity || expectedArity > 10 ||
                 wrapperTypeName == null ||
-                !wrapperTypeName.StartsWith(Prefix, StringComparison.Ordinal))
+                !wrapperTypeName.StartsWith(prefix, StringComparison.Ordinal))
             {
                 throw new InvalidDataException(
                     "Invalid Spark 4 UDF wrapper arity.");
             }
 
-            int position = Prefix.Length;
+            int position = prefix.Length;
             int genericArity = 0;
             int genericArityDigits = 0;
             while (position < wrapperTypeName.Length &&
@@ -737,6 +1033,37 @@ namespace Microsoft.Spark.Utils
                 throw new InvalidDataException(
                     "Invalid Spark 4 UDF wrapper type.");
             }
+        }
+
+        private static bool ValidateSpark40ArrowWrapperName(
+            string wrapperTypeName, int expectedArity, bool grouped)
+        {
+            if (grouped)
+            {
+                foreach (Type type in new[]
+                {
+                    typeof(ArrowGroupedMapUdfWrapper), typeof(DataFrameGroupedMapUdfWrapper)
+                })
+                {
+                    if (wrapperTypeName == type.FullName ||
+                        wrapperTypeName == type.AssemblyQualifiedName ||
+                        wrapperTypeName == $"{type.FullName}, {type.Assembly.GetName().Name}")
+                    {
+                        return type == typeof(DataFrameGroupedMapUdfWrapper);
+                    }
+                }
+
+                throw new InvalidDataException("Invalid Spark 4 grouped-map UDF wrapper.");
+            }
+
+            const string ArrowPrefix = "Microsoft.Spark.Sql.ArrowUdfWrapper`";
+            const string DataFramePrefix = "Microsoft.Spark.Sql.DataFrameUdfWrapper`";
+            bool isDataFrame = wrapperTypeName != null &&
+                wrapperTypeName.StartsWith(DataFramePrefix, StringComparison.Ordinal);
+            ValidateSpark40WrapperArityName(
+                wrapperTypeName, expectedArity,
+                isDataFrame ? DataFramePrefix : ArrowPrefix, minimumArity: 1);
+            return isDataFrame;
         }
 
         private static bool IsExpectedSpark40RootTypeName(string typeName)
