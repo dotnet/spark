@@ -28,60 +28,75 @@ namespace Microsoft.Spark.Worker.Processor
         {
             var broadcastVars = new BroadcastVariables();
             ISocketWrapper socket = null;
-
-            broadcastVars.DecryptionServerNeeded = SerDe.ReadBool(stream);
-            broadcastVars.Count = Math.Max(SerDe.ReadInt32(stream), 0);
-
-            if (broadcastVars.DecryptionServerNeeded)
+            try
             {
-                broadcastVars.DecryptionServerPort = SerDe.ReadInt32(stream);
-                broadcastVars.Secret = SerDe.ReadString(stream);
-                if (broadcastVars.Count > 0)
-                {
-                    socket = SocketFactory.CreateSocket();
-                    socket.Connect(
-                        IPAddress.Loopback,
-                        broadcastVars.DecryptionServerPort,
-                        broadcastVars.Secret);
-                }
-            }
+                broadcastVars.DecryptionServerNeeded = SerDe.ReadBool(stream);
+                broadcastVars.Count = Math.Max(SerDe.ReadInt32(stream), 0);
+                EncryptedBroadcastReader encryptedReader = null;
 
-            for (int i = 0; i < broadcastVars.Count; ++i)
-            {
-                long bid = SerDe.ReadInt64(stream);
-                if (bid >= 0)
+                if (broadcastVars.DecryptionServerNeeded)
                 {
-                    if (broadcastVars.DecryptionServerNeeded)
+                    broadcastVars.DecryptionServerPort = SerDe.ReadInt32(stream);
+                    broadcastVars.Secret = SerDe.ReadString(stream);
+                    if (broadcastVars.Count > 0)
                     {
-                        long readBid = SerDe.ReadInt64(socket.InputStream);
-                        if (bid != readBid)
-                        {
-                            throw new Exception("The Broadcast Id received from the encryption " +
-                                $"server {readBid} is different from the Broadcast Id received " +
-                                $"from the payload {bid}.");
-                        }
+                        socket = SocketFactory.CreateSocket(useBufferedStreams: false);
+                        socket.Connect(
+                            IPAddress.Loopback,
+                            broadcastVars.DecryptionServerPort,
+                            broadcastVars.Secret);
+                        encryptedReader = new EncryptedBroadcastReader(socket.InputStream);
+                    }
+                }
 
-                        var value = BinarySerDe.Deserialize<object>(socket.InputStream);
-                        BroadcastRegistry.Add(bid, value);
+                for (int i = 0; i < broadcastVars.Count; ++i)
+                {
+                    long bid = SerDe.ReadInt64(stream);
+                    if (bid >= 0)
+                    {
+                        if (broadcastVars.DecryptionServerNeeded)
+                        {
+                            long readBid = encryptedReader.ReadId();
+                            if (bid != readBid)
+                            {
+                                throw new InvalidDataException(
+                                    "The Broadcast Id received from the encryption " +
+                                    $"server {readBid} is different from the Broadcast Id received " +
+                                    $"from the payload {bid}.");
+                            }
+
+                            object value = encryptedReader.ReadValue();
+                            BroadcastRegistry.Add(bid, value);
+                        }
+                        else
+                        {
+                            string path = SerDe.ReadString(stream);
+                            using FileStream fStream =
+                                File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                            var value = BinarySerDe.Deserialize<object>(fStream);
+                            BroadcastRegistry.Add(bid, value);
+                        }
                     }
                     else
                     {
-                        string path = SerDe.ReadString(stream);
-                        using FileStream fStream =
-                            File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-                        var value = BinarySerDe.Deserialize<object>(fStream);
-                        BroadcastRegistry.Add(bid, value);
+                        bid = -bid - 1;
+                        BroadcastRegistry.Remove(bid);
                     }
                 }
-                else
+
+                if (socket != null)
                 {
-                    bid = -bid - 1;
-                    BroadcastRegistry.Remove(bid);
+                    socket.OutputStream.WriteByte((byte)'1');
+                    socket.OutputStream.Flush();
                 }
+
+                return broadcastVars;
             }
-            socket?.Dispose();
-            return broadcastVars;
+            finally
+            {
+                socket?.Dispose();
+            }
         }
     }
 }

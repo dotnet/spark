@@ -17,7 +17,17 @@ namespace Microsoft.Spark.Network
         /// </returns>
         public static ISocketWrapper CreateSocket()
         {
-            return new DefaultSocketWrapper();
+            return CreateSocket(useBufferedStreams: true);
+        }
+
+        /// <summary>
+        /// Creates a socket with optional stream buffering.
+        /// </summary>
+        /// <param name="useBufferedStreams">Whether to apply configured stream buffers</param>
+        /// <returns>ISocketWrapper instance.</returns>
+        public static ISocketWrapper CreateSocket(bool useBufferedStreams)
+        {
+            return new DefaultSocketWrapper(useBufferedStreams);
         }
     }
 }

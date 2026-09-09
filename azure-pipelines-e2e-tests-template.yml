@@ -276,7 +276,7 @@ stages:
           displayName: 'E2E tests'
           inputs:
             command: test
-            # Spark 4 covers the core bridge, row retrieval, UDF, RDD and Worker lifecycle. Keep
+            # Spark 4 covers the bridge, row retrieval, UDF, RDD, Broadcast and Worker lifecycle. Keep
             # extension projects out of this lane until their Spark 4 compatibility is implemented.
             ${{ if eq(split(test.version, '.')[0], '4') }}:
               projects: '**/Microsoft.Spark.E2ETest/Microsoft.Spark.E2ETest.csproj'
@@ -295,25 +295,48 @@ stages:
               DOTNET_SPARKFIXTURE_IVY_SETTINGS: $(SPARK_IVY_SETTINGS)
               DOTNET_SPARKFIXTURE_REPOSITORIES: ${{ parameters.managedOSSMavenFeedUrl }}
 
+        # IO encryption is a SparkEnv startup setting. A separate test process is
+        # required; modifying SparkContext.GetConf() in a test does not enable it.
+        - ${{ if or(eq(split(test.version, '.')[0], '4'), eq(test.version, '3.5.3')) }}:
+          - task: DotNetCoreCLI@2
+            displayName: 'Broadcast E2E tests (IO encryption)'
+            inputs:
+              command: test
+              projects: '**/Microsoft.Spark.E2ETest/Microsoft.Spark.E2ETest.csproj'
+              arguments: '--configuration $(buildConfiguration) --no-build --filter Category=Broadcast'
+              workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
+            env:
+              HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
+              SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop
+              DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
+              DOTNET_SPARKFIXTURE_EXPECTED_SPARK_VERSION: ${{ test.version }}
+              DOTNET_SPARKFIXTURE_EXPECTED_IO_ENCRYPTION: 'true'
+              DOTNET_ASSEMBLY_SEARCH_PATHS: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark$(PATH_SEPARATOR)artifacts$(PATH_SEPARATOR)bin$(PATH_SEPARATOR)Microsoft.Spark.E2ETest$(PATH_SEPARATOR)$(buildConfiguration)$(PATH_SEPARATOR)net8.0
+              DOTNET_SPARKFIXTURE_EXTRA_SPARK_SUBMIT_ARGS: '--conf spark.io.encryption.enabled=true'
+              ${{ if and(ne(parameters.managedOSSMavenFeed, ''), ne(parameters.managedOSSMavenFeedUrl, '')) }}:
+                DOTNET_SPARKFIXTURE_IVY_SETTINGS: $(SPARK_IVY_SETTINGS)
+                DOTNET_SPARKFIXTURE_REPOSITORIES: ${{ parameters.managedOSSMavenFeedUrl }}
+
         - ${{ if eq(split(test.version, '.')[0], '4') }}:
           - ${{ each workerMode in split('no-reuse,simple', ',') }}:
             - task: DotNetCoreCLI@2
-              displayName: 'Spark 4 Worker lifecycle (${{ workerMode }})'
+              displayName: 'Spark 4 Worker lifecycle and encrypted Broadcast (${{ workerMode }})'
               inputs:
                 command: test
                 projects: '**/Microsoft.Spark.E2ETest/Microsoft.Spark.E2ETest.csproj'
-                arguments: '--configuration $(buildConfiguration) --no-build --filter Category=Spark40WorkerLifecycle'
+                arguments: '--configuration $(buildConfiguration) --no-build --filter "Category=Spark40WorkerLifecycle|Category=Broadcast"'
                 workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
               env:
                 HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
                 SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop
                 DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
                 DOTNET_SPARKFIXTURE_EXPECTED_SPARK_VERSION: ${{ test.version }}
+                DOTNET_SPARKFIXTURE_EXPECTED_IO_ENCRYPTION: 'true'
                 DOTNET_ASSEMBLY_SEARCH_PATHS: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark$(PATH_SEPARATOR)artifacts$(PATH_SEPARATOR)bin$(PATH_SEPARATOR)Microsoft.Spark.E2ETest$(PATH_SEPARATOR)$(buildConfiguration)$(PATH_SEPARATOR)net8.0
                 ${{ if eq(workerMode, 'no-reuse') }}:
-                  DOTNET_SPARKFIXTURE_EXTRA_SPARK_SUBMIT_ARGS: '--conf spark.python.worker.reuse=false'
+                  DOTNET_SPARKFIXTURE_EXTRA_SPARK_SUBMIT_ARGS: '--conf spark.python.worker.reuse=false --conf spark.io.encryption.enabled=true'
                 ${{ else }}:
-                  DOTNET_SPARKFIXTURE_EXTRA_SPARK_SUBMIT_ARGS: '--conf spark.python.use.daemon=false'
+                  DOTNET_SPARKFIXTURE_EXTRA_SPARK_SUBMIT_ARGS: '--conf spark.python.use.daemon=false --conf spark.io.encryption.enabled=true'
                 ${{ if and(ne(parameters.managedOSSMavenFeed, ''), ne(parameters.managedOSSMavenFeedUrl, '')) }}:
                   DOTNET_SPARKFIXTURE_IVY_SETTINGS: $(SPARK_IVY_SETTINGS)
                   DOTNET_SPARKFIXTURE_REPOSITORIES: ${{ parameters.managedOSSMavenFeedUrl }}
