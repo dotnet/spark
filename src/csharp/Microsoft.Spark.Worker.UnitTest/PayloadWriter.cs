@@ -51,31 +51,6 @@ namespace Microsoft.Spark.Worker.UnitTest
     }
 
     /// <summary>
-    /// TaskContextWriter for version 2.4.*.
-    /// </summary>
-    internal sealed class TaskContextWriterV2_4_X : ITaskContextWriter
-    {
-        public void Write(Stream stream, TaskContext taskContext)
-        {
-            SerDe.Write(stream, taskContext.IsBarrier);
-            SerDe.Write(stream, taskContext.Port);
-            SerDe.Write(stream, taskContext.Secret);
-
-            SerDe.Write(stream, taskContext.StageId);
-            SerDe.Write(stream, taskContext.PartitionId);
-            SerDe.Write(stream, taskContext.AttemptNumber);
-            SerDe.Write(stream, taskContext.AttemptId);
-
-            SerDe.Write(stream, taskContext.LocalProperties.Count);
-            foreach (KeyValuePair<string, string> kv in taskContext.LocalProperties)
-            {
-                SerDe.Write(stream, kv.Key);
-                SerDe.Write(stream, kv.Value);
-            }
-        }
-    }
-
-    /// <summary>
     /// TaskContextWriter for version 3.0.*.
     /// </summary>
     internal sealed class TaskContextWriterV3_0_X : ITaskContextWriter
@@ -161,9 +136,9 @@ namespace Microsoft.Spark.Worker.UnitTest
     }
 
     /// <summary>
-    /// BroadcastVariableWriter for version 2.4.*.
+    /// BroadcastVariableWriter for Spark 3 payloads.
     /// </summary>
-    internal sealed class BroadcastVariableWriterV2_4_X : IBroadcastVariableWriter
+    internal sealed class BroadcastVariableWriter : IBroadcastVariableWriter
     {
         public void Write(Stream stream, BroadcastVariables broadcastVars)
         {
@@ -221,9 +196,9 @@ namespace Microsoft.Spark.Worker.UnitTest
     }
 
     /// <summary>
-    /// CommandWriter for version 2.4.*.
+    /// CommandWriter for Spark 3 payloads.
     /// </summary>
-    internal sealed class CommandWriterV2_4_X : CommandWriterBase, ICommandWriter
+    internal sealed class CommandWriterV3_X : CommandWriterBase, ICommandWriter
     {
         public void Write(Stream stream, CommandPayload commandPayload)
         {
@@ -332,31 +307,25 @@ namespace Microsoft.Spark.Worker.UnitTest
         {
             if (version == null)
             {
-                version = new Version(Versions.V2_4_0);
+                version = new Version(Versions.V3_0_0);
             }
 
             switch (version.ToString())
             {
-                case Versions.V2_4_0:
-                    return new PayloadWriter(
-                        version,
-                        new TaskContextWriterV2_4_X(),
-                        new BroadcastVariableWriterV2_4_X(),
-                        new CommandWriterV2_4_X());
                 case Versions.V3_0_0:
                 case Versions.V3_2_0:
                     return new PayloadWriter(
                         version,
                         new TaskContextWriterV3_0_X(),
-                        new BroadcastVariableWriterV2_4_X(),
-                        new CommandWriterV2_4_X());
+                        new BroadcastVariableWriter(),
+                        new CommandWriterV3_X());
                 case Versions.V3_3_0:
                 case Versions.V3_5_1:
                     return new PayloadWriter(
                         version,
                         new TaskContextWriterV3_3_X(),
-                        new BroadcastVariableWriterV2_4_X(),
-                        new CommandWriterV2_4_X());
+                        new BroadcastVariableWriter(),
+                        new CommandWriterV3_X());
                 default:
                     throw new NotSupportedException($"Spark {version} is not supported.");
             }

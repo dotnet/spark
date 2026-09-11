@@ -23,7 +23,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         /// <summary>
         /// Test signatures for Avro APIs introduced in Spark 2.4.*.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
+        [Fact]
         public void TestSignaturesV2_4_X()
         {
             DataFrame df = _spark.Range(1);

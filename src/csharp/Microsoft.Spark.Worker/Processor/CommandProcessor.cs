@@ -173,8 +173,7 @@ namespace Microsoft.Spark.Worker.Processor
 
             return (version.Major, version.Minor) switch
             {
-                (2, 4) => SqlCommandProcessorV2_4_X.Process(evalType, stream),
-                (3, _) => SqlCommandProcessorV2_4_X.Process(evalType, stream),
+                (3, _) => SqlCommandProcessorV3_X.Process(evalType, stream),
                 (4, 0) => ReadSpark40SqlCommands(evalType, stream),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
@@ -682,7 +681,7 @@ namespace Microsoft.Spark.Worker.Processor
             return commands;
         }
 
-        private static class SqlCommandProcessorV2_4_X
+        private static class SqlCommandProcessorV3_X
         {
             internal static SqlCommand[] Process(PythonEvalType evalType, Stream stream)
             {

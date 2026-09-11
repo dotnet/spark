@@ -156,16 +156,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             //////////////////////////////
             // Window Functions
             //////////////////////////////
-            if (SparkSettings.Version < new Version(Versions.V3_0_0))
-            {
-                // The following APIs are removed in Spark 3.0.
-                Assert.IsType<Column>(UnboundedPreceding());
-
-                Assert.IsType<Column>(UnboundedFollowing());
-
-                Assert.IsType<Column>(CurrentRow());
-            }
-
             Assert.IsType<Column>(CumeDist());
 
             Assert.IsType<Column>(DenseRank());
@@ -540,16 +530,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.IsType<Column>(Trunc(col, "yyyy"));
 
             Assert.IsType<Column>(DateTrunc("mon", col));
-
-            if (SparkSettings.Version < new Version(Versions.V3_0_0))
-            {
-                // The following APIs are deprecated in Spark 3.0.
-                Assert.IsType<Column>(FromUtcTimestamp(col, "GMT+1"));
-                Assert.IsType<Column>(FromUtcTimestamp(col, col));
-
-                Assert.IsType<Column>(ToUtcTimestamp(col, "GMT+1"));
-                Assert.IsType<Column>(ToUtcTimestamp(col, col));
-            }
 
             Assert.IsType<Column>(Window(col, "1 minute", "10 seconds", "5 seconds"));
             Assert.IsType<Column>(Window(col, "1 minute", "10 seconds"));

@@ -34,7 +34,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// Delta 0.8.0 is not compatible with Spark 3.1.1
         /// Disable Delta tests that have code paths that create an
         /// `org.apache.spark.sql.catalyst.expressions.Alias` object.
-        [SkipIfSparkVersionIsNotInRange(Versions.V2_4_2, Versions.V3_1_1)]
+        [SkipIfSparkVersionIsNotInRange(Versions.V3_0_0, Versions.V3_1_1)]
         public void TestTutorialScenario()
         {
             using var tempDirectory = new TemporaryDirectory();
@@ -110,7 +110,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// <summary>
         /// Run an end-to-end streaming scenario.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
+        [Fact]
         public void TestStreamingScenario()
         {
             using var tempDirectory = new TemporaryDirectory();
@@ -149,7 +149,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// <summary>
         /// Test <c>DeltaTable.IsDeltaTable()</c> API.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
+        [Fact]
         public void TestIsDeltaTable()
         {
             using var tempDirectory = new TemporaryDirectory();
@@ -170,7 +170,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// <summary>
         /// Test <c>DeltaTable.ConvertToDelta()</c> API.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_2)]
+        [Fact]
         public void TestConvertToDelta()
         {
             string partitionColumnName = "id_plus_one";
@@ -231,7 +231,7 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
         /// Delta 0.8.0 is not compatible with Spark 3.1.1
         /// Disable Delta tests that have code paths that create an
         /// `org.apache.spark.sql.catalyst.expressions.Alias` object.
-        [SkipIfSparkVersionIsNotInRange(Versions.V2_4_2, Versions.V3_1_1)]
+        [SkipIfSparkVersionIsNotInRange(Versions.V3_0_0, Versions.V3_1_1)]
         public void TestSignaturesV2_4_X()
         {
             using var tempDirectory = new TemporaryDirectory();

@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
-using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.Extensions.Hyperspace.Index;
 using Xunit;
 
@@ -18,7 +17,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest.Index
         /// <summary>
         /// Test the method signatures for IndexConfig and IndexConfigBuilder APIs.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
+        [Fact]
         public void TestSignatures()
         {
             string indexName = "testIndexName";
@@ -42,7 +41,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest.Index
         /// <summary>
         /// Test creating an IndexConfig using its class constructor.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
+        [Fact]
         public void TestIndexConfigConstructor()
         {
             string indexName = "indexName";
@@ -59,7 +58,7 @@ namespace Microsoft.Spark.Extensions.Hyperspace.E2ETest.Index
         /// <summary>
         /// Test creating an IndexConfig using the builder pattern.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
+        [Fact]
         public void TestIndexConfigBuilder()
         {
             string indexName = "indexName";

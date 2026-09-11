@@ -398,7 +398,6 @@ namespace Microsoft.Spark.Worker.Command
             {
                 WriteLegacyIpcFormat = _version.Major switch
                 {
-                    2 => true,
                     3 => false,
                     _ => throw new NotSupportedException($"Spark {_version} not supported.")
                 }
@@ -432,13 +431,9 @@ namespace Microsoft.Spark.Worker.Command
             }
         }
 
-        protected void WriteEnd(Stream stream, IpcOptions ipcOptions)
+        protected void WriteEnd(Stream stream)
         {
-            if (!ipcOptions.WriteLegacyIpcFormat)
-            {
-                SerDe.Write(stream, -1);
-            }
-
+            SerDe.Write(stream, -1);
             SerDe.Write(stream, 0);
         }
     }
@@ -516,7 +511,7 @@ namespace Microsoft.Spark.Worker.Command
                 writer.WriteRecordBatch(recordBatch);
             }
 
-            WriteEnd(outputStream, ipcOptions);
+            WriteEnd(outputStream);
             writer?.Dispose();
 
             return stat;
@@ -562,7 +557,7 @@ namespace Microsoft.Spark.Worker.Command
                 }
             }
 
-            WriteEnd(outputStream, ipcOptions);
+            WriteEnd(outputStream);
             writer?.Dispose();
 
             return stat;
@@ -826,27 +821,22 @@ namespace Microsoft.Spark.Worker.Command
             return ExecuteArrowGroupedMapCommand(inputStream, outputStream, commands);
         }
 
-        private RecordBatch WrapColumnsInStructIfApplicable(RecordBatch batch)
+        private static RecordBatch WrapColumnsInStruct(RecordBatch batch)
         {
-            if (_version >= new Version(Versions.V3_0_0))
+            var fields = new Field[batch.Schema.FieldsList.Count];
+            for (int i = 0; i < batch.Schema.FieldsList.Count; ++i)
             {
-                var fields = new Field[batch.Schema.FieldsList.Count];
-                for (int i = 0; i < batch.Schema.FieldsList.Count; ++i)
-                {
-                    fields[i] = batch.Schema.GetFieldByIndex(i);
-                }
-
-                var structType = new StructType(fields);
-                var structArray = new StructArray(
-                    structType,
-                    batch.Length,
-                    batch.Arrays.Cast<Apache.Arrow.Array>(),
-                    ArrowBuffer.Empty);
-                Schema schema = new Schema.Builder().Field(new Field("Struct", structType, false)).Build();
-                return new RecordBatch(schema, new[] { structArray }, batch.Length);
+                fields[i] = batch.Schema.GetFieldByIndex(i);
             }
 
-            return batch;
+            var structType = new StructType(fields);
+            var structArray = new StructArray(
+                structType,
+                batch.Length,
+                batch.Arrays.Cast<Apache.Arrow.Array>(),
+                ArrowBuffer.Empty);
+            Schema schema = new Schema.Builder().Field(new Field("Struct", structType, false)).Build();
+            return new RecordBatch(schema, new[] { structArray }, batch.Length);
         }
 
         private CommandExecutorStat ExecuteArrowGroupedMapCommand(
@@ -868,7 +858,7 @@ namespace Microsoft.Spark.Worker.Command
             {
                 RecordBatch batch = worker.Func(input);
 
-                RecordBatch final = WrapColumnsInStructIfApplicable(batch);
+                RecordBatch final = WrapColumnsInStruct(batch);
                 int numEntries = final.Length;
                 stat.NumEntriesProcessed += numEntries;
 
@@ -881,7 +871,7 @@ namespace Microsoft.Spark.Worker.Command
                 writer.WriteRecordBatch(final);
             }
 
-            WriteEnd(outputStream, ipcOptions);
+            WriteEnd(outputStream);
             writer?.Dispose();
 
             return stat;
@@ -911,7 +901,7 @@ namespace Microsoft.Spark.Worker.Command
 
                 foreach (RecordBatch batch in recordBatches)
                 {
-                    RecordBatch final = WrapColumnsInStructIfApplicable(batch);
+                    RecordBatch final = WrapColumnsInStruct(batch);
                     stat.NumEntriesProcessed += final.Length;
 
                     if (writer == null)
@@ -924,7 +914,7 @@ namespace Microsoft.Spark.Worker.Command
                 }
             }
 
-            WriteEnd(outputStream, ipcOptions);
+            WriteEnd(outputStream);
             writer?.Dispose();
 
             return stat;

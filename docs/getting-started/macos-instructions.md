@@ -8,13 +8,14 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
 - Install **[Java 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)** 
      - Select the appropriate version for your operating system e.g., `jdk-8u231-macosx-x64.dmg`.
      - Install using the installer and verify you are able to run `java` from your command-line
-- Download and install **[Apache Spark 2.4.4](https://archive.apache.org/dist/spark/spark-2.4.4/spark-2.4.4-bin-hadoop2.7.tgz)**:
-     - Add the necessary environment variables SPARK_HOME e.g., `~/bin/spark-2.4.4-bin-hadoop2.7/`
+- Download and install **[Apache Spark 3.5.3 (Scala 2.12)](https://archive.apache.org/dist/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3.tgz)**:
+     - Add the necessary environment variables SPARK_HOME e.g., `~/bin/spark-3.5.3-bin-hadoop3/`
         ```bash
-        export SPARK_HOME=~/bin/spark-2.4.4-bin-hadoop2.7/
+        export SPARK_HOME=~/bin/spark-3.5.3-bin-hadoop3/
         export PATH="$SPARK_HOME/bin:$PATH"
         source ~/.bashrc
         ```
+- This example uses the `microsoft-spark-3-5_2.12-<version>.jar` bridge with Java 8. Spark 4.0 requires JDK 17 and `microsoft-spark-4-0_2.13-<version>.jar`; validate the APIs you need before changing runtimes. See the [migration guide](../migration-guide.md#upgrading-after-spark-2x-support-removal).
 - Download and install **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release:
     - Select a **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release from .NET for Apache Spark GitHub Releases page and download into your local machine (e.g., `/bin/Microsoft.Spark.Worker/`).
     - **IMPORTANT** Create a new environment variable using ```export DOTNET_WORKER_DIR <your_path>``` and set it to the directory where you downloaded and extracted the Microsoft.Spark.Worker (e.g., `/bin/Microsoft.Spark.Worker/`).
@@ -73,7 +74,7 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
     spark-submit \
     --class org.apache.spark.deploy.dotnet.DotnetRunner \
     --master local \
-    microsoft-spark-<version>.jar \
+    microsoft-spark-3-5_2.12-<version>.jar \
     dotnet HelloSpark.dll
     ```
     **Note**: This command assumes you have downloaded Apache Spark and added it to your PATH environment variable to be able to use `spark-submit`, otherwise, you would have to use the full path (e.g., `~/spark/bin/spark-submit`).

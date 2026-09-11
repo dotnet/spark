@@ -29,17 +29,6 @@ updates:
     #   - reviewer_one
 
   - package-ecosystem: 'maven'
-    directory: 'src/scala/microsoft-spark-2-4'
-    open-pull-requests-limit: 0
-    schedule:
-      interval: 'daily'
-    # target-branch: 'develop'
-    # assignees:
-    #   - assignee_one
-    # reviewers:
-    #   - reviewer_one
-
-  - package-ecosystem: 'maven'
     directory: 'src/scala/microsoft-spark-3-0'
     open-pull-requests-limit: 0
     schedule:

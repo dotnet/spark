@@ -826,7 +826,6 @@ namespace Microsoft.Spark.Sql
             Version version = SparkEnvironment.SparkVersion;
             return (version.Major, version.Minor) switch
             {
-                (2, _) => GetRows("toPythonIterator"),
                 (3, _) => ToLocalIterator(false),
                 (4, 0) => ToLocalIterator(false),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
@@ -1111,7 +1110,6 @@ namespace Microsoft.Spark.Sql
         {
             bool isSupported = (version.Major, version.Minor) switch
             {
-                (2, 4) => true,
                 (3, _) => true,
                 (4, 0) => funcName == "collectToPython" || funcName == "tailToPython",
                 _ => false

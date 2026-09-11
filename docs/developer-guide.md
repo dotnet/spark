@@ -73,12 +73,12 @@ At a high-level, Spark's versions are: **[MAJOR].[FEATURE].[MAINTENANCE]**. We w
 Since Apache Spark's [MAINTENANCE] releases involve only internal changes (e.g., bug fixes etc.), it is straightforward to upgrade the code base to support a [MAINTENANCE] release. The steps to do this are below:
 
 1. In the corresponding `pom.xml`, update the `spark.version` value to the newly released version.
-   * For example, if a new patch release is 2.4.3, you will update [src/scala/microsoft-spark-2.4.x/pom.xml](/src/scala/microsoft-spark-2.4.x/pom.xml) to have `<spark.version>2.4.3</spark.version>`.
+   * For a Spark 3.5 patch release, update [src/scala/microsoft-spark-3-5/pom.xml](../src/scala/microsoft-spark-3-5/pom.xml) to the selected `spark.version`.
 2. Update `DotnetRunner.supportedSparkVersions` to include the newly released version.
-   * For example, if a new patch release is 2.4.3, you will update [src/scala/microsoft-spark-2.4.x/src/main/scala/org/apache/spark/deploy/dotnet/DotnetRunner.scala](/src/scala/microsoft-spark-2.4.x/src/main/scala/org/apache/spark/deploy/dotnet/DotnetRunner.scala).
-3. Update the [azure-pipelines.yml](/azure-pipelines.yml) to include E2E testing for the newly released version.
+   * For Spark 3.5, update [DotnetRunner.scala](../src/scala/microsoft-spark-3-5/src/main/scala/org/apache/spark/deploy/dotnet/DotnetRunner.scala).
+3. Update [azure-pipelines-pr.yml](../azure-pipelines-pr.yml) and, where needed, the shared [E2E template](../azure-pipelines-e2e-tests-template.yml) to validate the newly released version on the supported platforms. Check the selected test filters before interpreting a green run as compatibility evidence.
 
-Refer to [this commit](https://github.com/dotnet/spark/commit/eb26baa46200bfcbe3e1080e650f335853d9990e) for an example.
+Refer to [this historical commit](https://github.com/dotnet/spark/commit/eb26baa46200bfcbe3e1080e650f335853d9990e) for an example of the process, not the current supported versions or file paths.
 
 ### [FEATURE]: Upgrading for a Minor Release Version
 *WIP*

@@ -86,14 +86,7 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                 Directory.GetCurrentDirectory() :
                 envTempDir;
 
-            if (!IsPathValid(tempDirBasePath))
-            {
-                throw new Exception($"[{GetType().Name}] Spaces in " +
-                    $"'{tempDirBasePath}' is unsupported. Set the {TempDirEnvVar} " +
-                    "environment variable to control the base path. Please see " +
-                    "https://issues.apache.org/jira/browse/SPARK-30126 and " +
-                    "https://github.com/apache/spark/pull/26773 for more details.");
-            }
+            ValidatePath(tempDirBasePath);
 
             return Directory.CreateDirectory(
                 Path.Combine(tempDirBasePath, Path.GetRandomFileName()));
@@ -140,19 +133,8 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
         {
             foreach (string filePath in _packageResolver.GetFiles(path))
             {
-                if (IsPathValid(filePath))
-                {
-                    yield return filePath;
-                }
-                else
-                {
-                    // Copy file to a path without spaces.
-                    string fileDestPath = Path.Combine(
-                        path,
-                        Path.GetFileName(filePath).Replace(" ", string.Empty));
-                    File.Copy(filePath, fileDestPath);
-                    yield return fileDestPath;
-                }
+                ValidatePath(filePath);
+                yield return filePath;
             }
         }
 
@@ -165,21 +147,18 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
         /// - https://github.com/apache/spark/pull/26773
         /// </summary>
         /// <param name="path">The path to validate.</param>
-        /// <returns>true if the path is supported by Spark, false otherwise.</returns>
-        private bool IsPathValid(string path)
+        private void ValidatePath(string path)
         {
             if (!path.Contains(" "))
             {
-                return true;
+                return;
             }
 
             Version version = SparkEnvironment.SparkVersion;
-            return version.Major switch
+            if (version.Major != 3)
             {
-                2 => false,
-                3 => true,
-                _ => throw new NotSupportedException($"Spark {version} not supported.")
-            };
+                throw new NotSupportedException($"Spark {version} not supported.");
+            }
         }
     }
 }

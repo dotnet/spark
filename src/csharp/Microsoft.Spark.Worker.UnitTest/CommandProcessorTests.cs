@@ -88,9 +88,9 @@ namespace Microsoft.Spark.Worker.UnitTest
         }
 
         [Theory]
-        [InlineData("2.4.0", 0)]
+        [InlineData("3.0.0", 0)]
         [InlineData("3.5.1", 200)]
-        public void LegacyVersionsKeepExistingEvalTypePath(string version, int rawEvalType)
+        public void Spark3VersionsKeepExistingEvalTypePath(string version, int rawEvalType)
         {
             using MemoryStream stream = CreateEvalTypeStream(rawEvalType);
 
@@ -99,6 +99,24 @@ namespace Microsoft.Spark.Worker.UnitTest
 
             Assert.Equal(rawEvalType, (int)evalType);
             Assert.Equal(sizeof(int), stream.Position);
+        }
+
+        [Theory]
+        [InlineData("2.0.0", 100)]
+        [InlineData("2.3.0", 100)]
+        [InlineData("2.4.0", 100)]
+        [InlineData("2.4.8", 200)]
+        [InlineData("2.4.8", 201)]
+        public void SqlCommandDispatchRejectsSpark2BeforeReadingCommands(string version, int rawEvalType)
+        {
+            using MemoryStream stream = CreateEvalTypeStream(rawEvalType);
+
+            Assert.Throws<NotSupportedException>(() =>
+                new CommandProcessor(new Version(version)).Process(stream));
+
+            Assert.Equal(sizeof(int), stream.Position);
+            Assert.Equal(123456, SerDe.ReadInt32(stream));
+            Assert.Equal(stream.Length, stream.Position);
         }
 
         private static MemoryStream CreateEvalTypeStream(int rawEvalType)

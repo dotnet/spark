@@ -10,16 +10,20 @@
 # Sample usage:
 # ./install-worker.sh
 #    github
-#    https://github.com/dotnet/spark/releases/download/v0.1.0/Microsoft.Spark.Worker.netcoreapp2.1.linux-x64-0.1.0.tar.gz
+#    https://github.com/dotnet/spark/releases/download/v<release>/Microsoft.Spark.Worker.<framework>.linux-x64-<release>.tar.gz
 #    /usr/local/bin
 #
 # or if you have your Worker release on filesystem like ABFS, here's how the path would
 # look like:
 # ./install-worker.sh
 #    azure
-#    abfs://<blobcontainer>@<gen2storageaccount>.dfs.core.windows.net/<path>/Microsoft.Spark.Worker.netcoreapp2.1.linux-x64-0.1.0.tar.gz
+#    abfs://<blobcontainer>@<gen2storageaccount>.dfs.core.windows.net/<path>/Microsoft.Spark.Worker.<framework>.linux-x64-<release>.tar.gz
 #    /usr/local/bin
 #
+# Replace the placeholders with a real archive matching the application's
+# Microsoft.Spark package release, target framework, and executor architecture.
+# Spark 3.x/4.0 also require their matching Scala bridge; this script installs
+# the Worker only and does not validate cluster or notebook compatibility.
 ##############################################################################
 
 set +e

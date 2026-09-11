@@ -4,7 +4,6 @@
 
 using System;
 using System.IO;
-using Microsoft.Spark.E2ETest.Utils;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
@@ -74,7 +73,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
         /// <summary>
         /// Test signatures for APIs introduced in Spark 2.4.*.
         /// </summary>
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
+        [Fact]
         public void TestSignaturesV2_4_X()
         {
             const double maxDf = 100;
