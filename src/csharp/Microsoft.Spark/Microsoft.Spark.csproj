@@ -38,8 +38,8 @@
     <PackageReference Include="Microsoft.Data.Analysis" Version="0.21.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Razorvine.Pickle" Version="1.5.0" />
-    <PackageReference Include="Razorvine.Pyrolite" Version="5.1.0" />
-    <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="Razorvine.Pyrolite" Version="5.2.0" />
+    <PackageReference Include="System.Memory" Version="4.6.3" />
   </ItemGroup>
 
   <ItemGroup>
