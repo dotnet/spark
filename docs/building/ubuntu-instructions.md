@@ -62,11 +62,11 @@ If you already have all the pre-requisites, skip to the [build](ubuntu-instructi
        Default locale: en_US, platform encoding: ANSI_X3.4-1968
        OS name: "linux", version: "4.4.0-142-generic", arch: "amd64", family: "unix"
        ```
-  4. Install **[Apache Spark 2.3+](https://spark.apache.org/downloads.html)**
-     - Download [Apache Spark 2.3+](https://spark.apache.org/downloads.html) and extract it into a local folder (e.g., `~/bin/spark-2.3.2-bin-hadoop2.7`)
-     - Add the necessary [environment variables](https://www.java.com/en/download/help/path.xml) `SPARK_HOME` e.g., `~/bin/spark-2.3.2-bin-hadoop2.7/`
+  4. Install **[Apache Spark 3.5.3 (Scala 2.12)](https://archive.apache.org/dist/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3.tgz)**
+     - Download the Spark 3.5.3 archive linked above and extract it into a local folder (e.g., `~/bin/spark-3.5.3-bin-hadoop3`)
+     - Add the necessary [environment variables](https://www.java.com/en/download/help/path.xml) `SPARK_HOME` e.g., `~/bin/spark-3.5.3-bin-hadoop3/`
        ```bash
-       export SPARK_HOME=~/bin/spark-2.3.2-hadoop2.7
+       export SPARK_HOME=~/bin/spark-3.5.3-bin-hadoop3
        export PATH="$SPARK_HOME/bin:$PATH"
        source ~/.bashrc
        ```
@@ -81,10 +81,10 @@ If you already have all the pre-requisites, skip to the [build](ubuntu-instructi
               ____              __
              / __/__  ___ _____/ /__
             _\ \/ _ \/ _ `/ __/  '_/
-           /___/ .__/\_,_/_/ /_/\_\   version 2.3.2
+           /___/ .__/\_,_/_/ /_/\_\   version 3.5.3
               /_/
 
-        Using Scala version 2.11.8 (Java HotSpot(TM) 64-Bit Server VM, Java 1.8.0_201)
+        Using Scala version 2.12.18 (Java HotSpot(TM) 64-Bit Server VM, Java 1.8.0_201)
         Type in expressions to have them evaluated.
         Type :help for more information.
 
@@ -108,17 +108,21 @@ git clone https://github.com/dotnet/spark.git ~/dotnet.spark
 
 When you submit a .NET application, Spark .NET has the necessary logic written in Scala that inform Apache Spark how to handle your requests (e.g., request to create a new Spark Session, request to transfer data from .NET side to JVM side etc.). This logic can be found in the [Spark .NET Scala Source Code](../../src/scala).
 
-Let us now build the Spark .NET Scala extension layer. This is easy to do:
+Build the Spark 3.0 through 3.5 Scala bridges with JDK 8. Set `JAVA_HOME` and `PATH` to that JDK before running Maven:
 
 ```
 cd src/scala
 mvn clean package
 ```
-You should see JARs created for the supported Spark versions:
-* `microsoft-spark-2-3/target/microsoft-spark-2-3_2.11-<version>.jar`
-* `microsoft-spark-2-4/target/microsoft-spark-2-4_2.11-<version>.jar`
-* `microsoft-spark-3-0/target/microsoft-spark-3-0_2.12-<version>.jar`
-* `microsoft-spark-3-0/target/microsoft-spark-3-5_2.12-<version>.jar`
+The reactor produces `microsoft-spark-3-<minor>_2.12-<version>.jar` under `microsoft-spark-3-<minor>/target/`, where `<minor>` is 0 through 5. For the Spark 3.5.3 example, use `microsoft-spark-3-5/target/microsoft-spark-3-5_2.12-<version>.jar`.
+
+Spark 4.0 is built separately. From the repository root, switch `JAVA_HOME` and `PATH` to JDK 17 and run:
+
+```bash
+mvn -f src/scala/microsoft-spark-4-0/pom.xml clean package
+```
+
+Its bridge is `src/scala/microsoft-spark-4-0/target/microsoft-spark-4-0_2.13-<version>.jar` and requires a Scala 2.13 Spark 4.0 runtime with JDK 17. Building this bridge does not prove full API or deployment compatibility. See the [migration guide](../migration-guide.md#upgrading-after-spark-2x-support-removal) for package matching and clean-output requirements.
 
 ## Building .NET Sample Applications using .NET 8 CLI
 
@@ -188,7 +192,7 @@ Once you build the samples, you can use `spark-submit` to submit your .NET 8 app
          spark-submit \
          --class org.apache.spark.deploy.dotnet.DotnetRunner \
          --master local \
-         ~/dotnet.spark/src/scala/microsoft-spark-<version>/target/microsoft-spark-<version>.jar \
+         ~/dotnet.spark/src/scala/microsoft-spark-<version>/target/microsoft-spark-3-5_2.12-<version>.jar \
          ./Microsoft.Spark.CSharp.Examples Sql.Batch.Basic $SPARK_HOME/examples/src/main/resources/people.json
          ```
      - **[Microsoft.Spark.Examples.Sql.Streaming.StructuredNetworkWordCount](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.cs)**
@@ -196,25 +200,25 @@ Once you build the samples, you can use `spark-submit` to submit your .NET 8 app
          spark-submit \
          --class org.apache.spark.deploy.dotnet.DotnetRunner \
          --master local \
-         ~/dotnet.spark/src/scala/microsoft-spark-<version>/target/microsoft-spark-<version>.jar \
+         ~/dotnet.spark/src/scala/microsoft-spark-<version>/target/microsoft-spark-3-5_2.12-<version>.jar \
          ./Microsoft.Spark.CSharp.Examples Sql.Streaming.StructuredNetworkWordCount localhost 9999
          ```
      - **[Microsoft.Spark.Examples.Sql.Streaming.StructuredKafkaWordCount (maven accessible)](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.cs)**
          ```bash
          spark-submit \
-         --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.2 \
+         --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3 \
          --class org.apache.spark.deploy.dotnet.DotnetRunner \
          --master local \
-         ~/dotnet.spark/src/scala/microsoft-spark-<version>/target/microsoft-spark-<version>.jar \
+         ~/dotnet.spark/src/scala/microsoft-spark-<version>/target/microsoft-spark-3-5_2.12-<version>.jar \
          ./Microsoft.Spark.CSharp.Examples Sql.Streaming.StructuredKafkaWordCount localhost:9092 subscribe test
          ```
      - **[Microsoft.Spark.Examples.Sql.Streaming.StructuredKafkaWordCount (jars provided)](../../examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.cs)**
          ```bash
          spark-submit \
-         --jars path/to/net.jpountz.lz4/lz4-1.3.0.jar,path/to/org.apache.kafka/kafka-clients-0.10.0.1.jar,path/to/org.apache.spark/spark-sql-kafka-0-10_2.11-2.3.2.jar,`path/to/org.slf4j/slf4j-api-1.7.6.jar,path/to/org.spark-project.spark/unused-1.0.0.jar,path/to/org.xerial.snappy/snappy-java-1.1.2.6.jar \
+         --jars <comma-separated-paths-to-the-Spark-3.5.3-Scala-2.12-Kafka-connector-and-its-resolved-dependencies> \
          --class org.apache.spark.deploy.dotnet.DotnetRunner \
          --master local \
-         ~/dotnet.spark/src/scala/microsoft-spark-<version>/target/microsoft-spark-<version>.jar \
+         ~/dotnet.spark/src/scala/microsoft-spark-<version>/target/microsoft-spark-3-5_2.12-<version>.jar \
          ./Microsoft.Spark.CSharp.Examples Sql.Streaming.StructuredKafkaWordCount localhost:9092 subscribe test
           ```
 

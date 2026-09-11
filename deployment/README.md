@@ -38,8 +38,11 @@ Deploying your App on the Cloud
 Microsoft.Spark.Worker is a backend component that lives on the individual worker nodes of your Spark cluster. When you want to execute a C# UDF (user-defined function), Spark needs to understand how to launch the .NET CLR to execute this UDF. Microsoft.Spark.Worker provides a collection of classes to Spark that enable this functionality.
 
 ## Microsoft.Spark.Worker
-1. Select a [Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases) Linux netcoreapp release to be deployed on your cluster.
-   * For example, if you want `.NET for Apache Spark v0.1.0` using `netcoreapp2.1`, you'd download [Microsoft.Spark.Worker.netcoreapp2.1.linux-x64-0.1.0.tar.gz](https://github.com/dotnet/spark/releases/download/v0.1.0/Microsoft.Spark.Worker.netcoreapp2.1.linux-x64-0.1.0.tar.gz).
+
+Select a Worker archive matching the application's `Microsoft.Spark` release, target framework, and executor architecture. The commands below use Spark 3.5.3 with Scala 2.12; `<version>` is the .NET for Apache Spark release. Use `microsoft-spark-3-5_2.12-<version>.jar`, not a bridge left over from Spark 2.x. Spark 4.0 instead requires its Scala 2.13 bridge and JDK 17; validate your APIs and deployment before switching. These generic Worker instructions do not replace the [retired HDInsight notebook integration](HDI-Spark/Notebooks/README.md).
+
+1. Select a [Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases) Linux release to deploy on your cluster.
+   * For .NET 8 on Linux x64, select `Microsoft.Spark.Worker.net8.0.linux-x64-<version>.tar.gz` from the same release as the application's NuGet package and bridge.
 2. Upload `Microsoft.Spark.Worker.<release>.tar.gz` and [install-worker.sh](install-worker.sh) to a distributed file system (e.g., HDFS, WASB, ADLS, S3, DBFS) that your cluster has access to.
 
 ## Preparing your Spark .NET App
@@ -47,15 +50,15 @@ Microsoft.Spark.Worker is a backend component that lives on the individual worke
 2. Publish your Spark .NET `app` as self-contained.
    ```shell
    # For example, you can run the following on Linux.
-   foo@bar:~/path/to/app$ dotnet publish -c Release -f netcoreapp2.1 -r ubuntu.16.04-x64
+   foo@bar:~/path/to/app$ dotnet publish -c Release -f net8.0 -r linux-x64
    ```
 3. Produce `<your app>.zip` for the published files.
    ```shell
    # For example, you can run the following on Linux using `zip`.
-   foo@bar:~/path/to/app/bin/Release/netcoreapp2.1/ubuntu.16.04-x64/publish$ zip -r <your app>.zip .
+   foo@bar:~/path/to/app/bin/Release/net8.0/linux-x64/publish$ zip -r <your app>.zip .
    ```
 4. Upload the following to a distributed file system (e.g., HDFS, WASB, ADLS, S3, DBFS) that your cluster has access to:
-   * `microsoft-spark-<version>.jar` (Included as part of the [Microsoft.Spark](https://www.nuget.org/packages/Microsoft.Spark/) nuget and is colocated in your app's build output directory)
+   * `microsoft-spark-3-5_2.12-<version>.jar` (Included as part of the [Microsoft.Spark](https://www.nuget.org/packages/Microsoft.Spark/) nuget and is colocated in your app's build output directory)
    * `<your app>.zip`
    * Files (e.g., dependency files, common data accessible to every worker) or Assemblies (e.g., DLLs that contain your user-defined functions, libraries that your `app` depends on) to be placed in the working directory of each executor.
 
@@ -90,7 +93,7 @@ The following captures the setting for a HDInsight Script Action:
    --master yarn \
    --class org.apache.spark.deploy.dotnet.DotnetRunner \
    --files <comma-separated list of assemblies that contain UDF definitions, if any> \
-   adl://<cluster name>.azuredatalakestore.net/<some dir>/microsoft-spark-<version>.jar \
+   adl://<cluster name>.azuredatalakestore.net/<some dir>/microsoft-spark-3-5_2.12-<version>.jar \
    adl://<cluster name>.azuredatalakestore.net/<some dir>/<your app>.zip <your app> <app arg 1> <app arg 2> ... <app arg n>
    ```
 
@@ -104,7 +107,7 @@ foo@bar:~$ curl -k -v -X POST "https://<your spark cluster>.azurehdinsight.net/l
 -H "X-Requested-By: <hdinsight username>" \
 -d @- << EOF
 {
-    "file":"adl://<cluster name>.azuredatalakestore.net/<some dir>/microsoft-spark-<version>.jar",
+    "file":"adl://<cluster name>.azuredatalakestore.net/<some dir>/microsoft-spark-3-5_2.12-<version>.jar",
     "className":"org.apache.spark.deploy.dotnet.DotnetRunner",
     "files":["adl://<cluster name>.azuredatalakestore.net/<some dir>/<udf assembly>", "adl://<cluster name>.azuredatalakestore.net/<some dir>/<file>"],
     "args":["adl://<cluster name>.azuredatalakestore.net/<some dir>/<your app>.zip","<your app>","<app arg 1>","<app arg 2>,"...","<app arg n>"]
@@ -144,7 +147,7 @@ foo@bar:~$ aws emr create-cluster \
    --master yarn \
    --class org.apache.spark.deploy.dotnet.DotnetRunner \
    --files <comma-separated list of assemblies that contain UDF definitions, if any> \
-   s3://mybucket/<some dir>/microsoft-spark-<version>.jar \
+   s3://mybucket/<some dir>/microsoft-spark-3-5_2.12-<version>.jar \
    s3://mybucket/<some dir>/<your app>.zip <your app> <app args>
    ```
 
@@ -154,7 +157,7 @@ Amazon EMR Steps can be used to submit jobs to the Spark framework installed on 
 # For example, you can run the following on Linux using `aws` cli.
 foo@bar:~$ aws emr add-steps \
 --cluster-id j-xxxxxxxxxxxxx \
---steps Type=spark,Name="Spark Program",Args=[--master,yarn,--files,s3://mybucket/<some dir>/<udf assembly>,--class,org.apache.spark.deploy.dotnet.DotnetRunner,s3://mybucket/<some dir>/microsoft-spark-<version>.jar,s3://mybucket/<some dir>/<your app>.zip,<your app>,<app arg 1>,<app arg 2>,...,<app arg n>],ActionOnFailure=CONTINUE
+--steps Type=spark,Name="Spark Program",Args=[--master,yarn,--files,s3://mybucket/<some dir>/<udf assembly>,--class,org.apache.spark.deploy.dotnet.DotnetRunner,s3://mybucket/<some dir>/microsoft-spark-3-5_2.12-<version>.jar,s3://mybucket/<some dir>/<your app>.zip,<your app>,<app arg 1>,<app arg 2>,...,<app arg n>],ActionOnFailure=CONTINUE
 ```
 
 ## Databricks
@@ -168,7 +171,7 @@ Databricks allows you to submit Spark .NET apps to an existing active cluster or
 *Note that this step is required only once*
 
    1. Download **[db-init.sh](../deployment/db-init.sh)** and **[install-worker.sh](../deployment/install-worker.sh)** onto your local machine
-   2. Modify **db-init.sh** appropriately to point to the Microsoft.Spark.Worker release you want to download and install on your cluster
+   2. Set `DOTNET_SPARK_RELEASE` in the cluster environment, or explicitly in **db-init.sh**, to the HTTPS download URL of the selected Linux Worker `.tar.gz` archive. There is no default release. The init script rejects an empty or malformed selection and reports a missing `install-worker.sh` before starting installation. Confirm the archive matches the application's NuGet/bridge release and the executor framework/architecture.
    3. Download and install [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html)
    4. [Setup authentication](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html#set-up-authentication) details for the Databricks CLI appropriately
    5. Upload the files you downloaded and modified to your Databricks cluster
@@ -192,7 +195,7 @@ Databricks allows you to submit Spark .NET apps to an existing active cluster or
 
 One-time Setup:
    1. Go to your Databricks cluster -> Jobs (on the left-side menu) -> Set JAR
-   2. Upload the appropriate `microsoft-spark-<version>.jar`
+   2. Upload the appropriate `microsoft-spark-3-5_2.12-<version>.jar`
    3. Set the params appropriately:
       ```
       Main Class: org.apache.spark.deploy.dotnet.DotnetRunner
@@ -231,5 +234,5 @@ Publishing your App & Running:
    1. [Create a Job](https://docs.databricks.com/user-guide/jobs.html) and select *Configure spark-submit*.
    2. Configure `spark-submit` with the following parameters:
       ```shell
-      ["--files","/dbfs/<path-to>/<app assembly/file to deploy to worker>","--class","org.apache.spark.deploy.dotnet.DotnetRunner","/dbfs/<path-to>/microsoft-spark-<version>.jar","/dbfs/<path-to>/<app name>.zip","<app name>","app arg1","app arg2"]
+      ["--files","/dbfs/<path-to>/<app assembly/file to deploy to worker>","--class","org.apache.spark.deploy.dotnet.DotnetRunner","/dbfs/<path-to>/microsoft-spark-3-5_2.12-<version>.jar","/dbfs/<path-to>/<app name>.zip","<app name>","app arg1","app arg2"]
       ```

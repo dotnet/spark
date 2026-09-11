@@ -21,7 +21,6 @@ namespace Microsoft.Spark.Sql.Avro
                 Version sparkVersion = SparkEnvironment.SparkVersion;
                 return sparkVersion.Major switch
                 {
-                    2 => "org.apache.spark.sql.avro.package",
                     3 => "org.apache.spark.sql.avro.functions",
                     _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
                 };

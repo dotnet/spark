@@ -158,7 +158,14 @@ stages:
           displayName: Copy jars
           inputs:
             sourceFolder: $(ArtifactPath)$(PATH_SEPARATOR)Jars
-            contents: '**$(PATH_SEPARATOR)*.jar'
+            contents: |
+              microsoft-spark-3-0$(PATH_SEPARATOR)target$(PATH_SEPARATOR)microsoft-spark-3-0_2.12-*.jar
+              microsoft-spark-3-1$(PATH_SEPARATOR)target$(PATH_SEPARATOR)microsoft-spark-3-1_2.12-*.jar
+              microsoft-spark-3-2$(PATH_SEPARATOR)target$(PATH_SEPARATOR)microsoft-spark-3-2_2.12-*.jar
+              microsoft-spark-3-3$(PATH_SEPARATOR)target$(PATH_SEPARATOR)microsoft-spark-3-3_2.12-*.jar
+              microsoft-spark-3-4$(PATH_SEPARATOR)target$(PATH_SEPARATOR)microsoft-spark-3-4_2.12-*.jar
+              microsoft-spark-3-5$(PATH_SEPARATOR)target$(PATH_SEPARATOR)microsoft-spark-3-5_2.12-*.jar
+              microsoft-spark-4-0$(PATH_SEPARATOR)target$(PATH_SEPARATOR)microsoft-spark-4-0_2.13-*.jar
             targetFolder: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark$(PATH_SEPARATOR)src$(PATH_SEPARATOR)scala
 
         - task: PowerShell@2
@@ -212,30 +219,15 @@ stages:
                 cp hadoop-2.8.1\winutils.exe hadoop\bin
               }
 
-        # Spark 2.4.8 uses a separate package 'spark-distro-248' because the original
-        # 'spark-distro' version 2.4.8 was uploaded with a corrupted .tgz file (truncated gzip).
-        # After deleting the corrupted version, ADO Artifacts permanently blocks republishing
-        # the same version to the same package name, so we published to a new package instead.
-        - ${{ if eq(test.version, '2.4.8') }}:
-          - task: UniversalPackages@0
-            displayName: 'Download Spark Distro ${{ test.version }}'
-            inputs:
-              command: 'download'
-              downloadDirectory: '$(Build.BinariesDirectory)'
-              feedsToUse: 'internal'
-              vstsFeed: 'ManagedOSS/Compute'
-              vstsFeedPackage: 'spark-distro-248'
-              vstsPackageVersion: '${{ test.version }}'
-        - ${{ else }}:
-          - task: UniversalPackages@0
-            displayName: 'Download Spark Distro ${{ test.version }}'
-            inputs:
-              command: 'download'
-              downloadDirectory: '$(Build.BinariesDirectory)'
-              feedsToUse: 'internal'
-              vstsFeed: 'ManagedOSS/Compute'
-              vstsFeedPackage: 'spark-distro'
-              vstsPackageVersion: '${{ test.version }}'
+        - task: UniversalPackages@0
+          displayName: 'Download Spark Distro ${{ test.version }}'
+          inputs:
+            command: 'download'
+            downloadDirectory: '$(Build.BinariesDirectory)'
+            feedsToUse: 'internal'
+            vstsFeed: 'ManagedOSS/Compute'
+            vstsFeedPackage: 'spark-distro'
+            vstsPackageVersion: '${{ test.version }}'
 
         - pwsh: |
             Write-Host "=== Listing $(Build.BinariesDirectory) ==="

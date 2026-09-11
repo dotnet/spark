@@ -120,22 +120,21 @@ namespace Microsoft.Spark
             version ??= SparkEnvironment.SparkVersion;
             return (version.Major, version.Minor) switch
             {
-                (2, 4) => CreateBroadcast_V2_4_X(javaSparkContext, sc, value),
-                (3, _) => CreateBroadcast_V2_4_X(javaSparkContext, sc, value),
-                (4, 0) => CreateBroadcast_V2_4_X(javaSparkContext, sc, value),
+                (3, _) => CreateBroadcastCore(javaSparkContext, sc, value),
+                (4, 0) => CreateBroadcastCore(javaSparkContext, sc, value),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
         }
 
         /// <summary>
         /// Calls the necessary Spark functions to create org.apache.spark.broadcast.Broadcast
-        /// object for Spark versions 2.4.0 and above, and returns the JVMObjectReference object.
+        /// object for supported Spark versions, and returns the JVMObjectReference object.
         /// </summary>
         /// <param name="javaSparkContext">Java Spark context object</param>
         /// <param name="sc">SparkContext object</param>
         /// <param name="value">Broadcast value of type object</param>
         /// <returns>Returns broadcast variable of type <see cref="JvmObjectReference"/></returns>
-        private JvmObjectReference CreateBroadcast_V2_4_X(
+        private JvmObjectReference CreateBroadcastCore(
             JvmObjectReference javaSparkContext,
             SparkContext sc,
             object value)

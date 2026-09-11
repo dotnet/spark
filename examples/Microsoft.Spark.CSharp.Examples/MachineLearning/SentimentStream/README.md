@@ -212,7 +212,7 @@ In our example, when you hit *enter* after entering data in the command prompt, 
 After starting a new netcat connection in one command prompt, open a new one and run a command similar to the following: 
 
 ```powershell
-spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local /path/to/microsoft-spark-<version>.jar Microsoft.Spark.CSharp.Examples.exe MachineLearning.SentimentStream.Program localhost 9999 /path/to/MLModel.zip
+spark-submit --class org.apache.spark.deploy.dotnet.DotnetRunner --master local /path/to/microsoft-spark-3-5_2.12-<version>.jar Microsoft.Spark.CSharp.Examples.exe MachineLearning.SentimentStream.Program localhost 9999 /path/to/MLModel.zip
 ```
 
 > **Note:** Be sure to update the above command with the actual streaming host/port information and paths to your Microsoft Spark jar file and MLModel.zip.

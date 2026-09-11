@@ -77,7 +77,7 @@ namespace Microsoft.Spark.E2ETest
         }
 
         [Theory]
-        [InlineData("2.4.8", "2.11")]
+        [InlineData("3.0.0", "2.12")]
         [InlineData("3.5.3", "2.12")]
         [InlineData("4.0.4", "2.13")]
         public void GetScalaBinaryVersionUsesSparkFamily(
@@ -89,15 +89,19 @@ namespace Microsoft.Spark.E2ETest
                 SparkFixture.GetScalaBinaryVersion(new Version(sparkVersion)));
         }
 
-        [Fact]
-        public void GetScalaBinaryVersionRejectsUnknownSparkFamily()
+        [Theory]
+        [InlineData("2.0.0")]
+        [InlineData("2.3.4")]
+        [InlineData("2.4.8")]
+        [InlineData("4.1.0")]
+        public void GetScalaBinaryVersionRejectsUnsupportedSparkFamily(string sparkVersion)
         {
             Assert.Throws<NotSupportedException>(
-                () => SparkFixture.GetScalaBinaryVersion(new Version("4.1.0")));
+                () => SparkFixture.GetScalaBinaryVersion(new Version(sparkVersion)));
         }
 
         [Theory]
-        [InlineData("2.4.8", "org.apache.spark:spark-avro_2.11:2.4.8")]
+        [InlineData("3.0.0", "org.apache.spark:spark-avro_2.12:3.0.0")]
         [InlineData("3.5.3", "org.apache.spark:spark-avro_2.12:3.5.3")]
         [InlineData("4.0.4", "org.apache.spark:spark-avro_2.13:4.0.4")]
         public void GetAvroPackageUsesSparkScalaBinary(
@@ -109,11 +113,15 @@ namespace Microsoft.Spark.E2ETest
                 SparkFixture.GetAvroPackage(new Version(sparkVersion)));
         }
 
-        [Fact]
-        public void GetAvroPackageRejectsUnknownSparkFamily()
+        [Theory]
+        [InlineData("2.0.0")]
+        [InlineData("2.3.4")]
+        [InlineData("2.4.8")]
+        [InlineData("4.1.0")]
+        public void GetAvroPackageRejectsUnsupportedSparkFamily(string sparkVersion)
         {
             Assert.Throws<NotSupportedException>(
-                () => SparkFixture.GetAvroPackage(new Version("4.1.0")));
+                () => SparkFixture.GetAvroPackage(new Version(sparkVersion)));
         }
 
         [Fact]

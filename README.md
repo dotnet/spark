@@ -30,6 +30,14 @@
 
 ## Supported Apache Spark
 
+The next release removes Apache Spark 2.x support and retains the Spark 3.0 through 3.5 runtime lines. See the [migration guide](docs/migration-guide.md#upgrading-after-spark-2x-support-removal) before upgrading an existing application.
+
+The getting-started examples use Spark 3.5.3 with Scala 2.12. Spark 4.0 integration requires the Scala 2.13 bridge and JDK 17; it does not imply full API or deployment parity with Spark 3.x. Match the bridge JAR to the Spark runtime and the `Microsoft.Spark`/Worker release, and validate the APIs and deployment configuration your application uses.
+
+### Published v2.3.1 compatibility (historical)
+
+The following table describes the already-published v2.3.1 release, not the next release or the current source tree.
+
 <table>
     <thead>
         <tr>
@@ -71,10 +79,7 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
 
 ## Build Status
 
-| ![Ubuntu icon](docs/img/ubuntu-icon-32.png) | ![Windows icon](docs/img/windows-icon-32.png) |
-| :---:         |          :---: |
-| Ubuntu | Windows |
-| | [![Build Status](https://dnceng.visualstudio.com/public/_apis/build/status/dotnet.spark?branchName=main)](https://dev.azure.com/dnceng/public/_build?definitionId=459&branchName=main)|
+Pull-request validation is defined in [azure-pipelines-pr.yml](azure-pipelines-pr.yml), using the shared [E2E template](azure-pipelines-e2e-tests-template.yml). A successful run covers the tests selected by that run; it is not a guarantee of all APIs or deployment environments.
 
 ## Building from Source
 
@@ -125,7 +130,7 @@ We welcome contributions to both categories!
       <h5>Structured Streaming</h5>
   </td>
   <td width="35%">
-      Code snippets to show you how to utilize Apache Spark's Structured Streaming (<a href="https://spark.apache.org/docs/2.3.1/structured-streaming-programming-guide.html">2.3.1</a>, <a href="https://spark.apache.org/docs/2.3.2/structured-streaming-programming-guide.html">2.3.2</a>, <a href="https://spark.apache.org/docs/2.4.1/structured-streaming-programming-guide.html">2.4.1</a>, <a href="https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html">Latest</a>)
+      Code snippets to show you how to utilize Apache Spark's <a href="https://spark.apache.org/docs/3.5.3/structured-streaming-programming-guide.html">Structured Streaming</a>
   </td>
   <td>
       <h5>Word Count &nbsp;&nbsp;&nbsp;

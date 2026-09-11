@@ -11,8 +11,8 @@ namespace Microsoft.Spark.UnitTest
     public class DataFrameTests
     {
         [Theory]
-        [InlineData("2.4.0", "collectToPython")]
-        [InlineData("2.4.0", "toPythonIterator")]
+        [InlineData("3.0.0", "collectToPython")]
+        [InlineData("3.0.0", "toPythonIterator")]
         [InlineData("3.0.0", "tailToPython")]
         [InlineData("3.5.1", "collectToPython")]
         [InlineData("3.5.1", "toPythonIterator")]
@@ -30,6 +30,10 @@ namespace Microsoft.Spark.UnitTest
         }
 
         [Theory]
+        [InlineData("2.0.0", "collectToPython")]
+        [InlineData("2.3.0", "collectToPython")]
+        [InlineData("2.4.0", "collectToPython")]
+        [InlineData("2.4.8", "toPythonIterator")]
         [InlineData("4.0.4", "toPythonIterator")]
         [InlineData("4.1.0", "collectToPython")]
         [InlineData("4.1.0", "tailToPython")]

@@ -25,6 +25,42 @@ namespace Microsoft.Spark.Worker.UnitTest
 {
     public class CommandExecutorTests
     {
+        [Theory]
+        [InlineData("2.0.0", false)]
+        [InlineData("2.3.0", false)]
+        [InlineData("2.4.8", false)]
+        [InlineData("2.0.0", true)]
+        [InlineData("2.3.0", true)]
+        [InlineData("2.4.8", true)]
+        public void ArrowIpcSelectionRejectsSpark2BeforeReadingInputOrInvokingUdf(
+            string version,
+            bool groupedMap)
+        {
+            Sql.WorkerFunction function = groupedMap ?
+                new Sql.ArrowGroupedMapWorkerFunction(_ =>
+                    throw new InvalidOperationException("UDF must not run.")) :
+                new Sql.ArrowWorkerFunction((_, __) =>
+                    throw new InvalidOperationException("UDF must not run."));
+            var command = new SqlCommand
+            {
+                ArgOffsets = new[] { 0 },
+                NumChainedFunctions = 1,
+                WorkerFunction = function,
+                SerializerMode = CommandSerDe.SerializedMode.Row,
+                DeserializerMode = CommandSerDe.SerializedMode.Row
+            };
+            using var input = new MemoryStream(new byte[16]);
+            using var output = new MemoryStream();
+
+            Assert.Throws<NotSupportedException>(() => SqlCommandExecutor.Execute(
+                new Version(version), input, output,
+                groupedMap ? UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF :
+                    UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF,
+                new[] { command }));
+
+            Assert.Equal(0, input.Position);
+        }
+
         public static IEnumerable<object[]> InvalidSpark40Rows
         {
             get
@@ -1024,22 +1060,11 @@ namespace Microsoft.Spark.Worker.UnitTest
             RecordBatch outputBatch = await arrowReader.ReadNextRecordBatchAsync();
 
             Assert.Equal(numRows, outputBatch.Length);
-            StringArray stringArray;
-            Int64Array longArray;
-            if (sparkVersion < new Version(Versions.V3_0_0))
-            {
-                Assert.Equal(2, outputBatch.ColumnCount);
-                stringArray = (StringArray)outputBatch.Column(0);
-                longArray = (Int64Array)outputBatch.Column(1);
-            }
-            else
-            {
-                Assert.Equal(1, outputBatch.ColumnCount);
-                var structArray = (StructArray)outputBatch.Column(0);
-                Assert.Equal(2, structArray.Fields.Count);
-                stringArray = (StringArray)structArray.Fields[0];
-                longArray = (Int64Array)structArray.Fields[1];
-            }
+            Assert.Equal(1, outputBatch.ColumnCount);
+            var structArray = (StructArray)outputBatch.Column(0);
+            Assert.Equal(2, structArray.Fields.Count);
+            var stringArray = (StringArray)structArray.Fields[0];
+            var longArray = (Int64Array)structArray.Fields[1];
 
             for (int i = 0; i < numRows; ++i)
             {
@@ -1144,22 +1169,11 @@ namespace Microsoft.Spark.Worker.UnitTest
             RecordBatch outputBatch = await arrowReader.ReadNextRecordBatchAsync();
 
             Assert.Equal(numRows, outputBatch.Length);
-            StringArray stringArray;
-            DoubleArray doubleArray;
-            if (sparkVersion < new Version(Versions.V3_0_0))
-            {
-                Assert.Equal(2, outputBatch.ColumnCount);
-                stringArray = (StringArray)outputBatch.Column(0);
-                doubleArray = (DoubleArray)outputBatch.Column(1);
-            }
-            else
-            {
-                Assert.Equal(1, outputBatch.ColumnCount);
-                var structArray = (StructArray)outputBatch.Column(0);
-                Assert.Equal(2, structArray.Fields.Count);
-                stringArray = (StringArray)structArray.Fields[0];
-                doubleArray = (DoubleArray)structArray.Fields[1];
-            }
+            Assert.Equal(1, outputBatch.ColumnCount);
+            var structArray = (StructArray)outputBatch.Column(0);
+            Assert.Equal(2, structArray.Fields.Count);
+            var stringArray = (StringArray)structArray.Fields[0];
+            var doubleArray = (DoubleArray)structArray.Fields[1];
 
             for (int i = 0; i < numRows; ++i)
             {
@@ -1365,21 +1379,21 @@ namespace Microsoft.Spark.Worker.UnitTest
 
     public class CommandExecutorData
     {
-        // CommandExecutor only changes its behavior between major versions.
+        // Spark 3 uses modern Arrow IPC throughout; Spark 4 has dedicated executor tests.
         public static IEnumerable<object[]> Data =>
             new List<object[]>
             {
                 new object[]
                 {
-                    new Version(Versions.V2_4_2),
+                    new Version(Versions.V3_0_0),
                     new IpcOptions
                     {
-                        WriteLegacyIpcFormat = true
+                        WriteLegacyIpcFormat = false
                     }
                 },
                 new object[]
                 {
-                    new Version(Versions.V3_0_0),
+                    new Version(Versions.V3_5_1),
                     new IpcOptions
                     {
                         WriteLegacyIpcFormat = false

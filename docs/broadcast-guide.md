@@ -4,7 +4,7 @@ This is a guide to show how to use broadcast variables in .NET for Apache Spark.
 
 ## What are Broadcast Variables
 
-[Broadcast variables in Apache Spark](https://spark.apache.org/docs/2.2.0/rdd-programming-guide.html#broadcast-variables) are a mechanism for sharing variables across executors that are meant to be read-only. They allow the programmer to keep a read-only variable cached on each machine rather than shipping a copy of it with tasks. They can be used, for example, to give every node a copy of a large input dataset in an efficient manner.
+[Broadcast variables in Apache Spark](https://spark.apache.org/docs/3.5.3/rdd-programming-guide.html#broadcast-variables) are a mechanism for sharing variables across executors that are meant to be read-only. They allow the programmer to keep a read-only variable cached on each machine rather than shipping a copy of it with tasks. They can be used, for example, to give every node a copy of a large input dataset in an efficient manner.
 
 ### How to use broadcast variables in .NET for Apache Spark
 
@@ -89,4 +89,4 @@ df.Select(udf2(df["_1"])).Show();
 ```
  This ensures that destroying `bv` doesn't affect calling `udf2` because of unexpected serialization behavior. 
 
- Broadcast variables are useful for transmitting read-only data to all executors, as the data is sent only once and this can give performance benefits when compared with using local variables that get shipped to the executors with each task. Please refer to the [official documentation](https://spark.apache.org/docs/2.2.0/rdd-programming-guide.html#broadcast-variables) to get a deeper understanding of broadcast variables and why they are used.
+ Broadcast variables are useful for transmitting read-only data to all executors, as the data is sent only once and this can give performance benefits when compared with using local variables that get shipped to the executors with each task. Please refer to the [official documentation](https://spark.apache.org/docs/3.5.3/rdd-programming-guide.html#broadcast-variables) to get a deeper understanding of broadcast variables and why they are used.

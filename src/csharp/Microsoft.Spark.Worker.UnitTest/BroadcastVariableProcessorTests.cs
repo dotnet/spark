@@ -24,7 +24,7 @@ namespace Microsoft.Spark.Worker.UnitTest
         private static long s_nextId = 800000;
 
         [Theory]
-        [InlineData("2.4.8")]
+        [InlineData("3.0.0")]
         [InlineData("3.5.3")]
         [InlineData("4.0.4")]
         public void PlaintextBroadcastsSupportRemoveRetainAndReAdd(string version)
@@ -80,7 +80,7 @@ namespace Microsoft.Spark.Worker.UnitTest
         }
 
         [Theory]
-        [InlineData("2.4.8")]
+        [InlineData("3.0.0")]
         [InlineData("3.5.3")]
         [InlineData("4.0.4")]
         public async Task EncryptedBroadcastsCompleteBeforeServerEof(string version)

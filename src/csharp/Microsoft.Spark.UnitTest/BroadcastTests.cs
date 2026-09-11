@@ -15,14 +15,21 @@ namespace Microsoft.Spark.UnitTest
     public class BroadcastTests
     {
         [Theory]
-        [InlineData("2.4.8", true)]
+        [InlineData("3.0.0", true)]
+        [InlineData("3.1.1", true)]
+        [InlineData("3.2.0", true)]
+        [InlineData("3.3.0", true)]
+        [InlineData("3.4.0", true)]
         [InlineData("3.5.3", true)]
         [InlineData("4.0.0", true)]
         [InlineData("4.0.1", true)]
         [InlineData("4.0.2", true)]
         [InlineData("4.0.3", true)]
         [InlineData("4.0.4", true)]
+        [InlineData("2.0.0", false)]
         [InlineData("2.3.0", false)]
+        [InlineData("2.4.0", false)]
+        [InlineData("2.4.8", false)]
         [InlineData("4.1.0", false)]
         [InlineData("5.0.0", false)]
         public void CreationDispatchesOnlySupportedVersions(string version, bool supported)

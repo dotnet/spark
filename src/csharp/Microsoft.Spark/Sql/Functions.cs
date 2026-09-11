@@ -777,51 +777,6 @@ namespace Microsoft.Spark.Sql
         /////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Window function: returns the special frame boundary that represents the first
-        /// row in the window partition.
-        /// </summary>
-        /// <remarks>
-        /// This API is deprecated in Spark 2.4 and removed in Spark 3.0.
-        /// </remarks>
-        /// <returns>Column object</returns>
-        [Deprecated(Versions.V2_4_0)]
-        [Removed(Versions.V3_0_0)]
-        public static Column UnboundedPreceding()
-        {
-            return ApplyFunction("unboundedPreceding");
-        }
-
-        /// <summary>
-        /// Window function: returns the special frame boundary that represents the last
-        /// row in the window partition.
-        /// </summary>
-        /// <remarks>
-        /// This API is deprecated in Spark 2.4 and removed in Spark 3.0.
-        /// </remarks>
-        /// <returns>Column object</returns>
-        [Deprecated(Versions.V2_4_0)]
-        [Removed(Versions.V3_0_0)]
-        public static Column UnboundedFollowing()
-        {
-            return ApplyFunction("unboundedFollowing");
-        }
-
-        /// <summary>
-        /// Window function: returns the special frame boundary that represents the current
-        /// row in the window partition.
-        /// </summary>
-        /// <remarks>
-        /// This API is deprecated in Spark 2.4 and removed in Spark 3.0.
-        /// </remarks>
-        /// <returns>Column object</returns>
-        [Deprecated(Versions.V2_4_0)]
-        [Removed(Versions.V3_0_0)]
-        public static Column CurrentRow()
-        {
-            return ApplyFunction("currentRow");
-        }
-
-        /// <summary>
         /// Window function: returns the cumulative distribution of values within a window
         /// partition, i.e. the fraction of rows that are below the current row.
         /// </summary>

@@ -102,27 +102,6 @@ namespace Microsoft.Spark.Sql.Expressions
         public static WindowSpec RangeBetween(long start, long end) =>
             Apply("rangeBetween", start, end);
 
-        /// <summary>
-        /// Creates a `WindowSpec` with the frame boundaries defined,
-        /// from `start` (inclusive) to `end` (inclusive).
-        /// </summary>
-        /// <remarks>
-        /// This API is deprecated in Spark 2.4 and removed in Spark 3.0.
-        /// </remarks>
-        /// <param name="start">
-        /// Boundary start, inclusive. The frame is unbounded if the expression is
-        /// `Microsoft.Spark.Sql.Functions.UnboundedPreceding()`
-        /// </param>
-        /// <param name="end">
-        /// Boundary end, inclusive. The frame is unbounded if the expression is
-        /// `Microsoft.Spark.Sql.Functions.UnboundedFollowing()`
-        /// </param>
-        /// <returns>WindowSpec object</returns>
-        [Deprecated(Versions.V2_4_0)]
-        [Removed(Versions.V3_0_0)]
-        public static WindowSpec RangeBetween(Column start, Column end) =>
-            Apply("rangeBetween", start, end);
-
         private static WindowSpec Apply(string methodName, object arg)
         {
             return new WindowSpec(

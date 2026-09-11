@@ -172,7 +172,6 @@ namespace Microsoft.Spark.E2ETest
         {
             string avroVersion = (sparkVersion.Major, sparkVersion.Minor) switch
             {
-                (2, _) => $"spark-avro_2.11:{sparkVersion}",
                 (3, _) => $"spark-avro_2.12:{sparkVersion}",
                 (4, 0) => $"spark-avro_2.13:{sparkVersion}",
                 _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
@@ -207,7 +206,6 @@ namespace Microsoft.Spark.E2ETest
         {
             return (sparkVersion.Major, sparkVersion.Minor) switch
             {
-                (2, _) => "2.11",
                 (3, _) => "2.12",
                 (4, 0) => "2.13",
                 _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
@@ -297,7 +295,7 @@ namespace Microsoft.Spark.E2ETest
                 Path.Combine(_tempDirectory.Path, "spark-warehouse")).AbsoluteUri;
             string warehouseDir = $"--conf spark.sql.warehouse.dir={warehouseUri}";
 
-            // Spark24 < 2.4.8, Spark30 < 3.0.3 and Spark31 < 3.1.2 use bintray as the repository
+            // Spark30 < 3.0.3 and Spark31 < 3.1.2 use bintray as the repository
             // service for spark-packages. As of May 1st, 2021 bintray has been sunset and is no
             // longer available. Community builds keep using spark-packages by default, while CI
             // can atomically supply a custom Ivy settings file and repository.
@@ -308,12 +306,7 @@ namespace Microsoft.Spark.E2ETest
             string extraArgs = Environment.GetEnvironmentVariable(
                 EnvironmentVariableNames.ExtraSparkSubmitArgs) ?? "";
 
-            // If there exists log4j.properties in SPARK_HOME/conf directory, Spark from 2.3.*
-            // to 2.4.0 hang in E2E test. The reverse behavior is true for Spark 2.4.1; if
-            // there does not exist log4j.properties, the tests hang.
-            // Note that the hang happens in JVM when it tries to append a console logger (log4j).
-            // The solution is to use custom log configuration that appends NullLogger, which
-            // works across all Spark versions.
+            // Keep the custom NullLogger configuration for Spark versions using log4j 1.x.
             string resourceUri = new Uri(TestEnvironment.ResourceDirectory).AbsoluteUri;
             string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";

@@ -4,6 +4,7 @@
 
 using System;
 using System.IO;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Worker.Processor;
 using Xunit;
 
@@ -54,6 +55,76 @@ namespace Microsoft.Spark.Worker.UnitTest
             Assert.Throws<NotSupportedException>(() =>
                 new TaskContextProcessor(new Version("4.1.0")).Process(stream));
             Assert.Equal(0, stream.Position);
+        }
+
+        [Theory]
+        [InlineData("2.0.0")]
+        [InlineData("2.3.0")]
+        [InlineData("2.4.0")]
+        [InlineData("2.4.8")]
+        public void Spark2IsRejectedBeforeReadingTaskContext(string version)
+        {
+            using var stream = new MemoryStream(new byte[16]);
+
+            Assert.Throws<NotSupportedException>(() =>
+                new TaskContextProcessor(new Version(version)).Process(stream));
+
+            Assert.Equal(0, stream.Position);
+        }
+
+        [Theory]
+        [InlineData("3.0.0", false)]
+        [InlineData("3.1.1", false)]
+        [InlineData("3.2.0", false)]
+        [InlineData("3.3.0", true)]
+        [InlineData("3.4.0", true)]
+        [InlineData("3.5.1", true)]
+        [InlineData("4.0.0", true)]
+        [InlineData("4.0.4", true)]
+        public void RetainedVersionsConsumeTheExpectedTaskContextLayout(string version, bool hasCpus)
+        {
+            const int Sentinel = 123456789;
+            using var stream = new MemoryStream();
+            // Write the wire fields directly, independently of PayloadWriter.
+            SerDe.Write(stream, true);
+            SerDe.Write(stream, 42);
+            SerDe.Write(stream, "secret");
+            SerDe.Write(stream, 17);
+            SerDe.Write(stream, 3);
+            SerDe.Write(stream, 2);
+            SerDe.Write(stream, 4294967301L);
+            if (hasCpus)
+            {
+                SerDe.Write(stream, 4);
+            }
+
+            SerDe.Write(stream, 1); // Resource count.
+            SerDe.Write(stream, "gpu");
+            SerDe.Write(stream, "gpu");
+            SerDe.Write(stream, 2); // Resource addresses.
+            SerDe.Write(stream, "0");
+            SerDe.Write(stream, "1");
+            SerDe.Write(stream, 1); // Local property count.
+            SerDe.Write(stream, "spark.job.description");
+            SerDe.Write(stream, "retained framing");
+            SerDe.Write(stream, Sentinel);
+            stream.Position = 0;
+
+            TaskContext context = new TaskContextProcessor(new Version(version)).Process(stream);
+
+            Assert.True(context.IsBarrier);
+            Assert.Equal(42, context.Port);
+            Assert.Equal("secret", context.Secret);
+            Assert.Equal(17, context.StageId);
+            Assert.Equal(3, context.PartitionId);
+            Assert.Equal(2, context.AttemptNumber);
+            Assert.Equal(4294967301L, context.AttemptId);
+            Assert.Equal(hasCpus ? 4 : 0, context.CPUs);
+            Assert.Empty(context.Resources);
+            Assert.Single(context.LocalProperties);
+            Assert.Equal("retained framing", context.LocalProperties["spark.job.description"]);
+            Assert.Equal(Sentinel, SerDe.ReadInt32(stream));
+            Assert.Equal(stream.Length, stream.Position);
         }
     }
 }

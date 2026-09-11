@@ -13,7 +13,7 @@ namespace Microsoft.Spark.UnitTest
     public class RelationalGroupedDatasetTests
     {
         [Theory]
-        [InlineData("2.4.0", false)]
+        [InlineData("3.0.0", false)]
         [InlineData("3.5.3", false)]
         [InlineData("4.0.0", true)]
         [InlineData("4.0.4", true)]

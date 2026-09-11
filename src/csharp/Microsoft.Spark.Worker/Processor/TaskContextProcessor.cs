@@ -21,7 +21,6 @@ namespace Microsoft.Spark.Worker.Processor
         {
             return (_version.Major, _version.Minor) switch
             {
-                (2, 4) => TaskContextProcessorV2_4_X.Process(stream),
                 (3, _) t when t.Minor < 3 => TaskContextProcessorV3_0_X.Process(stream),
                 (3, _) => TaskContextProcessorV3_3_X.Process(stream),
                 (4, 0) => TaskContextProcessorV3_3_X.Process(stream),
@@ -29,7 +28,7 @@ namespace Microsoft.Spark.Worker.Processor
             };
         }
 
-        private static TaskContext ReadTaskContext_2_x(Stream stream)
+        private static TaskContext ReadTaskContext_3_0(Stream stream)
         => new()
         {
             IsBarrier = SerDe.ReadBool(stream),
@@ -85,22 +84,11 @@ namespace Microsoft.Spark.Worker.Processor
             }
         }
 
-        private static class TaskContextProcessorV2_4_X
-        {
-            internal static TaskContext Process(Stream stream)
-            {
-                TaskContext taskContext = ReadTaskContext_2_x(stream);
-                ReadTaskContextProperties(stream, taskContext);
-
-                return taskContext;
-            }
-        }
-
         private static class TaskContextProcessorV3_0_X
         {
             internal static TaskContext Process(Stream stream)
             {
-                TaskContext taskContext = ReadTaskContext_2_x(stream);
+                TaskContext taskContext = ReadTaskContext_3_0(stream);
                 ReadTaskContextResources(stream);
                 ReadTaskContextProperties(stream, taskContext);
 

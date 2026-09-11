@@ -7,7 +7,7 @@ The goal of the .NET for Apache Spark project is to provide an easy to use, .NET
 ## Short Term
 
 ### User Experience
-* 1:1 API compatibility for Dataframes with Apache Spark 2.3.x, Apache Spark 2.4.x and Apache Spark 3.0.x (*)
+* Remove Apache Spark 2.x support in the next release while retaining Spark 3.0 through 3.5. Continue validating Spark 4.0 integration with Scala 2.13 and JDK 17; this is not a promise of complete API parity. See the [migration guide](docs/migration-guide.md#upgrading-after-spark-2x-support-removal).
 
 ### Performance Optimizations
 * Improvements to C# Pickling Library

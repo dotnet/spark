@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Expressions;
 using Xunit;
@@ -48,15 +47,6 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 RangeBetween(
                     Sql.Expressions.Window.UnboundedPreceding,
                     Sql.Expressions.Window.UnboundedFollowing));
-
-            if (SparkSettings.Version < new Version(Versions.V3_0_0))
-            {
-                // The following APIs are removed in Spark 3.0.
-                Assert.IsType<WindowSpec>(
-                    RangeBetween(
-                        UnboundedPreceding(),
-                        UnboundedFollowing()));
-            }
         }
     }
 }

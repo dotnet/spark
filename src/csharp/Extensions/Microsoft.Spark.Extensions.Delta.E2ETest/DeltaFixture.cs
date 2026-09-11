@@ -18,7 +18,6 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
             Version sparkVersion = SparkSettings.Version;
             string deltaVersion = (sparkVersion.Major, sparkVersion.Minor, sparkVersion.Build) switch
             {
-                (2, _, _) => "delta-core_2.11:0.6.1",
                 (3, 0, _) => "delta-core_2.12:0.8.0",
                 (3, 1, _) => "delta-core_2.12:1.0.0",
                 (3, 2, _) => "delta-core_2.12:1.1.0",
@@ -42,7 +41,6 @@ namespace Microsoft.Spark.Extensions.Delta.E2ETest
 
             (string, string)[] extraConf = sparkVersion.Major switch
             {
-                2 => Array.Empty<(string, string)>(),
                 3 => new[]
                 {
                     ("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension"),

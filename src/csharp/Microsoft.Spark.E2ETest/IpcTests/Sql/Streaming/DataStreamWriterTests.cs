@@ -93,7 +93,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 });
         }
 
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
+        [Fact]
         public void TestForeachBatch()
         {
             // Temporary folder to put our test stream input.
@@ -156,7 +156,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             Assert.True(Enumerable.Range(300, 20).SequenceEqual(actualIds));
         }
 
-        [SkipIfSparkVersionIsLessThan(Versions.V2_4_0)]
+        [Fact]
         public void TestForeach()
         {
             // Temporary folder to put our test stream input.
