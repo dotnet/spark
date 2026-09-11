@@ -159,6 +159,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         [Fact]
+        [Trait("Category", "ArrowUdf")]
         public void TestVectorUdf()
         {
             Func<Int32Array, StringArray, StringArray> udf1Func =
@@ -226,6 +227,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         [Fact]
+        [Trait("Category", "ArrowUdf")]
         public void TestDataFrameVectorUdf()
         {
             Func<Int32DataFrameColumn, ArrowStringDataFrameColumn, ArrowStringDataFrameColumn> udf1Func =
@@ -291,6 +293,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         }
 
         [Fact]
+        [Trait("Category", "ArrowUdf")]
         public void TestGroupedMapUdf()
         {
             DataFrame df = _spark
@@ -354,6 +357,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             // Return 1 record, if we were given any. 0, otherwise.
             int returnLength = records.Length > 0 ? 1 : 0;
+            var age = new Int32Array.Builder();
+            var count = new Int32Array.Builder();
+            if (returnLength != 0)
+            {
+                age.Append(((Int32Array)records.Column(ageFieldIndex)).GetValue(0));
+                count.Append(characterCount);
+            }
 
             return new RecordBatch(
                 new Schema.Builder()
@@ -362,13 +372,14 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                     .Build(),
                 new IArrowArray[]
                 {
-                    records.Column(ageFieldIndex),
-                    new Int32Array.Builder().Append(characterCount).Build()
+                    age.Build(),
+                    count.Build()
                 },
                 returnLength);
         }
 
         [Fact]
+        [Trait("Category", "ArrowUdf")]
         public void TestDataFrameGroupedMapUdf()
         {
             DataFrame df = _spark

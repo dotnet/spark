@@ -62,11 +62,15 @@ namespace Microsoft.Spark.Worker.Command
             }
             else if (evalType == UdfUtils.PythonEvalType.SQL_SCALAR_PANDAS_UDF)
             {
-                executor = new ArrowOrDataFrameSqlCommandExecutor(version);
+                executor = (version.Major, version.Minor) == (4, 0) ?
+                    new Spark40ArrowCommandExecutor(groupedMap: false) :
+                    (SqlCommandExecutor)new ArrowOrDataFrameSqlCommandExecutor(version);
             }
             else if (evalType == UdfUtils.PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF)
             {
-                executor = new ArrowOrDataFrameGroupedMapCommandExecutor(version);
+                executor = (version.Major, version.Minor) == (4, 0) ?
+                    new Spark40ArrowCommandExecutor(groupedMap: true) :
+                    (SqlCommandExecutor)new ArrowOrDataFrameGroupedMapCommandExecutor(version);
             }
             else
             {

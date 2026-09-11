@@ -4,9 +4,12 @@
 
 using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using Microsoft.Spark.Utils;
 using static Microsoft.Spark.Utils.UdfUtils;
 
@@ -82,7 +85,9 @@ namespace Microsoft.Spark.Worker.Processor
 
             int rawEvalType = BinaryPrimitives.ReadInt32BigEndian(buffer);
             if (rawEvalType == (int)PythonEvalType.NON_UDF ||
-                rawEvalType == (int)PythonEvalType.SQL_BATCHED_UDF)
+                rawEvalType == (int)PythonEvalType.SQL_BATCHED_UDF ||
+                rawEvalType == (int)PythonEvalType.SQL_SCALAR_PANDAS_UDF ||
+                rawEvalType == (int)PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF)
             {
                 return (PythonEvalType)rawEvalType;
             }
@@ -179,13 +184,11 @@ namespace Microsoft.Spark.Worker.Processor
             PythonEvalType evalType,
             Stream stream)
         {
-            if (evalType != PythonEvalType.SQL_BATCHED_UDF)
-            {
-                throw new NotSupportedException(
-                    $"Spark 4 evaluation type {evalType} is not supported.");
-            }
-
             var reader = new ProtocolReader(stream);
+            bool isArrow = evalType != PythonEvalType.SQL_BATCHED_UDF;
+            bool grouped = evalType == PythonEvalType.SQL_GROUPED_MAP_PANDAS_UDF;
+            IReadOnlyDictionary<string, string> configuration = isArrow ?
+                ReadSpark40ArrowConfiguration(reader) : null;
             bool isProfiling = reader.ReadBoolean("Spark 4 profiling flag");
             if (isProfiling)
             {
@@ -200,7 +203,7 @@ namespace Microsoft.Spark.Worker.Processor
             }
 
             int numUdfs = reader.ReadInt32("Spark 4 UDF count");
-            ValidateRange(numUdfs, 1, MaxSpark40Udfs, "Spark 4 UDF count");
+            ValidateRange(numUdfs, 1, grouped ? 1 : MaxSpark40Udfs, "Spark 4 UDF count");
 
             var frames = new Spark40UdfFrame[numUdfs];
             bool hasNamedArguments = false;
@@ -214,8 +217,8 @@ namespace Microsoft.Spark.Worker.Processor
                 int numArguments = reader.ReadInt32("Spark 4 UDF argument count");
                 ValidateRange(
                     numArguments,
-                    0,
-                    MaxSpark40ArgumentsPerUdf,
+                    grouped ? 2 : (isArrow ? 1 : 0),
+                    grouped ? MaxSpark40Arguments : MaxSpark40ArgumentsPerUdf,
                     "Spark 4 UDF argument count");
                 totalArguments = AddWithLimit(
                     totalArguments,
@@ -227,18 +230,23 @@ namespace Microsoft.Spark.Worker.Processor
                 for (int argIndex = 0; argIndex < numArguments; ++argIndex)
                 {
                     int offset = reader.ReadInt32("Spark 4 UDF argument offset");
-                    if (offset < 0 || offset > nextOffset)
+                    if (offset < 0 || (!grouped && offset > nextOffset))
                     {
                         throw new InvalidDataException(
                             "Invalid Spark 4 UDF argument offset.");
                     }
 
-                    if (offset == nextOffset)
+                    if (!grouped && offset == nextOffset)
                     {
                         ++nextOffset;
                     }
 
                     argOffsets[argIndex] = offset;
+
+                    if (grouped)
+                    {
+                        continue;
+                    }
 
                     bool hasName = reader.ReadBoolean(
                         "Spark 4 named argument flag");
@@ -252,12 +260,29 @@ namespace Microsoft.Spark.Worker.Processor
                     }
                 }
 
+                int[] groupingKeyOffsets = null;
+                if (grouped)
+                {
+                    int metadataLength = argOffsets[0];
+                    int keyCount = argOffsets[1];
+                    if (metadataLength != numArguments - 1 || keyCount > numArguments - 2)
+                    {
+                        throw new InvalidDataException("Invalid Spark 4 grouped-map offsets.");
+                    }
+
+                    groupingKeyOffsets = new int[keyCount];
+                    Array.Copy(argOffsets, 2, groupingKeyOffsets, 0, keyCount);
+                    var values = new int[numArguments - 2 - keyCount];
+                    Array.Copy(argOffsets, 2 + keyCount, values, 0, values.Length);
+                    argOffsets = values;
+                }
+
                 int numChainedFunctions = reader.ReadInt32(
                     "Spark 4 chained function count");
                 ValidateRange(
                     numChainedFunctions,
                     1,
-                    MaxSpark40ChainedFunctionsPerUdf,
+                    grouped ? 1 : MaxSpark40ChainedFunctionsPerUdf,
                     "Spark 4 chained function count");
                 totalChainedFunctions = AddWithLimit(
                     totalChainedFunctions,
@@ -293,7 +318,35 @@ namespace Microsoft.Spark.Worker.Processor
 
                 frames[udfIndex] = new Spark40UdfFrame(
                     argOffsets,
-                    commandBytes);
+                    commandBytes)
+                {
+                    GroupingKeyOffsets = groupingKeyOffsets
+                };
+            }
+
+            bool hasRepl = false;
+            bool mixedRepresentations = false;
+            bool? usesDataFrame = null;
+            if (isArrow)
+            {
+                // Validate every bounded command before resolving even the first
+                // user type. Malformed commands take precedence over unsupported
+                // profiling, named arguments, REPL, or Arrow configurations.
+                foreach (Spark40UdfFrame frame in frames)
+                {
+                    for (int i = 0; i < frame.CommandBytes.Length; ++i)
+                    {
+                        bool isDataFrame = CommandSerDe.PreflightSpark40Arrow(
+                            frame.CommandBytes[i], i == 0 ? frame.ArgOffsets.Length : 1,
+                            grouped, out StructType returnSchema, out bool isRepl);
+                        hasRepl |= isRepl;
+                        mixedRepresentations |= usesDataFrame.HasValue &&
+                            usesDataFrame.Value != isDataFrame;
+                        usesDataFrame = isDataFrame;
+                        frame.IsDataFrame = isDataFrame;
+                        frame.ReturnSchema = returnSchema;
+                    }
+                }
             }
 
             if (isProfiling)
@@ -308,7 +361,18 @@ namespace Microsoft.Spark.Worker.Processor
                     "Spark 4 named UDF arguments are not supported.");
             }
 
-            foreach (Spark40UdfFrame frame in frames)
+            if (hasRepl || mixedRepresentations ||
+                (configuration != null && configuration.TryGetValue(
+                    "spark.sql.execution.arrow.useLargeVarTypes", out string largeTypes) &&
+                    bool.Parse(largeTypes)))
+            {
+                throw new NotSupportedException(hasRepl ?
+                    "Spark 4 REPL commands are not supported." : mixedRepresentations ?
+                    "Spark 4 cannot mix Arrow and DataFrame UDF representations." :
+                    "Spark 4 Arrow large variable-width types are not supported.");
+            }
+
+            foreach (Spark40UdfFrame frame in isArrow ? Array.Empty<Spark40UdfFrame>() : frames)
             {
                 for (int functionIndex = 0;
                     functionIndex < frame.CommandBytes.Length;
@@ -330,6 +394,9 @@ namespace Microsoft.Spark.Worker.Processor
                 var command = new SqlCommand
                 {
                     ArgOffsets = frame.ArgOffsets,
+                    GroupingKeyOffsets = frame.GroupingKeyOffsets,
+                    ReturnSchema = frame.ReturnSchema,
+                    ArrowConfiguration = configuration,
                     NumChainedFunctions = frame.CommandBytes.Length
                 };
 
@@ -340,6 +407,25 @@ namespace Microsoft.Spark.Worker.Processor
                     int expectedArity = functionIndex == 0 ?
                         frame.ArgOffsets.Length :
                         1;
+                    if (isArrow)
+                    {
+                        WorkerFunction function = DeserializeSpark40ArrowFunction(
+                            frame.CommandBytes[functionIndex], expectedArity, grouped,
+                            frame.IsDataFrame, out CommandSerDe.SerializedMode arrowSerializer,
+                            out CommandSerDe.SerializedMode arrowDeserializer);
+                        command.WorkerFunction = command.WorkerFunction == null ? function :
+                            frame.IsDataFrame ?
+                            DataFrameWorkerFunction.Chain(
+                                (DataFrameWorkerFunction)command.WorkerFunction,
+                                (DataFrameWorkerFunction)function) :
+                            ArrowWorkerFunction.Chain(
+                                (ArrowWorkerFunction)command.WorkerFunction,
+                                (ArrowWorkerFunction)function);
+                        command.SerializerMode = arrowSerializer;
+                        command.DeserializerMode = arrowDeserializer;
+                        continue;
+                    }
+
                     var currentWorkerFunction = new PicklingWorkerFunction(
                         CommandSerDe.DeserializeSpark40<
                             PicklingWorkerFunction.ExecuteDelegate>(
@@ -361,6 +447,64 @@ namespace Microsoft.Spark.Worker.Processor
             }
 
             return commands;
+        }
+
+        private static IReadOnlyDictionary<string, string> ReadSpark40ArrowConfiguration(
+            ProtocolReader reader)
+        {
+            int count = reader.ReadInt32("Spark 4 Arrow configuration count");
+            ValidateRange(count, 0, 64, "Spark 4 Arrow configuration count");
+            var configuration = new Dictionary<string, string>(StringComparer.Ordinal);
+            int totalBytes = 0;
+            for (int i = 0; i < count; ++i)
+            {
+                string key = reader.ReadUtf8("Spark 4 Arrow configuration key", 1, 256);
+                string value = reader.ReadUtf8("Spark 4 Arrow configuration value", 0, 4096);
+                totalBytes = AddWithLimit(totalBytes,
+                    Encoding.UTF8.GetByteCount(key) + Encoding.UTF8.GetByteCount(value),
+                    256 * 1024, "Spark 4 Arrow configuration bytes");
+                if (configuration.ContainsKey(key))
+                {
+                    throw new InvalidDataException("Duplicate Spark 4 Arrow configuration key.");
+                }
+
+                if ((key == "spark.sql.execution.arrow.useLargeVarTypes" ||
+                    key == "spark.sql.execution.pandas.convertToArrowArraySafely" ||
+                    key == "spark.sql.legacy.execution.pandas.groupedMap.assignColumnsByName") &&
+                    !bool.TryParse(value, out _))
+                {
+                    throw new InvalidDataException("Invalid Spark 4 Arrow boolean configuration.");
+                }
+
+                configuration.Add(key, value);
+            }
+
+            return configuration;
+        }
+
+        private static WorkerFunction DeserializeSpark40ArrowFunction(
+            byte[] bytes, int arity, bool grouped, bool dataFrame,
+            out CommandSerDe.SerializedMode serializer,
+            out CommandSerDe.SerializedMode deserializer)
+        {
+            if (grouped)
+            {
+                return dataFrame ?
+                    new DataFrameGroupedMapWorkerFunction(
+                        CommandSerDe.DeserializeSpark40Arrow<DataFrameGroupedMapWorkerFunction.ExecuteDelegate>(
+                            bytes, arity, true, out serializer, out deserializer)) :
+                    new ArrowGroupedMapWorkerFunction(
+                        CommandSerDe.DeserializeSpark40Arrow<ArrowGroupedMapWorkerFunction.ExecuteDelegate>(
+                            bytes, arity, true, out serializer, out deserializer));
+            }
+
+            return dataFrame ?
+                new DataFrameWorkerFunction(
+                    CommandSerDe.DeserializeSpark40Arrow<DataFrameWorkerFunction.ExecuteDelegate>(
+                        bytes, arity, false, out serializer, out deserializer)) :
+                new ArrowWorkerFunction(
+                    CommandSerDe.DeserializeSpark40Arrow<ArrowWorkerFunction.ExecuteDelegate>(
+                        bytes, arity, false, out serializer, out deserializer));
         }
 
         private static void ValidateRange(
@@ -410,6 +554,12 @@ namespace Microsoft.Spark.Worker.Processor
             internal int[] ArgOffsets { get; }
 
             internal byte[][] CommandBytes { get; }
+
+            internal int[] GroupingKeyOffsets { get; set; }
+
+            internal StructType ReturnSchema { get; set; }
+
+            internal bool IsDataFrame { get; set; }
         }
 
         /// <summary>
