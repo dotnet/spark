@@ -1,5 +1,5 @@
 // Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
+// The .NET Foundation licenses this file to you under the MIT License.
 // See the LICENSE file in the project root for more information.
 
 using System;
@@ -100,8 +100,8 @@ namespace Microsoft.Spark.Sql.Types
         internal override bool NeedConversion() => true;
 
         /// <summary>
-        /// Internally, a timestamp is stored as the number of microseconds as long from the epoch
-        /// of 1970-01-01T00:00:00.000000Z(UTC+00:00). This will convert internal SQL TimestampType
+        /// Internally, a timestamp is stored as the number of microseconds as long from the
+        /// epoch of 1970-01-01T00:00:00.000000Z(UTC+00:00). This will convert internal SQL TimestampType
         /// objects from the number of microseconds into native C# Timestamp objects.
         /// </summary>
         internal override object FromInternal(object obj)
@@ -111,8 +111,8 @@ namespace Microsoft.Spark.Sql.Types
                 return null;
             }
 
-            // Known issue that if the original type is "long" and its value can be fit into the
-            // "int", Pickler will serialize the value as int.
+            // Known issue that if the original type is "long" and its value can fit into the
+            // "int", the Pickler will serialize the value as int.
             long val = (obj is long v) ? v : (int)obj;
             return new Timestamp(
                 new DateTime(val * 10 + DateType.s_unixTimeEpoch.Ticks, DateTimeKind.Utc));
@@ -152,6 +152,28 @@ namespace Microsoft.Spark.Sql.Types
     /// </summary>
     public sealed class LongType : IntegralType
     {
+        internal override bool NeedConversion() => true;
+
+        /// <summary>
+        /// Converts the internal object to a .NET long. If the original type is "long" and
+        /// its value can fit into "int", the Pickler will serialize the value as int. Since
+        /// the value is boxed, a direct unbox to long would fail. This method ensures the
+        /// value is always returned as a long regardless of how the Pickler serialized it.
+        /// </summary>
+        internal override object FromInternal(object obj)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+
+            if (obj is long l)
+            {
+                return obj;  // FIX: return obj (already boxed) instead of l (re-boxes)
+            }
+
+            return Convert.ToInt64(obj);
+        }
     }
 
     /// <summary>
@@ -166,8 +188,8 @@ namespace Microsoft.Spark.Sql.Types
     /// </summary>
     public sealed class DecimalType : FractionalType
     {
-        internal static Regex s_fixedDecimal =
-            new Regex(@"decimal\(\s*(\d+)\s*,\s*(\-?\d+)\s*\)", RegexOptions.Compiled);
+        internal static readonly Regex s_fixedDecimal =
+            new Regex(@"decimal\((\d+),\s*(\d+)\)", RegexOptions.Compiled);
 
         private readonly int _precision;
         private readonly int _scale;
@@ -176,13 +198,11 @@ namespace Microsoft.Spark.Sql.Types
         /// Initializes the <see cref="DecimalType"/> instance.
         /// </summary>
         /// <remarks>
-        /// Default values of precision and scale are from Scala:
-        /// sql/catalyst/src/main/scala/org/apache/spark/sql/types/DecimalType.scala.
+        /// Default values of precision and scale are from Scale:
+        /// sql/catalog/src/main/scala/org/apache/spark/sql/types/DecimalType.scala.
         /// </remarks>
         /// <param name="precision">Number of digits in a number</param>
-        /// <param name="scale">
-        /// Number of digits to the right of the decimal point in a number
-        /// </param>
+        /// <param name="scale">Number of digits to the right of the decimal point in a number</param>
         public DecimalType(int precision = 10, int scale = 0)
         {
             _precision = precision;

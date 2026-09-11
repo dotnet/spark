@@ -102,9 +102,6 @@ namespace Microsoft.Spark.Sql
 
         /// <summary>
         /// Returns the column value at the given index, as a type T.
-        /// TODO: If the original type is "long" and its value can be
-        /// fit into the "int", Pickler will serialize the value as int.
-        /// Since the value is boxed, <see cref="GetAs{T}(int)"/> will throw an exception.
         /// </summary>
         /// <typeparam name="T">Type to convert to</typeparam>
         /// <param name="index">Index to look up</param>
@@ -113,9 +110,6 @@ namespace Microsoft.Spark.Sql
 
         /// <summary>
         /// Returns the column value whose column name is given, as a type T.
-        /// TODO: If the original type is "long" and its value can be
-        /// fit into the "int", Pickler will serialize the value as int.
-        /// Since the value is boxed, <see cref="GetAs{T}(string)"/> will throw an exception.
         /// </summary>
         /// <typeparam name="T">Type to convert to</typeparam>
         /// <param name="columnName">Column name to look up</param>
