@@ -8,7 +8,7 @@ registries:
 updates:
   - package-ecosystem: 'maven'
     directory: 'benchmark/scala'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -19,7 +19,7 @@ updates:
 
   - package-ecosystem: 'maven'
     directory: 'src/scala'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -30,7 +30,7 @@ updates:
 
   - package-ecosystem: 'maven'
     directory: 'src/scala/microsoft-spark-2-4'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -41,7 +41,7 @@ updates:
 
   - package-ecosystem: 'maven'
     directory: 'src/scala/microsoft-spark-3-0'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -52,7 +52,7 @@ updates:
 
   - package-ecosystem: 'maven'
     directory: 'src/scala/microsoft-spark-3-1'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -63,7 +63,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'benchmark/csharp'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -74,7 +74,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'benchmark/csharp/Tpch'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -85,7 +85,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'eng/common/internal'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -98,7 +98,7 @@ updates:
     directory: 'eng/common/sdl'
     registries:
       - visual-studio-securitytools
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -109,7 +109,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'examples'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -120,7 +120,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'examples/Microsoft.Spark.CSharp.Examples'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -131,7 +131,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'examples/Microsoft.Spark.FSharp.Examples'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -142,7 +142,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'src/csharp'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -153,7 +153,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'src/csharp/Extensions/Microsoft.Spark.Extensions.Delta'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -164,7 +164,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'src/csharp/Extensions/Microsoft.Spark.Extensions.Delta.E2ETest'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -175,7 +175,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'src/csharp/Extensions/Microsoft.Spark.Extensions.DotNet.Interactive'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -186,7 +186,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'src/csharp/Extensions/Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -197,7 +197,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'src/csharp/Extensions/Microsoft.Spark.Extensions.Hyperspace'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -208,7 +208,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'src/csharp/Extensions/Microsoft.Spark.Extensions.Hyperspace.E2ETest'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -219,7 +219,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'src/csharp/Microsoft.Spark'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -230,7 +230,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'src/csharp/Microsoft.Spark.E2ETest'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -241,7 +241,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'src/csharp/Microsoft.Spark.E2ETest.ExternalLibrary'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -252,7 +252,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'src/csharp/Microsoft.Spark.UnitTest'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -263,7 +263,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'src/csharp/Microsoft.Spark.Worker'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
@@ -274,7 +274,7 @@ updates:
 
   - package-ecosystem: 'nuget'
     directory: 'src/csharp/Microsoft.Spark.Worker.UnitTest'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     schedule:
       interval: 'daily'
     # target-branch: 'develop'
