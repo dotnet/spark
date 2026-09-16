@@ -268,12 +268,14 @@ stages:
           displayName: 'E2E tests'
           inputs:
             command: test
-            # Spark 4 covers the bridge, row retrieval, UDF, RDD, Broadcast and Worker lifecycle. Keep
-            # extension projects out of this lane until their Spark 4 compatibility is implemented.
+            # Spark 4 uses the qualified core categories. Interactive has its own
+            # testhost below because it initializes the bridge in REPL mode.
             ${{ if eq(split(test.version, '.')[0], '4') }}:
               projects: '**/Microsoft.Spark.E2ETest/Microsoft.Spark.E2ETest.csproj'
             ${{ else }}:
-              projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+              projects: |
+                **/Microsoft.Spark*.E2ETest/*.csproj
+                !**/Microsoft.Spark.Extensions.DotNet.Interactive.E2ETest/*.csproj
             arguments: '--configuration $(buildConfiguration) ${{ option.testOptions }}'
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
@@ -286,6 +288,24 @@ stages:
             ${{ if and(ne(parameters.managedOSSMavenFeed, ''), ne(parameters.managedOSSMavenFeedUrl, '')) }}:
               DOTNET_SPARKFIXTURE_IVY_SETTINGS: $(SPARK_IVY_SETTINGS)
               DOTNET_SPARKFIXTURE_REPOSITORIES: ${{ parameters.managedOSSMavenFeedUrl }}
+
+        - ${{ if or(eq(split(test.version, '.')[0], '4'), eq(test.version, '3.5.3')) }}:
+          - task: DotNetCoreCLI@2
+            displayName: '.NET Interactive cross-cell UDF E2E tests'
+            inputs:
+              command: test
+              projects: '**/Microsoft.Spark.Extensions.DotNet.Interactive.E2ETest/*.csproj'
+              arguments: '--configuration $(buildConfiguration) --blame-hang --blame-hang-timeout 3min'
+              workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
+            env:
+              HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
+              SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop
+              DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
+              DOTNET_SPARKFIXTURE_EXPECTED_SPARK_VERSION: ${{ test.version }}
+              DOTNET_ASSEMBLY_SEARCH_PATHS: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark$(PATH_SEPARATOR)artifacts$(PATH_SEPARATOR)bin$(PATH_SEPARATOR)Microsoft.Spark.E2ETest$(PATH_SEPARATOR)$(buildConfiguration)$(PATH_SEPARATOR)net8.0
+              ${{ if and(ne(parameters.managedOSSMavenFeed, ''), ne(parameters.managedOSSMavenFeedUrl, '')) }}:
+                DOTNET_SPARKFIXTURE_IVY_SETTINGS: $(SPARK_IVY_SETTINGS)
+                DOTNET_SPARKFIXTURE_REPOSITORIES: ${{ parameters.managedOSSMavenFeedUrl }}
 
         # IO encryption is a SparkEnv startup setting. A separate test process is
         # required; modifying SparkContext.GetConf() in a test does not enable it.
@@ -350,7 +370,9 @@ stages:
           condition: ${{ test.enableBackwardCompatibleTests }}
           inputs:
             command: test
-            projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+            projects: |
+              **/Microsoft.Spark*.E2ETest/*.csproj
+              !**/Microsoft.Spark.Extensions.DotNet.Interactive.E2ETest/*.csproj
             arguments: '--configuration $(buildConfiguration) ${{ option.backwardCompatibleTestOptions }}'
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
@@ -377,7 +399,9 @@ stages:
           condition: ${{ test.enableForwardCompatibleTests }}
           inputs:
             command: test
-            projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
+            projects: |
+              **/Microsoft.Spark*.E2ETest/*.csproj
+              !**/Microsoft.Spark.Extensions.DotNet.Interactive.E2ETest/*.csproj
             arguments: '--configuration $(buildConfiguration) ${{ option.forwardCompatibleTestOptions }}'
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark-${{ parameters.forwardCompatibleRelease }}
           env:

@@ -11,6 +11,7 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
     [Collection("Spark E2E Tests")]
+    [Trait("Category", "DriverApi")]
     public class DataFrameWriterV2Tests
     {
         private readonly SparkSession _spark;
@@ -50,30 +51,27 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
             Assert.IsType<DataFrameWriterV2>(dfwV2.PartitionedBy(df.Col("age")));
 
-            // Throws the following exception:
-            // org.apache.spark.sql.AnalysisException: REPLACE TABLE AS SELECT is only supported
-            // with v2 tables.
-            Assert.Throws<Exception>(() => dfwV2.Replace());
+            // The JSON provider creates a V1 table, which must reject these V2 operations.
+            AssertUnsupportedTableOperation(() => dfwV2.Replace());
+            AssertUnsupportedTableOperation(() => dfwV2.CreateOrReplace());
+            AssertUnsupportedTableOperation(() => dfwV2.Append());
+            AssertUnsupportedTableOperation(() => dfwV2.Overwrite(df.Col("age")));
+            AssertUnsupportedTableOperation(() => dfwV2.OverwritePartitions());
+        }
 
-            // Throws the following exception:
-            // org.apache.spark.sql.AnalysisException: REPLACE TABLE AS SELECT is only supported
-            // with v2 tables.
-            Assert.Throws<Exception>(() => dfwV2.CreateOrReplace());
+        private static void AssertUnsupportedTableOperation(Action operation)
+        {
+            Exception exception = Assert.Throws<Exception>(operation);
+            JvmException jvmException = Assert.IsType<JvmException>(exception.InnerException);
+            Assert.Contains("org.apache.spark.sql.AnalysisException", jvmException.Message);
 
-            // Throws the following exception:
-            // org.apache.spark.sql.AnalysisException: Table default.testtable does not support
-            // append in batch mode.
-            Assert.Throws<Exception>(() => dfwV2.Append());
-
-            // Throws the following exception:
-            // org.apache.spark.sql.AnalysisException: Table default.testtable does not support
-            // overwrite by filter in batch mode.
-            Assert.Throws<Exception>(() => dfwV2.Overwrite(df.Col("age")));
-
-            // Throws the following exception:
-            // org.apache.spark.sql.AnalysisException: Table default.testtable does not support
-            // dynamic overwrite in batch mode.
-            Assert.Throws<Exception>(() => dfwV2.OverwritePartitions());
+            string message = jvmException.Message.ToLowerInvariant();
+            Assert.True(
+                message.Contains("only supported") ||
+                message.Contains("does not support") ||
+                message.Contains("unsupported") ||
+                message.Contains("cannot write into v1 table"),
+                jvmException.Message);
         }
     }
 }
