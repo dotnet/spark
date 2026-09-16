@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.IO;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
@@ -27,8 +28,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             string expectedInputCol = "input_col";
             string expectedOutputCol = "output_col";
 
-            DataFrame input = _spark.Sql("SELECT 'hello I AM a string TO, TOKENIZE' as input_col" +
-                " from range(100)");
+            DataFrame input = _spark.Sql("SELECT 'hello I AM a string TO, TOKENIZE' as input_col");
 
             Tokenizer tokenizer = new Tokenizer(expectedUid)
                 .SetInputCol(expectedInputCol)
@@ -37,6 +37,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             DataFrame output = tokenizer.Transform(input);
 
             Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
+            Assert.Equal(
+                new[] { "hello", "i", "am", "a", "string", "to,", "tokenize" },
+                Assert.Single(output.Collect()).GetAs<string[]>(expectedOutputCol));
             Assert.Equal(expectedInputCol, tokenizer.GetInputCol());
             Assert.Equal(expectedOutputCol, tokenizer.GetOutputCol());
 
@@ -52,6 +55,26 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Equal(expectedUid, tokenizer.Uid());
 
             TestFeatureBase(tokenizer, "inputCol", "input_col");
+        }
+
+        [Fact]
+        public void TestTokenizerRejectsInvalidInputAndRecovers()
+        {
+            Tokenizer tokenizer = new Tokenizer()
+                .SetInputCol("input_col")
+                .SetOutputCol("output_col");
+            DataFrame invalidInput = _spark.Sql("SELECT 1 as input_col");
+
+            Exception error = Assert.ThrowsAny<Exception>(() => tokenizer.Transform(invalidInput));
+            JvmException jvmError = Assert.IsType<JvmException>(error.InnerException);
+            Assert.Contains("IllegalArgumentException", jvmError.Message);
+            Assert.Contains("Input type must be string", jvmError.Message);
+
+            DataFrame validInput = _spark.Sql("SELECT 'Spark WORKS' as input_col");
+            Assert.Equal(
+                new[] { "spark", "works" },
+                Assert.Single(tokenizer.Transform(validInput).Collect())
+                    .GetAs<string[]>("output_col"));
         }
     }
 }

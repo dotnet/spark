@@ -9,6 +9,7 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.ParamTests
 {
     [Collection("Spark E2E Tests")]
+    [Trait("Category", "ML")]
     public class ParamTests
     {
         private readonly SparkSession _spark;

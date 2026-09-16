@@ -9,6 +9,7 @@ using Xunit;
 
 namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 {
+    [Trait("Category", "ML")]
     public class FeatureBaseTests<T>
     {
         private readonly SparkSession _spark;
