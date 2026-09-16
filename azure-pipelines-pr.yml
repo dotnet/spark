@@ -226,7 +226,7 @@ extends:
             - ${{ each pool in parameters.listOfE2ETestsPoolTypes }}:
               - pool: ${{ pool }}
                 ${{ if startsWith(version, '4.0.') }}:
-                  testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast|Category=ArrowUdf"'
+                  testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast|Category=ArrowUdf|Category=Avro"'
                 ${{ else }}:
                   testOptions: ""
                 backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_${{ pool }}_${{ split(version, '.')[0] }}_${{ split(version, '.')[1] }})
