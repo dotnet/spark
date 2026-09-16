@@ -9,6 +9,7 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
     [Collection("Spark E2E Tests")]
+    [Trait("Category", "Streaming")]
     public class TriggerTests
     {
         /// <summary>

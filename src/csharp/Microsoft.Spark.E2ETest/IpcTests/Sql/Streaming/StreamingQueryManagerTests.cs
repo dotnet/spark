@@ -11,6 +11,7 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
     [Collection("Spark E2E Tests")]
+    [Trait("Category", "Streaming")]
     public class StreamingQueryManagerTests
     {
         private readonly SparkSession _spark;
@@ -28,28 +29,47 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         [Fact]
         public void TestSignaturesV2_4_X()
         {
-            var intMemoryStream = new MemoryStream<int>(_spark);
-            StreamingQuery sq1 = intMemoryStream
-                .ToDF().WriteStream().QueryName("intQuery").Format("console").Start();
-
-            var stringMemoryStream = new MemoryStream<string>(_spark);
-            StreamingQuery sq2 = stringMemoryStream
-                .ToDF().WriteStream().QueryName("stringQuery").Format("console").Start();
-
             StreamingQueryManager sqm = _spark.Streams();
+            StreamingQuery sq1 = null;
+            StreamingQuery sq2 = null;
+            try
+            {
+                var intMemoryStream = new MemoryStream<int>(_spark);
+                sq1 = intMemoryStream
+                    .ToDF().WriteStream().QueryName("intQuery").Format("console").Start();
 
-            StreamingQuery[] streamingQueries = sqm.Active().ToArray();
-            Assert.Equal(2, streamingQueries.Length);
+                var stringMemoryStream = new MemoryStream<string>(_spark);
+                sq2 = stringMemoryStream
+                    .ToDF().WriteStream().QueryName("stringQuery").Format("console").Start();
 
-            Assert.IsType<StreamingQuery>(sqm.Get(sq1.Id));
-            Assert.IsType<StreamingQuery>(sqm.Get(sq2.Id));
+                StreamingQuery[] streamingQueries = sqm.Active().ToArray();
+                Assert.Equal(2, streamingQueries.Length);
 
-            sqm.ResetTerminated();
+                Assert.IsType<StreamingQuery>(sqm.Get(sq1.Id));
+                Assert.IsType<StreamingQuery>(sqm.Get(sq2.Id));
 
-            sqm.AwaitAnyTermination(10);
+                sqm.ResetTerminated();
 
-            sq1.Stop();
-            sq2.Stop();
+                sqm.AwaitAnyTermination(10);
+            }
+            finally
+            {
+                try
+                {
+                    sq1?.Stop();
+                }
+                finally
+                {
+                    try
+                    {
+                        sq2?.Stop();
+                    }
+                    finally
+                    {
+                        sqm.ResetTerminated();
+                    }
+                }
+            }
         }
     }
 }
