@@ -165,6 +165,34 @@ extends:
             mavenPomFile: src/scala/pom.xml
             options: '-Dmaven.resolver.transport=wagon'
 
+        - pwsh: |
+            $ErrorActionPreference = 'Stop'
+            # SparkContext.addFile needs winutils even in local-mode Scala tests on Windows.
+            $hadoopRoot = Join-Path "$(Build.BinariesDirectory)" 'hadoop'
+            $hadoopBin = Join-Path $hadoopRoot 'bin'
+            $archive = Join-Path "$(Build.BinariesDirectory)" 'hadoop-3.3.5.zip'
+            Invoke-WebRequest -Uri 'https://github.com/SparkSnail/winutils/releases/download/hadoop-3.3.5/hadoop-3.3.5.zip' -OutFile $archive
+            Expand-Archive -LiteralPath $archive -DestinationPath $hadoopRoot -Force
+            New-Item -ItemType Directory -Path $hadoopBin -Force | Out-Null
+            Copy-Item -LiteralPath (Join-Path $hadoopRoot 'hadoop-3.3.5\winutils.exe'), (Join-Path $hadoopRoot 'hadoop-3.3.5\hadoop.dll') -Destination $hadoopBin -Force
+
+            # These Hadoop binaries depend on the VC++ 2010 x64 runtime, as in Windows E2E.
+            $runtimeDll = Join-Path $env:SystemRoot 'System32\MSVCR100.dll'
+            if (-not (Test-Path -LiteralPath $runtimeDll)) {
+              $installer = Join-Path "$(Build.BinariesDirectory)" 'vcredist_x64.exe'
+              Invoke-WebRequest -Uri 'https://download.microsoft.com/download/1/6/5/165255E7-1014-4D0A-B094-B6A430A6BFFC/vcredist_x64.exe' -OutFile $installer
+              $installation = Start-Process -FilePath $installer -ArgumentList '/q', '/norestart' -Wait -PassThru -WindowStyle Hidden
+              if ($installation.ExitCode -notin @(0, 3010) -or -not (Test-Path -LiteralPath $runtimeDll)) {
+                throw "VC++ 2010 x64 runtime installation failed (exit code $($installation.ExitCode))."
+              }
+            }
+
+            & (Join-Path $hadoopBin 'winutils.exe') ls $hadoopBin
+            if ($LASTEXITCODE -ne 0) {
+              throw "Hadoop Windows tools failed to start (exit code $LASTEXITCODE)."
+            }
+          displayName: '[ENV] Prepare Hadoop for Windows Scala tests'
+
         - task: Maven@3
           displayName: 'Maven build Spark 4.0 bridge (JDK 17)'
           inputs:
@@ -174,6 +202,9 @@ extends:
             javaHomeOption: 'JDKVersion'
             jdkVersionOption: '1.17'
             jdkArchitectureOption: 'x64'
+          env:
+            HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
+            PATH: $(Build.BinariesDirectory)\hadoop\bin;$(PATH)
 
         - task: Maven@3
           displayName: 'Maven build benchmark'
