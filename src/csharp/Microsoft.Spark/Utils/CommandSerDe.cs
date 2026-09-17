@@ -431,9 +431,9 @@ namespace Microsoft.Spark.Utils
                         throw new InvalidDataException("Invalid Spark 4 grouped-map schema.");
                     }
 
-                    // The general DataType parser supports UDT aliases; this new
-                    // Arrow contract deliberately does not enable those aliases.
-                    RejectSpark40UdtSchema(token);
+                    // General schema support does not imply Arrow value support:
+                    // keep UDT aliases and Variant out of this Arrow contract.
+                    RejectUnsupportedSpark40ArrowType(token);
                     returnSchema = (StructType)DataType.ParseDataType(token);
                 }
                 catch (Exception ex) when (ex is JsonException || ex is ArgumentException ||
@@ -452,8 +452,13 @@ namespace Microsoft.Spark.Utils
             return serializedUdf;
         }
 
-        private static void RejectSpark40UdtSchema(JToken type)
+        private static void RejectUnsupportedSpark40ArrowType(JToken type)
         {
+            if (type?.Type == JTokenType.String && (string)type == "variant")
+            {
+                throw new InvalidDataException("Spark 4 Arrow Variant schemas are not supported.");
+            }
+
             if (!(type is JObject schema))
             {
                 return;
@@ -468,16 +473,16 @@ namespace Microsoft.Spark.Utils
                     {
                         foreach (JObject field in fields.OfType<JObject>())
                         {
-                            RejectSpark40UdtSchema(field["type"]);
+                            RejectUnsupportedSpark40ArrowType(field["type"]);
                         }
                     }
                     break;
                 case "array":
-                    RejectSpark40UdtSchema(schema["elementType"]);
+                    RejectUnsupportedSpark40ArrowType(schema["elementType"]);
                     break;
                 case "map":
-                    RejectSpark40UdtSchema(schema["keyType"]);
-                    RejectSpark40UdtSchema(schema["valueType"]);
+                    RejectUnsupportedSpark40ArrowType(schema["keyType"]);
+                    RejectUnsupportedSpark40ArrowType(schema["valueType"]);
                     break;
             }
         }
