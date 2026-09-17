@@ -268,7 +268,7 @@ stages:
           displayName: 'E2E tests'
           inputs:
             command: test
-            # Spark 4 covers the bridge, row retrieval, UDF, RDD, Broadcast and Worker lifecycle. Keep
+            # Spark 4 covers the bridge, row retrieval, UDF, RDD, Broadcast, Worker lifecycle and ML. Keep
             # extension projects out of this lane until their Spark 4 compatibility is implemented.
             ${{ if eq(split(test.version, '.')[0], '4') }}:
               projects: '**/Microsoft.Spark.E2ETest/Microsoft.Spark.E2ETest.csproj'
@@ -286,6 +286,36 @@ stages:
             ${{ if and(ne(parameters.managedOSSMavenFeed, ''), ne(parameters.managedOSSMavenFeedUrl, '')) }}:
               DOTNET_SPARKFIXTURE_IVY_SETTINGS: $(SPARK_IVY_SETTINGS)
               DOTNET_SPARKFIXTURE_REPOSITORIES: ${{ parameters.managedOSSMavenFeedUrl }}
+
+        - ${{ if or(eq(split(test.version, '.')[0], '4'), eq(test.version, '3.5.3')) }}:
+          - pwsh: |
+              ./eng/Run-MLPersistenceTests.ps1 `
+                -Configuration "$(buildConfiguration)" `
+                -ResultsDirectory "$(Agent.TempDirectory)$(PATH_SEPARATOR)ml-persistence-$(System.JobId)-$(System.JobAttempt)"
+            displayName: 'ML persistence E2E tests (separate save/load processes)'
+            workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
+            env:
+              HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
+              SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop
+              DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
+              DOTNET_SPARKFIXTURE_EXPECTED_SPARK_VERSION: ${{ test.version }}
+              ${{ if eq(split(test.version, '.')[0], '4') }}:
+                DOTNET_ASSEMBLY_SEARCH_PATHS: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark$(PATH_SEPARATOR)artifacts$(PATH_SEPARATOR)bin$(PATH_SEPARATOR)Microsoft.Spark.E2ETest$(PATH_SEPARATOR)$(buildConfiguration)$(PATH_SEPARATOR)net8.0
+              ${{ if and(ne(parameters.managedOSSMavenFeed, ''), ne(parameters.managedOSSMavenFeedUrl, '')) }}:
+                DOTNET_SPARKFIXTURE_IVY_SETTINGS: $(SPARK_IVY_SETTINGS)
+                DOTNET_SPARKFIXTURE_REPOSITORIES: ${{ parameters.managedOSSMavenFeedUrl }}
+
+          - task: PublishTestResults@2
+            displayName: 'Publish ML persistence test results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: VSTest
+              testResultsFiles: '**/ml-persistence-*.trx'
+              searchFolder: $(Agent.TempDirectory)$(PATH_SEPARATOR)ml-persistence-$(System.JobId)-$(System.JobAttempt)
+              mergeTestResults: false
+              failTaskOnFailedTests: true
+              failTaskOnMissingResultsFile: true
+              testRunTitle: 'ML persistence Spark ${{ test.version }} (${{ option.pool }})'
 
         # IO encryption is a SparkEnv startup setting. A separate test process is
         # required; modifying SparkContext.GetConf() in a test does not enable it.

@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.ML.Feature.Param;
 using Microsoft.Spark.Sql;
@@ -47,10 +48,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             Assert.Equal(expectedUid, bucketizer.Uid());
 
-            DataFrame input = _spark.Sql("SELECT ID as input_col from range(100)");
+            DataFrame input = _spark.Sql(
+                "SELECT CAST(value AS DOUBLE) as input_col " +
+                "FROM VALUES (-1), (0), (9), (10), (49), (50), (99) AS data(value)");
 
             DataFrame output = bucketizer.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
+            Assert.Equal(
+                new[] { 0.0, 1.0, 1.0, 2.0, 2.0, 3.0, 3.0 },
+                output.OrderBy(expectedInputCol).Collect()
+                    .Select(row => row.GetAs<double>(expectedOutputCol)));
 
             Assert.Equal(expectedInputCol, bucketizer.GetInputCol());
             Assert.Equal(expectedOutputCol, bucketizer.GetOutputCol());
@@ -91,11 +98,19 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Equal(expectedHandle, bucketizer.GetHandleInvalid());
 
             DataFrame input =
-                _spark.Sql("SELECT ID as input_col_a, ID as input_col_b from range(100)");
+                _spark.Sql("SELECT ID * 10 as input_col_a, ID * 5000 as input_col_b " +
+                    "from range(-1, 7)");
 
             DataFrame output = bucketizer.Transform(input);
             Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col_a"));
             Assert.Contains(output.Schema().Fields, (f => f.Name == "output_col_b"));
+            Row[] rows = output.OrderBy("input_col_a").Collect().ToArray();
+            Assert.Equal(
+                new[] { 0.0, 1.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0 },
+                rows.Select(row => row.GetAs<double>("output_col_a")));
+            Assert.Equal(
+                new[] { 0.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0 },
+                rows.Select(row => row.GetAs<double>("output_col_b")));
 
             Assert.Equal(expectedInputCols, bucketizer.GetInputCols());
             Assert.Equal(expectedOutputCols, bucketizer.GetOutputCols());

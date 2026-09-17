@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.IO;
+using System.Linq;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
@@ -46,6 +47,12 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             Assert.Contains(expectedOutputCol, outputVector.Columns());
 
+            Row counts = outputVector.Collect().Single().GetAs<Row>(expectedOutputCol);
+            Assert.Equal(0, counts.GetAs<int>("type"));
+            Assert.Equal(expectedFeatures, counts.GetAs<int>("size"));
+            Assert.Equal(6.0, counts.GetAs<double[]>("values").Sum());
+            Assert.Contains(counts.GetAs<double[]>("values"), value => value >= 3.0);
+
             using (var tempDirectory = new TemporaryDirectory())
             {
                 string savePath = Path.Join(tempDirectory.Path, "hashingTF");
@@ -57,6 +64,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             hashingTf.SetBinary(true);
             Assert.True(hashingTf.GetBinary());
+
+            Row binary = hashingTf.Transform(input).Select(expectedOutputCol)
+                .Collect().Single().GetAs<Row>(expectedOutputCol);
+            Assert.Equal(counts.GetAs<int[]>("indices"), binary.GetAs<int[]>("indices"));
+            Assert.All(binary.GetAs<double[]>("values"), value => Assert.Equal(1.0, value));
 
             TestFeatureBase(hashingTf, "numFeatures", 1000);
         }

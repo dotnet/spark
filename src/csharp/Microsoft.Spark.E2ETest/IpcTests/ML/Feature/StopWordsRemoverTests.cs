@@ -33,7 +33,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             bool expectedCaseSensitive = false;
             var expectedStopWords = new string[] { "test1", "test2" };
 
-            DataFrame input = _spark.Sql("SELECT split('Hi I heard about Spark', ' ') as input_col");
+            DataFrame input = _spark.Sql(
+                "SELECT split('Hi TEST1 I test2 heard about Spark', ' ') as input_col");
 
             StopWordsRemover stopWordsRemover = new StopWordsRemover(expectedUid)
                 .SetInputCol(expectedInputCol)
@@ -58,7 +59,11 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             }
 
             Assert.IsType<StructType>(stopWordsRemover.TransformSchema(input.Schema()));
-            Assert.IsType<DataFrame>(stopWordsRemover.Transform(input));
+            DataFrame output = stopWordsRemover.Transform(input);
+            Assert.IsType<DataFrame>(output);
+            Assert.Equal(
+                new[] { "Hi", "I", "heard", "about", "Spark" },
+                Assert.Single(output.Collect()).GetAs<string[]>(expectedOutputCol));
 
             TestFeatureBase(stopWordsRemover, "inputCol", "input_col");
 

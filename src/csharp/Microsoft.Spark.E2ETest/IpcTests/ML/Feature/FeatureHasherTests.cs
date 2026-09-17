@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
@@ -54,6 +55,21 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.IsType<int>(hasher.GetNumFeatures());
             Assert.IsType<StructType>(hasher.TransformSchema(dataFrame.Schema()));
             Assert.IsType<DataFrame>(hasher.Transform(dataFrame));
+
+            // One numeric input avoids categorical hashing collisions in the value oracle.
+            var numericHasher = new FeatureHasher()
+                .SetInputCols(new[] { "real" }).SetOutputCol("features").SetNumFeatures(10);
+            Row[] rows = numericHasher.Transform(dataFrame).OrderBy("real")
+                .Select("features").Collect().ToArray();
+            Assert.Equal(2, rows.Length);
+            for (int i = 0; i < rows.Length; ++i)
+            {
+                Row vector = rows[i].GetAs<Row>("features");
+                Assert.Equal(0, vector.GetAs<int>("type"));
+                Assert.Equal(10, vector.GetAs<int>("size"));
+                Assert.InRange(Assert.Single(vector.GetAs<int[]>("indices")), 0, 9);
+                Assert.Equal(i + 2.0, Assert.Single(vector.GetAs<double[]>("values")));
+            }
 
             TestFeatureBase(hasher, "numFeatures", 1000);
         }
