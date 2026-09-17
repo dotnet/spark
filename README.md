@@ -2,7 +2,7 @@
 
 # .NET for Apache® Spark™
 
-[![Azure Pipelines (main)][ci-main]](https://msasg.visualstudio.com/ManagedOSS/_build/latest?definitionId=51729&branchName=main)
+[![CI (main)][ci-main]][ci-report]
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Spark.svg)](https://www.nuget.org/packages/Microsoft.Spark)
 
 .NET for Apache Spark provides high-performance APIs for using [Apache Spark](https://spark.apache.org/) from C# and F#. Use DataFrames and Spark SQL to work with structured data, and Structured Streaming to process streaming data.
@@ -18,9 +18,9 @@ For background on the proposal for upstream .NET bindings, see [SPIP: .NET bindi
 - [Supported Apache Spark](#supported-apache-spark)
 - [Releases](#releases)
 - [Get Started](#get-started)
-- [Build Status](#build-status)
 - [Building from Source](#building-from-source)
 - [Samples](#samples)
+- [Test Status](#test-status)
 - [Contributing](#contributing)
 - [Inspiration and Special Thanks](#inspiration-and-special-thanks)
 - [How to Engage, Contribute and Provide Feedback](#how-to-engage-contribute-and-provide-feedback)
@@ -53,18 +53,30 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
 - [Ubuntu Instructions](docs/getting-started/ubuntu-instructions.md)
 - [macOS Instructions](docs/getting-started/macos-instructions.md)
 
-## Build Status
+## Building from Source
 
-The [Azure Pipelines CI](https://msasg.visualstudio.com/ManagedOSS/_build/latest?definitionId=51729&branchName=main) runs on `main` and validates pull requests. Its configuration is in [azure-pipelines-pr.yml](azure-pipelines-pr.yml), using the shared [E2E template](azure-pipelines-e2e-tests-template.yml).
+Follow the platform-specific instructions to install prerequisites, build the bridge and .NET components, and run the tests.
 
-CI status for `main`. Badge updates may be delayed; detailed build logs may require sign-in.
+| Platform | Instructions |
+| :--- | :--- |
+| Windows | [.NET 8](docs/building/windows-instructions.md#using-net-cli-for-net-8) · [.NET Framework 4.8](docs/building/windows-instructions.md#using-visual-studio-for-net-framework) |
+| Ubuntu | [.NET 8](docs/building/ubuntu-instructions.md) |
 
-Snapshot: [![Main commit][ci-revision]][ci-report] · [Publisher runs](https://github.com/dotnet/spark/actions/workflows/ci-status.yml)
+## Samples
 
-<details>
-<summary>E2E status by Spark version</summary>
+Browse the [sample index](examples/README.md) for DataFrame and [Structured Streaming](https://archive.apache.org/dist/spark/docs/3.5.3/structured-streaming-programming-guide.html) examples. See [Building from Source](#building-from-source) for setup instructions and the [benchmark guide](benchmark/README.md) for running TPC-H queries.
 
-Each badge shows one E2E job from the same main commit and Azure build. Click a badge for the [snapshot and individual check links][ci-report]. Missing or unfinished checks are not shown as passing.
+| Scenario | Description | Code |
+| :--- | :--- | :--- |
+| DataFrames and Spark SQL | Basic queries and transformations | [C#](examples/Microsoft.Spark.CSharp.Examples/Sql/Batch/Basic.cs) · [F#](examples/Microsoft.Spark.FSharp.Examples/Sql/Basic.fs) |
+| Streaming word count | Count words from a network stream | [C#](examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.cs) · [F#](examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.fs) |
+| Windowed word count | Aggregate streaming data over time windows | [C#](examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCountWindowed.cs) · [F#](examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredNetworkWordCountWindowed.fs) |
+| Kafka word count | Process streaming data from [Apache Kafka](https://kafka.apache.org/) | [C#](examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.cs) · [F#](examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.fs) |
+| TPC-H queries | Express benchmark queries using DataFrame APIs or SQL | [DataFrame APIs](benchmark/csharp/Tpch/TpchFunctionalQueries.cs) · [SQL](benchmark/csharp/Tpch/TpchSqlQueries.cs) |
+
+## Test Status
+
+End-to-end test status for [![Main commit][ci-revision]][ci-report]; updates may be delayed.
 
 <!-- Keep rows and image references aligned with listOfE2ETestsSparkVersions in azure-pipelines-pr.yml. -->
 
@@ -97,8 +109,6 @@ Each badge shows one E2E job from the same main commit and Azure build. Click a 
 | 4.0.2 | [![Windows][ci-4.0.2-windows]][ci-report] | [![Linux][ci-4.0.2-linux]][ci-report] |
 | 4.0.3 | [![Windows][ci-4.0.3-windows]][ci-report] | [![Linux][ci-4.0.3-linux]][ci-report] |
 | 4.0.4 | [![Windows][ci-4.0.4-windows]][ci-report] | [![Linux][ci-4.0.4-linux]][ci-report] |
-
-</details>
 
 [ci-main]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/main.svg
 [ci-revision]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/revision.svg
@@ -157,29 +167,6 @@ Each badge shows one E2E job from the same main commit and Azure build. Click a 
 [ci-4.0.3-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-4.0.3-linux.svg
 [ci-4.0.4-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-4.0.4-windows.svg
 [ci-4.0.4-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-4.0.4-linux.svg
-
-A successful run covers the tests selected by that run; it is not a guarantee of all APIs or deployment environments.
-
-## Building from Source
-
-Follow the platform-specific instructions to install prerequisites, build the bridge and .NET components, and run the tests.
-
-| Platform | Instructions |
-| :--- | :--- |
-| Windows | [.NET 8](docs/building/windows-instructions.md#using-net-cli-for-net-8) · [.NET Framework 4.8](docs/building/windows-instructions.md#using-visual-studio-for-net-framework) |
-| Ubuntu | [.NET 8](docs/building/ubuntu-instructions.md) |
-
-## Samples
-
-Browse the [sample index](examples/README.md) for DataFrame and [Structured Streaming](https://archive.apache.org/dist/spark/docs/3.5.3/structured-streaming-programming-guide.html) examples. See [Building from Source](#building-from-source) for setup instructions and the [benchmark guide](benchmark/README.md) for running TPC-H queries.
-
-| Scenario | Description | Code |
-| :--- | :--- | :--- |
-| DataFrames and Spark SQL | Basic queries and transformations | [C#](examples/Microsoft.Spark.CSharp.Examples/Sql/Batch/Basic.cs) · [F#](examples/Microsoft.Spark.FSharp.Examples/Sql/Basic.fs) |
-| Streaming word count | Count words from a network stream | [C#](examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.cs) · [F#](examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.fs) |
-| Windowed word count | Aggregate streaming data over time windows | [C#](examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCountWindowed.cs) · [F#](examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredNetworkWordCountWindowed.fs) |
-| Kafka word count | Process streaming data from [Apache Kafka](https://kafka.apache.org/) | [C#](examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.cs) · [F#](examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.fs) |
-| TPC-H queries | Express benchmark queries using DataFrame APIs or SQL | [DataFrame APIs](benchmark/csharp/Tpch/TpchFunctionalQueries.cs) · [SQL](benchmark/csharp/Tpch/TpchSqlQueries.cs) |
 
 ## Contributing
 
