@@ -1,16 +1,17 @@
-[![NuGet Badge](https://buildstats.info/nuget/Microsoft.Spark)](https://www.nuget.org/packages/Microsoft.Spark)
-
-![Icon](docs/img/dotnetsparklogo-6.png)
+![.NET for Apache Spark logo](docs/img/dotnetsparklogo-6.png)
 
 # .NET for Apache® Spark™
 
-.NET for Apache Spark provides high performance APIs for using [Apache Spark](https://spark.apache.org/) from C# and F#. With these .NET APIs, you can access the most popular Dataframe and SparkSQL aspects of Apache Spark, for working with structured data, and Spark Structured Streaming, for working with streaming data. 
+[![Azure Pipelines (main)][ci-main]](https://msasg.visualstudio.com/ManagedOSS/_build/latest?definitionId=51729&branchName=main)
+[![NuGet](https://img.shields.io/nuget/v/Microsoft.Spark.svg)](https://www.nuget.org/packages/Microsoft.Spark)
 
-.NET for Apache Spark is compliant with .NET Standard - a formal specification of .NET APIs that are common across .NET implementations. This means you can use .NET for Apache Spark anywhere you write .NET code allowing you to reuse all the knowledge, skills, code, and libraries you already have as a .NET developer. 
+.NET for Apache Spark provides high-performance APIs for using [Apache Spark](https://spark.apache.org/) from C# and F#. Use DataFrames and Spark SQL to work with structured data, and Structured Streaming to process streaming data.
 
-.NET for Apache Spark runs on Windows, Linux, and macOS using .NET 8, or Windows using .NET Framework. It also runs on all major cloud providers including [Azure HDInsight Spark](deployment/README.md#azure-hdinsight-spark), [Amazon EMR Spark](deployment/README.md#amazon-emr-spark), [AWS](deployment/README.md#databricks) & [Azure](deployment/README.md#databricks) Databricks.
+`Microsoft.Spark` targets .NET Standard 2.0 and 2.1. Running an application also requires a compatible .NET Worker, Apache Spark runtime, and Scala bridge. The Worker runs on Windows, Linux, and macOS using .NET 8, or on Windows using .NET Framework.
 
-**Note**: We currently have a Spark Project Improvement Proposal JIRA at [SPIP: .NET bindings for Apache Spark](https://issues.apache.org/jira/browse/SPARK-27006) to work with the community towards getting .NET support by default into Apache Spark. We highly encourage you to participate in the discussion. 
+Deployment guides are available for [Azure HDInsight Spark](deployment/README.md#azure-hdinsight-spark), [Amazon EMR Spark](deployment/README.md#amazon-emr-spark), and [Databricks on AWS and Azure](deployment/README.md#databricks). Check the target platform's runtime and Worker compatibility before following a guide; these guides do not validate every managed-service runtime.
+
+For background on the proposal for upstream .NET bindings, see [SPIP: .NET bindings for Apache Spark](https://issues.apache.org/jira/browse/SPARK-27006).
 
 ## Table of Contents
 
@@ -36,125 +37,147 @@ The getting-started examples use Spark 3.5.3 with Scala 2.12. Spark 4.0 integrat
 
 ### Published v2.3.1 compatibility (historical)
 
-The following table describes the already-published v2.3.1 release, not the next release or the current source tree.
-
-<table>
-    <thead>
-        <tr>
-            <th>Apache Spark</th>
-            <th>.NET for Apache Spark</th>
-        </tr>
-    </thead>
-    <tbody align="center">
-        <tr>
-            <td>2.4*</td>
-            <td rowspan=5><a href="https://github.com/dotnet/spark/releases/tag/v2.3.1">v2.3.1</a></td>
-        </tr>
-        <tr>
-            <td>3.0</td>
-        </tr>
-        <tr>
-            <td>3.1</td>
-        </tr>
-        <tr>
-            <td>3.2</td>
-        </tr>        
-        <tr>
-            <td>3.5</td>
-        </tr>
-    </tbody>
-</table>
-
-*2.4.2 is <a href="https://github.com/dotnet/spark/issues/60">not supported</a>.
+The published [v2.3.1 release](https://github.com/dotnet/spark/releases/tag/v2.3.1) supports Spark 2.4 (except 2.4.2) and Spark 3.0 through 3.5, not Spark 4.0. See the [release compatibility notes](docs/release-notes/2.3.1/release-2.3.1.md#supported-spark-versions) for that release; they do not describe the current source tree.
 
 ## Releases
 
 .NET for Apache Spark releases are available [here](https://github.com/dotnet/spark/releases) and NuGet packages are available [here](https://www.nuget.org/packages/Microsoft.Spark).
 
 ## Get Started
+
 These instructions will show you how to run a .NET for Apache Spark app using .NET 8.
+
 - [Windows Instructions](docs/getting-started/windows-instructions.md)
 - [Ubuntu Instructions](docs/getting-started/ubuntu-instructions.md)
-- [MacOs Instructions](docs/getting-started/macos-instructions.md)
+- [macOS Instructions](docs/getting-started/macos-instructions.md)
 
 ## Build Status
 
-Pull-request validation is defined in [azure-pipelines-pr.yml](azure-pipelines-pr.yml), using the shared [E2E template](azure-pipelines-e2e-tests-template.yml). A successful run covers the tests selected by that run; it is not a guarantee of all APIs or deployment environments.
+The [Azure Pipelines CI](https://msasg.visualstudio.com/ManagedOSS/_build/latest?definitionId=51729&branchName=main) runs on `main` and validates pull requests. Its configuration is in [azure-pipelines-pr.yml](azure-pipelines-pr.yml), using the shared [E2E template](azure-pipelines-e2e-tests-template.yml).
+
+Badges are cached snapshots of the Azure Pipelines GitHub Checks for the `main` commit observed by the [status publisher](eng/ci-status/README.md). The publisher refreshes on main pushes, eligible check-suite completion events, and a 15-minute schedule. GitHub scheduling and image caches can delay updates; these are not instantaneous results. Detailed Azure build logs may require sign-in.
+
+Snapshot: [![Main commit][ci-revision]][ci-report] · [Publisher runs](https://github.com/dotnet/spark/actions/workflows/ci-status.yml)
+
+<details>
+<summary>E2E status by Spark version — Windows and Linux</summary>
+
+Each badge shows one E2E job from the same main commit and Azure build. Click a badge for the [snapshot and individual check links][ci-report]. Missing or unfinished checks are not shown as passing.
+
+<!-- Keep rows and image references aligned with listOfE2ETestsSparkVersions in azure-pipelines-pr.yml. -->
+
+| Spark | Windows | Linux |
+| :--- | :---: | :---: |
+| 3.0.0 | [![Windows][ci-3.0.0-windows]][ci-report] | [![Linux][ci-3.0.0-linux]][ci-report] |
+| 3.0.1 | [![Windows][ci-3.0.1-windows]][ci-report] | [![Linux][ci-3.0.1-linux]][ci-report] |
+| 3.0.2 | [![Windows][ci-3.0.2-windows]][ci-report] | [![Linux][ci-3.0.2-linux]][ci-report] |
+| 3.1.1 | [![Windows][ci-3.1.1-windows]][ci-report] | [![Linux][ci-3.1.1-linux]][ci-report] |
+| 3.1.2 | [![Windows][ci-3.1.2-windows]][ci-report] | [![Linux][ci-3.1.2-linux]][ci-report] |
+| 3.2.1 | [![Windows][ci-3.2.1-windows]][ci-report] | [![Linux][ci-3.2.1-linux]][ci-report] |
+| 3.2.2 | [![Windows][ci-3.2.2-windows]][ci-report] | [![Linux][ci-3.2.2-linux]][ci-report] |
+| 3.2.3 | [![Windows][ci-3.2.3-windows]][ci-report] | [![Linux][ci-3.2.3-linux]][ci-report] |
+| 3.3.0 | [![Windows][ci-3.3.0-windows]][ci-report] | [![Linux][ci-3.3.0-linux]][ci-report] |
+| 3.3.1 | [![Windows][ci-3.3.1-windows]][ci-report] | [![Linux][ci-3.3.1-linux]][ci-report] |
+| 3.3.2 | [![Windows][ci-3.3.2-windows]][ci-report] | [![Linux][ci-3.3.2-linux]][ci-report] |
+| 3.3.3 | [![Windows][ci-3.3.3-windows]][ci-report] | [![Linux][ci-3.3.3-linux]][ci-report] |
+| 3.3.4 | [![Windows][ci-3.3.4-windows]][ci-report] | [![Linux][ci-3.3.4-linux]][ci-report] |
+| 3.4.0 | [![Windows][ci-3.4.0-windows]][ci-report] | [![Linux][ci-3.4.0-linux]][ci-report] |
+| 3.4.1 | [![Windows][ci-3.4.1-windows]][ci-report] | [![Linux][ci-3.4.1-linux]][ci-report] |
+| 3.4.2 | [![Windows][ci-3.4.2-windows]][ci-report] | [![Linux][ci-3.4.2-linux]][ci-report] |
+| 3.4.3 | [![Windows][ci-3.4.3-windows]][ci-report] | [![Linux][ci-3.4.3-linux]][ci-report] |
+| 3.4.4 | [![Windows][ci-3.4.4-windows]][ci-report] | [![Linux][ci-3.4.4-linux]][ci-report] |
+| 3.5.0 | [![Windows][ci-3.5.0-windows]][ci-report] | [![Linux][ci-3.5.0-linux]][ci-report] |
+| 3.5.1 | [![Windows][ci-3.5.1-windows]][ci-report] | [![Linux][ci-3.5.1-linux]][ci-report] |
+| 3.5.2 | [![Windows][ci-3.5.2-windows]][ci-report] | [![Linux][ci-3.5.2-linux]][ci-report] |
+| 3.5.3 | [![Windows][ci-3.5.3-windows]][ci-report] | [![Linux][ci-3.5.3-linux]][ci-report] |
+| 4.0.0 | [![Windows][ci-4.0.0-windows]][ci-report] | [![Linux][ci-4.0.0-linux]][ci-report] |
+| 4.0.1 | [![Windows][ci-4.0.1-windows]][ci-report] | [![Linux][ci-4.0.1-linux]][ci-report] |
+| 4.0.2 | [![Windows][ci-4.0.2-windows]][ci-report] | [![Linux][ci-4.0.2-linux]][ci-report] |
+| 4.0.3 | [![Windows][ci-4.0.3-windows]][ci-report] | [![Linux][ci-4.0.3-linux]][ci-report] |
+| 4.0.4 | [![Windows][ci-4.0.4-windows]][ci-report] | [![Linux][ci-4.0.4-linux]][ci-report] |
+
+</details>
+
+[ci-main]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/main.svg
+[ci-revision]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/revision.svg
+[ci-report]: https://github.com/dotnet/spark/blob/ci-status/README.md
+[ci-3.0.0-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.0.0-windows.svg
+[ci-3.0.0-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.0.0-linux.svg
+[ci-3.0.1-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.0.1-windows.svg
+[ci-3.0.1-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.0.1-linux.svg
+[ci-3.0.2-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.0.2-windows.svg
+[ci-3.0.2-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.0.2-linux.svg
+[ci-3.1.1-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.1.1-windows.svg
+[ci-3.1.1-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.1.1-linux.svg
+[ci-3.1.2-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.1.2-windows.svg
+[ci-3.1.2-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.1.2-linux.svg
+[ci-3.2.1-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.2.1-windows.svg
+[ci-3.2.1-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.2.1-linux.svg
+[ci-3.2.2-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.2.2-windows.svg
+[ci-3.2.2-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.2.2-linux.svg
+[ci-3.2.3-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.2.3-windows.svg
+[ci-3.2.3-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.2.3-linux.svg
+[ci-3.3.0-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.3.0-windows.svg
+[ci-3.3.0-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.3.0-linux.svg
+[ci-3.3.1-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.3.1-windows.svg
+[ci-3.3.1-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.3.1-linux.svg
+[ci-3.3.2-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.3.2-windows.svg
+[ci-3.3.2-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.3.2-linux.svg
+[ci-3.3.3-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.3.3-windows.svg
+[ci-3.3.3-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.3.3-linux.svg
+[ci-3.3.4-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.3.4-windows.svg
+[ci-3.3.4-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.3.4-linux.svg
+[ci-3.4.0-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.4.0-windows.svg
+[ci-3.4.0-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.4.0-linux.svg
+[ci-3.4.1-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.4.1-windows.svg
+[ci-3.4.1-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.4.1-linux.svg
+[ci-3.4.2-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.4.2-windows.svg
+[ci-3.4.2-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.4.2-linux.svg
+[ci-3.4.3-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.4.3-windows.svg
+[ci-3.4.3-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.4.3-linux.svg
+[ci-3.4.4-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.4.4-windows.svg
+[ci-3.4.4-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.4.4-linux.svg
+[ci-3.5.0-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.5.0-windows.svg
+[ci-3.5.0-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.5.0-linux.svg
+[ci-3.5.1-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.5.1-windows.svg
+[ci-3.5.1-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.5.1-linux.svg
+[ci-3.5.2-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.5.2-windows.svg
+[ci-3.5.2-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.5.2-linux.svg
+[ci-3.5.3-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.5.3-windows.svg
+[ci-3.5.3-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-3.5.3-linux.svg
+[ci-4.0.0-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-4.0.0-windows.svg
+[ci-4.0.0-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-4.0.0-linux.svg
+[ci-4.0.1-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-4.0.1-windows.svg
+[ci-4.0.1-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-4.0.1-linux.svg
+[ci-4.0.2-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-4.0.2-windows.svg
+[ci-4.0.2-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-4.0.2-linux.svg
+[ci-4.0.3-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-4.0.3-windows.svg
+[ci-4.0.3-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-4.0.3-linux.svg
+[ci-4.0.4-windows]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-4.0.4-windows.svg
+[ci-4.0.4-linux]: https://raw.githubusercontent.com/dotnet/spark/ci-status/badges/spark-4.0.4-linux.svg
+
+A successful run covers the tests selected by that run; it is not a guarantee of all APIs or deployment environments.
 
 ## Building from Source
 
-Building from source is very easy and the whole process (from cloning to being able to run your app) should take less than 15 minutes!
+Follow the platform-specific instructions to install prerequisites, build the bridge and .NET components, and run the tests.
 
-| |  | Instructions |
-| :---: | :---         |      :--- |
-| ![Windows icon](docs/img/windows-icon-32.png) | **Windows**    | <ul><li>Local - [.NET Framework 4.8](docs/building/windows-instructions.md#using-visual-studio-for-net-framework)</li><li>Local - [.NET 8](docs/building/windows-instructions.md#using-net-core-cli-for-net-core)</li><ul>    |
-| ![Ubuntu icon](docs/img/ubuntu-icon-32.png) | **Ubuntu**     | <ul><li>Local - [.NET 8](docs/building/ubuntu-instructions.md)</li><li>[Azure HDInsight Spark - .NET 8](deployment/README.md)</li></ul>      |
+| Platform | Instructions |
+| :--- | :--- |
+| Windows | [.NET 8](docs/building/windows-instructions.md#using-net-cli-for-net-8) · [.NET Framework 4.8](docs/building/windows-instructions.md#using-visual-studio-for-net-framework) |
+| Ubuntu | [.NET 8](docs/building/ubuntu-instructions.md) |
 
-<a name="samples"></a>
 ## Samples
 
-There are two types of samples/apps in the .NET for Apache Spark repo:
+Browse the [sample index](examples/README.md) for DataFrame and [Structured Streaming](https://archive.apache.org/dist/spark/docs/3.5.3/structured-streaming-programming-guide.html) examples. See [Building from Source](#building-from-source) for setup instructions and the [benchmark guide](benchmark/README.md) for running TPC-H queries.
 
-* ![Icon](docs/img/app-type-getting-started.png) Getting Started - .NET for Apache Spark code focused on simple and minimalistic scenarios.
-
-* ![Icon](docs/img/app-type-e2e.png)  End-End apps/scenarios - Real world examples of industry standard benchmarks, usecases and business applications implemented using .NET for Apache Spark. 
-
-We welcome contributions to both categories!
-
-<table>
- <tr>
-   <td width="25%">
-      <h4><b>Analytics Scenario</b></h4>
-  </td>
-  <td>
-      <h4 width="35%"><b>Description</b></h4>
-  </td>
-  <td>
-      <h4><b>Scenarios</b></h4>
-  </td>
- </tr>
- <tr>
-   <td width="25%">
-      <h5>Dataframes and SparkSQL</h5>
-  </td>
-  <td width="35%">
-  Simple code snippets to help you get familiarized with the programmability experience of .NET for Apache Spark.
-  </td>
-    <td>
-      <h5>Basic &nbsp;&nbsp;&nbsp;
-      <a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Batch/Basic.cs">C#</a> &nbsp; &nbsp; <a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Basic.fs">F#</a>&nbsp;&nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></a></h5>
-  </td>
- </tr>
- <tr>
-   <td width="25%">
-      <h5>Structured Streaming</h5>
-  </td>
-  <td width="35%">
-      Code snippets to show you how to utilize Apache Spark's <a href="https://spark.apache.org/docs/3.5.3/structured-streaming-programming-guide.html">Structured Streaming</a>
-  </td>
-  <td>
-      <h5>Word Count &nbsp;&nbsp;&nbsp;
-      <a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.cs">C#</a> &nbsp;&nbsp;&nbsp;<a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.fs">F#</a> &nbsp;&nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></a></h5>
-      <h5>Windowed Word Count &nbsp;&nbsp;&nbsp;<a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCountWindowed.cs">C#</a> &nbsp; &nbsp;<a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredNetworkWordCountWindowed.fs">F#</a> &nbsp;&nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></a></h5>      
-      <h5>Word Count on data from <a href="https://kafka.apache.org/">Kafka</a> &nbsp;&nbsp;&nbsp;<a href="examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.cs">C#</a> &nbsp;&nbsp;&nbsp;<a href="examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.fs">F#</a> &nbsp; &nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-getting-started.png" alt="Getting started icon"></a></h5>
-  </td>
- </tr>
- <tr>
-   <td width="25%">
-      <h4>TPC-H Queries</h4>
-  </td>
-  <td width="35%">
-  Code to show you how to author complex queries using .NET for Apache Spark.
-  </td>
-  <td>
-      <h5>TPC-H Functional &nbsp;&nbsp;&nbsp;
-      <a href="benchmark/csharp/Tpch/TpchFunctionalQueries.cs">C#</a> &nbsp;&nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-e2e.png" alt="End-to-end app icon"></a></h5>
-      <h5>TPC-H SparkSQL &nbsp;&nbsp;&nbsp;
-      <a href="benchmark/csharp/Tpch/TpchSqlQueries.cs">C#</a>  &nbsp;&nbsp;&nbsp;<a href="#"><img src="docs/img/app-type-e2e.png" alt="End-to-end app icon"></a></h5>
-  </td>
-</tr>
- </tr> 
- </table>
+| Scenario | Description | Code |
+| :--- | :--- | :--- |
+| DataFrames and Spark SQL | Basic queries and transformations | [C#](examples/Microsoft.Spark.CSharp.Examples/Sql/Batch/Basic.cs) · [F#](examples/Microsoft.Spark.FSharp.Examples/Sql/Basic.fs) |
+| Streaming word count | Count words from a network stream | [C#](examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.cs) · [F#](examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredNetworkWordCount.fs) |
+| Windowed word count | Aggregate streaming data over time windows | [C#](examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredNetworkWordCountWindowed.cs) · [F#](examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredNetworkWordCountWindowed.fs) |
+| Kafka word count | Process streaming data from [Apache Kafka](https://kafka.apache.org/) | [C#](examples/Microsoft.Spark.CSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.cs) · [F#](examples/Microsoft.Spark.FSharp.Examples/Sql/Streaming/StructuredKafkaWordCount.fs) |
+| TPC-H queries | Express benchmark queries using DataFrame APIs or SQL | [DataFrame APIs](benchmark/csharp/Tpch/TpchFunctionalQueries.cs) · [SQL](benchmark/csharp/Tpch/TpchSqlQueries.cs) |
 
 ## Contributing
 
@@ -170,26 +193,25 @@ This project would not have been possible without the outstanding work from the 
 - [sparkR](https://spark.apache.org/docs/latest/sparkr.html): one of the implementations .NET for Apache Spark derives inspiration from.
 - [Apache Arrow](https://arrow.apache.org/): A cross-language development platform for in-memory data. This library provides .NET for Apache Spark with efficient ways to transfer column major data between the JVM and .NET CLR.
 - [Pyrolite](https://github.com/irmen/Pyrolite) - Java and .NET interface to Python's pickle and Pyro protocols. This library provides .NET for Apache Spark with efficient ways to transfer row major data between the JVM and .NET CLR. 
-- [Databricks](https://databricks.com/): Unified analytics platform. Many thanks to all the suggestions from them towards making .NET for Apache Spark run on Azure and AWS Databricks.
+- [Databricks](https://www.databricks.com/): Unified analytics platform. Many thanks to all the suggestions from them towards making .NET for Apache Spark run on Azure and AWS Databricks.
 
 ## How to Engage, Contribute and Provide Feedback
 
-The .NET for Apache Spark team encourages [contributions](docs/contributing.md), both issues and PRs. The first step is finding an [existing issue](https://github.com/dotnet/spark/issues) you want to contribute to or if you cannot find any, [open an issue](https://github.com/dotnet/spark/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+).
+The .NET for Apache Spark team encourages [contributions](docs/contributing.md), both issues and PRs. The first step is finding an [existing issue](https://github.com/dotnet/spark/issues) you want to contribute to or, if you cannot find any, [opening an issue](https://github.com/dotnet/spark/issues/new/choose).
 
 ## Support
 
-[.NET for Apache Spark](https://github.com/dotnet/spark) is an open source project under the [.NET Foundation](https://dotnetfoundation.org/) and 
-does not come with Microsoft Support unless otherwise noted by the specific product. For issues with or questions about .NET for Apache Spark, please [create an issue](https://github.com/dotnet/spark/issues). The community is active and is monitoring submissions.
+[.NET for Apache Spark](https://github.com/dotnet/spark) is an open source project under the [.NET Foundation](https://dotnetfoundation.org/) and does not come with Microsoft Support unless otherwise noted by the specific product. For issues with or questions about .NET for Apache Spark, please [create an issue](https://github.com/dotnet/spark/issues/new/choose).
 
 ## .NET Foundation
 
-The .NET for Apache Spark project is part of the [.NET Foundation](http://www.dotnetfoundation.org).
+The .NET for Apache Spark project is part of the [.NET Foundation](https://dotnetfoundation.org/).
 
 ## Code of Conduct
 
-This project has adopted the code of conduct defined by the [Contributor Covenant](https://contributor-covenant.org/)
+This project has adopted the code of conduct defined by the [Contributor Covenant](https://www.contributor-covenant.org/)
 to clarify expected behavior in our community.
-For more information, see the [.NET Foundation Code of Conduct](https://dotnetfoundation.org/code-of-conduct).
+For more information, see the [.NET Foundation Code of Conduct](https://dotnetfoundation.org/about/policies/code-of-conduct).
 
 <a name="license"></a>
 ## License
