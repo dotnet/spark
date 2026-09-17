@@ -12,30 +12,30 @@ The publisher runs on main pushes, periodically, and on eligible check-suite com
 
 | Spark | Windows | Linux |
 | :--- | :--- | :--- |
-| 3.0.0 | pending | pending |
-| 3.0.1 | pending | pending |
-| 3.0.2 | pending | pending |
-| 3.1.1 | pending | pending |
-| 3.1.2 | pending | pending |
-| 3.2.1 | pending | pending |
-| 3.2.2 | pending | pending |
-| 3.2.3 | pending | pending |
-| 3.3.0 | pending | pending |
-| 3.3.1 | pending | pending |
-| 3.3.2 | pending | pending |
-| 3.3.3 | pending | pending |
-| 3.3.4 | pending | pending |
-| 3.4.0 | pending | pending |
-| 3.4.1 | pending | pending |
-| 3.4.2 | pending | pending |
-| 3.4.3 | pending | pending |
-| 3.4.4 | pending | pending |
-| 3.5.0 | pending | pending |
-| 3.5.1 | pending | pending |
-| 3.5.2 | pending | pending |
-| 3.5.3 | pending | pending |
-| 4.0.0 | pending | pending |
-| 4.0.1 | pending | pending |
-| 4.0.2 | pending | pending |
-| 4.0.3 | pending | pending |
-| 4.0.4 | pending | pending |
+| 3.0.0 | not reported | not reported |
+| 3.0.1 | not reported | not reported |
+| 3.0.2 | not reported | not reported |
+| 3.1.1 | not reported | not reported |
+| 3.1.2 | not reported | not reported |
+| 3.2.1 | not reported | not reported |
+| 3.2.2 | not reported | not reported |
+| 3.2.3 | not reported | not reported |
+| 3.3.0 | not reported | not reported |
+| 3.3.1 | not reported | not reported |
+| 3.3.2 | not reported | not reported |
+| 3.3.3 | not reported | not reported |
+| 3.3.4 | not reported | not reported |
+| 3.4.0 | not reported | not reported |
+| 3.4.1 | not reported | not reported |
+| 3.4.2 | not reported | not reported |
+| 3.4.3 | not reported | not reported |
+| 3.4.4 | not reported | not reported |
+| 3.5.0 | not reported | not reported |
+| 3.5.1 | not reported | not reported |
+| 3.5.2 | not reported | not reported |
+| 3.5.3 | not reported | not reported |
+| 4.0.0 | not reported | not reported |
+| 4.0.1 | not reported | not reported |
+| 4.0.2 | not reported | not reported |
+| 4.0.3 | not reported | not reported |
+| 4.0.4 | not reported | not reported |
