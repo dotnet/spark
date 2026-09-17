@@ -25,6 +25,10 @@ stages:
     - ${{ each option in test.jobOptions }}:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
         timeoutInMinutes: 120
+        variables:
+          # Debug-branch instrumentation: retain phase logs without collecting memory dumps.
+          DOTNET_SPARK_DEBUG_TRACE_DIR: '$(Agent.TempDirectory)/spark-e2e-debug/$(System.JobId)-$(System.JobAttempt)'
+          E2E_DEBUG_TEST_OPTIONS: '--logger "console;verbosity=detailed" --blame-hang --blame-hang-timeout 5min --blame-hang-dump-type none'
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
             name: Cosmos2MT-AzureDevOps-AgentPool
@@ -266,6 +270,7 @@ stages:
 
         - task: DotNetCoreCLI@2
           displayName: 'E2E tests'
+          timeoutInMinutes: 15
           inputs:
             command: test
             # Spark 4 covers the bridge, row retrieval, UDF, RDD, Broadcast, Worker lifecycle and ML. Keep
@@ -274,7 +279,7 @@ stages:
               projects: '**/Microsoft.Spark.E2ETest/Microsoft.Spark.E2ETest.csproj'
             ${{ else }}:
               projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-            arguments: '--configuration $(buildConfiguration) ${{ option.testOptions }}'
+            arguments: '--configuration $(buildConfiguration) ${{ option.testOptions }} $(E2E_DEBUG_TEST_OPTIONS)'
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
@@ -293,6 +298,7 @@ stages:
                 -Configuration "$(buildConfiguration)" `
                 -ResultsDirectory "$(Agent.TempDirectory)$(PATH_SEPARATOR)ml-persistence-$(System.JobId)-$(System.JobAttempt)"
             displayName: 'ML persistence E2E tests (separate save/load processes)'
+            timeoutInMinutes: 15
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
             env:
               HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
@@ -322,10 +328,11 @@ stages:
         - ${{ if or(eq(split(test.version, '.')[0], '4'), eq(test.version, '3.5.3')) }}:
           - task: DotNetCoreCLI@2
             displayName: 'Broadcast E2E tests (IO encryption)'
+            timeoutInMinutes: 15
             inputs:
               command: test
               projects: '**/Microsoft.Spark.E2ETest/Microsoft.Spark.E2ETest.csproj'
-              arguments: '--configuration $(buildConfiguration) --no-build --filter Category=Broadcast'
+              arguments: '--configuration $(buildConfiguration) --no-build --filter Category=Broadcast $(E2E_DEBUG_TEST_OPTIONS)'
               workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
             env:
               HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
@@ -343,10 +350,11 @@ stages:
           - ${{ each workerMode in split('no-reuse,simple', ',') }}:
             - task: DotNetCoreCLI@2
               displayName: 'Spark 4 Worker lifecycle and encrypted Broadcast (${{ workerMode }})'
+              timeoutInMinutes: 15
               inputs:
                 command: test
                 projects: '**/Microsoft.Spark.E2ETest/Microsoft.Spark.E2ETest.csproj'
-                arguments: '--configuration $(buildConfiguration) --no-build --filter "Category=Spark40WorkerLifecycle|Category=Broadcast"'
+                arguments: '--configuration $(buildConfiguration) --no-build --filter "Category=Spark40WorkerLifecycle|Category=Broadcast" $(E2E_DEBUG_TEST_OPTIONS)'
                 workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
               env:
                 HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
@@ -377,11 +385,12 @@ stages:
 
         - task: DotNetCoreCLI@2
           displayName: 'E2E Backward Compatibility Tests'
+          timeoutInMinutes: 15
           condition: ${{ test.enableBackwardCompatibleTests }}
           inputs:
             command: test
             projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-            arguments: '--configuration $(buildConfiguration) ${{ option.backwardCompatibleTestOptions }}'
+            arguments: '--configuration $(buildConfiguration) ${{ option.backwardCompatibleTestOptions }} $(E2E_DEBUG_TEST_OPTIONS)'
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
@@ -404,14 +413,30 @@ stages:
 
         - task: DotNetCoreCLI@2
           displayName: 'E2E Forward Compatibility Tests'
+          timeoutInMinutes: 15
           condition: ${{ test.enableForwardCompatibleTests }}
           inputs:
             command: test
             projects: '**/Microsoft.Spark*.E2ETest/*.csproj'
-            arguments: '--configuration $(buildConfiguration) ${{ option.forwardCompatibleTestOptions }}'
+            arguments: '--configuration $(buildConfiguration) ${{ option.forwardCompatibleTestOptions }} $(E2E_DEBUG_TEST_OPTIONS)'
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark-${{ parameters.forwardCompatibleRelease }}
           env:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
             SPARK_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop
             DOTNET_WORKER_DIR: $(CURRENT_DOTNET_WORKER_DIR)
             DOTNET_SPARKFIXTURE_EXPECTED_SPARK_VERSION: ${{ test.version }}
+
+        - pwsh: |
+            $traceDirectory = $env:DOTNET_SPARK_DEBUG_TRACE_DIR
+            if (-not (Test-Path -LiteralPath $traceDirectory)) {
+              Write-Host '##[warning]No E2E phase trace directory was created; check testhost startup.'
+              exit 0
+            }
+            foreach ($traceFile in Get-ChildItem -LiteralPath $traceDirectory -Filter 'trace-*.log' -File) {
+              Write-Host "E2E phase trace: $($traceFile.Name)"
+              Write-Host "##vso[task.uploadfile]$($traceFile.FullName)"
+              Get-Content -LiteralPath $traceFile.FullName -Tail 60 | ForEach-Object { Write-Host $_ }
+            }
+          displayName: 'Collect E2E hang phase logs'
+          condition: always()
+          continueOnError: true

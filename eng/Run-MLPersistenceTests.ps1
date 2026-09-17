@@ -57,7 +57,9 @@ try
             '--filter', 'FullyQualifiedName~MLCompatibilityTests.TestPipelineModelPersistence',
             '--logger', "trx;LogFileName=$trxName",
             '--results-directory', $runResultsDirectory,
-            '--blame-hang', '--blame-hang-timeout', '3min'
+            '--logger', 'console;verbosity=detailed',
+            '--blame-hang', '--blame-hang-timeout', '3min',
+            '--blame-hang-dump-type', 'none'
         )
 
         Write-Host "Running ML persistence phase '$phase' with model directory '$modelDirectory'."

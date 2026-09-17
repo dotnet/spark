@@ -67,6 +67,7 @@ namespace Microsoft.Spark.E2ETest
 
         public SparkFixture()
         {
+            IpcDebugTrace.Write("fixture-construct-begin");
             // The worker directory must be set for the Microsoft.Spark.Worker executable.
             if (string.IsNullOrEmpty(
                 Environment.GetEnvironmentVariable(EnvironmentVariableNames.WorkerDir)))
@@ -80,7 +81,9 @@ namespace Microsoft.Spark.E2ETest
                 Environment.GetEnvironmentVariable(
                     EnvironmentVariableNames.ExpectedSparkVersion));
 
+            IpcDebugTrace.Write($"fixture-runtime-validated spark={SparkSettings.Version}");
             BuildSparkCmd(out var filename, out var args);
+            IpcDebugTrace.Write("fixture-command-built");
 
             // Configure the process using the StartInfo properties.
             _process.StartInfo.FileName = filename;
@@ -99,13 +102,28 @@ namespace Microsoft.Spark.E2ETest
                 // Scala-side driver for .NET emits the following message after it is
                 // launched and ready to accept connections.
                 if (!isSparkReady &&
-                    arguments.Data.Contains("Backend running debug mode"))
+                    arguments.Data?.Contains("Backend running debug mode") == true)
                 {
                     isSparkReady = true;
+                    IpcDebugTrace.Write("fixture-backend-ready");
+                }
+
+                if (arguments.Data == null)
+                {
+                    IpcDebugTrace.Write("fixture-stdout-eof");
+                }
+            };
+            _process.ErrorDataReceived += (sender, arguments) =>
+            {
+                if (arguments.Data == null)
+                {
+                    IpcDebugTrace.Write("fixture-stderr-eof");
                 }
             };
 
+            IpcDebugTrace.Write("fixture-launch-begin");
             _process.Start();
+            IpcDebugTrace.Write($"fixture-launch-return launcher-pid={_process.Id}");
             _process.BeginErrorReadLine();
             _process.BeginOutputReadLine();
 
@@ -117,6 +135,7 @@ namespace Microsoft.Spark.E2ETest
 
             if (processExited)
             {
+                IpcDebugTrace.Write($"fixture-premature-exit code={_process.ExitCode}");
                 _process.Dispose();
 
                 // The process should not have been exited.
@@ -124,6 +143,7 @@ namespace Microsoft.Spark.E2ETest
                     $"Process exited prematurely with '{filename} {args}'.");
             }
 
+            IpcDebugTrace.Write("fixture-session-create-begin");
             Spark = SparkSession
                 .Builder()
                 // Lower the shuffle partitions to speed up groupBy() operations.
@@ -132,10 +152,12 @@ namespace Microsoft.Spark.E2ETest
                 .Config("spark.ui.showConsoleProgress", false)
                 .AppName("Microsoft.Spark.E2ETest")
                 .GetOrCreate();
+            IpcDebugTrace.Write("fixture-session-create-end");
 
             Spark.SparkContext.SetLogLevel(DefaultLogLevel);
 
             Jvm = Spark.Reference.Jvm;
+            IpcDebugTrace.Write("fixture-ready");
         }
 
         public string AddPackages(string args)
@@ -254,15 +276,22 @@ namespace Microsoft.Spark.E2ETest
 
         public void Dispose()
         {
+            IpcDebugTrace.Write("fixture-spark-dispose-begin");
             Spark.Dispose();
+            IpcDebugTrace.Write("fixture-spark-dispose-end");
 
             // CSparkRunner will exit upon receiving newline from
             // the standard input stream.
+            IpcDebugTrace.Write("fixture-shutdown-signal-begin");
             _process.StandardInput.WriteLine("done");
             _process.StandardInput.Flush();
+            IpcDebugTrace.Write("fixture-process-exit-wait");
             _process.WaitForExit();
+            IpcDebugTrace.Write($"fixture-process-exited code={_process.ExitCode}");
 
+            IpcDebugTrace.Write("fixture-temp-cleanup-begin");
             _tempDirectory.Dispose();
+            IpcDebugTrace.Write("fixture-disposed");
         }
 
         private void BuildSparkCmd(out string filename, out string args)
@@ -324,6 +353,7 @@ namespace Microsoft.Spark.E2ETest
     }
 
     [CollectionDefinition("Spark E2E Tests")]
+    [E2ETrace]
     public class SparkCollection : ICollectionFixture<SparkFixture>
     {
         // This class has no code, and is never created. Its purpose is simply

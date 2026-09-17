@@ -183,6 +183,7 @@ namespace Microsoft.Spark.Interop.Ipc
         {
             object returnValue = null;
             ISocketWrapper socket = null;
+            long traceId = IpcDebugTrace.StartCall(methodName);
 
             try
             {
@@ -192,6 +193,7 @@ namespace Microsoft.Spark.Interop.Ipc
                 // A deadlock can occur on the JVM if a new connection is scheduled on a
                 // blocked thread.
                 _socketSemaphore.Wait();
+                IpcDebugTrace.Call(traceId, methodName, "build-payload");
 
                 // dotnet-interactive does not have a dedicated thread to process
                 // code submissions and each code submission can be processed in different
@@ -221,8 +223,10 @@ namespace Microsoft.Spark.Interop.Ipc
                     methodName,
                     args);
 
+                IpcDebugTrace.Call(traceId, methodName, "get-connection");
                 socket = GetConnection();
 
+                IpcDebugTrace.Call(traceId, methodName, "write-request");
                 Stream outputStream = socket.OutputStream;
                 outputStream.Write(
                     payloadMemoryStream.GetBuffer(),
@@ -235,8 +239,10 @@ namespace Microsoft.Spark.Interop.Ipc
                     _jvmThreadPoolGC.TryAddThread(thread);
                 }
 
+                IpcDebugTrace.Call(traceId, methodName, "read-status");
                 Stream inputStream = socket.InputStream;
                 int isMethodCallFailed = SerDe.ReadInt32(inputStream);
+                IpcDebugTrace.Call(traceId, methodName, "read-result");
                 if (isMethodCallFailed != 0)
                 {
                     string jvmFullStackTrace = SerDe.ReadString(inputStream);
@@ -284,9 +290,11 @@ namespace Microsoft.Spark.Interop.Ipc
                                 Convert.ToUInt32(typeAsChar)));
                 }
                 _sockets.Enqueue(socket);
+                IpcDebugTrace.Call(traceId, methodName, "completed");
             }
             catch (Exception e)
             {
+                IpcDebugTrace.Call(traceId, methodName, "failed-" + e.GetType().Name);
                 _logger.LogException(e);
 
                 if (e.InnerException is JvmException)
@@ -322,6 +330,7 @@ namespace Microsoft.Spark.Interop.Ipc
             finally
             {
                 _socketSemaphore.Release();
+                IpcDebugTrace.Call(traceId, methodName, "released-semaphore");
             }
 
             return returnValue;
