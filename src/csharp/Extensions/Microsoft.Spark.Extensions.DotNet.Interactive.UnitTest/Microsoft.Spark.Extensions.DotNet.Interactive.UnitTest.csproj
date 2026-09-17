@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <RootNamespace>Microsoft.Spark.Extensions.DotNet.Interactive.UnitTest</RootNamespace>
   </PropertyGroup>
 
@@ -18,5 +18,5 @@
   <ItemGroup>
     <Compile Include="..\..\Microsoft.Spark.UnitTest\TestUtils\TemporaryDirectory.cs" />
   </ItemGroup>
-
+  
 </Project>
