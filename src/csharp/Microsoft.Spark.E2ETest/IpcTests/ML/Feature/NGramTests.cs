@@ -48,6 +48,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             Assert.Contains(output.Schema().Fields, (f => f.Name == expectedOutputCol));
             Assert.Contains(outputSchema.Fields, (f => f.Name == expectedOutputCol));
+            Assert.Equal(
+                new[] { "Hi I", "I heard", "heard about", "about Spark" },
+                Assert.Single(output.Collect()).GetAs<string[]>(expectedOutputCol));
             Assert.Equal(expectedInputCol, nGram.GetInputCol());
             Assert.Equal(expectedOutputCol, nGram.GetOutputCol());
             Assert.Equal(expectedN, nGram.GetN());
