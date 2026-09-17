@@ -2,7 +2,7 @@
 
 Source: [main@f341efb](https://github.com/dotnet/spark/commit/f341efb84af607851b66bf1c2ba6a2eab366ff25).
 
-Waiting for Azure pipeline 51729 to report checks.
+Azure pipeline 51729, [build 73517762](https://msasg.visualstudio.com/ManagedOSS/_build/results?buildId=73517762).
 
 This machine-owned branch contains cached GitHub Checks results, not build logs. Do not edit it manually.
 
