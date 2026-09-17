@@ -55,12 +55,12 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
 
 The [Azure Pipelines CI](https://msasg.visualstudio.com/ManagedOSS/_build/latest?definitionId=51729&branchName=main) runs on `main` and validates pull requests. Its configuration is in [azure-pipelines-pr.yml](azure-pipelines-pr.yml), using the shared [E2E template](azure-pipelines-e2e-tests-template.yml).
 
-Badges are cached snapshots of the Azure Pipelines GitHub Checks for the `main` commit observed by the [status publisher](eng/ci-status/README.md). The publisher refreshes on main pushes, eligible check-suite completion events, and a 15-minute schedule. GitHub scheduling and image caches can delay updates; these are not instantaneous results. Detailed Azure build logs may require sign-in.
+CI status for `main`. Badge updates may be delayed; detailed build logs may require sign-in.
 
 Snapshot: [![Main commit][ci-revision]][ci-report] · [Publisher runs](https://github.com/dotnet/spark/actions/workflows/ci-status.yml)
 
 <details>
-<summary>E2E status by Spark version — Windows and Linux</summary>
+<summary>E2E status by Spark version</summary>
 
 Each badge shows one E2E job from the same main commit and Azure build. Click a badge for the [snapshot and individual check links][ci-report]. Missing or unfinished checks are not shown as passing.
 
