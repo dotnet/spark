@@ -55,7 +55,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             AssertUnsupportedTableOperation(() => dfwV2.Replace());
             AssertUnsupportedTableOperation(() => dfwV2.CreateOrReplace());
             AssertUnsupportedTableOperation(() => dfwV2.Append());
-            AssertUnsupportedTableOperation(() => dfwV2.Overwrite(df.Col("age")));
+            // Use an unbound false predicate to reach the overwrite-by-filter capability check.
+            AssertUnsupportedTableOperation(() => dfwV2.Overwrite(Functions.Lit(false)));
             AssertUnsupportedTableOperation(() => dfwV2.OverwritePartitions());
         }
 
