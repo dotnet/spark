@@ -6,13 +6,13 @@
   "pipelineId": 51729,
   "buildId": 73572428,
   "overall": {
-    "message": "queued",
-    "color": "#dfb317",
-    "checkId": 105586607154,
-    "status": "queued",
-    "conclusion": null,
-    "startedAt": "2026-09-18T11:42:54Z",
-    "completedAt": null
+    "message": "failing",
+    "color": "#e05d44",
+    "checkId": 105645854432,
+    "status": "completed",
+    "conclusion": "failure",
+    "startedAt": "2026-09-18T11:43:01Z",
+    "completedAt": "2026-09-18T14:54:42Z"
   },
   "jobs": [
     {
@@ -502,13 +502,13 @@
     {
       "version": "4.0.0",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105593163664,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T12:07:52Z",
-      "completedAt": null
+      "message": "cancelled",
+      "color": "#9f9f9f",
+      "checkId": 105645838006,
+      "status": "completed",
+      "conclusion": "cancelled",
+      "startedAt": "2026-09-18T12:53:59Z",
+      "completedAt": "2026-09-18T14:54:34Z"
     },
     {
       "version": "4.0.0",
