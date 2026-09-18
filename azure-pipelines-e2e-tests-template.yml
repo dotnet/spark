@@ -266,17 +266,20 @@ stages:
 
         - task: DotNetCoreCLI@2
           displayName: 'E2E tests'
+          ${{ if eq(split(test.version, '.')[0], '4') }}:
+            timeoutInMinutes: 30
           inputs:
             command: test
-            # Spark 4 uses the qualified core categories. Interactive has its own
+            # Spark 4 runs the full core suite. Interactive has its own
             # testhost below because it initializes the bridge in REPL mode.
             ${{ if eq(split(test.version, '.')[0], '4') }}:
               projects: '**/Microsoft.Spark.E2ETest/Microsoft.Spark.E2ETest.csproj'
+              arguments: '--configuration $(buildConfiguration) ${{ option.testOptions }} --logger "console;verbosity=detailed" --blame-hang --blame-hang-timeout 5min --blame-hang-dump-type none'
             ${{ else }}:
               projects: |
                 **/Microsoft.Spark*.E2ETest/*.csproj
                 !**/Microsoft.Spark.Extensions.DotNet.Interactive.E2ETest/*.csproj
-            arguments: '--configuration $(buildConfiguration) ${{ option.testOptions }}'
+              arguments: '--configuration $(buildConfiguration) ${{ option.testOptions }}'
             workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
           env:
             HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
@@ -291,6 +294,7 @@ stages:
 
         - ${{ if or(eq(split(test.version, '.')[0], '4'), eq(test.version, '3.5.3')) }}:
           - pwsh: |
+              Write-Host "##vso[task.setvariable variable=MLPersistenceTestsStarted]true"
               ./eng/Run-MLPersistenceTests.ps1 `
                 -Configuration "$(buildConfiguration)" `
                 -ResultsDirectory "$(Agent.TempDirectory)$(PATH_SEPARATOR)ml-persistence-$(System.JobId)-$(System.JobAttempt)"
@@ -309,7 +313,7 @@ stages:
 
           - task: PublishTestResults@2
             displayName: 'Publish ML persistence test results'
-            condition: succeededOrFailed()
+            condition: and(succeededOrFailed(), eq(variables['MLPersistenceTestsStarted'], 'true'))
             inputs:
               testResultsFormat: VSTest
               testResultsFiles: '**/ml-persistence-*.trx'
@@ -324,7 +328,7 @@ stages:
             inputs:
               command: test
               projects: '**/Microsoft.Spark.Extensions.DotNet.Interactive.E2ETest/*.csproj'
-              arguments: '--configuration $(buildConfiguration) --blame-hang --blame-hang-timeout 3min'
+              arguments: '--configuration $(buildConfiguration) --blame-hang --blame-hang-timeout 3min --blame-hang-dump-type none'
               workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
             env:
               HADOOP_HOME: $(Build.BinariesDirectory)$(PATH_SEPARATOR)hadoop
