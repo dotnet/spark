@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="106" height="20" role="img" aria-label="Linux: running — main@1b3d1abea3ab21326e6b4c1bebfd37d60353e9a0; build 73559773">
-<title>Linux: running — main@1b3d1abea3ab21326e6b4c1bebfd37d60353e9a0; build 73559773</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="106" height="20" role="img" aria-label="Linux: passing — main@1b3d1abea3ab21326e6b4c1bebfd37d60353e9a0; build 73559773">
+<title>Linux: passing — main@1b3d1abea3ab21326e6b4c1bebfd37d60353e9a0; build 73559773</title>
 <clipPath id="r"><rect width="106" height="20" rx="3"/></clipPath>
-<g clip-path="url(#r)"><rect width="46" height="20" fill="#555"/><rect x="46" width="60" height="20" fill="#007ec6"/></g>
+<g clip-path="url(#r)"><rect width="46" height="20" fill="#555"/><rect x="46" width="60" height="20" fill="#4c1"/></g>
 <g fill="#fff" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11">
-<text x="23" y="14">Linux</text><text x="76" y="14">running</text></g>
+<text x="23" y="14">Linux</text><text x="76" y="14">passing</text></g>
 </svg>
