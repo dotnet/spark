@@ -260,13 +260,13 @@
     {
       "version": "3.3.3",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105505020601,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T06:29:50Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 105518799184,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-18T07:15:55Z",
+      "completedAt": "2026-09-18T07:28:03Z"
     },
     {
       "version": "3.3.3",
@@ -315,13 +315,13 @@
     {
       "version": "3.4.0",
       "platform": "Linux",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105505015542,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T06:29:49Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 105518983268,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-18T07:16:54Z",
+      "completedAt": "2026-09-18T07:28:41Z"
     },
     {
       "version": "3.4.1",
@@ -370,24 +370,24 @@
     {
       "version": "3.4.3",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105505018177,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T06:29:50Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 105520039317,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-18T07:19:24Z",
+      "completedAt": "2026-09-18T07:32:58Z"
     },
     {
       "version": "3.4.3",
       "platform": "Linux",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105505017715,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T06:29:49Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 105519457974,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-18T07:19:03Z",
+      "completedAt": "2026-09-18T07:30:36Z"
     },
     {
       "version": "3.4.4",
@@ -403,13 +403,13 @@
     {
       "version": "3.4.4",
       "platform": "Linux",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105505019042,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T06:29:50Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 105519480445,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-18T07:19:04Z",
+      "completedAt": "2026-09-18T07:30:41Z"
     },
     {
       "version": "3.5.0",
@@ -447,35 +447,35 @@
     {
       "version": "3.5.1",
       "platform": "Linux",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105505017380,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T06:29:49Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 105518562772,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-18T07:14:43Z",
+      "completedAt": "2026-09-18T07:27:00Z"
     },
     {
       "version": "3.5.2",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105505020918,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T06:29:50Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 105520450746,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-18T07:20:01Z",
+      "completedAt": "2026-09-18T07:33:52Z"
     },
     {
       "version": "3.5.2",
       "platform": "Linux",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105505019229,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T06:29:50Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 105518557343,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-18T07:15:01Z",
+      "completedAt": "2026-09-18T07:27:02Z"
     },
     {
       "version": "3.5.3",
@@ -502,13 +502,13 @@
     {
       "version": "4.0.0",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105505020748,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T06:29:50Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 105520033534,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-18T07:16:53Z",
+      "completedAt": "2026-09-18T07:32:52Z"
     },
     {
       "version": "4.0.0",
@@ -524,24 +524,24 @@
     {
       "version": "4.0.1",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105505013627,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T06:29:48Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 105519519602,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-18T07:14:36Z",
+      "completedAt": "2026-09-18T07:30:51Z"
     },
     {
       "version": "4.0.1",
       "platform": "Linux",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105505015925,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T06:29:49Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 105519392515,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-18T07:17:03Z",
+      "completedAt": "2026-09-18T07:30:23Z"
     },
     {
       "version": "4.0.2",
@@ -557,13 +557,13 @@
     {
       "version": "4.0.2",
       "platform": "Linux",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105505017565,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T06:29:49Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 105520098891,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-18T07:19:47Z",
+      "completedAt": "2026-09-18T07:33:10Z"
     },
     {
       "version": "4.0.3",
@@ -601,13 +601,13 @@
     {
       "version": "4.0.4",
       "platform": "Linux",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105505011929,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T06:29:48Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 105519081855,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-18T07:16:04Z",
+      "completedAt": "2026-09-18T07:29:12Z"
     }
   ]
 }
