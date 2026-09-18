@@ -59,24 +59,43 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
                 compositeKernel.AddMiddleware(async (command, context, next) =>
                 {
+                    var previousScript = cSharpKernel?.ScriptState?.Script;
                     await next(command, context);
 
                     if ((context.HandlingKernel is CSharpKernel kernel) &&
                         (command is SubmitCode) &&
+                        kernel.ScriptState?.Script != null &&
+                        !ReferenceEquals(previousScript, kernel.ScriptState.Script) &&
                         TryGetSparkSession(out SparkSession sparkSession) &&
                         TryEmitAssembly(kernel, tempDir.FullName, out string assemblyPath))
                     {
-                        sparkSession.SparkContext.AddFile(assemblyPath);
+                        AddFile(sparkSession, assemblyPath);
 
                         foreach (string filePath in GetPackageFiles(tempDir.FullName))
                         {
-                            sparkSession.SparkContext.AddFile(filePath);
+                            AddFile(sparkSession, filePath);
                         }
                     }
                 });
             }
 
             return Task.CompletedTask;
+        }
+
+        private static void AddFile(SparkSession sparkSession, string path)
+        {
+            Version version = SparkEnvironment.SparkVersion;
+            if (version.Major == 4 && version.Minor == 0)
+            {
+                // Spark 4 SQL tasks only receive files registered in their session's
+                // artifact scope. Establish that scope and add the file in one JVM call.
+                sparkSession.Reference.Jvm.CallStaticJavaMethod(
+                    "org.apache.spark.sql.api.dotnet.SQLUtils", "addFile", sparkSession, path);
+            }
+            else
+            {
+                sparkSession.SparkContext.AddFile(path);
+            }
         }
 
         private DirectoryInfo CreateTempDirectory()
@@ -147,15 +166,16 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
         /// - https://github.com/apache/spark/pull/26773
         /// </summary>
         /// <param name="path">The path to validate.</param>
-        private void ValidatePath(string path)
+        /// <param name="version">The Spark version, or the active session version.</param>
+        internal static void ValidatePath(string path, Version version = null)
         {
             if (!path.Contains(" "))
             {
                 return;
             }
 
-            Version version = SparkEnvironment.SparkVersion;
-            if (version.Major != 3)
+            version ??= SparkEnvironment.SparkVersion;
+            if (version.Major != 3 && (version.Major != 4 || version.Minor != 0))
             {
                 throw new NotSupportedException($"Spark {version} not supported.");
             }
