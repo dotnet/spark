@@ -546,13 +546,13 @@
     {
       "version": "4.0.2",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105593146108,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T12:07:48Z",
-      "completedAt": null
+      "message": "cancelled",
+      "color": "#9f9f9f",
+      "checkId": 105631921311,
+      "status": "completed",
+      "conclusion": "cancelled",
+      "startedAt": "2026-09-18T12:13:14Z",
+      "completedAt": "2026-09-18T14:13:50Z"
     },
     {
       "version": "4.0.2",
