@@ -35,6 +35,8 @@ The next release removes Apache Spark 2.x support and retains the Spark 3.0 thro
 
 The getting-started examples use Spark 3.5.3 with Scala 2.12. Spark 4.0 integration requires the Scala 2.13 bridge and JDK 17; it does not imply full API or deployment parity with Spark 3.x. Match the bridge JAR to the Spark runtime and the `Microsoft.Spark`/Worker release, and validate the APIs and deployment configuration your application uses.
 
+For Spark 4.0 semi-structured data, see [Variant schemas and Spark SQL](docs/variant-guide.md); native .NET Variant values and Variant UDFs are not supported.
+
 ### Published v2.3.1 compatibility (historical)
 
 The published [v2.3.1 release](https://github.com/dotnet/spark/releases/tag/v2.3.1) supports Spark 2.4 (except 2.4.2) and Spark 3.0 through 3.5, not Spark 4.0. See the [release compatibility notes](docs/release-notes/2.3.1/release-2.3.1.md#supported-spark-versions) for that release; they do not describe the current source tree.

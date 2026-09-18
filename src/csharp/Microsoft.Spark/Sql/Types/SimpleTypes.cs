@@ -64,6 +64,19 @@ namespace Microsoft.Spark.Sql.Types
     }
 
     /// <summary>
+    /// Represents the variant type for semi-structured data in Spark 4.0.
+    /// </summary>
+    /// <remarks>
+    /// Supports schemas and Spark SQL operations. Before retrieving values into .NET,
+    /// use SQL expressions such as variant_get with an explicit target type or to_json
+    /// to return a supported type. Native .NET Variant values and Variant UDF
+    /// inputs/outputs are not supported.
+    /// </remarks>
+    public sealed class VariantType : AtomicType
+    {
+    }
+
+    /// <summary>
     /// Represents a date type. It represents a valid date in the proleptic Gregorian
     /// calendar. Valid range is [0001-01-01, 9999-12-31].
     /// </summary>
