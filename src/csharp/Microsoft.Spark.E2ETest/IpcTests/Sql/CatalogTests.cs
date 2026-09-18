@@ -14,6 +14,7 @@ using static Microsoft.Spark.E2ETest.Utils.SQLUtils;
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
     [Collection("Spark E2E Tests")]
+    [Trait("Category", "DriverApi")]
     public class CatalogTests
     {
         private readonly SparkSession _spark;

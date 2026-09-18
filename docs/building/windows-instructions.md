@@ -61,18 +61,17 @@ If you already have all the pre-requisites, skip to the [build](windows-instruct
 
         </details>
 
-  6. Install **[WinUtils](https://github.com/steveloughran/winutils)**
-     - Download `winutils.exe` binary from [WinUtils repository](https://github.com/steveloughran/winutils). Select the Hadoop version bundled with the chosen Spark 3.5.3 distribution; do not reuse Hadoop 2.7 binaries from an older Spark installation.
-     - Save `winutils.exe` binary to a directory of your choice e.g., `c:\hadoop\bin`
-     - Set `HADOOP_HOME` to reflect the directory with winutils.exe (without bin). For instance, using command-line:
-       ```powershell
-       set HADOOP_HOME=c:\hadoop
-       ```
-     - Set PATH environment variable to include `%HADOOP_HOME%\bin`. For instance, using command-line:
-       ```powershell
-       set PATH=%HADOOP_HOME%\bin;%PATH%
-       ```
+  6. Install **Hadoop Windows tools (WinUtils)**
+     - Use Hadoop Windows binaries compatible with your Spark distribution. To use the same binaries as Windows CI, download the [Hadoop 3.3.5 tools](https://github.com/SparkSnail/winutils/releases/download/hadoop-3.3.5/hadoop-3.3.5.zip) and copy `winutils.exe` and `hadoop.dll` from the archive's `hadoop-3.3.5` folder into a local directory, e.g., `C:\hadoop\bin`. Do not reuse Hadoop 2.7 binaries from an older Spark installation.
+     - These CI binaries require the **Microsoft Visual C++ 2010 x64 Redistributable** (`MSVCR100.dll`). If that runtime is missing, install it using the [Microsoft installer](https://download.microsoft.com/download/1/6/5/165255E7-1014-4D0A-B094-B6A430A6BFFC/vcredist_x64.exe) before running the tools.
+     - Set `HADOOP_HOME` to the directory containing `bin`, add its `bin` directory to `PATH`, and verify that `winutils.exe` starts in the current PowerShell session:
 
+       ```powershell
+       $env:HADOOP_HOME = 'C:\hadoop'
+       $env:PATH = "$env:HADOOP_HOME\bin;$env:PATH"
+       & "$env:HADOOP_HOME\bin\winutils.exe" ls "$env:HADOOP_HOME\bin"
+       if ($LASTEXITCODE -ne 0) { throw 'Hadoop Windows tools failed to start.' }
+       ```
 
 Please make sure you are able to run `dotnet`, `java`, `mvn`, `spark-shell` from your command-line before you move to the next section. Feel there is a better way? Please [open an issue](https://github.com/dotnet/spark/issues) and feel free to contribute.
 
@@ -103,6 +102,8 @@ Spark 4.0 is built separately. From the repository root, switch `JAVA_HOME` and 
 ```powershell
 mvn -f src/scala/microsoft-spark-4-0/pom.xml clean package
 ```
+
+`clean package` includes Spark 4 tests that use `SparkContext.addFile`. On Windows, complete the WinUtils setup in prerequisite 6 before running this command.
 
 Its bridge is `src\scala\microsoft-spark-4-0\target\microsoft-spark-4-0_2.13-<version>.jar` and requires a Scala 2.13 Spark 4.0 runtime with JDK 17. Building this bridge does not prove full API or deployment compatibility. See the [migration guide](../migration-guide.md#upgrading-after-spark-2x-support-removal) for package matching and clean-output requirements.
 

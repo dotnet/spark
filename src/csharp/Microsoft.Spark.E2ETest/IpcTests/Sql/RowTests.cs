@@ -12,6 +12,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
 
 {
     [Collection("Spark E2E Tests")]
+    [Trait("Category", "DriverApi")]
     public class RowTests
     {
         private readonly SparkSession _spark;
