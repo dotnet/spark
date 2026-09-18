@@ -568,13 +568,13 @@
     {
       "version": "4.0.3",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105593161564,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T12:07:51Z",
-      "completedAt": null
+      "message": "cancelled",
+      "color": "#9f9f9f",
+      "checkId": 105638160578,
+      "status": "completed",
+      "conclusion": "cancelled",
+      "startedAt": "2026-09-18T12:31:25Z",
+      "completedAt": "2026-09-18T14:32:03Z"
     },
     {
       "version": "4.0.3",
