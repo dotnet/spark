@@ -590,13 +590,13 @@
     {
       "version": "4.0.4",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 105593151570,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-09-18T12:07:49Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 105604687928,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-18T12:32:52Z",
+      "completedAt": "2026-09-18T12:48:27Z"
     },
     {
       "version": "4.0.4",

@@ -38,4 +38,4 @@ The publisher runs on main pushes, periodically, and on eligible check-suite com
 | 4.0.1 | [running](https://github.com/dotnet/spark/runs/105593156939) | [passing](https://github.com/dotnet/spark/runs/105604517094) |
 | 4.0.2 | [running](https://github.com/dotnet/spark/runs/105593146108) | [passing](https://github.com/dotnet/spark/runs/105604000065) |
 | 4.0.3 | [running](https://github.com/dotnet/spark/runs/105593161564) | [passing](https://github.com/dotnet/spark/runs/105604486139) |
-| 4.0.4 | [running](https://github.com/dotnet/spark/runs/105593151570) | [passing](https://github.com/dotnet/spark/runs/105603797814) |
+| 4.0.4 | [passing](https://github.com/dotnet/spark/runs/105604687928) | [passing](https://github.com/dotnet/spark/runs/105603797814) |
