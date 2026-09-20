@@ -7,6 +7,7 @@
 package org.apache.spark.sql.test
 
 import java.io.IOException
+import java.lang.management.ManagementFactory
 import java.nio.channels.Channel
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedQueue}
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger, AtomicLong, AtomicReference}
@@ -59,6 +60,50 @@ object E2ETransportDiagnostics {
   }
 
   private def flag(value: Boolean): Long = if (value) 1L else 0L
+
+  private[test] final class ReaderSample(threads: Seq[Thread], val complete: Boolean) {
+    // Capture volatile blockers once per observer tick, not once per callback. Do not acquire
+    // blockerLock: an observer must never join the application's read/close synchronization.
+    private val blocked = threads.map(thread => (thread, field(thread, "blocker")))
+      .filter(_._2 != null)
+    private val details = new java.util.IdentityHashMap[Thread, (Long, Long)]()
+
+    def describe(pipeSource: AnyRef): Seq[(String, Long)] = {
+      // Windows Pipe.SourceChannel delegates to a SocketChannel; Unix JDKs block on the source
+      // itself. Neither identity reveals an address, descriptor, class name, or payload.
+      val socket = try Option(field(pipeSource, "sc"))
+        catch { case _: NoSuchFieldException => None }
+      val interruptor = field(socket.getOrElse(pipeSource), "interruptor")
+      val matches = if (interruptor == null) Seq.empty
+        else blocked.filter { case (_, blocker) => blocker eq interruptor }
+      val reader = matches.headOption.map { case (thread, _) =>
+        if (!details.containsKey(thread)) {
+          val info = ManagementFactory.getThreadMXBean.getThreadInfo(thread.getId, 16)
+          val inRead = info != null && info.getStackTrace.exists(frame =>
+            frame.getClassName == "org.apache.spark.rpc.netty.NettyRpcEnv$FileDownloadChannel" &&
+              frame.getMethodName == "read")
+          details.put(thread, (flag(field(thread, "blocker") eq interruptor), flag(inRead)))
+        }
+        (thread.getId, details.get(thread))
+      }
+      // These are non-atomic samples. A repeated blocker reference and a sampled read frame
+      // strengthen identity correlation, but do not prove a completed OS-level close or cause.
+      Vector("pipe_source" -> System.identityHashCode(pipeSource).toLong,
+        "pipe_socket" -> socket.map(value => System.identityHashCode(value).toLong).getOrElse(-1L),
+        "reader_scan_complete" -> flag(complete), "reader_matches" -> matches.size.toLong,
+        "reader_thread" -> reader.map(_._1).getOrElse(-1L),
+        "blocker_stable" -> reader.map(_._2._1).getOrElse(-1L),
+        "reader_in_read" -> reader.map(_._2._2).getOrElse(-1L))
+    }
+  }
+
+  private[test] def captureReaders(): ReaderSample = {
+    var group = Thread.currentThread().getThreadGroup
+    while (group.getParent != null) group = group.getParent
+    val threads = new Array[Thread](512)
+    val count = group.enumerate(threads, true)
+    new ReaderSample(threads.take(count).filter(_ != null).toSeq, count < threads.length)
+  }
 
   private[test] final class Recorder(val capacity: Int = 2048) {
     private val queue = new ConcurrentLinkedQueue[String]()
@@ -114,7 +159,63 @@ object E2ETransportDiagnostics {
 
   private[test] final class Pending(val callback: AnyRef, val id: Long) {
     val started = System.nanoTime()
+    // Flush markers are observer-only. The event-loop marker is published after response_after
+    // has been queued, so a closed-sink fallback cannot consume that later event's opportunity.
+    var flushed = false
+    var closedSinkFlushed = false
+    var responseFlushed = false
+    @volatile var responseAfterRecorded = false
     def age: Long = (System.nanoTime() - started) / 1000000L
+  }
+
+  private[test] final class RecentEvents(write: String => Unit) {
+    private val recent = new java.util.ArrayDeque[String]()
+    private var normalEventsWritten = 0
+
+    def record(line: String): Unit = {
+      if (line.contains("event=request ") || line.contains("event=write_result ") ||
+          line.contains("event=response_")) {
+        if (normalEventsWritten < 32) {
+          write(line)
+          normalEventsWritten += 1
+        }
+        if (recent.size() == 128) recent.removeFirst()
+        recent.addLast(line)
+      } else write(line)
+    }
+
+    def flush(): Unit = {
+      recent.iterator().asScala.foreach(write)
+      recent.clear()
+    }
+
+    def flushForAged(
+        state: ClientState,
+        drain: () => Unit,
+        minimumAge: Long = 10000L): Unit = {
+      val eligible = Vector.newBuilder[(Pending, Boolean, Boolean)]
+      state.pendingValues.filter(_.age >= minimumAge).foreach { pending => state.recorder.safely {
+        val closed = !field(pending.callback, "sink").asInstanceOf[Channel].isOpen
+        val responseAfter = pending.responseAfterRecorded
+        if (!pending.flushed || (closed && !pending.closedSinkFlushed) ||
+            (responseAfter && !pending.responseFlushed)) {
+          eligible += ((pending, closed, responseAfter))
+        }
+      }}
+      val candidates = eligible.result()
+      if (candidates.nonEmpty) {
+        // Select transitions before draining: a published response marker must not be marked
+        // flushed while its event is still queued. Normally this is initial + terminal output;
+        // sink close racing callback completion adds at most one separate fallback flush.
+        drain()
+        flush()
+        candidates.foreach { case (pending, closed, responseAfter) =>
+          pending.flushed = true
+          if (closed) pending.closedSinkFlushed = true
+          if (responseAfter) pending.responseFlushed = true
+        }
+      }
+    }
   }
 
   private[test] final class ClientState(
@@ -128,7 +229,6 @@ object E2ETransportDiagnostics {
     private val requestIds = new AtomicLong()
     private val retained = new ConcurrentLinkedQueue[Pending]()
     private val retainedCount = new AtomicInteger()
-    var flushedRequest = -1L // Observer thread only.
 
     private def callbacks = field(client.getHandler, "streamCallbacks")
       .asInstanceOf[java.util.Queue[Pair[String, StreamCallback]]]
@@ -155,7 +255,9 @@ object E2ETransportDiagnostics {
     def pendingValues: Seq[Pending] = retained.iterator().asScala.toVector
 
     def forgetClosed(): Unit = pendingValues.foreach { pending => recorder.safely {
-      if (!field(pending.callback, "sink").asInstanceOf[Channel].isOpen &&
+      // A closed sink may leave its source reader blocked. Keep that candidate in the same
+      // bounded registry until the source closes; isOpen is not proof that OS close completed.
+      if (!field(pending.callback, "source").asInstanceOf[Channel].isOpen &&
           retained.remove(pending)) retainedCount.decrementAndGet()
     }}
 
@@ -171,6 +273,17 @@ object E2ETransportDiagnostics {
         val pending = new Pending(callback, requestIds.incrementAndGet())
         if (latest.compareAndSet(null, pending)) retain(pending)
       }
+    }
+
+    def snapshotReaders(readers: ReaderSample, minimumAge: Long = 10000L): Unit = {
+      pendingValues.filter(_.age >= minimumAge).foreach { pending => recorder.safely {
+        val source = field(pending.callback, "source")
+        if (source.asInstanceOf[Channel].isOpen) {
+          val values = Vector("channel" -> id, "on_loop" -> 0L, "request" -> pending.id,
+            "callback" -> System.identityHashCode(pending.callback).toLong)
+          recorder.event("snapshot", (values ++ readers.describe(field(source, "source"))): _*)
+        }
+      }}
     }
 
     def snapshot(event: String, onLoop: Boolean, extra: (String, Long)*): Unit = {
@@ -242,9 +355,10 @@ object E2ETransportDiagnostics {
 
       override def channelRead(ctx: ChannelHandlerContext, message: Any): Unit = {
         val response = message.isInstanceOf[StreamResponse] || message.isInstanceOf[StreamFailure]
+        var responsePending: Pending = null
         if (response) recorder.safely {
           val head = callbacks.peek()
-          if (head != null) remember(head.getValue)
+          if (head != null) responsePending = remember(head.getValue)
           val (streamId, count, missing) = message match {
             case value: StreamResponse => (value.streamId, value.byteCount, 0L)
             case value: StreamFailure =>
@@ -255,7 +369,11 @@ object E2ETransportDiagnostics {
             "matched" -> flag(head != null && head.getKey == streamId))
         }
         ctx.fireChannelRead(message)
-        if (response) recorder.safely { snapshot("response_after", true); forgetClosed() }
+        if (response) recorder.safely {
+          snapshot("response_after", true)
+          if (responsePending != null) responsePending.responseAfterRecorded = true
+          forgetClosed()
+        }
       }
 
       override def channelInactive(ctx: ChannelHandlerContext): Unit = {
@@ -277,11 +395,10 @@ object E2ETransportDiagnostics {
     val stopped = new AtomicBoolean()
     private val recorder = new Recorder()
     private val clients = new ConcurrentHashMap[TransportClient, ClientState]()
-    private val recent = new java.util.ArrayDeque[String]()
+    private val recent = new RecentEvents(write)
     private var nextChannel = 0L
     private var outputBytes = 0L
     private var outputLimited = false
-    private var normalEventsWritten = 0
 
     private def write(line: String): Unit = {
       if (outputBytes + line.length + 1 <= 1024 * 1024 - 128 && !outputLimited) {
@@ -294,18 +411,7 @@ object E2ETransportDiagnostics {
       }
     }
 
-    private def drain(): Unit = recorder.drain().foreach { line =>
-      if (line.contains("event=request ") || line.contains("event=write_result ") ||
-          line.contains("event=response_")) {
-        // Publish a bounded sample before JVM shutdown can interrupt the daemon's final flush.
-        if (normalEventsWritten < 32) {
-          write(line)
-          normalEventsWritten += 1
-        }
-        if (recent.size() == 128) recent.removeFirst()
-        recent.addLast(line)
-      } else write(line)
-    }
+    private def drain(): Unit = recorder.drain().foreach(recent.record)
 
     private def discover(): Unit = {
       // Read the field, not downloadClient(): do not initialize a factory or open a connection.
@@ -350,10 +456,16 @@ object E2ETransportDiagnostics {
             System.nanoTime() - started < 15L * 60 * 1000000000L) {
           recorder.safely { discover() }
           if (System.nanoTime() >= nextSnapshot) {
+            var readers: Option[ReaderSample] = None
+            // Bound discovery to 512 threads and perform it once per tick, only when needed.
+            if (clients.values().asScala.exists(_.pendingValues.exists(_.age >= 10000L))) {
+              recorder.safely { readers = Some(captureReaders()) }
+            }
             clients.values().asScala.foreach { state => recorder.safely {
               // Off-loop reflection is a weak snapshot; it does not acquire Spark/Netty locks.
               state.snapshot("snapshot", false)
               state.forgetClosed()
+              readers.foreach(state.snapshotReaders(_))
               val channel = state.client.getChannel
               if (channel.isOpen && !channel.eventLoop().isShuttingDown &&
                   state.snapshotRequested.compareAndSet(false, true)) {
@@ -363,14 +475,7 @@ object E2ETransportDiagnostics {
                   } finally { state.snapshotRequested.set(false) }
                 })
               }
-              state.pendingValues.find(_.age >= 10000).foreach { pending =>
-                if (state.flushedRequest != pending.id) {
-                  drain()
-                  recent.iterator().asScala.foreach(write)
-                  recent.clear()
-                  state.flushedRequest = pending.id
-                }
-              }
+              recent.flushForAged(state, () => drain())
             }}
             recorder.event("snapshot", "dropped" -> recorder.dropped.get())
             nextSnapshot = System.nanoTime() + 5L * 1000000000L
@@ -382,8 +487,7 @@ object E2ETransportDiagnostics {
       finally {
         recorder.event("stop")
         drain()
-        recent.iterator().asScala.foreach(write)
-        recent.clear()
+        recent.flush()
         recorder.enabled.set(false)
         stopped.set(true)
       }

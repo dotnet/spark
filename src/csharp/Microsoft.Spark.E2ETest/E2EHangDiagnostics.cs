@@ -146,7 +146,9 @@ namespace Microsoft.Spark.E2ETest
                 const string keys = "seq|channel|request|queued|active|interceptor|open|connected|" +
                     "writable|loop_shutdown|loop_terminated|age_ms|byte_count|bytes_read|" +
                     "source_open|sink_open|source_error|missing|matched|ok|dropped|" +
-                    "callback|loop|thread|on_loop|timeout_ms|elapsed_ms|last_request_age_ms";
+                    "callback|loop|thread|on_loop|timeout_ms|elapsed_ms|last_request_age_ms|" +
+                    "pipe_source|pipe_socket|reader_thread|reader_matches|reader_scan_complete|" +
+                    "blocker_stable|reader_supported|reader_in_read";
                 const string errors = "NoSuchFieldException|IllegalAccessException|SecurityException|" +
                     "IllegalArgumentException|IOException|RuntimeException|Other";
                 string pattern = $@"\ASPARK_TRANSPORT_DIAG event=({events})" +
@@ -204,9 +206,17 @@ namespace Microsoft.Spark.E2ETest
                 int end = value.IndexOf('"', 1);
                 if (end > 0)
                 {
-                    string fields = string.Join(" ", Regex.Matches(value.Substring(end + 1),
+                    string header = value.Substring(end + 1);
+                    string fields = string.Join(" ", Regex.Matches(header,
                         @"\b(?:tid|nid)=0x[0-9a-fA-F]+\b|\b(?:prio|os_prio)=-?\d+\b|\b(?:cpu|elapsed)=[\d.]+m?s\b")
                         .Select(match => match.Value));
+                    // Thread.getId() from the Pipe observer is the jcmd #id, not native nid.
+                    Match javaThread = Regex.Match(header, @"^\s+#([0-9]{1,20})\b");
+                    if (javaThread.Success)
+                    {
+                        fields = $"java_thread={javaThread.Groups[1].Value} {fields}".TrimEnd();
+                    }
+
                     return fields.Length == 0 ? null : $"thread {fields}";
                 }
             }

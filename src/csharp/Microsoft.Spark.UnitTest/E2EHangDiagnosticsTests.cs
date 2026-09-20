@@ -60,7 +60,9 @@ namespace Microsoft.Spark.UnitTest
             "WARN TransportResponseHandler event=failure-callback-missing")]
         [InlineData("\"private-thread-name\" #20 daemon prio=5 os_prio=0 cpu=12.50ms elapsed=2.5s " +
             "tid=0x000abc nid=0x123 waiting on condition token=private-value",
-            "thread prio=5 os_prio=0 cpu=12.50ms elapsed=2.5s tid=0x000abc nid=0x123")]
+            "thread java_thread=20 prio=5 os_prio=0 cpu=12.50ms elapsed=2.5s tid=0x000abc nid=0x123")]
+        [InlineData("\"private-thread\" #42 daemon token=private-value",
+            "thread java_thread=42")]
         public void SanitizeOmitsMessagesThreadNamesAndArguments(string input, string expected)
         {
             Assert.Equal(expected, E2EHangDiagnostics.Sanitize(input));
@@ -89,6 +91,9 @@ namespace Microsoft.Spark.UnitTest
             "on_loop=0 queued=1 active=0 interceptor=0 bytes_read=-1 timeout_ms=120000 " +
             "loop_shutdown=0 loop_terminated=0 last_request_age_ms=60001")]
         [InlineData("SPARK_TRANSPORT_DIAG event=diagnostic_error error_type=NoSuchFieldException")]
+        [InlineData("SPARK_TRANSPORT_DIAG event=snapshot channel=1 request=2 callback=3 " +
+            "pipe_source=4 pipe_socket=5 reader_thread=42 reader_matches=1 " +
+            "reader_scan_complete=1 blocker_stable=1 reader_supported=1 reader_in_read=1")]
         public void SanitizePreservesAllowlistedTransportMetadata(string line)
         {
             Assert.Equal(line, E2EHangDiagnostics.Sanitize(line));
@@ -103,6 +108,8 @@ namespace Microsoft.Spark.UnitTest
         [InlineData("SPARK_TRANSPORT_DIAG event=request request=-2")]
         [InlineData("SPARK_TRANSPORT_DIAG event=diagnostic_error error_type=private-value")]
         [InlineData("SPARK_TRANSPORT_DIAG event=diagnostic_error error_type=IOException message=private-value")]
+        [InlineData("SPARK_TRANSPORT_DIAG event=snapshot reader_thread=private-thread")]
+        [InlineData("SPARK_TRANSPORT_DIAG event=snapshot pipe_socket=spark://private-host/private-class")]
         public void SanitizeRejectsUnrecognizedTransportFields(string line)
         {
             Assert.Null(E2EHangDiagnostics.Sanitize(line));

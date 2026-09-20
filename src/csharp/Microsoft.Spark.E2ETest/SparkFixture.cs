@@ -354,6 +354,17 @@ namespace Microsoft.Spark.E2ETest
             string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
 
+            if (SparkSettings.Version.Major == 4 &&
+                Environment.GetEnvironmentVariable("DOTNET_SPARK_DEBUG_TRANSPORT") == "1" &&
+                !string.IsNullOrWhiteSpace(
+                    Environment.GetEnvironmentVariable("DOTNET_SPARK_DEBUG_TRACE_DIR")))
+            {
+                // Diagnostic-only access to the Pipe interruptor; never change read/close behavior.
+                logOption = "--conf \"spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
+                    $"{resourceUri}/log4j.properties " +
+                    "--add-opens=java.base/java.nio.channels.spi=ALL-UNNAMED\"";
+            }
+
             args = $"{logOption} {warehouseDir} {AddPackages(extraArgs)} " +
                 $"{packageResolutionOptions} {classArg} " +
                 $"--master local {jar} debug";
