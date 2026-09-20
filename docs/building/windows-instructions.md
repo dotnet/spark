@@ -20,6 +20,8 @@ Building Spark .NET on Windows
 
 If you already have all the pre-requisites, skip to the [build](windows-instructions.md#building) steps below.
 
+The default instructions use Spark 3.5.3 and JDK 8. To build and run Spark 4.0.0–4.0.4, also install JDK 17 and a Scala 2.13 Spark 4.0 distribution, and use the .NET 8 steps below. Keep both JDKs when building the Spark 3 and Spark 4 bridges together; see the [Spark 4 setup and scope](../migration-guide.md#trying-spark-40-from-source-or-a-candidate-package).
+
   1. Download and install the **[.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)** - installing the SDK will add the `dotnet` toolchain to your path.
   2. Install **[Visual Studio 2019](https://www.visualstudio.com/downloads/)** (Version 16.4 or later). The Community version is completely free. When configuring your installation, include these components at minimum:
      * .NET desktop development
@@ -105,7 +107,7 @@ mvn -f src/scala/microsoft-spark-4-0/pom.xml clean package
 
 `clean package` includes Spark 4 tests that use `SparkContext.addFile`. On Windows, complete the WinUtils setup in prerequisite 6 before running this command.
 
-Its bridge is `src\scala\microsoft-spark-4-0\target\microsoft-spark-4-0_2.13-<version>.jar` and requires a Scala 2.13 Spark 4.0 runtime with JDK 17. Building this bridge does not prove full API or deployment compatibility. See the [migration guide](../migration-guide.md#upgrading-after-spark-2x-support-removal) for package matching and clean-output requirements.
+Its bridge is `src\scala\microsoft-spark-4-0\target\microsoft-spark-4-0_2.13-<version>.jar` and requires a Scala 2.13 Spark 4.0 runtime with JDK 17. Build it before packing `Microsoft.Spark` so the NuGet package includes the Spark 4 JAR. Use .NET components from the same checkout; building this bridge alone does not add Spark 4 support to the published 2.3.1 package. See the [migration guide](../migration-guide.md#trying-spark-40-from-source-or-a-candidate-package) for package matching and scope.
 
 ## Building .NET Samples Application
 
@@ -204,6 +206,8 @@ Its bridge is `src\scala\microsoft-spark-4-0\target\microsoft-spark-4-0_2.13-<ve
 # Run Samples
 
 Once you build the samples, running them will be through `spark-submit` regardless of whether you are targeting .NET Framework or .NET 8 apps. Make sure you have followed the [pre-requisites](#pre-requisites) section and installed Apache Spark.
+
+For Spark 4, run the .NET 8 sample with JDK 17 and the Spark 4 installation, and replace the Spark 3 JAR below with the bridge from `src\scala\microsoft-spark-4-0\target\`.
 
   1. Set the `DOTNET_WORKER_DIR` or `PATH` environment variable to include the path where the `Microsoft.Spark.Worker` binary has been generated (e.g., `c:\github\dotnet\spark\artifacts\bin\Microsoft.Spark.Worker\Debug\net48` for .NET Framework, `c:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.Worker\Debug\net8.0\win-x64\publish` for .NET 8)
   2. Open Powershell and go to the directory where your app binary has been generated (e.g., `c:\github\dotnet\spark\artifacts\bin\Microsoft.Spark.CSharp.Examples\Debug\net48` for .NET Framework, `c:\github\dotnet-spark\artifacts\bin\Microsoft.Spark.CSharp.Examples\Debug\net8.0\win1-x64\publish` for .NET 8)

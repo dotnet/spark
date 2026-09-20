@@ -33,7 +33,7 @@ For background on the proposal for upstream .NET bindings, see [SPIP: .NET bindi
 
 The next release removes Apache Spark 2.x support and retains the Spark 3.0 through 3.5 runtime lines. See the [migration guide](docs/migration-guide.md#upgrading-after-spark-2x-support-removal) before upgrading an existing application.
 
-The getting-started examples use Spark 3.5.3 with Scala 2.12. Spark 4.0 integration requires the Scala 2.13 bridge and JDK 17; it does not imply full API or deployment parity with Spark 3.x. Match the bridge JAR to the Spark runtime and the `Microsoft.Spark`/Worker release, and validate the APIs and deployment configuration your application uses.
+The getting-started examples use Spark 3.5.3 with Scala 2.12. Current source targets Spark 4.0.0–4.0.4 on Windows and Linux with .NET 8, the Scala 2.13 bridge, and JDK 17. Spark 4 support is pending release; use [matching source-built or candidate packages](docs/migration-guide.md#trying-spark-40-from-source-or-a-candidate-package), not the published v2.3.1 package. This does not imply full API or deployment parity with Spark 3.x.
 
 For Spark 4.0 semi-structured data, see [Variant schemas and Spark SQL](docs/variant-guide.md); native .NET Variant values and Variant UDFs are not supported.
 

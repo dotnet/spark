@@ -219,6 +219,19 @@ extends:
                     /p:SparkWorkerPublishDir=$(Build.ArtifactStagingDirectory)\Microsoft.Spark.Worker
           displayName: '.NET build'
 
+        - pwsh: |
+            ./eng/tests/Test-SparkReleasePackage.Tests.ps1
+            ./eng/tests/New-SparkWorkerArchive.Tests.ps1
+            ./eng/tests/Run-SparkReleaseSmokeTest.Tests.ps1
+            $packages = @(Get-ChildItem -LiteralPath 'artifacts/packages/Release/NonShipping' -File |
+              Where-Object { $_.Name -match '^Microsoft\.Spark\.[0-9].*\.nupkg$' })
+            $jars = @(Get-ChildItem -LiteralPath 'src/scala/microsoft-spark-4-0/target' -Filter 'microsoft-spark-4-0_2.13-*.jar' -File)
+            if ($packages.Count -ne 1 -or $jars.Count -ne 1) {
+              throw 'Expected one core Microsoft.Spark package and one freshly built Spark 4 bridge.'
+            }
+            ./eng/Test-SparkReleasePackage.ps1 -PackagePath $packages[0].FullName -SparkJarPath $jars[0].FullName | Format-List
+          displayName: 'Test release tooling and verify Spark 4 NuGet contents'
+
         - task: DotNetCoreCLI@2
           displayName: '.NET unit tests'
           inputs:

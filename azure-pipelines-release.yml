@@ -12,6 +12,8 @@ variables:
   _TeamName: DotNetSpark
   MSBUILDSINGLELOADCONTEXT: 1
   ArtifactPath: '$(Build.ArtifactStagingDirectory)/Binaries'
+  managedOSSMavenFeed: ManagedOSS_PublicPackages
+  managedOSSMavenFeedUrl: https://pkgs.dev.azure.com/msasg/ManagedOSS/_packaging/ManagedOSS_PublicPackages/maven/v1
 
   forwardCompatibleRelease: '2.0.0'
 
@@ -82,13 +84,36 @@ extends:
         - task: MavenAuthenticate@0
           displayName: '[ENV] Maven Authenticate'
           inputs:
-            artifactsFeeds: central
+            artifactsFeeds: $(managedOSSMavenFeed)
+
+        - pwsh: |
+            ./eng/Configure-PackageSources.ps1 `
+              -FeedName "$(managedOSSMavenFeed)" `
+              -FeedUrl "$(managedOSSMavenFeedUrl)"
+          displayName: '[ENV] Configure Maven mirror'
 
         - task: Maven@3
           displayName: 'Maven build src'
           inputs:
             mavenPomFile: src/scala/pom.xml
             options: '-Dmaven.resolver.transport=wagon'
+
+        - pwsh: ./eng/Initialize-HadoopWindows.ps1 -DestinationDirectory "$(Build.BinariesDirectory)/hadoop"
+          displayName: '[ENV] Prepare Hadoop for Windows Scala tests'
+
+        # Keep the Spark 3 reactor on its existing JDK; Spark 4 needs a separate Java 17 build.
+        - task: Maven@3
+          displayName: 'Maven build Spark 4.0 bridge (JDK 17)'
+          inputs:
+            mavenPomFile: src/scala/microsoft-spark-4-0/pom.xml
+            goals: 'clean package'
+            options: '-Dmaven.resolver.transport=wagon'
+            javaHomeOption: 'JDKVersion'
+            jdkVersionOption: '1.17'
+            jdkArchitectureOption: 'x64'
+          env:
+            HADOOP_HOME: $(Build.BinariesDirectory)\hadoop
+            PATH: $(Build.BinariesDirectory)\hadoop\bin;$(PATH)
 
         - task: Maven@3
           displayName: 'Maven build benchmark'
@@ -166,27 +191,23 @@ extends:
         - task: PowerShell@2
           displayName: "Pack Spark Worker Archives"
           inputs:
+            pwsh: true
             targetType: "inline"
             script: |
-              $OSTypes = "osx-x64", "linux-x64", "win-x64"
-              foreach ($OSType in $OSTypes) {
-                  $binaryFolder = "$(ArtifactPath)\Microsoft.Spark.Worker\net8.0"
-                  New-Item -Path "$binaryFolder\$OSType-archive" -ItemType Directory -Force
-                  Get-ChildItem -Path "$binaryFolder\$OSType" -Recurse | Move-Item -Destination "$binaryFolder\$OSType-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion)"
-                  $archiveFile_zip = "$binaryFolder\$OSType-archive\Microsoft.Spark.Worker.net8.0.$OSType-$(DotnetPackageVersion).zip"
-                  Compress-Archive -Path $binaryFolder\$OSType-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile_zip
-                 
-                  # Create tar.gz for linux-x64
-                  if ($OSType -eq "linux-x64") {
-                     $archiveFile_targz = "$binaryFolder\$OSType-archive\Microsoft.Spark.Worker.net8.0.$OSType-$(DotnetPackageVersion).tar.gz"
-                     tar -czf $archiveFile_targz -C "$binaryFolder\$OSType-archive" Microsoft.Spark.Worker-$(DotnetPackageVersion)
-                  }
+              foreach ($runtime in @('osx-x64', 'linux-x64', 'win-x64')) {
+                $binaryFolder = "$(ArtifactPath)/Microsoft.Spark.Worker/net8.0"
+                ./eng/New-SparkWorkerArchive.ps1 `
+                  -WorkerDirectory "$binaryFolder/$runtime" `
+                  -OutputDirectory "$binaryFolder/$runtime-archive" `
+                  -PackageVersion '$(DotnetPackageVersion)' `
+                  -Framework net8.0 -RuntimeIdentifier $runtime
               }
-              $binaryFolder = "$(ArtifactPath)\Microsoft.Spark.Worker\net48"
-              New-Item -Path "$binaryFolder\win-x64-archive" -ItemType Directory -Force
-              Get-ChildItem -Path "$binaryFolder\$OSType" -Recurse | Move-Item -Destination "$binaryFolder\win-x64-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion)"
-              $archiveFile_zip = "$binaryFolder\win-x64-archive\Microsoft.Spark.Worker.net48.win-x64-$(DotnetPackageVersion).zip"
-              Compress-Archive -Path $binaryFolder\win-x64-archive\Microsoft.Spark.Worker-$(DotnetPackageVersion) -DestinationPath $archiveFile_zip
+              $binaryFolder = "$(ArtifactPath)/Microsoft.Spark.Worker/net48"
+              ./eng/New-SparkWorkerArchive.ps1 `
+                -WorkerDirectory "$binaryFolder/win-x64" `
+                -OutputDirectory "$binaryFolder/win-x64-archive" `
+                -PackageVersion '$(DotnetPackageVersion)' `
+                -Framework net48 -RuntimeIdentifier win-x64
 
         - task: CopyFiles@2
           displayName: '[COPY] Spark.Net .net8.0 worker archives -> $(ArtifactPath)/Output'
@@ -389,6 +410,14 @@ extends:
                 }
               ]
 
+        - pwsh: |
+            $jars = @(Get-ChildItem -LiteralPath 'src/scala/microsoft-spark-4-0/target' -Filter 'microsoft-spark-4-0_2.13-*.jar' -File)
+            if ($jars.Count -ne 1) { throw "Expected one freshly built Spark 4 bridge, found $($jars.Count)." }
+            ./eng/Test-SparkReleasePackage.ps1 `
+              -PackagePath "$(ArtifactPath)/Output/Microsoft.Spark.$(DotnetPackageVersion).nupkg" `
+              -SparkJarPath $jars[0].FullName | Format-List
+          displayName: '[VERIFY] Final NuGet contains the freshly built Spark 4 bridge'
+
         - task: NuGetCommand@2
           displayName: 'Verify NuGet Packages'
           inputs:
@@ -405,6 +434,8 @@ extends:
             cd $(Build.SourcesDirectory)
             dir /B /S
           displayName: '[TEMP] Print SourcesDirectory'
+
+    - template: azure-pipelines-release-smoke-template.yml
 
     - stage: ValidateLinux
       displayName: Validate Packages on Linux

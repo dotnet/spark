@@ -18,6 +18,8 @@ Building Spark .NET on Ubuntu 18.04
 
 If you already have all the pre-requisites, skip to the [build](ubuntu-instructions.md#building) steps below.
 
+The default instructions use Spark 3.5.3 and JDK 8. To build and run Spark 4.0.0–4.0.4, also install JDK 17 and a Scala 2.13 Spark 4.0 distribution. Keep both JDKs when building the Spark 3 and Spark 4 bridges together; see the [Spark 4 setup and scope](../migration-guide.md#trying-spark-40-from-source-or-a-candidate-package).
+
   1. Download and install **[.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)** - installing the SDK will add the `dotnet` toolchain to your path.
   2. Install **[OpenJDK 8](https://openjdk.java.net/install/)** 
      - You can use the following command:
@@ -122,7 +124,7 @@ Spark 4.0 is built separately. From the repository root, switch `JAVA_HOME` and 
 mvn -f src/scala/microsoft-spark-4-0/pom.xml clean package
 ```
 
-Its bridge is `src/scala/microsoft-spark-4-0/target/microsoft-spark-4-0_2.13-<version>.jar` and requires a Scala 2.13 Spark 4.0 runtime with JDK 17. Building this bridge does not prove full API or deployment compatibility. See the [migration guide](../migration-guide.md#upgrading-after-spark-2x-support-removal) for package matching and clean-output requirements.
+Its bridge is `src/scala/microsoft-spark-4-0/target/microsoft-spark-4-0_2.13-<version>.jar` and requires a Scala 2.13 Spark 4.0 runtime with JDK 17. Build it before packing `Microsoft.Spark` so the NuGet package includes the Spark 4 JAR. Use .NET components from the same checkout; building this bridge alone does not add Spark 4 support to the published 2.3.1 package. See the [migration guide](../migration-guide.md#trying-spark-40-from-source-or-a-candidate-package) for package matching and scope.
 
 ## Building .NET Sample Applications using .NET 8 CLI
 
@@ -173,6 +175,8 @@ Its bridge is `src/scala/microsoft-spark-4-0/target/microsoft-spark-4-0_2.13-<ve
 # Run Samples
 
 Once you build the samples, you can use `spark-submit` to submit your .NET 8 apps. Make sure you have followed the [pre-requisites](#pre-requisites) section and installed Apache Spark.
+
+For Spark 4, run with JDK 17 and the Spark 4 installation, and replace the Spark 3 JAR below with the bridge from `src/scala/microsoft-spark-4-0/target/`.
 
   1. Set the `DOTNET_WORKER_DIR` or `PATH` environment variable to include the path where the `Microsoft.Spark.Worker` binary has been generated (e.g., `~/dotnet.spark/artifacts/bin/Microsoft.Spark.Worker/Debug/net8.0/linux-x64/publish`)
   2. Open a terminal and go to the directory where your app binary has been generated (e.g., `~/dotnet.spark/artifacts/bin/Microsoft.Spark.CSharp.Examples/Debug/net8.0/linux-x64/publish`)

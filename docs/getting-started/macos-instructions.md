@@ -15,7 +15,7 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
         export PATH="$SPARK_HOME/bin:$PATH"
         source ~/.bashrc
         ```
-- This example uses the `microsoft-spark-3-5_2.12-<version>.jar` bridge with Java 8. Spark 4.0 requires JDK 17 and `microsoft-spark-4-0_2.13-<version>.jar`; validate the APIs you need before changing runtimes. See the [migration guide](../migration-guide.md#upgrading-after-spark-2x-support-removal).
+- This example uses the `microsoft-spark-3-5_2.12-<version>.jar` bridge with Java 8. Spark 4 candidate validation targets Windows and Linux with .NET 8, not macOS; see the [Spark 4 scope](../migration-guide.md#trying-spark-40-from-source-or-a-candidate-package). The published Microsoft.Spark 2.3.1 package does not support Spark 4.
 - Download and install **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release:
     - Select a **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release from .NET for Apache Spark GitHub Releases page and download into your local machine (e.g., `/bin/Microsoft.Spark.Worker/`).
     - **IMPORTANT** Create a new environment variable using ```export DOTNET_WORKER_DIR <your_path>``` and set it to the directory where you downloaded and extracted the Microsoft.Spark.Worker (e.g., `/bin/Microsoft.Spark.Worker/`).
