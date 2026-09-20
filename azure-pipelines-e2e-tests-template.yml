@@ -14,6 +14,9 @@ parameters:
 - name: managedOSSMavenFeedUrl
   type: string
   default: ''
+- name: compareWindowsSpark4Jdks
+  type: boolean
+  default: false
 
 
 stages:
@@ -25,6 +28,18 @@ stages:
     - ${{ each option in test.jobOptions }}:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
         timeoutInMinutes: 120
+        ${{ if and(eq(parameters.compareWindowsSpark4Jdks, true), eq(lower(option.pool), 'windows'), eq(split(test.version, '.')[0], '4')) }}:
+          # Independent attempts, not retry-to-green; every leg uses the same Build artifacts.
+          strategy:
+            matrix:
+              Temurin_17_0_17_Run1:
+                E2E_DIAGNOSTIC_JDK: '17.0.17+10'
+              Temurin_17_0_18_Run1:
+                E2E_DIAGNOSTIC_JDK: '17.0.18+8'
+              Temurin_17_0_17_Run2:
+                E2E_DIAGNOSTIC_JDK: '17.0.17+10'
+              Temurin_17_0_18_Run2:
+                E2E_DIAGNOSTIC_JDK: '17.0.18+8'
         variables:
           # Debug branch: bounded phase logs and pre-timeout JVM stacks, without memory dumps.
           DOTNET_SPARK_DEBUG_TRACE_DIR: '$(Agent.TempDirectory)/spark-e2e-debug/$(System.JobId)-$(System.JobAttempt)'
@@ -134,6 +149,13 @@ stages:
 
         - checkout: self
           path: s$(PATH_SEPARATOR)dotnet-spark
+
+        - ${{ if and(eq(parameters.compareWindowsSpark4Jdks, true), eq(lower(option.pool), 'windows'), eq(split(test.version, '.')[0], '4')) }}:
+          - pwsh: |
+              ./eng/Use-E2EDiagnosticJdk.ps1 -RuntimeVersion "$(E2E_DIAGNOSTIC_JDK)"
+            displayName: '[ENV] Select pinned diagnostic JDK $(E2E_DIAGNOSTIC_JDK)'
+            workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
+            timeoutInMinutes: 10
 
         - ${{ if or(and(eq(parameters.managedOSSMavenFeed, ''), ne(parameters.managedOSSMavenFeedUrl, '')), and(ne(parameters.managedOSSMavenFeed, ''), eq(parameters.managedOSSMavenFeedUrl, ''))) }}:
           - pwsh: throw 'ManagedOSS Maven feed name and URL must be configured together.'
