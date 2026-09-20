@@ -13,9 +13,9 @@ The publisher runs on main pushes, periodically, and on eligible check-suite com
 | Spark | Windows | Linux |
 | :--- | :--- | :--- |
 | 3.0.0 | [running](https://github.com/dotnet/spark/runs/106022682908) | [running](https://github.com/dotnet/spark/runs/106022683654) |
-| 3.0.1 | [running](https://github.com/dotnet/spark/runs/106022680911) | [running](https://github.com/dotnet/spark/runs/106022679562) |
+| 3.0.1 | [passing](https://github.com/dotnet/spark/runs/106028457036) | [passing](https://github.com/dotnet/spark/runs/106028286096) |
 | 3.0.2 | [running](https://github.com/dotnet/spark/runs/106022682956) | [running](https://github.com/dotnet/spark/runs/106022681956) |
-| 3.1.1 | [running](https://github.com/dotnet/spark/runs/106022680830) | [running](https://github.com/dotnet/spark/runs/106022681892) |
+| 3.1.1 | [passing](https://github.com/dotnet/spark/runs/106029019179) | [passing](https://github.com/dotnet/spark/runs/106028322076) |
 | 3.1.2 | [running](https://github.com/dotnet/spark/runs/106022683009) | [running](https://github.com/dotnet/spark/runs/106022681918) |
 | 3.2.1 | [running](https://github.com/dotnet/spark/runs/106022682945) | [running](https://github.com/dotnet/spark/runs/106022683592) |
 | 3.2.2 | [running](https://github.com/dotnet/spark/runs/106022687298) | [running](https://github.com/dotnet/spark/runs/106022686430) |
@@ -24,7 +24,7 @@ The publisher runs on main pushes, periodically, and on eligible check-suite com
 | 3.3.1 | [running](https://github.com/dotnet/spark/runs/106022686307) | [running](https://github.com/dotnet/spark/runs/106022687162) |
 | 3.3.2 | [running](https://github.com/dotnet/spark/runs/106022688114) | [running](https://github.com/dotnet/spark/runs/106022688329) |
 | 3.3.3 | [running](https://github.com/dotnet/spark/runs/106022685509) | [running](https://github.com/dotnet/spark/runs/106022688015) |
-| 3.3.4 | [running](https://github.com/dotnet/spark/runs/106022681910) | [running](https://github.com/dotnet/spark/runs/106022682901) |
+| 3.3.4 | [passing](https://github.com/dotnet/spark/runs/106028292118) | [running](https://github.com/dotnet/spark/runs/106022682901) |
 | 3.4.0 | [running](https://github.com/dotnet/spark/runs/106022684738) | [running](https://github.com/dotnet/spark/runs/106022686919) |
 | 3.4.1 | [running](https://github.com/dotnet/spark/runs/106022687688) | [running](https://github.com/dotnet/spark/runs/106022686544) |
 | 3.4.2 | [running](https://github.com/dotnet/spark/runs/106022684660) | [running](https://github.com/dotnet/spark/runs/106022684586) |
