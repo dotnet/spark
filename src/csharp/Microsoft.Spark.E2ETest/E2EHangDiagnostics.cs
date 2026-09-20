@@ -71,6 +71,10 @@ namespace Microsoft.Spark.E2ETest
 
         internal static void EndTest() => Volatile.Write(ref s_activeTest, null);
 
+        internal static bool ShouldDisableArtifactIsolation(
+            bool isWindows, int sparkMajorVersion, string flag) =>
+            isWindows && sparkMajorVersion == 4 && flag == "1";
+
         internal void ObserveJvm(IJvmBridge jvm, bool traceTransport = false)
         {
             try

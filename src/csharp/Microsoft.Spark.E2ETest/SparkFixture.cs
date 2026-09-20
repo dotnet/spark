@@ -57,6 +57,7 @@ namespace Microsoft.Spark.E2ETest
         private readonly Process _process = new Process();
         private readonly TemporaryDirectory _tempDirectory = new TemporaryDirectory();
         private readonly E2EHangDiagnostics _diagnostics;
+        private readonly bool _disableArtifactIsolation;
 
         private const string DefaultRepository = "https://repos.spark-packages.org/";
 
@@ -83,6 +84,10 @@ namespace Microsoft.Spark.E2ETest
                     EnvironmentVariableNames.ExpectedSparkVersion));
 
             IpcDebugTrace.Write($"fixture-runtime-validated spark={SparkSettings.Version}");
+            _disableArtifactIsolation = E2EHangDiagnostics.ShouldDisableArtifactIsolation(
+                RuntimeInformation.IsOSPlatform(OSPlatform.Windows),
+                SparkSettings.Version.Major,
+                Environment.GetEnvironmentVariable("DOTNET_SPARK_DEBUG_DISABLE_ARTIFACT_ISOLATION"));
             BuildSparkCmd(out var filename, out var args);
             IpcDebugTrace.Write("fixture-command-built");
             _diagnostics = E2EHangDiagnostics.Create();
@@ -158,6 +163,12 @@ namespace Microsoft.Spark.E2ETest
                 .AppName("Microsoft.Spark.E2ETest")
                 .GetOrCreate();
             IpcDebugTrace.Write("fixture-session-create-end");
+
+            if (_disableArtifactIsolation)
+            {
+                Assert.Equal("false", Spark.Conf().Get("spark.sql.artifact.isolation.enabled"));
+                IpcDebugTrace.Write("diagnostic-artifact-isolation-disabled-verified");
+            }
 
             Spark.SparkContext.SetLogLevel(DefaultLogLevel);
 
@@ -348,6 +359,13 @@ namespace Microsoft.Spark.E2ETest
 
             string extraArgs = Environment.GetEnvironmentVariable(
                 EnvironmentVariableNames.ExtraSparkSubmitArgs) ?? "";
+
+            if (_disableArtifactIsolation)
+            {
+                // Diagnostic bypass, not a fix: avoid the per-session remote classloader/Pipe.
+                // Set before session creation; this changes artifact visibility between sessions.
+                extraArgs += " --conf spark.sql.artifact.isolation.enabled=false";
+            }
 
             // Keep the custom NullLogger configuration for Spark versions using log4j 1.x.
             string resourceUri = new Uri(TestEnvironment.ResourceDirectory).AbsoluteUri;

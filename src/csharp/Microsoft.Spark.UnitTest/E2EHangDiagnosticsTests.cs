@@ -26,6 +26,22 @@ namespace Microsoft.Spark.UnitTest
         public E2EHangDiagnosticsTests() => E2EHangDiagnostics.EndTest();
 
         [Theory]
+        [InlineData(true, 4, "1", true)]
+        [InlineData(false, 4, "1", false)]
+        [InlineData(true, 3, "1", false)]
+        [InlineData(true, 5, "1", false)]
+        [InlineData(true, 4, null, false)]
+        [InlineData(true, 4, "", false)]
+        [InlineData(true, 4, "0", false)]
+        [InlineData(true, 4, "true", false)]
+        public void ArtifactIsolationBypassRequiresWindowsSpark4AndExplicitFlag(
+            bool isWindows, int sparkMajorVersion, string flag, bool expected)
+        {
+            Assert.Equal(expected, E2EHangDiagnostics.ShouldDisableArtifactIsolation(
+                isWindows, sparkMajorVersion, flag));
+        }
+
+        [Theory]
         [InlineData("at java.lang.Object.wait(Native Method)")]
         [InlineData("at org.apache.spark.sql.Dataset.collectToPython(Dataset.scala:4164)")]
         [InlineData("at sun.nio.ch.NioSocketImpl.park(java.base@17.0.15/NioSocketImpl.java:186)")]

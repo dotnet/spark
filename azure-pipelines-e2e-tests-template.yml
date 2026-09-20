@@ -17,6 +17,9 @@ parameters:
 - name: compareWindowsSpark4Jdks
   type: boolean
   default: false
+- name: disableWindowsSpark4ArtifactIsolation
+  type: boolean
+  default: false
 
 
 stages:
@@ -45,6 +48,8 @@ stages:
           DOTNET_SPARK_DEBUG_TRACE_DIR: '$(Agent.TempDirectory)/spark-e2e-debug/$(System.JobId)-$(System.JobAttempt)'
           # Spark 4 only: observe class-file requests and Pipe/callback progress, not payloads.
           DOTNET_SPARK_DEBUG_TRANSPORT: '1'
+          ${{ if and(eq(parameters.disableWindowsSpark4ArtifactIsolation, true), eq(lower(option.pool), 'windows'), eq(split(test.version, '.')[0], '4')) }}:
+            DOTNET_SPARK_DEBUG_DISABLE_ARTIFACT_ISOLATION: '1'
           E2E_DEBUG_TEST_OPTIONS: '--logger "console;verbosity=detailed" --blame-hang --blame-hang-timeout 5min --blame-hang-dump-type none'
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:

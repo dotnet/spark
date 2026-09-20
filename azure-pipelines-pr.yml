@@ -60,6 +60,11 @@ parameters:
   type: boolean
   default: false
 
+# Diagnostic bypass only: test without Spark 4's per-session artifact classloader.
+- name: disableWindowsSpark4ArtifactIsolation
+  type: boolean
+  default: false
+
 # List of Spark versions to run E2E tests
 - name: listOfE2ETestsSparkVersions
   type: object
@@ -217,6 +222,7 @@ extends:
     - template: azure-pipelines-e2e-tests-template.yml
       parameters:
         compareWindowsSpark4Jdks: ${{ parameters.compareWindowsSpark4Jdks }}
+        disableWindowsSpark4ArtifactIsolation: ${{ parameters.disableWindowsSpark4ArtifactIsolation }}
         backwardCompatibleRelease: $(backwardCompatibleRelease)
         forwardCompatibleRelease: $(forwardCompatibleRelease)
         managedOSSMavenFeed: $(managedOSSMavenFeed)
