@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="134" height="20" role="img" aria-label="Windows: cancelled — main@f7100c99c833b27196bea3d93561d6223d7831b7; build 73572428">
-<title>Windows: cancelled — main@f7100c99c833b27196bea3d93561d6223d7831b7; build 73572428</title>
-<clipPath id="r"><rect width="134" height="20" rx="3"/></clipPath>
-<g clip-path="url(#r)"><rect width="60" height="20" fill="#555"/><rect x="60" width="74" height="20" fill="#9f9f9f"/></g>
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="20" role="img" aria-label="Windows: pending — main@6f6c1049eb52cea77dc176c54b21436383c114b1; build pending">
+<title>Windows: pending — main@6f6c1049eb52cea77dc176c54b21436383c114b1; build pending</title>
+<clipPath id="r"><rect width="120" height="20" rx="3"/></clipPath>
+<g clip-path="url(#r)"><rect width="60" height="20" fill="#555"/><rect x="60" width="60" height="20" fill="#dfb317"/></g>
 <g fill="#fff" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11">
-<text x="30" y="14">Windows</text><text x="97" y="14">cancelled</text></g>
+<text x="30" y="14">Windows</text><text x="90" y="14">pending</text></g>
 </svg>
