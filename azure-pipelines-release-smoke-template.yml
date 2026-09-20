@@ -1,0 +1,80 @@
+# Run against the final release packages, not source-build DLLs or unpackaged Workers.
+parameters:
+- name: sparkVersion
+  type: string
+  default: '4.0.4'
+
+stages:
+- stage: ReleasePackageSmoke
+  displayName: Spark 4 release package smoke tests
+  dependsOn: Build
+  jobs:
+  - ${{ each platform in split('Windows,Linux', ',') }}:
+    - job: Smoke_${{ platform }}
+      displayName: Spark ${{ parameters.sparkVersion }} packaged artifacts (${{ platform }})
+      timeoutInMinutes: 30
+      pool:
+        name: Cosmos2MT-AzureDevOps-AgentPool
+        ${{ if eq(platform, 'Windows') }}:
+          image: 1es-pt-windows-2022
+          os: windows
+        ${{ else }}:
+          image: 1es-pt-ubuntu-22
+          os: linux
+      steps:
+      - checkout: self
+
+      - task: DownloadPipelineArtifact@2
+        displayName: Download final release packages
+        inputs:
+          artifact: DotnetSpark
+          path: $(Pipeline.Workspace)/DotnetSpark
+
+      - task: UseDotNet@2
+        displayName: Use .NET 8 SDK
+        inputs:
+          packageType: sdk
+          version: 8.x
+
+      - task: JavaToolInstaller@0
+        displayName: Use JDK 17
+        inputs:
+          versionSpec: '17'
+          jdkArchitectureOption: x64
+          jdkSourceOption: PreInstalled
+
+      - ${{ if eq(platform, 'Windows') }}:
+        - pwsh: ./eng/Initialize-HadoopWindows.ps1 -DestinationDirectory "$(Build.BinariesDirectory)/hadoop"
+          displayName: Prepare Hadoop Windows tools
+
+      - task: UniversalPackages@0
+        displayName: Download Spark ${{ parameters.sparkVersion }}
+        inputs:
+          command: download
+          downloadDirectory: $(Build.BinariesDirectory)/spark-distro
+          feedsToUse: internal
+          vstsFeed: ManagedOSS/Compute
+          vstsFeedPackage: spark-distro
+          vstsPackageVersion: ${{ parameters.sparkVersion }}
+
+      - pwsh: |
+          $archives = @(Get-ChildItem -LiteralPath "$(Build.BinariesDirectory)/spark-distro" -Recurse -File -Filter 'spark-${{ parameters.sparkVersion }}-bin-hadoop3.tgz')
+          if ($archives.Count -ne 1) {
+            throw "Expected one Spark distribution archive, found $($archives.Count)."
+          }
+          tar -xzf $archives[0].FullName -C "$(Build.BinariesDirectory)"
+          if ($LASTEXITCODE -ne 0) { throw "Spark extraction failed: $LASTEXITCODE." }
+        displayName: Extract Spark distribution
+
+      - pwsh: |
+          if ($IsWindows) {
+            $env:HADOOP_HOME = "$(Build.BinariesDirectory)/hadoop"
+            $env:PATH = "$(Build.BinariesDirectory)/hadoop/bin;$env:PATH"
+          }
+          ./eng/Run-SparkReleaseSmokeTest.ps1 `
+            -PackageDirectory "$(Pipeline.Workspace)/DotnetSpark" `
+            -SparkHome "$(Build.BinariesDirectory)/spark-${{ parameters.sparkVersion }}-bin-hadoop3" `
+            -SparkVersion '${{ parameters.sparkVersion }}' `
+            -WorkDirectory "$(Agent.TempDirectory)/spark-release-smoke-$(Build.BuildId)-$(System.JobAttempt)"
+        displayName: Verify packaged Driver, Collect and scalar UDF
+        timeoutInMinutes: 10

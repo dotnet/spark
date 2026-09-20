@@ -74,9 +74,20 @@ Since Apache Spark's [MAINTENANCE] releases involve only internal changes (e.g.,
 
 1. In the corresponding `pom.xml`, update the `spark.version` value to the newly released version.
    * For a Spark 3.5 patch release, update [src/scala/microsoft-spark-3-5/pom.xml](../src/scala/microsoft-spark-3-5/pom.xml) to the selected `spark.version`.
+   * Spark 4.0 uses one [Scala 2.13 bridge](../src/scala/microsoft-spark-4-0/pom.xml), currently built against Spark 4.0.4 with JDK 17. It is built separately from the JDK 8 Spark 3.x reactor; a patch release does not require a new bridge module.
 2. Update `DotnetRunner.supportedSparkVersions` to include the newly released version.
    * For Spark 3.5, update [DotnetRunner.scala](../src/scala/microsoft-spark-3-5/src/main/scala/org/apache/spark/deploy/dotnet/DotnetRunner.scala).
+   * For Spark 4.0, update its [DotnetRunner.scala](../src/scala/microsoft-spark-4-0/src/main/scala/org/apache/spark/deploy/dotnet/DotnetRunner.scala); the current version list is 4.0.0–4.0.4.
 3. Update [azure-pipelines-pr.yml](../azure-pipelines-pr.yml) and, where needed, the shared [E2E template](../azure-pipelines-e2e-tests-template.yml) to validate the newly released version on the supported platforms. Check the selected test filters before interpreting a green run as compatibility evidence.
+4. Build the release artifacts and validate the packaged NuGet, bridge JAR, and Worker together. A source-build test alone does not verify package contents; use the JAR included in that package and a Worker from the same build. The [release pipeline](../azure-pipelines-release.yml) checks the final NuGet against the freshly built Spark 4 bridge, then runs a Spark 4.0.4 Driver/Collect/scalar-UDF smoke test on Windows and Linux using the final NuGet and Worker ZIPs. This complements, rather than replaces, the full source E2E matrix.
+
+To repeat the packaged-artifact smoke test locally with PowerShell 7, install Spark 4.0.4 and JDK 17 (plus the Windows Hadoop prerequisites when applicable), then run:
+
+```powershell
+./eng/Run-SparkReleaseSmokeTest.ps1 -PackageDirectory <release-artifacts> -SparkHome <spark-4.0.4-bin-hadoop3> -WorkDirectory <new-work-directory>
+```
+
+The artifact directory must contain exactly one core `Microsoft.Spark` NuGet package and its matching .NET 8 Worker ZIP for the current platform. The script uses a fresh NuGet cache and the packaged JAR; its logs remain in the new work directory. A local unsigned run does not validate release signatures.
 
 Refer to [this historical commit](https://github.com/dotnet/spark/commit/eb26baa46200bfcbe3e1080e650f335853d9990e) for an example of the process, not the current supported versions or file paths.
 
