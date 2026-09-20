@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
@@ -39,6 +40,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                     !string.IsNullOrWhiteSpace(root) && Path.IsPathFullyQualified(root)),
                 "ML persistence requires both a save/load phase and an absolute model path.");
 
+            string mode = phase == "save" ? "save" : phase == "load" ? "load" : "self-contained";
+            string traceContext = $"ml-pipeline-persistence useWriter={useWriter} mode={mode}";
+            IpcDebugTrace.Write($"{traceContext} phase=begin");
             using (var tempDirectory = phase == null ? new TemporaryDirectory() : null)
             {
                 string path = Path.Combine(
@@ -47,8 +51,13 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
                 if (phase != "load")
                 {
+                    IpcDebugTrace.Write($"{traceContext} phase=fit-begin");
                     PipelineModel model = FitPipeline();
+                    IpcDebugTrace.Write($"{traceContext} phase=fit-end");
+                    IpcDebugTrace.Write($"{traceContext} phase=collect-before-save-begin");
                     AssertModelOutput(model);
+                    IpcDebugTrace.Write($"{traceContext} phase=collect-before-save-end");
+                    IpcDebugTrace.Write($"{traceContext} phase=save-begin");
                     if (useWriter)
                     {
                         model.Write().Session(_spark).Save(path);
@@ -57,20 +66,27 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
                     {
                         model.Save(path);
                     }
+                    IpcDebugTrace.Write($"{traceContext} phase=save-end");
 
                     if (phase == "save")
                     {
+                        IpcDebugTrace.Write($"{traceContext} phase=end");
                         return;
                     }
                 }
 
                 // Do not Fit in the load phase: all learned state must come from disk.
+                IpcDebugTrace.Write($"{traceContext} phase=load-begin");
                 PipelineModel loaded = useWriter
                     ? new PipelineModel("reader", Array.Empty<JavaTransformer>())
                         .Read().Session(_spark).Load(path)
                     : PipelineModel.Load(path);
+                IpcDebugTrace.Write($"{traceContext} phase=load-end");
+                IpcDebugTrace.Write($"{traceContext} phase=collect-after-load-begin");
                 AssertModelOutput(loaded);
+                IpcDebugTrace.Write($"{traceContext} phase=collect-after-load-end");
             }
+            IpcDebugTrace.Write($"{traceContext} phase=end");
         }
 
         [Fact]

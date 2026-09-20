@@ -13,4 +13,8 @@
     <ProjectReference Include="..\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Microsoft.Spark.E2ETest\E2EHangDiagnostics.cs" Link="TestUtils\E2EHangDiagnostics.cs" />
+  </ItemGroup>
+
 </Project>

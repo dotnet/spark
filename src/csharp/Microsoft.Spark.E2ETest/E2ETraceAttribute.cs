@@ -13,13 +13,19 @@ namespace Microsoft.Spark.E2ETest
     /// </summary>
     public sealed class E2ETraceAttribute : BeforeAfterTestAttribute
     {
-        public override void Before(MethodInfo methodUnderTest) =>
+        public override void Before(MethodInfo methodUnderTest)
+        {
+            E2EHangDiagnostics.BeginTest();
             IpcDebugTrace.Write(
                 $"test-begin {methodUnderTest.DeclaringType.FullName}.{methodUnderTest.Name}");
+        }
 
         // This is a method-return marker, not a pass verdict; the test runner owns results.
-        public override void After(MethodInfo methodUnderTest) =>
+        public override void After(MethodInfo methodUnderTest)
+        {
             IpcDebugTrace.Write(
                 $"test-end {methodUnderTest.DeclaringType.FullName}.{methodUnderTest.Name}");
+            E2EHangDiagnostics.EndTest();
+        }
     }
 }

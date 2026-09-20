@@ -225,9 +225,7 @@ extends:
             jobOptions:
             - ${{ each pool in parameters.listOfE2ETestsPoolTypes }}:
               - pool: ${{ pool }}
-                ${{ if startsWith(version, '4.0.') }}:
-                  testOptions: '--filter "Category=Spark40Compatibility|Category=DataFrameRowRetrieval|Category=Broadcast|Category=ArrowUdf|Category=Avro|Category=Streaming|Category=ML"'
-                ${{ else }}:
-                  testOptions: ""
+                # Include the full core suite, including the HashingTF hang seen in WI-11.
+                testOptions: ""
                 backwardCompatibleTestOptions: $(backwardCompatibleTestOptions_${{ pool }}_${{ split(version, '.')[0] }}_${{ split(version, '.')[1] }})
                 forwardCompatibleTestOptions: $(forwardCompatibleTestOptions_${{ pool }}_${{ split(version, '.')[0] }}_${{ split(version, '.')[1] }})

@@ -56,6 +56,7 @@ namespace Microsoft.Spark.E2ETest
 
         private readonly Process _process = new Process();
         private readonly TemporaryDirectory _tempDirectory = new TemporaryDirectory();
+        private readonly E2EHangDiagnostics _diagnostics;
 
         private const string DefaultRepository = "https://repos.spark-packages.org/";
 
@@ -84,6 +85,7 @@ namespace Microsoft.Spark.E2ETest
             IpcDebugTrace.Write($"fixture-runtime-validated spark={SparkSettings.Version}");
             BuildSparkCmd(out var filename, out var args);
             IpcDebugTrace.Write("fixture-command-built");
+            _diagnostics = E2EHangDiagnostics.Create();
 
             // Configure the process using the StartInfo properties.
             _process.StartInfo.FileName = filename;
@@ -99,6 +101,7 @@ namespace Microsoft.Spark.E2ETest
             bool isSparkReady = false;
             _process.OutputDataReceived += (sender, arguments) =>
             {
+                _diagnostics?.RecordOutput("jvm-stdout", arguments.Data);
                 // Scala-side driver for .NET emits the following message after it is
                 // launched and ready to accept connections.
                 if (!isSparkReady &&
@@ -115,6 +118,7 @@ namespace Microsoft.Spark.E2ETest
             };
             _process.ErrorDataReceived += (sender, arguments) =>
             {
+                _diagnostics?.RecordOutput("jvm-stderr", arguments.Data);
                 if (arguments.Data == null)
                 {
                     IpcDebugTrace.Write("fixture-stderr-eof");
@@ -136,6 +140,7 @@ namespace Microsoft.Spark.E2ETest
             if (processExited)
             {
                 IpcDebugTrace.Write($"fixture-premature-exit code={_process.ExitCode}");
+                _diagnostics?.Dispose();
                 _process.Dispose();
 
                 // The process should not have been exited.
@@ -157,6 +162,7 @@ namespace Microsoft.Spark.E2ETest
             Spark.SparkContext.SetLogLevel(DefaultLogLevel);
 
             Jvm = Spark.Reference.Jvm;
+            _diagnostics?.ObserveJvm(Jvm);
             IpcDebugTrace.Write("fixture-ready");
         }
 
@@ -276,22 +282,29 @@ namespace Microsoft.Spark.E2ETest
 
         public void Dispose()
         {
-            IpcDebugTrace.Write("fixture-spark-dispose-begin");
-            Spark.Dispose();
-            IpcDebugTrace.Write("fixture-spark-dispose-end");
+            try
+            {
+                IpcDebugTrace.Write("fixture-spark-dispose-begin");
+                Spark.Dispose();
+                IpcDebugTrace.Write("fixture-spark-dispose-end");
 
-            // CSparkRunner will exit upon receiving newline from
-            // the standard input stream.
-            IpcDebugTrace.Write("fixture-shutdown-signal-begin");
-            _process.StandardInput.WriteLine("done");
-            _process.StandardInput.Flush();
-            IpcDebugTrace.Write("fixture-process-exit-wait");
-            _process.WaitForExit();
-            IpcDebugTrace.Write($"fixture-process-exited code={_process.ExitCode}");
+                // CSparkRunner will exit upon receiving newline from
+                // the standard input stream.
+                IpcDebugTrace.Write("fixture-shutdown-signal-begin");
+                _process.StandardInput.WriteLine("done");
+                _process.StandardInput.Flush();
+                IpcDebugTrace.Write("fixture-process-exit-wait");
+                _process.WaitForExit();
+                IpcDebugTrace.Write($"fixture-process-exited code={_process.ExitCode}");
 
-            IpcDebugTrace.Write("fixture-temp-cleanup-begin");
-            _tempDirectory.Dispose();
-            IpcDebugTrace.Write("fixture-disposed");
+                IpcDebugTrace.Write("fixture-temp-cleanup-begin");
+                _tempDirectory.Dispose();
+                IpcDebugTrace.Write("fixture-disposed");
+            }
+            finally
+            {
+                _diagnostics?.Dispose();
+            }
         }
 
         private void BuildSparkCmd(out string filename, out string args)

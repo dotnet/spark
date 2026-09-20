@@ -26,7 +26,7 @@ stages:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
         timeoutInMinutes: 120
         variables:
-          # Debug-branch instrumentation: retain phase logs without collecting memory dumps.
+          # Debug branch: bounded phase logs and pre-timeout JVM stacks, without memory dumps.
           DOTNET_SPARK_DEBUG_TRACE_DIR: '$(Agent.TempDirectory)/spark-e2e-debug/$(System.JobId)-$(System.JobAttempt)'
           E2E_DEBUG_TEST_OPTIONS: '--logger "console;verbosity=detailed" --blame-hang --blame-hang-timeout 5min --blame-hang-dump-type none'
         ${{ if eq(lower(option.pool), 'windows') }}:
@@ -199,6 +199,9 @@ stages:
         - task: PowerShell@2
           condition: eq( variables['Agent.OS'], 'Windows_NT' )
           displayName: Download Winutils.exe
+          # Retry downloads and invalid archives, not the E2E tests or machine setup.
+          retryCountOnTaskFailure: 2
+          timeoutInMinutes: 10
           inputs:
             workingDirectory: $(Build.BinariesDirectory)
             pwsh: true
@@ -210,8 +213,20 @@ stages:
               if ([version]"3.3.0" -le [version]"${{ test.version }}") {
                 $hadoopBinaryUrl = "https://github.com/SparkSnail/winutils/releases/download/hadoop-3.3.5/hadoop-3.3.5.zip"
               }
-              curl -k -L -o hadoop.zip $hadoopBinaryUrl
-              Expand-Archive -Path hadoop.zip -Destination .
+              curl.exe -k -L --fail --show-error --connect-timeout 30 --max-time 180 -o hadoop.zip $hadoopBinaryUrl
+              if ($LASTEXITCODE -ne 0) {
+                throw "Hadoop utils download failed (curl exit code $LASTEXITCODE)."
+              }
+              Expand-Archive -Path hadoop.zip -Destination . -Force
+
+        - task: PowerShell@2
+          condition: and(succeeded(), eq( variables['Agent.OS'], 'Windows_NT' ))
+          displayName: Setup Winutils.exe
+          inputs:
+            workingDirectory: $(Build.BinariesDirectory)
+            pwsh: true
+            targetType: inline
+            script: |
               New-Item -ItemType Directory -Force -Path hadoop\bin
               if ([version]"3.3.0" -le [version]"${{ test.version }}") {
                 cp hadoop-3.3.5\winutils.exe hadoop\bin
@@ -437,6 +452,6 @@ stages:
               Write-Host "##vso[task.uploadfile]$($traceFile.FullName)"
               Get-Content -LiteralPath $traceFile.FullName -Tail 60 | ForEach-Object { Write-Host $_ }
             }
-          displayName: 'Collect E2E hang phase logs'
+          displayName: 'Collect E2E hang phase logs and JVM stacks'
           condition: always()
           continueOnError: true

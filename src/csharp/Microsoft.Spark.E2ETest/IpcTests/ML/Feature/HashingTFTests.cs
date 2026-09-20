@@ -4,6 +4,7 @@
 
 using System.IO;
 using System.Linq;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.UnitTest.TestUtils;
@@ -47,7 +48,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
 
             Assert.Contains(expectedOutputCol, outputVector.Columns());
 
+            IpcDebugTrace.Write("hashing-tf phase=collect-counts-begin");
             Row counts = outputVector.Collect().Single().GetAs<Row>(expectedOutputCol);
+            IpcDebugTrace.Write("hashing-tf phase=collect-counts-end");
             Assert.Equal(0, counts.GetAs<int>("type"));
             Assert.Equal(expectedFeatures, counts.GetAs<int>("size"));
             Assert.Equal(6.0, counts.GetAs<double[]>("values").Sum());
@@ -65,12 +68,16 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             hashingTf.SetBinary(true);
             Assert.True(hashingTf.GetBinary());
 
+            IpcDebugTrace.Write("hashing-tf phase=collect-binary-begin");
             Row binary = hashingTf.Transform(input).Select(expectedOutputCol)
                 .Collect().Single().GetAs<Row>(expectedOutputCol);
+            IpcDebugTrace.Write("hashing-tf phase=collect-binary-end");
             Assert.Equal(counts.GetAs<int[]>("indices"), binary.GetAs<int[]>("indices"));
             Assert.All(binary.GetAs<double[]>("values"), value => Assert.Equal(1.0, value));
 
+            IpcDebugTrace.Write("hashing-tf phase=feature-base-begin");
             TestFeatureBase(hashingTf, "numFeatures", 1000);
+            IpcDebugTrace.Write("hashing-tf phase=feature-base-end");
         }
     }
 }
