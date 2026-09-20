@@ -28,6 +28,8 @@ stages:
         variables:
           # Debug branch: bounded phase logs and pre-timeout JVM stacks, without memory dumps.
           DOTNET_SPARK_DEBUG_TRACE_DIR: '$(Agent.TempDirectory)/spark-e2e-debug/$(System.JobId)-$(System.JobAttempt)'
+          # Spark 4 only: observe class-file requests and Pipe/callback progress, not payloads.
+          DOTNET_SPARK_DEBUG_TRANSPORT: '1'
           E2E_DEBUG_TEST_OPTIONS: '--logger "console;verbosity=detailed" --blame-hang --blame-hang-timeout 5min --blame-hang-dump-type none'
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:

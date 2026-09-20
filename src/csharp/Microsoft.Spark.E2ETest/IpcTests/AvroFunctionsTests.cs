@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Spark.E2ETest.Utils;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Xunit;
@@ -101,7 +102,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 ToAvro(input["value"]).Alias("inferred"),
                 ToAvro(input["value"], explicitSchema).Alias("explicit"));
 
+            IpcDebugTrace.Write("avro-nullable-encode-collect-begin");
             Row[] encodedRows = encoded.Collect().ToArray();
+            IpcDebugTrace.Write("avro-nullable-encode-collect-end");
             Assert.Equal(3, encodedRows.Length);
             Assert.Equal(new byte[] { 0, 0 }, encodedRows[0].GetAs<byte[]>(0));
             Assert.Equal(new byte[] { 0 }, encodedRows[0].GetAs<byte[]>(1));
@@ -116,7 +119,9 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                     new Dictionary<string, string>()));
             Assert.All(decoded.Schema().Fields,
                 field => Assert.IsType<LongType>(field.DataType));
+            IpcDebugTrace.Write("avro-nullable-decode-collect-begin");
             Row[] decodedRows = decoded.Collect().ToArray();
+            IpcDebugTrace.Write("avro-nullable-decode-collect-end");
             Assert.Equal(3, decodedRows.Length);
             for (int column = 0; column < 2; ++column)
             {

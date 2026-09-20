@@ -28,6 +28,8 @@ namespace Microsoft.Spark.E2ETest
         private readonly BlockingCollection<string> _lines = new BlockingCollection<string>(4096);
         private readonly ManualResetEventSlim _stop = new ManualResetEventSlim();
         private readonly IpcDebugTrace _trace;
+        private readonly string _directory;
+        private IpcDebugTrace _transportTrace;
         private readonly Thread _thread;
         private readonly Action _capture;
         private readonly TimeSpan _delay;
@@ -42,6 +44,7 @@ namespace Microsoft.Spark.E2ETest
             TimeSpan? delay = null,
             TimeSpan? interval = null)
         {
+            _directory = directory;
             _trace = new IpcDebugTrace(directory, maxBytes: 4 * 1024 * 1024);
             _capture = capture ?? CaptureJvm;
             _delay = delay ?? TimeSpan.FromMinutes(2);
@@ -68,7 +71,7 @@ namespace Microsoft.Spark.E2ETest
 
         internal static void EndTest() => Volatile.Write(ref s_activeTest, null);
 
-        internal void ObserveJvm(IJvmBridge jvm)
+        internal void ObserveJvm(IJvmBridge jvm, bool traceTransport = false)
         {
             try
             {
@@ -84,6 +87,21 @@ namespace Microsoft.Spark.E2ETest
             catch (Exception exception)
             {
                 IpcDebugTrace.Write($"diagnostic-jvm-identity-failed {exception.GetType().Name}");
+            }
+
+            if (traceTransport)
+            {
+                try
+                {
+                    bool started = (bool)jvm.CallStaticJavaMethod(
+                        "org.apache.spark.sql.test.E2ETransportDiagnostics", "start");
+                    IpcDebugTrace.Write($"diagnostic-transport-started={started}");
+                }
+                catch (Exception exception)
+                {
+                    // Diagnostic startup must not replace the original test outcome.
+                    IpcDebugTrace.Write($"diagnostic-transport-start-failed {exception.GetType().Name}");
+                }
             }
         }
 
@@ -118,6 +136,25 @@ namespace Microsoft.Spark.E2ETest
             }
 
             string value = line.Trim();
+            if (value.StartsWith("SPARK_TRANSPORT_DIAG ", StringComparison.Ordinal))
+            {
+                // Only fixed event codes and numeric metadata cross the JVM log boundary.
+                // In particular, never accept stream IDs (which contain class-file URIs).
+                const string events = "start|stop|attach_requested|attached|request|write_result|" +
+                    "response_before|response_after|channel_inactive|channel_exception|" +
+                    "snapshot|diagnostic_error|limit";
+                const string keys = "seq|channel|request|queued|active|interceptor|open|connected|" +
+                    "writable|loop_shutdown|loop_terminated|age_ms|byte_count|bytes_read|" +
+                    "source_open|sink_open|source_error|missing|matched|ok|dropped|" +
+                    "callback|loop|thread|on_loop|timeout_ms|elapsed_ms|last_request_age_ms";
+                const string errors = "NoSuchFieldException|IllegalAccessException|SecurityException|" +
+                    "IllegalArgumentException|IOException|RuntimeException|Other";
+                string pattern = $@"\ASPARK_TRANSPORT_DIAG event=({events})" +
+                    $@"(?: (?:{keys})=(?:-1|[0-9]{{1,20}}))*" +
+                    $@"(?: error_type=(?:{errors}))?\z";
+                return Regex.IsMatch(value, pattern, RegexOptions.CultureInvariant) ? value : null;
+            }
+
             // Persist structure only, not messages, thread names, command lines, URLs or data.
             string[] patterns =
             {
@@ -144,6 +181,21 @@ namespace Microsoft.Spark.E2ETest
             Match log = Regex.Match(value, @"(?:^|\s)(WARN|ERROR)\s+([\w.$]+):");
             if (log.Success)
             {
+                if (log.Groups[2].Value == "TransportResponseHandler")
+                {
+                    string message = value.Substring(log.Index + log.Length).TrimStart();
+                    string eventCode = message.StartsWith("Error installing stream handler.",
+                        StringComparison.Ordinal) ? "interceptor-install-failed" :
+                        message.StartsWith("Could not find callback for StreamResponse.",
+                            StringComparison.Ordinal) ? "response-callback-missing" :
+                        message.StartsWith("Stream failure with unknown callback:",
+                            StringComparison.Ordinal) ? "failure-callback-missing" : null;
+                    if (eventCode != null)
+                    {
+                        return $"{log.Groups[1].Value} TransportResponseHandler event={eventCode}";
+                    }
+                }
+
                 return $"{log.Groups[1].Value} {log.Groups[2].Value} message-omitted";
             }
 
@@ -296,7 +348,16 @@ namespace Microsoft.Spark.E2ETest
             // Bound each drain so a noisy process cannot starve the snapshot timer.
             for (int i = 0; i < maxLines && _lines.TryTake(out string line); ++i)
             {
-                _trace.WriteEvent(line);
+                if (line.Contains(" SPARK_TRANSPORT_DIAG ", StringComparison.Ordinal))
+                {
+                    // Keep request traffic from consuming the pre-timeout thread-stack budget.
+                    _transportTrace ??= new IpcDebugTrace(_directory, maxBytes: 4 * 1024 * 1024);
+                    _transportTrace.WriteEvent(line);
+                }
+                else
+                {
+                    _trace.WriteEvent(line);
+                }
             }
 
             int dropped = Interlocked.Exchange(ref _dropped, 0);

@@ -162,7 +162,8 @@ namespace Microsoft.Spark.E2ETest
             Spark.SparkContext.SetLogLevel(DefaultLogLevel);
 
             Jvm = Spark.Reference.Jvm;
-            _diagnostics?.ObserveJvm(Jvm);
+            _diagnostics?.ObserveJvm(Jvm, SparkSettings.Version.Major == 4 &&
+                Environment.GetEnvironmentVariable("DOTNET_SPARK_DEBUG_TRANSPORT") == "1");
             IpcDebugTrace.Write("fixture-ready");
         }
 

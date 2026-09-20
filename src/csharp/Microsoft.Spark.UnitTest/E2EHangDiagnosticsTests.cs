@@ -8,7 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.Spark.E2ETest;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.UnitTest.TestUtils;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Spark.UnitTest
@@ -50,6 +52,12 @@ namespace Microsoft.Spark.UnitTest
             "ERROR SparkContext message-omitted")]
         [InlineData("WARN Executor: https://example.invalid/private-message",
             "WARN Executor message-omitted")]
+        [InlineData("ERROR TransportResponseHandler: Error installing stream handler. private-value",
+            "ERROR TransportResponseHandler event=interceptor-install-failed")]
+        [InlineData("ERROR TransportResponseHandler: Could not find callback for StreamResponse.",
+            "ERROR TransportResponseHandler event=response-callback-missing")]
+        [InlineData("WARN TransportResponseHandler: Stream failure with unknown callback: private-value",
+            "WARN TransportResponseHandler event=failure-callback-missing")]
         [InlineData("\"private-thread-name\" #20 daemon prio=5 os_prio=0 cpu=12.50ms elapsed=2.5s " +
             "tid=0x000abc nid=0x123 waiting on condition token=private-value",
             "thread prio=5 os_prio=0 cpu=12.50ms elapsed=2.5s tid=0x000abc nid=0x123")]
@@ -71,6 +79,74 @@ namespace Microsoft.Spark.UnitTest
         public void SanitizeRejectsUnrecognizedContent(string line)
         {
             Assert.Null(E2EHangDiagnostics.Sanitize(line));
+        }
+
+        [Theory]
+        [InlineData("SPARK_TRANSPORT_DIAG event=start seq=1")]
+        [InlineData("SPARK_TRANSPORT_DIAG event=response_after channel=1 request=2 " +
+            "missing=1 matched=1 callback=3 source_open=1 sink_open=0 source_error=1")]
+        [InlineData("SPARK_TRANSPORT_DIAG event=snapshot channel=1 loop=2 thread=3 " +
+            "on_loop=0 queued=1 active=0 interceptor=0 bytes_read=-1 timeout_ms=120000 " +
+            "loop_shutdown=0 loop_terminated=0 last_request_age_ms=60001")]
+        [InlineData("SPARK_TRANSPORT_DIAG event=diagnostic_error error_type=NoSuchFieldException")]
+        public void SanitizePreservesAllowlistedTransportMetadata(string line)
+        {
+            Assert.Equal(line, E2EHangDiagnostics.Sanitize(line));
+        }
+
+        [Theory]
+        [InlineData("SPARK_TRANSPORT_DIAG event=request uri=spark://private-host/private-class")]
+        [InlineData("SPARK_TRANSPORT_DIAG event=request token=123")]
+        [InlineData("SPARK_TRANSPORT_DIAG event=private-value channel=1")]
+        [InlineData("SPARK_TRANSPORT_DIAG event=request request=private-value")]
+        [InlineData("SPARK_TRANSPORT_DIAG event=request request=1\nAuthorization: Bearer private-value")]
+        [InlineData("SPARK_TRANSPORT_DIAG event=request request=-2")]
+        [InlineData("SPARK_TRANSPORT_DIAG event=diagnostic_error error_type=private-value")]
+        [InlineData("SPARK_TRANSPORT_DIAG event=diagnostic_error error_type=IOException message=private-value")]
+        public void SanitizeRejectsUnrecognizedTransportFields(string line)
+        {
+            Assert.Null(E2EHangDiagnostics.Sanitize(line));
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TransportStartupIsOptInAndFailuresAreContained(bool enabled)
+        {
+            using var directory = new TemporaryDirectory();
+            var jvm = new Mock<IJvmBridge>(MockBehavior.Strict);
+            jvm.Setup(bridge => bridge.CallStaticJavaMethod(
+                "org.apache.spark.util.Utils", "getProcessName", It.IsAny<object[]>()))
+                .Throws(new InvalidOperationException("identity-unavailable"));
+            jvm.Setup(bridge => bridge.CallStaticJavaMethod(
+                "org.apache.spark.sql.test.E2ETransportDiagnostics", "start", It.IsAny<object[]>()))
+                .Throws(new InvalidOperationException("diagnostics-unavailable"));
+            using var diagnostics = new E2EHangDiagnostics(directory.Path, () => { });
+
+            diagnostics.ObserveJvm(jvm.Object, enabled);
+
+            jvm.Verify(bridge => bridge.CallStaticJavaMethod(
+                "org.apache.spark.sql.test.E2ETransportDiagnostics", "start", It.IsAny<object[]>()),
+                enabled ? Times.Once() : Times.Never());
+        }
+
+        [Fact]
+        public void TransportEventsDoNotConsumeThreadStackFileBudget()
+        {
+            using var directory = new TemporaryDirectory();
+            using (var diagnostics = new E2EHangDiagnostics(directory.Path, () => { }))
+            {
+                diagnostics.RecordOutput("jvm-stderr", "SPARK_TRANSPORT_DIAG event=start seq=1");
+                diagnostics.RecordOutput("jvm-stack", "java.lang.Thread.State: WAITING");
+                Assert.True(SpinWait.SpinUntil(() => Directory.GetFiles(directory.Path).Length == 2,
+                    TimeSpan.FromSeconds(5)));
+            }
+
+            string[] traces = Directory.GetFiles(directory.Path).Select(File.ReadAllText).ToArray();
+            Assert.Contains(traces, trace => trace.Contains("SPARK_TRANSPORT_DIAG") &&
+                !trace.Contains("java.lang.Thread.State"));
+            Assert.Contains(traces, trace => trace.Contains("java.lang.Thread.State") &&
+                !trace.Contains("SPARK_TRANSPORT_DIAG"));
         }
 
         [Fact]
