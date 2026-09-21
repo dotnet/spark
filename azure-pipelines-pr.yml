@@ -65,6 +65,11 @@ parameters:
   type: boolean
   default: false
 
+# Debug branch only: run the standalone real Spark file-download diagnostic.
+- name: runWindowsSpark4FileDownloadProbe
+  type: boolean
+  default: false
+
 # List of Spark versions to run E2E tests
 - name: listOfE2ETestsSparkVersions
   type: object
@@ -223,6 +228,7 @@ extends:
       parameters:
         compareWindowsSpark4Jdks: ${{ parameters.compareWindowsSpark4Jdks }}
         disableWindowsSpark4ArtifactIsolation: ${{ parameters.disableWindowsSpark4ArtifactIsolation }}
+        runWindowsSpark4FileDownloadProbe: ${{ parameters.runWindowsSpark4FileDownloadProbe }}
         backwardCompatibleRelease: $(backwardCompatibleRelease)
         forwardCompatibleRelease: $(forwardCompatibleRelease)
         managedOSSMavenFeed: $(managedOSSMavenFeed)

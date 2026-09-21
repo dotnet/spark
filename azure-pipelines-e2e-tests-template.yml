@@ -20,6 +20,9 @@ parameters:
 - name: disableWindowsSpark4ArtifactIsolation
   type: boolean
   default: false
+- name: runWindowsSpark4FileDownloadProbe
+  type: boolean
+  default: false
 
 
 stages:
@@ -312,6 +315,31 @@ stages:
               Write-Host "Verified Spark package version $($Matches.version)."
             displayName: '[ENV] Verify Spark package version'
 
+        - ${{ if and(eq(parameters.runWindowsSpark4FileDownloadProbe, true), eq(lower(option.pool), 'windows'), eq(split(test.version, '.')[0], '4')) }}:
+          - pwsh: |
+              # Defer probe failure until after the unchanged E2E steps have run.
+              $PSNativeCommandUseErrorActionPreference = $false
+              Write-Host '##vso[task.setvariable variable=REAL_FILE_DOWNLOAD_PROBE_FAILED]true'
+              try {
+                $runDirectory = Join-Path (Get-Location).Path ('artifacts/real-file-download-probe/' + [Guid]::NewGuid().ToString('N'))
+                Write-Host "##vso[task.setvariable variable=REAL_FILE_DOWNLOAD_PROBE_OUTPUT_DIRECTORY]$runDirectory"
+                & pwsh -NoLogo -NoProfile -File ./eng/diagnostics/Invoke-RealFileDownloadProbe.ps1 `
+                  -SparkHome "$(Build.BinariesDirectory)$(PATH_SEPARATOR)spark-${{ test.version }}-bin-hadoop" `
+                  -SparkVersion '${{ test.version }}' -OutputDirectory $runDirectory
+                if ($LASTEXITCODE -eq 0) {
+                  Write-Host '##vso[task.setvariable variable=REAL_FILE_DOWNLOAD_PROBE_FAILED]false'
+                } else {
+                  Write-Host '##[warning]The standalone probe failed; its final gate will preserve that failure after E2E.'
+                }
+              } catch {
+                Write-Host '##[warning]The standalone probe could not complete; its final gate will report failure.'
+              }
+              $LASTEXITCODE = 0
+              exit 0
+            displayName: 'Run standalone real Spark file-download probe'
+            timeoutInMinutes: 5
+            workingDirectory: $(Build.SourcesDirectory)$(PATH_SEPARATOR)dotnet-spark
+
         - task: DotNetCoreCLI@2
           displayName: 'E2E tests'
           timeoutInMinutes: 15
@@ -484,3 +512,29 @@ stages:
           displayName: 'Collect E2E hang phase logs and JVM stacks'
           condition: always()
           continueOnError: true
+
+        - ${{ if and(eq(parameters.runWindowsSpark4FileDownloadProbe, true), eq(lower(option.pool), 'windows'), eq(split(test.version, '.')[0], '4')) }}:
+          - pwsh: |
+              try {
+                $runDirectory = $env:REAL_FILE_DOWNLOAD_PROBE_OUTPUT_DIRECTORY
+                if ([string]::IsNullOrWhiteSpace($runDirectory)) { throw 'probe-not-started' }
+                $logPath = Join-Path $runDirectory 'logs/probe.log'
+                if (-not (Test-Path -LiteralPath $logPath -PathType Leaf)) { throw 'probe-log-missing' }
+                # Upload only the runner's sanitized log, never raw output or compiled classes.
+                Write-Host "##vso[task.uploadfile]$logPath"
+              } catch {
+                Write-Host '##vso[task.setvariable variable=REAL_FILE_DOWNLOAD_PROBE_FAILED]true'
+                Write-Host '##[warning]No sanitized standalone probe log was available.'
+              }
+              exit 0
+            displayName: 'Publish sanitized standalone probe log'
+            condition: always()
+
+          - pwsh: |
+              if ($env:REAL_FILE_DOWNLOAD_PROBE_FAILED -cne 'false') {
+                Write-Host '##vso[task.logissue type=error;]The standalone real Spark file-download probe did not pass.'
+                exit 1
+              }
+              Write-Host 'Standalone real Spark file-download probe passed.'
+            displayName: 'Require standalone probe success'
+            condition: always()
