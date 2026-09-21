@@ -28,9 +28,9 @@ stages:
     - ${{ each option in test.jobOptions }}:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
         timeoutInMinutes: 120
-        # Keep the workaround limited to the patch versions validated by the CI comparison.
+        # Keep this CI-only workaround limited to the selected Windows patch versions.
         # These jobs do not validate per-session artifact isolation; other jobs are unchanged.
-        ${{ if and(eq(parameters.disableWindowsSpark4ArtifactIsolation, true), eq(lower(option.pool), 'windows'), or(eq(test.version, '4.0.0'), eq(test.version, '4.0.2'))) }}:
+        ${{ if and(eq(parameters.disableWindowsSpark4ArtifactIsolation, true), eq(lower(option.pool), 'windows'), or(eq(test.version, '4.0.0'), eq(test.version, '4.0.2'), eq(test.version, '4.0.4'))) }}:
           variables:
             DOTNET_SPARKFIXTURE_DISABLE_ARTIFACT_ISOLATION: '1'
         ${{ if eq(lower(option.pool), 'windows') }}:

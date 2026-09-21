@@ -49,7 +49,7 @@ namespace Microsoft.Spark.E2ETest
                 "DOTNET_SPARKFIXTURE_EXPECTED_SPARK_VERSION";
 
             /// <summary>
-            /// Enables the CI-only artifact isolation workaround on validated Windows versions.
+            /// Enables the CI-only artifact isolation workaround on selected Windows patch versions.
             /// </summary>
             public const string DisableArtifactIsolation =
                 "DOTNET_SPARKFIXTURE_DISABLE_ARTIFACT_ISOLATION";
@@ -251,7 +251,9 @@ namespace Microsoft.Spark.E2ETest
         internal static bool ShouldDisableArtifactIsolation(
             bool isWindows, Version sparkVersion, string flag) =>
             isWindows && flag == "1" &&
-            (sparkVersion == new Version(4, 0, 0) || sparkVersion == new Version(4, 0, 2));
+            (sparkVersion == new Version(4, 0, 0) ||
+             sparkVersion == new Version(4, 0, 2) ||
+             sparkVersion == new Version(4, 0, 4));
 
         internal static void ValidateExpectedSparkVersion(
             Version actualVersion,

@@ -55,7 +55,7 @@ variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
 
 parameters:
-# Temporary CI-only workaround for Windows Spark 4.0.0/4.0.2 class-download hangs.
+# Temporary CI-only workaround for Windows Spark 4.0.0/4.0.2/4.0.4 hangs.
 # Set false to validate the original per-session artifact isolation behavior.
 - name: disableWindowsSpark4ArtifactIsolation
   type: boolean
