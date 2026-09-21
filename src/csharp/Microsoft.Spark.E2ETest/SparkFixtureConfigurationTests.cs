@@ -11,6 +11,36 @@ namespace Microsoft.Spark.E2ETest
 {
     public class SparkFixtureConfigurationTests
     {
+        [Theory]
+        [InlineData(true, "4.0.0", "1", true)]
+        [InlineData(true, "4.0.2", "1", true)]
+        [InlineData(false, "4.0.0", "1", false)]
+        [InlineData(false, "4.0.2", "1", false)]
+        [InlineData(true, "3.5.3", "1", false)]
+        [InlineData(true, "4.0.1", "1", false)]
+        [InlineData(true, "4.0.3", "1", false)]
+        [InlineData(true, "4.0.4", "1", false)]
+        [InlineData(true, "4.1.0", "1", false)]
+        [InlineData(true, "5.0.0", "1", false)]
+        [InlineData(true, "4.0", "1", false)]
+        [InlineData(true, "4.0.0.1", "1", false)]
+        [InlineData(true, "4.0.0", null, false)]
+        [InlineData(true, "4.0.2", "", false)]
+        [InlineData(true, "4.0.0", "0", false)]
+        [InlineData(true, "4.0.2", "true", false)]
+        [InlineData(true, "4.0.0", "1 ", false)]
+        public void ArtifactIsolationWorkaroundIsLimitedToOptedInWindowsPatchVersions(
+            bool isWindows,
+            string sparkVersion,
+            string flag,
+            bool expected)
+        {
+            Assert.Equal(
+                expected,
+                SparkFixture.ShouldDisableArtifactIsolation(
+                    isWindows, new Version(sparkVersion), flag));
+        }
+
         [Fact]
         public void GetPackageResolutionOptionsUsesCommunityDefault()
         {

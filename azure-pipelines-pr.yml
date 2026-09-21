@@ -55,6 +55,12 @@ variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
 
 parameters:
+# Temporary CI-only workaround for Windows Spark 4.0.0/4.0.2 class-download hangs.
+# Set false to validate the original per-session artifact isolation behavior.
+- name: disableWindowsSpark4ArtifactIsolation
+  type: boolean
+  default: true
+
 # List of Spark versions to run E2E tests
 - name: listOfE2ETestsSparkVersions
   type: object
@@ -255,6 +261,7 @@ extends:
 
     - template: azure-pipelines-e2e-tests-template.yml
       parameters:
+        disableWindowsSpark4ArtifactIsolation: ${{ parameters.disableWindowsSpark4ArtifactIsolation }}
         backwardCompatibleRelease: $(backwardCompatibleRelease)
         forwardCompatibleRelease: $(forwardCompatibleRelease)
         managedOSSMavenFeed: $(managedOSSMavenFeed)

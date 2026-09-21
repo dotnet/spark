@@ -49,6 +49,12 @@ namespace Microsoft.Spark.E2ETest
                 "DOTNET_SPARKFIXTURE_EXPECTED_SPARK_VERSION";
 
             /// <summary>
+            /// Enables the CI-only artifact isolation workaround on validated Windows versions.
+            /// </summary>
+            public const string DisableArtifactIsolation =
+                "DOTNET_SPARKFIXTURE_DISABLE_ARTIFACT_ISOLATION";
+
+            /// <summary>
             /// This environment variable specifies the path where the DotNet worker is installed.
             /// </summary>
             public const string WorkerDir = Services.ConfigurationService.DefaultWorkerDirEnvVarName;
@@ -56,6 +62,7 @@ namespace Microsoft.Spark.E2ETest
 
         private readonly Process _process = new Process();
         private readonly TemporaryDirectory _tempDirectory = new TemporaryDirectory();
+        private readonly bool _disableArtifactIsolation;
 
         private const string DefaultRepository = "https://repos.spark-packages.org/";
 
@@ -79,6 +86,11 @@ namespace Microsoft.Spark.E2ETest
                 SparkSettings.Version,
                 Environment.GetEnvironmentVariable(
                     EnvironmentVariableNames.ExpectedSparkVersion));
+
+            _disableArtifactIsolation = ShouldDisableArtifactIsolation(
+                RuntimeInformation.IsOSPlatform(OSPlatform.Windows),
+                SparkSettings.Version,
+                Environment.GetEnvironmentVariable(EnvironmentVariableNames.DisableArtifactIsolation));
 
             BuildSparkCmd(out var filename, out var args);
 
@@ -132,6 +144,13 @@ namespace Microsoft.Spark.E2ETest
                 .Config("spark.ui.showConsoleProgress", false)
                 .AppName("Microsoft.Spark.E2ETest")
                 .GetOrCreate();
+
+            if (_disableArtifactIsolation)
+            {
+                Assert.Equal("false", Spark.Conf().Get("spark.sql.artifact.isolation.enabled"));
+                Console.WriteLine(
+                    "[E2E] Artifact isolation workaround enabled; per-session isolation is not covered.");
+            }
 
             Spark.SparkContext.SetLogLevel(DefaultLogLevel);
 
@@ -229,6 +248,11 @@ namespace Microsoft.Spark.E2ETest
             };
         }
 
+        internal static bool ShouldDisableArtifactIsolation(
+            bool isWindows, Version sparkVersion, string flag) =>
+            isWindows && flag == "1" &&
+            (sparkVersion == new Version(4, 0, 0) || sparkVersion == new Version(4, 0, 2));
+
         internal static void ValidateExpectedSparkVersion(
             Version actualVersion,
             string expectedVersion)
@@ -305,6 +329,13 @@ namespace Microsoft.Spark.E2ETest
 
             string extraArgs = Environment.GetEnvironmentVariable(
                 EnvironmentVariableNames.ExtraSparkSubmitArgs) ?? "";
+
+            if (_disableArtifactIsolation)
+            {
+                // A failed per-session class download can leave a Windows Pipe reader blocked.
+                // Set before session creation; this CI-only bypass changes artifact visibility.
+                extraArgs += " --conf spark.sql.artifact.isolation.enabled=false";
+            }
 
             // Keep the custom NullLogger configuration for Spark versions using log4j 1.x.
             string resourceUri = new Uri(TestEnvironment.ResourceDirectory).AbsoluteUri;

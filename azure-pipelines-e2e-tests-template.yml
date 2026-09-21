@@ -14,6 +14,9 @@ parameters:
 - name: managedOSSMavenFeedUrl
   type: string
   default: ''
+- name: disableWindowsSpark4ArtifactIsolation
+  type: boolean
+  default: false
 
 
 stages:
@@ -25,6 +28,11 @@ stages:
     - ${{ each option in test.jobOptions }}:
       - job: Run_${{ replace(option.pool, ' ', '_') }}
         timeoutInMinutes: 120
+        # Keep the workaround limited to the patch versions validated by the CI comparison.
+        # These jobs do not validate per-session artifact isolation; other jobs are unchanged.
+        ${{ if and(eq(parameters.disableWindowsSpark4ArtifactIsolation, true), eq(lower(option.pool), 'windows'), or(eq(test.version, '4.0.0'), eq(test.version, '4.0.2'))) }}:
+          variables:
+            DOTNET_SPARKFIXTURE_DISABLE_ARTIFACT_ISOLATION: '1'
         ${{ if eq(lower(option.pool), 'windows') }}:
           pool:
             name: Cosmos2MT-AzureDevOps-AgentPool
