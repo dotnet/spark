@@ -442,7 +442,7 @@ extends:
       dependsOn: Build
       pool:
         name: Cosmos2MT-AzureDevOps-AgentPool
-        image: 1es-pt-mariner-2.0-gen2
+        image: 1es-pt-ubuntu-22
         os: linux
       jobs:
       - job: ValidateNuGetPackages
