@@ -45,6 +45,8 @@ The published [v2.3.1 release](https://github.com/dotnet/spark/releases/tag/v2.3
 
 .NET for Apache Spark releases are available [here](https://github.com/dotnet/spark/releases) and NuGet packages are available [here](https://www.nuget.org/packages/Microsoft.Spark).
 
+The [2.4.0-rc1 preparation notes](docs/release-notes/v2.4.0-rc1/release-2.4.0-rc1.md) describe the candidate scope and known limitations; release artifacts are still pending validation and publication.
+
 ## Get Started
 
 These instructions will show you how to run a .NET for Apache Spark app using .NET 8.

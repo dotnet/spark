@@ -6,9 +6,9 @@
 
 ## Upgrading after Spark 2.x support removal
 
-The next release no longer runs on Apache Spark 2.x or ships a Scala 2.11 bridge. Spark 3.0 through 3.5 remain in scope. Spark 4.0 integration uses a separate Scala 2.13 bridge and JDK 17; it is not a claim of full API, extension, REPL, or deployment parity. Check the APIs and configuration used by your application before changing runtimes.
+Starting with the 2.4.0 release candidate, .NET for Apache Spark no longer runs on Apache Spark 2.x or ships a Scala 2.11 bridge. Spark 3.0 through 3.5 remain in scope. Spark 4.0 integration uses a separate Scala 2.13 bridge and JDK 17; it is not a claim of full API, extension, REPL, or deployment parity. Check the APIs and configuration used by your application before changing runtimes.
 
-For an application that must stay on Spark 2.x, keep its existing compatible `Microsoft.Spark`, Worker, and bridge release together. The [v2.3.1 release notes](release-notes/2.3.1/release-2.3.1.md) record that release's compatibility; removal from the next release does not change historical releases.
+For an application that must stay on Spark 2.x, keep its existing compatible `Microsoft.Spark`, Worker, and bridge release together. The [v2.3.1 release notes](release-notes/2.3.1/release-2.3.1.md) record that release's compatibility; removal from the 2.4.0 candidate does not change historical releases.
 
 ### Match the runtime and deploy clean output
 
@@ -48,7 +48,7 @@ The experimental Spark 2.4/HDInsight 4.0 notebook installer is retired. Its patc
 
 ## Trying Spark 4.0 from source or a candidate package
 
-Spark 4 support is in the current source and is pending release. The published Microsoft.Spark 2.3.1 NuGet package and Worker do not contain this support; changing only the JAR or the Spark installation is not sufficient.
+Spark 4 support is in the current source and is being prepared for `2.4.0-rc1`. Candidate artifacts are still pending validation and publication; see the [RC notes](release-notes/v2.4.0-rc1/release-2.4.0-rc1.md) for scope and known issues. The published Microsoft.Spark 2.3.1 NuGet package and Worker do not contain this support; changing only the JAR or the Spark installation is not sufficient.
 
 | Runtime | Scala bridge | Java |
 | --- | --- | --- |
