@@ -44,7 +44,7 @@ Each archive has a `Microsoft.Spark.Worker-2.4.0-rc1/` root directory. A publish
 
 Before public publication, resolve or explicitly review these validation gaps:
 
-- The Worker subprocess in [eng/AfterSolutionBuild.targets](../eng/AfterSolutionBuild.targets) passes `OfficialBuildId` but does not forward the outer `/p:Version`. Inspect the extracted Worker DLL's informational/product version and the accompanying runtime metadata against the selected source commit. Archive names alone do not prove the binaries have the intended RC version. Resolve unexpected version stamping before publication; renaming an archive is not a fix. Numeric assembly versions need not contain the prerelease suffix.
+- The Worker subprocess in [eng/AfterSolutionBuild.targets](../eng/AfterSolutionBuild.targets) forwards `OfficialBuildId` and an explicitly supplied `/p:Version`. Inspect the extracted Worker DLL's informational/product version and the accompanying runtime metadata against the selected source commit and package version. Archive names alone do not prove the binaries have the intended RC version. Resolve unexpected version stamping before publication; renaming an archive is not a fix. Numeric assembly versions need not contain the prerelease suffix.
 - Worker archives can be nested under runtime-specific directories in `DotnetSpark`. Existing signature checks use artifact-root globs for Worker archives and can miss those files. Inventory the archives recursively, verify the intended package and binary signatures, and retain the checked file list and verification results.
 - Existing signature summaries can accept signature presence without full certificate trust validation. Resolve unsigned, unknown or untrusted results before treating signing as verified.
 
