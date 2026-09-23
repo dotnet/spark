@@ -46,11 +46,11 @@ function Set-TestLauncher
 
     $body = if ($IsWindows)
     {
-        "@echo off`r`necho $Message`r`nexit /b $ExitCode`r`n"
+        "@echo off`r`necho ARGS:%*`r`necho $Message`r`nexit /b $ExitCode`r`n"
     }
     else
     {
-        "#!/bin/sh`nprintf '%s\n' '$Message'`nexit $ExitCode`n"
+        "#!/bin/sh`nprintf '%s\n' `"`$@`"`nprintf '%s\n' '$Message'`nexit $ExitCode`n"
     }
     [IO.File]::WriteAllText($launcher, $body, [Text.UTF8Encoding]::new($false))
     if ($IsLinux) { & chmod +x $launcher }
@@ -87,8 +87,20 @@ function dotnet
 
 function Invoke-TestRun
 {
+    param(
+        [string]$SparkVersion = '4.0.4',
+        [string]$ExpectedBridge = 'microsoft-spark-4-0_2.13'
+    )
+
+    $runDirectory = Join-Path $testDirectory ([Guid]::NewGuid().ToString('N'))
     & $runner -PackageDirectory $packageDirectory -SparkHome $sparkDirectory `
-        -WorkDirectory (Join-Path $testDirectory ([Guid]::NewGuid().ToString('N')))
+        -WorkDirectory $runDirectory -SparkVersion $SparkVersion
+    $launcherOutput = Get-Content -LiteralPath (Join-Path $runDirectory 'spark-submit.stdout.log') -Raw
+    if (($launcherOutput -notmatch [regex]::Escape("$ExpectedBridge-2.3.1.jar")) -or
+        ($launcherOutput -notmatch ('[\s"]' + [regex]::Escape($SparkVersion) + '["\r\n]')))
+    {
+        throw 'spark-submit did not receive the selected bridge and Spark version.'
+    }
 }
 
 function Assert-Rejected
@@ -106,19 +118,33 @@ function Assert-Rejected
 
 try
 {
-    $jarPath = Join-Path $testDirectory 'bridge.jar'
-    New-TestArchive $jarPath @{
-        'org/apache/spark/deploy/dotnet/DotnetRunner.class' = [byte[]]@(0xca, 0xfe, 0xba, 0xbe)
-        'org/apache/spark/api/dotnet/DotnetBackend.class' = [byte[]]@(0xca, 0xfe, 0xba, 0xbe)
-        'org/apache/spark/sql/api/dotnet/SQLUtils.class' = [byte[]]@(0xca, 0xfe, 0xba, 0xbe)
-        'META-INF/maven/com.microsoft.scala/microsoft-spark-4-0_2.13/pom.properties' =
-            "artifactId=microsoft-spark-4-0_2.13`ngroupId=com.microsoft.scala`nversion=2.3.1`n"
+    $packageEntries = @{
+        'Microsoft.Spark.nuspec' = "<package><metadata><id>Microsoft.Spark</id><version>$version</version></metadata></package>"
+    }
+    $sparkCases = @(
+        @{ Version = '3.0.2'; Bridge = 'microsoft-spark-3-0_2.12' },
+        @{ Version = '3.1.2'; Bridge = 'microsoft-spark-3-1_2.12' },
+        @{ Version = '3.2.3'; Bridge = 'microsoft-spark-3-2_2.12' },
+        @{ Version = '3.3.4'; Bridge = 'microsoft-spark-3-3_2.12' },
+        @{ Version = '3.4.4'; Bridge = 'microsoft-spark-3-4_2.12' },
+        @{ Version = '3.5.3'; Bridge = 'microsoft-spark-3-5_2.12' },
+        @{ Version = '4.0.4'; Bridge = 'microsoft-spark-4-0_2.13' }
+    )
+    foreach ($sparkCase in $sparkCases)
+    {
+        $artifactId = $sparkCase.Bridge
+        $jarPath = Join-Path $testDirectory "$artifactId.jar"
+        New-TestArchive $jarPath @{
+            'org/apache/spark/deploy/dotnet/DotnetRunner.class' = [byte[]]@(0xca, 0xfe, 0xba, 0xbe)
+            'org/apache/spark/api/dotnet/DotnetBackend.class' = [byte[]]@(0xca, 0xfe, 0xba, 0xbe)
+            'org/apache/spark/sql/api/dotnet/SQLUtils.class' = [byte[]]@(0xca, 0xfe, 0xba, 0xbe)
+            "META-INF/maven/com.microsoft.scala/$artifactId/pom.properties" =
+                "artifactId=$artifactId`ngroupId=com.microsoft.scala`nversion=2.3.1`n"
+        }
+        $packageEntries["jars/$artifactId-2.3.1.jar"] = [IO.File]::ReadAllBytes($jarPath)
     }
     $corePackage = Join-Path $packageDirectory 'arbitrary-package-name.nupkg'
-    New-TestArchive $corePackage @{
-        'Microsoft.Spark.nuspec' = "<package><metadata><id>Microsoft.Spark</id><version>$version</version></metadata></package>"
-        'jars/microsoft-spark-4-0_2.13-2.3.1.jar' = [IO.File]::ReadAllBytes($jarPath)
-    }
+    New-TestArchive $corePackage $packageEntries
     New-TestArchive (Join-Path $packageDirectory 'Microsoft.Spark.0.0.0.nupkg') @{
         'Extension.nuspec' = '<package><metadata><id>Microsoft.Spark.Extension</id><version>0.0.0</version></metadata></package>'
     }
@@ -137,6 +163,16 @@ try
         throw 'Successful smoke execution did not restore its environment or run both build commands.'
     }
     $script:passed++
+
+    foreach ($sparkCase in $sparkCases | Where-Object Version -ne '4.0.4')
+    {
+        Invoke-TestRun -SparkVersion $sparkCase.Version -ExpectedBridge $sparkCase.Bridge
+        $script:passed++
+        Write-Host "PASS Spark $($sparkCase.Version) launcher bridge/version selection"
+    }
+    Invoke-TestRun -SparkVersion '4.0.0'
+    $script:passed++
+    Assert-Rejected { Invoke-TestRun -SparkVersion '3.6.0' } 'SparkVersion'
 
     Set-TestLauncher 'SPARK_RELEASE_SMOKE_TEST_PASSED' 7
     Assert-Rejected { Invoke-TestRun } 'exit code 7'

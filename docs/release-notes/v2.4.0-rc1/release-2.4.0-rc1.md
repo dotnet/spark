@@ -49,7 +49,7 @@ The following versions are accepted by the bridges in this branch. Acceptance by
 | 3.5.0 through 3.5.3 | `microsoft-spark-3-5_2.12-2.4.0-rc1.jar` |
 | 4.0.0 through 4.0.4 | `microsoft-spark-4-0_2.13-2.4.0-rc1.jar` |
 
-Spark 4 candidate validation targets Windows and Linux x64 with .NET 8, Scala 2.13 and JDK 17. The packaged-artifact smoke test targets Spark 4.0.4. It does not establish Spark 4 compatibility for macOS, .NET Framework, managed services, Delta or Hyperspace. Existing Spark 3 extension compatibility should not be interpreted as Spark 4 extension support.
+Spark 4 candidate validation targets Windows and Linux x64 with .NET 8, Scala 2.13 and JDK 17. The packaged-artifact smoke matrix is configured for one representative patch per Spark 3.0 through 3.5 minor and Spark 4.0.4 on both platforms: 14 jobs in total. See the [release checklist](../../release-guide.md) for the exact versions and required validation results. This does not establish Spark 4 compatibility for macOS, .NET Framework, managed services, Delta or Hyperspace. Existing Spark 3 extension compatibility should not be interpreted as Spark 4 extension support.
 
 ## Known Issues and Limitations
 

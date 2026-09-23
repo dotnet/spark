@@ -18,7 +18,8 @@ param(
     [ValidateNotNullOrEmpty()]
     [string]$WorkDirectory,
 
-    [ValidatePattern('^4\.0\.[0-4]$')]
+    [ValidateSet('3.0.2', '3.1.2', '3.2.3', '3.3.4', '3.4.4', '3.5.3',
+        '4.0.0', '4.0.1', '4.0.2', '4.0.3', '4.0.4')]
     [string]$SparkVersion = '4.0.4',
 
     [uri]$DependencySource = 'https://api.nuget.org/v3/index.json'
@@ -89,7 +90,8 @@ if ($corePackages.Count -ne 1)
     throw "Expected exactly one Microsoft.Spark NuGet package, found $($corePackages.Count)."
 }
 $package = $corePackages[0]
-$packageInfo = & (Join-Path $PSScriptRoot 'Test-SparkReleasePackage.ps1') -PackagePath $package.FullName
+$packageInfo = & (Join-Path $PSScriptRoot 'Test-SparkReleasePackage.ps1') `
+    -PackagePath $package.FullName -SparkMajorMinorVersion ([version]$SparkVersion).ToString(2)
 $runtime = if ($IsWindows) { 'win-x64' } else { 'linux-x64' }
 $workerArchiveName = "Microsoft.Spark.Worker.net8.0.$runtime-$($packageInfo.PackageVersion).zip"
 $workerArchives = @(Get-ChildItem -LiteralPath $packageRoot -File -Recurse |

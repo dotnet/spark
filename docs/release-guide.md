@@ -23,7 +23,7 @@ Keep `VersionPrefix` numeric; put `rc1` in `VersionSuffix`. The Maven parent sup
 2. Queue the pipeline configured with [azure-pipelines-release.yml](../azure-pipelines-release.yml) on `release/branch-2.4.0-rc1`, with `DotnetPackageVersion=2.4.0-rc1`. The checked-in push triggers include only `main`; pushing the release branch does not automatically run these validations. The official pipeline needs its existing signing and package-source permissions.
 3. Confirm that the Spark 3 reactor and benchmark build, and the separate JDK 17 Spark 4 bridge build, complete before the .NET packaging step. Use the [Windows](building/windows-instructions.md) or [Ubuntu](building/ubuntu-instructions.md) guide for local prerequisites.
 4. Inspect the final `DotnetSpark` build artifact. Verify package manifests, bridge contents, Worker metadata and signatures as described below. Do not rely on filenames or a green signing summary alone.
-5. Require both jobs in `ReleasePackageSmoke`, plus `ValidateWindows` and `ValidateLinux`, to succeed. Record any exception and the release owner's decision explicitly. The smoke jobs use final artifacts with Spark 4.0.4 and check Driver execution, `Collect` results and a scalar .NET UDF. They do not replace the full source E2E matrix or customer workload validation.
+5. Require all 14 jobs in `ReleasePackageSmoke`, plus `ValidateWindows` and `ValidateLinux`, to succeed. The configured smoke matrix uses Spark 3.0.2, 3.1.2, 3.2.3, 3.3.4, 3.4.4, 3.5.3 and 4.0.4 on both Windows and Linux. Each job uses final artifacts and checks Driver execution, `Collect` results and a scalar .NET UDF. Record the actual results and any exception with the release owner's decision explicitly. These representative patches do not replace the full source E2E matrix or customer workload validation.
 
 The release YAML publishes a build artifact. It does not publish a GitHub release or push packages to nuget.org.
 
@@ -40,7 +40,7 @@ The release pipeline currently produces these Worker archives:
 | .NET 8, macOS x64 | `Microsoft.Spark.Worker.net8.0.osx-x64-2.4.0-rc1.zip` |
 | .NET Framework 4.8, Windows x64 | `Microsoft.Spark.Worker.net48.win-x64-2.4.0-rc1.zip` |
 
-Each archive has a `Microsoft.Spark.Worker-2.4.0-rc1/` root directory. A published archive does not by itself establish Spark 4 support for that platform; the Spark 4 smoke jobs exercise only the Windows and Linux .NET 8 ZIPs. Although the build also publishes a `net472` Worker directory, the release YAML does not archive or copy it into the release artifact.
+Each archive has a `Microsoft.Spark.Worker-2.4.0-rc1/` root directory. A published archive does not by itself establish Spark support for that platform; the packaged smoke jobs exercise only the Windows and Linux .NET 8 ZIPs. Although the build also publishes a `net472` Worker directory, the release YAML does not archive or copy it into the release artifact.
 
 Before public publication, resolve or explicitly review these validation gaps:
 
@@ -48,13 +48,13 @@ Before public publication, resolve or explicitly review these validation gaps:
 - Worker archives can be nested under runtime-specific directories in `DotnetSpark`. Existing signature checks use artifact-root globs for Worker archives and can miss those files. Inventory the archives recursively, verify the intended package and binary signatures, and retain the checked file list and verification results.
 - Existing signature summaries can accept signature presence without full certificate trust validation. Resolve unsigned, unknown or untrusted results before treating signing as verified.
 
-The [package validator](../eng/Test-SparkReleasePackage.ps1) checks the core NuGet identity, Spark 4 bridge structure and, when supplied, the bridge's SHA-256 against a freshly built JAR. It does not replace checking all artifact versions and signatures.
+The [package validator](../eng/Test-SparkReleasePackage.ps1) checks the core NuGet identity, the selected Spark 3 or Spark 4 bridge structure and, when supplied, the bridge's SHA-256 against a freshly built JAR. It does not replace checking all artifact versions and signatures.
 
 ## Repeat the packaged smoke test locally
 
-Use PowerShell 7, .NET 8 SDK, JDK 17 and Spark 4.0.4 on Windows or Linux x64. Windows also needs the [Hadoop tools prerequisites](building/windows-instructions.md#pre-requisites). Set `JAVA_HOME` to JDK 17 and use a new work directory for each run.
+Use PowerShell 7, .NET 8 SDK and the selected Spark distribution on Windows or Linux x64. Set `JAVA_HOME` to JDK 8 for Spark 3 or JDK 17 for Spark 4. Windows also needs the [Hadoop tools prerequisites](building/windows-instructions.md#pre-requisites). Use a new work directory for each version and platform.
 
-From the repository root, run the following with paths to the downloaded candidate artifacts, the matching freshly built JAR and the installed Spark distribution:
+From the repository root, run the following Spark 4.0.4 example with paths to the downloaded candidate artifacts, the matching freshly built JAR and the installed Spark distribution. For Spark 3, select the corresponding `-SparkVersion` and `-SparkHome`, and pass the matching `-SparkMajorMinorVersion` (for example, `3.5`) to the package validator:
 
 ```powershell
 ./eng/Test-SparkReleasePackage.ps1 `
