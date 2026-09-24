@@ -7,7 +7,10 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [string]$DestinationDirectory
+    [string]$DestinationDirectory,
+
+    [ValidateSet('2.8.1', '3.3.5')]
+    [string]$HadoopVersion = '3.3.5'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -18,10 +21,20 @@ if (-not $IsWindows)
 
 $hadoopRoot = New-Item -ItemType Directory -Path $DestinationDirectory -Force
 $hadoopBin = New-Item -ItemType Directory -Path (Join-Path $hadoopRoot.FullName 'bin') -Force
-$archive = Join-Path $hadoopRoot.FullName 'hadoop-3.3.5.zip'
-Invoke-WebRequest -Uri 'https://github.com/SparkSnail/winutils/releases/download/hadoop-3.3.5/hadoop-3.3.5.zip' -OutFile $archive
+$archive = Join-Path $hadoopRoot.FullName "hadoop-$HadoopVersion.zip"
+$archiveUrl = 'https://github.com/SparkSnail/winutils/releases/download/hadoop-3.3.5/hadoop-3.3.5.zip'
+if ($HadoopVersion -eq '2.8.1')
+{
+    $archiveUrl = 'https://github.com/steveloughran/winutils/releases/download/tag_2017-08-29-hadoop-2.8.1-native/hadoop-2.8.1.zip'
+}
+Invoke-WebRequest -Uri $archiveUrl -OutFile $archive
 Expand-Archive -LiteralPath $archive -DestinationPath $hadoopRoot.FullName -Force
-Copy-Item -LiteralPath (Join-Path $hadoopRoot.FullName 'hadoop-3.3.5/winutils.exe'), (Join-Path $hadoopRoot.FullName 'hadoop-3.3.5/hadoop.dll') -Destination $hadoopBin.FullName -Force
+Copy-Item -LiteralPath (Join-Path $hadoopRoot.FullName "hadoop-$HadoopVersion/winutils.exe") -Destination $hadoopBin.FullName -Force
+if ($HadoopVersion -eq '3.3.5')
+{
+    # Match source E2E: Hadoop 3 also needs hadoop.dll on the Worker PATH.
+    Copy-Item -LiteralPath (Join-Path $hadoopRoot.FullName 'hadoop-3.3.5/hadoop.dll') -Destination $hadoopBin.FullName -Force
+}
 
 # Match the Hadoop binaries used by Windows Scala/E2E tests without changing machine PATH.
 $runtimeDll = Join-Path $env:SystemRoot 'System32/MSVCR100.dll'

@@ -83,6 +83,7 @@ function New-TestPackage
     param(
         [string[]]$JarNames = @('jars/microsoft-spark-4-0_2.13-2.3.1.jar'),
         [byte[]]$JarBytes = $validJar,
+        [hashtable]$AdditionalJars = @{},
         [string]$PackageId = 'Microsoft.Spark',
         [string]$PackageVersion = '2.3.1-preview.1',
         [switch]$DuplicateNuspec,
@@ -112,6 +113,10 @@ function New-TestPackage
         foreach ($jarName in $JarNames)
         {
             Add-ArchiveEntry $archive $jarName $JarBytes
+        }
+        foreach ($jarName in $AdditionalJars.Keys)
+        {
+            Add-ArchiveEntry $archive $jarName $AdditionalJars[$jarName]
         }
     }
     finally
@@ -168,19 +173,19 @@ try
 
     Assert-Rejected 'missing bridge' {
         & $gateScript -PackagePath (New-TestPackage -JarNames @())
-    } 'exactly one Spark 4 bridge'
+    } 'exactly one Spark 4.0 bridge'
     Assert-Rejected 'duplicate bridge entry' {
         & $gateScript -PackagePath (New-TestPackage -JarNames @(
             'jars/microsoft-spark-4-0_2.13-2.3.1.jar', 'jars/microsoft-spark-4-0_2.13-2.3.1.jar'))
-    } 'exactly one Spark 4 bridge'
+    } 'exactly one Spark 4.0 bridge'
     Assert-Rejected 'stale second version' {
         & $gateScript -PackagePath (New-TestPackage -JarNames @(
             'jars/microsoft-spark-4-0_2.13-2.3.1.jar', 'jars/microsoft-spark-4-0_2.13-2.3.0.jar'))
-    } 'exactly one Spark 4 bridge'
+    } 'exactly one Spark 4.0 bridge'
     Assert-Rejected 'second Scala identity' {
         & $gateScript -PackagePath (New-TestPackage -JarNames @(
             'jars/microsoft-spark-4-0_2.13-2.3.1.jar', 'jars/microsoft-spark-4-0_2.12-2.3.1.jar'))
-    } 'exactly one Spark 4 bridge'
+    } 'exactly one Spark 4.0 bridge'
     foreach ($invalidName in @(
         'jars/microsoft-spark-4-0_2.12-2.3.1.jar',
         'jars/microsoft-spark-4-0_2.13-2.3.1-sources.jar',
@@ -247,6 +252,51 @@ try
     Assert-Rejected 'package directory' {
         & $gateScript -PackagePath $testDirectory
     } 'one .nupkg file'
+
+    foreach ($minor in 0..5)
+    {
+        $sparkSeries = "3.$minor"
+        $artifactId = "microsoft-spark-3-${minor}_2.12"
+        $jarName = "jars/$artifactId-2.3.1.jar"
+        $spark3Bytes = New-BridgeBytes -ArtifactId $artifactId
+        $spark3Package = New-TestPackage -JarNames @($jarName) -JarBytes $spark3Bytes `
+            -AdditionalJars @{ 'jars/microsoft-spark-4-0_2.13-2.3.1.jar' = $validJar }
+        $spark3FreshJar = Join-Path $testDirectory "$artifactId-2.3.1.jar"
+        [IO.File]::WriteAllBytes($spark3FreshJar, $spark3Bytes)
+        $spark3Result = & $gateScript -PackagePath $spark3Package `
+            -SparkMajorMinorVersion $sparkSeries -SparkJarPath $spark3FreshJar
+        if (($spark3Result.SparkJarEntry -cne $jarName) -or
+            ($spark3Result.SparkJarSha256 -cne (Get-FileHash -LiteralPath $spark3FreshJar -Algorithm SHA256).Hash))
+        {
+            throw "FAIL Spark $sparkSeries selected the wrong packaged bridge."
+        }
+        $script:passed++
+        Write-Host "PASS Spark $sparkSeries selects its Scala 2.12 bridge alongside Spark 4"
+
+        Assert-Rejected "Spark $sparkSeries cannot fall back to Spark 4" {
+            & $gateScript -PackagePath $packagePath -SparkMajorMinorVersion $sparkSeries
+        } "exactly one Spark $sparkSeries bridge"
+        Assert-Rejected "Spark $sparkSeries rejects Scala 2.13" {
+            & $gateScript -SparkMajorMinorVersion $sparkSeries -PackagePath (
+                New-TestPackage -JarNames @("jars/microsoft-spark-3-${minor}_2.13-2.3.1.jar"))
+        } "Expected jars/$artifactId"
+    }
+    Assert-Rejected 'duplicate Spark 3 bridge' {
+        & $gateScript -SparkMajorMinorVersion '3.5' -PackagePath (New-TestPackage -JarNames @(
+            'jars/microsoft-spark-3-5_2.12-2.3.1.jar', 'jars/microsoft-spark-3-5_2.12-2.3.0.jar'))
+    } 'exactly one Spark 3.5 bridge'
+    Assert-Rejected 'renamed Spark 4 bridge cannot pass as Spark 3' {
+        & $gateScript -SparkMajorMinorVersion '3.5' -PackagePath (
+            New-TestPackage -JarNames @('jars/microsoft-spark-3-5_2.12-2.3.1.jar'))
+    } 'Maven identity'
+    Assert-Rejected 'renamed Spark 3 minor cannot pass as another minor' {
+        & $gateScript -SparkMajorMinorVersion '3.5' -PackagePath (
+            New-TestPackage -JarNames @('jars/microsoft-spark-3-5_2.12-2.3.1.jar') `
+                -JarBytes (New-BridgeBytes -ArtifactId 'microsoft-spark-3-4_2.12'))
+    } 'Maven identity'
+    Assert-Rejected 'unsupported bridge series' {
+        & $gateScript -PackagePath $packagePath -SparkMajorMinorVersion '2.4'
+    } 'SparkMajorMinorVersion'
 
     Write-Host "Package gate tests: $script:passed passed."
 }

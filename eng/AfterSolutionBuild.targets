@@ -18,6 +18,11 @@
 
     <Error Condition="'$(SparkWorkerPublishDir)' == ''"
            Text="SparkWorkerPublishDir variable is not set." />
+
+    <!-- A nested dotnet process does not inherit command-line MSBuild properties. -->
+    <PropertyGroup>
+      <_SparkWorkerVersionArg Condition="'$(Version)' != ''">/p:Version=$(Version)</_SparkWorkerVersionArg>
+    </PropertyGroup>
     
     <Exec Command="dotnet publish &quot;@(_PublishProject)&quot; ^
                    -c $(Configuration) ^
@@ -25,7 +30,7 @@
                    -r %(_PublishTarget.RuntimeId) ^
                    --self-contained ^
                    -o &quot;$(SparkWorkerPublishDir)\%(_PublishTarget.Framework)\%(_PublishTarget.RuntimeId)&quot; ^
-                   /p:OfficialBuildId=$(OfficialBuildId)" />
+                   /p:OfficialBuildId=$(OfficialBuildId) $(_SparkWorkerVersionArg)" />
 
   </Target>
 </Project>

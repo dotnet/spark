@@ -3,6 +3,7 @@
 ## Table of Contents
 - [How to Do Local Debugging](#how-to-do-local-debugging)
 - [How to Support New Spark Releases](#how-to-support-new-spark-releases)
+- [Preparing a .NET for Apache Spark Release](release-guide.md)
 
 ## How to Do Local Debugging
 
@@ -84,10 +85,10 @@ Since Apache Spark's [MAINTENANCE] releases involve only internal changes (e.g.,
 To repeat the packaged-artifact smoke test locally with PowerShell 7, install Spark 4.0.4 and JDK 17 (plus the Windows Hadoop prerequisites when applicable), then run:
 
 ```powershell
-./eng/Run-SparkReleaseSmokeTest.ps1 -PackageDirectory <release-artifacts> -SparkHome <spark-4.0.4-bin-hadoop3> -WorkDirectory <new-work-directory>
+./eng/Run-SparkReleaseSmokeTest.ps1 -PackageDirectory '<release-artifacts>' -SparkHome '<spark-4.0.4-bin-hadoop3>' -WorkDirectory '<new-work-directory>'
 ```
 
-The artifact directory must contain exactly one core `Microsoft.Spark` NuGet package and its matching .NET 8 Worker ZIP for the current platform. The script uses a fresh NuGet cache and the packaged JAR; its logs remain in the new work directory. A local unsigned run does not validate release signatures.
+The artifact directory must contain exactly one core `Microsoft.Spark` NuGet package and its matching .NET 8 Worker ZIP for the current platform. The script uses a fresh NuGet cache and the packaged JAR; its logs remain in the new work directory. A local unsigned run does not validate release signatures. For RC version settings, final-artifact checks and publication steps, follow the [release guide](release-guide.md).
 
 Refer to [this historical commit](https://github.com/dotnet/spark/commit/eb26baa46200bfcbe3e1080e650f335853d9990e) for an example of the process, not the current supported versions or file paths.
 

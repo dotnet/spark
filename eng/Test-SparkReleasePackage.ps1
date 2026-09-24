@@ -6,7 +6,7 @@
 
 <#
 .SYNOPSIS
-Validates the Spark 4 bridge in a Microsoft.Spark NuGet package without extracting it.
+Validates the selected Spark bridge in a Microsoft.Spark NuGet package without extracting it.
 .OUTPUTS
 A PSCustomObject with PackageVersion, SparkJarEntry and SparkJarSha256. The optional
 SparkJarPath must identify the freshly built bridge included in this package.
@@ -17,11 +17,20 @@ param(
     [ValidateNotNullOrEmpty()]
     [string]$PackagePath,
 
-    [string]$SparkJarPath
+    [string]$SparkJarPath,
+
+    [ValidateSet('3.0', '3.1', '3.2', '3.3', '3.4', '3.5', '4.0')]
+    [string]$SparkMajorMinorVersion = '4.0'
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+$bridgeName = 'microsoft-spark-' + $SparkMajorMinorVersion.Replace('.', '-')
+$scalaVersion = if ($SparkMajorMinorVersion -eq '4.0') { '2.13' } else { '2.12' }
+$bridgeArtifactId = "${bridgeName}_$scalaVersion"
+$bridgeNamePattern = [regex]::Escape($bridgeName)
+$bridgeArtifactPattern = [regex]::Escape($bridgeArtifactId)
 
 function Read-ArchiveText
 {
@@ -90,28 +99,28 @@ try
         throw 'The Microsoft.Spark .nuspec must contain exactly one nonempty package version.'
     }
 
-    # Count all Spark 4 bridge identities, including misplaced or classifier JARs.
+    # Count all identities for the selected bridge, including misplaced or classifier JARs.
     # Accepting the first matching file could hide a stale second bridge in the package.
     $sparkJars = @($package.Entries | Where-Object {
-        $_.FullName -imatch '(^|[/\\])microsoft-spark-4-0[^/\\]*\.jar$'
+        $_.FullName -imatch "(^|[/\\])$bridgeNamePattern[^/\\]*\.jar$"
     })
     if ($sparkJars.Count -ne 1)
     {
-        throw "The Microsoft.Spark package must contain exactly one Spark 4 bridge JAR; found $($sparkJars.Count). Clean and rebuild the package."
+        throw "The Microsoft.Spark package must contain exactly one Spark $SparkMajorMinorVersion bridge JAR; found $($sparkJars.Count). Clean and rebuild the package."
     }
 
     $sparkJar = $sparkJars[0]
     $jarIdentity = [regex]::Match($sparkJar.FullName,
-        '^jars/microsoft-spark-4-0_2\.13-(?<version>[0-9][A-Za-z0-9.+-]*)\.jar$')
+        "^jars/$bridgeArtifactPattern-(?<version>[0-9][A-Za-z0-9.+-]*)\.jar$")
     if ((-not $jarIdentity.Success) -or
         ($sparkJar.FullName -imatch '-(sources|javadoc|tests|test-sources)\.jar$'))
     {
-        throw 'Expected jars/microsoft-spark-4-0_2.13-<version>.jar, without a sources, javadoc or test classifier.'
+        throw "Expected jars/$bridgeArtifactId-<version>.jar, without a sources, javadoc or test classifier."
     }
 
     if (($sparkJar.Length -eq 0) -or ($sparkJar.Length -gt 64MB))
     {
-        throw 'The Spark 4 bridge JAR is empty or exceeds the 64 MiB inspection limit. Check the package contents.'
+        throw "The Spark $SparkMajorMinorVersion bridge JAR is empty or exceeds the 64 MiB inspection limit. Check the package contents."
     }
 
     $jarContent = [IO.MemoryStream]::new()
@@ -143,12 +152,12 @@ try
             $freshJar = Get-Item -LiteralPath $SparkJarPath
             if ($freshJar.PSIsContainer -or ($sparkJar.FullName -cne "jars/$($freshJar.Name)"))
             {
-                throw 'The packaged Spark 4 bridge filename does not match SparkJarPath. Pack the freshly built bridge.'
+                throw 'The packaged bridge filename does not match SparkJarPath. Pack the freshly built bridge.'
             }
 
             if ($jarHash -cne (Get-FileHash -LiteralPath $freshJar.FullName -Algorithm SHA256).Hash)
             {
-                throw 'The packaged Spark 4 bridge SHA256 does not match SparkJarPath. Remove stale outputs and repack the freshly built bridge.'
+                throw 'The packaged bridge SHA256 does not match SparkJarPath. Remove stale outputs and repack the freshly built bridge.'
             }
         }
 
@@ -159,7 +168,7 @@ try
         }
         catch
         {
-            throw 'The packaged Spark 4 bridge is not a readable JAR archive. Clean and rebuild the JAR.'
+            throw 'The packaged bridge is not a readable JAR archive. Clean and rebuild the JAR.'
         }
         try
         {
@@ -171,22 +180,22 @@ try
                 $classes = @($bridge.Entries | Where-Object { $_.FullName -ceq $className })
                 if (($classes.Count -ne 1) -or ($classes[0].Length -eq 0))
                 {
-                    throw "The Spark 4 JAR must contain one compiled '$className'. It is not a runtime bridge JAR."
+                    throw "The Spark $SparkMajorMinorVersion JAR must contain one compiled '$className'. It is not a runtime bridge JAR."
                 }
             }
 
             $mavenEntries = @($bridge.Entries | Where-Object {
-                $_.FullName -imatch '^META-INF/maven/com\.microsoft\.scala/microsoft-spark-4-0[^/]*/pom\.properties$'
+                $_.FullName -imatch "^META-INF/maven/com\.microsoft\.scala/$bridgeNamePattern[^/]*/pom\.properties$"
             })
-            $expectedMetadata = 'META-INF/maven/com.microsoft.scala/microsoft-spark-4-0_2.13/pom.properties'
+            $expectedMetadata = "META-INF/maven/com.microsoft.scala/$bridgeArtifactId/pom.properties"
             if (($mavenEntries.Count -ne 1) -or ($mavenEntries[0].FullName -cne $expectedMetadata))
             {
-                throw 'The Spark 4 JAR must contain exactly one Maven identity for microsoft-spark-4-0_2.13.'
+                throw "The Spark $SparkMajorMinorVersion JAR must contain exactly one Maven identity for $bridgeArtifactId."
             }
 
             $properties = Read-ArchiveText $mavenEntries[0]
             $expectedProperties = @{
-                artifactId = 'microsoft-spark-4-0_2.13'
+                artifactId = $bridgeArtifactId
                 groupId = 'com.microsoft.scala'
                 version = $jarIdentity.Groups['version'].Value
             }
@@ -195,7 +204,7 @@ try
                 $values = [regex]::Matches($properties, "(?m)^$name=(?<value>[^\r\n]*)\r?$")
                 if (($values.Count -ne 1) -or ($values[0].Groups['value'].Value -cne $expectedProperties[$name]))
                 {
-                    throw "The Spark 4 JAR Maven '$name' does not match its expected bridge identity. Clean and rebuild the JAR."
+                    throw "The Spark $SparkMajorMinorVersion JAR Maven '$name' does not match its expected bridge identity. Clean and rebuild the JAR."
                 }
             }
         }
