@@ -18,6 +18,14 @@ The signed candidate packages have completed release-package validation. This pr
 
 - Correct encrypted broadcast handling, including Spark 3.x behavior, and add Spark 4 broadcast protocol support ([#1255](https://github.com/dotnet/spark/pull/1255)).
 
+## Maintenance and Community Contributions
+
+- Declare the MIT license through NuGet's SPDX license-expression metadata, contributed by [@thompson-tomo](https://github.com/thompson-tomo) ([#1216](https://github.com/dotnet/spark/pull/1216)).
+- Add automated .NET formatting checks for the library, examples and benchmarks, and apply formatting cleanup, contributed by [@sheddy123](https://github.com/sheddy123) ([#1246](https://github.com/dotnet/spark/pull/1246)).
+- Simplify internal IPC type dispatch with a switch expression, contributed by [@aadvark-pancakes](https://github.com/aadvark-pancakes) ([#1239](https://github.com/dotnet/spark/pull/1239)).
+- Remove an obsolete bot variable-group reference from the build pipeline, contributed by [@missymessa](https://github.com/missymessa) ([#1248](https://github.com/dotnet/spark/pull/1248)).
+- Add Dependabot configuration for repository dependencies, contributed by [@aleks-ivanov](https://github.com/aleks-ivanov) ([#944](https://github.com/dotnet/spark/pull/944)).
+
 ## Build and Validation
 
 - Expand the source E2E matrix to Spark 4.0.0 through 4.0.4 on Windows and Linux ([#1304](https://github.com/dotnet/spark/pull/1304)).
