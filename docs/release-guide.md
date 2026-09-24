@@ -6,7 +6,7 @@ This guide is for maintainers preparing .NET for Apache Spark `2.4.0-rc1` from `
 
 Use a clean checkout of the release branch and record the exact commit being built. Do not include experimental debug changes without a separate review.
 
-The validated `2.4.0-rc1` artifacts were built from commit `46944bfd0cb1bdf01ec30a79b6b57eb803f3a62c`. Pin `v2.4.0-rc1` to that commit even if later documentation-only updates advance the release branch. Those updates do not change the source revision of the signed packages; do not retag or replace the tested artifacts with a later rebuild.
+The published `2.4.0-rc1` artifacts were built from commit `46944bfd0cb1bdf01ec30a79b6b57eb803f3a62c`. The release tag `v2.4.0-rc1` points to `6e1ce99c6de4238ffc84ea4bb06db41f6c9e0856`, which additionally includes documentation-only updates. Runtime code, build configuration and dependency declarations are unchanged between these commits. Preserve the published tag and validated artifacts.
 
 | Version source | RC value |
 | --- | --- |
