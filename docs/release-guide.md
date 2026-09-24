@@ -6,6 +6,8 @@ This guide is for maintainers preparing .NET for Apache Spark `2.4.0-rc1` from `
 
 Use a clean checkout of the release branch and record the exact commit being built. Do not include experimental debug changes without a separate review.
 
+The validated `2.4.0-rc1` artifacts were built from commit `46944bfd0cb1bdf01ec30a79b6b57eb803f3a62c`. Pin `v2.4.0-rc1` to that commit even if later documentation-only updates advance the release branch. Those updates do not change the source revision of the signed packages; do not retag or replace the tested artifacts with a later rebuild.
+
 | Version source | RC value |
 | --- | --- |
 | `eng/Versions.props`: `VersionPrefix` / `VersionSuffix` | `2.4.0` / `rc1` |
@@ -42,7 +44,7 @@ The release pipeline currently produces these Worker archives:
 
 Each archive has a `Microsoft.Spark.Worker-2.4.0-rc1/` root directory. A published archive does not by itself establish Spark support for that platform; the packaged smoke jobs exercise only the Windows and Linux .NET 8 ZIPs. Although the build also publishes a `net472` Worker directory, the release YAML does not archive or copy it into the release artifact.
 
-Before public publication, resolve or explicitly review these validation gaps:
+For each candidate, perform these checks in addition to automated validation:
 
 - The Worker subprocess in [eng/AfterSolutionBuild.targets](../eng/AfterSolutionBuild.targets) forwards `OfficialBuildId` and an explicitly supplied `/p:Version`. Inspect the extracted Worker DLL's informational/product version and the accompanying runtime metadata against the selected source commit and package version. Archive names alone do not prove the binaries have the intended RC version. Resolve unexpected version stamping before publication; renaming an archive is not a fix. Numeric assembly versions need not contain the prerelease suffix.
 - Worker archives can be nested under runtime-specific directories in `DotnetSpark`. Existing signature checks use artifact-root globs for Worker archives and can miss those files. Inventory the archives recursively, verify the intended package and binary signatures, and retain the checked file list and verification results.
