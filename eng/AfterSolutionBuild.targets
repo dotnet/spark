@@ -10,6 +10,9 @@
     <_PublishTarget Include="WindowsCore" Framework="net8.0" RuntimeId="win-x64" />
     <_PublishTarget Include="LinuxCore" Framework="net8.0" RuntimeId="linux-x64" />
     <_PublishTarget Include="MacOSCore" Framework="net8.0" RuntimeId="osx-x64" />
+    <_PublishTarget Include="WindowsCore" Framework="net10.0" RuntimeId="win-x64" />
+    <_PublishTarget Include="LinuxCore" Framework="net10.0" RuntimeId="linux-x64" />
+    <_PublishTarget Include="MacOSCore" Framework="net10.0" RuntimeId="osx-x64" />
   </ItemGroup>
 
   <Target Name="PublishSparkWorker"

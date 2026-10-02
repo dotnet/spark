@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <RootNamespace>Microsoft.Spark.Extensions.DotNet.Interactive</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
@@ -29,8 +29,8 @@
     <ProjectReference Include="..\..\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="$(OutputPath)/Microsoft.Spark.Extensions.DotNet.Interactive.dll"
+  <ItemGroup Condition="'$(IsCrossTargetingBuild)' != 'true'">
+    <None Include="$(TargetPath)"
       Pack="true"
       PackagePath="interactive-extensions/dotnet" />
   </ItemGroup>
