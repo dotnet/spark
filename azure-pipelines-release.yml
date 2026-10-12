@@ -6,7 +6,14 @@ trigger:
     include:
     - main
 
+parameters:
+- name: dotnetPackageVersion
+  displayName: '.NET package and Worker version'
+  type: string
+  default: '2.4.0'
+
 variables:
+  DotnetPackageVersion: ${{ parameters.dotnetPackageVersion }}
   buildConfiguration: 'Release'
   _SignType: real
   _TeamName: DotNetSpark

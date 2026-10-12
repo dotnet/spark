@@ -1,18 +1,18 @@
 # Migration Guide
 
 - [Upgrading after Spark 2.x support removal](#upgrading-after-spark-2x-support-removal)
-- [Trying Spark 4.0 from source or a candidate package](#trying-spark-40-from-source-or-a-candidate-package)
+- [Using Spark 4.0 with .NET for Apache Spark 2.4.0](#using-spark-40-with-net-for-apache-spark-240)
 - [Upgrading from Microsoft.Spark 0.x to 1.0](#upgrading-from-microsoftspark-0x-to-10)
 
 ## Upgrading after Spark 2.x support removal
 
-Starting with the 2.4.0 release candidate, .NET for Apache Spark no longer runs on Apache Spark 2.x or ships a Scala 2.11 bridge. Spark 3.0 through 3.5 remain in scope. Spark 4.0 integration uses a separate Scala 2.13 bridge and JDK 17; it is not a claim of full API, extension, REPL, or deployment parity. Check the APIs and configuration used by your application before changing runtimes.
+Starting with 2.4.0, .NET for Apache Spark no longer runs on Apache Spark 2.x or ships a Scala 2.11 bridge. Spark 3.0 through 3.5 remain in scope. Spark 4.0 integration uses a separate Scala 2.13 bridge and JDK 17; it is not a claim of full API, extension, REPL, or deployment parity. Check the APIs and configuration used by your application before changing runtimes.
 
-For an application that must stay on Spark 2.x, keep its existing compatible `Microsoft.Spark`, Worker, and bridge release together. The [v2.3.1 release notes](release-notes/2.3.1/release-2.3.1.md) record that release's compatibility; removal from the 2.4.0 candidate does not change historical releases.
+For an application that must stay on Spark 2.x, keep its existing compatible `Microsoft.Spark`, Worker, and bridge release together. The [v2.3.1 release notes](release-notes/2.3.1/release-2.3.1.md) record that release's compatibility; removal from 2.4.0 does not change historical releases.
 
 ### Match the runtime and deploy clean output
 
-1. Choose a retained runtime and its matching bridge. The current examples use Spark 3.5.3, Scala 2.12, and `microsoft-spark-3-5_2.12-<version>.jar`. Spark 4.0 uses `microsoft-spark-4-0_2.13-<version>.jar` with Scala 2.13 and JDK 17. `<version>` is the bridge artifact version, not the Apache Spark version. Use the JAR included in the selected `Microsoft.Spark` NuGet package and the Worker from the same release or candidate build on the driver and executors. For this RC, the NuGet, Worker and bridge versions are all `2.4.0-rc1`.
+1. Choose a retained runtime and its matching bridge. The current examples use Spark 3.5.3, Scala 2.12, and `microsoft-spark-3-5_2.12-<version>.jar`. Spark 4.0 uses `microsoft-spark-4-0_2.13-<version>.jar` with Scala 2.13 and JDK 17. `<version>` is the bridge artifact version, not the Apache Spark version. Use the JAR included in the selected `Microsoft.Spark` NuGet package and the Worker from the same release or candidate build on the driver and executors. For the 2.4.0 release, the NuGet, Worker and bridge versions are all `2.4.0`; when evaluating RC1, use `2.4.0-rc1` for all three components.
 2. If building from a checkout that previously built Spark 2.x, remove only its obsolete generated `src/scala/microsoft-spark-2-4/target` output after checking the resolved path. Removing a Maven module does not clean its old `target` directory. Preserve source files, logs, and unrelated work.
 3. Clean the application's generated build output and publish into a new, empty directory. `dotnet clean` alone may leave manually copied JARs behind. Inspect the resulting package, publish directory, Spark `jars` directories, and explicit classpaths for old `microsoft-spark-2-*.jar`, `microsoft-spark-2.*.jar`, and Scala 2.11 connector/bridge JARs. Do not overlay a new deployment onto an old publish directory or delete unrelated dependency JARs by a broad wildcard.
 4. Update `spark-submit`, cluster-installed bridge paths, and connector coordinates to the selected Spark and Scala binary versions. For the Spark 3.5.3 example, the Kafka connector is `org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3`. Check driver and executor artifacts together, then validate the packaged application on the target cluster. Reusing a Spark 2.x streaming checkpoint requires a separate supported migration assessment; a clean application build does not establish checkpoint compatibility.
@@ -46,16 +46,18 @@ For a bounded range, pass numeric offsets such as `-5L` and `0L` to the `long` o
 
 The experimental Spark 2.4/HDInsight 4.0 notebook installer is retired. Its patched Livy, Scala 2.11, SparkMagic, and old REPL binaries have not been migrated or validated for Spark 3.x or 4.0. See the [retirement notice](../deployment/HDI-Spark/Notebooks/README.md) for the historical instructions. The generic Worker deployment scripts are not a replacement for that notebook integration.
 
-## Trying Spark 4.0 from source or a candidate package
+<a id="trying-spark-40-from-source-or-a-candidate-package"></a>
 
-Spark 4 support is included in `2.4.0-rc1`, and the final candidate packages have completed release-package validation. See the [RC notes](release-notes/v2.4.0-rc1/release-2.4.0-rc1.md) for validation results, download instructions and known issues. The Microsoft.Spark 2.3.1 NuGet package and Worker do not contain this support; changing only the JAR or the Spark installation is not sufficient.
+## Using Spark 4.0 with .NET for Apache Spark 2.4.0
+
+Spark 4 support is included in the 2.4.0 release branch. See the [2.4.0 release notes](release-notes/2.4.0/release-2.4.0.md) for package instructions, validation status and known issues. Final 2.4.0 artifacts are pending validation and publication. The published [2.4.0-rc1 packages](release-notes/v2.4.0-rc1/release-2.4.0-rc1.md) remain available for evaluation and predate the MessagePack upgrade. The Microsoft.Spark 2.3.1 NuGet package and Worker do not contain Spark 4 support; changing only the JAR or the Spark installation is not sufficient.
 
 | Runtime | Scala bridge | Java |
 | --- | --- | --- |
 | Spark 3.0 through 3.5 | `microsoft-spark-3-<minor>_2.12-<version>.jar` | JDK 8 for the existing source-build instructions |
 | Spark 4.0.0–4.0.4 | `microsoft-spark-4-0_2.13-<version>.jar` | JDK 17 to build and run |
 
-1. Use the `Microsoft.Spark` NuGet package and matching .NET 8 Worker from `2.4.0-rc1`, following the [RC package instructions](release-notes/v2.4.0-rc1/release-2.4.0-rc1.md#getting-the-packages). Select the explicit NuGet version `2.4.0-rc1`. Alternatively, build the bridge, .NET library and .NET 8 Worker from the same checkout using the [Windows](building/windows-instructions.md) or [Ubuntu](building/ubuntu-instructions.md) instructions.
+1. Once published, use the `Microsoft.Spark` NuGet package and matching .NET 8 Worker from `2.4.0`, following the [2.4.0 package instructions](release-notes/2.4.0/release-2.4.0.md#getting-the-packages). Select the explicit NuGet version `2.4.0`. Before publication, build the bridge, .NET library and .NET 8 Worker from the same checkout using the [Windows](building/windows-instructions.md) or [Ubuntu](building/ubuntu-instructions.md) instructions, or evaluate the published RC1 with the matching `2.4.0-rc1` package and Worker.
 2. Install a Scala 2.13 Spark 4.0 distribution, set `SPARK_HOME` and `JAVA_HOME` to that distribution and JDK 17, and update `PATH`. For Windows, keep the [Hadoop Windows tools setup](building/windows-instructions.md#pre-requisites).
 3. Set `DOTNET_WORKER_DIR` to the extracted or published .NET 8 Worker for your platform (`win-x64` or `linux-x64`). Use the matching Worker on every executor; do not reuse a Worker from an older release.
 4. Build the application into clean output and pass its `microsoft-spark-4-0_2.13-*.jar` to `spark-submit`. Use the actual filename supplied by the NuGet package, not a filename constructed from the NuGet version. For source-built samples, use the JAR in `src/scala/microsoft-spark-4-0/target/`. Match any additional connectors to Spark 4.0 and Scala 2.13.
