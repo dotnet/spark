@@ -6,13 +6,15 @@
 
 package org.apache.spark.sql.api.dotnet
 
+import java.io.FileNotFoundException
 import java.net.URI
-import java.nio.file.{Files, Path}
+import java.nio.file.{Files, Path, Paths}
 
-import org.apache.spark.SparkContext
+import org.apache.spark.{JobArtifactSet, JobArtifactState, SparkConf, SparkContext, SparkFiles}
 import org.apache.spark.deploy.dotnet.DotnetRunner
+import org.apache.spark.sql.classic.SparkSession
 import org.apache.spark.sql.execution.python.PythonUDFRunner
-import org.junit.Assert.{assertEquals, assertThrows, assertTrue}
+import org.junit.Assert.{assertEquals, assertFalse, assertThrows, assertTrue}
 import org.junit.Test
 
 @Test
@@ -20,6 +22,47 @@ class SQLUtilsTest {
 
   private val EmptyFileSha256 =
     "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
+  @Test
+  def shouldAddFileToSessionAndRestoreArtifactState(): Unit = {
+    withTemporaryDirectory { directory =>
+      val conf = new SparkConf(false)
+        .setMaster("local[1]")
+        .setAppName("SQLUtilsTest")
+        .set("spark.ui.enabled", "false")
+        .set("spark.sql.artifact.isolation.enabled", "true")
+      val sparkContext = new SparkContext(conf)
+      try {
+        val session = new SparkSession(sparkContext)
+        val file = Files.createFile(directory.resolve("submission.dll"))
+        val uri = file.toUri.toString
+        val originalState = JobArtifactSet.getCurrentJobArtifactState
+        val priorState = JobArtifactState("sql-utils-previous-session", None)
+
+        JobArtifactSet.withActiveJobArtifactState(priorState) {
+          SQLUtils.addFile(session, uri)
+
+          assertEquals(Some(priorState), JobArtifactSet.getCurrentJobArtifactState)
+          assertEquals(Set(uri), sparkContext.addedFiles(session.sessionUUID).keySet.toSet)
+          assertFalse(sparkContext.addedFiles.contains(priorState.uuid))
+          assertFalse(sparkContext.addedFiles.get("default").exists(_.contains(uri)))
+          assertTrue(Files.isRegularFile(Paths.get(
+            SparkFiles.getRootDirectory(), session.sessionUUID, file.getFileName.toString)))
+
+          assertThrows(
+            classOf[FileNotFoundException],
+            () => SQLUtils.addFile(session, directory.resolve("missing.dll").toUri.toString))
+
+          assertEquals(Some(priorState), JobArtifactSet.getCurrentJobArtifactState)
+          assertEquals(Set(uri), sparkContext.addedFiles(session.sessionUUID).keySet.toSet)
+        }
+
+        assertEquals(originalState, JobArtifactSet.getCurrentJobArtifactState)
+      } finally {
+        sparkContext.stop()
+      }
+    }
+  }
 
   @Test
   def shouldReturnRuntimeArtifactIdentityInFixedOrder(): Unit = {

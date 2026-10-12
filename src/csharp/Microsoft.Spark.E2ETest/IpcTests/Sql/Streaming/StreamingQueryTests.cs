@@ -10,6 +10,7 @@ using Xunit;
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
     [Collection("Spark E2E Tests")]
+    [Trait("Category", "Streaming")]
     public class StreamingQueryTests
     {
         private readonly SparkSession _spark;
@@ -28,30 +29,44 @@ namespace Microsoft.Spark.E2ETest.IpcTests
         public void TestSignaturesV2_4_X()
         {
             var intMemoryStream = new MemoryStream<int>(_spark);
-            StreamingQuery sq = intMemoryStream
-                .ToDF()
-                .WriteStream()
-                .QueryName("testQuery")
-                .Format("console")
-                .Trigger(Trigger.Once())
-                .Start();
+            StreamingQuery sq = null;
+            try
+            {
+                sq = intMemoryStream
+                    .ToDF()
+                    .WriteStream()
+                    .QueryName("testQuery")
+                    .Format("console")
+                    .Trigger(Trigger.Once())
+                    .Start();
 
-            sq.AwaitTermination();
-            Assert.IsType<bool>(sq.AwaitTermination(10));
+                Assert.True(sq.AwaitTermination(60000));
+                sq.AwaitTermination();
+                Assert.True(sq.AwaitTermination(10));
 
-            Assert.IsType<string>(sq.Name);
+                Assert.IsType<string>(sq.Name);
 
-            Assert.IsType<string>(sq.Id);
+                Assert.IsType<string>(sq.Id);
 
-            Assert.IsType<string>(sq.RunId);
+                Assert.IsType<string>(sq.RunId);
 
-            Assert.IsType<bool>(sq.IsActive());
+                Assert.False(sq.IsActive());
 
-            sq.Explain();
+                sq.Explain();
 
-            Assert.Null(sq.Exception());
-
-            sq.Stop();
+                Assert.Null(sq.Exception());
+            }
+            finally
+            {
+                try
+                {
+                    sq?.Stop();
+                }
+                finally
+                {
+                    _spark.Streams().ResetTerminated();
+                }
+            }
         }
     }
 }

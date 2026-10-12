@@ -15,8 +15,8 @@ using Microsoft.Spark.Utils;
 using Microsoft.Spark.Worker.Command;
 using Moq;
 using Xunit;
-using SqlTypes = Microsoft.Spark.Sql.Types;
 using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
+using SqlTypes = Microsoft.Spark.Sql.Types;
 
 namespace Microsoft.Spark.Worker.UnitTest
 {

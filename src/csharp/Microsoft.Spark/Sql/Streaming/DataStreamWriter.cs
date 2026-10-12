@@ -218,7 +218,7 @@ namespace Microsoft.Spark.Sql.Streaming
             Reference.Invoke(
                 "foreach",
                 Reference.Jvm.CallConstructor(
-                    "org.apache.spark.sql.execution.python.PythonForeachWriter",
+                    GetPythonForeachWriterClassName(SparkEnvironment.SparkVersion),
                     UdfUtils.CreatePythonFunction(
                         Reference.Jvm,
                         CommandSerDe.Serialize(
@@ -229,6 +229,11 @@ namespace Microsoft.Spark.Sql.Streaming
 
             return this;
         }
+
+        internal static string GetPythonForeachWriterClassName(Version sparkVersion) =>
+            (sparkVersion.Major, sparkVersion.Minor) == (4, 0)
+                ? "org.apache.spark.sql.execution.python.streaming.PythonForeachWriter"
+                : "org.apache.spark.sql.execution.python.PythonForeachWriter";
 
         /// <summary>
         /// Sets the output of the streaming query to be processed using the provided

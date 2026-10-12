@@ -16,15 +16,15 @@ namespace Microsoft.Spark.Sql.Avro
     {
         private static IJvmBridge Jvm { get; } = SparkEnvironment.JvmBridge;
         private static readonly Lazy<string> s_avroClassName =
-            new Lazy<string>(() =>
+            new Lazy<string>(() => GetAvroClassName(SparkEnvironment.SparkVersion));
+
+        internal static string GetAvroClassName(Version sparkVersion) =>
+            (sparkVersion.Major, sparkVersion.Minor) switch
             {
-                Version sparkVersion = SparkEnvironment.SparkVersion;
-                return sparkVersion.Major switch
-                {
-                    3 => "org.apache.spark.sql.avro.functions",
-                    _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
-                };
-            });
+                (3, _) => "org.apache.spark.sql.avro.functions",
+                (4, 0) => "org.apache.spark.sql.avro.functions",
+                _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
+            };
 
         /// <summary>
         /// Converts a binary column of avro format into its corresponding catalyst value. The specified

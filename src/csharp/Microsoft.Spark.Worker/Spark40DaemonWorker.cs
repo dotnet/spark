@@ -56,7 +56,8 @@ namespace Microsoft.Spark.Worker
                 {
                     Environment.Exit(0);
                 }
-            }) { IsBackground = true }.Start();
+            })
+            { IsBackground = true }.Start();
         }
 
         private async Task RunAsync()

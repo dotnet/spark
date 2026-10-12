@@ -15,6 +15,7 @@ using static Microsoft.Spark.E2ETest.Utils.SQLUtils;
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
     [Collection("Spark E2E Tests")]
+    [Trait("Category", "Streaming")]
     public class DataStreamReaderTests
     {
         private readonly SparkSession _spark;

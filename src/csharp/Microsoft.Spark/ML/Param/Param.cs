@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 
@@ -31,8 +32,7 @@ namespace Microsoft.Spark.ML.Feature.Param
         /// <param name="doc">The documentation for this <see cref="Param"/></param>
         /// </summary>
         public Param(Identifiable parent, string name, string doc)
-            : this(SparkEnvironment.JvmBridge.CallConstructor(
-                s_ParamClassName, parent.Uid(), name, doc))
+            : this(parent.Uid(), name, doc)
         {
         }
 
@@ -47,7 +47,7 @@ namespace Microsoft.Spark.ML.Feature.Param
         /// <param name="doc">The documentation for this <see cref="Param"/></param>
         /// </summary>
         public Param(string parent, string name, string doc)
-            : this(SparkEnvironment.JvmBridge.CallConstructor(s_ParamClassName, parent, name, doc))
+            : this(CreateJvmParam(parent, name, doc, SparkEnvironment.SparkVersion))
         {
         }
 
@@ -73,5 +73,26 @@ namespace Microsoft.Spark.ML.Feature.Param
         /// </summary>
         /// <returns>The UID of the parent oject that this <see cref="Param"/> belongs to</returns>
         public string Parent => (string)Reference.Invoke("parent");
+
+        internal static JvmObjectReference CreateJvmParam(
+            string parent,
+            string name,
+            string doc,
+            Version sparkVersion)
+        {
+            IJvmBridge jvm = SparkEnvironment.JvmBridge;
+            if ((sparkVersion.Major, sparkVersion.Minor, sparkVersion.Build) == (4, 0, 0))
+            {
+                // Spark 4.0.0 added an implicit ClassTag to Param's JVM constructors.
+                // Spark 4.0.1 restored binary compatibility in SPARK-52259, so this
+                // extra argument is needed only for 4.0.0. See the upstream fix:
+                // https://github.com/apache/spark/commit/b0932404575a3eb3ea2fb88be1dbe1ea7e19b356
+                var classTag = (JvmObjectReference)jvm.CallStaticJavaMethod(
+                    "scala.reflect.ClassTag", "Any");
+                return jvm.CallConstructor(s_ParamClassName, parent, name, doc, classTag);
+            }
+
+            return jvm.CallConstructor(s_ParamClassName, parent, name, doc);
+        }
     }
 }

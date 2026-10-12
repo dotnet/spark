@@ -46,7 +46,8 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
 
                 if (restoreContext is null)
                 {
-                    throw new Exception("PackageRestoreContext was not found in the kernel, try using older version of Dotnet.Interactive");
+                    // A CSharpKernel can run without the optional NuGet provider.
+                    return Array.Empty<ResolvedPackageReference>();
                 }
 
                 // Extract the ResolvedPackageReferences property (internal)
@@ -54,7 +55,8 @@ namespace Microsoft.Spark.Extensions.DotNet.Interactive
                     .GetType()
                     .GetProperty("ResolvedPackageReferences", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 
-                return resolvedPackagesProp?.GetValue(restoreContext) as IEnumerable<ResolvedPackageReference>;
+                return resolvedPackagesProp?.GetValue(restoreContext) as IEnumerable<ResolvedPackageReference>
+                    ?? throw new Exception("Failed to retrieve referenced packages from kernel, try using older version of Dotnet.Interactive");
             }
         }
     }

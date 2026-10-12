@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Spark.ML.Feature;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
@@ -57,6 +58,10 @@ namespace Microsoft.Spark.E2ETest.IpcTests.ML.Feature
             Assert.Contains(output.Schema().Fields, (f => f.Name == "v4"));
             Assert.Contains(outputSchema.Fields, (f => f.Name == "v3"));
             Assert.Contains(outputSchema.Fields, (f => f.Name == "v4"));
+            Row[] rows = output.OrderBy("id").Collect().ToArray();
+            Assert.Equal(new[] { 0, 2 }, rows.Select(row => row.GetAs<int>("id")));
+            Assert.Equal(new[] { 4.0, 7.0 }, rows.Select(row => row.GetAs<double>("v3")));
+            Assert.Equal(new[] { 3.0, 10.0 }, rows.Select(row => row.GetAs<double>("v4")));
             Assert.Equal(inputStatement, outputStatement);
 
             using (var tempDirectory = new TemporaryDirectory())

@@ -18,6 +18,7 @@ using static Microsoft.Spark.Sql.Functions;
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
     [Collection("Spark E2E Tests")]
+    [Trait("Category", "Streaming")]
     public class DataStreamWriterTests
     {
         private readonly SparkSession _spark;
@@ -88,8 +89,15 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                         .Format("parquet")
                         .Option("checkpointLocation", tempDirectory.Path);
 
-                    StreamingQuery sq = dsw.ToTable(tableName);
-                    sq.Stop();
+                    StreamingQuery sq = null;
+                    try
+                    {
+                        sq = dsw.ToTable(tableName);
+                    }
+                    finally
+                    {
+                        StopQuery(sq);
+                    }
                 });
         }
 
@@ -100,6 +108,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
             using var srcTempDirectory = new TemporaryDirectory();
             // Temporary folder to write ForeachBatch output.
             using var dstTempDirectory = new TemporaryDirectory();
+            using var checkpointDirectory = new TemporaryDirectory();
 
             Func<Column, Column> outerUdf = Udf<int, int>(i => i + 100);
 
@@ -111,6 +120,7 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 .Schema("id INT")
                 .Csv(srcTempDirectory.Path)
                 .WriteStream()
+                .Option("checkpointLocation", checkpointDirectory.Path)
                 .ForeachBatch((df, id) =>
                 {
                     Func<Column, Column> innerUdf = Udf<int, int>(i => i + 200);
@@ -119,41 +129,115 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                         .Csv(Path.Combine(dstTempDirectory.Path, id.ToString()));
                 });
 
-            StreamingQuery sq = dsw.Start();
-
-            // Process until all available data in the source has been processed and committed
-            // to the ForeachBatch sink. 
-            sq.ProcessAllAvailable();
-
-            // Add new file to the source path. The spark stream will read any new files
-            // added to the source path.
-            // id column: [10, 11, ..., 19]
-            WriteCsv(10, 10, Path.Combine(srcTempDirectory.Path, "input2.csv"));
-
-            // Process until all available data in the source has been processed and committed
-            // to the ForeachBatch sink.
-            sq.ProcessAllAvailable();
-            sq.Stop();
-
-            // Verify folders in the destination path.
-            string[] csvPaths =
-                Directory.GetDirectories(dstTempDirectory.Path).OrderBy(s => s).ToArray();
-            var expectedPaths = new string[]
+            StreamingQuery sq = null;
+            try
             {
-                Path.Combine(dstTempDirectory.Path, "0"),
-                Path.Combine(dstTempDirectory.Path, "1"),
-            };
-            Assert.True(expectedPaths.SequenceEqual(csvPaths));
+                sq = dsw.Start();
+                sq.ProcessAllAvailable();
+                string queryId = sq.Id;
+                string runId = sq.RunId;
+                sq.Stop();
+                Assert.True(sq.AwaitTermination(60000));
+                Assert.False(sq.IsActive());
 
-            // Read the generated csv paths and verify contents.
-            DataFrame df = _spark
-                .Read()
+                // Keep the committed checkpoint and add new input before restarting the query.
+                WriteCsv(10, 10, Path.Combine(srcTempDirectory.Path, "input2.csv"));
+                sq = dsw.Start();
+                Assert.Equal(queryId, sq.Id);
+                Assert.NotEqual(runId, sq.RunId);
+                sq.ProcessAllAvailable();
+                sq.Stop();
+                Assert.True(sq.AwaitTermination(60000));
+                Assert.False(sq.IsActive());
+                Assert.Null(sq.Exception());
+
+                // Verify folders in the destination path.
+                string[] csvPaths =
+                    Directory.GetDirectories(dstTempDirectory.Path).OrderBy(s => s).ToArray();
+                var expectedPaths = new string[]
+                {
+                    Path.Combine(dstTempDirectory.Path, "0"),
+                    Path.Combine(dstTempDirectory.Path, "1"),
+                };
+                Assert.True(expectedPaths.SequenceEqual(csvPaths));
+
+                // Read the generated csv paths and verify contents.
+                DataFrame df = _spark
+                    .Read()
+                    .Schema("id INT")
+                    .Csv(csvPaths[0], csvPaths[1])
+                    .Sort("id");
+
+                IEnumerable<int> actualIds = df.Collect().Select(r => r.GetAs<int>("id"));
+                Assert.True(Enumerable.Range(300, 20).SequenceEqual(actualIds));
+            }
+            finally
+            {
+                StopQuery(sq);
+            }
+        }
+
+        [Fact]
+        public void TestForeachBatchFailureAndRecovery()
+        {
+            const string failureMessage = "TestForeachBatch callback failure.";
+            using var srcTempDirectory = new TemporaryDirectory();
+            using var dstTempDirectory = new TemporaryDirectory();
+            using var checkpointDirectory = new TemporaryDirectory();
+            WriteCsv(0, 3, Path.Combine(srcTempDirectory.Path, "input.csv"));
+
+            DataStreamWriter dsw = _spark
+                .ReadStream()
                 .Schema("id INT")
-                .Csv(csvPaths[0], csvPaths[1])
-                .Sort("id");
+                .Csv(srcTempDirectory.Path)
+                .WriteStream()
+                .Option("checkpointLocation", checkpointDirectory.Path)
+                .Trigger(Trigger.Once())
+                .ForeachBatch((df, id) => throw new InvalidOperationException(failureMessage));
 
-            IEnumerable<int> actualIds = df.Collect().Select(r => r.GetAs<int>("id"));
-            Assert.True(Enumerable.Range(300, 20).SequenceEqual(actualIds));
+            StreamingQueryManager sqm = _spark.Streams();
+            sqm.ResetTerminated();
+            StreamingQuery sq = null;
+            try
+            {
+                sq = dsw.Start();
+                string queryId = sq.Id;
+                string runId = sq.RunId;
+                Exception exception = Assert.Throws<Exception>(() =>
+                {
+                    sq.AwaitTermination(60000);
+                });
+                Assert.Contains(failureMessage, exception.ToString());
+                Assert.NotNull(sq.Exception());
+                Assert.False(sq.IsActive());
+                Assert.DoesNotContain(sqm.Active(), query => query.Id == queryId);
+                sq.Stop();
+                sqm.ResetTerminated();
+
+                // A new callback must replay the uncommitted batch from the same checkpoint.
+                sq = dsw.ForeachBatch((df, id) =>
+                    df.Write().Csv(Path.Combine(dstTempDirectory.Path, id.ToString()))).Start();
+                Assert.Equal(queryId, sq.Id);
+                Assert.NotEqual(runId, sq.RunId);
+                Assert.True(sq.AwaitTermination(60000));
+                Assert.Null(sq.Exception());
+                Assert.False(sq.IsActive());
+                Assert.DoesNotContain(sqm.Active(), query => query.Id == queryId);
+
+                string outputPath = Path.Combine(dstTempDirectory.Path, "0");
+                Assert.Equal(new[] { outputPath }, Directory.GetDirectories(dstTempDirectory.Path));
+                IEnumerable<int> actualIds = _spark.Read()
+                    .Schema("id INT")
+                    .Csv(outputPath)
+                    .Sort("id")
+                    .Collect()
+                    .Select(row => row.GetAs<int>("id"));
+                Assert.Equal(Enumerable.Range(0, 3), actualIds);
+            }
+            finally
+            {
+                StopQuery(sq);
+            }
         }
 
         [Fact]
@@ -249,44 +333,67 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 .WriteStream()
                 .Foreach(foreachWriter);
 
-            // Trigger the stream batch once.
-            if (expectedExceptionFiles > 0)
+            StreamingQuery sq = null;
+            try
             {
-                Assert.Throws<Exception>(
-                    () => dsw.Trigger(Trigger.Once()).Start().AwaitTermination());
+                sq = dsw.Trigger(Trigger.Once()).Start();
+                if (expectedExceptionFiles > 0)
+                {
+                    Exception exception = Assert.Throws<Exception>(() =>
+                    {
+                        sq.AwaitTermination(60000);
+                    });
+                    Assert.Contains(
+                        "TestForeachWriterProcessFailure Process(Row) failure.",
+                        exception.ToString());
+                    Assert.NotNull(sq.Exception());
+                }
+                else
+                {
+                    Assert.True(sq.AwaitTermination(60000));
+                    Assert.Null(sq.Exception());
+                }
+                Assert.False(sq.IsActive());
+
+                // Each partition opens a CSV file and closes it even when Open returns false.
+                Assert.Equal(
+                    expectedCSVFiles,
+                    Directory.GetFiles(dstTempDirectory.Path, "*.csv").Length);
+                Assert.Equal(
+                    expectedCSVFiles,
+                    Directory.GetFiles(dstTempDirectory.Path, "*.closed").Length);
+
+                // A Process failure is passed to Close before the query terminates.
+                Assert.Equal(
+                    expectedExceptionFiles,
+                    Directory.GetFiles(dstTempDirectory.Path, "*.exception").Length);
+
+                DataFrame foreachWriterOutputDF = _spark
+                    .Read()
+                    .Schema("id INT")
+                    .Csv(dstTempDirectory.Path)
+                    .Sort("id");
+
+                Assert.Equal(
+                    expectedOutput.Select(i => new object[] { i }),
+                    foreachWriterOutputDF.Collect().Select(r => r.Values));
             }
-            else
+            finally
             {
-                dsw.Trigger(Trigger.Once()).Start().AwaitTermination();
+                StopQuery(sq);
             }
+        }
 
-            // Verify that TestForeachWriter created a unique .csv when
-            // ForeachWriter.Open was called on each partitionId.
-            Assert.Equal(
-                expectedCSVFiles,
-                Directory.GetFiles(dstTempDirectory.Path, "*.csv").Length);
-
-            // Only if ForeachWriter.Process(Row) throws an exception, will
-            // ForeachWriter.Close(Exception) create a file with the
-            // .exception extension.
-            Assert.Equal(
-                expectedExceptionFiles,
-                Directory.GetFiles(dstTempDirectory.Path, "*.exception").Length);
-
-            // Read in the *.csv file(s) generated by the TestForeachWriter.
-            // If there are multiple input files, sorting by "id" will make
-            // validation simpler. Contents of the *.csv will only be populated
-            // on successful calls to the ForeachWriter.Process method.
-            DataFrame foreachWriterOutputDF = _spark
-                .Read()
-                .Schema("id INT")
-                .Csv(dstTempDirectory.Path)
-                .Sort("id");
-
-            // Validate expected *.csv data.
-            Assert.Equal(
-                expectedOutput.Select(i => new object[] { i }),
-                foreachWriterOutputDF.Collect().Select(r => r.Values));
+        private void StopQuery(StreamingQuery query)
+        {
+            try
+            {
+                query?.Stop();
+            }
+            finally
+            {
+                _spark.Streams().ResetTerminated();
+            }
         }
 
         private void WriteCsv(int start, int count, string path)
@@ -322,6 +429,8 @@ namespace Microsoft.Spark.E2ETest.IpcTests
                 }
 
                 _streamWriter?.Dispose();
+                File.Create(Path.Combine(WritePath, $"Close-{_partitionId}-{_epochId}.closed"))
+                    .Dispose();
             }
 
             public virtual bool Open(long partitionId, long epochId)

@@ -15,11 +15,21 @@ import org.apache.spark.SparkContext
 import org.apache.spark.api.python.{PythonAccumulatorV2, PythonBroadcast, PythonFunction, SimplePythonFunction}
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.deploy.dotnet.DotnetRunner
+import org.apache.spark.sql.classic.SparkSession
 import org.apache.spark.sql.execution.python.PythonUDFRunner
 
 import scala.util.control.NonFatal
 
 object SQLUtils {
+
+  /**
+   * Registers Interactive files in the same artifact scope used by the session's SQL queries.
+   */
+  def addFile(session: SparkSession, path: String): Unit = {
+    session.artifactManager.withResources {
+      session.sparkContext.addFile(path)
+    }
+  }
 
   /**
    * Exposes createPythonFunction to the .NET client to enable registering UDFs.

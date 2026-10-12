@@ -13,6 +13,7 @@ using static Microsoft.Spark.Sql.Functions;
 namespace Microsoft.Spark.E2ETest.IpcTests
 {
     [Collection("Spark E2E Tests")]
+    [Trait("Category", "DriverApi")]
     public class FunctionsTests
     {
         private readonly SparkSession _spark;

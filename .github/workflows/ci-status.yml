@@ -1,0 +1,72 @@
+name: Publish CI status badges
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - .github/workflows/ci-status.yml
+      - eng/ci-status/**
+      - azure-pipelines-pr.yml
+      - README.md
+  check_suite:
+    types: [completed]
+  schedule:
+    # Check-suite events are not guaranteed for commits also used by GitHub Actions.
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Test status collection and publication
+        run: node --test eng/ci-status/index.test.cjs
+
+  publish:
+    if: >-
+      github.repository == 'dotnet/spark' &&
+      github.ref == 'refs/heads/main' &&
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'check_suite' ||
+       (github.event.check_suite.app.id == 9426 && github.event.check_suite.head_branch == 'main'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      checks: read
+    concurrency:
+      group: publish-spark-ci-status
+      cancel-in-progress: false
+    steps:
+      - name: Resolve the current main commit
+        id: source
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const ref = await github.rest.git.getRef({ ...context.repo, ref: 'heads/main' });
+            core.setOutput('sha', ref.data.object.sha);
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ steps.source.outputs.sha }}
+          persist-credentials: false
+
+      - name: Test the checked-out publisher
+        run: node --test eng/ci-status/index.test.cjs
+
+      - name: Collect checks and publish static badges
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        with:
+          script: |
+            const { run } = require('./eng/ci-status/index.cjs');
+            await run({ github, context, core, sourceSha: process.env.SOURCE_SHA });

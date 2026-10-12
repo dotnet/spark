@@ -61,14 +61,32 @@ namespace Microsoft.Spark.UnitTest
                 CommandSerDe.PreflightSpark40Arrow(command, 1, true, out _, out _));
         }
 
-        [Fact]
-        public void ColumnMetadataIsNotInterpretedAsADataType()
+        [Theory]
+        [InlineData("udt")]
+        [InlineData("variant")]
+        public void ColumnMetadataIsNotInterpretedAsADataType(string metadataType)
         {
-            const string Json = "{\"type\":\"struct\",\"fields\":[{\"name\":\"value\"," +
-                "\"type\":\"integer\",\"nullable\":true,\"metadata\":{\"type\":\"udt\"}}]}";
-            Assert.False(CommandSerDe.PreflightSpark40Arrow(WithSchema(Json), 1, true,
+            string json = "{\"type\":\"struct\",\"fields\":[{\"name\":\"value\"," +
+                "\"type\":\"integer\",\"nullable\":true,\"metadata\":{\"type\":\"" + metadataType + "\"}}]}";
+            Assert.False(CommandSerDe.PreflightSpark40Arrow(WithSchema(json), 1, true,
                 out StructType schema, out _));
-            Assert.Equal("udt", (string)schema.Fields[0].Metadata["type"]);
+            Assert.Equal(metadataType, (string)schema.Fields[0].Metadata["type"]);
+        }
+
+        [Theory]
+        [InlineData("\"variant\"")]
+        [InlineData("{\"type\":\"array\",\"elementType\":\"variant\",\"containsNull\":true}")]
+        [InlineData("{\"type\":\"map\",\"keyType\":\"string\",\"valueType\":\"variant\",\"valueContainsNull\":true}")]
+        [InlineData("{\"type\":\"map\",\"keyType\":\"variant\",\"valueType\":\"string\",\"valueContainsNull\":true}")]
+        [InlineData("{\"type\":\"struct\",\"fields\":[{\"name\":\"inner\",\"type\":\"variant\",\"nullable\":true,\"metadata\":{}}]}")]
+        public void VariantSchemaSupportDoesNotEnableArrowValues(string type)
+        {
+            string json = "{\"type\":\"struct\",\"fields\":[{\"name\":\"value\",\"type\":" +
+                type + ",\"nullable\":true,\"metadata\":{}}]}";
+            Assert.IsType<StructType>(DataType.ParseDataType(json));
+            InvalidDataException failure = Assert.Throws<InvalidDataException>(() =>
+                CommandSerDe.PreflightSpark40Arrow(WithSchema(json), 1, true, out _, out _));
+            Assert.Contains("Variant", failure.Message);
         }
 
         [Theory]

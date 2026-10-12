@@ -25,6 +25,7 @@ namespace Microsoft.Spark.Sql.Types
             typeof(StringType),
             typeof(BinaryType),
             typeof(BooleanType),
+            typeof(VariantType),
             typeof(DateType),
             typeof(TimestampType),
             typeof(DoubleType),

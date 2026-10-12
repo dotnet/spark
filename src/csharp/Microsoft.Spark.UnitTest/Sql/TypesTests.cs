@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,11 +27,65 @@ namespace Microsoft.Spark.UnitTest
         [InlineData("integer")]
         [InlineData("long")]
         [InlineData("short")]
+        [InlineData("variant")]
         public void TestSimpleTypes(string typeName)
         {
             DataType atomicType = DataType.ParseDataType($@"""{typeName}""");
             Assert.Equal(typeName, atomicType.TypeName);
             Assert.Equal(typeName, atomicType.SimpleString);
+        }
+
+        [Fact]
+        public void TestVariantType()
+        {
+            var variantType = new VariantType();
+            Assert.IsAssignableFrom<AtomicType>(variantType);
+            Assert.Equal("variant", variantType.TypeName);
+            Assert.Equal("variant", variantType.SimpleString);
+            Assert.Equal("\"variant\"", variantType.Json);
+
+            var parsed = Assert.IsType<VariantType>(DataType.ParseDataType(variantType.Json));
+            Assert.Equal(variantType, parsed);
+            Assert.Equal(variantType.GetHashCode(), parsed.GetHashCode());
+            Assert.False(variantType.Equals(new StringType()));
+            Assert.Throws<ArgumentException>(() => DataType.ParseDataType("\"unknown\""));
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestNestedVariantSchemaRoundTrip(bool nullable)
+        {
+            var schema = new StructType(new[]
+            {
+                new StructField("payload", new VariantType(), nullable),
+                new StructField("nested", new StructType(new[]
+                {
+                    new StructField("payload", new VariantType(), nullable)
+                }), nullable),
+                new StructField("items", new ArrayType(new VariantType(), nullable), nullable),
+                new StructField("values", new MapType(
+                    new StringType(), new VariantType(), nullable), nullable)
+            });
+
+            var parsed = Assert.IsType<StructType>(DataType.ParseDataType(schema.Json));
+            Assert.Equal(schema.Json, parsed.Json);
+            Assert.Equal(
+                "struct<payload:variant,nested:struct<payload:variant>," +
+                    "items:array<variant>,values:map<string,variant>>",
+                parsed.SimpleString);
+            Assert.All(parsed.Fields, field => Assert.Equal(nullable, field.IsNullable));
+            Assert.IsType<VariantType>(parsed.Fields[0].DataType);
+            var nested = Assert.IsType<StructType>(parsed.Fields[1].DataType);
+            Assert.IsType<VariantType>(nested.Fields[0].DataType);
+            Assert.Equal(nullable, nested.Fields[0].IsNullable);
+            var array = Assert.IsType<ArrayType>(parsed.Fields[2].DataType);
+            Assert.IsType<VariantType>(array.ElementType);
+            Assert.Equal(nullable, array.ContainsNull);
+            var map = Assert.IsType<MapType>(parsed.Fields[3].DataType);
+            Assert.IsType<StringType>(map.KeyType);
+            Assert.IsType<VariantType>(map.ValueType);
+            Assert.Equal(nullable, map.ValueContainsNull);
         }
 
         [Fact]
