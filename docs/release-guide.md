@@ -29,6 +29,8 @@ In the [release pipeline](../azure-pipelines-release.yml) **Run pipeline** dialo
 
 The release YAML publishes a build artifact. It does not publish a GitHub release or push packages to nuget.org.
 
+Release validation restores dependencies from the `dotnet-public` NuGet mirror configured by `ReleaseNuGetDependencySource`. The smoke and installation jobs restrict `Microsoft.Spark` to the local `DotnetSpark` artifact, so validation cannot substitute a published package from the mirror. Direct NuGet.org restores are blocked by the pipeline's required `CFSClean` network policy.
+
 ## Inspect the final artifacts
 
 The core package should be `Microsoft.Spark.2.4.0.nupkg`, with the same version in its `.nuspec` and a MessagePack dependency on `3.1.8`. Check any extension packages selected for publication independently. The core package should contain six Scala 2.12 Spark 3 bridges and `microsoft-spark-4-0_2.13-2.4.0.jar`, with no Spark 2.x bridge. Check all seven JAR versions and compare their SHA-256 hashes with the freshly built bridges from the recorded release commit.
