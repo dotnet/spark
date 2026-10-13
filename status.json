@@ -524,13 +524,13 @@
     {
       "version": "4.0.1",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 115229467436,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-10-13T09:36:15Z",
-      "completedAt": null
+      "message": "failing",
+      "color": "#e05d44",
+      "checkId": 115236744437,
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-10-13T09:40:42Z",
+      "completedAt": "2026-10-13T09:54:39Z"
     },
     {
       "version": "4.0.1",
@@ -546,13 +546,13 @@
     {
       "version": "4.0.2",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 115229457728,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-10-13T09:36:13Z",
-      "completedAt": null
+      "message": "failing",
+      "color": "#e05d44",
+      "checkId": 115235643478,
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-10-13T09:39:33Z",
+      "completedAt": "2026-10-13T09:51:51Z"
     },
     {
       "version": "4.0.2",
