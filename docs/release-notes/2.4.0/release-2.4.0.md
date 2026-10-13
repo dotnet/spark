@@ -20,6 +20,7 @@ The `release/branch-2.4.0` branch is prepared for the stable release. Validation
 
 ## Maintenance and Community Contributions
 
+- Update the build SDK to .NET `8.0.425` and the self-contained .NET 8 Worker runtime to `8.0.31`, incorporating upstream security fixes.
 - Update MessagePack from `3.0.214-rc.1` to the stable `3.1.8` dependency ([#1280](https://github.com/dotnet/spark/pull/1280)), including the upstream fix for unbounded recursion in `MessagePackReader.Skip` ([GHSA-vh6j-jc39-fggf](https://github.com/advisories/GHSA-vh6j-jc39-fggf)).
 - Declare the MIT license through NuGet's SPDX license-expression metadata, contributed by [@thompson-tomo](https://github.com/thompson-tomo) ([#1216](https://github.com/dotnet/spark/pull/1216)).
 - Add automated .NET formatting checks for the library, examples and benchmarks, and apply formatting cleanup, contributed by [@sheddy123](https://github.com/sheddy123) ([#1246](https://github.com/dotnet/spark/pull/1246)).
