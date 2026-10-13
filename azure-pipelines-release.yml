@@ -6,7 +6,15 @@ trigger:
     include:
     - main
 
+parameters:
+- name: dotnetPackageVersion
+  displayName: '.NET package and Worker version'
+  type: string
+  default: '2.4.0'
+
 variables:
+  DotnetPackageVersion: ${{ parameters.dotnetPackageVersion }}
+  ReleaseNuGetDependencySource: https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json
   buildConfiguration: 'Release'
   _SignType: real
   _TeamName: DotNetSpark
@@ -447,6 +455,8 @@ extends:
       jobs:
       - job: ValidateNuGetPackages
         displayName: Validate NuGet Package Installation
+        variables:
+          NUGET_PACKAGES: $(Agent.TempDirectory)/spark-release-install-packages-$(Build.BuildId)-$(System.JobAttempt)
         steps:
         - task: DownloadPipelineArtifact@2
           displayName: Download DotnetSpark Artifacts
@@ -480,19 +490,23 @@ extends:
             cd "$TEST_DIR"
 
             echo "Creating test console project..."
-            dotnet new console -n SparkValidation --framework net8.0
+            dotnet new console -n SparkValidation --framework net8.0 --no-restore
 
             cd SparkValidation
 
-            # Create nuget.config with local package source
+            # Keep the release package local and restore dependencies from the approved mirror.
             printf '%s\n' \
               '<?xml version="1.0" encoding="utf-8"?>' \
               '<configuration>' \
               '  <packageSources>' \
               '    <clear />' \
-              '    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />' \
+              '    <add key="Dependencies" value="$(ReleaseNuGetDependencySource)" />' \
               "    <add key=\"LocalPackages\" value=\"$ARTIFACT_DIR\" />" \
               '  </packageSources>' \
+              '  <packageSourceMapping>' \
+              '    <packageSource key="LocalPackages"><package pattern="Microsoft.Spark" /></packageSource>' \
+              '    <packageSource key="Dependencies"><package pattern="*" /></packageSource>' \
+              '  </packageSourceMapping>' \
               '</configuration>' > nuget.config
 
             echo "nuget.config created:"
@@ -707,6 +721,8 @@ extends:
       jobs:
       - job: ValidateNuGetPackages
         displayName: Validate NuGet Package Installation
+        variables:
+          NUGET_PACKAGES: $(Agent.TempDirectory)/spark-release-install-packages-$(Build.BuildId)-$(System.JobAttempt)
         steps:
         - task: DownloadPipelineArtifact@2
           displayName: Download DotnetSpark Artifacts
@@ -746,17 +762,21 @@ extends:
               Set-Location $testDir
 
               Write-Host "Creating test console project..."
-              dotnet new console -n SparkValidation --framework net8.0
+              dotnet new console -n SparkValidation --framework net8.0 --no-restore
               Set-Location SparkValidation
 
-              # Create nuget.config with local package source
+              # Keep the release package local and restore dependencies from the approved mirror.
               $nugetConfig = '<?xml version="1.0" encoding="utf-8"?>' + "`n"
               $nugetConfig += '<configuration>' + "`n"
               $nugetConfig += '  <packageSources>' + "`n"
               $nugetConfig += '    <clear />' + "`n"
-              $nugetConfig += '    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />' + "`n"
+              $nugetConfig += '    <add key="Dependencies" value="$(ReleaseNuGetDependencySource)" />' + "`n"
               $nugetConfig += "    <add key=`"LocalPackages`" value=`"$artifactDir`" />" + "`n"
               $nugetConfig += '  </packageSources>' + "`n"
+              $nugetConfig += '  <packageSourceMapping>' + "`n"
+              $nugetConfig += '    <packageSource key="LocalPackages"><package pattern="Microsoft.Spark" /></packageSource>' + "`n"
+              $nugetConfig += '    <packageSource key="Dependencies"><package pattern="*" /></packageSource>' + "`n"
+              $nugetConfig += '  </packageSourceMapping>' + "`n"
               $nugetConfig += '</configuration>'
               Set-Content -Path "nuget.config" -Value $nugetConfig
 

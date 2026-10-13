@@ -99,6 +99,7 @@ stages:
               -PackageDirectory "$(Pipeline.Workspace)/DotnetSpark" `
               -SparkHome "$(ReleaseSmokeSparkHome)" `
               -SparkVersion '${{ sparkVersion }}' `
+              -DependencySource "$(ReleaseNuGetDependencySource)" `
               -WorkDirectory "$(Agent.TempDirectory)/spark-release-smoke-${{ sparkVersion }}-${{ platform }}-$(Build.BuildId)-$(System.JobAttempt)"
           displayName: Verify packaged Driver, Collect and scalar UDF
           timeoutInMinutes: 10

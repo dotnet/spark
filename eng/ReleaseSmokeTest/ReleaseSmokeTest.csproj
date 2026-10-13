@@ -8,6 +8,6 @@
     <PackageReference Include="Microsoft.Spark" Version="[$(SparkPackageVersion)]" />
   </ItemGroup>
   <Target Name="RequireSparkPackageVersion" BeforeTargets="CollectPackageReferences">
-    <Error Condition="'$(SparkPackageVersion)' == ''" Text="Specify the release candidate's SparkPackageVersion." />
+    <Error Condition="'$(SparkPackageVersion)' == ''" Text="Specify the package version being validated in SparkPackageVersion." />
   </Target>
 </Project>

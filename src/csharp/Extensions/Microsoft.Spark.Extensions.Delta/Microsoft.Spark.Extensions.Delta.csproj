@@ -7,7 +7,7 @@
     <IsPackable>true</IsPackable>
 
     <Description>Delta Extension for .NET for Apache Spark</Description>
-    <PackageReleaseNotes>https://github.com/dotnet/spark/tree/master/docs/release-notes</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/dotnet/spark/blob/v2.4.0/docs/release-notes/2.4.0/release-2.4.0.md</PackageReleaseNotes>
     <PackageTags>spark;dotnet;csharp;delta;delta lake</PackageTags>
   </PropertyGroup>
 
