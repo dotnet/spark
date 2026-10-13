@@ -34,8 +34,8 @@ The publisher runs on main pushes, periodically, and on eligible check-suite com
 | 3.5.1 | [passing](https://github.com/dotnet/spark/runs/115211341839) | [passing](https://github.com/dotnet/spark/runs/115211511804) |
 | 3.5.2 | [passing](https://github.com/dotnet/spark/runs/115227287399) | [passing](https://github.com/dotnet/spark/runs/115226673237) |
 | 3.5.3 | [passing](https://github.com/dotnet/spark/runs/115227785568) | [passing](https://github.com/dotnet/spark/runs/115227654610) |
-| 4.0.0 | [failing](https://github.com/dotnet/spark/runs/115218096297) | [passing](https://github.com/dotnet/spark/runs/115227351034) |
-| 4.0.1 | [failing](https://github.com/dotnet/spark/runs/115217829752) | [passing](https://github.com/dotnet/spark/runs/115220005175) |
-| 4.0.2 | [failing](https://github.com/dotnet/spark/runs/115225851685) | [passing](https://github.com/dotnet/spark/runs/115219503753) |
+| 4.0.0 | [running](https://github.com/dotnet/spark/runs/115229462909) | [passing](https://github.com/dotnet/spark/runs/115227351034) |
+| 4.0.1 | [running](https://github.com/dotnet/spark/runs/115229467436) | [passing](https://github.com/dotnet/spark/runs/115220005175) |
+| 4.0.2 | [running](https://github.com/dotnet/spark/runs/115229457728) | [passing](https://github.com/dotnet/spark/runs/115219503753) |
 | 4.0.3 | [passing](https://github.com/dotnet/spark/runs/115228957381) | [passing](https://github.com/dotnet/spark/runs/115227460029) |
 | 4.0.4 | [passing](https://github.com/dotnet/spark/runs/115228057985) | [passing](https://github.com/dotnet/spark/runs/115228490327) |

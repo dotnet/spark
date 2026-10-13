@@ -6,13 +6,13 @@
   "pipelineId": 51729,
   "buildId": 74659249,
   "overall": {
-    "message": "failing",
-    "color": "#e05d44",
-    "checkId": 115228994801,
-    "status": "completed",
-    "conclusion": "failure",
-    "startedAt": "2026-10-13T08:01:51Z",
-    "completedAt": "2026-10-13T09:35:03Z"
+    "message": "queued",
+    "color": "#dfb317",
+    "checkId": 115229436321,
+    "status": "queued",
+    "conclusion": null,
+    "startedAt": "2026-10-13T09:36:10Z",
+    "completedAt": null
   },
   "jobs": [
     {
@@ -502,13 +502,13 @@
     {
       "version": "4.0.0",
       "platform": "Windows",
-      "message": "failing",
-      "color": "#e05d44",
-      "checkId": 115218096297,
-      "status": "completed",
-      "conclusion": "failure",
-      "startedAt": "2026-10-13T08:56:09Z",
-      "completedAt": "2026-10-13T09:07:49Z"
+      "message": "running",
+      "color": "#007ec6",
+      "checkId": 115229462909,
+      "status": "in_progress",
+      "conclusion": null,
+      "startedAt": "2026-10-13T09:36:14Z",
+      "completedAt": null
     },
     {
       "version": "4.0.0",
@@ -524,13 +524,13 @@
     {
       "version": "4.0.1",
       "platform": "Windows",
-      "message": "failing",
-      "color": "#e05d44",
-      "checkId": 115217829752,
-      "status": "completed",
-      "conclusion": "failure",
-      "startedAt": "2026-10-13T08:54:27Z",
-      "completedAt": "2026-10-13T09:07:07Z"
+      "message": "running",
+      "color": "#007ec6",
+      "checkId": 115229467436,
+      "status": "in_progress",
+      "conclusion": null,
+      "startedAt": "2026-10-13T09:36:15Z",
+      "completedAt": null
     },
     {
       "version": "4.0.1",
@@ -546,13 +546,13 @@
     {
       "version": "4.0.2",
       "platform": "Windows",
-      "message": "failing",
-      "color": "#e05d44",
-      "checkId": 115225851685,
-      "status": "completed",
-      "conclusion": "failure",
-      "startedAt": "2026-10-13T09:14:22Z",
-      "completedAt": "2026-10-13T09:27:19Z"
+      "message": "running",
+      "color": "#007ec6",
+      "checkId": 115229457728,
+      "status": "in_progress",
+      "conclusion": null,
+      "startedAt": "2026-10-13T09:36:13Z",
+      "completedAt": null
     },
     {
       "version": "4.0.2",
