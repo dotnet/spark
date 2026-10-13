@@ -31,23 +31,19 @@ For background on the proposal for upstream .NET bindings, see [SPIP: .NET bindi
 
 ## Supported Apache Spark
 
-.NET for Apache Spark 2.4.0 removes Apache Spark 2.x support and retains the Spark 3.0 through 3.5 runtime lines. See the [migration guide](docs/migration-guide.md#upgrading-after-spark-2x-support-removal) before upgrading an existing application.
+.NET for Apache Spark 2.4.0 removes Apache Spark 2.x support and retains the Spark 3.0 through 3.5 runtime lines. See the [migration guide](docs/migration-guide.md#upgrading-after-spark-2x-support-removal) before upgrading an existing application. For applications that must remain on Spark 2.x, see the [v2.3.1 compatibility notes](docs/release-notes/2.3.1/release-2.3.1.md#supported-spark-versions).
 
-The getting-started examples use Spark 3.5.3 with Scala 2.12. Version 2.4.0 adds Spark 4.0.0–4.0.4 integration on Windows and Linux with .NET 8, the Scala 2.13 bridge, and JDK 17. Follow the [Spark 4 setup instructions](docs/migration-guide.md#using-spark-40-with-net-for-apache-spark-240) and use a matching NuGet package, Worker and bridge. The published v2.3.1 package does not contain Spark 4 support. This does not imply full API or deployment parity with Spark 3.x.
+The getting-started examples use Spark 3.5.3 with Scala 2.12. Version 2.4.0 adds Spark 4.0.0–4.0.4 integration on Windows and Linux with .NET 8, the Scala 2.13 bridge, and JDK 17. Follow the [Spark 4 setup instructions](docs/migration-guide.md#using-spark-40-with-net-for-apache-spark-240) and use a matching NuGet package, Worker and bridge. This does not imply full API or deployment parity with Spark 3.x.
 
 For Spark 4.0 semi-structured data, see [Variant schemas and Spark SQL](docs/variant-guide.md); native .NET Variant values and Variant UDFs are not supported.
 
-### Published v2.3.1 compatibility (historical)
-
-The published [v2.3.1 release](https://github.com/dotnet/spark/releases/tag/v2.3.1) supports Spark 2.4 (except 2.4.2) and Spark 3.0 through 3.5, not Spark 4.0. See the [release compatibility notes](docs/release-notes/2.3.1/release-2.3.1.md#supported-spark-versions) for that release; they do not describe the current source tree.
-
 ## Releases
 
-.NET for Apache Spark releases are available [here](https://github.com/dotnet/spark/releases) and NuGet packages are available [here](https://www.nuget.org/packages/Microsoft.Spark).
+The latest stable release is [2.4.0](https://github.com/dotnet/spark/releases/tag/v2.4.0). Install [Microsoft.Spark 2.4.0](https://www.nuget.org/packages/Microsoft.Spark/2.4.0) and use the matching Worker and bridge JAR.
 
-The [2.4.0 release notes](docs/release-notes/2.4.0/release-2.4.0.md) describe the Spark 4 integration, breaking changes, MessagePack upgrade and known limitations. Final 2.4.0 artifact validation and publication are pending; maintainers can follow the [release guide](docs/release-guide.md).
+The [2.4.0 release notes](docs/release-notes/2.4.0/release-2.4.0.md) describe the Spark 4 integration, breaking changes, MessagePack upgrade and known limitations.
 
-The published [2.4.0-rc1 prerelease](https://github.com/dotnet/spark/releases/tag/v2.4.0-rc1) remains available for evaluation. Its [validation results](docs/release-notes/v2.4.0-rc1/release-2.4.0-rc1.md#build-and-validation) apply to the RC artifacts, which predate the MessagePack upgrade.
+Browse [all releases](https://github.com/dotnet/spark/releases) for earlier versions.
 
 ## Get Started
 
