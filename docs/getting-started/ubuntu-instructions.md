@@ -5,7 +5,7 @@ These instructions will show you how to run a .NET for Apache Spark app using .N
 ## Pre-requisites
 
 - Download and install the following: **[.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)** | **[OpenJDK 8](https://openjdk.java.net/install/)** | **[Apache Spark 3.5.3 (Scala 2.12)](https://archive.apache.org/dist/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3.tgz)**
-- This example uses the released Spark 3.5 path and `microsoft-spark-3-5_2.12-<version>.jar` with Java 8. For Spark 4, follow the [source or candidate package setup](../migration-guide.md#trying-spark-40-from-source-or-a-candidate-package); the published Microsoft.Spark 2.3.1 package does not support Spark 4.
+- This example uses Spark 3.5 and `microsoft-spark-3-5_2.12-<version>.jar` with Java 8. For Spark 4 with .NET 8, use the released Microsoft.Spark 2.4.0 package and matching Worker, and follow the [Spark 4 setup](../migration-guide.md#using-spark-40-with-net-for-apache-spark-240).
 - Download and install **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release:
     - Select a **[Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases)** release from .NET for Apache Spark GitHub Releases page and download into your local machine (e.g., `~/bin/Microsoft.Spark.Worker`).
     - **IMPORTANT** Create a [new environment variable](https://help.ubuntu.com/community/EnvironmentVariables) `DOTNET_WORKER_DIR` and set it to the directory where you downloaded and extracted the Microsoft.Spark.Worker (e.g., `~/bin/Microsoft.Spark.Worker`).
@@ -77,9 +77,11 @@ For detailed instructions, you can see [Building .NET for Apache Spark from Sour
     +----+-------+
     ```
 
-## Running with a Spark 4 candidate
+<a id="running-with-a-spark-4-candidate"></a>
 
-After the [Spark 4 setup](../migration-guide.md#trying-spark-40-from-source-or-a-candidate-package), rebuild this application against the candidate NuGet package. From its output directory, use the actual Spark 4 JAR filename copied there by the package:
+## Running with Spark 4
+
+After the [Spark 4 setup](../migration-guide.md#using-spark-40-with-net-for-apache-spark-240), rebuild this application against the released Microsoft.Spark 2.4.0 NuGet package. From its output directory, use the actual Spark 4 JAR filename copied there by the package:
 
 ```bash
 spark-submit \
