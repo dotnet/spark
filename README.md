@@ -12,10 +12,10 @@ The publisher runs on main pushes, periodically, and on eligible check-suite com
 
 | Spark | Windows | Linux |
 | :--- | :--- | :--- |
-| 3.0.0 | pending | pending |
+| 3.0.0 | [running](https://github.com/dotnet/spark/runs/116236067276) | [running](https://github.com/dotnet/spark/runs/116236067430) |
 | 3.0.1 | pending | pending |
-| 3.0.2 | pending | pending |
-| 3.1.1 | pending | pending |
+| 3.0.2 | [running](https://github.com/dotnet/spark/runs/116236067298) | pending |
+| 3.1.1 | [running](https://github.com/dotnet/spark/runs/116236064381) | [running](https://github.com/dotnet/spark/runs/116236067323) |
 | 3.1.2 | pending | pending |
 | 3.2.1 | pending | pending |
 | 3.2.2 | pending | pending |
@@ -27,7 +27,7 @@ The publisher runs on main pushes, periodically, and on eligible check-suite com
 | 3.3.4 | pending | pending |
 | 3.4.0 | pending | pending |
 | 3.4.1 | pending | pending |
-| 3.4.2 | pending | pending |
+| 3.4.2 | [running](https://github.com/dotnet/spark/runs/116236067167) | [running](https://github.com/dotnet/spark/runs/116236069817) |
 | 3.4.3 | pending | pending |
 | 3.4.4 | pending | pending |
 | 3.5.0 | pending | pending |
