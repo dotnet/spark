@@ -6,13 +6,13 @@
   "pipelineId": 51729,
   "buildId": 75956697,
   "overall": {
-    "message": "failing",
-    "color": "#e05d44",
-    "checkId": 127048086434,
-    "status": "completed",
-    "conclusion": "failure",
-    "startedAt": "2026-11-05T04:08:46Z",
-    "completedAt": "2026-11-05T04:24:17Z"
+    "message": "queued",
+    "color": "#dfb317",
+    "checkId": 127053450211,
+    "status": "queued",
+    "conclusion": null,
+    "startedAt": "2026-11-05T04:40:37Z",
+    "completedAt": null
   },
   "jobs": [
     {
@@ -502,13 +502,13 @@
     {
       "version": "4.0.0",
       "platform": "Windows",
-      "message": "failing",
-      "color": "#e05d44",
-      "checkId": 127048073363,
-      "status": "completed",
-      "conclusion": "failure",
-      "startedAt": "2026-11-05T04:11:57Z",
-      "completedAt": "2026-11-05T04:24:07Z"
+      "message": "running",
+      "color": "#007ec6",
+      "checkId": 127053472312,
+      "status": "in_progress",
+      "conclusion": null,
+      "startedAt": "2026-11-05T04:40:41Z",
+      "completedAt": null
     },
     {
       "version": "4.0.0",
@@ -524,13 +524,13 @@
     {
       "version": "4.0.1",
       "platform": "Windows",
-      "message": "failing",
-      "color": "#e05d44",
-      "checkId": 127046679882,
-      "status": "completed",
-      "conclusion": "failure",
-      "startedAt": "2026-11-05T04:08:50Z",
-      "completedAt": "2026-11-05T04:19:59Z"
+      "message": "running",
+      "color": "#007ec6",
+      "checkId": 127053495021,
+      "status": "in_progress",
+      "conclusion": null,
+      "startedAt": "2026-11-05T04:40:45Z",
+      "completedAt": null
     },
     {
       "version": "4.0.1",
@@ -546,13 +546,13 @@
     {
       "version": "4.0.2",
       "platform": "Windows",
-      "message": "failing",
-      "color": "#e05d44",
-      "checkId": 127043785855,
-      "status": "completed",
-      "conclusion": "failure",
-      "startedAt": "2026-11-05T03:58:23Z",
-      "completedAt": "2026-11-05T04:11:08Z"
+      "message": "running",
+      "color": "#007ec6",
+      "checkId": 127053499753,
+      "status": "in_progress",
+      "conclusion": null,
+      "startedAt": "2026-11-05T04:40:46Z",
+      "completedAt": null
     },
     {
       "version": "4.0.2",
@@ -568,13 +568,13 @@
     {
       "version": "4.0.3",
       "platform": "Windows",
-      "message": "failing",
-      "color": "#e05d44",
-      "checkId": 127048045915,
-      "status": "completed",
-      "conclusion": "failure",
-      "startedAt": "2026-11-05T04:12:08Z",
-      "completedAt": "2026-11-05T04:23:55Z"
+      "message": "running",
+      "color": "#007ec6",
+      "checkId": 127053517216,
+      "status": "in_progress",
+      "conclusion": null,
+      "startedAt": "2026-11-05T04:40:49Z",
+      "completedAt": null
     },
     {
       "version": "4.0.3",
