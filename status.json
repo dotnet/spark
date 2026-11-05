@@ -6,13 +6,13 @@
   "pipelineId": 51729,
   "buildId": 75956697,
   "overall": {
-    "message": "queued",
-    "color": "#dfb317",
-    "checkId": 127053450211,
-    "status": "queued",
-    "conclusion": null,
-    "startedAt": "2026-11-05T04:40:37Z",
-    "completedAt": null
+    "message": "passing",
+    "color": "#4c1",
+    "checkId": 127060566834,
+    "status": "completed",
+    "conclusion": "success",
+    "startedAt": "2026-11-05T04:45:05Z",
+    "completedAt": "2026-11-05T05:02:43Z"
   },
   "jobs": [
     {
@@ -502,13 +502,13 @@
     {
       "version": "4.0.0",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 127053472312,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-11-05T04:40:41Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 127060320307,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-05T04:45:10Z",
+      "completedAt": "2026-11-05T05:01:54Z"
     },
     {
       "version": "4.0.0",
@@ -524,13 +524,13 @@
     {
       "version": "4.0.1",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 127053495021,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-11-05T04:40:45Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 127060382877,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-05T04:45:16Z",
+      "completedAt": "2026-11-05T05:02:05Z"
     },
     {
       "version": "4.0.1",
@@ -546,13 +546,13 @@
     {
       "version": "4.0.2",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 127053499753,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-11-05T04:40:46Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 127060167247,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-05T04:45:17Z",
+      "completedAt": "2026-11-05T05:01:25Z"
     },
     {
       "version": "4.0.2",
@@ -568,13 +568,13 @@
     {
       "version": "4.0.3",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 127053517216,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-11-05T04:40:49Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 127060549643,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-05T04:45:25Z",
+      "completedAt": "2026-11-05T05:02:37Z"
     },
     {
       "version": "4.0.3",
