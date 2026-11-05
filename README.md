@@ -21,7 +21,7 @@ The publisher runs on main pushes, periodically, and on eligible check-suite com
 | 3.2.2 | [passing](https://github.com/dotnet/spark/runs/127027379003) | [running](https://github.com/dotnet/spark/runs/127018314804) |
 | 3.2.3 | [passing](https://github.com/dotnet/spark/runs/127027210464) | [passing](https://github.com/dotnet/spark/runs/127026319737) |
 | 3.3.0 | [passing](https://github.com/dotnet/spark/runs/127027217580) | [passing](https://github.com/dotnet/spark/runs/127026606098) |
-| 3.3.1 | [running](https://github.com/dotnet/spark/runs/127018321561) | [running](https://github.com/dotnet/spark/runs/127018316236) |
+| 3.3.1 | [running](https://github.com/dotnet/spark/runs/127018321561) | [passing](https://github.com/dotnet/spark/runs/127029853776) |
 | 3.3.2 | [running](https://github.com/dotnet/spark/runs/127018315813) | [running](https://github.com/dotnet/spark/runs/127018324345) |
 | 3.3.3 | [running](https://github.com/dotnet/spark/runs/127018319026) | [running](https://github.com/dotnet/spark/runs/127018328378) |
 | 3.3.4 | [passing](https://github.com/dotnet/spark/runs/127027080026) | [running](https://github.com/dotnet/spark/runs/127018315708) |

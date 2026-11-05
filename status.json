@@ -227,13 +227,13 @@
     {
       "version": "3.3.1",
       "platform": "Linux",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 127018316236,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-11-05T02:55:17Z",
-      "completedAt": null
+      "message": "passing",
+      "color": "#4c1",
+      "checkId": 127029853776,
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-05T03:15:10Z",
+      "completedAt": "2026-11-05T03:28:39Z"
     },
     {
       "version": "3.3.2",
