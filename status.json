@@ -6,13 +6,13 @@
   "pipelineId": 51729,
   "buildId": 75956697,
   "overall": {
-    "message": "queued",
-    "color": "#dfb317",
-    "checkId": 127003000266,
-    "status": "queued",
-    "conclusion": null,
-    "startedAt": "2026-11-05T02:11:45Z",
-    "completedAt": null
+    "message": "failing",
+    "color": "#e05d44",
+    "checkId": 127048086434,
+    "status": "completed",
+    "conclusion": "failure",
+    "startedAt": "2026-11-05T04:08:46Z",
+    "completedAt": "2026-11-05T04:24:17Z"
   },
   "jobs": [
     {
@@ -502,13 +502,13 @@
     {
       "version": "4.0.0",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 127042384188,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-11-05T04:07:17Z",
-      "completedAt": null
+      "message": "failing",
+      "color": "#e05d44",
+      "checkId": 127048073363,
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-11-05T04:11:57Z",
+      "completedAt": "2026-11-05T04:24:07Z"
     },
     {
       "version": "4.0.0",
@@ -524,13 +524,13 @@
     {
       "version": "4.0.1",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 127041384941,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-11-05T04:04:20Z",
-      "completedAt": null
+      "message": "failing",
+      "color": "#e05d44",
+      "checkId": 127046679882,
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-11-05T04:08:50Z",
+      "completedAt": "2026-11-05T04:19:59Z"
     },
     {
       "version": "4.0.1",
@@ -568,13 +568,13 @@
     {
       "version": "4.0.3",
       "platform": "Windows",
-      "message": "running",
-      "color": "#007ec6",
-      "checkId": 127042404274,
-      "status": "in_progress",
-      "conclusion": null,
-      "startedAt": "2026-11-05T04:07:20Z",
-      "completedAt": null
+      "message": "failing",
+      "color": "#e05d44",
+      "checkId": 127048045915,
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-11-05T04:12:08Z",
+      "completedAt": "2026-11-05T04:23:55Z"
     },
     {
       "version": "4.0.3",
