@@ -1,0 +1,42 @@
+name: CodeQL Analysis
+
+on:
+  push:
+    paths:
+     - 'src/csharp/**'
+  pull_request:
+    paths:
+      - 'src/csharp/**'
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        id: checkout_repo
+        uses: actions/checkout@v2
+
+      - name: Initialize CodeQL
+        id: init_codeql
+        uses: github/codeql-action/init@v1
+        with:
+          queries: security-and-quality
+
+      - name: Build projects
+        id: build_projects 
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path src/csharp/ -Filter *.csproj -Exclude *test* -Recurse -File | ForEach-Object {
+            dotnet build $PSItem.FullName `
+            --configuration Release
+          }
+
+      - name: Perform CodeQL Analysis
+        id: analyze_codeql
+        uses: github/codeql-action/analyze@v1
+
+# Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
