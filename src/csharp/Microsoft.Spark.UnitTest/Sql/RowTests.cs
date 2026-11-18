@@ -1,8 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
+// The .NET Foundation licenses this file to you under the MIT License.
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -62,6 +63,7 @@ namespace Microsoft.Spark.UnitTest
             Assert.Equal(1, row.Get(0));
             Assert.Equal("abc", row.Get(1));
             Assert.Equal(1, row.GetAs<int>(0));
+            Assert.Equal("abc", row.GetAs<string>(1));
             Assert.ThrowsAny<Exception>(() => row.GetAs<string>(0));
             Assert.Equal("abc", row.GetAs<string>(1));
             Assert.ThrowsAny<Exception>(() => row.GetAs<int>(1));
@@ -70,6 +72,7 @@ namespace Microsoft.Spark.UnitTest
             Assert.Equal(1, row.Get("col1"));
             Assert.Equal("abc", row.Get("col2"));
             Assert.Equal(1, row.GetAs<int>("col1"));
+            Assert.Equal("abc", row.GetAs<string>("col2"));
             Assert.ThrowsAny<Exception>(() => row.GetAs<string>("col1"));
             Assert.Equal("abc", row.GetAs<string>("col2"));
             Assert.ThrowsAny<Exception>(() => row.GetAs<int>("col2"));
@@ -81,11 +84,12 @@ namespace Microsoft.Spark.UnitTest
             Pickler pickler = CreatePickler();
 
             var schema = (StructType)DataType.ParseDataType(_testJsonSchema);
+
             var row1 = new Row(new object[] { 10, "name1" }, schema);
             var row2 = new Row(new object[] { 15, "name2" }, schema);
             byte[] pickledBytes = pickler.dumps(new[] { row1, row2 });
 
-            // Note that the following will invoke RowConstructor.construct().
+            // Note that the following will invoke RowConstructor.ctor().
             object[] unpickledData = PythonSerDe.GetUnpickledObjects(
                 new MemoryStream(pickledBytes),
                 pickledBytes.Length);
@@ -116,7 +120,7 @@ namespace Microsoft.Spark.UnitTest
             SerDe.Write(stream, batch2.Length);
             SerDe.Write(stream, batch2);
 
-            // Rewind the memory stream so that the row collect can read from beginning.
+            // Rewind the memory stream so that the row collector can read from beginning.
             stream.Seek(0, SeekOrigin.Begin);
 
             // Set up the mock to return memory stream to which pickled data is written.
@@ -156,9 +160,96 @@ namespace Microsoft.Spark.UnitTest
             Assert.Equal(1, row.Get(0));
             Assert.Equal("abc", row.Get(1));
             Assert.Equal(1, row.GetAs<int>(0));
+            Assert.Equal("abc", row.GetAs<string>(1));
             Assert.ThrowsAny<Exception>(() => row.GetAs<string>(0));
             Assert.Equal("abc", row.GetAs<string>(1));
             Assert.ThrowsAny<Exception>(() => row.GetAs<int>(1));
+        }
+
+        /// <summary>
+        /// Verifies that Row correctly handles the case where Pickler serializes a long
+        /// value as int (because it fits in int). The schema says LongType, but the
+        /// unpickled value is a boxed int. Row.Convert() should coerce it to long.
+        /// </summary>
+        [Fact]
+        public void RowGetAsLongFromPickledIntTest()
+        {
+            var schema = new StructType(new List<StructField>()
+            {
+                new StructField("id", new LongType()),
+            });
+
+            // Simulate what Pickler does: serialize a long that fits in int as an int.
+            // This is the exact scenario described in issue #27.
+            int pickledAsInt = 42;
+            var row = new Row(new object[] { pickledAsInt }, schema);
+
+            // GetAs<long> should work — the schema says LongType, so Row.Convert()
+            // should have coerced the boxed int to long.
+            Assert.Equal(42L, row.GetAs<long>(0));
+            Assert.Equal(42L, row.GetAs<long>("id"));
+
+            // Direct unbox to long should also work now.
+            Assert.IsType<long>(row.Get(0));
+            Assert.Equal(42L, (long)row.Get(0));
+
+            // Verify that an already boxed long is returned as-is (no re-boxing).
+            long boxedLong = 100L;
+            var rowWithBoxedLong = new Row(new object[] { boxedLong }, schema);
+            Assert.Same(boxedLong, rowWithBoxedLong.Get(0));
+        }
+
+        /// <summary>
+        /// Verifies that Row correctly coerces int values to long inside ArrayType.
+        /// </summary>
+        [Fact]
+        public void RowLongTypeInArrayTest()
+        {
+            var schema = new StructType(new List<StructField>()
+            {
+                new StructField("ids", new ArrayType(new LongType())),
+            });
+
+            // Pickler serializes longs that fit in int as int values inside the ArrayList.
+            var pickledArray = new ArrayList { 1, 2, 1000000000 };
+            var row = new Row(new object[] { pickledArray }, schema);
+
+            var result = (ArrayList)row.Get(0);
+            Assert.Equal(3, result.Count);
+            Assert.IsType<long>(result[0]);
+            Assert.IsType<long>(result[1]);
+            Assert.IsType<long>(result[2]);
+            Assert.Equal(1L, result[0]);
+            Assert.Equal(2L, result[1]);
+            Assert.Equal(1000000000L, result[2]);
+        }
+
+        /// <summary>
+        /// Verifies that Row correctly coerces int values to long inside MapType.
+        /// </summary>
+        [Fact]
+        public void RowLongTypeInMapTest()
+        {
+            var schema = new StructType(new List<StructField>()
+            {
+                new StructField(
+                    "data",
+                    new MapType(new StringType(), new LongType())),
+            });
+
+            // Pickler serializes longs that fit in int as int values in the Hashtable.
+            var pickledMap = new Hashtable
+            {
+                { "a", 1 },
+                { "b", 2 },
+                { "c", 1000000000 },
+            };
+            var row = new Row(new object[] { pickledMap }, schema);
+
+            var result = (Hashtable)row.Get(0);
+            Assert.Equal(1L, result["a"]);
+            Assert.Equal(2L, result["b"]);
+            Assert.Equal(1000000000L, result["c"]);
         }
     }
 }
