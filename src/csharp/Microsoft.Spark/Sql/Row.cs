@@ -129,7 +129,7 @@ namespace Microsoft.Spark.Sql
         /// <returns>True if the other object is equal.</returns>
         public override bool Equals(object obj) =>
             ReferenceEquals(this, obj) ||
-            ((obj is Row row) && _genericRow.Equals(row._genericRow)) && Schema.Equals(row.Schema);
+            ((obj is Row row) && _genericRow.Equals(row._genericRow) && Equals(Schema, row.Schema));
 
         /// <summary>
         /// Returns the hash code of the current object.

@@ -76,6 +76,24 @@ namespace Microsoft.Spark.UnitTest
         }
 
         [Fact]
+        public void SchemaLessRowEquality()
+        {
+            Row first = new GenericRow(new object[] { 1 });
+            Row equal = new GenericRow(new object[] { 1 });
+            Row different = new GenericRow(new object[] { 2 });
+            var schema = new StructType(new List<StructField>
+            {
+                new StructField("value", new IntegerType())
+            });
+            var withSchema = new Row(new object[] { 1 }, schema);
+
+            Assert.Equal(first, equal);
+            Assert.NotEqual(first, different);
+            Assert.NotEqual(first, withSchema);
+            Assert.NotEqual(withSchema, first);
+        }
+
+        [Fact]
         public void RowConstructorTest()
         {
             Pickler pickler = CreatePickler();
